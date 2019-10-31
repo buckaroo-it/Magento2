@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="checkout.cart.methods">
+            <block class="TIG\Buckaroo\Block\Catalog\Product\View\Applepay" name="tig_buckaroo.checkout.cart.applepay"
+                   after="checkout.cart.methods.onepage.bottom" template="TIG_Buckaroo::checkout/cart/applepay.phtml">
+            </block>
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.order.actions">
+            <block class="TIG\Buckaroo\Block\Cart\BuckarooConfig" name="checkout.cart.order.actions.buckaroo-fee_options" template="cart/buckaroo_config.phtml" cacheable="false"/>
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.totals">
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="block-totals" xsi:type="array">
+                            <item name="children" xsi:type="array">
+                                <item name="before_grandtotal" xsi:type="array">
+                                    <item name="children" xsi:type="array">
+                                        <item name="buckaroo-fee-order-level" xsi:type="array">
+                                            <item name="component"  xsi:type="string">TIG_Buckaroo/js/view/checkout/cart/totals/buckaroo_fee</item>
+                                            <item name="config" xsi:type="array">
+                                                <item name="title" xsi:type="string">Buckaroo Fee for Order</item>
+                                                <item name="level" xsi:type="string">order</item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

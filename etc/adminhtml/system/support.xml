@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <!-- Support section -->
+    <group id="tig_buckaroo_support_section" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>Version &amp; Support</label>
+        <fieldset_css>tig_buckaroo-section</fieldset_css>
+        <attribute type="expanded">1</attribute>
+        <group id="tig_buckaroo" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+            <frontend_model>TIG\Buckaroo\Block\Adminhtml\Config\Support\SupportTab</frontend_model>
+        </group>
+    </group>
+</include>

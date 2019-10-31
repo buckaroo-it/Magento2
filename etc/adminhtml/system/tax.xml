@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="classes">
+        <field id="buckaroo_fee_tax_class" translate="label" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Tax Class for Buckaroo Fee</label>
+            <source_model>TIG\Buckaroo\Model\Config\Source\TaxClass\Product</source_model>
+        </field>
+    </group>
+    <group id="calculation">
+        <field id="buckaroo_fee" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Buckaroo Payment Fee Prices</label>
+            <comment>This sets whether buckaroo payment fee amounts entered from Magento Admin include tax.</comment>
+            <source_model>TIG\Buckaroo\Model\Config\Source\TaxClass\Calculation</source_model>
+        </field>
+    </group>
+    <group id="cart_display">
+        <field id="buckaroo_fee" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Display Buckaroo Fee Prices</label>
+            <source_model>TIG\Buckaroo\Model\Config\Source\Display\Type</source_model>
+        </field>
+    </group>
+    <group id="sales_display">
+        <field id="buckaroo_fee" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Display Buckaroo Fee Prices</label>
+            <source_model>TIG\Buckaroo\Model\Config\Source\Display\Type</source_model>
+        </field>
+    </group>
+</include>

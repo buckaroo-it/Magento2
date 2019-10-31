@@ -1,0 +1,1076 @@
+
+/* ===================== Default / Overwrite Styling ============================= */
+
+.payment-method-second-col input[type="date"] {
+    background      :#ffffff;
+    background-clip :padding-box;
+    border          :1px solid #c2c2c2;
+    border-radius   :1px;
+    font-family     :'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size       :14px;
+    height          :32px;
+    line-height     :1.42857143;
+    padding         :0 9px;
+    vertical-align  :baseline;
+    width           :100%;
+    box-sizing      :border-box;
+}
+
+.payment-method,
+.payment-method-content,
+.payment-method-billing-address,
+.checkout-agreements-block,
+.actions-toolbar{ clear:both; }
+
+.payment-method-second-col {
+    float:left; width: 100%; margin-bottom: 20px;
+}
+
+.action.action-update {
+    margin-top: 20px;
+}
+
+@media screen and (min-width: 1200px ){
+    .magento-blank .label-style{
+        padding: 6px 15px 0 0 !important;
+        text-align: left !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        float: left !important;
+    }
+
+    .payment-method-content {
+        width: 100%; box-sizing:border-box;
+    }
+
+    .magento-blank .payment-method-billing-address {
+        margin-top: 6px;
+    }
+
+    .tig_buckaroo_ideal .payment-method-second-col,
+    .tig_buckaroo_idealprocessing .payment-method-second-col,
+    .tig_buckaroo_creditcard .payment-method-second-col,
+    .tig_buckaroo_creditcards .payment-method-second-col,
+    .tig_buckaroo_transfer .payment-method-second-col,
+    .tig_buckaroo_afterpay .payment-method-second-col,
+    .tig_buckaroo_afterpay2 .payment-method-second-col,
+    .tig_buckaroo_afterpay20 .payment-method-second-col,
+    .tig_buckaroo_sepadirectdebit .payment-method-second-col,
+    .tig_buckaroo_giropay .payment-method-second-col,
+    .tig_buckaroo_payperemail .payment-method-second-col,
+    .tig_buckaroo_paymentguarantee .payment-method-second-col,
+    .tig_buckaroo_klarna .payment-method-second-col,
+    .tig_buckaroo_emandate .payment-method-second-col,
+    .tig_buckaroo_applepay .payment-method-second-col,
+    .tig_buckaroo_capayablein3 .payment-method-second-col,
+    .tig_buckaroo_capayablepostpay .payment-method-second-col
+    {
+        float:left;
+        width: 50%;
+        padding-right: 5%;
+        box-sizing: border-box;
+    }
+
+    .tig_buckaroo_ideal .payment-method-billing-address,
+    .tig_buckaroo_idealprocessing .payment-method-billing-address,
+    .tig_buckaroo_creditcard .payment-method-billing-address,
+    .tig_buckaroo_creditcards .payment-method-billing-address,
+    .tig_buckaroo_transfer .payment-method-billing-address,
+    .tig_buckaroo_afterpay .payment-method-billing-address,
+    .tig_buckaroo_afterpay2 .payment-method-billing-address,
+    .tig_buckaroo_afterpay20 .payment-method-billing-address,
+    .tig_buckaroo_sepadirectdebit .payment-method-billing-address,
+    .tig_buckaroo_giropay .payment-method-billing-address,
+    .tig_buckaroo_payperemail .payment-method-billing-address,
+    .tig_buckaroo_paymentguarantee .payment-method-billing-address,
+    .tig_buckaroo_klarna .payment-method-billing-address,
+    .tig_buckaroo_emandate .payment-method-billing-address,
+    .tig_buckaroo_applepay .payment-method-billing-address,
+    .tig_buckaroo_capayablein3 .payment-method-billing-address,
+    .tig_buckaroo_capayablepostpay .payment-method-billing-address
+    {
+        float:left;
+        width: 50%;
+        padding-right: 5%;
+        box-sizing: border-box;
+        clear:none;
+    }
+}
+
+@media screen and (min-width: 768px){
+    .magento-blank .tig_buckaroo_ideal .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_idealprocessing .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_creditcard .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_creditcards .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_transfer .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_afterpay .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_afterpay2 .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_afterpay20 .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_sepadirectdebit .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_giropay .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_payperemail .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_paymentguarantee .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_klarna .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_emandate .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_applepay .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_capayablein3 .fieldset > .field:not(.choice) > .label,
+    .magento-blank .tig_buckaroo_capayablepostpay .fieldset > .field:not(.choice) > .label
+    {
+        padding: 6px 15px 0 0 !important;
+        text-align: left !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        float: left !important;
+    }
+
+    .magento-blank .tig_buckaroo_ideal di.fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_idealprocessing .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_creditcard .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_creditcards .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_transfer .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_afterpay .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_afterpay2 .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_afterpay20 .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_sepadirectdebit .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_giropay .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_payperemail .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_paymentguarantee .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_klarna .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_emandate .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_applepay .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_capayablein3 .fieldset > .field:not(.choice) > .control,
+    .magento-blank .tig_buckaroo_capayablepostpay .fieldset > .field:not(.choice) > .control
+    {
+        width: 100% !important;
+        float: left !important;
+        margin-top: 10px !important;
+    }
+
+    .magento-blank .tig_buckaroo_ideal .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_idealprocessing .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_creditcard .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_creditcards .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_transfer .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_afterpay .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_afterpay2 .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_afterpay20 .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_sepadirectdebit .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_giropay .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_payperemail .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_paymentguarantee .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_klarna .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_emandate .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_applepay .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_capayablein3 .fieldset > .field.choice:before,
+    .magento-blank .tig_buckaroo_capayablepostpay .fieldset > .field.choice:before
+    {
+        padding:0 !important;
+        width: auto !important;
+    }
+
+}
+
+.tig_buckaroo_currency-notification {
+    text-align:right;
+    margin-top:15px;
+    font-size:12px;
+}
+.tig_buckaroo_currency-notification:before {
+    content: '*';
+}
+
+
+/* ===================== PayPal =============================== */
+.tig_buckaroo_paypal .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_paypal_title.png) no-repeat;
+    float: right;
+    margin-right: 10px;
+    margin-top: -4px;
+    background-size: auto 30px;
+    width: 30px;
+    height: 30px;
+    content: ' ';
+}
+
+/* ===================== iDeal ================================ */
+.tig_buckaroo_ideal .payment-method-second-col .bank-types,
+.tig_buckaroo_idealprocessing .payment-method-second-col .bank-types{
+    float:left; width: 100%;
+}
+.tig_buckaroo_ideal .payment-method-second-col .bank-types-img,
+.tig_buckaroo_idealprocessing .payment-method-second-col .bank-types-img{
+    vertical-align:middle;
+    margin-right:10px;
+}
+.tig_buckaroo_ideal .payment-method-second-col .bank-types-input,
+.tig_buckaroo_idealprocessing .payment-method-second-col .bank-types-input{
+    margin-top:10px;
+}
+
+.tig_buckaroo_ideal .tig_buckaroo_image_title:after,
+.tig_buckaroo_idealprocessing .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_ideal_title.png) no-repeat;
+    float: right;
+    margin-right: 10px;
+    margin-top: -1px;
+    background-size: auto 25px;
+    width: 30px;
+    height: 25px;
+    content: ' ';
+}
+
+/* ===================== Credit Card =========================== */
+
+.tig_buckaroo_creditcards .payment-method-second-col .card-types,
+.tig_buckaroo_creditcard .payment-method-second-col .card-types{
+    float:left; width: 100%;
+}
+
+.tig_buckaroo_creditcards .payment-method-second-col .card-types-img,
+.tig_buckaroo_creditcard .payment-method-second-col .card-types-img {
+    vertical-align:middle;
+    margin-right:10px;
+}
+
+.tig_buckaroo_creditcards .payment-method-second-col .card-types-input,
+.tig_buckaroo_creditcard .payment-method-second-col .card-types-input {
+    margin-top:10px;
+}
+
+.tig_buckaroo_creditcards .tig_buckaroo_image_title:after,
+.tig_buckaroo_creditcard .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_creditcard_title.png) no-repeat;
+    margin-top: -1px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 22px;
+    width: 35px;
+    height: 25px;
+    content: ' ';
+}
+
+/* ===================== Sepa Direct Debit  ============================= */
+.tig_buckaroo_sepadirectdebit .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_sepa_title.png) no-repeat;
+    margin-top: 5px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 15px;
+    width: 40px;
+    height: 20px;
+    content: ' ';
+}
+
+/* ===================== Bank Transfer ==================== */
+.tig_buckaroo_transfer .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_transfer_title.png) no-repeat;
+    margin-top: 5px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 15px;
+    width: 40px;
+    height: 20px;
+    content: ' ';
+}
+
+/* ===================== Mr Cash ============================== */
+.tig_buckaroo_mrcash .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_mrcash_title.png) no-repeat;
+    margin-top: -2px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 24px;
+    width: 40px;
+    height: 30px;
+    content: ' ';
+}
+
+/* ===================== Sofort ======================= */
+.tig_buckaroo_sofortbanking .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_sofort_title.png) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 37px;
+    width: 55px;
+    height: 37px;
+    content: ' ';
+}
+
+/* ===================== Alipay ======================= */
+.tig_buckaroo_alipay .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_alipay_title.jpg) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 37px;
+    width: 37px;
+    height: 37px;
+    content: ' ';
+}
+
+/* ===================== Wechatpay ======================= */
+.tig_buckaroo_wechatpay .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_wechatpay_title.jpg) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 37px;
+    width: 55px;
+    height: 37px;
+    content: ' ';
+}
+
+/* ===================== Giropay ============================== */
+.tig_buckaroo_giropay .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_giropay_title.png) no-repeat;
+    margin-top: 3px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 17px;
+    width: 41px;
+    height: 20px;
+    content: ' ';
+}
+
+/* ===================== Giftcard ============================ */
+.tig_buckaroo_giftcard .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_giftcard_title.png) no-repeat;
+    float: right;
+    margin-right: 10px;
+    margin-top: -2px;
+    background-size: auto 25px;
+    width: 41px;
+    height: 25px;
+    content: ' ';
+}
+
+/* ===================== Afterpay ============================ */
+.tig_buckaroo_afterpay .tig_buckaroo_image_title:after,
+.tig_buckaroo_afterpay2 .tig_buckaroo_image_title:after,
+.tig_buckaroo_afterpay20 .tig_buckaroo_image_title:after{
+    background: url(../images/tig_buckaroo_afterpay_title.png) no-repeat;
+    float: right;
+    margin-right: 10px;
+    margin-top: 5px;
+    background-size: auto 16px;
+    width: 83px;
+    height: 25px;
+    content: ' ';
+}
+
+.tig_buckaroo_afterpay .payment-method-second-col input:disabled,
+.tig_buckaroo_afterpay2 .payment-method-second-col input:disabled,
+.tig_buckaroo_afterpay20 .payment-method-second-col input:disabled{
+    color: #999;
+    background: #f2f2f2;
+    border: 1px solid #b6b6b6;
+    opacity: 1;
+}
+
+#Saluation {
+    /*float:left; */
+    /*width: 100%; */
+    padding-left: 10px;
+    /*margin-top: 4px; */
+}
+#Saluation li {
+    list-style:none;
+    /*float:left; width: 30%; */
+}
+
+
+/* ===================== PayPerEmail ============================ */
+.tig_buckaroo_payperemail .tig_buckaroo_image_title:after {
+    /*background: url(../images/tig_buckaroo_payperemail_title.png) no-repeat; TODO: add PPE image */
+    float: right;
+    margin-right: 10px;
+    margin-top: -3px;
+    background-size: auto 25px;
+    width: 41px;
+    height: 25px;
+    content: ' ';
+}
+
+/* ======================= PaymentGuarantee ======================== */
+.tig_buckaroo_paymentguarantee .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_paymentguarantee_title.png) no-repeat;
+    float             : right;
+    margin-right      : 10px;
+    margin-top        : -2px;
+    width             : 68px;
+    height            : 26px;
+    background-size   : auto 23px;
+    content           : ' ';
+}
+
+.tig_buckaroo_paymentguarantee .payment-method-second-col input:disabled {
+    color: #999;
+    background: #f2f2f2;
+    border: 1px solid #b6b6b6;
+    opacity: 1;
+}
+
+/* ======================= EPS ======================== */
+.tig_buckaroo_eps .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_eps_title.png) no-repeat;
+    float: right;
+    margin-right: 3px;
+    margin-top: -6px;
+    background-size: auto 30px;
+    width: 45px;
+    height: 30px;
+    content: ' ';
+}
+
+/* ======================= Payconiq ======================== */
+#tig_buckaroo_payconiq_container {
+    position: relative;
+    text-align: center;
+    z-index: 150;
+}
+
+#tig_buckaroo_payconiq_container #tig_buckaroo_payconiq_items {
+    display: inline-block;
+    max-width: 310px;
+    text-align: right;
+}
+
+#tig_buckaroo_payconiq_container #tig_buckaroo_payconiq_cancel {
+    min-height: 32px;
+}
+
+.tig_buckaroo_payconiq .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_payconiq_title.png) no-repeat;
+    float: right;
+    margin-right: 10px;
+    margin-top: 2px;
+    background-size: auto 15px;
+    width: 104px;
+    height: 30px;
+    content: ' ';
+}
+
+/* ======================= KBC ======================== */
+.tig_buckaroo_kbc .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_kbc_title.png) no-repeat;
+    float: right;
+    margin-right: 11px;
+    margin-top: -3px;
+    background-size: auto 26px;
+    width: 39px;
+    height: 26px;
+    content: ' ';
+}
+
+/* ======================= Klarna ======================== */
+.tig_buckaroo_klarna .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_klarna_title.png) no-repeat;
+    float: right;
+    margin-right: 3px;
+    margin-top: -6px;
+    background-size: auto 30px;
+    width: 45px;
+    height: 30px;
+    content: ' ';
+}
+
+.tig_buckaroo_klarna .payment-method-second-col input:disabled {
+    color: #999;
+    background: #f2f2f2;
+    border: 1px solid #b6b6b6;
+    opacity: 1;
+}
+
+#Saluation {
+    /*float:left; */
+    /*width: 100%; */
+    padding-left: 10px;
+    /*margin-top: 4px; */
+}
+#Saluation li {
+    list-style: none;
+    /*float:left; width: 30%; */
+}
+
+/* ===================== Emandate ================================ */
+.tig_buckaroo_emandate .payment-method-second-col .bank-types{
+    float:left;
+    width: 100%;
+}
+
+.tig_buckaroo_emandate .payment-method-second-col .bank-types-img{
+    vertical-align:middle;
+    margin-right:10px;
+}
+
+.tig_buckaroo_emandate .payment-method-second-col .bank-types-input{
+    margin-top:10px;
+}
+
+.tig_buckaroo_emandate .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_emandate_title.png) no-repeat;
+    float: right;
+    margin-right: 10px;
+    margin-top: -1px;
+    background-size: auto 25px;
+    width: 30px;
+    height: 25px;
+    content: ' ';
+}
+
+/* ===================== Apple Pay ================================ */
+.tig_buckaroo_applepay .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_applepay_title.png) no-repeat;
+    float: right;
+    margin-right: 3px;
+    margin-top: -6px;
+    background-size: auto 30px;
+    width: 50px;
+    height: 30px;
+    content: ' ';
+}
+
+
+/* ===================== Capayable ================================ */
+.tig_buckaroo_capayablein3 .tig_buckaroo_image_title:after,
+.tig_buckaroo_capayablepostpay .tig_buckaroo_image_title:after {
+    background: url(../images/tig_buckaroo_capayable_title.png) no-repeat;
+    float: right;
+    margin-right: 11px;
+    margin-top: -11px;
+    background-size: auto 41px;
+    width: 84px;
+    height: 33px;
+    content: ' ';
+}
+
+/* =============================================================== */
+/* ========== Responsive replacement -> payment logo's =========== */
+/* =============================================================== */
+
+@media screen and (max-width: 480px) {
+    .tig_buckaroo_image_title.label:after {
+        display:none;
+    }
+
+    /* PayPal */
+    .tig_buckaroo_paypal .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_paypal_title.png) no-repeat;
+        float: left;
+        margin-right: 10px;
+        margin-top: -4px;
+        background-size: auto 30px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* iDeal */
+    .tig_buckaroo_ideal .tig_buckaroo_image_title:before,
+    .tig_buckaroo_idealprocessing .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_ideal_title.png) no-repeat;
+        float: left;
+        margin-right: 10px;
+        margin-top: -1px;
+        background-size: auto 25px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Credit Card */
+    .tig_buckaroo_creditcards .tig_buckaroo_image_title:before,
+    .tig_buckaroo_creditcard .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_creditcard_title.png) no-repeat;
+        margin-top: 0;
+        float: left;
+        margin-right: 10px;
+        background-size: auto 20px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Sepa Direct Debit */
+    .tig_buckaroo_sepadirectdebit .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_sepa_title.png) no-repeat;
+        margin-top: 4px;
+        float:left;
+        margin-right: 10px;
+        background-size: auto 14px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Bank Transfer */
+    .tig_buckaroo_transfer .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_transfer_title.png) no-repeat;
+        margin-top: 4px;
+        float:left;
+        margin-right: 10px;
+        background-size: auto 14px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Mr Cash */
+    .tig_buckaroo_mrcash .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_mrcash_title.png) no-repeat;
+        margin-top: -1px;
+        float: left;
+        margin-right: 10px;
+        background-size: auto 23px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Sofort */
+    .tig_buckaroo_sofortbanking .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_sofort_title.png) no-repeat;
+        margin-top: -1px;
+        float:left;
+        margin-right: 10px;
+        background-size: auto 24px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Alipay */
+    .tig_buckaroo_alipay .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_alipay_title.jpg) no-repeat;
+        margin-top: -1px;
+        float:left;
+        margin-right: 10px;
+        background-size: auto 24px;
+        width: 30px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Wechatpay */
+    .tig_buckaroo_wechatpay .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_wechatpay_title.jpg) no-repeat;
+        margin-top: -1px;
+        float:left;
+        margin-right: 10px;
+        background-size: auto 24px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Giropay */
+    .tig_buckaroo_giropay .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_giropay_title.png) no-repeat;
+        margin-top: 2px;
+        float:left;
+        margin-right: 10px;
+        background-size: auto 17px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Giftcard */
+    .tig_buckaroo_giftcard .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_giftcard_title.png) no-repeat;
+        margin-top: -1px;
+        float: left;
+        margin-right: 10px;
+        background-size: auto 23px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Afterpay */
+    .tig_buckaroo_afterpay .tig_buckaroo_image_title:before,
+    .tig_buckaroo_afterpay2 .tig_buckaroo_image_title:before,
+    .tig_buckaroo_afterpay20 .tig_buckaroo_image_title:before{
+        background: url(../images/tig_buckaroo_afterpay_title.png) no-repeat;
+        margin-top: 6px;
+        float: left;
+        margin-right: 10px;
+        background-size: auto 8px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* PayPerEmail */
+    .tig_buckaroo_payperemail .tig_buckaroo_image_title:before {
+        /*background: url(../images/tig_buckaroo_payperemail_title.png) no-repeat; TODO: add PPE image */
+        margin-top: -1px;
+        float: left;
+        margin-right: 10px;
+        background-size: auto 24px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* PaymentGuarantee */
+    .tig_buckaroo_paymentguarantee .tig_buckaroo_image_title:before {
+        margin-top: -4px;
+        float: left;
+        margin-right: 10px;
+        width: 40px;
+        height: 31px;
+        background :url(../images/tig_buckaroo_paymentguarantee_title_small.png) no-repeat 5px 0;
+        background-size: auto 27px;
+        content: ' ';
+    }
+
+    /* EPS */
+    .tig_buckaroo_eps .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_eps_title.png) no-repeat;
+        margin-top: -4px;
+        float: left;
+        margin-right: 10px;
+        background-size: auto 30px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Payconiq */
+    .tig_buckaroo_payconiq .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_payconiq_title.png) no-repeat;
+        margin-top: -1px;
+        float: left;
+        margin-right: 10px;
+        background-size: auto 19px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* KBC */
+    .tig_buckaroo_kbc .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_kbc_title.png) no-repeat;
+        float: left;
+        margin-right: 10px;
+        margin-top: -1px;
+        background-size: auto 25px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+
+    /* Emandate */
+    .tig_buckaroo_emandate .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_emandate_title.png) no-repeat;
+        float: left;
+        margin-right: 10px;
+        margin-top: -1px;
+        background-size: auto 25px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Klarna */
+    .tig_buckaroo_klarna .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_klarna_title.png) no-repeat;
+        margin-top: -1px;
+        float: left;
+        margin-right: 10px;
+        background-size: auto 19px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Apple Pay */
+    .tig_buckaroo_applepay .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_applepay_title.png) no-repeat;
+        float: left;
+        margin-right: 10px;
+        margin-top: -1px;
+        background-size: auto 25px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Capayble */
+    .tig_buckaroo_capayablein3 .tig_buckaroo_image_title:before,
+    .tig_buckaroo_capayablepostpay .tig_buckaroo_image_title:before {
+        background: url(../images/tig_buckaroo_capayable_title.png) no-repeat;
+        float: left;
+        margin-right: 10px;
+        margin-top: -1px;
+        background-size: auto 25px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+}
+
+/* ================================================================================================================== */
+/* Creditcards ====================================================================================================== */
+/* ================================================================================================================== */
+
+.card.styled *{
+    box-sizing: border-box;
+}
+
+.card.styled .field {
+    margin: 0;
+}
+
+.card.styled .field .field {
+    margin: 0 0 5px 0;
+}
+
+.card.styled .field label {
+    margin-bottom: 0;
+    font-family: "Courier New", "Helvetica Neue", Verdana, Arial, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 300;
+}
+
+.card.styled .field select {
+    font-size: 12px;
+}
+
+/* Creditcards Front ================================================================================================ */
+
+.card.styled .card_front {
+    background: #e2e2e2;
+    float:left;
+    max-width: 320px;
+    width: 100%;
+    min-height: 200px;
+    padding: 12px 20px;
+    border-radius:8px;
+    z-index: 20;
+    position: relative;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='32' viewBox='0 0 16 32'%3E%3Cg fill='%239C92AC' fill-opacity='0.12'%3E%3Cpath fill-rule='evenodd' d='M0 24h4v2H0v-2zm0 4h6v2H0v-2zm0-8h2v2H0v-2zM0 0h4v2H0V0zm0 4h2v2H0V4zm16 20h-6v2h6v-2zm0 4H8v2h8v-2zm0-8h-4v2h4v-2zm0-20h-6v2h6V0zm0 4h-4v2h4V4zm-2 12h2v2h-2v-2zm0-8h2v2h-2V8zM2 8h10v2H2V8zm0 8h10v2H2v-2zm-2-4h14v2H0v-2zm4-8h6v2H4V4zm0 16h6v2H4v-2zM6 0h2v2H6V0zm0 24h2v2H6v-2z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.card.styled .card_front .card_kind {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+    text-align: right;
+}
+
+.card.styled .card_front .card_kind img {
+    width: 56px;
+    height: 35px;
+}
+
+/* Creditcards Back ================================================================================================= */
+
+.card.styled .card_back {
+    background: #e2e2e2;
+    float:left;
+    max-width: 320px;
+    width: 100%;
+    min-height: 200px;
+    z-index: 10;
+    position: relative;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='32' viewBox='0 0 16 32'%3E%3Cg fill='%239C92AC' fill-opacity='0.12'%3E%3Cpath fill-rule='evenodd' d='M0 24h4v2H0v-2zm0 4h6v2H0v-2zm0-8h2v2H0v-2zM0 0h4v2H0V0zm0 4h2v2H0V4zm16 20h-6v2h6v-2zm0 4H8v2h8v-2zm0-8h-4v2h4v-2zm0-20h-6v2h6V0zm0 4h-4v2h4V4zm-2 12h2v2h-2v-2zm0-8h2v2h-2V8zM2 8h10v2H2V8zm0 8h10v2H2v-2zm-2-4h14v2H0v-2zm4-8h6v2H4V4zm0 16h6v2H4v-2zM6 0h2v2H6V0zm0 24h2v2H6v-2z'/%3E%3C/g%3E%3C/svg%3E");
+    clear: both;
+    border-radius: 8px;
+    margin: 10px 0 10px 0;
+}
+
+.card.styled .card_back .magnet_stripe {
+    height: 50px;
+    width: 100%;
+    background: black;
+    margin:30px 0 15px 0;
+}
+
+.card.styled .card_back .card_security {
+    padding: 5px 20px 5px 20px;
+    background: #f5f5f5;
+    float: left;
+    width: 100%;
+    background-image: linear-gradient(transparent 50%, rgba(179, 206, 239, 0.2) 50%);
+    background-size: 7px 4px;
+    max-height: 48px;
+}
+
+.card.styled .card_back .card_security input {
+    margin-top: 4px;
+}
+
+/* Information */
+
+.card .card_back .card_info svg {
+    height : 20px;
+    width: 20px;
+    cursor: pointer;
+    fill: #989898;
+}
+
+.card .card_back .card_info .popup {
+    font-family: "Helvetica Neue", Verdana, Arial, sans-serif;
+    text-transform :none;
+    display :none;
+    background: white;
+    padding: 20px;
+    position: absolute;
+    width: 200px;
+    left: -179px;
+    top: 30px;
+    box-shadow: 1px 2px 3px rgba(144, 144, 144, 0.6196078431372549);
+    z-index: 100;
+}
+
+.card .card_back .card_info .popup:before {
+    position: absolute;
+    left: 187px;
+    top: -14px;
+    content: '';
+    width: 0;
+    height: 0;
+    border-right: 7px solid transparent;
+    border-bottom: 7px solid #d4d4d4;
+    border-top: 7px solid transparent;
+    border-left: 7px solid transparent;
+}
+
+.card .card_back .card_info .popup:after {
+    position: absolute;
+    left: 187px;
+    top: -13px;
+    content: '';
+    width: 0;
+    height: 0;
+    border-right: 7px solid transparent;
+    border-bottom: 7px solid #fff;
+    border-top: 7px solid transparent;
+    border-left: 7px solid transparent;
+}
+
+.card .card_back .card_info:hover .popup {
+    display :block;
+}
+
+.card .card_back .card_info {
+    text-align: right;
+    margin-top: 10px;
+    position: relative;
+}
+
+/* Column structure ================================================================================================= */
+
+.card.styled .width-100 {
+    width: 100%;
+    float:left;
+}
+
+.card.styled .width-65-l {
+    width: 65%;
+    float:left;
+}
+
+.card.styled .width-25-l {
+    width: 25%;
+    float:left;
+}
+
+.card.styled .width-70 {
+    width: 70%;
+    float:left;
+}
+
+
+.card.styled .width-50-l {
+    width: 48%;
+    float:left;
+}
+
+.card.styled .width-50-r {
+    width: 48%;
+    float:right;
+}
+
+.card.styled .width-40-l {
+    width: 40%;
+    float:left;
+}
+
+.card.styled .width-10 {
+    width: 10%;
+    float:left;
+}
+
+/* Theme specific exceptions ======================================================================================== */
+
+.magento-blank .checkout-payment-method .payment-method-content .card.styled .fieldset > .field {
+    margin: 0;
+}
+
+.magento-blank .tig_buckaroo_creditcards .card.styled .fieldset > .field:not(.choice) > .control {
+    margin-top: 0 !important;
+}
+
+.magento-blank .tig_buckaroo_creditcards .card.styled .fieldset > .field:not(.choice) > .label {
+    padding-top: 0 !important;
+}
+
+.magento-luma .tig_buckaroo_creditcards .card.styled  .fieldset.card_back > .field:not(.choice) > .label,
+.magento-blank .tig_buckaroo_creditcards .card.styled  .fieldset.card_back > .field:not(.choice) > .label {
+    width: 65% !important;
+
+    margin-top: 9px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    float: left;
+}
+
+.magento-blank .tig_buckaroo_creditcards .card.styled .fieldset.card_back > .field:not(.choice) > .control {
+    width: 25% !important;
+}
+
+.magento-blank .opc-wrapper .fieldset > .field.required > label:after {
+    top: unset;
+}
+
+.magento-blank .tig_buckaroo_creditcards .fieldset .styled > .field:not(.choice) > .label {
+    width: auto !important;
+}
+
+.magento-luma .tig_buckaroo_creditcards .fieldset > .field.card_security,
+.magento-blank .tig_buckaroo_creditcards .fieldset > .field.card_security {
+    float:left;
+    width: 100%;
+}
+
+.magento-luma .tig_buckaroo_creditcards .card:not(.styled) .fieldset > .field:not(.choice) > .control.card-info-input,
+.magento-blank .tig_buckaroo_creditcards .fieldset > .field:not(.choice) > .control.card-info-input {
+    width: 90% !important;
+    float :left;
+}
+
+.magento-luma .tig_buckaroo_creditcards .card:not(.styled) .card_info,
+.magento-blank .tig_buckaroo_creditcards .card:not(.styled) .card_info {
+    width: 10%;
+    float:left;
+    margin-top: 5px;
+    text-align: center;
+}
+
+@media screen and (min-width: 768px){
+    .magento-blank .tig_buckaroo_creditcards .card:not(.styled) .card_info {
+        margin-top: 15px;
+    }
+}
+
+
+.card.styled .field-error, .card.styled div.mage-error[generated] {
+    margin-top: -3px;
+    margin-bottom: 5px;
+}

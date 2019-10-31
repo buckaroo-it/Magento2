@@ -1,0 +1,32 @@
+<!-- ko if: isAvailable() -->
+<!-- ko if: displayBothPrices() -->
+<tr class="totals buckaroo_fee excl">
+    <th class="mark">
+        <span data-bind="text: $t(getTitle()) + ' ' + $t(excludingTaxMessage)"></span>
+    </th>
+    <td data-bind="text: getValue(), attr: {'data-th': $t(excludingTaxMessage)}" class="amount"></td>
+</tr>
+<tr class="totals buckaroo_fee incl">
+    <th class="mark">
+        <span data-bind="text: $t(getTitle()) + ' ' + $t(includingTaxMessage)"></span>
+    </th>
+    <td data-bind="text: getIncludingTaxValue(), attr: {'data-th': $t(includingTaxMessage)}" class="amount"></td>
+</tr>
+<!-- /ko -->
+<!-- ko if: displayPriceInclTax() -->
+<tr class="totals buckaroo_fee">
+    <th class="mark">
+        <span data-bind="{i18n: getTitle()}"></span>
+    </th>
+    <td data-bind="{text: getIncludingTaxValue(), attr: {'data-th': $t(getTitle())}}" class="amount"></td>
+</tr>
+<!-- /ko -->
+<!-- ko if: displayPriceExclTax() -->
+<tr class="totals buckaroo_fee">
+    <th class="mark">
+        <span data-bind="{i18n: getTitle()}"></span>
+    </th>
+    <td data-bind="{text: getValue(), attr: {'data-th': $t(getTitle())}}" class="amount"></td>
+</tr>
+<!-- /ko -->
+<!-- /ko -->

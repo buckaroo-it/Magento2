@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="TIG\Buckaroo\Gateway\GatewayInterface" type="TIG\Buckaroo\Gateway\Http\Bpe3"/>
+    <preference for="TIG\Buckaroo\Api\CertificateRepositoryInterface" type="TIG\Buckaroo\Model\CertificateRepository"/>
+    <preference for="TIG\Buckaroo\Api\InvoiceRepositoryInterface" type="TIG\Buckaroo\Model\InvoiceRepository"/>
+    <preference for="TIG\Buckaroo\Api\GiftcardRepositoryInterface" type="TIG\Buckaroo\Model\GiftcardRepository"/>
+    <preference for="TIG\Buckaroo\Api\PushInterface" type="TIG\Buckaroo\Model\Push"/>
+    <preference for="TIG\Buckaroo\Api\PaymentInformationManagementInterface" type="TIG\Buckaroo\Model\PaymentInformationManagement"/>
+    <preference for="TIG\Buckaroo\Api\GuestPaymentInformationManagementInterface" type="TIG\Buckaroo\Model\GuestPaymentInformationManagement"/>
+    <preference for="Magento\Quote\Model\Cart\CartTotalRepository" type="TIG\Buckaroo\Model\Cart\CartTotalRepository" />
+
+    <type name="TIG\Buckaroo\Model\Method\AbstractMethod">
+        <arguments>
+            <argument name="gateway" xsi:type="object">TIG\Buckaroo\Gateway\GatewayInterface</argument>
+            <argument name="transactionBuilderFactory" xsi:type="object">TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory</argument>
+            <argument name="validatorFactory" xsi:type="object">TIG\Buckaroo\Model\ValidatorFactory</argument>
+            <argument name="messageManager" xsi:type="object">Magento\Framework\Message\ManagerInterface</argument>
+            <argument name="helper" xsi:type="object">TIG\Buckaroo\Helper\Data</argument>
+            <argument name="request" xsi:type="object">Magento\Framework\App\RequestInterface</argument>
+            <argument name="refundFieldsFactory" xsi:type="object">TIG\Buckaroo\Model\RefundFieldsFactory</argument>
+            <argument name="configProviderFactory" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Factory</argument>
+            <argument name="configProviderMethodFactory" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Factory</argument>
+            <argument name="priceHelper" xsi:type="object">Magento\Framework\Pricing\Helper\Data</argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\Method\Paypal">
+        <plugin name="tig_buckaroo_paypal_sellersprotection_order" type="TIG\Buckaroo\Model\Service\Plugin\PaypalSellersProtection\Order" />
+    </type>
+
+    <type name="TIG\Buckaroo\Model\Method\SepaDirectDebit">
+        <plugin name="tig_buckaroo_sepadirectdebit" type="TIG\Buckaroo\Model\Plugin\Method\SepaDirectDebit" />
+    </type>
+
+    <type name="Magento\Sales\Api\OrderRepositoryInterface">
+        <plugin name="tig_buckaroo_add_order_extension_attributes" type="TIG\Buckaroo\Model\Plugin\OrderExtensionAttribute" />
+    </type>
+
+    <type name="Magento\Sales\Model\Order">
+        <plugin name="tig_buckaroo_plugin_afterpay" type="TIG\Buckaroo\Model\Plugin\Method\Afterpay"/>
+        <plugin name="tig_buckaroo_plugin_afterpay2" type="TIG\Buckaroo\Model\Plugin\Method\Afterpay2"/>
+        <plugin name="tig_buckaroo_plugin_emandate" type="TIG\Buckaroo\Model\Plugin\Method\Emandate"/>
+        <plugin name="tig_buckaroo_plugin_klarna" type="TIG\Buckaroo\Model\Plugin\Method\Klarna"/>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\Push">
+        <plugin name="tig_buckaroo_paypal_sellersprotection_push" type="TIG\Buckaroo\Model\Service\Plugin\PaypalSellersProtection\Push" />
+        <plugin name="tig_buckaroo_mpi_push" type="TIG\Buckaroo\Model\Service\Plugin\Mpi\Push" />
+    </type>
+
+    <type name="Magento\Sales\Model\Order\Payment\State\OrderCommand">
+        <plugin name="tig_buckaroo_plugin_commandInterface" type="TIG\Buckaroo\Model\Plugin\CommandInterface" />
+    </type>
+
+    <type name="Magento\Sales\Model\Order\Payment\State\AuthorizeCommand">
+        <plugin name="tig_buckaroo_plugin_commandInterface" type="TIG\Buckaroo\Model\Plugin\CommandInterface" />
+    </type>
+
+    <type name="TIG\Buckaroo\Model\PaymentInformationManagement">
+        <arguments>
+            <argument name="registry" xsi:type="object">Magento\Framework\Registry</argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\GuestPaymentInformationManagement">
+        <arguments>
+            <argument name="registry" xsi:type="object">Magento\Framework\Registry</argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\ValidatorFactory">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="push" xsi:type="array">
+                    <item name="type" xsi:type="string">push</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\Validator\Push</item>
+                </item>
+                <item name="transaction_response" xsi:type="array">
+                    <item name="type" xsi:type="string">transaction_response</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\Validator\TransactionResponse</item>
+                </item>
+                <item name="transaction_response_status" xsi:type="array">
+                    <item name="type" xsi:type="string">transaction_response_status</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\Validator\TransactionResponseStatus</item>
+                </item>
+                <item name="redirect_process" xsi:type="array">
+                    <item name="type" xsi:type="string">redirect_return</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\Validator\RedirectProcess</item>
+                </item>
+                <item name="amount" xsi:type="array">
+                    <item name="type" xsi:type="string">amount</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\Validator\Amount</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\Validator\TransactionResponse">
+        <arguments>
+            <argument name="publicKeyConfigProvider" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\PublicKey</argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\Validator\TransactionResponseStatus">
+        <arguments>
+            <argument name="helper" xsi:type="object">TIG\Buckaroo\Helper\Data</argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\ResourceModel\Certificate">
+        <arguments>
+            <argument name="dateTime" xsi:type="object">Magento\Framework\Stdlib\DateTime\DateTime</argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory">
+        <arguments>
+            <argument name="transactionBuilders" xsi:type="array">
+                <item name="order" xsi:type="array">
+                    <item name="type" xsi:type="string">order</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order</item>
+                </item>
+                <item name="refund" xsi:type="array">
+                    <item name="type" xsi:type="string">refund</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Gateway\Http\TransactionBuilder\Refund</item>
+                </item>
+                <item name="cancel" xsi:type="array">
+                    <item name="type" xsi:type="string">cancel</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Gateway\Http\TransactionBuilder\Cancel</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\ConfigProvider\Method\Factory">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="ideal" xsi:type="array">
+                    <item name="type" xsi:type="string">ideal</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Ideal</item>
+                </item>
+                <item name="idealprocessing" xsi:type="array">
+                    <item name="type" xsi:type="string">idealprocessing</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\IdealProcessing</item>
+                </item>
+                <item name="creditcard" xsi:type="array">
+                    <item name="type" xsi:type="string">creditcard</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard</item>
+                </item>
+                <item name="creditcards" xsi:type="array">
+                    <item name="type" xsi:type="string">creditcards</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Creditcards</item>
+                </item>
+                <item name="giropay" xsi:type="array">
+                    <item name="type" xsi:type="string">giropay</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Giropay</item>
+                </item>
+                <item name="mrcash" xsi:type="array">
+                    <item name="type" xsi:type="string">mrcash</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Mrcash</item>
+                </item>
+                <item name="paypal" xsi:type="array">
+                    <item name="type" xsi:type="string">paypal</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Paypal</item>
+                </item>
+                <item name="payconiq" xsi:type="array">
+                    <item name="type" xsi:type="string">payconiq</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Payconiq</item>
+                </item>
+                <item name="sepadirectdebit" xsi:type="array">
+                    <item name="type" xsi:type="string">sepadirectdebit</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\SepaDirectDebit</item>
+                </item>
+                <item name="sofortbanking" xsi:type="array">
+                    <item name="type" xsi:type="string">sofortbanking</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Sofortbanking</item>
+                </item>
+                <item name="transfer" xsi:type="array">
+                    <item name="type" xsi:type="string">transfer</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Transfer</item>
+                </item>
+                <item name="afterpay" xsi:type="array">
+                    <item name="type" xsi:type="string">afterpay</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Afterpay</item>
+				</item>
+                <item name="afterpay2" xsi:type="array">
+                    <item name="type" xsi:type="string">afterpay2</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Afterpay2</item>
+				</item>
+                <item name="afterpay20" xsi:type="array">
+                    <item name="type" xsi:type="string">afterpay20</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Afterpay20</item>
+                </item>
+                <item name="payperemail" xsi:type="array">
+                    <item name="type" xsi:type="string">payperemail</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\PayPerEmail</item>
+                </item>
+                <item name="eps" xsi:type="array">
+                    <item name="type" xsi:type="string">eps</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Eps</item>
+                </item>
+                <item name="giftcards" xsi:type="array">
+                    <item name="type" xsi:type="string">giftcards</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Giftcards</item>
+                </item>
+                <item name="paymentguarantee" xsi:type="array">
+                    <item name="type" xsi:type="string">paymentguarantee</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\PaymentGuarantee</item>
+                </item>
+                <item name="kbc" xsi:type="array">
+                    <item name="type" xsi:type="string">kbc</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Kbc</item>
+                </item>
+                <item name="klarna" xsi:type="array">
+                    <item name="type" xsi:type="string">klarna</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Klarna</item>
+                </item>
+                <item name="emandate" xsi:type="array">
+                    <item name="type" xsi:type="string">emandate</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Emandate</item>
+                </item>
+                <item name="applepay" xsi:type="array">
+                    <item name="type" xsi:type="string">applepay</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Applepay</item>
+                </item>
+                <item name="capayablein3" xsi:type="array">
+                    <item name="type" xsi:type="string">capayablein3</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\CapayableIn3</item>
+                </item>
+                <item name="capayablepostpay" xsi:type="array">
+                    <item name="type" xsi:type="string">capayablepostpay</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\CapayablePostpay</item>
+                </item>
+                <item name="alipay" xsi:type="array">
+                    <item name="type" xsi:type="string">alipay</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Alipay</item>
+                </item>
+                <item name="wechatpay" xsi:type="array">
+                    <item name="type" xsi:type="string">wechatpay</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Wechatpay</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\ConfigProvider\Factory">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="account" xsi:type="array">
+                    <item name="type" xsi:type="string">account</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Account</item>
+                </item>
+                <item name="private_key" xsi:type="array">
+                    <item name="type" xsi:type="string">private_key</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\PrivateKey</item>
+                </item>
+                <item name="public_key" xsi:type="array">
+                    <item name="type" xsi:type="string">public_key</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\PublicKey</item>
+                </item>
+                <item name="predefined" xsi:type="array">
+                    <item name="type" xsi:type="string">predefined</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Predefined</item>
+                </item>
+                <item name="states" xsi:type="array">
+                    <item name="type" xsi:type="string">states</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\States</item>
+                </item>
+                <item name="buckaroo_fee" xsi:type="array">
+                    <item name="type" xsi:type="string">buckaroo_fee</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\BuckarooFee</item>
+                </item>
+                <item name="allowed_currencies" xsi:type="array">
+                    <item name="type" xsi:type="string">allowed_currencies</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies</item>
+                </item>
+                <item name="refund" xsi:type="array">
+                    <item name="type" xsi:type="string">refund</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Refund</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Logging\Log">
+        <arguments>
+            <argument name="name" xsi:type="string">buckaroo_logging</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="exception" xsi:type="object">TIG\Buckaroo\Logging\CriticalHandler</item>
+                <item name="debug" xsi:type="object">TIG\Buckaroo\Logging\DebugHandler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Block\Adminhtml\Sales\Order\Creditmemo\Create\BankFields">
+        <arguments>
+            <argument name="refundFieldsFactory" xsi:type="object">TIG\Buckaroo\Model\RefundFieldsFactory</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Webapi\Rest\Request\DeserializerFactory">
+        <arguments>
+            <argument name="deserializers" xsi:type="array">
+                <item name="application_x-www-form-urlencoded" xsi:type="array">
+                    <item name="type" xsi:type="string">application/x-www-form-urlencoded</item>
+                    <item name="model" xsi:type="string">TIG\Buckaroo\Webapi\Rest\Request\Deserializer\XWwwFormUrlencoded</item>
+                </item>
+                <item name="application_json" xsi:type="array">
+                    <item name="type" xsi:type="string">application/json</item>
+                    <item name="model" xsi:type="string">Magento\Framework\Webapi\Rest\Request\Deserializer\Json</item>
+                </item>
+                <item name="application_xml" xsi:type="array">
+                    <item name="type" xsi:type="string">application/xml</item>
+                    <item name="model" xsi:type="string">Magento\Framework\Webapi\Rest\Request\Deserializer\Xml</item>
+                </item>
+                <item name="application_xhtml_xml" xsi:type="array">
+                    <item name="type" xsi:type="string">application/xhtml+xml</item>
+                    <item name="model" xsi:type="string">Magento\Framework\Webapi\Rest\Request\Deserializer\Xml</item>
+                </item>
+                <item name="text_xml" xsi:type="array">
+                    <item name="type" xsi:type="string">text/xml</item>
+                    <item name="model" xsi:type="string">Magento\Framework\Webapi\Rest\Request\Deserializer\Xml</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\RefundFieldsFactory">
+    </type>
+
+    <type name="Magento\Quote\Model\Cart\CartTotalRepository">
+        <plugin name="tig_buckaroo_fee_total" type="TIG\Buckaroo\Model\Plugin\CartTotalRepository" />
+    </type>
+
+    <type name="Magento\Quote\Model\Quote\TotalsCollector">
+        <plugin name="tig_buckaroo_fee_total_collector" type="TIG\Buckaroo\Model\Plugin\TotalsCollector" />
+    </type>
+
+    <type name="Magento\Quote\Model\Cart\TotalsConverter">
+        <plugin name="tig_buckaroo_fee_total_converter" type="TIG\Buckaroo\Model\Plugin\TotalsConverter" />
+    </type>
+
+    <type name="TIG\Buckaroo\Block\Info\Creditcard">
+        <arguments>
+            <argument name="configProvider" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard</argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Model\ConfigProvider\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="tig_buckaroo_configprovider_account" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Account</item>
+                <item name="tig_buckaroo_configprovider_buckaroofee" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\BuckarooFee</item>
+                <item name="tig_buckaroo_configprovider_predefined" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Predefined</item>
+                <item name="tig_buckaroo_configprovider_privatekey" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Privatekey</item>
+                <item name="tig_buckaroo_configprovider_publickey" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Publickey</item>
+                <item name="tig_buckaroo_configprovider_refund" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Refund</item>
+                <item name="tig_buckaroo_configprovider_states" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\States</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="TIG\Buckaroo\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder">
+        <arguments>
+            <argument name="urlBuilder" xsi:type="object">Magento\Framework\Url</argument>
+        </arguments>
+    </type>
+</config>

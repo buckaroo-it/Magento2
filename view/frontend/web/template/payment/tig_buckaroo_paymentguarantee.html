@@ -1,0 +1,203 @@
+<div class="tig_buckaroo_paymentguarantee payment-method" data-bind="click: magentoTerms(), css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label class="tig_buckaroo_image_title label" data-bind="attr: {'for': getCode()}" ><span data-bind="text: getTitle()"></span></label>
+    </div>
+
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="payment-method-second-col billing-address-form">
+            <form data-hasrequired="* Required Fields" data-bind="mageInit: { 'validation': [] }">
+                <fieldset class="fieldset payment">
+
+                <div class="field required">
+                    <legend class="label"> <span data-bind="i18n: 'Salutation:'"> </span> </legend>
+                    <div class="control">
+                        <ul id="Saluation">
+                            <li>
+                                <input type="radio" id="tig_buckaroo_paymentguarantee_genderSelectMan"
+                                       data-bind="
+                                                   value: '1',
+                                                   click: setSelectedGender.bind($data, '1'),
+                                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                                   checked: genderValidate
+                                                   "
+                                       class="field"
+                                       name="payment[tig_buckaroo_paymentguarantee][customer_gender]">
+                                <label for="tig_buckaroo_paymentguarantee_genderSelectMan"> <span data-bind="i18n: 'Mr.' "> </span> </label>
+                            </li>
+                            <li>
+                                <input type="radio" id="tig_buckaroo_paymentguarantee_genderSelectWoman"
+                                       data-bind="
+                                                   value: '2',
+                                                   click: setSelectedGender.bind($data, '2'),
+                                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                                   checked: genderValidate
+                                                    "
+                                       class="field"
+                                       name="payment[tig_buckaroo_paymentguarantee][customer_gender]">
+                                <label for="tig_buckaroo_paymentguarantee_genderSelectWoman"> <span data-bind="i18n: 'Mrs.' "> </span> </label>
+                            </li>
+                        </ul>
+                        <div for="gender" generated="true" class="mage-error" id="gender-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
+                    </div>
+                </div>
+
+                <div class="field required">
+                    <label class="label" for="tig_buckaroo_paymentguarantee_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
+                    <div class="control">
+                        <input id="tig_buckaroo_paymentguarantee_BillingName"
+                               class="input-text field"
+                               type="text"
+                               data-bind="
+                                           value: BillingName,
+                                           textInput: CustomerName()"
+                               name="payment[tig_buckaroo_paymentguarantee][customer_billingName]"
+                               disabled >
+                    </div>
+                </div>
+
+                <!-- Default | Hide this field if phone number is already filled in. Show this field if phone number is empty -->
+
+                <!-- ko ifnot: hasTelephoneNumber -->
+                <div class="field required" >
+                    <label class="label" for="tig_buckaroo_paymentguarantee_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
+                    <div class="control">
+                        <input id="tig_buckaroo_paymentguarantee_Telephone"
+                               type="text"
+                               class="input-text field"
+                               data-bind="
+                                           valueUpdate: 'keyup',
+                                           attr: { 'data-validate': JSON.stringify({ 'required': true, validate-date: true })}"
+                               name="payment[tig_buckaroo_paymentguarantee][customer_telephone]">
+                    </div>
+                </div>
+                <!-- /ko -->
+
+                <div class="field required">
+                    <label class="label" for="tig_buckaroo_paymentguarantee_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
+                    <span><sup data-bind="i18n: '(DD/MM/YYYY)' "></sup></span>
+                    <div class="control">
+                        <input id="tig_buckaroo_paymentguarantee_DoB"
+                               class="field"
+                               type="text"
+                               data-bind="
+                                           datepicker: {
+                                                storage: dateValidate,
+                                                options: {
+                                                    changeMonth: true,
+                                                    changeYear: true,
+                                                    yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
+                                                    dateFormat: 'dd/mm/yy'
+                                                }
+                                           },
+                                           valueUpdate: 'blur',
+                                           value: dateValidate,
+                                           attr: { 'data-validate': JSON.stringify({ 'required': true })}"
+                               name="payment[tig_buckaroo_paymentguarantee][customer_DoB]">
+                    </div>
+                </div>
+
+                    <!-- Default -->
+                    <div class="field required">
+                        <label class="label" for="tig_buckaroo_paymentguarantee_IBAN"> <span data-bind="i18n: 'Bank Account Number:'"> </span> </label>
+                        <div class="control">
+                            <input id="tig_buckaroo_paymentguarantee_IBAN"
+                                   class="input-text field"
+                                   type="text"
+                                   data-bind="
+                                               value: bankaccountnumber,
+                                               valueUpdate: 'keyup',
+                                               attr: {'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })}"
+                                   name="payment[tig_buckaroo_paymentguarantee][customer_iban]">
+                        </div>
+                    </div>
+
+                    <!-- Default -->
+                    <div class="field required">
+                        <label class="label" for="tig_buckaroo_paymentguarantee_TermsCondition"> <span data-bind="i18n: 'Terms and Conditions:'"> </span> </label>
+                        <div class="control">
+                            <input id="tig_buckaroo_paymentguarantee_TermsCondition"
+                                   class="field"
+                                   type="checkbox"
+                                   data-bind="
+                                   checked: termsValidate,
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true})}"
+                                   name="payment[tig_buckaroo_paymentguarantee][termsCondition]">
+                            <span>
+                                <a target="_blank" href="#"
+                                   data-bind="
+                                   i18n: 'Yes, I accept the terms and condition for the use of Payment Guarantee.',
+                                   click: function(data, event) { return showAgreements(data, event) }">
+                                </a>
+                            </span>
+                            <div for="tig_buckaroo_paymentguarantee_TermsCondition" generated="true" class="mage-error" id="tig_buckaroo_paymentguarantee_TermsCondition-error" style="display: none;"><span data-bind="i18n: 'This is a required field.' "></span></div>
+                        </div>
+                    </div>
+
+                    <div class="tig_buckaroo_paymentguarantee_TermsCondition_modal"
+                         data-bind="afterRender: initAgreements"
+                         style="display:none;">
+                        <div class="tig_buckaroo_paymentguarantee_TermsCondition_content_first_line"
+                             data-bind="i18n: 'You can receive your order first and pay the invoice later with \'Payment Guarantee\'. You will agree with the Terms and Conditions if you choose for the payment method \'Payment Guarantee\'. To review your application, the information you have entered will be forwarded to Intrum Justitia in accordance with the terms of the terms and conditions.'">
+                        </div>
+                        <div class="tig_buckaroo_paymentguarantee_TermsCondition_content_second_line"
+                             data-bind="i18n: 'The payment of the Customer\'s payment will be outsourced to Buckaroo. The invoice indicates how to pay the invoice (after reception of goods and/or services). The invoice must be paid within 14 (fourteen) days after the invoice date.'">
+                        </div>
+                        <div class="tig_buckaroo_paymentguarantee_TermsCondition_content_third_line"
+                             data-bind="i18n: 'You must check this box to indicate that you agree to the terms and conditions.'">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        enable: (getCode() == isChecked()),
+                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        "
+                        disabled>
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ko if: payWithBaseCurrency() -->
+        <div class="tig_buckaroo_currency-notification">
+            <span data-bind="text: getPayWithBaseCurrencyText()"></span>
+        </div>
+        <!--/ko-->
+
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <div class="checkout-agreements-block" >
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+    </div>
+</div>

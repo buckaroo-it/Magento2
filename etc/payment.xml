@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<payment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/payment.xsd">
+    <groups>
+        <group id="tig_buckaroo">
+            <label>Buckaroo Payment Methods</label>
+        </group>
+    </groups>
+    <methods>
+        <method name="tig_buckaroo_ideal">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_idealprocessing">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_sepadirectdebit">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_paypal">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_payconiq">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_creditcard">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_creditcards">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_transfer">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_giropay">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_mrcash">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_sofortbanking">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_afterpay">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_afterpay2">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_afterpay20">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_payperemail">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_eps">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_giftcards">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_paymentguarantee">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_kbc">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_klarna">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_emandate">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_applepay">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_capayablein3">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_capayablepostpay">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_alipay">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="tig_buckaroo_wechatpay">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+    </methods>
+</payment>

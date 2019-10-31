@@ -1,0 +1,112 @@
+<div class="tig_buckaroo_sepadirectdebit payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label class="tig_buckaroo_image_title label" data-bind="attr: {'for': getCode()}" ><span data-bind="text: getTitle()"></span></label>
+    </div>
+
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="payment-method-second-col billing-address-form" >
+            <form data-hasrequired="* Required Fields" data-bind="mageInit: { 'validation': [] }">
+                <fieldset class="fieldset payment">
+
+                    <div class="field required">
+                        <label for="bankaccountholder" class="label">
+                            <span data-bind="i18n: 'Bank account holder'"> </span>
+                        </label>
+                        <div class="control">
+                            <input id="bankaccountholder" class="input-text field" type="text"
+                                   data-bind="
+                                    value: bankaccountholder,
+                                    valueUpdate: 'keyup',
+                                    attr: {
+                                        'data-validate': JSON.stringify({ 'required': true, 'min-words': minimumWords() })
+                                    }
+                                   "
+                                   name="payment[tig_buckaroo_sepadirectdebit][customer_account_name]">
+                        </div>
+                    </div>
+
+                    <div class="field required">
+                        <label for="bankaccountnumber" class="label">
+                            <span data-bind="i18n: 'Bank account number'"> </span>
+                        </label>
+                        <div class="control">
+                            <input id="bankaccountnumber" class="input-text field" type="text"
+                                   data-bind="
+                                    value: bankaccountnumber,
+                                    valueUpdate: 'keyup',
+                                    attr: {
+                                        'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })
+                                    }
+                                   "
+                                   name="payment[tig_buckaroo_sepadirectdebit][customer_iban]">
+                        </div>
+                    </div>
+
+                    <!-- ko if: isnl() != true -->
+                    <div class="field required">
+                        <label for="bicnumber" class="label">
+                            <span data-bind="i18n: 'BIC Number'"> </span>
+                        </label>
+                        <div class="control">
+                            <input id="bicnumber" class="input-text field" type="text"
+                                   data-bind="
+                                    value: bicnumber,
+                                    valueUpdate: 'keyup',
+                                    attr: {
+                                        'data-validate': JSON.stringify({ 'required': true, 'BIC':true })
+                                    }
+                                   "
+                                   name="payment[tig_buckaroo_sepadirectdebit][customer_bic]">
+                        </div>
+                    </div>
+                    <!-- /ko -->
+
+                    <span data-bind="i18n: 'Please enter these fields as they appear on your bank account.' "></span>
+
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        enable: (getCode() == isChecked()),
+                        css: {disabled: !isPlaceOrderActionAllowed() || !accountNumberIsValid()}
+                        "
+                        disabled>
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ko if: payWithBaseCurrency() -->
+        <div class="tig_buckaroo_currency-notification">
+            <span data-bind="text: getPayWithBaseCurrencyText()"></span>
+        </div>
+        <!--/ko-->
+    </div>
+</div>

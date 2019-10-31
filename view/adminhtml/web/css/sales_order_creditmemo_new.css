@@ -1,0 +1,28 @@
+/* ============================ Refund Page -  input-field styling ============================ */
+/* These fields are disabled in the backend, but could be restored. */
+
+.refund-fields {
+    width: 100%;
+    height: auto;
+    display: block;
+    float: left;
+    margin-top:20px;
+    margin-bottom: 20px;
+}
+.refund-fields .admin__field {
+    float:left;
+    width: 100%;
+    clear:both;
+}
+.refund-fields .admin__field .label {
+    float:left;
+    width: 40% !important;
+    margin-top: 9px !important;
+}
+.refund-fields .admin__field .input-text {
+    float:left;
+    width: calc(60% - 20px) !important;
+    margin-left: 20px;
+}
+
+/* ============================ END ============================ */

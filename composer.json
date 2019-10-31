@@ -1,0 +1,45 @@
+{
+    "name": "tig/buckaroo",
+    "description": "TIG Magento 2 Buckaroo extension",
+    "require": {
+        "php": "~5.6.0|~7.0.0|~7.1.0|~7.2.0|~7.3.0",
+        "magento/module-payment": "100.1.*|100.2.*|100.3.*",
+        "magento/framework": ">=100.1.0,<=100.1.18|>=101.0.0,<=101.0.10|>=102.0.0,<=102.0.3|102.0.2-p2"
+    },
+    "type": "magento2-module",
+    "license": "CC-BY-NC-ND-3.0",
+    "authors": [
+        {
+            "name": "TIG",
+            "email": "servicedesk@tig.nl",
+            "homepage": "http://tig.nl"
+        }
+    ],
+    "support": {
+        "email": "sd@tig.nl",
+        "issues": "http://servicedesk.tig.nl/hc/nl/requests/new",
+        "wiki": "http://servicedesk.tig.nl/hc/nl/sections/203522128-Buckaroo-Magento-2-artikelen",
+        "docs": "http://servicedesk.tig.nl/hc/nl/articles/218518187-EN-Buckaroo-Magento-2-Installation-and-Configuration-manual"
+    },
+    "homepage": "https://store.tig.nl/buckaroo.html",
+    "version" : "v1.14.0",
+    "minimum-stability": "stable",
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "TIG\\Buckaroo\\": ""
+        }
+    },
+    "require-dev": {
+        "satooshi/php-coveralls": "^1.0",
+        "facebook/webdriver": "^1.1"
+    },
+    "repositories": {
+        "magento": {
+            "type": "composer",
+            "url": "https://repo.magento.com/"
+        }
+    }
+}

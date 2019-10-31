@@ -1,0 +1,181 @@
+<div class="tig_buckaroo_creditcards payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label class="tig_buckaroo_image_title label" data-bind="attr: {'for': getCode()}" ><span data-bind="text: getTitle()"></span></label>
+    </div>
+
+    <div class="payment-method-content">
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="payment-method-second-col billing-address-form">
+            <form data-hasrequired="* Required Fields" data-bind="mageInit: { 'validation': [] }">
+                <fieldset class="fieldset payment card styled">
+                          <!--data-bind="css: CardDesign ? 'styled' : 'blank'">-->
+
+                    <div class="fieldset card_front width-100">
+                        
+                        <div class="card_kind">
+                            <img class="issuer-img" data-bind="attr: {
+                                     'src': issuerImage(),
+                                     'width': 70,
+                                     'height': 35 }"
+                            />
+                        </div>
+
+                        <div class="field required width-70" >
+                            <label class="label" for="tig_buckaroo_creditcards_issuer"> <span data-bind="i18n: 'Card:'"> </span> </label>
+                            <div class="control">
+                                <select id="tig_buckaroo_creditcards_issuer" class="field"
+                                        data-bind="value: CardIssuer,
+                                        event: { change: validateIssuer },
+                                        attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                        name="payment[tig_buckaroo_creditcards][issuer]">
+                                    <option data-bind="i18n: 'Select a card', 'value': ''"></option>
+                                    <!-- ko foreach: creditcards -->
+                                        <!-- ko if: active -->
+                                            <option data-bind="i18n: name, 'value': code"></option>
+                                        <!--/ko-->
+                                    <!--/ko-->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field required width-100" >
+                            <label class="label" for="tig_buckaroo_creditcards_cardholdername"> <span data-bind="i18n: 'Cardholder:'"> </span> </label>
+                            <div class="control">
+                                <input id="tig_buckaroo_creditcards_cardholdername"
+                                       type="text"
+                                       class="input-text field"
+                                       name="payment[tig_buckaroo_creditcards][cardholdername]"
+                                       data-bind="
+                            valueUpdate: 'blur',
+                            value: CardHolderName,
+                            textInput: CardHolderName(),
+                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardHolderName': true }) },
+                            event: { blur: encryptCardDetails }">
+                            </div>
+                        </div>
+
+                        <div class="field required width-100" >
+                            <label class="label" for="tig_buckaroo_creditcards_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
+                            <div class="control">
+                                <input id="tig_buckaroo_creditcards_cardnumber"
+                                       type="text"
+                                       class="input-text field"
+                                       name="payment[tig_buckaroo_creditcards][cardnumber]"
+                                       data-bind="
+                            valueUpdate: 'blur',
+                            value: CardNumber,
+                            textInput: CardNumber(),
+                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }) },
+                            event: { blur: encryptCardDetails }">
+                            </div>
+                        </div>
+
+                        <div class="field required width-50-l" >
+                            <label class="label" for="tig_buckaroo_creditcards_expirationmonth"><span data-bind="i18n: 'Month:'"></span></label>
+                            <div class="control">
+                                <select id="tig_buckaroo_creditcards_expirationmonth" class="field"
+                                        data-bind="value: ExpirationMonth,
+                                        attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
+                                        event: { change: validateMonth }"
+                                        name="payment[tig_buckaroo_creditcards][expirationmonth]">
+                                    <!-- ko foreach: months -->
+                                    <option data-bind="i18n: label, 'value': value"></option>
+                                    <!--/ko-->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field required width-50-r" >
+                            <label class="label" for="tig_buckaroo_creditcards_expirationyear"><span data-bind="i18n: 'Year:'"></span></label>
+                            <div class="control">
+                                <select id="tig_buckaroo_creditcards_expirationyear" class="field"
+                                        data-bind="value: ExpirationYear,
+                                                   attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
+                                                   event: { change: validateYear },
+                                                   foreach: getYears()"
+                                        name="payment[tig_buckaroo_creditcards][expirationyear]">
+                                    <option data-bind="i18n: label, 'value': value"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fieldset card_back width-100">
+
+                        <div class="magnet_stripe width-100"></div>
+
+                        <div class="field required card_security width-100" >
+                            <label class="label width-65-l" for="tig_buckaroo_creditcards_cvc"> <span data-bind="i18n: 'Security Code:'"> </span> </label>
+                            <div class="control card-info-input width-25-l">
+                                <input id="tig_buckaroo_creditcards_cvc"
+                                       type="text"
+                                       class="input-text field"
+                                       name="payment[tig_buckaroo_creditcards][cvc]"
+                                       data-bind="
+                            valueUpdate: 'blur',
+                            value: Cvc,
+                            textInput: Cvc(),
+                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCvc': true }) },
+                            event: { blur: encryptCardDetails }">
+                            </div>
+                            <div class="card_info width-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="510" height="510" viewBox="0 0 510 510"><path d="M229.5 382.5h51v-153h-51V382.5zM255 0C114.8 0 0 114.8 0 255s114.8 255 255 255 255-114.7 255-255S395.3 0 255 0zM255 459c-112.2 0-204-91.8-204-204S142.8 51 255 51s204 91.8 204 204S367.2 459 255 459zM229.5 178.5h51v-51h-51V178.5z"/></svg>
+                                <div class="popup">
+                                    <span data-bind="i18n: 'Or CVV or CVC.' "> </span>
+                                    <br/><br/>
+                                    <span data-bind="i18n: 'A 3 or 4 digit code located to the right of signature strip on the back of your card, separate from the card number.' "></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field width-100">
+                        <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout button-creditcards"
+                        type="submit"
+                        data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        enable: (getCode() == isChecked()),
+                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        "
+                        disabled>
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ko if: payWithBaseCurrency() -->
+        <div class="tig_buckaroo_currency-notification">
+            <span data-bind="text: getPayWithBaseCurrencyText()"></span>
+        </div>
+        <!--/ko-->
+
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,19 @@
+<?php
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php $block->setPriceDataObject($block->getSource()) ?>
+
+<?php if ((float) $block->getSource()->getBuckarooFee()): ?>
+    <tr>
+        <td class="label"><?php /* @escapeNotVerified */ echo __('Payment fee') ?></td>
+        <td>
+            <?php /* @escapeNotVerified */ echo $block->displayPrices($block->getSource()->getBaseBuckarooFee(), $block->getSource()->getBuckarooFee()); ?>
+        </td>
+    </tr>
+<?php endif; ?>

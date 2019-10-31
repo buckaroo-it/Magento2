@@ -1,0 +1,17 @@
+<!-- Gets extra fields if required for this payment method. Returns array of extra fields, or empty array -->
+<?php $extraFields = $block->getExtraFields(); ?>
+
+<div class="refund-fields">
+    <?php foreach ($extraFields as $name => $field) : ?>
+        <div class="admin__field" >
+            <label for="tig_buckaroo_<?php echo $block->escapeHtml($field); ?>" class="label normal admin__field-label">
+                <?php echo $name; ?>
+            </label>
+            <input type="text"
+                   name="creditmemo[<?php echo $block->escapeHtml($field); ?>]"
+                   class="input-text input-text admin__control-text"
+                   id="tig_buckaroo_<?php echo $block->escapeHtml($field); ?>"
+                />
+        </div>
+    <?php endforeach; ?>
+</div>

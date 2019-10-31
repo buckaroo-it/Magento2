@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<!--
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ -->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <!-- Capayable In3 Payment method group -->
+    <group id="tig_buckaroo_capayablein3" translate="label" type="text" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>Capayable In3</label>
+        <frontend_model>TIG\Buckaroo\Block\Config\Form\Field\Fieldset</frontend_model>
+
+        <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Enable Capayable In3</label>
+            <comment><![CDATA[Enable or disable this payment method.]]></comment>
+            <source_model>TIG\Buckaroo\Model\Config\Source\Enablemode</source_model>
+            <config_path>payment/tig_buckaroo_capayablein3/active</config_path>
+        </field>
+
+        <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Frontend label</label>
+            <comment><![CDATA[Determines the frontend label shown.]]></comment>
+            <config_path>payment/tig_buckaroo_capayablein3/title</config_path>
+        </field>
+
+        <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Frontend sort order</label>
+            <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
+            <config_path>payment/tig_buckaroo_capayablein3/sort_order</config_path>
+        </field>
+
+        <field id="version" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>In3 version</label>
+            <comment><![CDATA[The In3 version can be found in your Capayable contract.]]></comment>
+            <source_model>TIG\Buckaroo\Model\Config\Source\PaymentMethods\In3Version</source_model>
+            <config_path>payment/tig_buckaroo_capayablein3/version</config_path>
+        </field>
+
+        <group id="tig_buckaroo_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Advanced Configuration</label>
+
+            <field id="order_email" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Send order confirmation email</label>
+                <comment><![CDATA[Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>payment/tig_buckaroo_capayablein3/order_email</config_path>
+            </field>
+
+            <field id="payment_fee" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment fee</label>
+                <comment><![CDATA[The above amount is calculated based on de Tax settings in Stores > Configuration > Sales > Tax.]]></comment>
+                <config_path>payment/tig_buckaroo_capayablein3/payment_fee</config_path>
+                <backend_model>TIG\Buckaroo\Model\Config\Backend\PaymentFee</backend_model>
+            </field>
+
+            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment fee frontend label</label>
+                <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
+                <config_path>payment/tig_buckaroo_capayablein3/payment_fee_label</config_path>
+            </field>
+
+            <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Min order amount (in Base Currency)</label>
+                <comment><![CDATA[Minimum order amount allowed.]]></comment>
+                <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
+                <config_path>payment/tig_buckaroo_capayablein3/min_amount</config_path>
+                <backend_model>TIG\Buckaroo\Model\Config\Backend\Price</backend_model>
+            </field>
+
+            <field id="max_amount" translate="label comment tooltip" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Max order amount (in Base Currency)</label>
+                <comment><![CDATA[Maximum order amount allowed.]]></comment>
+                <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
+                <config_path>payment/tig_buckaroo_capayablein3/max_amount</config_path>
+                <backend_model>TIG\Buckaroo\Model\Config\Backend\Price</backend_model>
+            </field>
+
+            <field id="active_status" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Method specific status enabled</label>
+                <comment><![CDATA[Enable or disable specific status.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>payment/tig_buckaroo_capayablein3/active_status</config_path>
+            </field>
+
+            <field id="order_status_success" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Method specific success status</label>
+                <comment><![CDATA[Leave empty to use default 'success' status.]]></comment>
+                <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
+                <source_model>TIG\Buckaroo\Model\Config\Source\StatusesSuccess</source_model>
+                <config_path>payment/tig_buckaroo_capayablein3/order_status_success</config_path>
+                <depends>
+                    <field id="active_status">1</field>
+                </depends>
+            </field>
+
+            <field id="order_status_failed" translate="label comment tooltip" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Method specific failed status</label>
+                <comment><![CDATA[Leave empty to use default 'failed' status.]]></comment>
+                <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
+                <source_model>TIG\Buckaroo\Model\Config\Source\StatusesFailed</source_model>
+                <config_path>payment/tig_buckaroo_capayablein3/order_status_failed</config_path>
+                <depends>
+                    <field id="active_status">1</field>
+                </depends>
+            </field>
+
+            <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Allowed currencies</label>
+                <comment><![CDATA[Select payment method specific currencies.]]></comment>
+                <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
+                <config_path>payment/tig_buckaroo_capayablein3/allowed_currencies</config_path>
+                <source_model>TIG\Buckaroo\Model\Config\Source\AllowedCurrencies::capayablein3</source_model>
+                <backend_model>TIG\Buckaroo\Model\Config\Backend\AllowedCurrencies</backend_model>
+            </field>
+
+            <field id="allowspecific" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment from applicable countries</label>
+                <source_model>TIG\Buckaroo\Model\Config\Source\AllOrSpecificCountries</source_model>
+                <config_path>payment/tig_buckaroo_capayablein3/allowspecific</config_path>
+            </field>
+
+            <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment from Specific Country</label>
+                <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
+                <source_model>TIG\Buckaroo\Model\Config\Source\AllowedCountries::capayablein3</source_model>
+                <config_path>payment/tig_buckaroo_capayablein3/specificcountry</config_path>
+                <depends>
+                    <field id="allowspecific">1</field>
+                </depends>
+            </field>
+
+            <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Display only for selected IPs</label>
+                <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
+                <tooltip>Magento developer client restrictions.</tooltip>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>payment/tig_buckaroo_capayablein3/limit_by_ip</config_path>
+            </field>
+        </group>
+    </group>
+</include>

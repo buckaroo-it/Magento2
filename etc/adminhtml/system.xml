@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="tax">
+            <include path="TIG_Buckaroo::system/tax.xml"/>
+        </section>
+
+        <section id="tig_buckaroo" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Buckaroo</label>
+            <tab>sales</tab>
+            <resource>Sales_Buckaroo::configuration</resource>
+            <class>buckaroo-section</class>
+            <include path="TIG_Buckaroo::system/support.xml"/>
+            <include path="TIG_Buckaroo::system/account.xml"/>
+            <include path="TIG_Buckaroo::system/refund.xml"/>
+        </section>
+
+        <section id="payment">
+            <include path="TIG_Buckaroo::system/payment_methods.xml"/>
+        </section>
+    </system>
+</config>

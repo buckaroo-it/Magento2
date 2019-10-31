@@ -1,0 +1,24 @@
+<div id="tig_buckaroo_payconiq_loader" class="loading-mask"></div>
+
+<div id="tig_buckaroo_payconiq_container">
+    <div id="tig_buckaroo_payconiq_items">
+        <div id="tig_buckaroo_payconiq_qr"></div>
+
+        <button id="tig_buckaroo_payconiq_cancel" type="button" title="Cancel" data-bind="click: cancelPayment">
+            <span>Cancel</span>
+        </button>
+    </div>
+</div>
+
+<script>
+    require(['buckaroo/payconiq/pay'], function (payconiqPay) {
+        var transactionKey = "<?php echo $this->getTransactionKey(); ?>";
+
+        payconiqPay.setTransactionKey(transactionKey);
+        payconiqPay.showQrCode();
+
+        cancelPayment = function() {
+            payconiqPay.cancelPayment();
+        }
+    });
+</script>

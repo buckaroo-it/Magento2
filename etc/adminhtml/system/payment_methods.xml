@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <!-- Payment section -->
+    <group id="tig_buckaroo_payment_section" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label><![CDATA[<div class="buckaroo-payment-logo"></div><div class="buckaroo-payment-byline">This is the official Buckaroo extension - developed by TIG</div>
+        <div class="block-legend">
+            <h3>Legend</h3>
+            <div>
+                <ul id="legend">
+                    <li class="disabled">
+                        <span class="img"></span>
+                        <span class="text">Payment method: </span>
+                        <span class="status">Disabled</span>
+                    </li>
+                    <li class="test">
+                        <span class="img"></span>
+                        <span class="text">Payment method: </span>
+                        <span class="status">Test Mode</span>
+                    </li>
+                    <li class="live">
+                        <span class="img"></span>
+                        <span class="text">Payment method: </span>
+                        <span class="status">Live Mode</span>
+                    </li>
+                </ul>
+            </div>
+        </div>]]></label>
+        <fieldset_css>tig_buckaroo-section</fieldset_css>
+        <frontend_model>TIG\Buckaroo\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+
+        <include path="TIG_Buckaroo::system/payment_methods/ideal.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/idealprocessing.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/creditcard.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/creditcards.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/paypal.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/transfer.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/sepa_direct_debit.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/mrcash.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/sofort_banking.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/giropay.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/afterpay.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/afterpay2.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/payperemail.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/eps.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/giftcards.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/paymentguarantee.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/payconiq.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/kbc.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/klarna.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/emandate.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/afterpay20.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/applepay.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/capayable_in3.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/capayable_postpay.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/alipay.xml"/>
+
+        <include path="TIG_Buckaroo::system/payment_methods/wechatpay.xml"/>
+    </group>
+</include>

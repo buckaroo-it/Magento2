@@ -1,0 +1,380 @@
+/* ==================== Buckaroo / TIG -  Navigation Logo - Top Menu ==================== */
+.buckaroo-config-page .page-main-actions .page-actions .page-actions-inner:after {
+    background-image: url(../images/buckaroo_config_logo_black.png) !important;
+    background-repeat: no-repeat;
+    content: ' ';
+
+    width: 160px;
+    float: right;
+    height: 30px;
+    margin-top: 8px;
+    background-size: auto 29px;
+
+    /*
+    * Remove _beta if extension isn't beta anymore.
+    * background-size 30px if not beta version.
+    * width: 160px if not beta
+    */
+}
+
+/* ==================== Buckaroo / TIG -  Navigation Logo - Left Menu ==================== */
+
+.buckaroo-section .admin__page-nav-link:before {
+    float:left;
+    width: calc(100% - 50px) ;
+    height: 18px;
+    content: ' ';
+
+    background-image: url(../images/buckaroo_small_black.png) !important;
+    background-position :0 2px;
+    background-repeat:no-repeat;
+    background-size: auto 13px;
+ }
+
+.buckaroo-section .admin__page-nav-link {
+    text-indent: -999px;
+    padding: 2rem 1rem 2rem 1rem;
+}
+
+.buckaroo-section .admin__page-nav-link:after {
+    float:right;
+    width: 30px;
+    height: 30px;
+    margin-top:-7px;
+    margin-right: 3px;
+
+    background-image: url(../images/logo_tig.png) !important;
+    background-size: 30px !important;
+    background-repeat:no-repeat;
+    content: ' ';
+}
+
+/* ======================= Identity ======================= */
+
+.buckaroo-config-page .admin__scope-old:before {
+    background-image: url(../images/logo_tig.png) !important;
+    background-repeat: no-repeat;
+    content: ' ';
+
+    width: 50px;
+    float:right;
+    height: 50px;
+    background-size: auto 50px;
+}
+
+.buckaroo-config-page #container:before  {
+    background-image: url(../images/buckaroo_config_logo_black.png) !important;
+    background-repeat: no-repeat;
+    content: ' ';
+
+    float:left;
+    height: 50px;
+    background-size: auto 50px;
+     width: 295px;
+}
+
+/* ==================== Buckaroo Active/Inactive Payments Feedback ==================== */
+
+.section-config {
+    box-sizing:border-box;
+    padding-left: 10px;
+}
+
+.section-config.payment_method_payment_method_active.payment_method_live{
+    border-left:5px solid #49AB43;
+}
+
+.section-config.payment_method_payment_method_active.payment_method_test{
+    border-left:5px solid #FFC107;
+}
+
+.section-config.payment_method_payment_method_inactive{
+    border-left:5px solid #CCCCCC;
+}
+
+/* ==================================== SupportTab - Default styling ==================================== */
+
+#section { float: left; width: 100%; clear: both; }
+#supporttab { margin-left: 4rem;  }
+#supporttab #section { border-bottom: 1px solid #cccccc; }
+#supporttab #section:last-child { border-bottom: none; }
+
+/* Default styling collapsible tabs */
+.collapse-title[aria-expanded=true] h3:before {
+    font-family:'Admin Icons';
+    content: '\e615';
+
+}
+.collapse-title h3:before {
+    font-family:'Admin Icons';
+    font-weight: lighter;
+    content: '\e616';
+    padding-right: 10px;
+    -webkit-font-smoothing: antialiased;
+}
+
+.collapse-content {
+    box-sizing: border-box;
+    padding:0 15px 15px 15px;
+    height:auto !important;
+    float:left; width: 100%;
+}
+
+#supporttab h3 {
+    font-size: 1.7rem;
+    margin:0 !important;
+    padding:1.9rem 2.7rem 1.9rem 1rem;
+    color: black;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#supporttab h4 {
+    font-size: 1.1em;
+    margin:20px 0 5px 0;
+    padding:0;
+    color: rgba(0,136,204,1);
+}
+
+#supporttab p {
+    line-height: 2em;
+}
+
+#supporttab ol, ul {
+    margin-left: 20px;
+    position :relative;
+}
+
+#supporttab ul li {
+    line-height: 2em;
+    list-style-type: none;
+    margin-bottom: 10px;
+}
+
+#tig_buckaroo_tig_buckaroo_account_section_tig_buckaroo_advanced .comment {
+    color: red;
+}
+
+/* ==================================== SupportTab - 3rd Party | Version compatibility ==================================== */
+
+/* activate Beta */
+/*
+#tig_buckaroo_tig_buckaroo_support_section-head:after,
+#tig_buckaroo_tig_buckaroo_account_section-head:after,
+#tig_buckaroo_tig_buckaroo_payment_section-head:after,
+#tig_buckaroo_tig_buckaroo_refund_section-head:after {
+    color:#db1200;
+    content: 'Beta';
+    text-transform: uppercase;
+    font-size:10px;
+    margin-left:3px;
+    position :absolute;
+    font-weight:lighter;
+}
+*/
+
+.block-version h3 {
+    cursor: auto !important;
+}
+
+.block-version {
+    padding:10px;
+    background: #F8F8F8;
+    float:left;
+    width: 100%;
+}
+
+.php-check-icon {
+    height: 16px;
+    width: 16px;
+    position: absolute;
+    right: 15px;
+    margin-top: 5px;
+}
+
+@media screen and (min-width: 1200px){
+    .block-version {
+        float:left;
+        width: 50%;
+    }
+}
+#supporttab .version-compatibility {
+    float:left;
+    width: calc(100% - 30px);
+    clear:both;
+}
+#supporttab .version-compatibility li {
+    clear: both;
+    margin-bottom: 15px;
+    float:left;
+    width: 100%;
+}
+#supporttab .version-compatibility  span.text {
+     font-weight: 600;
+     float:left;
+     width: calc(50% - 20px);
+ }
+#supporttab .version-compatibility  span.version {
+    float:left;
+    width: calc(50% - 30px);
+    text-align:right;
+    margin-left: 10px;
+}
+
+/* ==================================== SupportTab - Quick guide ==================================== */
+
+#supporttab ol {
+    margin-left: 40px;
+}
+
+#supporttab ol li {
+    list-style-type: upper-roman;
+    line-height: 2em;
+}
+
+#supporttab ol li ol {
+    margin-bottom: 10px;
+}
+
+#supporttab ol li ol li {
+    list-style-type: lower-alpha;
+}
+
+/* ==================================== SupportTab - Support ==================================== */
+
+.buckaroo_logo, .tig_logo {
+    padding:10px 10px 10px 0;
+}
+.buckaroo_logo img { width: 180px; }
+.tig_logo img { width: 50px; }
+
+.support-buck-tig ul {
+    float:left;
+    width:100%;
+    clear:both;
+}
+
+.support-buck-tig li.first {
+    font-weight :600;
+    width: 300px;
+}
+.support-buck-tig li.last {
+    width: 200px;
+}
+
+.support-buck-tig li.first,
+.support-buck-tig li.last {
+    line-height: normal;
+    float:left;
+}
+
+/* ==================================== SupportTab - Documentation ==================================== */
+
+.external_link {
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+/* ==================================== SupportTab - Error message ==================================== */
+
+.tig-buckaroo-supporttab .message-system-inner {
+    border-top: 1px solid #d1d1d1;
+    margin-bottom: 25px;
+    margin-left: -40px;
+}
+
+.tig-buckaroo-supporttab .message-system-inner .italic {
+    font-style: italic;
+}
+
+/* ==================================== Payment Methods - Legend ==================================== */
+
+/*#block {*/
+    /*margin-bottom: 30px;*/
+    /*float: left;*/
+    /*width: 100%;*/
+    /*clear: both;*/
+/*}*/
+
+.section-config.with-button.tig_buckaroo-section .config-heading strong { font-weight: normal; }
+.tig_buckaroo-section .button-container { float:right; }
+.tig_buckaroo-section .buckaroo-payment-byline { display: inline-block; vertical-align: middle; width: 50%; }
+
+.tig_buckaroo-section .buckaroo-payment-logo {
+    display:inline-block;
+    vertical-align: middle;
+    margin: 0 20px 0 0;
+    width: 180px;
+    height:60px;
+    background-repeat: no-repeat;
+    background-image: url(../images/buckaroo_config_logo_black.png) !important;
+    background-size: 180px;
+    background-position: 0 14px;
+}
+
+.tig_buckaroo-section.active .block-legend {
+    display :block;
+}
+
+.tig_buckaroo-section fieldset.admin__collapsible-block {
+    float:left;
+    width: 100%;
+    clear: both;
+}
+
+.block-legend h3 {
+    cursor: auto !important;
+    color: black;
+    font-size: 18px;
+}
+
+.block-legend {
+    display :none;
+    float: left;
+    margin-top: 30px;
+    width: 100%;
+    padding: 10px 0;
+    clear: both;
+}
+
+.block-legend #legend {
+    margin-left: 0;
+    position: relative;
+    list-style: none;
+}
+
+.block-legend #legend li {
+    margin-bottom: 10px;
+}
+
+.disabled span.text,
+.live span.text,
+.test span.text {
+    margin-right: 15px;
+    font-weight: 600;
+}
+
+.disabled{
+    border-left: 5px solid #CCCCCC;
+    padding-left: 10px;
+}
+
+.live {
+    border-left: 5px solid #49AB43;
+    padding-left: 10px;
+}
+
+.test {
+    border-left: 5px solid #FFC107;
+    padding-left: 10px;
+}
+
+.advanced span.img {
+    display:block;
+    float:left;
+    margin-top: 2px; margin-right:10px;
+    border: 6px solid;
+    border-color: transparent transparent transparent #ff2e31;
+    width:0;
+    height:0;
+}

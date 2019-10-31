@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="buckaroo_giftcard">
+            <block class="Magento\Backend\Block\Widget\Grid" name="promo.giftcard.grid" as="grid">
+                <arguments>
+                    <argument name="id" xsi:type="string">giftcard</argument>
+                    <argument name="dataSource" xsi:type="object">TIG\Buckaroo\Model\ResourceModel\Giftcard\Collection</argument>
+                    <argument name="default_sort" xsi:type="string">label</argument>
+                    <argument name="default_dir" xsi:type="string">ASC</argument>
+                    <argument name="save_parameters_in_session" xsi:type="string">1</argument>
+                </arguments>
+                <block class="Magento\Backend\Block\Widget\Grid\ColumnSet" name="promo.giftcard.grid.columnSet" as="grid.columnSet">
+                    <arguments>
+                        <argument name="rowUrl" xsi:type="array">
+                            <item name="path" xsi:type="string">buckaroo/*/edit</item>
+                            <item name="extraParamsTemplate" xsi:type="array">
+                                <item name="entity_id" xsi:type="string">getId</item>
+                            </item>
+                        </argument>
+                    </arguments>
+                   <block class="Magento\Backend\Block\Widget\Grid\Column" as="entity_id">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">ID</argument>
+                            <argument name="index" xsi:type="string">entity_id</argument>
+                            <argument name="type" xsi:type="string">number</argument>
+                            <argument name="column_css_class" xsi:type="string">col-id</argument>
+                            <argument name="header_css_class" xsi:type="string">col-id</argument>
+                        </arguments>
+                    </block>
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="servicecode">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">Service Code</argument>
+                            <argument name="index" xsi:type="string">servicecode</argument>
+                            <argument name="type" xsi:type="string">text</argument>
+                            <argument name="column_css_class" xsi:type="string">col-id</argument>
+                            <argument name="header_css_class" xsi:type="string">col-id</argument>
+                        </arguments>
+                    </block>
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="label">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">Name</argument>
+                            <argument name="index" xsi:type="string">label</argument>
+                            <argument name="type" xsi:type="string">text</argument>
+                            <argument name="column_css_class" xsi:type="string">col-id</argument>
+                            <argument name="header_css_class" xsi:type="string">col-id</argument>
+                        </arguments>
+                    </block>
+                </block>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

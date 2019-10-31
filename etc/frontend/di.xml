@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <type name="Magento\Checkout\Model\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="buckaroo_config_provider_ideal" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Ideal</item>
+                <item name="buckaroo_config_provider_idealprocessing" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\IdealProcessing</item>
+                <item name="buckaroo_config_provider_transfer" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Transfer</item>
+                <item name="buckaroo_config_provider_creditcard" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard</item>
+                <item name="buckaroo_config_provider_creditcards" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Creditcards</item>
+                <item name="buckaroo_config_provider_fee" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\BuckarooFee</item>
+                <item name="buckaroo_config_provider_paypal" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Paypal</item>
+                <item name="buckaroo_config_provider_sepadirectdebit" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\SepaDirectDebit</item>
+                <item name="buckaroo_config_provider_mrcash" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Mrcash</item>
+                <item name="buckaroo_config_provider_sofort" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Sofortbanking</item>
+                <item name="buckaroo_config_provider_giropay" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Giropay</item>
+                <item name="buckaroo_config_provider_afterpay" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Afterpay</item>
+                <item name="buckaroo_config_provider_afterpay2" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Afterpay2</item>
+                <item name="buckaroo_config_provider_payperemail" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\PayPerEmail</item>
+                <item name="buckaroo_config_provider_eps" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Eps</item>
+                <item name="buckaroo_config_provider_giftcards" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Giftcards</item>
+                <item name="buckaroo_config_provider_paymentguarantee" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\PaymentGuarantee</item>
+                <item name="buckaroo_config_provider_payconiq" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Payconiq</item>
+                <item name="buckaroo_config_provider_kbc" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Kbc</item>
+                <item name="buckaroo_config_provider_klarna" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Klarna</item>
+                <item name="buckaroo_config_provider_emandate" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Emandate</item>
+                <item name="buckaroo_config_provider_afterpay20" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Afterpay20</item>
+                <item name="buckaroo_config_provider_applepay" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Applepay</item>
+                <item name="buckaroo_config_provider_capayablein3" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\CapayableIn3</item>
+                <item name="buckaroo_config_provider_capayablepostpay" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\CapayablePostpay</item>
+                <item name="buckaroo_config_provider_alipay" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Alipay</item>
+                <item name="buckaroo_config_provider_wechatpay" xsi:type="object">TIG\Buckaroo\Model\ConfigProvider\Method\Wechatpay</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Checkout\Block\Onepage">
+        <arguments>
+            <argument name="layoutProcessors" xsi:type="array">
+                <item name="buckarooFeeName" xsi:type="object">TIG\Buckaroo\Block\Checkout\TotalsProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Checkout\Block\Cart\Totals">
+        <arguments>
+            <argument name="layoutProcessors" xsi:type="array">
+                <item name="buckarooFeeName" xsi:type="object">TIG\Buckaroo\Block\Cart\CartTotalsProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>
