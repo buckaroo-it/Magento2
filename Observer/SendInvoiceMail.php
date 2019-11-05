@@ -62,6 +62,7 @@ class SendInvoiceMail implements ObserverInterface
         $canCapture = $payment->getMethodInstance()->canCapture();
 
         if (!$invoice->getEmailSent() && $invoice->getIsPaid() && $canCapture && $sendInvoiceEmail) {
+            $invoice->save();
             $this->invoiceSender->send($invoice, true);
         }
     }
