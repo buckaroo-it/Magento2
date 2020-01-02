@@ -25,6 +25,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\UrlInterface;
+use Magento\Framework\Encryption\Encryptor;
 use TIG\Buckaroo\Gateway\Http\Transaction;
 use TIG\Buckaroo\Model\ConfigProvider\Account;
 use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
@@ -47,6 +48,7 @@ class Refund extends AbstractTransactionBuilder
      * @param RemoteAddress        $remoteAddress
      * @param Factory              $configProviderMethodFactory
      * @param FormKey              $formKey
+     * @param Encryptor            $encryptor
      * @param null                 $amount
      * @param null                 $currency
      */
@@ -57,12 +59,13 @@ class Refund extends AbstractTransactionBuilder
         Transaction $transaction,
         UrlInterface $urlBuilder,
         FormKey $formKey,
+        Encryptor $encryptor,
         RemoteAddress $remoteAddress,
         Factory $configProviderMethodFactory,
         $amount = null,
         $currency = null
     ) {
-        parent::__construct($scopeConfig, $softwareData, $configProviderAccount, $transaction, $urlBuilder, $formKey, $amount, $currency);
+        parent::__construct($scopeConfig, $softwareData, $configProviderAccount, $transaction, $urlBuilder, $formKey, $encryptor, $amount, $currency);
 
         $this->remoteAddress = $remoteAddress;
         $this->configProviderMethodFactory = $configProviderMethodFactory;

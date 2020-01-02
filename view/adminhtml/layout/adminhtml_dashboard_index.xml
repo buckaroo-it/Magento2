@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-/**
+**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
@@ -18,11 +18,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
- -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:TIG_Buckaroo:etc/tig_module.xsd">
-    <module name="TIG_Buckaroo" setup_version="1.15.0" build_number="1767" stability="stable">
-        <sequence>
-            <module name="Magento_Payment"/>
-        </sequence>
-    </module>
-</config>
+-->
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="TIG_Buckaroo::css/adminhtml_dashboard.css" />
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <uiComponent name="tig_release_notification">
+                <visibilityCondition name="can_view_tig_notification" className="TIG\Buckaroo\Model\Notification\CanViewNotification"/>
+            </uiComponent>
+        </referenceContainer>
+    </body>
+</page>

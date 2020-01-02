@@ -387,7 +387,7 @@ class Afterpay2 extends AbstractMethod
             $articles = array_merge($articles, $serviceLine);
         }
 
-        // Add aditional shippin costs.
+        // Add additional shipping costs.
         $shippingCosts = $this->getShippingCostsLine($currentInvoice);
         $articles = array_merge($articles, $shippingCosts);
 
@@ -621,10 +621,8 @@ class Afterpay2 extends AbstractMethod
     {
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        /**
-         * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
-         */
-        $cartData = $this->objectManager->create('Magento\Checkout\Model\Cart')->getItems();
+        $cart = $this->objectManager->create('Magento\Checkout\Model\Cart');
+        $cartData = $cart->getItems();
 
         // Set loop variables
         $articles = $requestData;
@@ -672,7 +670,7 @@ class Afterpay2 extends AbstractMethod
             $requestData = $articles;
         }
 
-        // Add aditional shippin costs.
+        // Add additional shipping costs.
         $shippingCosts = $this->getShippingCostsLine($payment->getOrder());
 
         if (!empty($shippingCosts)) {
@@ -683,6 +681,13 @@ class Afterpay2 extends AbstractMethod
 
         if (!empty($discountline)) {
             $requestData = array_merge($requestData, $discountline);
+            $count++;
+        }
+
+        $thirdPartyGiftCardLine = $this->getThirdPartyGiftCardLine($count, $cart);
+
+        if (!empty($thirdPartyGiftCardLine)) {
+            $requestData = array_merge($requestData, $thirdPartyGiftCardLine);
             $count++;
         }
 
@@ -715,7 +720,7 @@ class Afterpay2 extends AbstractMethod
             }
 
             $itemTaxClassId = $invoice->getOrder()->getPayment()
-                ->getAdditionalInformation('tax_pid_' . $item->getProductId());
+                                                  ->getAdditionalInformation('tax_pid_' . $item->getProductId());
 
             $article = $this->getArticleArrayLine(
                 $count,
@@ -969,6 +974,51 @@ class Afterpay2 extends AbstractMethod
     }
 
     /**
+     * Get the third party gift card lines
+     *
+     * @param (int)                        $latestKey
+     * @param  Magento\Checkout\Model\Cart $cart
+     *
+     * @return array
+     */
+    public function getThirdPartyGiftCardLine($latestKey, $cart)
+    {
+        $article = [];
+        $giftCardTotal = 0;
+        $supportedGiftCards = ['amasty_giftcard', 'mageworx_giftcards'];
+        $cartTotals = $cart->getQuote()->getTotals();
+
+        foreach ($supportedGiftCards as $key => $giftCardCode) {
+            if (!array_key_exists($giftCardCode, $cartTotals)) {
+                continue;
+            }
+
+            $giftCardData = $cartTotals[$giftCardCode]->getData();
+
+            if (isset($giftCardData['value']) && $giftCardData['value'] >= 0) {
+                continue;
+            }
+
+            $giftCardTotal += $giftCardData['value'];
+        }
+
+        if ($giftCardTotal >= 0) {
+            return $article;
+        }
+
+        $article = $this->getArticleArrayLine(
+            $latestKey,
+            'Betaald bedrag',
+            'BETAALD',
+            1,
+            round($giftCardTotal, 2),
+            4
+        );
+
+        return $article;
+    }
+
+    /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return float|int
@@ -1092,8 +1142,8 @@ class Afterpay2 extends AbstractMethod
     }
 
     /**
-     * @param      $taxClassId
-     * @param null|int $storeId
+     * @param           $taxClassId
+     * @param null|int  $storeId
      *
      * @return int
      */
@@ -1348,7 +1398,7 @@ class Afterpay2 extends AbstractMethod
     public function isAddressDataDifferent($payment)
     {
         $billingAddress = $payment->getOrder()->getBillingAddress();
-        $shippingAddress  = $payment->getOrder()->getShippingAddress();
+        $shippingAddress = $payment->getOrder()->getShippingAddress();
 
         if ($billingAddress === null || $shippingAddress === null) {
             return false;
