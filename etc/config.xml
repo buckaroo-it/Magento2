@@ -1,22 +1,41 @@
 <?xml version="1.0"?>
 <!--
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright   Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
@@ -78,7 +97,7 @@
                 <group>tig_buckaroo</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay</payment_method_after_expiry>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay</payment_method_after_expiry>
             </tig_buckaroo_sepadirectdebit>
 
             <tig_buckaroo_paypal>
@@ -100,20 +119,6 @@
                 <available_in_backend>0</available_in_backend>
             </tig_buckaroo_paypal>
 
-            <tig_buckaroo_payconiq>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Payconiq</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo Payconiq</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>90</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_payconiq>
-
             <tig_buckaroo_creditcard>
                 <active>0</active>
                 <model>TIG\Buckaroo\Model\Method\Creditcard</model>
@@ -134,20 +139,6 @@
                 <available_in_backend>0</available_in_backend>
             </tig_buckaroo_creditcard>
 
-            <tig_buckaroo_creditcards>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Creditcards</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo Creditcards</title>
-                <sort_order>35</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <card_design>1</card_design>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_creditcards>
-
             <tig_buckaroo_transfer>
                 <active>0</active>
                 <model>TIG\Buckaroo\Model\Method\Transfer</model>
@@ -164,7 +155,7 @@
                 <group>tig_buckaroo</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>1</available_in_backend>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay</payment_method_after_expiry>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay</payment_method_after_expiry>
             </tig_buckaroo_transfer>
 
             <tig_buckaroo_giropay>
@@ -255,8 +246,8 @@
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>1</available_in_backend>
                 <send_mail>1</send_mail>
-                <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,sepadirectdebit,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay</payment_method>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay</payment_method_after_expiry>
+                <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,dankort,eps,sepadirectdebit,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay</payment_method>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay</payment_method_after_expiry>
             </tig_buckaroo_payperemail>
 
             <tig_buckaroo_eps>
@@ -298,133 +289,6 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
             </tig_buckaroo_paymentguarantee>
-
-            <tig_buckaroo_kbc>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Kbc</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo KBC</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>210</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_kbc>
-
-            <tig_buckaroo_klarna>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Klarna</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo Klarna</title>
-                <sort_oder>220</sort_oder>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
-                <payment_action>authorize</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_klarna>
-
-            <tig_buckaroo_emandate>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Emandate</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo Digitale Incassomachtiging</title>
-                <sequence_type>1</sequence_type>
-                <language>nl_NL</language>
-                <allowspecific>0</allowspecific>
-                <sort_order>230</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_emandate>
-
-            <tig_buckaroo_afterpay20>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Afterpay20</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo Afterpay</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>240</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <can_capture_partial>1</can_capture_partial>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_afterpay20>
-
-            <tig_buckaroo_applepay>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Applepay</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo Apple Pay</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>240</sort_order>
-                <order_email>1</order_email>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_applepay>
-
-            <tig_buckaroo_capayablein3>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Capayable\Installments</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo Capayable In3</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>250</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_capayablein3>
-
-            <tig_buckaroo_capayablepostpay>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Capayable\Postpay</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo Capayable Postpay</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>260</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_capayablepostpay>
-
-            <tig_buckaroo_alipay>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Alipay</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo Alipay</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>270</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_alipay>
-
-            <tig_buckaroo_wechatpay>
-                <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Wechatpay</model>
-                <order_status>pending</order_status>
-                <title>TIG Buckaroo WeChatPay</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>270</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_wechatpay>
         </payment>
 
         <tig_buckaroo>

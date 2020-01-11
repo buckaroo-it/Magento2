@@ -1,32 +1,85 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Block\Adminhtml\Giftcard;
 
 use Magento\Framework\Phrase;
 use Magento\Framework\Registry;
 use TIG\Buckaroo\Block\Adminhtml\Giftcard\Edit;
-use TIG\Buckaroo\Model\Giftcard;
 
 class EditTest extends \TIG\Buckaroo\Test\BaseTest
 {
-    protected $instanceClass = Edit::class;
+    /**
+     * @var  Registry
+     */
+    protected $registry;
+
+    /**
+     * @var  Edit
+     */
+    protected $object;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $escaper = \Mockery::mock(\Magento\Framework\Escaper::class)->makePartial();
+        $escaper->shouldReceive('escapeHtml')->withArgs(array('data'))->andReturn('data');
+
+        $context = $this->objectManagerHelper->getObject(
+            \Magento\Backend\Block\Widget\Context::class,
+            [
+                'escaper' => $escaper
+            ]
+        );
+
+        $giftcardModel = \Mockery::mock(\TIG\Buckaroo\Model\Giftcard::class)->makePartial();
+        $this->registry = \Mockery::mock(Registry::class);
+        $this->registry->shouldReceive('registry')->with('buckaroo_giftcard')->andReturn($giftcardModel);
+
+        $this->object = $this->objectManagerHelper->getObject(
+            Edit::class,
+            [
+                'context' => $context,
+                'registry' => $this->registry
+            ]
+        );
+    }
 
     public function headerTextProvider()
     {
@@ -62,15 +115,10 @@ class EditTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetHeaderText($id, $label, $expectedArgument, $expectedText)
     {
-        $giftcardModel = $this->getFakeMock(Giftcard::class)->setMethods(['getId', 'getLabel'])->getMock();
-        $giftcardModel->method('getId')->willReturn($id);
-        $giftcardModel->method('getLabel')->willReturn($label);
+        $this->registry->registry('buckaroo_giftcard')->setId($id);
+        $this->registry->registry('buckaroo_giftcard')->setLabel($label);
 
-        $registry = $this->getFakeMock(Registry::class)->setMethods(['registry'])->getMock();
-        $registry->method('registry')->with('buckaroo_giftcard')->willReturn($giftcardModel);
-
-        $instance = $this->getInstance(['registry' => $registry]);
-        $result = $instance->getHeaderText();
+        $result = $this->object->getHeaderText();
         $resultArgs = $result->getArguments();
 
         $this->assertInstanceOf(Phrase::class, $result);

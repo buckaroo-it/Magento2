@@ -1,32 +1,68 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Observer;
 
 use Magento\Framework\Event\Observer;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
+use Mockery as m;
 use TIG\Buckaroo\Observer\UpdateOrderStatus;
 use TIG\Buckaroo\Test\BaseTest;
 
 class UpdateOrderStatusTest extends BaseTest
 {
-    protected $instanceClass = UpdateOrderStatus::class;
+    /**
+     * @var UpdateOrderStatus
+     */
+    protected $object;
+
+    /**
+     * Setup the basic mocks.
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $account = \Mockery::mock(\TIG\Buckaroo\Model\ConfigProvider\Account::class)->makePartial();
+        $account->shouldReceive('getOrderStatusNew')->andReturn('tig_buckaroo_pending_payment');
+        $account->shouldReceive('getCreateOrderBeforeTransaction')->andReturn(0);
+
+        $this->object = new UpdateOrderStatus($account);
+    }
 
     /**
      * Test what happens when this function is called but the payment method is not Buckaroo.
@@ -37,8 +73,7 @@ class UpdateOrderStatusTest extends BaseTest
         $observerMock->expects($this->once())->method('getPayment')->willReturnSelf();
         $observerMock->expects($this->once())->method('getMethod')->willReturn('other_payment_method');
 
-        $instance = $this->getInstance();
-        $instance->execute($observerMock);
+        $this->object->execute($observerMock);
     }
 
     /**
@@ -55,13 +90,6 @@ class UpdateOrderStatusTest extends BaseTest
         $observerMock->method('getStore')->willReturnSelf();
         $observerMock->expects($this->once())->method('setStatus')->willReturn('tig_buckaroo_pending_payment');
 
-        $accountMock = $this->getFakeMock(Account::class)
-            ->setMethods(['getOrderStatusNew', 'getCreateOrderBeforeTransaction'])
-            ->getMock();
-        $accountMock->expects($this->once())->method('getOrderStatusNew')->willReturn('tig_buckaroo_pending_payment');
-        $accountMock->expects($this->once())->method('getCreateOrderBeforeTransaction')->willReturn(0);
-
-        $instance = $this->getInstance(['account' => $accountMock]);
-        $instance->execute($observerMock);
+        $this->object->execute($observerMock);
     }
 }

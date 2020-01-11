@@ -1,75 +1,113 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\ConfigProvider\Method;
 
-use Magento\Store\Model\ScopeInterface;
+use Mockery as m;
 use TIG\Buckaroo\Test\BaseTest;
 use TIG\Buckaroo\Model\ConfigProvider\Method\Ideal;
+use Magento\Framework\View\Asset\Repository;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 
 class IdealTest extends BaseTest
 {
-    protected $instanceClass = Ideal::class;
+    /**
+     * @var iDEAL
+     */
+    protected $object;
+
+    /**
+     * @var m\MockInterface
+     */
+    protected $assetRepository;
+
+    /**
+     * @var m\MockInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * Setup our dependencies
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->assetRepository = m::mock(Repository::class);
+        $this->scopeConfig = m::mock(ScopeConfigInterface::class);
+        $this->object = $this->objectManagerHelper->getObject(
+            Ideal::class,
+            [
+            'assetRepo' => $this->assetRepository,
+            'scopeConfig' => $this->scopeConfig,
+            ]
+        );
+    }
 
     /**
      * Test what happens when the payment method is disabled.
      */
     public function testInactive()
     {
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
-            ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(Ideal::XPATH_IDEAL_ACTIVE, ScopeInterface::SCOPE_STORE)
-            ->willReturn(false);
+        $this->scopeConfig->shouldReceive('getValue')->andReturn(false);
 
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getConfig();
-
-        $this->assertEquals([], $result);
+        $this->assertEquals([], $this->object->getConfig());
     }
 
     /**
-     * Check if the getConfig function is called for every record.
+     * Check if the getImageUrl function is called for every record.
      */
-    public function testGetConfig()
+    public function testGetImageUrl()
     {
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
-            ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->exactly(2))
-            ->method('getValue')
-            ->withConsecutive(
-                [Ideal::XPATH_IDEAL_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Ideal::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
-            )
-            ->willReturnOnConsecutiveCalls(true, 'EUR,USD');
+        $this->scopeConfig->shouldReceive('getValue')->andReturn(true);
 
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getConfig();
+        $shouldReceive = $this->assetRepository
+            ->shouldReceive('getUrl')
+            ->with(\Mockery::type('string'));
 
-        $this->assertArrayHasKey('payment', $result);
-        $this->assertArrayHasKey('buckaroo', $result['payment']);
-        $this->assertArrayHasKey('ideal', $result['payment']['buckaroo']);
-        $this->assertArrayHasKey('banks', $result['payment']['buckaroo']['ideal']);
+        $options = $this->object->getConfig();
+
+        $shouldReceive->times(count($options['payment']['buckaroo']['ideal']['banks']));
+
+        $this->assertTrue(array_key_exists('payment', $options));
+        $this->assertTrue(array_key_exists('buckaroo', $options['payment']));
+        $this->assertTrue(array_key_exists('ideal', $options['payment']['buckaroo']));
+        $this->assertTrue(array_key_exists('banks', $options['payment']['buckaroo']['ideal']));
     }
 
     /**
@@ -77,8 +115,7 @@ class IdealTest extends BaseTest
      */
     public function testIssuers()
     {
-        $instance = $this->getInstance();
-        $issuers = $instance->getIssuers();
+        $issuers = $this->object->getIssuers();
 
         foreach ($issuers as $issuer) {
             $this->assertTrue(array_key_exists('name', $issuer));
@@ -91,18 +128,9 @@ class IdealTest extends BaseTest
      */
     public function testGetPaymentFee()
     {
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
-            ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(Ideal::XPATH_IDEAL_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
-            ->willReturn(null);
+        $this->scopeConfig->shouldReceive('getValue')->once()->andReturn(0);
 
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getPaymentFee();
-
-        $this->assertFalse($result);
+        $this->assertFalse((bool) $this->object->getPaymentFee());
     }
 
     /**
@@ -110,18 +138,9 @@ class IdealTest extends BaseTest
      */
     public function testGetPaymentFeeReturnNumber()
     {
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
-            ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(Ideal::XPATH_IDEAL_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
-            ->willReturn(10.00);
+        $this->scopeConfig->shouldReceive('getValue')->once()->andReturn('10');
 
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getPaymentFee();
-
-        $this->assertEquals(10.00, $result);
+        $this->assertEquals(10, $this->object->getPaymentFee());
     }
 
     /**
@@ -129,17 +148,11 @@ class IdealTest extends BaseTest
      */
     public function testGetActive()
     {
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
-            ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(Ideal::XPATH_IDEAL_ACTIVE, ScopeInterface::SCOPE_STORE)
-            ->willReturn('1');
+        $this->scopeConfig->shouldReceive('getValue')
+            ->once()
+            ->withArgs([Ideal::XPATH_IDEAL_ACTIVE, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, null])
+            ->andReturn('1');
 
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getActive();
-
-        $this->assertEquals(1, $result);
+        $this->assertEquals(1, $this->object->getActive());
     }
 }

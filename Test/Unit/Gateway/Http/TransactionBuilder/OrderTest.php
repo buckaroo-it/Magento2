@@ -1,37 +1,83 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Gateway\Http\TransactionBuilder;
 
-use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Url;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order as MagentoOrder;
-use Magento\Sales\Model\Order\Payment;
 use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
 use TIG\Buckaroo\Test\BaseTest;
 
 class OrderTest extends BaseTest
 {
     protected $instanceClass = Order::class;
+
+    /**
+     * @var Order
+     */
+    protected $object;
+
+    /**
+     * @var \TIG\Buckaroo\Model\ConfigProvider\Account|\Mockery\MockInterface
+     */
+    protected $configProviderAccount;
+
+    /**
+     * @var Url|\Mockery\MockInterface
+     */
+    protected $urlBuilderMock;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->configProviderAccount = \Mockery::mock(\TIG\Buckaroo\Model\ConfigProvider\Account::class);
+        $this->urlBuilderMock = \Mockery::mock(Url::class);
+
+        $this->object = $this->objectManagerHelper->getObject(
+            Order::class,
+            [
+                'configProviderAccount' => $this->configProviderAccount,
+                'urlBuilder' => $this->urlBuilderMock
+            ]
+        );
+    }
 
     public function testGetBody()
     {
@@ -48,62 +94,36 @@ class OrderTest extends BaseTest
             ],
             'StartRecurrent' => 1,
             'Services' => [
-                'Service' => [
-                    'Action' => 'actionstring'
-                ],
-            ],
-            'AdditionalParameters' => [
-                'AdditionalParameter' => [
-                    [
-                        '_'    => 'actionstring',
-                        'Name' => 'service_action_from_magento',
-                    ],
-                    [
-                        '_'    => 1,
-                        'Name' => 'initiated_by_magento',
-                    ]
-                ],
+                'Service' => 'servicesString',
             ],
         ];
 
-        $orderMock = $this->getFakeMock(MagentoOrder::class)
-            ->setMethods(['getIncrementId', 'getRemoteIp', 'getStore', 'setState', 'setStatus', 'getStoreId', 'save'])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getIncrementId')->willReturn($expected['Invoice']);
-        $orderMock->method('getRemoteIp')->willReturn($expected['ClientIP']['_']);
-        $orderMock->expects($this->once())->method('getStore');
-        $orderMock->expects($this->once())->method('setState');
-        $orderMock->expects($this->once())->method('setStatus');
-        $orderMock->method('getStoreId')->willReturn(1);
-        $orderMock->method('save');
+        $this->object->amount = 50;
+        $this->object->currency = 'EUR';
+        $this->object->invoiceId = $expected['Invoice'];
+        $this->object->setStartRecurrent($expected['StartRecurrent']);
+        $this->object->setServices($expected['Services']['Service']);
 
-        $configProviderAccountMock = $this->getFakeMock(Account::class)
-            ->setMethods(['getTransactionLabel', 'getCreateOrderBeforeTransaction', 'getOrderStatusNew'])
-            ->getMock();
-        $configProviderAccountMock->method('getTransactionLabel')->willReturn($expected['Description']);
-        $configProviderAccountMock->method('getCreateOrderBeforeTransaction')->willReturn(1);
-        $configProviderAccountMock->method('getOrderStatusNew')->willReturn(1);
+        $this->configProviderAccount->shouldReceive('getTransactionLabel')->andReturn($expected['Description']);
+        $this->configProviderAccount->shouldReceive('getCreateOrderBeforeTransaction')->andReturn(1);
+        $this->configProviderAccount->shouldReceive('getOrderStatusNew')->andReturn(1);
 
-        $urlBuilderMock = $this->getFakeMock(Url::class)
-            ->setMethods(['setScope', 'getRouteUrl', 'getDirectUrl'])
-            ->getMock();
-        $urlBuilderMock->method('setScope')->willReturnSelf();
-        $urlBuilderMock->method('getRouteUrl')->willReturn('');
-        $urlBuilderMock->method('getDirectUrl')->willReturnSelf();
+        $this->urlBuilderMock->shouldReceive('setScope')->andReturnSelf();
+        $this->urlBuilderMock->shouldReceive('getRouteUrl')->andReturnSelf();
+        $this->urlBuilderMock->shouldReceive('getDirectUrl')->andReturnSelf();
 
-        $instance = $this->getInstance([
-            'configProviderAccount' => $configProviderAccountMock,
-            'urlBuilder' => $urlBuilderMock
-        ]);
-        $instance->setAmount(50);
-        $instance->setCurrency('EUR');
-        $instance->setInvoiceId($expected['Invoice']);
-        $instance->setStartRecurrent($expected['StartRecurrent']);
-        $instance->setServices($expected['Services']['Service']);
-        $instance->setOrder($orderMock);
+        $order = \Mockery::mock(MagentoOrder::class);
+        $order->shouldReceive('getIncrementId')->once()->andReturn($expected['Invoice']);
+        $order->shouldReceive('getRemoteIp')->andReturn($expected['ClientIP']['_']);
+        $order->shouldReceive('getStore')->once();
+        $order->shouldReceive('setState')->once();
+        $order->shouldReceive('setStatus')->once();
+        $order->shouldReceive('getStoreId')->andReturn(1);
+        $order->shouldReceive('save');
 
-        $result = $instance->getBody();
+        $this->object->setOrder($order);
 
+        $result = $this->object->getBody();
         foreach ($expected as $key => $value) {
             $valueToTest = $value;
 
@@ -208,62 +228,20 @@ class OrderTest extends BaseTest
                     'Invoice' => '#3571',
                 ]
             ],
-            'filtered capayable payininstallments' => [
-                [
-                    'Name' => 'capayable',
-                    'Action' => 'PayInInstallments'
-                ],
-                [
-                    'Invoice' => '#3571',
-                    'Order' => '#8294',
-                    'AmountCredit' => '42.00',
-                    'OriginalTransactionKey' => 'reyk879',
-                ],
-                [
-                    'Invoice' => '#3571',
-                    'AmountCredit' => '42.00',
-                    'OriginalTransactionKey' => 'reyk879',
-                ]
-            ],
-            'cancel transaction method' => [
-                [],
-                [
-                    'OriginalTransactionKey' => 'stu2345',
-                ],
-                [
-                    'Transaction' => ['Key' => 'stu2345'],
-                ],
-                'CancelTransaction'
-            ],
-            'not cancel transaction method' => [
-                [],
-                [
-                    'OriginalTransactionKey' => 'stu2345',
-                ],
-                [
-                    'OriginalTransactionKey' => 'stu2345',
-                ],
-                'DataRequest'
-            ],
         ];
     }
 
     /**
-     * @param        $service
-     * @param        $body
-     * @param        $expected
-     * @param string $method
+     * @param $service
+     * @param $body
+     * @param $expected
      *
      * @dataProvider filterBodyProvider
      */
-    public function testFilterBody($service, $body, $expected, $method = '')
+    public function testFilterBody($service, $body, $expected)
     {
         $instance = $this->getInstance();
         $instance->setServices($service);
-
-        if (strlen($method) > 0) {
-            $instance->setMethod($method);
-        }
 
         $result = $this->invokeArgs('filterBody', [$body], $instance);
         $this->assertEquals($expected, $result);
@@ -278,13 +256,11 @@ class OrderTest extends BaseTest
             'instance has no return url' => [
                 null,
                 'tig.nl',
-                '123abc',
-                'tig.nl?form_key=123abc'
+                'tig.nl'
             ],
             'instance has return url' => [
                 'magento.com',
                 'google.com',
-                'def456',
                 'magento.com'
             ]
         ];
@@ -293,12 +269,11 @@ class OrderTest extends BaseTest
     /**
      * @param $existingUrl
      * @param $generatedUrl
-     * @param $formKey
      * @param $expected
      *
      * @dataProvider getReturnUrlProvider
      */
-    public function testGetReturnUrl($existingUrl, $generatedUrl, $formKey, $expected)
+    public function testGetReturnUrl($existingUrl, $generatedUrl, $expected)
     {
         $methodIsCalled = (int)!((bool)$existingUrl);
 
@@ -311,85 +286,14 @@ class OrderTest extends BaseTest
         $urlBuilderMock->expects($this->exactly($methodIsCalled))->method('setScope')->with(1)->willReturnSelf();
         $urlBuilderMock->expects($this->exactly($methodIsCalled*2))
             ->method('getRouteUrl')
-            ->withConsecutive(['buckaroo/redirect/process'], [$generatedUrl . '?form_key=' . $formKey])
-            ->willReturnOnConsecutiveCalls($generatedUrl, $generatedUrl . '?form_key=' . $formKey);
+            ->withConsecutive(['buckaroo/redirect/process'], [$generatedUrl])
+            ->willReturn($generatedUrl);
 
-        $formKeyMock = $this->getFakeMock(FormKey::class)->setMethods(['getFormKey'])->getMock();
-        $formKeyMock->expects($this->exactly($methodIsCalled))->method('getFormKey')->willReturn($formKey);
-
-        $instance = $this->getInstance(['urlBuilder' => $urlBuilderMock, 'formKey' => $formKeyMock]);
+        $instance = $this->getInstance(['urlBuilder' => $urlBuilderMock]);
         $this->setProperty('order', $orderMock, $instance);
         $this->setProperty('returnUrl', $existingUrl, $instance);
 
         $result = $instance->getReturnUrl();
         $this->assertEquals($expected, $result);
-    }
-
-    public function testGetAllowedCurrencies()
-    {
-        $paymentMethod = 'tig_payment_method';
-        $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['getMethodInstance'])->getMock();
-        $paymentMock->expects($this->once())->method('getMethodInstance')->willReturnSelf();
-        $paymentMock->buckarooPaymentMethodCode = $paymentMethod;
-
-        $orderMock = $this->getFakeMock(MagentoOrder::class)->setMethods(['getPayment'])->getMock();
-        $orderMock->expects($this->once())->method('getPayment')->willReturn($paymentMock);
-
-        $configFactoryMock = $this->getFakeMock(Factory::class)->setMethods(['get', 'getAllowedCurrencies'])->getMock();
-        $configFactoryMock->expects($this->once())->method('get')->with($paymentMethod)->willReturnSelf();
-        $configFactoryMock->expects($this->once())->method('getAllowedCurrencies')->willReturn(['EUR']);
-
-        $instance = $this->getInstance(['configProviderMethodFactory' => $configFactoryMock]);
-        $instance->setOrder($orderMock);
-
-        $result = $this->invoke('getAllowedCurrencies', $instance);
-        $this->assertEquals(['EUR'], $result);
-    }
-
-    public function setOrderAmountProvider()
-    {
-        return [
-            'same currency' => [
-                'EUR',
-                'EUR',
-                '10',
-                '15',
-                '10'
-            ],
-            'different currency' => [
-                'USD',
-                'EUR',
-                '25',
-                '30',
-                '30'
-            ],
-        ];
-    }
-
-    /**
-     * @param $orderCurrency
-     * @param $trxCurrency
-     * @param $total
-     * @param $baseTotal
-     * @param $expected
-     *
-     * @dataProvider setOrderAmountProvider
-     */
-    public function testSetOrderAmount($orderCurrency, $trxCurrency, $total, $baseTotal, $expected)
-    {
-        $orderMock = $this->getFakeMock(MagentoOrder::class)
-            ->setMethods(['getOrderCurrencyCode', 'getGrandTotal', 'getBaseGrandTotal'])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getOrderCurrencyCode')->willReturn($orderCurrency);
-        $orderMock->method('getGrandTotal')->willReturn($total);
-        $orderMock->method('getBaseGrandTotal')->willReturn($baseTotal);
-
-        $instance = $this->getInstance();
-        $instance->setCurrency($trxCurrency);
-        $instance->setOrder($orderMock);
-
-        $result = $this->invoke('setOrderAmount', $instance);
-        $this->assertInstanceOf(Order::class, $result);
-        $this->assertEquals($expected, $instance->getAmount());
     }
 }

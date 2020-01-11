@@ -1,22 +1,41 @@
 <?php
 
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\Validator;
@@ -25,7 +44,6 @@ use TIG\Buckaroo\Helper\Data;
 use TIG\Buckaroo\Logging\Log;
 use TIG\Buckaroo\Model\ConfigProvider\Account;
 use \TIG\Buckaroo\Model\ValidatorInterface;
-use \Magento\Framework\Encryption\Encryptor;
 
 /**
  * Class Push
@@ -43,9 +61,6 @@ class Push implements ValidatorInterface
     /** @var Log $logging */
     public $logging;
 
-    /** @var Encryptor $encryptor */
-    private $encryptor;
-
     public $bpeResponseMessages = [
         190 => 'Success',
         490 => 'Payment failure',
@@ -61,21 +76,18 @@ class Push implements ValidatorInterface
     ];
 
     /**
-     * @param Data          $helper
-     * @param Account       $configProviderAccount
-     * @param Log           $logging
-     * @param Encryptor     $encryptor
+     * @param Data    $helper
+     * @param Account $configProviderAccount
+     * @param Log     $logging
      */
     public function __construct(
         Data $helper,
         Account $configProviderAccount,
-        Log $logging,
-        Encryptor $encryptor
+        Log $logging
     ) {
         $this->helper                   = $helper;
         $this->configProviderAccount    = $configProviderAccount;
         $this->logging                  = $logging;
-        $this->encryptor                = $encryptor;
     }
 
     /**
@@ -159,7 +171,7 @@ class Push implements ValidatorInterface
             $signatureString .= $brq_key. '=' . $value;
         }
 
-        $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
+        $digitalSignature = $this->configProviderAccount->getSecretKey();
 
         $signatureString .= $digitalSignature;
 
@@ -179,10 +191,6 @@ class Push implements ValidatorInterface
     private function decodePushValue($brq_key, $brq_value)
     {
         switch ($brq_key) {
-            case 'brq_SERVICE_payconiq_PayconiqAndroidUrl':
-            case 'brq_SERVICE_payconiq_PayconiqIosUrl':
-            case 'brq_SERVICE_payconiq_PayconiqUrl':
-            case 'brq_SERVICE_payconiq_QrUrl':
             case 'brq_SERVICE_masterpass_CustomerPhoneNumber':
             case 'brq_SERVICE_masterpass_ShippingRecipientPhoneNumber':
             case 'brq_InvoiceDate':

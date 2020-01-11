@@ -1,22 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright   Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
@@ -52,15 +71,9 @@
         <plugin name="tig_buckaroo_sepadirectdebit" type="TIG\Buckaroo\Model\Plugin\Method\SepaDirectDebit" />
     </type>
 
-    <type name="Magento\Sales\Api\OrderRepositoryInterface">
-        <plugin name="tig_buckaroo_add_order_extension_attributes" type="TIG\Buckaroo\Model\Plugin\OrderExtensionAttribute" />
-    </type>
-
     <type name="Magento\Sales\Model\Order">
         <plugin name="tig_buckaroo_plugin_afterpay" type="TIG\Buckaroo\Model\Plugin\Method\Afterpay"/>
         <plugin name="tig_buckaroo_plugin_afterpay2" type="TIG\Buckaroo\Model\Plugin\Method\Afterpay2"/>
-        <plugin name="tig_buckaroo_plugin_emandate" type="TIG\Buckaroo\Model\Plugin\Method\Emandate"/>
-        <plugin name="tig_buckaroo_plugin_klarna" type="TIG\Buckaroo\Model\Plugin\Method\Klarna"/>
     </type>
 
     <type name="TIG\Buckaroo\Model\Push">
@@ -167,10 +180,6 @@
                     <item name="type" xsi:type="string">creditcard</item>
                     <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard</item>
                 </item>
-                <item name="creditcards" xsi:type="array">
-                    <item name="type" xsi:type="string">creditcards</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Creditcards</item>
-                </item>
                 <item name="giropay" xsi:type="array">
                     <item name="type" xsi:type="string">giropay</item>
                     <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Giropay</item>
@@ -182,10 +191,6 @@
                 <item name="paypal" xsi:type="array">
                     <item name="type" xsi:type="string">paypal</item>
                     <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Paypal</item>
-                </item>
-                <item name="payconiq" xsi:type="array">
-                    <item name="type" xsi:type="string">payconiq</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Payconiq</item>
                 </item>
                 <item name="sepadirectdebit" xsi:type="array">
                     <item name="type" xsi:type="string">sepadirectdebit</item>
@@ -207,10 +212,6 @@
                     <item name="type" xsi:type="string">afterpay2</item>
                     <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Afterpay2</item>
 				</item>
-                <item name="afterpay20" xsi:type="array">
-                    <item name="type" xsi:type="string">afterpay20</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Afterpay20</item>
-                </item>
                 <item name="payperemail" xsi:type="array">
                     <item name="type" xsi:type="string">payperemail</item>
                     <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\PayPerEmail</item>
@@ -226,38 +227,6 @@
                 <item name="paymentguarantee" xsi:type="array">
                     <item name="type" xsi:type="string">paymentguarantee</item>
                     <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\PaymentGuarantee</item>
-                </item>
-                <item name="kbc" xsi:type="array">
-                    <item name="type" xsi:type="string">kbc</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Kbc</item>
-                </item>
-                <item name="klarna" xsi:type="array">
-                    <item name="type" xsi:type="string">klarna</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Klarna</item>
-                </item>
-                <item name="emandate" xsi:type="array">
-                    <item name="type" xsi:type="string">emandate</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Emandate</item>
-                </item>
-                <item name="applepay" xsi:type="array">
-                    <item name="type" xsi:type="string">applepay</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Applepay</item>
-                </item>
-                <item name="capayablein3" xsi:type="array">
-                    <item name="type" xsi:type="string">capayablein3</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\CapayableIn3</item>
-                </item>
-                <item name="capayablepostpay" xsi:type="array">
-                    <item name="type" xsi:type="string">capayablepostpay</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\CapayablePostpay</item>
-                </item>
-                <item name="alipay" xsi:type="array">
-                    <item name="type" xsi:type="string">alipay</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Alipay</item>
-                </item>
-                <item name="wechatpay" xsi:type="array">
-                    <item name="type" xsi:type="string">wechatpay</item>
-                    <item name="model" xsi:type="string">TIG\Buckaroo\Model\ConfigProvider\Method\Wechatpay</item>
                 </item>
             </argument>
         </arguments>

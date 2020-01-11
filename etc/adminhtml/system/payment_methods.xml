@@ -1,60 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright   Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Payment section -->
-    <group id="tig_buckaroo_payment_section" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label><![CDATA[<div class="buckaroo-payment-logo"></div><div class="buckaroo-payment-byline">This is the official Buckaroo extension - developed by TIG</div>
-        <div class="block-legend">
-            <h3>Legend</h3>
-            <div>
-                <ul id="legend">
-                    <li class="disabled">
-                        <span class="img"></span>
-                        <span class="text">Payment method: </span>
-                        <span class="status">Disabled</span>
-                    </li>
-                    <li class="test">
-                        <span class="img"></span>
-                        <span class="text">Payment method: </span>
-                        <span class="status">Test Mode</span>
-                    </li>
-                    <li class="live">
-                        <span class="img"></span>
-                        <span class="text">Payment method: </span>
-                        <span class="status">Live Mode</span>
-                    </li>
-                </ul>
-            </div>
-        </div>]]></label>
+    <group id="tig_buckaroo_payment_section" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>Buckaroo payment methods</label>
         <fieldset_css>tig_buckaroo-section</fieldset_css>
-        <frontend_model>TIG\Buckaroo\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
 
         <include path="TIG_Buckaroo::system/payment_methods/ideal.xml"/>
 
         <include path="TIG_Buckaroo::system/payment_methods/idealprocessing.xml"/>
 
         <include path="TIG_Buckaroo::system/payment_methods/creditcard.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/creditcards.xml"/>
 
         <include path="TIG_Buckaroo::system/payment_methods/paypal.xml"/>
 
@@ -80,24 +74,5 @@
 
         <include path="TIG_Buckaroo::system/payment_methods/paymentguarantee.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/payconiq.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/kbc.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/klarna.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/emandate.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/afterpay20.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/applepay.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/capayable_in3.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/capayable_postpay.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/alipay.xml"/>
-
-        <include path="TIG_Buckaroo::system/payment_methods/wechatpay.xml"/>
     </group>
 </include>

@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Config\Source;
 
@@ -24,38 +43,58 @@ use TIG\Buckaroo\Test\BaseTest;
 
 class EnableModeTest extends BaseTest
 {
-    protected $instanceClass = Enablemode::class;
+    /**
+     * @var Enablemode
+     */
+    protected $object;
 
     /**
      * @var array
      */
-    protected $expectedOptions = [
-        'Off',
-        'Test',
-        'Live',
-    ];
+    protected $shouldHaveOptions;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->object = new Enablemode();
+
+        $this->shouldHaveOptions = [
+            0 => __('Off'),
+            1 => __('Test'),
+            2 => __('Live'),
+        ];
+    }
 
     public function testToOptionArray()
     {
-        $instance = $this->getInstance();
-        $result = $instance->toOptionArray();
+        $options = $this->object->toOptionArray();
+        $this->assertTrue($options >= 3);
 
-        $this->assertCount(3, $result);
-
-        foreach ($result as $option) {
-            $this->assertContains($option['label']->getText(), $this->expectedOptions);
+        foreach ($this->shouldHaveOptions as $key => $shouldHaveOptionValue) {
+            foreach ($options as $option) {
+                if ($option['value'] == $key) {
+                    /**
+                     * @noinspection PhpUndefinedMethodInspection
+                     */
+                    $this->assertEquals($option['label']->getText(), $shouldHaveOptionValue->getText());
+                    break;
+                }
+            }
         }
     }
 
     public function testToArray()
     {
-        $instance = $this->getInstance();
-        $result = $instance->toArray();
+        $options = $this->object->toArray();
 
-        $this->assertCount(3, $result);
-
-        foreach ($result as $option) {
-            $this->assertContains($option->getText(), $this->expectedOptions);
+        foreach ($options as $key => $option) {
+            if (array_key_exists($key, $this->shouldHaveOptions)) {
+                /**
+                 * @noinspection PhpUndefinedMethodInspection
+                 */
+                $this->assertEquals($option->getText(), $this->shouldHaveOptions[$key]->getText());
+            }
         }
     }
 }

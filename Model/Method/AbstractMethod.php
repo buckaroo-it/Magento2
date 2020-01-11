@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\Method;
@@ -42,11 +61,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @var \TIG\Buckaroo\Gateway\GatewayInterface
      */
     protected $gateway;
-
-    /**
-     * @var array
-     */
-    protected $response;
 
     /**
      * @var \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory
@@ -171,9 +185,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param \TIG\Buckaroo\Model\ConfigProvider\Factory              $configProviderFactory
      * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data                  $priceHelper
+     * @param \Magento\Developer\Helper\Data                          $developmentHelper
      * @param array                                                   $data
-     *
-     * @throws \TIG\Buckaroo\Exception
      */
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
@@ -260,14 +273,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public function assignData(\Magento\Framework\DataObject $data)
     {
         if ($data instanceof \Magento\Framework\DataObject) {
-            $additionalSkip = $data->getAdditionalData();
-            $skipValidation = $data->getBuckarooSkipValidation();
-
-            if ($skipValidation === null && isset($additionalSkip['buckaroo_skip_validation'])) {
-                $skipValidation = $additionalSkip['buckaroo_skip_validation'];
-            }
-
-            $this->getInfoInstance()->setAdditionalInformation('buckaroo_skip_validation', $skipValidation);
+            /**
+             * @noinspection PhpUndefinedMethodInspection
+             */
+            $this->getInfoInstance()->setAdditionalInformation(
+                'buckaroo_skip_validation',
+                $data->getBuckarooSkipValidation()
+            );
         }
         return $this;
     }
@@ -405,29 +417,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function canProcessPostData($payment, $postData)
     {
-        return true;
-    }
-
-    /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array                               $postData
-     */
-    public function processCustomPostData($payment, $postData)
-    {
-        return;
-    }
-
-    /**
-     * @param $responseData
-     *
-     * @return bool
-     */
-    public function canPushInvoice($responseData)
-    {
-        if ($this->getConfigData('payment_action') == 'authorize') {
-            return false;
-        }
-
         return true;
     }
 
@@ -959,7 +948,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $payment->setAdditionalInformation('voided_by_buckaroo', true);
 
         // SET REGISTRY BUCKAROO REDIRECT
-        $this->addToRegistry('buckaroo_response', $response);
+        $this->_registry->register('buckaroo_response', $response);
 
         $this->afterVoid($payment, $response);
 
@@ -993,25 +982,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         return $response;
-    }
-
-    /**
-     * @param string $key
-     * @param        $value
-     */
-    private function addToRegistry($key, $value)
-    {
-        // if the key doesn't exist or is empty, the data can be directly added and registered
-        if (!$this->_registry->registry($key)) {
-            $this->_registry->register($key, [$value]);
-            return;
-        }
-
-        $registryValue = $this->_registry->registry($key);
-        $registryValue[] = $value;
-
-        $this->_registry->unregister($key);
-        $this->_registry->register($key, $registryValue);
     }
 
     /**
@@ -1100,13 +1070,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \StdClass $response
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param \StdClass                                                                          $response
+     * @param OrderPaymentInterface|InfoInterface                        $payment
      * @param                                                                                    $close
-     * @param bool $saveId
+     * @param bool                                                                               $saveId
      *
      * @return OrderPaymentInterface|InfoInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function saveTransactionData(
         \StdClass $response,
@@ -1139,8 +1108,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 $rawInfo
             );
 
-            $payment->getMethodInstance()->processCustomPostData($payment, $response);
-
             /**
              * @noinspection PhpUndefinedMethodInspection
              */
@@ -1161,7 +1128,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
              * @todo when buckaroo changes the push / response order this can be removed
              */
             if ($skipFirstPush > 0) {
-                $payment->setAdditionalInformation('skip_push', $skipFirstPush - 1);
+                $payment->unsAdditionalInformation('skip_push');
                 $payment->save();
             }
         }
@@ -1183,33 +1150,27 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param string $paymentMethodCode
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
      */
     public function addExtraFields($paymentMethodCode)
     {
         $requestParams = $this->request->getParams();
-        $services = [];
-
-        if (empty($requestParams['creditmemo'])) {
-            return $services;
-        }
-
         $creditMemoParams = $requestParams['creditmemo'];
+
         $extraFields = $this->refundFieldsFactory->get($paymentMethodCode);
 
-        if (empty($extraFields)) {
-            return $services;
-        }
+        $services = [];
 
         /**
          * If extra fields are found, attach these as 'RequestParameter' to the services.
          */
-        foreach ($extraFields as $extraField) {
-            $code = $extraField['code'];
-            $services['RequestParameter'][] = [
-                '_' => "$creditMemoParams[$code]",
-                'Name' => $code,
-            ];
+        if (!empty($extraFields)) {
+            foreach ($extraFields as $extraField) {
+                $code = $extraField['code'];
+                $services['RequestParameter'][] = [
+                    '_' => "$creditMemoParams[$code]",
+                    'Name' => $code,
+                ];
+            }
         }
 
         return $services;

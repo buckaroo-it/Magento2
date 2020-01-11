@@ -1,34 +1,79 @@
 <?php
 
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Method;
 
-use Magento\Payment\Model\InfoInterface;
-use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\Method\Mrcash;
-
 class MrcashTest extends \TIG\Buckaroo\Test\BaseTest
 {
-    protected $instanceClass = Mrcash::class;
+    /**
+     * @var \TIG\Buckaroo\Model\Method\Mrcash
+     */
+    protected $object;
+
+    /**
+     * @var \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory|\Mockery\MockInterface
+     */
+    protected $transactionBuilderFactory;
+
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface|\Mockery\MockInterface
+     */
+    protected $objectManager;
+
+    /**
+     * Setup the base mocks.
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->objectManager = \Mockery::mock(\Magento\Framework\ObjectManagerInterface::class);
+        $this->transactionBuilderFactory = \Mockery::mock(\TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory::class);
+
+        $this->object = $this->objectManagerHelper->getObject(
+            \TIG\Buckaroo\Model\Method\Mrcash::class,
+            [
+            'objectManager' => $this->objectManager,
+            'transactionBuilderFactory' => $this->transactionBuilderFactory,
+            ]
+        );
+    }
 
     /**
      * Test the getOrderTransactionBuilder method.
@@ -40,30 +85,33 @@ class MrcashTest extends \TIG\Buckaroo\Test\BaseTest
             'order' => 'orderrr!',
         ];
 
-        $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['getOrder'])->getMock();
-        $paymentMock->expects($this->once())->method('getOrder')->willReturn($fixture['order']);
+        $payment = \Mockery::mock(
+            \Magento\Payment\Model\InfoInterface::class,
+            \Magento\Sales\Api\Data\OrderPaymentInterface::class
+        );
 
-        $orderMock = $this->getFakeMock(Order::class)->setMethods(['setOrder', 'setMethod', 'setServices'])->getMock();
-        $orderMock->expects($this->once())->method('setOrder')->with($fixture['order'])->willReturnSelf();
-        $orderMock->expects($this->once())->method('setMethod')->with('TransactionRequest')->willReturnSelf();
-        $orderMock->expects($this->once())->method('setServices')->willReturnCallback(
-            function ($services) use ($fixture, $orderMock) {
+        $payment->shouldReceive('getOrder')->andReturn($fixture['order']);
+        $payment->shouldReceive('getAdditionalInformation')->with('issuer')->andReturn($fixture['issuer']);
+
+        $order = \Mockery::mock(\TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order::class);
+        $order->shouldReceive('setOrder')->with($fixture['order'])->andReturnSelf();
+        $order->shouldReceive('setMethod')->with('TransactionRequest')->andReturnSelf();
+
+        $order->shouldReceive('setServices')->andReturnUsing(
+            function ($services) use ($fixture, $order) {
                 $this->assertEquals('bancontactmrcash', $services['Name']);
                 $this->assertEquals('Pay', $services['Action']);
 
-                return $orderMock;
+                return $order;
             }
         );
 
-        $trxFactoryMock = $this->getFakeMock(TransactionBuilderFactory::class)->setMethods(['get'])->getMock();
-        $trxFactoryMock->expects($this->once())->method('get')->with('order')->willReturn($orderMock);
+        $this->transactionBuilderFactory->shouldReceive('get')->with('order')->andReturn($order);
 
-        $infoInterface = $this->getFakeMock(InfoInterface::class)->getMockForAbstractClass();
+        $infoInterface = \Mockery::mock(\Magento\Payment\Model\InfoInterface::class)->makePartial();
 
-        $instance = $this->getInstance(['transactionBuilderFactory' => $trxFactoryMock]);
-        $instance->setData('info_instance', $infoInterface);
-
-        $this->assertEquals($orderMock, $instance->getOrderTransactionBuilder($paymentMock));
+        $this->object->setData('info_instance', $infoInterface);
+        $this->assertEquals($order, $this->object->getOrderTransactionBuilder($payment));
     }
 
     /**
@@ -71,8 +119,7 @@ class MrcashTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetCaptureTransactionBuilder()
     {
-        $instance = $this->getInstance();
-        $this->assertFalse($instance->getCaptureTransactionBuilder(''));
+        $this->assertFalse($this->object->getCaptureTransactionBuilder(''));
     }
 
     /**
@@ -80,8 +127,7 @@ class MrcashTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetAuthorizeTransactionBuilder()
     {
-        $instance = $this->getInstance();
-        $this->assertFalse($instance->getAuthorizeTransactionBuilder(''));
+        $this->assertFalse($this->object->getAuthorizeTransactionBuilder(''));
     }
 
     /**
@@ -89,38 +135,33 @@ class MrcashTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetRefundTransactionBuilder()
     {
-        $paymentMock = $this->getFakeMock(Payment::class)
-            ->setMethods(['getOrder', 'getAdditionalInformation'])
-            ->getMock();
-        $paymentMock->expects($this->once())->method('getOrder')->willReturn('orderr');
-        $paymentMock->expects($this->once())
-            ->method('getAdditionalInformation')
-            ->with(Mrcash::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            ->willReturn('getAdditionalInformation');
+        $payment = \Mockery::mock(
+            \Magento\Payment\Model\InfoInterface::class,
+            \Magento\Sales\Api\Data\OrderPaymentInterface::class
+        );
 
-        $trxFactoryMock = $this->getFakeMock(TransactionBuilderFactory::class)
-            ->setMethods(['get', 'setOrder', 'setMethod', 'setChannel', 'setOriginalTransactionKey', 'setServices'])
-            ->getMock();
-        $trxFactoryMock->expects($this->once())->method('get')->with('refund')->willReturnSelf();
-        $trxFactoryMock->expects($this->once())->method('setOrder')->with('orderr')->willReturnSelf();
-        $trxFactoryMock->expects($this->once())->method('setMethod')->with('TransactionRequest')->willReturnSelf();
-        $trxFactoryMock->expects($this->once())->method('setChannel')->with('CallCenter')->willReturnSelf();
-        $trxFactoryMock->expects($this->once())
-            ->method('setOriginalTransactionKey')
-            ->with('getAdditionalInformation')
-            ->willReturnSelf();
-        $trxFactoryMock->expects($this->once())->method('setServices')->willReturnCallback(
-            function ($services) use ($trxFactoryMock) {
+        $payment->shouldReceive('getOrder')->andReturn('orderr');
+        $payment->shouldReceive('getAdditionalInformation')->with(
+            \TIG\Buckaroo\Model\Method\Mrcash::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        )->andReturn('getAdditionalInformation');
+
+        $this->transactionBuilderFactory->shouldReceive('get')->with('refund')->andReturnSelf();
+        $this->transactionBuilderFactory->shouldReceive('setOrder')->with('orderr')->andReturnSelf();
+        $this->transactionBuilderFactory->shouldReceive('setServices')->andReturnUsing(
+            function ($services) {
                 $services['Name'] = 'mrcash';
                 $services['Action'] = 'Refund';
 
-                return $trxFactoryMock;
+                return $this->transactionBuilderFactory;
             }
         );
+        $this->transactionBuilderFactory->shouldReceive('setMethod')->with('TransactionRequest')->andReturnSelf();
+        $this->transactionBuilderFactory->shouldReceive('setOriginalTransactionKey')
+            ->with('getAdditionalInformation')
+            ->andReturnSelf();
+        $this->transactionBuilderFactory->shouldReceive('setChannel')->with('CallCenter')->andReturnSelf();
 
-        $instance = $this->getInstance(['transactionBuilderFactory' => $trxFactoryMock]);
-
-        $this->assertEquals($trxFactoryMock, $instance->getRefundTransactionBuilder($paymentMock));
+        $this->assertEquals($this->transactionBuilderFactory, $this->object->getRefundTransactionBuilder($payment));
     }
 
     /**
@@ -128,7 +169,6 @@ class MrcashTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetVoidTransactionBuilder()
     {
-        $instance = $this->getInstance();
-        $this->assertTrue($instance->getVoidTransactionBuilder(''));
+        $this->assertTrue($this->object->getVoidTransactionBuilder(''));
     }
 }

@@ -1,25 +1,43 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Config\Backend;
 
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\DriverPool;
 use Magento\Framework\Filesystem\File\ReadFactory;
 use TIG\Buckaroo\Model\Certificate as CertificateModel;
@@ -30,6 +48,26 @@ class CertificateTest extends \TIG\Buckaroo\Test\BaseTest
 {
     protected $instanceClass = Certificate::class;
 
+    /**
+     * @var \Mockery\MockInterface|\Magento\Framework\ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
+     * @var \Mockery\MockInterface|ReadFactory
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var \Mockery\MockInterface|\Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $readFactory;
+
+    /**
+     * @var Certificate
+     */
+    protected $object;
+
     protected $uploadFixture = [
         'name' => 'validfilename.pem',
         'tmp_name' => 'asdfkljasdljasfjldi',
@@ -38,15 +76,34 @@ class CertificateTest extends \TIG\Buckaroo\Test\BaseTest
     ];
 
     /**
+     * Setup the base mocks.
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->objectManager = \Mockery::mock(\Magento\Framework\ObjectManagerInterface::class);
+        $this->readFactory = \Mockery::mock(ReadFactory::class);
+        $this->scopeConfig = \Mockery::mock(\Magento\Framework\App\Config\ScopeConfigInterface::class);
+
+        $this->object = $this->objectManagerHelper->getObject(
+            Certificate::class,
+            [
+            'objectManager' => $this->objectManager,
+            'readFactory' => $this->readFactory,
+            'scopeConfig' => $this->scopeConfig,
+            ]
+        );
+    }
+
+    /**
      * Test with no value.
+     *
+     * @throws \Exception
      */
     public function testNoValue()
     {
-        $certificateFactoryMock = $this->getFakeMock(CertificateFactory::class)->getMock();
-        $instance = $this->getInstance(['certificateFactory' => $certificateFactoryMock]);
-
-        $result = $instance->save();
-        $this->assertInstanceOf(Certificate::class, $result);
+        $this->assertInstanceOf(Certificate::class, $this->object->save());
     }
 
     /**
@@ -54,15 +111,14 @@ class CertificateTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testWrongFileType()
     {
-        $certificateFactoryMock = $this->getFakeMock(CertificateFactory::class)->getMock();
-
-        $instance = $this->getInstance(['certificateFactory' => $certificateFactoryMock]);
-        $instance->setData('fieldset_data', ['certificate_upload' => ['name' => 'wrongfilename.abc']]);
+        $this->object->setData('fieldset_data', ['certificate_upload'=>['name'=>'wrongfilename.abc']]);
 
         try {
-            $instance->save();
-        } catch (LocalizedException $e) {
-            $this->assertEquals('Disallowed file type.', $e->getMessage());
+            $this->object->save();
+            $this->fail();
+        } catch (\Exception $e) {
+            $this->assertNotFalse('Disallowed file type.', $e->getMessage());
+            $this->assertInstanceOf(\Magento\Framework\Exception\LocalizedException::class, $e);
         }
     }
 
@@ -71,15 +127,14 @@ class CertificateTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testMissingName()
     {
-        $certificateFactoryMock = $this->getFakeMock(CertificateFactory::class)->getMock();
-
-        $instance = $this->getInstance(['certificateFactory' => $certificateFactoryMock]);
-        $instance->setData('fieldset_data', ['certificate_upload' => ['name' => 'validfilename.pem']]);
+        $this->object->setData('fieldset_data', ['certificate_upload'=>['name'=>'validfilename.pem']]);
 
         try {
-            $instance->save();
-        } catch (LocalizedException $e) {
+            $this->object->save();
+            $this->fail();
+        } catch (\Exception $e) {
             $this->assertEquals('Enter a name for the certificate.', $e->getMessage());
+            $this->assertInstanceOf(\Magento\Framework\Exception\LocalizedException::class, $e);
         }
     }
 

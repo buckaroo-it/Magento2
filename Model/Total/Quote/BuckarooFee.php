@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Model\Total\Quote;
 
@@ -110,8 +129,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
             return $this;
         }
 
-        $basePaymentFeeOLD = $this->getBaseFee($methodInstance, $quote);
-        $basePaymentFee = $total->getBaseBuckarooFeeInclTax() - $total->getBuckarooFeeBaseTaxAmount();
+        $basePaymentFee = $this->getBaseFee($methodInstance, $quote);
 
         if ($basePaymentFee < 0.01) {
             return $this;
@@ -178,15 +196,13 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     /**
      * @param \TIG\Buckaroo\Model\Method\AbstractMethod $methodInstance
      * @param \Magento\Quote\Model\Quote                $quote
-     * @param bool                                      $inclTax
      *
      * @return bool|false|float
      * @throws \TIG\Buckaroo\Exception
      */
     public function getBaseFee(
         \TIG\Buckaroo\Model\Method\AbstractMethod $methodInstance,
-        \Magento\Quote\Model\Quote $quote,
-        $inclTax = false
+        \Magento\Quote\Model\Quote $quote
     ) {
         $buckarooPaymentMethodCode = $methodInstance->buckarooPaymentMethodCode;
         if (!$this->configProviderMethodFactory->has($buckarooPaymentMethodCode)) {
@@ -194,12 +210,9 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         }
 
         $configProvider = $this->configProviderMethodFactory->get($buckarooPaymentMethodCode);
-        $basePaymentFee = trim($configProvider->getPaymentFee($quote->getStore()));
+        $basePaymentFee = trim($configProvider->getPaymentFee());
 
         if (is_numeric($basePaymentFee)) {
-            if ($inclTax) {
-                return $basePaymentFee;
-            }
             /**
              * Payment fee is a number
              */

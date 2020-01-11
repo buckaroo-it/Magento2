@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\Service\Plugin\PaypalSellersProtection;
@@ -40,12 +59,12 @@ class Push
     protected $configProviderPaypal;
 
     /**
-     * @param Paypal $configProviderPaypal
+     * @param Paypal $congigProviderPaypal
      */
     public function __construct(
-        Paypal $configProviderPaypal
+        Paypal $congigProviderPaypal
     ) {
-        $this->configProviderPaypal = $configProviderPaypal;
+        $this->configProviderPaypal = $congigProviderPaypal;
     }
 
     /**
@@ -65,78 +84,43 @@ class Push
             return $result;
         }
 
-        $eligibilityTypes = static::ELIGIBILITY_INELIGIBLE !== $push->postData['brq_service_paypal_protectioneligibility']
-            ? $push->postData['brq_service_paypal_protectioneligibilitytype']
-            : static::ELIGIBILITY_TYPE_NONE;
-
-        // Handle the given eligibility types separately,
-        // since we know Buckaroo can provide us with
-        // multiple types in a single response.
-        $this->handleEligibilityTypes(
-            explode(',', $eligibilityTypes), $push->order
-        );
-
-        return $result;
-    }
-
-    /**
-     * Proxy the handling of eligibility types.
-     *
-     * @param  string|string[] $eligibilityTypes
-     * @param  \Magento\Sales\Model\Order $order
-     * @return void
-     */
-    protected function handleEligibilityTypes($eligibilityTypes, $order)
-    {
-        if ( ! \is_array($eligibilityTypes)) {
-            $eligibilityTypes = [$eligibilityTypes];
+        $eligibility = $push->postData['brq_service_paypal_protectioneligibility'];
+        if ($eligibility == self::ELIGIBILITY_INELIGIBLE) {
+            $eligibilityType = self::ELIGIBILITY_TYPE_NONE;
+        } else {
+            $eligibilityType = $push->postData['brq_service_paypal_protectioneligibilitytype'];
         }
 
-        // Append multiple status updates to the order,
-        // this way the merchant has a more detailed
-        // log of what is happening with payments.
-        array_walk($eligibilityTypes, function ($eligibilityType) use ($order) {
-            $this->handleEligibilityType($eligibilityType, $order);
-        });
-    }
-    /**
-     * Handle the specified eligibility type.
-     *
-     * @param  string $eligibilityType
-     * @param  \Magento\Sales\Model\Order $order
-     * @return void
-     * @throws \InvalidArgumentException
-     */
-    protected function handleEligibilityType($eligibilityType, $order)
-    {
+        $order = $push->order;
         switch ($eligibilityType) {
-            case static::ELIGIBILITY_TYPE_ELIGIBLE:
+            case self::ELIGIBILITY_TYPE_ELIGIBLE:
                 $comment = __(
-                    'Merchant is protected by PayPal Seller Protection Policy for both Unauthorized Payment and Item' .
-                    ' Not Received.'
+                    "Merchant is protected by PayPal Seller Protection Policy for both Unauthorized Payment and Item" .
+                    " Not Received."
                 );
 
                 $status = $this->configProviderPaypal->getSellersProtectionEligible();
                 break;
-            case static::ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED:
-                $comment = __('Merchant is protected by Paypal Seller Protection Policy for Item Not Received.');
+            case self::ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED:
+                $comment = __("Merchant is protected by Paypal Seller Protection Policy for Item Not Received.");
 
                 $status = $this->configProviderPaypal->getSellersProtectionItemnotreceivedEligible();
                 break;
-            case static::ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT:
-                $comment = __('Merchant is protected by Paypal Seller Protection Policy for Unauthorized Payment.');
+            case self::ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT:
+                $comment = __("Merchant is protected by Paypal Seller Protection Policy for Unauthorized Payment.");
 
                 $status = $this->configProviderPaypal->getSellersProtectionUnauthorizedpaymentEligible();
                 break;
-            case static::ELIGIBILITY_TYPE_NONE:
-                $comment = __('Merchant is not protected under the Seller Protection Policy.');
+            case self::ELIGIBILITY_TYPE_NONE:
+                $comment = __("Merchant is not protected under the Seller Protection Policy.");
 
                 $status = $this->configProviderPaypal->getSellersProtectionIneligible();
                 break;
             default:
-                throw new \InvalidArgumentException('Invalid eligibility type(s): ' . $eligibilityType);
-                break;
+                throw new \InvalidArgumentException("Invalid eligibility type.");
         }
-        $order->addStatusHistoryComment($comment, $status ?: false);
+        $order->addStatusHistoryComment($comment, $status ? $status : false);
+
+        return $result;
     }
 }

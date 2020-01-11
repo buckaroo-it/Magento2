@@ -1,34 +1,50 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Config\Source;
 
-use TIG\Buckaroo\Model\Config\Source\Creditcard;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard as CreditcardProvider;
-
 class CreditcardTest extends \TIG\Buckaroo\Test\BaseTest
 {
-    protected $instanceClass = Creditcard::class;
-
     public function testToOptionArray()
     {
-        $issuers = [
+        $configProvider = \Mockery::mock(\TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard::class)->makePartial();
+        $configProvider->shouldReceive('getIssuers')->andReturn(
+            [
             [
                 'name' => 'Test 1',
                 'code' => 'code1',
@@ -41,13 +57,15 @@ class CreditcardTest extends \TIG\Buckaroo\Test\BaseTest
                 'name' => 'Test 3',
                 'code' => 'code3',
             ],
-        ];
+            ]
+        );
 
-        $configProviderMock = $this->getFakeMock(CreditcardProvider::class)->setMethods(['getIssuers'])->getMock();
-        $configProviderMock->expects($this->once())->method('getIssuers')->willReturn($issuers);
-
-        $instance = $this->getInstance(['configProvider' => $configProviderMock]);
-        $result = $instance->toOptionArray();
+        $object = $this->objectManagerHelper->getObject(
+            \TIG\Buckaroo\Model\Config\Source\Creditcard::class,
+            [
+            'configProvider' => $configProvider,
+            ]
+        );
 
         $expected = [
             [
@@ -63,7 +81,6 @@ class CreditcardTest extends \TIG\Buckaroo\Test\BaseTest
                 'label' => 'Test 3',
             ],
         ];
-
-        $this->assertEquals($expected, $result);
+        $this->assertEquals($expected, $object->toOptionArray());
     }
 }

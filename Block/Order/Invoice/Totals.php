@@ -1,74 +1,73 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Block\Order\Invoice;
 
-use Magento\Framework\DataObject;
-use Magento\Framework\Registry;
-use Magento\Framework\View\Element\Template\Context;
-use Magento\Sales\Block\Order\Invoice\Totals as InvoiceTotals;
-use TIG\Buckaroo\Helper\PaymentFee;
-
-class Totals extends InvoiceTotals
+class Totals extends \TIG\Buckaroo\Block\Order\TotalsFee
 {
     /**
-     * @var PaymentFee
-     */
-    protected $helper = null;
-
-    /**
-     * @param Context    $context
-     * @param Registry   $registry
-     * @param PaymentFee $helper
-     * @param array      $data
+     * @param \Magento\Framework\View\Element\Template\Context $context
+     * @param \Magento\Framework\Registry                      $registry
+     * @param \TIG\Buckaroo\Helper\PaymentFee                  $helper
+     * @param array                                            $data
      */
     public function __construct(
-        Context $context,
-        Registry $registry,
-        PaymentFee $helper,
+        \Magento\Framework\View\Element\Template\Context $context,
+        \Magento\Framework\Registry $registry,
+        \TIG\Buckaroo\Helper\PaymentFee $helper,
         array $data = []
     ) {
-        $this->helper = $helper;
-        parent::__construct($context, $registry, $data);
+        parent::__construct($context, $registry, $helper);
+        $this->_isScopePrivate = true;
     }
 
+    // @codingStandardsIgnoreStart
     /**
-     * {@inheritdoc}
+     * Initialize order totals array
+     *
+     * @return $this
      */
-    public function getTotals($area = null)
+    protected function _initTotals()
     {
-        $this->addBuckarooFeeTotals();
-
-        return parent::getTotals($area);
+        parent::_initTotals();
+        $this->removeTotal('base_grandtotal');
+        return $this;
     }
-
-    /**
-     * Initialize buckaroo fee totals for order/invoice/creditmemo
-     */
-    private function addBuckarooFeeTotals()
-    {
-        $source = $this->getSource();
-        $totals = $this->helper->getTotals($source);
-
-        foreach ($totals as $total) {
-            $this->addTotalBefore(new DataObject($total), 'grand_total');
-        }
-    }
+    // @codingStandardsIgnoreEnd
 }

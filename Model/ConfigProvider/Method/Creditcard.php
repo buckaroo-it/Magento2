@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\ConfigProvider\Method;
@@ -41,7 +60,6 @@ class Creditcard extends AbstractConfigProvider
     const CREDITCARD_SERVICE_CODE_CARTEBLEUE    = 'cartebleuevisa';
     const CREDITCARD_SERVICE_CODE_CARTEBANCAIRE = 'cartebancaire';
     const CREDITCARD_SERVICE_CODE_DANKORT       = 'dankort';
-    const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
     /**#@-*/
 
     const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/tig_buckaroo_creditcard/payment_fee';
@@ -75,20 +93,12 @@ class Creditcard extends AbstractConfigProvider
             'code' => self::CREDITCARD_SERVICE_CODE_CARTEBLEUE,
         ],
         [
-            'name' => 'Dankort',
-            'code' => self::CREDITCARD_SERVICE_CODE_DANKORT,
-        ],
-        [
             'name' => 'Maestro',
             'code' => self::CREDITCARD_SERVICE_CODE_MAESTRO,
         ],
         [
             'name' => 'MasterCard',
             'code' => self::CREDITCARD_SERVICE_CODE_MASTERCARD,
-        ],
-        [
-            'name' => 'Nexi',
-            'code' => self::CREDITCARD_SERVICE_CODE_NEXI,
         ],
         [
             'name' => 'VISA',
@@ -101,6 +111,10 @@ class Creditcard extends AbstractConfigProvider
         [
             'name' => 'VPay',
             'code' => self::CREDITCARD_SERVICE_CODE_VPAY,
+        ],
+        [
+            'name' => 'Dankort',
+            'code' => self::CREDITCARD_SERVICE_CODE_DANKORT,
         ],
     ];
 
@@ -147,16 +161,13 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
-     *
      * @return float
      */
-    public function getPaymentFee($storeId = null)
+    public function getPaymentFee()
     {
         $paymentFee = $this->scopeConfig->getValue(
             self::XPATH_CREDITCARD_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
         return $paymentFee ? $paymentFee : false;

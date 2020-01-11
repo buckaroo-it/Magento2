@@ -1,21 +1,33 @@
 <?php
 /**
+ *
+ *          ..::..
+ *     ..::::::::::::..
+ *   ::'''''':''::'''''::
+ *   ::..  ..:  :  ....::
+ *   ::::  :::  :  :   ::
+ *   ::::  :::  :  ''' ::
+ *   ::::..:::..::.....::
+ *     ''::::::::::::''
+ *          ''::''
+ *
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright   Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Service\Software;
 
@@ -38,26 +50,32 @@ class DataTest extends BaseTest
                 'Magento',
                 'Community',
                 '2.0',
-                ['name' => 'Buckaroo'],
+                [
+                    'name' => 'Buckaroo',
+                    'setup_version' => '1.0.0'
+                ],
                 [
                     'PlatformName' => 'Magento - Community',
                     'PlatformVersion' => '2.0',
                     'ModuleSupplier' => 'TIG',
                     'ModuleName' => 'Buckaroo',
-                    'ModuleVersion' => Data::BUCKAROO_VERSION
+                    'ModuleVersion' => '1.0.0'
                 ]
             ],
             [
                 'Magento',
                 'Enterprise',
                 '2.1',
-                ['name' => 'Buckaroo'],
+                [
+                    'name' => 'Buckaroo',
+                    'setup_version' => '2.1.3'
+                ],
                 [
                     'PlatformName' => 'Magento - Enterprise',
                     'PlatformVersion' => '2.1',
                     'ModuleSupplier' => 'TIG',
                     'ModuleName' => 'Buckaroo',
-                    'ModuleVersion' => Data::BUCKAROO_VERSION
+                    'ModuleVersion' => '2.1.3'
                 ]
             ]
         ];
@@ -86,20 +104,5 @@ class DataTest extends BaseTest
         $result = $instance->get();
 
         $this->assertEquals($expected, $result);
-    }
-
-    public function testGetProductMetaData()
-    {
-        $instance = $this->getInstance();
-        $result = $instance->getProductMetaData();
-
-        $this->assertInstanceOf(ProductMetadataInterface::class, $result);
-    }
-
-    public function testGetModuleVersion()
-    {
-        $instance = $this->getInstance();
-        $result = $instance->getModuleVersion();
-        $this->assertEquals(Data::BUCKAROO_VERSION, $result);
     }
 }

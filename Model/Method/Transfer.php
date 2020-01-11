@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\Method;
@@ -167,25 +186,21 @@ class Transfer extends AbstractMethod
             ['Name' => 'Gender', 'Group' => 'Person']
         ];
 
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        $payment->setAdditionalInformation('skip_push', 1);
-
         $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, 'transfer', $filterParameter);
         if (count($cmService) > 0) {
             $services[] = $cmService;
-
-            $payment->setAdditionalInformation(
-                'skip_push', 2
-            );
         }
 
         /** @var \TIG\Buckaroo\Model\ConfigProvider\Method\Transfer $transferConfig */
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
+
+        /**
+         * Buckaroo Push is send before Response, for correct flow we skip the first push
+         * @todo when buckaroo changes the push / response order this can be removed
+         */
+        $payment->setAdditionalInformation('skip_push', 1);
 
         return $transactionBuilder;
     }
@@ -246,19 +261,6 @@ class Transfer extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function canProcessPostData($payment, $postData)
-    {
-        $orderState = $payment->getOrder()->getState();
-        if ($orderState == \Magento\Sales\Model\Order::STATE_PROCESSING && $postData['brq_statuscode'] == "792") {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function afterOrder($payment, $response)
     {
         if (empty($response[0]->Services->Service)) {
@@ -273,8 +275,8 @@ class Transfer extends AbstractMethod
         }
 
         foreach ($services as $service) {
-            if ($service->Name == 'CreditManagement3') {
-                $invoiceKey = $this->getCM3InvoiceKey($service->ResponseParameter);
+            if ($service->Name == 'CreditManagement3' && $service->ResponseParameter->Name == 'InvoiceKey') {
+                $invoiceKey = $service->ResponseParameter->_;
             }
         }
 
@@ -283,41 +285,6 @@ class Transfer extends AbstractMethod
         }
 
         return parent::afterOrder($payment, $response);
-    }
-
-    /**
-     * @param $responseParameter
-     *
-     * @return string
-     */
-    protected function getCM3InvoiceKey($responseParameter)
-    {
-        $invoiceKey = '';
-
-        if (!is_array($responseParameter)) {
-            return $this->parseCM3ResponeParameter($responseParameter, $invoiceKey);
-        }
-
-        foreach ($responseParameter as $parameter) {
-            $invoiceKey = $this->parseCM3ResponeParameter($parameter, $invoiceKey);
-        }
-
-        return $invoiceKey;
-    }
-
-    /**
-     * @param $responseParameter
-     * @param $invoiceKey
-     *
-     * @return mixed
-     */
-    protected function parseCM3ResponeParameter($responseParameter, $invoiceKey)
-    {
-        if ($responseParameter->Name == 'InvoiceKey') {
-            $invoiceKey = $responseParameter->_;
-        }
-
-        return $invoiceKey;
     }
 
     /**

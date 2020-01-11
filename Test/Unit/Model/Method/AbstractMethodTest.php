@@ -1,68 +1,232 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright   Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Method;
 
 use Magento\Developer\Helper\Data;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Pricing\Helper\Data as PriceHelperData;
 use Magento\Framework\Registry;
-use Magento\Payment\Model\InfoInterface;
-use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Gateway\GatewayInterface;
 use TIG\Buckaroo\Gateway\Http\Transaction;
 use TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface;
 use TIG\Buckaroo\Helper\Data as HelperData;
 use TIG\Buckaroo\Model\ConfigProvider\Account;
 use TIG\Buckaroo\Model\ConfigProvider\Factory;
 use TIG\Buckaroo\Model\ConfigProvider\Method\Factory as MethodFactory;
-use TIG\Buckaroo\Model\RefundFieldsFactory;
-use TIG\Buckaroo\Model\ValidatorFactory;
+use Magento\TestFramework\ObjectManager;
 
+/**
+ * Class AbstractMethodTest
+ *
+ */
+
+// @codingStandardsIgnoreStart
 class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
+// @codingStandardsIgnoreEnd
 {
     protected $instanceClass = AbstractMethodMock::class;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $validatorFactory;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $objectManager;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $configProvider;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $configMethodProvider;
+
+    /**
+     * @var \TIG\Buckaroo\Test\Unit\Model\Method\AbstractMethodMock
+     */
+    protected $object;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var \Mockery\MockInterface|Data
+     */
+    protected $developmentHelper;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $account;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $gateway;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $helper;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $request;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $refundFieldsFactory;
+
+    /**
+     * Setup the standard mocks
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->objectManager = \Mockery::mock(\Magento\Framework\ObjectManagerInterface::class);
+        $this->scopeConfig = \Mockery::mock(ScopeConfigInterface::class);
+        $this->developmentHelper = \Mockery::mock(Data::class);
+        $this->account = \Mockery::mock(Account::class);
+        $this->configProvider = \Mockery::mock(Factory::class);
+        $this->configMethodProvider = \Mockery::mock(MethodFactory::class);
+        $this->configProvider->shouldReceive('get')->with('account')->andReturn($this->account);
+        $this->validatorFactory = \Mockery::mock(\TIG\Buckaroo\Model\ValidatorFactory::class);
+        $this->gateway = \Mockery::mock(\TIG\Buckaroo\Gateway\GatewayInterface::class);
+        $this->helper = \Mockery::mock(HelperData::class);
+        $this->request = \Mockery::mock(\Magento\Framework\App\RequestInterface::class);
+        $this->refundFieldsFactory = \Mockery::mock(\TIG\Buckaroo\Model\RefundFieldsFactory::class);
+
+        $mode = HelperData::MODE_TEST;
+        $this->helper->shouldReceive('getMode')->andReturn($mode);
+        $this->gateway->shouldReceive('setMode')->with($mode);
+
+        /**
+         * We are using the temporary class declared above, but it could be any class extending from the AbstractMethod
+         * class.
+         */
+        $this->object = $this->objectManagerHelper->getObject(
+            AbstractMethodMock::class,
+            [
+            'objectManager' => $this->objectManager,
+            'configProviderFactory' => $this->configProvider,
+            'scopeConfig' => $this->scopeConfig,
+            'developmentHelper' => $this->developmentHelper,
+            'configProviderMethodFactory' => $this->configMethodProvider,
+            'validatorFactory' => $this->validatorFactory,
+            'gateway' => $this->gateway,
+            'helper' => $this->helper,
+            'request' => $this->request,
+            'refundFieldsFactory' => $this->refundFieldsFactory,
+            ]
+        );
+    }
+
+    /**
+     * @param int    $active
+     * @param int    $maxAmount
+     * @param int    $minAmount
+     * @param null   $limitByIp
+     * @param string $allowedCurrencies
+     *
+     * @return $this
+     */
+    public function getValues(
+        $active = 1,
+        $maxAmount = 80,
+        $minAmount = 80,
+        $limitByIp = null,
+        $allowedCurrencies = 'ABC,DEF'
+    ) {
+        $this->scopeConfig->shouldReceive('getValue')
+            ->with('payment/tig_buckaroo_test/active', ScopeInterface::SCOPE_STORE, 1)
+            ->andReturn($active);
+        $this->scopeConfig->shouldReceive('getValue')
+            ->with('payment/tig_buckaroo_test/max_amount', ScopeInterface::SCOPE_STORE, 1)
+            ->andReturn($maxAmount);
+        $this->scopeConfig->shouldReceive('getValue')
+            ->with('payment/tig_buckaroo_test/min_amount', ScopeInterface::SCOPE_STORE, 1)
+            ->andReturn($minAmount);
+        $this->scopeConfig->shouldReceive('getValue')
+            ->with('payment/tig_buckaroo_test/limit_by_ip', ScopeInterface::SCOPE_STORE, null)
+            ->andReturn($limitByIp);
+        $this->scopeConfig->shouldReceive('getValue')
+            ->with(
+                'payment/tig_buckaroo_test/allowed_currencies',
+                ScopeInterface::SCOPE_STORE,
+                null
+            )
+            ->andReturn($allowedCurrencies);
+
+        $this->account->shouldReceive('getActive')->once()->andReturn(1);
+        $this->account->shouldReceive('getLimitByIp')->once()->andReturn(1);
+
+        return $this;
+    }
 
     /**
      * Test what happens if the payment method is disabled.
      */
     public function testIsAvailableDisabled()
     {
-        $quoteMock = $this->getFakeMock(CartInterface::class)->getMockForAbstractClass();
+        /**
+         * @var CartInterface|\Mockery\MockInterface $quote
+         */
+        $quote = \Mockery::mock(CartInterface::class);
 
-        $accountMock = $this->getFakeMock(Account::class)->setMethods(['getActive'])->getMock();
-        $accountMock->expects($this->once())->method('getActive')->willReturn(0);
-
-        $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
-        $configProviderMock->expects($this->once())->method('get')->with('account')->willReturn($accountMock);
-
-        $instance = $this->getInstance(['configProviderFactory' => $configProviderMock]);
-        $result = $instance->isAvailable($quoteMock);
+        $this->account->shouldReceive('getActive')->once()->andReturn(0);
+        $result = $this->object->isAvailable($quote);
 
         $this->assertFalse($result);
     }
@@ -311,10 +475,12 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
 
     public function testCanRefundParentFalse()
     {
-        $instance = $this->getInstance();
-        $instance->setCanRefund(false);
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $this->object->setCanRefund(false);
 
-        $this->assertFalse($instance->canRefund());
+        $this->assertFalse($this->object->canRefund());
     }
 
     /**
@@ -324,14 +490,15 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testCanRefundNotEnabled($enabled)
     {
-        $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get', 'getEnabled'])->getMock();
-        $configProviderMock->expects($this->once())->method('get')->with('refund')->willReturnSelf();
-        $configProviderMock->expects($this->once())->method('getEnabled')->willReturn($enabled);
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $this->object->setCanRefund(true);
 
-        $instance = $this->getInstance(['configProviderFactory' => $configProviderMock]);
-        $instance->setCanRefund(true);
+        $this->configProvider->shouldReceive('get')->andReturnSelf();
+        $this->configProvider->shouldReceive('getEnabled')->andReturn($enabled);
 
-        $this->assertEquals($enabled, $instance->canRefund());
+        $this->assertEquals($enabled, $this->object->canRefund());
     }
 
     public function refundEnabledDisabledDataProvider()
@@ -355,10 +522,12 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
     {
         $this->setExpectedException('\InvalidArgumentException');
 
-        $paymentMock = $this->getFakeMock(InfoInterface::class)->getMockForAbstractClass();
+        $payment = \Mockery::mock(\Magento\Payment\Model\InfoInterface::class);
+        /**
+         * @var \Magento\Payment\Model\InfoInterface $payment
+         */
 
-        $instance = $this->getInstance();
-        $instance->$method($paymentMock, 0);
+        $this->object->$method($payment, 0);
     }
 
     public function processInvalidArgumentDataProvider()
@@ -390,13 +559,21 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testCantProcess($method, $canMethod)
     {
-        $this->setExpectedException(LocalizedException::class);
+        $this->setExpectedException(\Magento\Framework\Exception\LocalizedException::class);
+        $mockClass = \Magento\Payment\Model\InfoInterface::class
+            . ','
+            . \Magento\Sales\Api\Data\OrderPaymentInterface::class;
 
-        $paymentMock = $this->getFakeMock(Payment::class, true);
+        $payment = \Mockery::mock($mockClass);
+        /**
+         * @var \Magento\Payment\Model\InfoInterface $payment
+         */
 
-        $instance = $this->getInstance();
-        $instance->$canMethod(false);
-        $instance->$method($paymentMock, 0);
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $this->object->$canMethod(false);
+        $this->object->$method($payment, 0);
     }
 
     public function cantProcessDataProvider()
@@ -425,10 +602,9 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
     {
         $expectedUrl = 'test.com';
 
-        $instance = $this->getInstance();
-        $instance->orderPlaceRedirectUrl = $expectedUrl;
+        $this->object->orderPlaceRedirectUrl = $expectedUrl;
 
-        $result = $instance->getConfigData('order_place_redirect_url');
+        $result = $this->object->getConfigData('order_place_redirect_url');
 
         $this->assertEquals($expectedUrl, $result);
     }
@@ -534,14 +710,18 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
 
         $payment = $this->getFakeMock(Payment::class, true);
 
-        $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get', 'getEnabled'])->getMock();
-
-        $partialMock = $this->getInstance(['configProviderFactory' => $configProviderMock]);
-        $partialMock->$setCanMethod(true);
+        $stubbedMethods = [$methodTransactionBuilder];
 
         if ($canMethod) {
-            $configProviderMock->expects($this->once())->method('get')->with('refund')->willReturnSelf();
-            $configProviderMock->expects($this->once())->method('getEnabled')->willReturn(true);
+            $stubbedMethods[] = $canMethod;
+        }
+
+        $partialMock = $this->getFakeMock(AbstractMethodMock::class)->setMethods($stubbedMethods)->getMock();
+        $partialMock->$setCanMethod(true);
+        $partialMock->expects($this->once())->method($methodTransactionBuilder)->with($payment)->willReturn(false);
+
+        if ($canMethod) {
+            $partialMock->method($canMethod)->withAnyParameters()->willReturn(true);
         }
 
         $partialMock->$method($payment, 0);
@@ -769,23 +949,24 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
 
         $response = [];
 
-        $transactionMock = $this->getFakeMock(Transaction::class)->getMockForAbstractClass();
+        $transactionMock = \Mockery::mock(Transaction::class);
+        /**
+         * @var Transaction $transactionMock
+         */
 
-        $gatewayMock = $this->getFakeMock(GatewayInterface::class)
-            ->setMethods([$gatewayMethod])
-            ->getMockForAbstractClass();
-        $gatewayMock->expects($this->once())->method($gatewayMethod)->with($transactionMock)->willReturn($response);
+        $this->gateway->shouldReceive($gatewayMethod)
+            ->once()
+            ->with($transactionMock)
+            ->andReturn($response);
 
-        $validatorFactoryMock = $this->getFakeMock(ValidatorFactory::class)->setMethods(['get', 'validate'])->getMock();
-        $validatorFactoryMock->expects($this->once())->method('get')->with('transaction_response')->willReturnSelf();
-        $validatorFactoryMock->expects($this->once())->method('validate')->with($response)->willReturn(false);
+        $this->validatorFactory->shouldReceive('get')
+            ->once()
+            ->with('transaction_response')
+            ->andReturnSelf();
 
-        $instance = $this->getInstance([
-            'gateway' => $gatewayMock,
-            'validatorFactory' => $validatorFactoryMock
-        ]);
+        $this->validatorFactory->shouldReceive('validate')->with($response)->andReturn(false);
 
-        $instance->$method($transactionMock);
+        $this->object->$method($transactionMock);
     }
 
     public function processTransactionDataProvider()
@@ -827,28 +1008,30 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
 
         $response = [];
 
-        $transactionMock = $this->getFakeMock(Transaction::class)->getMock();
+        $transactionMock = \Mockery::mock(Transaction::class);
+        /**
+         * @var Transaction $transactionMock
+         */
 
-        $gatewayMock = $this->getFakeMock(GatewayInterface::class)
-            ->setMethods([$gatewayMethod])
-            ->getMockForAbstractClass();
-        $gatewayMock->expects($this->once())->method($gatewayMethod)->with($transactionMock)->willReturn($response);
+        $this->gateway->shouldReceive($gatewayMethod)
+            ->once()
+            ->with($transactionMock)
+            ->andReturn($response);
 
-        $validatorFactoryMock = $this->getFakeMock(ValidatorFactory::class)->setMethods(['get', 'validate'])->getMock();
-        $validatorFactoryMock->expects($this->exactly(2))
-            ->method('get')
-            ->withConsecutive(['transaction_response'], ['transaction_response_status'])
-            ->willReturnSelf();
-        $validatorFactoryMock->expects($this->exactly(2))
-            ->method('validate')->with($response)
-            ->willReturnOnConsecutiveCalls(true, false);
+        $this->validatorFactory->shouldReceive('get')
+            ->once()
+            ->with('transaction_response')
+            ->andReturnSelf();
 
-        $instance = $this->getInstance([
-            'gateway' => $gatewayMock,
-            'validatorFactory' => $validatorFactoryMock
-        ]);
+        $this->validatorFactory->shouldReceive('validate')->once()->with($response)->andReturn(true);
 
-        $instance->$method($transactionMock);
+        $this->validatorFactory->shouldReceive('get')
+            ->once()
+            ->with('transaction_response_status')
+            ->andReturnSelf();
+        $this->validatorFactory->shouldReceive('validate')->once()->with($response)->andReturn(false);
+
+        $this->object->$method($transactionMock);
     }
 
     /**
@@ -862,26 +1045,30 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
     {
         $response = ['test_response'];
 
-        $transactionMock = $this->getFakeMock(Transaction::class)->getMock();
+        $transactionMock = \Mockery::mock(Transaction::class);
+        /**
+         * @var Transaction $transactionMock
+         */
 
-        $gatewayMock = $this->getFakeMock(GatewayInterface::class)
-            ->setMethods([$gatewayMethod])
-            ->getMockForAbstractClass();
-        $gatewayMock->expects($this->once())->method($gatewayMethod)->with($transactionMock)->willReturn($response);
+        $this->gateway->shouldReceive($gatewayMethod)
+            ->once()
+            ->with($transactionMock)
+            ->andReturn($response);
 
-        $validatorFactoryMock = $this->getFakeMock(ValidatorFactory::class)->setMethods(['get', 'validate'])->getMock();
-        $validatorFactoryMock->expects($this->exactly(2))
-            ->method('get')
-            ->withConsecutive(['transaction_response'], ['transaction_response_status'])
-            ->willReturnSelf();
-        $validatorFactoryMock->expects($this->exactly(2))->method('validate')->with($response)->willReturn(true);
+        $this->validatorFactory->shouldReceive('get')
+            ->once()
+            ->with('transaction_response')
+            ->andReturnSelf();
 
-        $instance = $this->getInstance([
-            'gateway' => $gatewayMock,
-            'validatorFactory' => $validatorFactoryMock
-        ]);
+        $this->validatorFactory->shouldReceive('validate')->once()->with($response)->andReturn(true);
 
-        $this->assertSame($response, $instance->$method($transactionMock));
+        $this->validatorFactory->shouldReceive('get')
+            ->once()
+            ->with('transaction_response_status')
+            ->andReturnSelf();
+        $this->validatorFactory->shouldReceive('validate')->once()->with($response)->andReturn(true);
+
+        $this->assertSame($response, $this->object->$method($transactionMock));
     }
 
     public function testCancel()
@@ -899,28 +1086,24 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
     public function testGetTransactionAdditionalInfo()
     {
         $data = [];
-
-        $helperMock = $this->getFakeMock(HelperData::class)
-            ->setMethods(['getMode', 'getTransactionAdditionalInfo'])
-            ->getMock();
-        $helperMock->expects($this->once())->method('getMode')->willReturn(HelperData::MODE_TEST);
-        $helperMock->expects($this->once())->method('getTransactionAdditionalInfo')->with($data)->willReturn([]);
-
-        $instance = $this->getInstance(['helper' => $helperMock]);
-
-        $result = $instance->getTransactionAdditionalInfo($data);
+        $this->helper->shouldReceive('getTransactionAdditionalInfo')->once()->with($data)->andReturn([]);
+        $result = $this->object->getTransactionAdditionalInfo($data);
         $this->assertInternalType('array', $result);
     }
 
     public function testSaveTransactionDataResponseKeyEmpty()
     {
         $response = new \stdClass();
-        $paymentMock = $this->getFakeMock(Payment::class, true);
+        $mockClass = \Magento\Payment\Model\InfoInterface::class
+            . ','
+            . \Magento\Sales\Api\Data\OrderPaymentInterface::class;
+        $payment = \Mockery::mock($mockClass);
+        /**
+         * @var \Magento\Payment\Model\InfoInterface $payment
+         */
 
-        $instance = $this->getInstance();
-
-        $result = $instance->saveTransactionData($response, $paymentMock, true, false);
-        $this->assertEquals($paymentMock, $result);
+        $result = $this->object->saveTransactionData($response, $payment, true, false);
+        $this->assertEquals($payment, $result);
     }
 
     /**
@@ -942,8 +1125,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
                 'setTransactionAdditionalInfo',
                 'setIsTransactionClosed',
                 'setTransactionId',
-                'setAdditionalInformation',
-                'getMethodInstance'
+                'setAdditionalInformation'
             ])
             ->getMock();
 
@@ -959,13 +1141,6 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
                 ->method('setAdditionalInformation')
                 ->with(AbstractMethodMock::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, $key);
         }
-
-        $methodInstanceMock = $this->getFakeMock(MethodInterface::class)
-            ->setMethods(['processCustomPostData'])
-            ->getMockForAbstractClass();
-        $methodInstanceMock->expects($this->once())->method('processCustomPostData')->with($payment, $response);
-
-        $payment->expects($this->once())->method('getMethodInstance')->willReturn($methodInstanceMock);
 
         $helperMock = $this->getFakeMock(HelperData::class)
             ->setMethods(['getMode', 'getTransactionAdditionalInfo'])
@@ -1004,99 +1179,39 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
         ];
     }
 
-    public function addExtraFieldsProvider()
+    public function testAddExtraFields()
     {
-        return [
-            'with creditmemo params' => [
-                [
-                    'creditmemo' => ['code-1' => 'value-2']
-                ],
-                [
-                    ['code' => 'code-1']
-                ],
-                [
-                    'RequestParameter' => [
-                        [
-                            '_' => 'value-2',
-                            'Name' => 'code-1',
-                        ],
-                    ],
-                ]
+        $testCode = 'testCode';
+        $testValue = 'testValue';
+
+        $params = [
+            'creditmemo' => [
+                $testCode => $testValue
             ],
-            'creditmemo params no value' => [
-                [
-                    'creditmemo' => ['TIG_code' => null]
-                ],
-                [
-                    ['code' => 'TIG_code']
-                ],
-                [
-                    'RequestParameter' => [
-                        [
-                            '_' => '',
-                            'Name' => 'TIG_code',
-                        ],
-                    ],
-                ]
-            ],
-            'creditmemo params no code' => [
-                [
-                    'creditmemo' => []
-                ],
-                [
-                    ['code' => 'TIG_code']
-                ],
-                []
-            ],
-            'no creditmemo params' => [
-                [
-                    'transaction' => ['123qwerty456']
-                ],
-                [
-                    ['code' => 'TIG_code']
-                ],
-                []
-            ],
-            'no params at all' => [
-                [],
-                [
-                    ['code' => 'TIG_code']
-                ],
-                []
-            ],
-            'no extra fields' => [
-                [
-                    'creditmemo' => ['refund_code' => '123']
-                ],
-                [],
-                []
-            ]
         ];
-    }
 
+        $extraFields = [
+            [
+                'code' => $testCode,
+            ],
+        ];
 
-    /**
-     * @param $params
-     * @param $extraFields
-     * @param $expected
-     *
-     * @dataProvider addExtraFieldsProvider
-     */
-    public function testAddExtraFields($params, $extraFields, $expected)
-    {
-        $requestMock = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
-        $requestMock->expects($this->once())->method('getParams')->willReturn($params);
+        $expectedServices = [
+            'RequestParameter' => [
+                [
+                    '_' => $testValue,
+                    'Name' => $testCode,
+                ],
+            ],
+        ];
 
-        $refundFactoryMock = $this->getFakeMock(RefundFieldsFactory::class)->setMethods(['get'])->getMock();
+        $this->request->shouldReceive('getParams')->once()->andReturn($params);
+        $this->refundFieldsFactory->shouldReceive('get')
+            ->with($this->object->getCode())
+            ->once()
+            ->andReturn($extraFields);
 
-        $instance = $this->getInstance([
-            'refundFieldsFactory' => $refundFactoryMock,
-            'request' => $requestMock
-        ]);
-
-        $refundFactoryMock->method('get')->with($instance->getCode())->willReturn($extraFields);
-
-        $this->assertEquals($expected, $instance->addExtraFields($instance->getCode()));
+        $this->assertEquals($expectedServices, $this->object->addExtraFields($this->object->getCode()));
     }
 
     public function testCreateCreditNoteRequest()
@@ -1116,76 +1231,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ->method('setAdditionalInformation')
             ->with(AbstractMethodMock::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, 'def');
 
-        $instance = $this->getInstance();
-        $result = $instance->createCreditNoteRequest($infoInstanceMock);
+        $result = $this->object->createCreditNoteRequest($infoInstanceMock);
         $this->assertInstanceOf(AbstractMethodMock::class, $result);
-    }
-
-    public function addToRegistryProvider()
-    {
-        return [
-            'single data, empty registry' => [
-                ['some data'],
-                null,
-                ['some data']
-            ],
-            'multiple data, empty registry' => [
-                ['string data', array('array data'), 12345],
-                null,
-                ['string data', array('array data'), 12345]
-            ],
-            'no data, empty registry' => [
-                [],
-                null,
-                null
-            ],
-            'null data, empty registry' => [
-                [null],
-                null,
-                [null]
-            ],
-            'single data, filled registry' => [
-                ['some data'],
-                ['existing data'],
-                ['existing data', 'some data']
-            ],
-            'multiple data, filled registry' => [
-                ['string data', array('array data'), 12345],
-                [987258, (Object)array('existing array')],
-                [987258, (Object)array('existing array'), 'string data', array('array data'), 12345]
-            ],
-            'no data, filled registry' => [
-                [],
-                [987258, 'existing data', (Object)array('existing array')],
-                [987258, 'existing data', (Object)array('existing array')]
-            ],
-            'null data, filled registry' => [
-                [null],
-                ['tig 123'],
-                ['tig 123', null]
-            ],
-        ];
-    }
-
-    /**
-     * @param $newData
-     * @param $registryData
-     * @param $expected
-     *
-     * @dataProvider addToRegistryProvider
-     */
-    public function testAddToRegistry($newData, $registryData, $expected)
-    {
-        $registryMock = $this->getFakeMock(Registry::class)->setMethods(null)->getMock();
-        $registryMock->register('tig_registry_key', $registryData);
-
-        $instance = $this->getInstance(['registry' => $registryMock]);
-
-        foreach ($newData as $data) {
-            $this->invokeArgs('addToRegistry', ['tig_registry_key', $data], $instance);
-        }
-
-        $result = $registryMock->registry('tig_registry_key');
-        $this->assertEquals($expected, $result);
     }
 }

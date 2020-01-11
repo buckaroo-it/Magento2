@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\ConfigProvider\Method;
@@ -125,16 +144,13 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the config values for the high tax classes.
      *
-     * @param null|int $storeId
-     *
      * @return bool|mixed
      */
-    public function getHighTaxClasses($storeId = null)
+    public function getHighTaxClasses()
     {
         $taxClasses = $this->scopeConfig->getValue(
             self::XPATH_AFTERPAY_HIGH_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
         return $taxClasses ? $taxClasses : false;
@@ -143,16 +159,13 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the config values for the middle tax classes
      *
-     * @param null|int $storeId
-     *
      * @return bool|mixed
      */
-    public function getMiddleTaxClasses($storeId = null)
+    public function getMiddleTaxClasses()
     {
         $taxClasses = $this->scopeConfig->getValue(
             self::XPATH_AFTERPAY_MIDDLE_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
         return $taxClasses ? $taxClasses : false;
@@ -161,16 +174,13 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the config values for the low tax classes
      *
-     * @param null|int $storeId
-     *
      * @return bool|mixed
      */
-    public function getLowTaxClasses($storeId = null)
+    public function getLowTaxClasses()
     {
         $taxClasses = $this->scopeConfig->getValue(
             self::XPATH_AFTERPAY_LOW_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
         return $taxClasses ? $taxClasses : false;
@@ -179,16 +189,13 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the config values for the zero tax classes
      *
-     * @param null|int $storeId
-     *
      * @return bool|mixed
      */
-    public function getZeroTaxClasses($storeId = null)
+    public function getZeroTaxClasses()
     {
         $taxClasses = $this->scopeConfig->getValue(
             self::XPATH_AFTERPAY_ZERO_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
         return $taxClasses ? $taxClasses : false;
@@ -238,16 +245,13 @@ class Afterpay extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
-     *
      * @return float
      */
-    public function getPaymentFee($storeId = null)
+    public function getPaymentFee()
     {
         $paymentFee = $this->scopeConfig->getValue(
             self::XPATH_AFTERPAY_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
         return $paymentFee ? $paymentFee : false;

@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Config\Source;
 
@@ -24,31 +43,48 @@ use TIG\Buckaroo\Test\BaseTest;
 
 class AllOrSpecificCountriesTest extends BaseTest
 {
-    protected $instanceClass = AllOrSpecificCountries::class;
+    /**
+     * @var AllOrSpecificCountries
+     */
+    protected $object;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->object = new AllOrSpecificCountries();
+    }
 
     public function testToOptionArray()
     {
-        $expectedOptions = [
-            'All Allowed Countries',
-            'Specific Countries'
+        $this->assertTrue(count($this->object->toOptionArray()) >= 2);
+
+        $shouldHaveOptions = [
+            __('All Allowed Countries'),
+            __('Specific Countries')
         ];
 
-        $instance = $this->getInstance();
-        $result = $instance->toOptionArray();
-
-        $this->assertCount(2, $result);
-
-        foreach ($result as $option) {
-            $this->assertContains($option['label']->getText(), $expectedOptions);
+        $result = $this->object->toOptionArray();
+        foreach ($shouldHaveOptions as $key => $option) {
+            foreach ($result as $optionContents) {
+                /**
+                 * @noinspection PhpUndefinedMethodInspection
+                 */
+                if ($optionContents['label']->getText() == $option->getText()) {
+                    unset($shouldHaveOptions[$key]);
+                    break;
+                }
+            }
         }
+
+        $this->assertEquals(0, count($shouldHaveOptions));
     }
 
     public function testToArray()
     {
-        $instance = $this->getInstance();
-        $result = $instance->toArray();
+        $options = $this->object->toArray();
 
-        $this->assertEquals(__('All Allowed Countries'), $result[0]);
-        $this->assertEquals(__('Specific Countries'), $result[1]);
+        $this->assertEquals(__('All Allowed Countries'), $options[0]);
+        $this->assertEquals(__('Specific Countries'), $options[1]);
     }
 }

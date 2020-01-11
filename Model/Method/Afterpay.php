@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\Method;
@@ -24,7 +43,6 @@ use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
 
 class Afterpay extends AbstractMethod
 {
@@ -132,9 +150,6 @@ class Afterpay extends AbstractMethod
     /** @var \TIG\Buckaroo\Model\ConfigProvider\BuckarooFee */
     protected $configProviderBuckarooFee;
 
-    /** @var SoftwareData */
-    private $softwareData;
-
     /**
      * @param \Magento\Framework\ObjectManagerInterface               $objectManager
      * @param \Magento\Framework\Model\Context                        $context
@@ -146,7 +161,6 @@ class Afterpay extends AbstractMethod
      * @param \Magento\Payment\Model\Method\Logger                    $logger
      * @param \Magento\Developer\Helper\Data                          $developmentHelper
      * @param \TIG\Buckaroo\Model\ConfigProvider\BuckarooFee          $configProviderBuckarooFee
-     * @param SoftwareData                                            $softwareData
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
      * @param \TIG\Buckaroo\Gateway\GatewayInterface                  $gateway
@@ -171,7 +185,6 @@ class Afterpay extends AbstractMethod
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
         \TIG\Buckaroo\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
-        SoftwareData $softwareData,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \TIG\Buckaroo\Gateway\GatewayInterface $gateway = null,
@@ -210,7 +223,6 @@ class Afterpay extends AbstractMethod
         );
 
         $this->configProviderBuckarooFee = $configProviderBuckarooFee;
-        $this->softwareData = $softwareData;
     }
 
     /**
@@ -388,7 +400,7 @@ class Afterpay extends AbstractMethod
             $articles = array_merge($articles, $serviceLine);
         }
 
-        // Add additional shipping costs.
+        // Add aditional shippin costs.
         $shippingCosts = $this->getShippingCostsLine($currentInvoice);
         $articles = array_merge($articles, $shippingCosts);
 
@@ -622,8 +634,10 @@ class Afterpay extends AbstractMethod
     {
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $cart = $this->objectManager->create('Magento\Checkout\Model\Cart');
-        $cartData = $cart->getItems();
+        /**
+         * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
+         */
+        $cartData = $this->objectManager->create('Magento\Checkout\Model\Cart')->getItems();
 
         // Set loop variables
         $articles = $requestData;
@@ -644,7 +658,7 @@ class Afterpay extends AbstractMethod
                 $item->getProductId(),
                 1,
                 $this->calculateProductPrice($item, $includesTax),
-                $this->getTaxCategory($item->getTaxClassId(), $payment->getOrder()->getStore())
+                $this->getTaxCategory($item->getTaxClassId())
             );
 
             /*
@@ -671,7 +685,7 @@ class Afterpay extends AbstractMethod
             $requestData = $articles;
         }
 
-        // Add additional shipping costs.
+        // Add aditional shippin costs.
         $shippingCosts = $this->getShippingCostsLine($payment->getOrder());
 
         if (!empty($shippingCosts)) {
@@ -682,13 +696,6 @@ class Afterpay extends AbstractMethod
 
         if (!empty($discountline)) {
             $requestData = array_merge($requestData, $discountline);
-            $count++;
-        }
-
-        $thirdPartyGiftCardLine = $this->getThirdPartyGiftCardLine($count, $cart);
-
-        if (!empty($thirdPartyGiftCardLine)) {
-            $requestData = array_merge($requestData, $thirdPartyGiftCardLine);
             $count++;
         }
 
@@ -729,7 +736,7 @@ class Afterpay extends AbstractMethod
                 $item->getProductId(),
                 1,
                 $this->calculateProductPrice($item, $includesTax),
-                $this->getTaxCategory($itemTaxClassId, $invoice->getOrder()->getStore())
+                $this->getTaxCategory($itemTaxClassId)
             );
 
             $articles = array_merge($articles, $article);
@@ -743,7 +750,7 @@ class Afterpay extends AbstractMethod
                     $item->getProductId(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
-                    $this->getTaxCategory($item->getTaxClassId(), $invoice->getOrder()->getStore())
+                    $this->getTaxCategory($item->getTaxClassId())
                 );
                 $articles = array_merge($articles, $article);
             }
@@ -796,7 +803,7 @@ class Afterpay extends AbstractMethod
                 $item->getProductId(),
                 1,
                 $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount(),
-                $this->getTaxCategory($itemTaxClassId, $payment->getOrder()->getStore())
+                $this->getTaxCategory($itemTaxClassId)
             );
 
             $articles = array_merge($articles, $article);
@@ -816,7 +823,7 @@ class Afterpay extends AbstractMethod
             $count++;
         }
 
-        // hasCreditmemos returns since 2.2.6 true or false.
+        // hasCreditmemos only returns true by actually saved creditmemos.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
             $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax);
@@ -908,7 +915,7 @@ class Afterpay extends AbstractMethod
                 1,
                 1,
                 round($buckarooFeeLine, 2),
-                $this->getTaxCategory($this->configProviderBuckarooFee->getTaxClass($storeId), $storeId)
+                $this->getTaxCategory($this->configProviderBuckarooFee->getTaxClass($storeId))
             );
         }
 
@@ -955,92 +962,25 @@ class Afterpay extends AbstractMethod
      */
     public function getDiscountLine($latestKey, $payment)
     {
+        /**
+         * @var \Magento\Sales\Model\Order $order
+         */
+        $order      = $payment->getOrder();
+
         $article = [];
-        $discount = $this->getDiscountAmount($payment);
-
-        if ($discount >= 0) {
-            return $article;
-        }
-
-        $article = $this->getArticleArrayLine(
-            $latestKey,
-            'Korting',
-            1,
-            1,
-            round($discount, 2),
-            4
-        );
-
-        return $article;
-    }
-
-    /**
-     * Get the third party gift card lines
-     *
-     * @param (int)                        $latestKey
-     * @param  Magento\Checkout\Model\Cart $cart
-     *
-     * @return array
-     */
-    public function getThirdPartyGiftCardLine($latestKey, $cart)
-    {
-        $article = [];
-        $giftCardTotal = 0;
-        $supportedGiftCards = ['amasty_giftcard', 'mageworx_giftcards'];
-        $cartTotals = $cart->getQuote()->getTotals();
-
-        foreach ($supportedGiftCards as $key => $giftCardCode) {
-            if (!array_key_exists($giftCardCode, $cartTotals)) {
-                continue;
-            }
-
-            $giftCardData = $cartTotals[$giftCardCode]->getData();
-
-            if (isset($giftCardData['value']) && $giftCardData['value'] >= 0) {
-                continue;
-            }
-
-            $giftCardTotal += $giftCardData['value'];
-        }
-
-        if ($giftCardTotal >= 0) {
-            return $article;
-        }
-
-        $article = $this->getArticleArrayLine(
-            $latestKey,
-            'Betaald bedrag',
-            'BETAALD',
-            1,
-            round($giftCardTotal, 2),
-            4
-        );
-
-        return $article;
-    }
-
-    /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return float|int
-     */
-    private function getDiscountAmount($payment)
-    {
-        /** @var \Magento\Sales\Model\Order $order */
-        $order = $payment->getOrder();
-
-        $discount = 0;
-        $edition = $this->softwareData->getProductMetaData()->getEdition();
 
         if ($order->getDiscountAmount() < 0) {
-            $discount -= abs((double)$order->getDiscountAmount());
+            $article = $this->getArticleArrayLine(
+                $latestKey,
+                'Korting',
+                1,
+                1,
+                number_format($order->getDiscountAmount(), 2),
+                4
+            );
         }
 
-        if ($edition == 'Enterprise' && $order->getCustomerBalanceAmount() > 0) {
-            $discount -= abs((double)$order->getCustomerBalanceAmount());
-        }
-
-        return $discount;
+        return $article;
     }
 
     /**
@@ -1143,12 +1083,12 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param           $taxClassId
-     * @param null|int  $storeId
+     * @param $taxClassId
      *
      * @return int
+     * @throws \TIG\Buckaroo\Exception
      */
-    public function getTaxCategory($taxClassId, $storeId = null)
+    public function getTaxCategory($taxClassId)
     {
         $taxCategory = 4;
 
@@ -1161,10 +1101,10 @@ class Afterpay extends AbstractMethod
         $afterPayConfig = $this->configProviderMethodFactory
             ->get(\TIG\Buckaroo\Model\Method\Afterpay::PAYMENT_METHOD_CODE);
 
-        $highClasses   = explode(',', $afterPayConfig->getHighTaxClasses($storeId));
-        $middleClasses = explode(',', $afterPayConfig->getMiddleTaxClasses($storeId));
-        $lowClasses    = explode(',', $afterPayConfig->getLowTaxClasses($storeId));
-        $zeroClasses   = explode(',', $afterPayConfig->getZeroTaxClasses($storeId));
+        $highClasses   = explode(',', $afterPayConfig->getHighTaxClasses());
+        $middleClasses = explode(',', $afterPayConfig->getMiddleTaxClasses());
+        $lowClasses    = explode(',', $afterPayConfig->getLowTaxClasses());
+        $zeroClasses   = explode(',', $afterPayConfig->getZeroTaxClasses());
 
         if (in_array($taxClassId, $highClasses)) {
             $taxCategory = 1;
@@ -1451,7 +1391,13 @@ class Afterpay extends AbstractMethod
      */
     public function formatStreet($street)
     {
-        $street = implode(' ', $street);
+        // Street is always an array since it is parsed with two field objects.
+        // Nondeless it could be that only the first field is parsed to the array
+        if (isset($street[1])) {
+            $street = $street[0] . ' ' . $street[1];
+        } else {
+            $street = $street[0];
+        }
 
         $format = [
             'house_number'    => '',

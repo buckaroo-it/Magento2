@@ -1,36 +1,90 @@
 <?php
 
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Method;
 
 use Magento\Framework\DataObject;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Model\InfoInterface;
-use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
 use TIG\Buckaroo\Model\Method\Giropay;
 
 class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
 {
     protected $instanceClass = Giropay::class;
+
+    /**
+     * @var Giropay
+     */
+    protected $object;
+
+    /**
+     * @var \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory|\Mockery\MockInterface
+     */
+    protected $transactionBuilderFactory;
+
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface|\Mockery\MockInterface
+     */
+    protected $objectManager;
+
+    /**
+     * Setup the base mocks.
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $productMetadata = \Mockery::mock(\Magento\Framework\App\ProductMetadata::class)->makePartial();
+        $this->objectManager = \Mockery::mock(\Magento\Framework\ObjectManagerInterface::class);
+        $this->objectManager->shouldReceive('get')
+            ->with('Magento\Framework\App\ProductMetadataInterface')
+            ->andReturn($productMetadata);
+
+        $this->transactionBuilderFactory = \Mockery::mock(\TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory::class);
+
+        $this->object = $this->objectManagerHelper->getObject(
+            Giropay::class,
+            [
+            'objectManager' => $this->objectManager,
+            'transactionBuilderFactory' => $this->transactionBuilderFactory,
+            ]
+        );
+    }
 
     /**
      * Test the assignData method.
@@ -68,36 +122,33 @@ class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
             'order' => 'orderrr!',
         ];
 
-        $paymentMock = $this->getFakeMock(Payment::class)
-            ->setMethods(['getOrder', 'getAdditionalInformation'])
-            ->getMock();
-        $paymentMock->expects($this->once())->method('getOrder')->willReturn($fixture['order']);
-        $paymentMock->expects($this->once())
-            ->method('getAdditionalInformation')
-            ->with('customer_bic')
-            ->willReturn($fixture['customer_bic']);
+        $payment = \Mockery::mock(
+            InfoInterface::class,
+            \Magento\Sales\Api\Data\OrderPaymentInterface::class
+        );
 
-        $orderMock =$this->getFakeMock(Order::class)->setMethods(['setOrder', 'setMethod', 'setServices'])->getMock();
-        $orderMock->expects($this->once())->method('setOrder')->with($fixture['order'])->willReturnSelf();
-        $orderMock->expects($this->once())->method('setMethod')->with('TransactionRequest')->willReturnSelf();
-        $orderMock->expects($this->once())->method('setServices')->willReturnCallback(
-            function ($services) use ($fixture, $orderMock) {
+        $payment->shouldReceive('getOrder')->andReturn($fixture['order']);
+        $payment->shouldReceive('getAdditionalInformation')->with('customer_bic')->andReturn($fixture['customer_bic']);
+
+        $order = \Mockery::mock(\TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order::class);
+        $order->shouldReceive('setOrder')->with($fixture['order'])->andReturnSelf();
+        $order->shouldReceive('setMethod')->with('TransactionRequest')->andReturnSelf();
+
+        $order->shouldReceive('setServices')->andReturnUsing(
+            function ($services) use ($fixture, $order) {
                 $this->assertEquals('giropay', $services['Name']);
                 $this->assertEquals($fixture['customer_bic'], $services['RequestParameter'][0]['_']);
 
-                return $orderMock;
+                return $order;
             }
         );
 
-        $trxFactoryMock = $this->getFakeMock(TransactionBuilderFactory::class)->setMethods(['get'])->getMock();
-        $trxFactoryMock->expects($this->once())->method('get')->with('order')->willReturn($orderMock);
+        $this->transactionBuilderFactory->shouldReceive('get')->with('order')->andReturn($order);
 
-        $infoInterface = $this->getFakeMock(InfoInterface::class)->getMockForAbstractClass();
+        $infoInterface = \Mockery::mock(InfoInterface::class)->makePartial();
 
-        $instance = $this->getInstance(['transactionBuilderFactory' => $trxFactoryMock]);
-        $instance->setData('info_instance', $infoInterface);
-
-        $this->assertEquals($orderMock, $instance->getOrderTransactionBuilder($paymentMock));
+        $this->object->setData('info_instance', $infoInterface);
+        $this->assertEquals($order, $this->object->getOrderTransactionBuilder($payment));
     }
 
     /**
@@ -105,8 +156,7 @@ class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetCaptureTransactionBuilder()
     {
-        $instance = $this->getInstance();
-        $this->assertFalse($instance->getCaptureTransactionBuilder(''));
+        $this->assertFalse($this->object->getCaptureTransactionBuilder(''));
     }
 
     /**
@@ -114,8 +164,7 @@ class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetAuthorizeTransactionBuilder()
     {
-        $instance = $this->getInstance();
-        $this->assertFalse($instance->getAuthorizeTransactionBuilder(''));
+        $this->assertFalse($this->object->getAuthorizeTransactionBuilder(''));
     }
 
     /**
@@ -123,38 +172,33 @@ class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetRefundTransactionBuilder()
     {
-        $paymentMock = $this->getFakeMock(Payment::class)
-            ->setMethods(['getOrder', 'getAdditionalInformation'])
-            ->getMock();
-        $paymentMock->expects($this->once())->method('getOrder')->willReturn('orderr');
-        $paymentMock->expects($this->once())
-            ->method('getAdditionalInformation')
-            ->with(Giropay::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            ->willReturn('getAdditionalInformation');
+        $payment = \Mockery::mock(
+            InfoInterface::class,
+            \Magento\Sales\Api\Data\OrderPaymentInterface::class
+        );
 
-        $trxFactoryMock = $this->getFakeMock(TransactionBuilderFactory::class)
-            ->setMethods(['get', 'setOrder', 'setMethod', 'setChannel', 'setOriginalTransactionKey', 'setServices'])
-            ->getMock();
-        $trxFactoryMock->expects($this->once())->method('get')->with('refund')->willReturnSelf();
-        $trxFactoryMock->expects($this->once())->method('setOrder')->with('orderr')->willReturnSelf();
-        $trxFactoryMock->expects($this->once())->method('setMethod')->with('TransactionRequest')->willReturnSelf();
-        $trxFactoryMock->expects($this->once())->method('setChannel')->with('CallCenter')->willReturnSelf();
-        $trxFactoryMock->expects($this->once())
-            ->method('setOriginalTransactionKey')
-            ->with('getAdditionalInformation')
-            ->willReturnSelf();
-        $trxFactoryMock->expects($this->once())->method('setServices')->willReturnCallback(
-            function ($services) use ($trxFactoryMock) {
+        $payment->shouldReceive('getOrder')->andReturn('orderr');
+        $payment->shouldReceive('getAdditionalInformation')->with(
+            Giropay::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        )->andReturn('getAdditionalInformation');
+
+        $this->transactionBuilderFactory->shouldReceive('get')->with('refund')->andReturnSelf();
+        $this->transactionBuilderFactory->shouldReceive('setOrder')->with('orderr')->andReturnSelf();
+        $this->transactionBuilderFactory->shouldReceive('setServices')->andReturnUsing(
+            function ($services) {
                 $services['Name'] = 'giropay';
                 $services['Action'] = 'Refund';
 
-                return $trxFactoryMock;
+                return $this->transactionBuilderFactory;
             }
         );
+        $this->transactionBuilderFactory->shouldReceive('setMethod')->with('TransactionRequest')->andReturnSelf();
+        $this->transactionBuilderFactory->shouldReceive('setOriginalTransactionKey')
+            ->with('getAdditionalInformation')
+            ->andReturnSelf();
+        $this->transactionBuilderFactory->shouldReceive('setChannel')->with('CallCenter')->andReturnSelf();
 
-        $instance = $this->getInstance(['transactionBuilderFactory' => $trxFactoryMock]);
-
-        $this->assertEquals($trxFactoryMock, $instance->getRefundTransactionBuilder($paymentMock));
+        $this->assertEquals($this->transactionBuilderFactory, $this->object->getRefundTransactionBuilder($payment));
     }
 
     /**
@@ -162,8 +206,7 @@ class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetVoidTransactionBuilder()
     {
-        $instance = $this->getInstance();
-        $this->assertTrue($instance->getVoidTransactionBuilder(''));
+        $this->assertTrue($this->object->getVoidTransactionBuilder(''));
     }
 
     /**
@@ -171,20 +214,15 @@ class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testValidate()
     {
-        $paymentInfoMock = $this->getFakeMock(InfoInterface::class)
-            ->setMethods(['getQuote', 'getBillingAddress', 'getCountryId', 'getAdditionalInformation'])
-            ->getMockForAbstractClass();
-        $paymentInfoMock->expects($this->once())->method('getQuote')->willReturnSelf();
-        $paymentInfoMock->expects($this->once())->method('getBillingAddress')->willReturnSelf();
-        $paymentInfoMock->expects($this->once())->method('getCountryId')->willReturn(4);
-        $paymentInfoMock->expects($this->exactly(2))
-            ->method('getAdditionalInformation')
-            ->withConsecutive(['buckaroo_skip_validation'], ['customer_bic'])
-            ->willReturnOnConsecutiveCalls(false, 'ABCDEF1E');
+        $paymentInfo = \Mockery::mock(InfoInterface::class);
+        $paymentInfo->shouldReceive('getQuote', 'getBillingAddress')->andReturnSelf();
+        $paymentInfo->shouldReceive('getCountryId')->andReturn(4);
 
-        $instance = $this->getInstance();
-        $instance->setData('info_instance', $paymentInfoMock);
-        $result = $instance->validate();
+        $paymentInfo->shouldReceive('getAdditionalInformation')->with('buckaroo_skip_validation')->andReturn(false);
+        $paymentInfo->shouldReceive('getAdditionalInformation')->with('customer_bic')->andReturn('ABCDEF1E');
+
+        $this->object->setData('info_instance', $paymentInfo);
+        $result = $this->object->validate();
 
         $this->assertInstanceOf(Giropay::class, $result);
     }
@@ -194,24 +232,21 @@ class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testValidateInvalidBic()
     {
-        $paymentInfoMock = $this->getFakeMock(InfoInterface::class)
-            ->setMethods(['getQuote', 'getBillingAddress', 'getCountryId', 'getAdditionalInformation'])
-            ->getMockForAbstractClass();
-        $paymentInfoMock->expects($this->once())->method('getQuote')->willReturnSelf();
-        $paymentInfoMock->expects($this->once())->method('getBillingAddress')->willReturnSelf();
-        $paymentInfoMock->expects($this->once())->method('getCountryId')->willReturn(4);
-        $paymentInfoMock->expects($this->exactly(2))
-            ->method('getAdditionalInformation')
-            ->withConsecutive(['buckaroo_skip_validation'], ['customer_bic'])
-            ->willReturnOnConsecutiveCalls(false, 'wrong');
+        $paymentInfo = \Mockery::mock(InfoInterface::class);
+        $paymentInfo->shouldReceive('getQuote', 'getBillingAddress')->andReturnSelf();
+        $paymentInfo->shouldReceive('getCountryId')->andReturn(4);
 
-        $instance = $this->getInstance();
-        $instance->setData('info_instance', $paymentInfoMock);
+        $paymentInfo->shouldReceive('getAdditionalInformation')->with('buckaroo_skip_validation')->andReturn(false);
+        $paymentInfo->shouldReceive('getAdditionalInformation')->with('customer_bic')->andReturn('wrong');
+
+        $this->object->setData('info_instance', $paymentInfo);
 
         try {
-            $instance->validate();
-        } catch (LocalizedException $e) {
+            $this->object->validate();
+            $this->fail();
+        } catch (\Exception $e) {
             $this->assertEquals('Please enter a valid BIC number', $e->getMessage());
+            $this->assertInstanceOf(\Magento\Framework\Exception\LocalizedException::class, $e);
         }
     }
 
@@ -220,21 +255,17 @@ class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testValidateSkipValidation()
     {
-        $paymentInfoMock = $this->getFakeMock(InfoInterface::class)
-            ->setMethods(['getQuote', 'getBillingAddress', 'getCountryId', 'getAdditionalInformation'])
-            ->getMockForAbstractClass();
-        $paymentInfoMock->expects($this->once())->method('getQuote')->willReturnSelf();
-        $paymentInfoMock->expects($this->once())->method('getBillingAddress')->willReturnSelf();
-        $paymentInfoMock->expects($this->once())->method('getCountryId')->willReturn(4);
-        $paymentInfoMock->expects($this->once())
-            ->method('getAdditionalInformation')
+        $paymentInfo = \Mockery::mock(InfoInterface::class);
+        $paymentInfo->shouldReceive('getQuote', 'getBillingAddress')->once()->andReturnSelf();
+        $paymentInfo->shouldReceive('getCountryId')->once()->andReturn(4);
+        $paymentInfo->shouldReceive('getAdditionalInformation')
             ->with('buckaroo_skip_validation')
-            ->willReturn(true);
+            ->once()
+            ->andReturn(true);
 
-        $instance = $this->getInstance();
-        $instance->setData('info_instance', $paymentInfoMock);
+        $this->object->setData('info_instance', $paymentInfo);
 
-        $result = $instance->validate();
+        $result = $this->object->validate();
 
         $this->assertInstanceOf(Giropay::class, $result);
     }

@@ -1,21 +1,33 @@
 <?php
 /**
+ *
+ *          ..::..
+ *     ..::::::::::::..
+ *   ::'''''':''::'''''::
+ *   ::..  ..:  :  ....::
+ *   ::::  :::  :  :   ::
+ *   ::::  :::  :  ''' ::
+ *   ::::..:::..::.....::
+ *     ''::::::::::::''
+ *          ''::''
+ *
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright   Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Method;
 
@@ -26,7 +38,6 @@ use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Creditmemo\Item;
 use Magento\Sales\Model\Order\Payment;
 use TIG\Buckaroo\Model\Method\Afterpay2;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
 use TIG\Buckaroo\Test\BaseTest;
 
 class Afterpay2Test extends BaseTest
@@ -230,11 +241,14 @@ class Afterpay2Test extends BaseTest
      */
     public function testGetTaxLine($taxAmount, $shippingTaxAmount, $catalogIncludesTax, $shippingIncludesTax, $expected)
     {
+        $orderTaxinvokedAtMost = new \PHPUnit_Framework_MockObject_Matcher_InvokedAtMostCount(1);
+        $shippingTaxinvokedAtMost = new \PHPUnit_Framework_MockObject_Matcher_InvokedAtMostCount(2);
+
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods(['getTaxAmount', 'getShippingTaxAmount'])
             ->getMock();
-        $orderMock->method('getTaxAmount')->willReturn($taxAmount);
-        $orderMock->method('getShippingTaxAmount')->willReturn($shippingTaxAmount);
+        $orderMock->expects($orderTaxinvokedAtMost)->method('getTaxAmount')->willReturn($taxAmount);
+        $orderMock->expects($shippingTaxinvokedAtMost)->method('getShippingTaxAmount')->willReturn($shippingTaxAmount);
 
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->exactly(2))
@@ -307,11 +321,13 @@ class Afterpay2Test extends BaseTest
      */
     public function testGetShippingCostsLine($shippingAmount, $taxAmount, $includesTax, $expected)
     {
+        $invokedAtMost = new \PHPUnit_Framework_MockObject_Matcher_InvokedAtMostCount(1);
+
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods(['getShippingAmount', 'getShippingTaxAmount'])
             ->getMock();
         $orderMock->expects($this->atLeastOnce())->method('getShippingAmount')->willReturn($shippingAmount);
-        $orderMock->method('getShippingTaxAmount')->willReturn($taxAmount);
+        $orderMock->expects($invokedAtMost)->method('getShippingTaxAmount')->willReturn($taxAmount);
 
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->exactly(($shippingAmount ? 1 : 0)))
@@ -322,65 +338,6 @@ class Afterpay2Test extends BaseTest
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $this->invokeArgs('getShippingCostsLine', [$orderMock], $instance);
 
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
-     * @return array
-     */
-    public function getDiscountAmountProvider()
-    {
-        return [
-            'No discount' => [
-                0,
-                0,
-                0
-            ],
-            'Normal Discount' => [
-                -5,
-                0,
-                -5
-            ],
-            'Store Credit discount' => [
-                3,
-                10,
-                -10
-            ],
-            'Both Normal and Store Credit Discounts' => [
-                -15,
-                20,
-                -35
-            ],
-        ];
-    }
-
-    /**
-     * @param $normalDiscount
-     * @param $storeCredit
-     * @param $expected
-     *
-     * @dataProvider getDiscountAmountProvider
-     */
-    public function testGetDiscountAmount($normalDiscount, $storeCredit, $expected)
-    {
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods(['getDiscountAmount', 'getCustomerBalanceAmount'])
-            ->getMock();
-        $orderMock->expects($this->atLeastOnce())->method('getDiscountAmount')->willReturn($normalDiscount);
-        $orderMock->expects($this->atLeastOnce())->method('getCustomerBalanceAmount')->willReturn($storeCredit);
-
-        $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['getOrder'])->getMock();
-        $paymentMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
-
-        $softwareDataMock = $this->getFakeMock(SoftwareData::class)
-            ->setMethods(['getProductMetaData', 'getEdition'])
-            ->getMock();
-        $softwareDataMock->expects($this->once())->method('getProductMetaData')->willReturnSelf();
-        $softwareDataMock->expects($this->once())->method('getEdition')->willReturn('Enterprise');
-
-        $instance = $this->getInstance(['softwareData' => $softwareDataMock]);
-
-        $result = $this->invokeArgs('getDiscountAmount', [$paymentMock], $instance);
         $this->assertEquals($expected, $result);
     }
 }

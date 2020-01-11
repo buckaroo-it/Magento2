@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model;
 
@@ -23,7 +42,17 @@ use TIG\Buckaroo\Model\Giftcard;
 
 class GiftcardTest extends \TIG\Buckaroo\Test\BaseTest
 {
-    protected $instanceClass = Giftcard::class;
+    /**
+    * @var Giftcard
+    */
+    protected $object;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->object = $this->objectManagerHelper->getObject(Giftcard::class);
+    }
 
     /**
      * @return array
@@ -54,10 +83,10 @@ class GiftcardTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testShouldBeAbleToSetAndGetServicecode($servicecode, $expected)
     {
-        $instance = $this->getInstance();
-        $instance->setServicecode($servicecode);
+        $object = $this->object;
+        $object->setServicecode($servicecode);
 
-        $this->assertEquals($expected, $instance->getServicecode());
+        $this->assertEquals($expected, $object->getServicecode());
     }
 
     /**
@@ -89,9 +118,9 @@ class GiftcardTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testShouldBeAbleToSetAndGetLabel($label, $expected)
     {
-        $instance = $this->getInstance();
-        $instance->setLabel($label);
+        $object = $this->object;
+        $object->setLabel($label);
 
-        $this->assertEquals($expected, $instance->getLabel());
+        $this->assertEquals($expected, $object->getLabel());
     }
 }

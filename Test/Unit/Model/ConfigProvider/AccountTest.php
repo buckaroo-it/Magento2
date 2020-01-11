@@ -1,50 +1,97 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\ConfigProvider;
 
+use Magento\Store\Model\ScopeInterface;
+use Mockery as m;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use TIG\Buckaroo\Test\BaseTest;
 use TIG\Buckaroo\Model\ConfigProvider\Account;
 
 class AccountTest extends BaseTest
 {
-    protected $instanceClass = Account::class;
+    /**
+     * @var Account
+     */
+    protected $object;
+
+    /**
+     * @var ScopeConfigInterface|m\MockInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * Setup the mock objects.
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->scopeConfig = m::mock(ScopeConfigInterface::class);
+        $this->object = $this->objectManagerHelper->getObject(
+            Account::class,
+            [
+            'scopeConfig' => $this->scopeConfig,
+            ]
+        );
+    }
 
     /**
      * Test the getConfig function.
      */
     public function testGetConfig()
     {
-        $expectedKeys = [
-            'active', 'secret_key', 'merchant_key', 'merchant_guid', 'transaction_label', 'certificate_file',
-            'order_confirmation_email', 'invoice_email', 'success_redirect', 'failure_redirect', 'cancel_on_failed',
-            'digital_signature', 'debug_types', 'debug_email', 'limit_by_ip', 'fee_percentage_mode',
-            'payment_fee_label', 'order_status_new', 'order_status_pending', 'order_status_success',
-            'order_status_failed', 'create_order_before_transaction'
-        ];
+        $account = new \ReflectionClass(Account::class);
+        $classConstants = $account->getConstants();
 
-        $instance = $this->getInstance();
-        $result = $instance->getConfig();
+        foreach ($classConstants as $constant => $value) {
+            $this->scopeConfig
+                ->shouldReceive('getValue')
+                ->once()
+                ->with($value, ScopeInterface::SCOPE_STORE, null)
+                ->andReturn($constant);
+        }
 
-        $this->assertInternalType('array', $result);
+        $results = $this->object->getConfig();
 
-        $resultKeys = array_keys($result);
-        $this->assertEmpty(array_merge(array_diff($expectedKeys, $resultKeys), array_diff($resultKeys, $expectedKeys)));
+        foreach ($results as $name => $value) {
+            $this->assertEquals('XPATH_ACCOUNT_' . strtoupper($name), $value);
+        }
     }
 }

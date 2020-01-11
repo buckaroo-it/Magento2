@@ -1,36 +1,101 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Refund;
 
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Creditmemo;
-use Magento\Sales\Model\Order\Creditmemo\Item;
-use Magento\Sales\Model\Order\CreditmemoFactory;
-use Magento\Sales\Model\Order\Item as OrderItem;
-use TIG\Buckaroo\Exception;
-use TIG\Buckaroo\Model\ConfigProvider\Refund;
-use TIG\Buckaroo\Model\Refund\Push;
-
 class PushTest extends \TIG\Buckaroo\Test\BaseTest
 {
-    protected $instanceClass = Push::class;
+    /**
+     * @var \TIG\Buckaroo\Model\Refund\Push
+     */
+    protected $object;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $debugger;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $order;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $creditmemoFactory;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $creditmemoManagement;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    protected $configRefund;
+
+    /**
+     * Setup the base mock objects.
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->order = \Mockery::mock(\Magento\Sales\Model\Order::class)->makePartial();
+        $this->debugger = \Mockery::mock(\TIG\Buckaroo\Debug\Debugger::class)->makePartial();
+        $this->debugger->shouldReceive('addToMessage', 'log')->andReturnSelf();
+        $this->creditmemoManagement = \Mockery::mock(\Magento\Sales\Api\CreditmemoManagementInterface::class);
+        $this->creditmemoFactory = \Mockery::mock(\Magento\Sales\Model\Order\CreditmemoFactory::class);
+        $this->configRefund = \Mockery::mock(\TIG\Buckaroo\Model\ConfigProvider\Refund::class);
+
+        $this->object = $this->objectManagerHelper->getObject(
+            \TIG\Buckaroo\Model\Refund\Push::class,
+            [
+                'debugger' => $this->debugger,
+                'creditmemoManagement' => $this->creditmemoManagement,
+                'creditmemoFactory' => $this->creditmemoFactory,
+                'configRefund' => $this->configRefund
+            ]
+        );
+
+        $this->object->order = $this->order;
+    }
 
     /**
      * Test the happy path of the receiveRefundMethod.
@@ -38,46 +103,35 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
     public function testReceiveRefundPush()
     {
         $id = rand(1, 1000);
-
-        $postData = [
-            'brq_currency' => false,
-            'brq_amount_credit' => 0,
-            'brq_transactions' => $id,
-        ];
-
-        $creditmemoMock = $this->getFakeMock(Creditmemo::class)
+        $creditmemoMock = $this->getFakeMock(\Magento\Sales\Model\Order\Creditmemo::class)
             ->setMethods(['getAllItems', 'isValidGrandTotal', 'setTransactionId'])
             ->getMock();
         $creditmemoMock->expects($this->any())->method('getAllItems')->willReturn([]);
         $creditmemoMock->expects($this->any())->method('isValidGrandTotal')->willReturn(true);
         $creditmemoMock->expects($this->once())->method('setTransactionId')->with($id);
 
-        $creditmemoFactoryMock = $this->getFakeMock(CreditmemoFactory::class)
-            ->setMethods(['createByOrder', 'getItems', 'getItemsByColumnValue'])
-            ->getMock();
-        $creditmemoFactoryMock->expects($this->once())->method('createByOrder')->willReturn($creditmemoMock);
-        $creditmemoFactoryMock->expects($this->once())->method('getItems')->willReturn([]);
-        $creditmemoFactoryMock->expects($this->once())
-            ->method('getItemsByColumnValue')
-            ->with('transaction_id', $id)
-            ->willReturn([]);
+        $this->creditmemoFactory->shouldReceive('createByOrder')->once()->andReturn($creditmemoMock);
+        $this->creditmemoFactory->shouldReceive('getItems')->andReturn([]);
+        $this->creditmemoFactory->shouldReceive('getItemsByColumnValue')->with('transaction_id', $id)->andReturn([]);
 
-        $configRefundMock = $this->getFakeMock(Refund::class)->setMethods(['getAllowPush'])->getMock();
-        $configRefundMock->expects($this->once())->method('getAllowPush')->willReturn(true);
+        $this->configRefund->shouldReceive('getAllowPush')->andReturn(true);
 
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods(['getId', 'getCreditmemosCollection', 'getItemsCollection'])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getId')->willReturn($id);
-        $orderMock->expects($this->exactly(2))->method('getCreditmemosCollection')->willReturn($creditmemoFactoryMock);
-        $orderMock->expects($this->once())->method('getItemsCollection')->willReturn($creditmemoFactoryMock);
+        $this->order->shouldReceive('getId')->once()->andReturn($id);
+        $this->order->shouldReceive('getCreditmemosCollection')->andReturn($this->creditmemoFactory);
+        $this->order->shouldReceive('getItemsCollection')->andReturn($this->creditmemoFactory);
 
-        $instance = $this->getInstance([
-            'creditmemoFactory' => $creditmemoFactoryMock,
-            'configRefund' => $configRefundMock
-        ]);
+        $this->debugger->shouldReceive('addToMessage', 'log')->andReturnSelf();
 
-        $result = $instance->receiveRefundPush($postData, true, $orderMock);
+        $this->creditmemoManagement->shouldReceive('refund')->once();
+
+        $postData = [
+            'brq_currency' => false,
+            'brq_amount_credit' => 0,
+            'brq_transactions' => $id,
+        ];
+        $signatureValidation = true;
+        $result = $this->object->receiveRefundPush($postData, $signatureValidation, $this->order);
+
         $this->assertTrue($result);
     }
 
@@ -86,17 +140,14 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testReceiveRefundPushInvalidSignature()
     {
-        $configRefundMock = $this->getFakeMock(Refund::class)->setMethods(['getAllowPush'])->getMock();
-        $configRefundMock->expects($this->once())->method('getAllowPush')->willReturn(true);
-
-        $orderMock = $this->getFakeMock(Order::class)->setMethods(['canCreditmemo'])->getMock();
-        $orderMock->expects($this->exactly(2))->method('canCreditmemo')->willReturn(false);
-
-        $instance = $this->getInstance(['configRefund' => $configRefundMock]);
+        $this->order->shouldReceive('canCreditmemo')->twice()->andReturn(false);
+        $this->configRefund->shouldReceive('getAllowPush')->andReturn(true);
 
         try {
-            $instance->receiveRefundPush([], false, $orderMock);
-        } catch (Exception $e) {
+            $this->object->receiveRefundPush([], false, $this->order);
+            $this->fail();
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(\TIG\Buckaroo\Exception::class, $e);
             $this->assertEquals('Buckaroo refund push validation failed', $e->getMessage());
         }
     }
@@ -106,28 +157,23 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testCreateCreditMemoInvalidGrandTotal()
     {
-        $creditmemoItemMock = $this->getFakeMock(Item::class)->setMethods(['setBackToStock'])->getMock();
-        $creditmemoItemMock->expects($this->once())->method('setBackToStock');
+        $creditmemoItem = \Mockery::mock(\Magento\Sales\Model\Order\Creditmemo\Item::class);
+        $creditmemoItem->shouldReceive('setBackToStock', 'isDeleted');
+        $creditmemoItem->shouldReceive('getId', 'getQtyInvoiced', 'getQtyRefunded')->andReturn(1);
 
-        $creditmemoFactoryMock = $this->getFakeMock(CreditmemoFactory::class)
-            ->setMethods(['getItems', 'getAllItems', 'isValidGrandTotal', 'createByOrder'])
-            ->getMock();
-        $creditmemoFactoryMock->expects($this->once())->method('getItems')->willReturn([]);
-        $creditmemoFactoryMock->expects($this->once())->method('getAllItems')->willReturn([$creditmemoItemMock]);
-        $creditmemoFactoryMock->expects($this->once())->method('isValidGrandTotal')->willReturn(false);
-        $creditmemoFactoryMock->expects($this->once())->method('createByOrder')->willReturnSelf();
+        $this->creditmemoFactory->shouldReceive('getItems')->andReturn([]);
+        $this->creditmemoFactory->shouldReceive('getAllItems')->andReturn([$creditmemoItem]);
+        $this->creditmemoFactory->shouldReceive('isValidGrandTotal')->andReturn(false);
+        $this->creditmemoFactory->shouldReceive('createByOrder')->once()->andReturnSelf();
 
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods(['getCreditmemosCollection', 'getItemsCollection'])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getCreditmemosCollection')->willReturn($creditmemoFactoryMock);
-        $orderMock->expects($this->once())->method('getItemsCollection')->willReturn($creditmemoFactoryMock);
+        $this->order->shouldReceive('getCreditmemosCollection')->andReturn($this->creditmemoFactory);
+        $this->order->shouldReceive('getItemsCollection')->andReturn($this->creditmemoFactory);
 
-        $instance = $this->getInstance(['creditmemoFactory' => $creditmemoFactoryMock]);
-        $instance->order = $orderMock;
+        $this->object->createCreditmemo();
 
-        $result = $instance->createCreditmemo();
-        $this->assertFalse($result);
+        if ($container = \Mockery::getContainer()) {
+            $this->addToAssertionCount($container->mockery_getExpectationCount());
+        }
     }
 
     /**
@@ -135,25 +181,16 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testCreateCreditMemoUnableToCreate()
     {
-        $creditmemoFactoryMock = $this->getFakeMock(CreditmemoFactory::class)
-            ->setMethods(['getItems', 'getAllItems', 'isValidGrandTotal', 'createByOrder'])
-            ->getMock();
-        $creditmemoFactoryMock->expects($this->once())->method('getItems')->willReturn([]);
-        $creditmemoFactoryMock->expects($this->once())->method('getAllItems')->willReturn([]);
-        $creditmemoFactoryMock->expects($this->once())->method('isValidGrandTotal')->willReturn(false);
-        $creditmemoFactoryMock->expects($this->once())->method('createByOrder')->willReturnSelf();
+        $this->creditmemoFactory->shouldReceive('getItems')->andReturn([]);
+        $this->creditmemoFactory->shouldReceive('getAllItems')->andReturn([]);
+        $this->creditmemoFactory->shouldReceive('isValidGrandTotal')->andReturn(false);
+        $exception = new \TIG\Buckaroo\Exception(__('Error for test'));
+        $this->creditmemoFactory->shouldReceive('createByOrder')->once()->andThrow($exception);
 
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods(['getCreditmemosCollection', 'getItemsCollection'])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getCreditmemosCollection')->willReturn($creditmemoFactoryMock);
-        $orderMock->expects($this->once())->method('getItemsCollection')->willReturn($creditmemoFactoryMock);
+        $this->order->shouldReceive('getCreditmemosCollection')->andReturn($this->creditmemoFactory);
+        $this->order->shouldReceive('getItemsCollection')->andReturn($this->creditmemoFactory);
 
-        $instance = $this->getInstance(['creditmemoFactory' => $creditmemoFactoryMock]);
-        $instance->order = $orderMock;
-
-        $result = $instance->createCreditmemo();
-        $this->assertFalse($result);
+        $this->assertFalse($this->object->createCreditmemo());
     }
 
     /**
@@ -161,28 +198,21 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetCreditmemoData()
     {
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods(['getBaseGrandTotal', 'getBaseTotalRefunded', 'getBaseToOrderRate', 'getAllItems'])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getBaseGrandTotal')->willReturn(999);
-        $orderMock->expects($this->exactly(2))->method('getBaseTotalRefunded')->willReturn('0');
-        $orderMock->expects($this->exactly(2))->method('getBaseToOrderRate')->willReturn('1');
-        $orderMock->expects($this->once())->method('getAllItems')->willReturn([]);
+        $this->order->shouldReceive('getBaseGrandTotal')->andReturn(999);
+        $this->order->shouldReceive('getBaseTotalRefunded')->andReturn('0');
+        $this->order->shouldReceive('getBaseToOrderRate')->andReturn('1');
+        $this->order->shouldReceive('getAllItems')->andReturn(array());
 
-        $postData = [
+        $this->object->postData = [
             'brq_currency' => 'EUR',
             'brq_amount_credit' => '100'
         ];
-
-        $instance = $this->getInstance();
-        $instance->postData = $postData;
-        $instance->order = $orderMock;
-
-        $result = $instance->getCreditmemoData();
+        $result = $this->object->getCreditmemoData();
 
         $this->assertEquals(0, $result['shipping_amount']);
         $this->assertEquals(0, $result['adjustment_negative']);
         $this->assertEquals(array(), $result['items']);
+        $this->assertEquals(0, $result['qtys']);
         $this->assertEquals('100', $result['adjustment_positive']);
     }
 
@@ -191,20 +221,13 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetTotalCreditAdjustments()
     {
-        $creditmemoMock = $this->getFakeMock(Creditmemo::class)
-            ->setMethods(['getBaseAdjustmentPositive', 'getBaseAdjustmentNegative'])
-            ->getMock();
-        $creditmemoMock->expects($this->once())->method('getBaseAdjustmentPositive')->willReturn(12);
-        $creditmemoMock->expects($this->once())->method('getBaseAdjustmentNegative')->willReturn(8);
+        $creditmemo = \Mockery::mock(\Magento\Sales\Model\Order\Creditmemo::class);
+        $creditmemo->shouldReceive('getBaseAdjustmentPositive')->andReturn(10);
+        $creditmemo->shouldReceive('getBaseAdjustmentNegative')->andReturn(5);
 
-        $orderMock = $this->getFakeMock(Order::class)->setMethods(['getCreditmemosCollection'])->getMock();
-        $orderMock->expects($this->once())->method('getCreditmemosCollection')->willReturn([$creditmemoMock]);
+        $this->order->shouldReceive('getCreditmemosCollection')->andReturn([$creditmemo]);
 
-        $instance = $this->getInstance();
-        $instance->order = $orderMock;
-
-        $result = $instance->getTotalCreditAdjustments();
-        $this->assertEquals(4, $result);
+        $this->assertEquals(5, $this->object->getTotalCreditAdjustments());
     }
 
     /**
@@ -212,29 +235,17 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetAdjustmentRefundData()
     {
-        $postData = [
+        $this->object->postData = [
             'brq_currency' => 'EUR',
             'brq_amount_credit' => '100',
         ];
 
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods([
-                'getBaseToOrderRate', 'getBaseTotalRefunded',
-                'getBaseBuckarooFeeInvoiced', 'getBuckarooFeeBaseTaxAmountInvoiced'
-            ])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getBaseToOrderRate')->willReturn(1);
-        $orderMock->expects($this->once())->method('getBaseTotalRefunded')->willReturn(null);
-        $orderMock->expects($this->once())->method('getBaseBuckarooFeeInvoiced')->willReturn(10);
-        $orderMock->expects($this->once())->method('getBuckarooFeeBaseTaxAmountInvoiced')->willReturn(5);
+        $this->order->shouldReceive('getBaseToOrderRate')->once()->andReturn(1);
+        $this->order->shouldReceive('getBaseTotalRefunded')->once()->andReturn(null);
+        $this->order->shouldReceive('getBaseBuckarooFeeInvoiced')->andReturn(10);
+        $this->order->shouldReceive('getBuckarooFeeBaseTaxAmountInvoiced')->andReturn(5);
 
-        $instance = $this->getInstance();
-        $instance->postData = $postData;
-        $instance->order = $orderMock;
-
-        $result = $instance->getAdjustmentRefundData();
-
-        $this->assertEquals(85, $result);
+        $this->assertEquals(85, $this->object->getAdjustmentRefundData());
     }
 
     /**
@@ -242,18 +253,15 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetCreditmemoDataItems()
     {
-        $orderItemMock = $this->getFakeMock(OrderItem::class)->setMethods(['getId', 'getQtyInvoiced', 'getQtyRefunded'])->getMock();
-        $orderItemMock->expects($this->exactly(2))->method('getId')->willReturn(1);
-        $orderItemMock->expects($this->once())->method('getQtyInvoiced')->willReturn(10);
-        $orderItemMock->expects($this->once())->method('getQtyRefunded')->willReturn(3);
+        $orderItem = \Mockery::mock(\Magento\Sales\Model\Order\Item::class);
+        $orderItem->shouldReceive('getId')->andReturn(1);
+        $orderItem->shouldReceive('getQtyInvoiced')->andReturn(10);
+        $orderItem->shouldReceive('getQtyRefunded')->andReturn(3);
 
-        $orderMock = $this->getFakeMock(Order::class)->setMethods(['getAllItems'])->getMock();
-        $orderMock->expects($this->once())->method('getAllItems')->willReturn([$orderItemMock]);
+        $this->order->shouldReceive('getAllItems')->andReturn([$orderItem]);
 
-        $instance = $this->getInstance();
-        $instance->order = $orderMock;
+        $result = $this->object->getCreditmemoDataItems();
 
-        $result = $instance->getCreditmemoDataItems();
         $this->assertEquals(7, $result[1]['qty']);
     }
 
@@ -267,8 +275,7 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
             16 => ['qty' => 32],
         ];
 
-        $instance = $this->getInstance();
-        $result = $instance->setCreditQtys($items);
+        $result = $this->object->setCreditQtys($items);
 
         $this->assertEquals(30, $result[15]);
         $this->assertEquals(32, $result[16]);
