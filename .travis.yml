@@ -1,0 +1,55 @@
+sudo: required
+dist: trusty
+addons:
+  apt:
+    packages:
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
+
+language: php
+
+php:
+    - 7.0
+
+env:
+  global:
+    - CODE_COVERAGE=false
+
+  matrix:
+    # MAGENTO_VERSION=2.0.18
+    - MAGENTO_VERSION=2.1.14
+    - MAGENTO_VERSION=2.1.15
+    - MAGENTO_VERSION=2.2.2
+    - MAGENTO_VERSION=2.2.3
+
+matrix:
+  include:
+  # PHP 7.1 would be supported in Magento since Magento 2.2
+  # And there wouldn't be support of PHP 7.1 in Magento 2.0 or 2.1
+    - php: 7.1
+      env: MAGENTO_VERSION=2.2.3 CODE_COVERAGE=true
+    - php: 7.1
+      env: MAGENTO_VERSION=2.2.8
+    - php: 7.2
+      env: MAGENTO_VERSION=2.3.1
+
+  allow_failures:
+    - php: 7.1
+      env: MAGENTO_VERSION=2.2.8
+    - php: 7.2
+      env: MAGENTO_VERSION=2.3.1
+
+before_script:
+  - composer config -a -g http-basic.repo.magento.com $MAGENTO_USERNAME $MAGENTO_PASSWORD
+  - bash Test/Script/ManageDependencies.sh
+
+script:
+  - bash Test/Script/Setup.sh
+
+after_success:
+  - bash Test/Script/AfterSuccess.sh
+
+cache:
+  directories:
+  - $HOME/.composer/cache

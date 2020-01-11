@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\Method;
@@ -388,7 +407,7 @@ class Afterpay extends AbstractMethod
             $articles = array_merge($articles, $serviceLine);
         }
 
-        // Add additional shipping costs.
+        // Add aditional shippin costs.
         $shippingCosts = $this->getShippingCostsLine($currentInvoice);
         $articles = array_merge($articles, $shippingCosts);
 
@@ -622,8 +641,10 @@ class Afterpay extends AbstractMethod
     {
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $cart = $this->objectManager->create('Magento\Checkout\Model\Cart');
-        $cartData = $cart->getItems();
+        /**
+         * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
+         */
+        $cartData = $this->objectManager->create('Magento\Checkout\Model\Cart')->getItems();
 
         // Set loop variables
         $articles = $requestData;
@@ -671,7 +692,7 @@ class Afterpay extends AbstractMethod
             $requestData = $articles;
         }
 
-        // Add additional shipping costs.
+        // Add aditional shippin costs.
         $shippingCosts = $this->getShippingCostsLine($payment->getOrder());
 
         if (!empty($shippingCosts)) {
@@ -682,13 +703,6 @@ class Afterpay extends AbstractMethod
 
         if (!empty($discountline)) {
             $requestData = array_merge($requestData, $discountline);
-            $count++;
-        }
-
-        $thirdPartyGiftCardLine = $this->getThirdPartyGiftCardLine($count, $cart);
-
-        if (!empty($thirdPartyGiftCardLine)) {
-            $requestData = array_merge($requestData, $thirdPartyGiftCardLine);
             $count++;
         }
 
@@ -816,7 +830,7 @@ class Afterpay extends AbstractMethod
             $count++;
         }
 
-        // hasCreditmemos returns since 2.2.6 true or false.
+        // hasCreditmemos only returns true by actually saved creditmemos.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
             $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax);
@@ -975,51 +989,6 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * Get the third party gift card lines
-     *
-     * @param (int)                        $latestKey
-     * @param  Magento\Checkout\Model\Cart $cart
-     *
-     * @return array
-     */
-    public function getThirdPartyGiftCardLine($latestKey, $cart)
-    {
-        $article = [];
-        $giftCardTotal = 0;
-        $supportedGiftCards = ['amasty_giftcard', 'mageworx_giftcards'];
-        $cartTotals = $cart->getQuote()->getTotals();
-
-        foreach ($supportedGiftCards as $key => $giftCardCode) {
-            if (!array_key_exists($giftCardCode, $cartTotals)) {
-                continue;
-            }
-
-            $giftCardData = $cartTotals[$giftCardCode]->getData();
-
-            if (isset($giftCardData['value']) && $giftCardData['value'] >= 0) {
-                continue;
-            }
-
-            $giftCardTotal += $giftCardData['value'];
-        }
-
-        if ($giftCardTotal >= 0) {
-            return $article;
-        }
-
-        $article = $this->getArticleArrayLine(
-            $latestKey,
-            'Betaald bedrag',
-            'BETAALD',
-            1,
-            round($giftCardTotal, 2),
-            4
-        );
-
-        return $article;
-    }
-
-    /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return float|int
@@ -1143,8 +1112,8 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param           $taxClassId
-     * @param null|int  $storeId
+     * @param          $taxClassId
+     * @param null|int $storeId
      *
      * @return int
      */
