@@ -60,10 +60,7 @@
     .tig_buckaroo_payperemail .payment-method-second-col,
     .tig_buckaroo_paymentguarantee .payment-method-second-col,
     .tig_buckaroo_klarna .payment-method-second-col,
-    .tig_buckaroo_emandate .payment-method-second-col,
-    .tig_buckaroo_applepay .payment-method-second-col,
-    .tig_buckaroo_capayablein3 .payment-method-second-col,
-    .tig_buckaroo_capayablepostpay .payment-method-second-col
+    .tig_buckaroo_emandate .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -84,10 +81,7 @@
     .tig_buckaroo_payperemail .payment-method-billing-address,
     .tig_buckaroo_paymentguarantee .payment-method-billing-address,
     .tig_buckaroo_klarna .payment-method-billing-address,
-    .tig_buckaroo_emandate .payment-method-billing-address,
-    .tig_buckaroo_applepay .payment-method-billing-address,
-    .tig_buckaroo_capayablein3 .payment-method-billing-address,
-    .tig_buckaroo_capayablepostpay .payment-method-billing-address
+    .tig_buckaroo_emandate .payment-method-billing-address
     {
         float:left;
         width: 50%;
@@ -111,10 +105,7 @@
     .magento-blank .tig_buckaroo_payperemail .fieldset > .field:not(.choice) > .label,
     .magento-blank .tig_buckaroo_paymentguarantee .fieldset > .field:not(.choice) > .label,
     .magento-blank .tig_buckaroo_klarna .fieldset > .field:not(.choice) > .label,
-    .magento-blank .tig_buckaroo_emandate .fieldset > .field:not(.choice) > .label,
-    .magento-blank .tig_buckaroo_applepay .fieldset > .field:not(.choice) > .label,
-    .magento-blank .tig_buckaroo_capayablein3 .fieldset > .field:not(.choice) > .label,
-    .magento-blank .tig_buckaroo_capayablepostpay .fieldset > .field:not(.choice) > .label
+    .magento-blank .tig_buckaroo_emandate .fieldset > .field:not(.choice) > .label
     {
         padding: 6px 15px 0 0 !important;
         text-align: left !important;
@@ -136,10 +127,7 @@
     .magento-blank .tig_buckaroo_payperemail .fieldset > .field:not(.choice) > .control,
     .magento-blank .tig_buckaroo_paymentguarantee .fieldset > .field:not(.choice) > .control,
     .magento-blank .tig_buckaroo_klarna .fieldset > .field:not(.choice) > .control,
-    .magento-blank .tig_buckaroo_emandate .fieldset > .field:not(.choice) > .control,
-    .magento-blank .tig_buckaroo_applepay .fieldset > .field:not(.choice) > .control,
-    .magento-blank .tig_buckaroo_capayablein3 .fieldset > .field:not(.choice) > .control,
-    .magento-blank .tig_buckaroo_capayablepostpay .fieldset > .field:not(.choice) > .control
+    .magento-blank .tig_buckaroo_emandate .fieldset > .field:not(.choice) > .control
     {
         width: 100% !important;
         float: left !important;
@@ -159,10 +147,7 @@
     .magento-blank .tig_buckaroo_payperemail .fieldset > .field.choice:before,
     .magento-blank .tig_buckaroo_paymentguarantee .fieldset > .field.choice:before,
     .magento-blank .tig_buckaroo_klarna .fieldset > .field.choice:before,
-    .magento-blank .tig_buckaroo_emandate .fieldset > .field.choice:before,
-    .magento-blank .tig_buckaroo_applepay .fieldset > .field.choice:before,
-    .magento-blank .tig_buckaroo_capayablein3 .fieldset > .field.choice:before,
-    .magento-blank .tig_buckaroo_capayablepostpay .fieldset > .field.choice:before
+    .magento-blank .tig_buckaroo_emandate .fieldset > .field.choice:before
     {
         padding:0 !important;
         width: auto !important;
@@ -288,30 +273,6 @@
 /* ===================== Sofort ======================= */
 .tig_buckaroo_sofortbanking .tig_buckaroo_image_title:after {
     background: url(../images/tig_buckaroo_sofort_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 55px;
-    height: 37px;
-    content: ' ';
-}
-
-/* ===================== Alipay ======================= */
-.tig_buckaroo_alipay .tig_buckaroo_image_title:after {
-    background: url(../images/tig_buckaroo_alipay_title.jpg) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 37px;
-    height: 37px;
-    content: ' ';
-}
-
-/* ===================== Wechatpay ======================= */
-.tig_buckaroo_wechatpay .tig_buckaroo_image_title:after {
-    background: url(../images/tig_buckaroo_wechatpay_title.jpg) no-repeat;
     margin-top: -7px;
     float: right;
     margin-right: 10px;
@@ -519,32 +480,6 @@
     content: ' ';
 }
 
-/* ===================== Apple Pay ================================ */
-.tig_buckaroo_applepay .tig_buckaroo_image_title:after {
-    background: url(../images/tig_buckaroo_applepay_title.png) no-repeat;
-    float: right;
-    margin-right: 3px;
-    margin-top: -6px;
-    background-size: auto 30px;
-    width: 50px;
-    height: 30px;
-    content: ' ';
-}
-
-
-/* ===================== Capayable ================================ */
-.tig_buckaroo_capayablein3 .tig_buckaroo_image_title:after,
-.tig_buckaroo_capayablepostpay .tig_buckaroo_image_title:after {
-    background: url(../images/tig_buckaroo_capayable_title.png) no-repeat;
-    float: right;
-    margin-right: 11px;
-    margin-top: -11px;
-    background-size: auto 41px;
-    width: 84px;
-    height: 33px;
-    content: ' ';
-}
-
 /* =============================================================== */
 /* ========== Responsive replacement -> payment logo's =========== */
 /* =============================================================== */
@@ -631,30 +566,6 @@
     /* Sofort */
     .tig_buckaroo_sofortbanking .tig_buckaroo_image_title:before {
         background: url(../images/tig_buckaroo_sofort_title.png) no-repeat;
-        margin-top: -1px;
-        float:left;
-        margin-right: 10px;
-        background-size: auto 24px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Alipay */
-    .tig_buckaroo_alipay .tig_buckaroo_image_title:before {
-        background: url(../images/tig_buckaroo_alipay_title.jpg) no-repeat;
-        margin-top: -1px;
-        float:left;
-        margin-right: 10px;
-        background-size: auto 24px;
-        width: 30px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Wechatpay */
-    .tig_buckaroo_wechatpay .tig_buckaroo_image_title:before {
-        background: url(../images/tig_buckaroo_wechatpay_title.jpg) no-repeat;
         margin-top: -1px;
         float:left;
         margin-right: 10px;
@@ -782,31 +693,6 @@
         float: left;
         margin-right: 10px;
         background-size: auto 19px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Apple Pay */
-    .tig_buckaroo_applepay .tig_buckaroo_image_title:before {
-        background: url(../images/tig_buckaroo_applepay_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Capayble */
-    .tig_buckaroo_capayablein3 .tig_buckaroo_image_title:before,
-    .tig_buckaroo_capayablepostpay .tig_buckaroo_image_title:before {
-        background: url(../images/tig_buckaroo_capayable_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
         width: 40px;
         height: 30px;
         content: ' ';
