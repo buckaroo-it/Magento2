@@ -46,8 +46,6 @@
 .tig_buckaroo_payment_transfer,
 .tig_buckaroo_payment_mrcash,
 .tig_buckaroo_payment_sofortbanking,
-.tig_buckaroo_payment_alipay,
-.tig_buckaroo_payment_wechatpay,
 .tig_buckaroo_payment_giropay,
 .tig_buckaroo_payment_afterpay,
 .tig_buckaroo_payment_afterpay2,
@@ -166,30 +164,6 @@
 /* Sofort */
 .tig_buckaroo_payment_sofortbanking:before {
     background: url(../images/tig_buckaroo_sofort_title.png) no-repeat;
-    margin-top: -7px;
-    float: left;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 55px;
-    height: 37px;
-    content: ' ';
-}
-
-/* Alipay */
-.tig_buckaroo_payment_alipay:before {
-    background: url(../images/tig_buckaroo_alipay_title.jpg) no-repeat;
-    margin-top: -7px;
-    float: left;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 37px;
-    height: 37px;
-    content: ' ';
-}
-
-/* Wechatpay */
-.tig_buckaroo_payment_wechatpay:before {
-    background: url(../images/tig_buckaroo_wechatpay_title.jpg) no-repeat;
     margin-top: -7px;
     float: left;
     margin-right: 10px;
