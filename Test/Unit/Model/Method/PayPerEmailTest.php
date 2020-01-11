@@ -1,21 +1,33 @@
 <?php
 /**
+ *
+ *          ..::..
+ *     ..::::::::::::..
+ *   ::'''''':''::'''''::
+ *   ::..  ..:  :  ....::
+ *   ::::  :::  :  :   ::
+ *   ::::  :::  :  ''' ::
+ *   ::::..:::..::.....::
+ *     ''::::::::::::''
+ *          ''::''
+ *
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright   Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Method;
 
@@ -89,11 +101,8 @@ class PayPerEmailTest extends BaseTest
         $factoryMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
         $factoryMock->expects($this->once())->method('get')->with('payperemail')->willReturn($payPerMailConfigMock);
 
-        $infoInstanceMock = $this->getFakeMock(Payment::class)
-            ->setMethods(['getOrder', 'setAdditionalInformation'])
-            ->getMock();
+        $infoInstanceMock = $this->getFakeMock(Payment::class)->setMethods(['getOrder'])->getMock();
         $infoInstanceMock->expects($this->once())->method('getOrder');
-        $infoInstanceMock->expects($this->once())->method('setAdditionalInformation')->with('skip_push', 2);
 
         $orderTransactionMock = $this->getFakeMock(Order::class)->setMethods(['setMethod'])->getMock();
         $orderTransactionMock->expects($this->once())->method('setMethod')->with('TransactionRequest');
@@ -104,18 +113,9 @@ class PayPerEmailTest extends BaseTest
             ->with('order')
             ->willReturn($orderTransactionMock);
 
-        $serviceParametersMock = $this->getFakeMock(ServiceParameters::class)
-            ->setMethods(['getCreateCombinedInvoice'])
-            ->getMock();
-        $serviceParametersMock->expects($this->once())
-            ->method('getCreateCombinedInvoice')
-            ->with($infoInstanceMock, 'payperemail')
-            ->willReturn(['invoiceData']);
-
         $instance = $this->getInstance([
             'configProviderMethodFactory' => $factoryMock,
-            'transactionBuilderFactory' => $transactionBuilderMock,
-            'serviceParameters' => $serviceParametersMock
+            'transactionBuilderFactory' => $transactionBuilderMock
         ]);
 
         $result = $instance->getOrderTransactionBuilder($infoInstanceMock);
@@ -238,88 +238,6 @@ class PayPerEmailTest extends BaseTest
 
         $this->assertInstanceOf(PayPerEmail::class, $result);
         $this->assertEquals($expected, $infoInstanceMock->getAdditionalInformation('buckaroo_cm3_invoice_key'));
-    }
-
-    public function getCM3InvoiceKeyProvider()
-    {
-        return [
-            'object, has invoiceKey' => [
-                (Object)[
-                    'Name' => 'InvoiceKey',
-                    '_' => 'key123'
-                ],
-                'key123'
-            ],
-            'object, no invoiceKey' => [
-                (Object)[
-                    'Name' => 'Debtor',
-                    '_' => 'TIG'
-                ],
-                ''
-            ],
-            'array with one item, has invoiceKey' => [
-                [
-                    (Object)[
-                        'Name' => 'InvoiceKey',
-                        '_' => 'invoice456'
-                    ]
-                ],
-                'invoice456'
-            ],
-            'array with one item, no invoiceKey' => [
-                [
-                    (Object)[
-                        'Name' => 'Debtor',
-                        '_' => 'TIG'
-                    ]
-                ],
-                ''
-            ],
-            'array with multiple items, has invoiceKey' => [
-                [
-                    (Object)[
-                        'Name' => 'Status',
-                        '_' => 'Paid'
-                    ],
-                    (Object)[
-                        'Name' => 'InvoiceKey',
-                        '_' => 'order789'
-                    ],
-                    (Object)[
-                        'Name' => 'Debtor',
-                        '_' => 'TIG'
-                    ],
-                ],
-                'order789'
-            ],
-            'array with multiple items, no invoiceKey' => [
-                [
-                    (Object)[
-                        'Name' => 'Status',
-                        '_' => 'Paid'
-                    ],
-                    (Object)[
-                        'Name' => 'Debtor',
-                        '_' => 'TIG'
-                    ],
-                ],
-                ''
-            ],
-        ];
-    }
-
-    /**
-     * @param $responeParameterData
-     * @param $expected
-     *
-     * @dataProvider getCM3InvoiceKeyProvider
-     */
-    public function testGetCM3InvoiceKey($responeParameterData, $expected)
-    {
-        $instance = $this->getInstance();
-        $result = $this->invokeArgs('getCM3InvoiceKey', [$responeParameterData], $instance);
-
-        $this->assertEquals($expected, $result);
     }
 
     public function testGetCaptureTransactionBuilder()

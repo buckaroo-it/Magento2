@@ -1,28 +1,46 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model;
 
 use Magento\Directory\Model\Currency;
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Payment\Model\MethodInterface;
-use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Invoice;
@@ -175,59 +193,10 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
             ->method('addDebug')
             ->with('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
 
-
-        $transactionMock = $this->getFakeMock(TransactionInterface::class)
-            ->setMethods(['load', 'getOrder'])
-            ->getMockForAbstractClass();
-        $transactionMock->expects($this->once())->method('load')->with('', 'txn_id');
-        $transactionMock->expects($this->once())->method('getOrder')->willReturn(null);
-
-        $instance = $this->getInstance(['transaction' => $transactionMock, 'logging' => $debuggerMock]);
+        $instance = $this->getInstance(['logging' => $debuggerMock]);
 
         $this->setExpectedException(Exception::class, 'There was no order found by transaction Id');
         $this->invoke('loadOrder', $instance);
-    }
-
-    public function getTransactionKeyProvider()
-    {
-        return [
-            'no key' => [
-                [
-                    'brq_some_key' => 'abc',
-                    'brq_amount' => '1.23'
-                ],
-                ''
-            ],
-            'transaction key' => [
-                [
-                    'brq_transactions' => '456def',
-                    'brq_comment' => 'Transaction Comment'
-                ],
-                '456def'
-            ],
-            'datarequest key' => [
-                [
-                    'brq_status' => 'success',
-                    'brq_datarequest' => 'ghi789'
-                ],
-                'ghi789'
-            ]
-        ];
-    }
-
-    /**
-     * @param $postData
-     * @param $expected
-     *
-     * @dataProvider getTransactionKeyProvider
-     */
-    public function testGetTransactionKey($postData, $expected)
-    {
-        $instance = $this->getInstance();
-        $this->setProperty('postData', $postData, $instance);
-
-        $result = $this->invoke('getTransactionKey', $instance);
-        $this->assertEquals($expected, $result);
     }
 
     /**
@@ -276,16 +245,10 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
         ];
 
         $paymentMock = $this->getFakeMock(Payment::class)
-            ->setMethods(['getMethod', 'setAdditionalInformation', 'getAdditionalInformation'])
+            ->setMethods(['getMethod', 'setAdditionalInformation'])
             ->getMock();
         $paymentMock->expects($this->once())->method('getMethod')->willReturn($methodCode);
-        $paymentMock->method('getAdditionalInformation')
-            ->with(AbstractMethod::BUCKAROO_ALL_TRANSACTIONS)->willReturn([]);
-        $paymentMock->method('setAdditionalInformation')
-            ->withConsecutive(
-                [AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY],
-                [AbstractMethod::BUCKAROO_ALL_TRANSACTIONS]
-            );
+        $paymentMock->method('setAdditionalInformation');
 
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['getPayment', 'getGrandTotal'])->getMock();
         $orderMock->expects($this->atLeastOnce())->method('getPayment')->willReturn($paymentMock);
@@ -609,11 +572,10 @@ class PushTest extends \TIG\Buckaroo\Test\BaseTest
         $configAccountMock->method('getOrderConfirmationEmail')->willReturn($sendOrderConfirmationEmail);
 
         $paymentMock = $this->getFakeMock(Payment::class)
-            ->setMethods(['getMethodInstance', 'getConfigData', 'canPushInvoice', 'registerCaptureNotification', 'save'])
+            ->setMethods(['getMethodInstance', 'getConfigData', 'registerCaptureNotification', 'save'])
             ->getMock();
         $paymentMock->expects($this->once())->method('getMethodInstance')->willReturnSelf();
         $paymentMock->method('getConfigData')->willReturn($paymentAction);
-        $paymentMock->method('canPushInvoice')->willReturn(($paymentAction == 'authorize' ? false : true));
 
         $currencyMock = $this->getFakeMock(Currency::class)->setMethods(['formatTxt'])->getMock();
         $currencyMock->expects($this->once())->method('formatTxt')->willReturn($textAmount);

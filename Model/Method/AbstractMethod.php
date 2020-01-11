@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\Method;
@@ -42,11 +61,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @var \TIG\Buckaroo\Gateway\GatewayInterface
      */
     protected $gateway;
-
-    /**
-     * @var array
-     */
-    protected $response;
 
     /**
      * @var \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory
@@ -171,9 +185,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param \TIG\Buckaroo\Model\ConfigProvider\Factory              $configProviderFactory
      * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data                  $priceHelper
+     * @param \Magento\Developer\Helper\Data                          $developmentHelper
      * @param array                                                   $data
-     *
-     * @throws \TIG\Buckaroo\Exception
      */
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
@@ -405,29 +418,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function canProcessPostData($payment, $postData)
     {
-        return true;
-    }
-
-    /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array                               $postData
-     */
-    public function processCustomPostData($payment, $postData)
-    {
-        return;
-    }
-
-    /**
-     * @param $responseData
-     *
-     * @return bool
-     */
-    public function canPushInvoice($responseData)
-    {
-        if ($this->getConfigData('payment_action') == 'authorize') {
-            return false;
-        }
-
         return true;
     }
 
@@ -1100,13 +1090,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \StdClass $response
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param \StdClass                                                                          $response
+     * @param OrderPaymentInterface|InfoInterface                        $payment
      * @param                                                                                    $close
-     * @param bool $saveId
+     * @param bool                                                                               $saveId
      *
      * @return OrderPaymentInterface|InfoInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function saveTransactionData(
         \StdClass $response,
@@ -1138,8 +1127,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 \Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS,
                 $rawInfo
             );
-
-            $payment->getMethodInstance()->processCustomPostData($payment, $response);
 
             /**
              * @noinspection PhpUndefinedMethodInspection
@@ -1183,7 +1170,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param string $paymentMethodCode
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
      */
     public function addExtraFields($paymentMethodCode)
     {

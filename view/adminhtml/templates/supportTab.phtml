@@ -3,16 +3,31 @@
 ?>
 <div id="supporttab" class="tig-buckaroo-supporttab" data-mage-init='{"buckarooConfig": true}'>
 
-    <div class="message-system-inner">
-        <div class="message-system-short-wrapper">
-            <div class="message">
-                <?php echo $block->escapeHtml(__("The payment methods of the Buckaroo Extension can be found under"))?> <br/>
-                <span class='italic'><?php echo $block->escapeHtml(__("Configuration > Sales > Payment Methods > Buckaroo"))?></span>
-            </div>
-        </div>
-    </div>
 
     <div id="block">
+        <div class="block-legend">
+            <h3 ><?php echo $block->escapeHtml(__('Legend'));?></h3>
+            <div>
+                <ul id="legend">
+                    <li class="disabled">
+                        <span class="img"></span>
+                        <span class="text"><?php echo $block->escapeHtml(__('Payment method'));?>: </span>
+                        <span class="status"><?php echo $block->escapeHtml(__('Disabled'));?></span>
+                    </li>
+                    <li class="test">
+                        <span class="img"></span>
+                        <span class="text"><?php echo $block->escapeHtml(__('Payment method'));?>: </span>
+                        <span class="status"><?php echo $block->escapeHtml(__('Test Mode'));?></span>
+                    </li>
+                    <li class="live">
+                        <span class="img"></span>
+                        <span class="text"><?php echo $block->escapeHtml(__('Payment method'));?>: </span>
+                        <span class="status"><?php echo $block->escapeHtml(__('Live Mode'));?></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <div class="block-version">
             <h3 ><?php echo $block->escapeHtml(__('Magento version compatibility'));?></h3>
             <div>
@@ -21,13 +36,13 @@
                         <span class="text">
                             <?php echo $block->escapeHtml(__('Magento Commerce'));?>:
                         </span>
-                        <span class="version"> 2.2.9, 2.3.2 </span>
+                        <span class="version"> 2.1.16, 2.2.7 </span>
                     </li>
                     <li>
                         <span class="text">
                             <?php echo $block->escapeHtml(__('Magento Open Source'));?>:
                         </span>
-                        <span class="version"> 2.2.9, 2.3.2 </span>
+                        <span class="version"> 2.1.16, 2.2.7 </span>
                     </li>
 
                     <li>
@@ -87,7 +102,7 @@
             </ul>
             <ul>
                 <li class="buckaroo_logo" >
-                    <a href="<?php echo $block->escapeHtml(__('https://buckaroo.nl/'));?>"
+                    <a href="https://<?php echo $block->escapeHtml(__('www.buckaroo-payments.com'));?>"
                        target="_blank">
                         <img src="<?php echo $this->getViewFileUrl(
                             'TIG_Buckaroo::images/buckaroo_config_logo_black.png'
@@ -109,9 +124,9 @@
             <ul>
                 <li class="first"><?php echo $block->escapeHtml(__('Website:'));?></li>
                 <li class="last">
-                    <a href="<?php echo $block->escapeHtml(__('https://buckaroo.nl/'));?>"
+                    <a href="https://<?php echo $block->escapeHtml(__('www.buckaroo-payments.com'));?>"
                        target="_blank">
-                        <?php echo $block->escapeHtml(__('buckaroo.nl'));?>
+                        <?php echo $block->escapeHtml(__('www.buckaroo-payments.com'));?>
                     </a>
                 </li>
             </ul>
@@ -121,7 +136,7 @@
                 <h4><?php echo $block->escapeHtml(__('Extension support and advanced configuration'));?></h4>
 
                 <li class="tig_logo">
-                    <a href="https://www.tig.nl/" target="_blank">
+                    <a href="http://www.tig.nl/" target="_blank">
                         <img class="tig_logo_img" src="<?php echo $this->getViewFileUrl('TIG_Buckaroo::images/logo_tig.png'); ?>" alt="" />
                     </a>
                     <div class="tig_logo_link_container">
@@ -139,7 +154,7 @@
                 </li>
                 <li class="first"><?php echo $block->escapeHtml(__('Online documentation and FAQ:'));?></li>
                 <li class="last">
-                    <a target="_blank" href="https://confluence.tig.nl/x/EICC">
+                    <a target="_blank" href="http://servicedesk.tig.nl/hc/nl/sections/203522128/">
                         <?php echo $block->escapeHtml(__('TIG Knowledge Base'));?>
                     </a>
                 </li>
@@ -147,7 +162,7 @@
             <ul>
                 <li class="first"><?php echo $block->escapeHtml(__('Support question:'));?></li>
                 <li class="last">
-                    <a target="_blank" href="https://confluence.tig.nl/x/awFtAQ">
+                    <a target="_blank" href="http://servicedesk.tig.nl/hc/nl/requests/new">
                         <?php echo $block->escapeHtml(__('TIG Request Form'));?>
                     </a>
                 </li>
@@ -168,8 +183,8 @@
                 <p><?php echo $block->escapeHtml(__('A list of documents regarding the extension.'));?></p>
                 <li>
                     <a class="pdf" target="_blank"
-                       href="https://<?php echo $block->escapeHtml(
-                           __("confluence.tig.nl/x/bwLj")
+                       href="http://<?php echo $block->escapeHtml(
+                           __("servicedesk.tig.nl/hc/nl/articles/218518187")
                        );?>"
                        title="<?php echo $block->escapeHtml(
                            __('Download a PDF format of the manual. Currently the manual is only available in English.')
@@ -185,8 +200,8 @@
                 </li>
                 <li>
                     <a target="_blank"
-                       href="https://<?php echo $block->escapeHtml(
-                           __("confluence.tig.nl/x/v4SC")
+                       href="http://<?php echo $block->escapeHtml(
+                           __("servicedesk.tig.nl/hc/nl/articles/218003338")
                        );?>"
                        title="<?php echo $block->escapeHtml(
                            __('View the complete release notes of the extension. Currently the release notes is only available in English.')

@@ -46,8 +46,6 @@
 .tig_buckaroo_payment_transfer,
 .tig_buckaroo_payment_mrcash,
 .tig_buckaroo_payment_sofortbanking,
-.tig_buckaroo_payment_alipay,
-.tig_buckaroo_payment_wechatpay,
 .tig_buckaroo_payment_giropay,
 .tig_buckaroo_payment_afterpay,
 .tig_buckaroo_payment_afterpay2,
@@ -55,9 +53,6 @@
 .tig_buckaroo_payment_paymentguarantee,
 .tig_buckaroo_payment_giftcards,
 .tig_buckaroo_payment_eps,
-.tig_buckaroo_payment_kbc,
-.tig_buckaroo_payment_emandate,
-.tig_buckaroo_payment_applepay,
 .tig_buckaroo_payment_card_mastercard,
 .tig_buckaroo_payment_card_maestro,
 .tig_buckaroo_payment_card_amex,
@@ -66,11 +61,7 @@
 .tig_buckaroo_payment_card_vpay,
 .tig_buckaroo_payment_card_cartebleuevisa,
 .tig_buckaroo_payment_card_cartebancaire,
-.tig_buckaroo_payment_card_dankort,
-.tig_buckaroo_payment_card_nexi,
-.tig_buckaroo_payment_klarna,
-.tig_buckaroo_payment_capayablein3,
-.tig_buckaroo_payment_capayablepostpay
+.tig_buckaroo_payment_card_dankort
 {
     float:left;
     width: 100%;
@@ -175,30 +166,6 @@
     content: ' ';
 }
 
-/* Alipay */
-.tig_buckaroo_payment_alipay:before {
-    background: url(../images/tig_buckaroo_alipay_title.jpg) no-repeat;
-    margin-top: -7px;
-    float: left;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 37px;
-    height: 37px;
-    content: ' ';
-}
-
-/* Wechatpay */
-.tig_buckaroo_payment_wechatpay:before {
-    background: url(../images/tig_buckaroo_wechatpay_title.jpg) no-repeat;
-    margin-top: -7px;
-    float: left;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 55px;
-    height: 37px;
-    content: ' ';
-}
-
 /* Giropay */
 .tig_buckaroo_payment_giropay:before {
     background: url(../images/tig_buckaroo_giropay_title.png) no-repeat;
@@ -245,72 +212,6 @@
     height            : 26px;
     background-size   : auto 20px;
     content            : ' ';
-}
-
-/* KBC */
-.tig_buckaroo_payment_kbc:before {
-    background: url(../images/tig_buckaroo_kbc_title.png) no-repeat;
-    float: left;
-    margin-right: 10px;
-    margin-top: -4px;
-    background-size: auto 26px;
-    width: 39px;
-    height: 31px;
-    content: ' ';
-    display :block;
-}
-
-/* Klarna */
-.tig_buckaroo_payment_klarna:before {
-    background: url(../images/tig_buckaroo_klarna_title.png) no-repeat;
-    float: left;
-    margin-right: 10px;
-    margin-top: -3px;
-    background-size: auto 25px;
-    width: 40px;
-    height: 30px;
-    content: ' ';
-    display :block;
-}
-
-/* Emandate */
-.tig_buckaroo_payment_emandate:before {
-    background: url(../images/tig_buckaroo_emandate_title.png) no-repeat;
-    float: left;
-    margin-right: 10px;
-    margin-top: -3px;
-    background-size: auto 25px;
-    width: 30px;
-    height: 30px;
-    content: ' ';
-    display :block;
-}
-
-/* Apple Pay */
-.tig_buckaroo_payment_applepay:before {
-    background: url(../images/tig_buckaroo_applepay_title.png) no-repeat;
-    float: left;
-    margin-right: 10px;
-    margin-top: -3px;
-    background-size: auto 25px;
-    width: 30px;
-    height: 30px;
-    content: ' ';
-    display :block;
-}
-
-/* Capayavle */
-.tig_buckaroo_payment_capayablein3:before,
-.tig_buckaroo_payment_capayablepostpay:before {
-    background: url(../images/tig_buckaroo_capayable_title.png) no-repeat;
-    float: left;
-    margin-right: 10px;
-    margin-top: -5px;
-    background-size: auto 30px;
-    width: 62px;
-    height: 31px;
-    content: ' ';
-    display :block;
 }
 
 /* ===================== Order Overview -  Credit Card / Debit Card Method Styling ======================= */
@@ -405,17 +306,6 @@
 
 .tig_buckaroo_payment_card_dankort:before {
     background: url(../images/creditcard/ico-da.png) no-repeat;
-    margin-top: -2px;
-    float: left;
-    margin-right: 7px;
-    background-size: auto 23px;
-    width: 40px;
-    height: 23px;
-    content: ' ';
-}
-
-.tig_buckaroo_payment_card_nexi:before {
-    background: url(../images/creditcard/ico-nx.png) no-repeat;
     margin-top: -2px;
     float: left;
     margin-right: 7px;

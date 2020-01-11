@@ -1,22 +1,41 @@
 <?php
 
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model;
@@ -38,8 +57,6 @@ use TIG\Buckaroo\Model\Method\Transfer;
 use TIG\Buckaroo\Model\Method\Paypal;
 use TIG\Buckaroo\Model\Method\SepaDirectDebit;
 use TIG\Buckaroo\Model\Method\Sofortbanking;
-use TIG\Buckaroo\Model\Method\Alipay;
-use TIG\Buckaroo\Model\Method\Wechatpay;
 use TIG\Buckaroo\Model\Refund\Push as RefundPush;
 use TIG\Buckaroo\Model\Validator\Push as ValidatorPush;
 
@@ -185,10 +202,6 @@ class Push implements PushInterface
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
 
-        if (!$this->isPushNeeded()) {
-            return true;
-        }
-
         $this->loadOrder();
 
         $transactionType = $this->getTransactionType();
@@ -286,57 +299,11 @@ class Push implements PushInterface
     }
 
     /**
-     * Check if it is needed to handle the push message based on postdata
-     * @return bool
-     */
-    private function isPushNeeded()
-    {
-        if ($this->hasPostData('add_initiated_by_magento', 1) &&
-            $this->hasPostData('add_service_action_from_magento',
-                ['capture','cancelauthorize','cancelreserve','refund'])
-        ) {
-            return false;
-        }
-
-        if ($this->hasPostData('add_initiated_by_magento', 1) &&
-            $this->hasPostData('brq_transaction_method', 'klarna') &&
-            $this->hasPostData('add_service_action_from_magento', 'pay')
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     * @return bool
-     */
-    private function hasPostData($name, $value)
-    {
-        if (is_array($value) &&
-            isset($this->postData[$name]) &&
-            in_array($this->postData[$name], $value)
-        ) {
-            return true;
-        }
-
-        if (isset($this->postData[$name]) &&
-            $this->postData[$name] == $value
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Try to load the order from the Push Data
      */
     private function loadOrder()
     {
-        $brqOrderId = false;
+        $brqOrderId = 0;
 
         if (isset($this->postData['brq_invoicenumber']) && strlen($this->postData['brq_invoicenumber']) > 0) {
             $brqOrderId = $this->postData['brq_invoicenumber'];
@@ -352,7 +319,7 @@ class Push implements PushInterface
         if (!$this->order->getId()) {
             $this->logging->addDebug('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
             // try to get order by transaction id on payment.
-                $this->order = $this->getOrderByTransactionKey();
+                $this->order = $this->getOrderByTransactionKey($this->postData);
         }
     }
 
@@ -596,7 +563,7 @@ class Push implements PushInterface
         $transactionData = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_ALL_TRANSACTIONS);
 
         $transactionArray = [];
-        if (is_array($transactionData) && count($transactionData) > 0) {
+        if (count($transactionData) > 0) {
             $transactionArray = $transactionData;
         }
 
@@ -618,10 +585,10 @@ class Push implements PushInterface
     {
         $payment     = $this->order->getPayment();
         $originalKey = AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
-        $transactionKey = $this->getTransactionKey();
 
-        if (!$payment->getAdditionalInformation($originalKey) && strlen($transactionKey) > 0) {
-            $payment->setAdditionalInformation($originalKey, $transactionKey);
+        if (!$payment->getAdditionalInformation($originalKey) && !empty($this->postData['brq_transactions'])
+        ) {
+            $payment->setAdditionalInformation($originalKey, $this->postData['brq_transactions']);
         }
     }
 
@@ -652,42 +619,24 @@ class Push implements PushInterface
     }
 
     /**
-     * @return string
-     */
-    private function getTransactionKey()
-    {
-        $trxId = '';
-
-        if (isset($this->postData['brq_transactions']) && !empty($this->postData['brq_transactions'])) {
-            $trxId = $this->postData['brq_transactions'];
-        }
-
-        if (isset($this->postData['brq_datarequest']) && !empty($this->postData['brq_datarequest'])) {
-            $trxId = $this->postData['brq_datarequest'];
-        }
-
-        return $trxId;
-    }
-
-    /**
      * Sometimes the push does not contain the order id, when thats the case try to get the order by his payment,
      * by using its own transactionkey.
      *
+     * @param  $transactionId
      * @return Order
      * @throws \TIG\Buckaroo\Exception
      */
-    protected function getOrderByTransactionKey()
+    protected function getOrderByTransactionKey($transactionId)
     {
-        $trxId = $this->getTransactionKey();
+        if (isset($transactionId['brq_transactions'])) {
+            $this->transaction->load($transactionId['brq_transactions'], 'txn_id');
+            $order = $this->transaction->getOrder();
 
-        $this->transaction->load($trxId, 'txn_id');
-        $order = $this->transaction->getOrder();
-
-        if (!$order) {
-            throw new \TIG\Buckaroo\Exception(__('There was no order found by transaction Id'));
+            if ($order) {
+                return $order;
+            }
         }
-
-        return $order;
+        throw new \TIG\Buckaroo\Exception(__('There was no order found by transaction Id'));
     }
 
     /**
@@ -767,11 +716,7 @@ class Push implements PushInterface
      */
     public function processSucceededPush($newStatus, $message)
     {
-        $amount = $this->order->getTotalDue();
-
-        if (isset($this->originalPostData['brq_amount']) && !empty($this->originalPostData['brq_amount'])) {
-            $amount = floatval($this->originalPostData['brq_amount']);
-        }
+        $amount = floatval($this->originalPostData['brq_amount']);
 
         $store = $this->order->getStore();
 
@@ -795,7 +740,7 @@ class Push implements PushInterface
          */
         $forceState = false;
 
-        if ($paymentMethod->canPushInvoice($this->postData)) {
+        if ($paymentMethod->getConfigData('payment_action') != 'authorize') {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
         } else {
@@ -805,7 +750,7 @@ class Push implements PushInterface
             $forceState = true;
         }
 
-        if ($paymentMethod->canPushInvoice($this->postData)) {
+        if ($paymentMethod->getConfigData('payment_action') != 'authorize') {
             $this->saveInvoice();
         }
 
@@ -833,9 +778,7 @@ class Push implements PushInterface
             && in_array($payment->getMethod(), array(   Transfer::PAYMENT_METHOD_CODE,
                                                         Paypal::PAYMENT_METHOD_CODE,
                                                         SepaDirectDebit::PAYMENT_METHOD_CODE,
-                                                        Sofortbanking::PAYMENT_METHOD_CODE,
-                                                        Alipay::PAYMENT_METHOD_CODE,
-                                                        Wechatpay::PAYMENT_METHOD_CODE
+                                                        Sofortbanking::PAYMENT_METHOD_CODE
                     ))
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
@@ -940,15 +883,14 @@ class Push implements PushInterface
         $this->order->setIsInProcess(true);
         $this->order->save();
 
-        $transactionKey = $this->getTransactionKey();
-
-        if (strlen($transactionKey) <= 0) {
-            return true;
-        }
-
         /** @var \Magento\Sales\Model\Order\Invoice $invoice */
         foreach ($this->order->getInvoiceCollection() as $invoice) {
-            $invoice->setTransactionId($transactionKey)->save();
+            if (!isset($this->postData['brq_transactions'])) {
+                continue;
+            }
+
+            $invoice->setTransactionId($this->postData['brq_transactions'])
+                ->save();
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
                 $this->invoiceSender->send($invoice, true);
@@ -977,11 +919,7 @@ class Push implements PushInterface
          */
         $payment = $this->order->getPayment();
 
-        $transactionKey = $this->getTransactionKey();
-
-        if (strlen($transactionKey) <= 0) {
-            throw new \TIG\Buckaroo\Exception(__('There was no transaction ID found'));
-        }
+        $transactionKey = $this->postData['brq_transactions'];
 
         /**
          * Save the transaction's response as additional info for the transaction.
