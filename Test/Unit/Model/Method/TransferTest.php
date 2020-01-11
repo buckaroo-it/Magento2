@@ -1,22 +1,41 @@
 <?php
 
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Method;
 
@@ -218,88 +237,6 @@ class TransferTest extends \TIG\Buckaroo\Test\BaseTest
 
         $this->assertInstanceOf(\TIG\Buckaroo\Model\Method\Transfer::class, $result);
         $this->assertEquals($expected, $infoInstanceMock->getAdditionalInformation('buckaroo_cm3_invoice_key'));
-    }
-
-    public function getCM3InvoiceKeyProvider()
-    {
-        return [
-            'object, has invoiceKey' => [
-                (Object)[
-                    'Name' => 'InvoiceKey',
-                    '_' => 'key123'
-                ],
-                'key123'
-            ],
-            'object, no invoiceKey' => [
-                (Object)[
-                    'Name' => 'Debtor',
-                    '_' => 'TIG'
-                ],
-                ''
-            ],
-            'array with one item, has invoiceKey' => [
-                [
-                    (Object)[
-                        'Name' => 'InvoiceKey',
-                        '_' => 'invoice456'
-                    ]
-                ],
-                'invoice456'
-            ],
-            'array with one item, no invoiceKey' => [
-                [
-                    (Object)[
-                        'Name' => 'Debtor',
-                        '_' => 'TIG'
-                    ]
-                ],
-                ''
-            ],
-            'array with multiple items, has invoiceKey' => [
-                [
-                    (Object)[
-                        'Name' => 'Status',
-                        '_' => 'Paid'
-                    ],
-                    (Object)[
-                        'Name' => 'InvoiceKey',
-                        '_' => 'order789'
-                    ],
-                    (Object)[
-                        'Name' => 'Debtor',
-                        '_' => 'TIG'
-                    ],
-                ],
-                'order789'
-            ],
-            'array with multiple items, no invoiceKey' => [
-                [
-                    (Object)[
-                        'Name' => 'Status',
-                        '_' => 'Paid'
-                    ],
-                    (Object)[
-                        'Name' => 'Debtor',
-                        '_' => 'TIG'
-                    ],
-                ],
-                ''
-            ],
-        ];
-    }
-
-    /**
-     * @param $responeParameterData
-     * @param $expected
-     *
-     * @dataProvider getCM3InvoiceKeyProvider
-     */
-    public function testGetCM3InvoiceKey($responeParameterData, $expected)
-    {
-        $instance = $this->getInstance();
-        $result = $this->invokeArgs('getCM3InvoiceKey', [$responeParameterData], $instance);
-
-        $this->assertEquals($expected, $result);
     }
 
     /**

@@ -1,21 +1,33 @@
 <?php
 /**
+ *
+ *          ..::..
+ *     ..::::::::::::..
+ *   ::'''''':''::'''''::
+ *   ::..  ..:  :  ....::
+ *   ::::  :::  :  :   ::
+ *   ::::  :::  :  ''' ::
+ *   ::::..:::..::.....::
+ *     ''::::::::::::''
+ *          ''::''
+ *
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright   Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Service\Software;
 
@@ -31,7 +43,7 @@ class Data
     const MODULE_CODE = 'TIG_Buckaroo';
 
     /** Version of Module */
-    const BUCKAROO_VERSION = '1.15.0';
+    const BUCKAROO_VERSION = '1.9.0';
 
     /** @var ProductMetadataInterface */
     private $productMetadata;
@@ -69,14 +81,6 @@ class Data
     }
 
     /**
-     * @return string
-     */
-    public function getModuleVersion()
-    {
-        return self::BUCKAROO_VERSION;
-    }
-
-    /**
      * @return array
      */
     private function getPlatformData()
@@ -101,7 +105,7 @@ class Data
         $moduleData = [
             'ModuleSupplier'    => self::MODULE_SUPPLIER,
             'ModuleName'        => $module['name'],
-            'ModuleVersion'     => $this->getModuleVersion()
+            'ModuleVersion'     => self::BUCKAROO_VERSION
         ];
 
         return $moduleData;

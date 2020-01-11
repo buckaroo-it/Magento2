@@ -24,41 +24,6 @@ define(
             agreementsAssigner(paymentData);
 
             /**
-             * Support for PostNL postcode check and TIG Postcode Service
-             */
-            var billingAddress = quote.billingAddress();
-
-            if (billingAddress['extension_attributes'] === undefined) {
-                billingAddress['extension_attributes'] = {};
-            }
-            // < M2.3.0
-            if (billingAddress.customAttributes !== undefined && billingAddress.customAttributes.tig_housenumber !== undefined) {
-                billingAddress['extension_attributes']['tig_housenumber']          = billingAddress.customAttributes.tig_housenumber;
-                billingAddress['extension_attributes']['tig_housenumber_addition'] = billingAddress.customAttributes.tig_housenumber_addition;
-            }
-            // >= M2.3.0
-            if (billingAddress.customAttributes !== undefined && billingAddress.customAttributes[0] !== undefined && billingAddress.customAttributes[0].attribute_code === 'tig_housenumber') {
-                billingAddress['extension_attributes']['tig_housenumber']          = billingAddress.customAttributes[0].value;
-                billingAddress['extension_attributes']['tig_housenumber_addition'] = billingAddress.customAttributes[1].value;
-            }
-
-            var shippingAddress = quote.shippingAddress();
-
-            if (shippingAddress['extension_attributes'] === undefined) {
-                shippingAddress['extension_attributes'] = {};
-            }
-            // < M2.3.0
-            if (shippingAddress.customAttributes !== undefined && shippingAddress.customAttributes.tig_housenumber !== undefined) {
-                shippingAddress['extension_attributes']['tig_housenumber']          = shippingAddress.customAttributes.tig_housenumber;
-                shippingAddress['extension_attributes']['tig_housenumber_addition'] = shippingAddress.customAttributes.tig_housenumber_addition;
-            }
-            // >= M2.3.0
-            if (shippingAddress.customAttributes !== undefined && shippingAddress.customAttributes[0] !== undefined && shippingAddress.customAttributes[0].attribute_code === 'tig_housenumber') {
-                shippingAddress['extension_attributes']['tig_housenumber']          = shippingAddress.customAttributes[0].value;
-                shippingAddress['extension_attributes']['tig_housenumber_addition'] = shippingAddress.customAttributes[1].value;
-            }
-
-            /**
              * Checkout for guest and registered customer.
              */
             if (!customer.isLoggedIn()) {

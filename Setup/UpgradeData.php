@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Setup;
@@ -405,10 +424,10 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     );
 
     /**
-     * @param \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory
-     * @param \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory
+     * @param \Magento\Sales\Setup\SalesSetupFactory                   $salesSetupFactory
+     * @param \Magento\Quote\Setup\QuoteSetupFactory                   $quoteSetupFactory
      * @param \TIG\Buckaroo\Model\ResourceModel\Certificate\Collection $certificateCollection
-     * @param \Magento\Framework\Encryption\Encryptor $encryptor
+     * @param \Magento\Framework\Encryption\Encryptor                  $encryptor
      */
     public function __construct(
         \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory,
@@ -416,8 +435,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         \TIG\Buckaroo\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
         \TIG\Buckaroo\Model\ResourceModel\Certificate\Collection $certificateCollection,
         \Magento\Framework\Encryption\Encryptor $encryptor
-    )
-    {
+    ) {
         $this->salesSetupFactory = $salesSetupFactory;
         $this->quoteSetupFactory = $quoteSetupFactory;
         $this->giftcardCollection = $giftcardCollection;
@@ -471,65 +489,6 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         if (version_compare($context->getVersion(), '1.5.3', '<')) {
             $this->installPaymentFeeInclTaxColumns($setup);
         }
-
-
-        if (version_compare($context->getVersion(), '1.9.2', '<')) {
-            $this->installReservationNrColumn($setup);
-            $this->installPushDataColumn($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.9.3', '<')) {
-            $this->installIdentificationNumber($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.14.0', '<')) {
-            $this->updateSecretKeyConfiguration($setup);
-            $this->updateMerchantKeyConfiguration($setup);
-        }
-    }
-
-    /**
-     * @param ModuleDataSetupInterface $setup
-     *
-     * @return $this
-     */
-
-    public function installReservationNrColumn(ModuleDataSetupInterface $setup)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_reservation_number',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT]
-        );
-
-        return $this;
-    }
-
-    public function installIdentificationNumber(ModuleDataSetupInterface $setup)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_identification_number',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT]
-        );
-
-        return $this;
     }
 
     /**
@@ -1096,68 +1055,6 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             'creditmemo',
             'base_buckaroo_fee_incl_tax',
             ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-
-        return $this;
-    }
-
-    protected function installPushDataColumn(ModuleDataSetupInterface $setup)
-    {
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_push_data',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT]
-        );
-
-        return $this;
-    }
-
-
-    /**
-     * Empty Secret_key so it will be set with correct value
-     *
-     * @param ModuleDataSetupInterface $setup
-     *
-     * @return $this
-     */
-    protected function updateSecretKeyConfiguration(ModuleDataSetupInterface $setup)
-    {
-        $path = 'tig_buckaroo/account/secret_key';
-        $data = [
-            'path' => $path,
-            'value' => '',
-        ];
-
-        $setup->getConnection()->update(
-            $setup->getTable('core_config_data'),
-            $data,
-            $setup->getConnection()->quoteInto('path = ?', $path)
-        );
-
-        return $this;
-    }
-
-    /**
-     * Empty MerchantKey so it will be set with correct value
-     *
-     * @param ModuleDataSetupInterface $setup
-     *
-     * @return $this
-     */
-    protected function updateMerchantKeyConfiguration(ModuleDataSetupInterface $setup)
-    {
-        $path = 'tig_buckaroo/account/merchant_key';
-        $data = [
-            'path' => $path,
-            'value' => '',
-        ];
-
-        $setup->getConnection()->update(
-            $setup->getTable('core_config_data'),
-            $data,
-            $setup->getConnection()->quoteInto('path = ?', $path)
         );
 
         return $this;
