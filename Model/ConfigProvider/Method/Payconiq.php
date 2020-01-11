@@ -1,30 +1,43 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\ConfigProvider\Method;
-
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\View\Asset\Repository;
-use TIG\Buckaroo\Helper\PaymentFee;
-use TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies;
 
 /**
  * @method getPaymentFeeLabel()
@@ -56,33 +69,6 @@ class Payconiq extends AbstractConfigProvider
 
     const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
 
-    /** @var FormKey */
-    private $formKey;
-
-    /**
-     * @param Repository           $assetRepo
-     * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
-     */
-    public function __construct(
-        Repository $assetRepo,
-        ScopeConfigInterface $scopeConfig,
-        AllowedCurrencies $allowedCurrencies,
-        PaymentFee $paymentFeeHelper,
-        FormKey $formKey
-    ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
-
-        $this->formKey = $formKey;
-    }
-
-    private function getFormKey()
-    {
-        return $this->formKey->getFormKey();
-    }
-
     /**
      * @return array
      */
@@ -96,7 +82,7 @@ class Payconiq extends AbstractConfigProvider
                     'payconiq' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'redirecturl' => self::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'redirecturl' => self::PAYCONIC_REDIRECT_URL
                     ],
                 ],
             ],

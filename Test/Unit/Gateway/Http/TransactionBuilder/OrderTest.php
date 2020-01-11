@@ -1,25 +1,43 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Gateway\Http\TransactionBuilder;
 
-use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Url;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order as MagentoOrder;
@@ -48,21 +66,7 @@ class OrderTest extends BaseTest
             ],
             'StartRecurrent' => 1,
             'Services' => [
-                'Service' => [
-                    'Action' => 'actionstring'
-                ],
-            ],
-            'AdditionalParameters' => [
-                'AdditionalParameter' => [
-                    [
-                        '_'    => 'actionstring',
-                        'Name' => 'service_action_from_magento',
-                    ],
-                    [
-                        '_'    => 1,
-                        'Name' => 'initiated_by_magento',
-                    ]
-                ],
+                'Service' => 'servicesString',
             ],
         ];
 
@@ -88,7 +92,7 @@ class OrderTest extends BaseTest
             ->setMethods(['setScope', 'getRouteUrl', 'getDirectUrl'])
             ->getMock();
         $urlBuilderMock->method('setScope')->willReturnSelf();
-        $urlBuilderMock->method('getRouteUrl')->willReturn('');
+        $urlBuilderMock->method('getRouteUrl')->willReturnSelf();
         $urlBuilderMock->method('getDirectUrl')->willReturnSelf();
 
         $instance = $this->getInstance([
@@ -208,23 +212,6 @@ class OrderTest extends BaseTest
                     'Invoice' => '#3571',
                 ]
             ],
-            'filtered capayable payininstallments' => [
-                [
-                    'Name' => 'capayable',
-                    'Action' => 'PayInInstallments'
-                ],
-                [
-                    'Invoice' => '#3571',
-                    'Order' => '#8294',
-                    'AmountCredit' => '42.00',
-                    'OriginalTransactionKey' => 'reyk879',
-                ],
-                [
-                    'Invoice' => '#3571',
-                    'AmountCredit' => '42.00',
-                    'OriginalTransactionKey' => 'reyk879',
-                ]
-            ],
             'cancel transaction method' => [
                 [],
                 [
@@ -278,13 +265,11 @@ class OrderTest extends BaseTest
             'instance has no return url' => [
                 null,
                 'tig.nl',
-                '123abc',
-                'tig.nl?form_key=123abc'
+                'tig.nl'
             ],
             'instance has return url' => [
                 'magento.com',
                 'google.com',
-                'def456',
                 'magento.com'
             ]
         ];
@@ -293,12 +278,11 @@ class OrderTest extends BaseTest
     /**
      * @param $existingUrl
      * @param $generatedUrl
-     * @param $formKey
      * @param $expected
      *
      * @dataProvider getReturnUrlProvider
      */
-    public function testGetReturnUrl($existingUrl, $generatedUrl, $formKey, $expected)
+    public function testGetReturnUrl($existingUrl, $generatedUrl, $expected)
     {
         $methodIsCalled = (int)!((bool)$existingUrl);
 
@@ -311,13 +295,10 @@ class OrderTest extends BaseTest
         $urlBuilderMock->expects($this->exactly($methodIsCalled))->method('setScope')->with(1)->willReturnSelf();
         $urlBuilderMock->expects($this->exactly($methodIsCalled*2))
             ->method('getRouteUrl')
-            ->withConsecutive(['buckaroo/redirect/process'], [$generatedUrl . '?form_key=' . $formKey])
-            ->willReturnOnConsecutiveCalls($generatedUrl, $generatedUrl . '?form_key=' . $formKey);
+            ->withConsecutive(['buckaroo/redirect/process'], [$generatedUrl])
+            ->willReturn($generatedUrl);
 
-        $formKeyMock = $this->getFakeMock(FormKey::class)->setMethods(['getFormKey'])->getMock();
-        $formKeyMock->expects($this->exactly($methodIsCalled))->method('getFormKey')->willReturn($formKey);
-
-        $instance = $this->getInstance(['urlBuilder' => $urlBuilderMock, 'formKey' => $formKeyMock]);
+        $instance = $this->getInstance(['urlBuilder' => $urlBuilderMock]);
         $this->setProperty('order', $orderMock, $instance);
         $this->setProperty('returnUrl', $existingUrl, $instance);
 

@@ -1,28 +1,28 @@
 {
     "name": "buckaroo/magento2",
-    "description": "Buckaroo Magento 2 extension",
+    "description": "TIG Magento 2 Buckaroo extension",
     "require": {
-        "php": "~5.6.0|~7.0.0|~7.1.0|~7.2.0|~7.3.0",
-        "magento/module-payment": "100.1.*|100.2.*|100.3.*",
-        "magento/framework": ">=100.1.0,<=100.1.18|>=101.0.0,<=101.0.10|>=102.0.0,<=102.0.3|102.0.2-p2"
+        "php": "~5.6.0|~7.0.0|~7.1.0|~7.2.0",
+        "magento/module-payment": "100.1.*|100.2.*",
+        "magento/framework": ">=100.1.0,<=100.1.16|>=101.0.0,<=101.0.7"
     },
     "type": "magento2-module",
     "license": "CC-BY-NC-ND-3.0",
     "authors": [
         {
-            "name": "Buckaroo",
-            "email": "support@buckaroo.nl",
-            "homepage": "https://www.buckaroo.nl"
+            "name": "TIG",
+            "email": "servicedesk@tig.nl",
+            "homepage": "http://tig.nl"
         }
     ],
     "support": {
-        "email": "support@buckaroo.nl",
-        "issues": "https://support.buckaroo.nl/contact",
-        "wiki": "https://support.buckaroo.nl",
-        "docs": "https://support.buckaroo.nl"
+        "email": "sd@tig.nl",
+        "issues": "http://servicedesk.tig.nl/hc/nl/requests/new",
+        "wiki": "http://servicedesk.tig.nl/hc/nl/sections/203522128-Buckaroo-Magento-2-artikelen",
+        "docs": "http://servicedesk.tig.nl/hc/nl/articles/218518187-EN-Buckaroo-Magento-2-Installation-and-Configuration-manual"
     },
-    "homepage": "https://www.buckaroo.nl",
-    "version" : "v1.15.0",
+    "homepage": "https://store.tig.nl/buckaroo.html",
+    "version" : "v1.8.0",
     "minimum-stability": "stable",
     "autoload": {
         "files": [

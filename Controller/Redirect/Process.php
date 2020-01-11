@@ -1,27 +1,46 @@
 <?php
- /**
+/**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) TIG B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Controller\Redirect;
 
-use Magento\Sales\Api\Data\TransactionInterface;
 use TIG\Buckaroo\Logging\Log;
+use TIG\Buckaroo\Model\Method\AbstractMethod;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -39,9 +58,6 @@ class Process extends \Magento\Framework\App\Action\Action
      * @var \Magento\Quote\Model\Quote $quote
      */
     protected $quote;
-
-    /** @var TransactionInterface */
-    private $transaction;
 
     /**
      * @var \TIG\Buckaroo\Helper\Data $helper
@@ -79,7 +95,6 @@ class Process extends \Magento\Framework\App\Action\Action
      * @param \Magento\Checkout\Model\Cart                        $cart
      * @param \Magento\Sales\Model\Order                          $order
      * @param \Magento\Quote\Model\Quote                          $quote
-     * @param TransactionInterface        $transaction
      * @param Log                                                 $logger
      * @param \TIG\Buckaroo\Model\ConfigProvider\Factory          $configProviderFactory
      * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
@@ -93,7 +108,6 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Sales\Model\Order $order,
         \Magento\Quote\Model\Quote $quote,
-        TransactionInterface $transaction,
         Log $logger,
         \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
@@ -104,7 +118,6 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->cart               = $cart;
         $this->order              = $order;
         $this->quote              = $quote;
-        $this->transaction        = $transaction;
         $this->logger             = $logger;
         $this->orderSender        = $orderSender;
         $this->orderStatusFactory = $orderStatusFactory;
@@ -115,8 +128,9 @@ class Process extends \Magento\Framework\App\Action\Action
     /**
      * Process action
      *
+     * @throws \TIG\Buckaroo\Exception
+     *
      * @return \Magento\Framework\App\ResponseInterface
-     * @throws \Exception
      */
     public function execute()
     {
@@ -132,8 +146,13 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $statusCode = (int)$this->response['brq_statuscode'];
 
-        $this->loadOrder();
+        if (isset($this->response['brq_ordernumber']) && !empty($this->response['brq_ordernumber'])) {
+            $brqOrderId = $this->response['brq_ordernumber'];
+        } else {
+            $brqOrderId = $this->response['brq_invoicenumber'];
+        }
 
+        $this->order->loadByIncrementId($brqOrderId);
         if (!$this->order->getId()) {
             $statusCode = $this->helper->getStatusCode('TIG_BUCKAROO_ORDER_FAILED');
         } else {
@@ -160,8 +179,6 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->order->save();
                     }
                 }
-
-                $payment->getMethodInstance()->processCustomPostData($payment, $this->response);
 
                 /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
                 $paymentMethod = $this->order->getPayment()->getMethodInstance();
@@ -228,55 +245,6 @@ class Process extends \Magento\Framework\App\Action\Action
         }
 
         return $this->_response;
-    }
-
-    /**
-     * @throws \TIG\Buckaroo\Exception
-     */
-    private function loadOrder()
-    {
-        $brqOrderId = false;
-
-        if (isset($this->response['brq_invoicenumber']) && !empty($this->response['brq_invoicenumber'])) {
-            $brqOrderId = $this->response['brq_invoicenumber'];
-        }
-
-        if (isset($this->response['brq_ordernumber']) && !empty($this->response['brq_ordernumber'])) {
-            $brqOrderId = $this->response['brq_ordernumber'];
-        }
-
-        $this->order->loadByIncrementId($brqOrderId);
-
-        if (!$this->order->getId()) {
-            $this->logger->addDebug('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
-            $this->order = $this->getOrderByTransactionKey();
-        }
-    }
-
-    /**
-     * @return bool
-     * @throws \TIG\Buckaroo\Exception
-     */
-    private function getOrderByTransactionKey()
-    {
-        $trxId = '';
-
-        if (isset($this->response['brq_transactions']) && !empty($this->response['brq_transactions'])) {
-            $trxId = $this->response['brq_transactions'];
-        }
-
-        if (isset($this->response['brq_datarequest']) && !empty($this->response['brq_datarequest'])) {
-            $trxId = $this->response['brq_datarequest'];
-        }
-
-        $this->transaction->load($trxId, 'txn_id');
-        $order = $this->transaction->getOrder();
-
-        if (!$order) {
-            throw new \TIG\Buckaroo\Exception(__('There was no order found by transaction Id'));
-        }
-
-        return $order;
     }
 
     /**

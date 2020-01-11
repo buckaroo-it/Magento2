@@ -1,30 +1,47 @@
 <?php
 
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Gateway\Http\TransactionBuilder;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\UrlInterface;
-use Magento\Framework\Encryption\Encryptor;
 use Magento\Store\Model\ScopeInterface;
 use TIG\Buckaroo\Gateway\Http\Transaction;
 use TIG\Buckaroo\Model\ConfigProvider\Account;
@@ -100,9 +117,6 @@ abstract class AbstractTransactionBuilder implements \TIG\Buckaroo\Gateway\Http\
      */
     protected $channel = 'Web';
 
-    /** @var FormKey */
-    private $formKey;
-
     /**
      * @var int
      */
@@ -117,9 +131,6 @@ abstract class AbstractTransactionBuilder implements \TIG\Buckaroo\Gateway\Http\
      * @var string
      */
     public $invoiceId;
-
-    /** @var Encryptor $encryptor */
-    private $encryptor;
 
     /**
      * {@inheritdoc}
@@ -167,14 +178,6 @@ abstract class AbstractTransactionBuilder implements \TIG\Buckaroo\Gateway\Http\
         $this->startRecurrent = $startRecurrent;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFormKey()
-    {
-        return $this->formKey->getFormKey();
     }
 
     /**
@@ -245,13 +248,11 @@ abstract class AbstractTransactionBuilder implements \TIG\Buckaroo\Gateway\Http\
     /**
      * TransactionBuilder constructor.
      *
-     * @param ScopeConfigInterface  $scopeConfig
+     * @param ScopeConfigInterface $scopeConfig
      * @param SoftwareData          $softwareData
      * @param Account               $configProviderAccount
      * @param Transaction           $transaction
      * @param UrlInterface          $urlBuilder
-     * @param FormKey               $formKey
-     * @param Encryptor             $encryptor
      * @param null|int|float|double $amount
      * @param null|string           $currency
      */
@@ -261,8 +262,6 @@ abstract class AbstractTransactionBuilder implements \TIG\Buckaroo\Gateway\Http\
         Account $configProviderAccount,
         Transaction $transaction,
         UrlInterface $urlBuilder,
-        FormKey $formKey,
-        Encryptor $encryptor,
         $amount = null,
         $currency = null
     ) {
@@ -271,8 +270,6 @@ abstract class AbstractTransactionBuilder implements \TIG\Buckaroo\Gateway\Http\
         $this->configProviderAccount = $configProviderAccount;
         $this->transaction           = $transaction;
         $this->urlBuilder            = $urlBuilder;
-        $this->formKey               = $formKey;
-        $this->encryptor             = $encryptor;
 
         if ($amount !== null) {
             $this->amount = $amount;
@@ -392,7 +389,7 @@ abstract class AbstractTransactionBuilder implements \TIG\Buckaroo\Gateway\Http\
     {
         if ($this->returnUrl === null) {
             $url = $this->urlBuilder->setScope($this->order->getStoreId());
-            $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
+            $url = $url->getRouteUrl('buckaroo/redirect/process');
 
             $this->setReturnUrl($url);
         }
@@ -432,14 +429,12 @@ abstract class AbstractTransactionBuilder implements \TIG\Buckaroo\Gateway\Http\
         $localeCountry = $this->scopeConfig->getValue('general/locale/code', ScopeInterface::SCOPE_STORE, $store);
         $localeCountry = str_replace('_', '-', $localeCountry);
 
-        $merchantKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey($store));
-
         $headers[] = new \SoapHeader(
             'https://checkout.buckaroo.nl/PaymentEngine/',
             'MessageControlBlock',
             [
                 'Id'                => '_control',
-                'WebsiteKey'        => $merchantKey,
+                'WebsiteKey'        => $this->configProviderAccount->getMerchantKey($store),
                 'Culture'           => $localeCountry,
                 'TimeStamp'         => time(),
                 'Channel'           => $this->channel,

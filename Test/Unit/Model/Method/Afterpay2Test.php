@@ -1,21 +1,33 @@
 <?php
 /**
+ *
+ *          ..::..
+ *     ..::::::::::::..
+ *   ::'''''':''::'''''::
+ *   ::..  ..:  :  ....::
+ *   ::::  :::  :  :   ::
+ *   ::::  :::  :  ''' ::
+ *   ::::..:::..::.....::
+ *     ''::::::::::::''
+ *          ''::''
+ *
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright   Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 namespace TIG\Buckaroo\Test\Unit\Model\Method;
 
@@ -230,11 +242,14 @@ class Afterpay2Test extends BaseTest
      */
     public function testGetTaxLine($taxAmount, $shippingTaxAmount, $catalogIncludesTax, $shippingIncludesTax, $expected)
     {
+        $orderTaxinvokedAtMost = new \PHPUnit_Framework_MockObject_Matcher_InvokedAtMostCount(1);
+        $shippingTaxinvokedAtMost = new \PHPUnit_Framework_MockObject_Matcher_InvokedAtMostCount(2);
+
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods(['getTaxAmount', 'getShippingTaxAmount'])
             ->getMock();
-        $orderMock->method('getTaxAmount')->willReturn($taxAmount);
-        $orderMock->method('getShippingTaxAmount')->willReturn($shippingTaxAmount);
+        $orderMock->expects($orderTaxinvokedAtMost)->method('getTaxAmount')->willReturn($taxAmount);
+        $orderMock->expects($shippingTaxinvokedAtMost)->method('getShippingTaxAmount')->willReturn($shippingTaxAmount);
 
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->exactly(2))
@@ -307,11 +322,13 @@ class Afterpay2Test extends BaseTest
      */
     public function testGetShippingCostsLine($shippingAmount, $taxAmount, $includesTax, $expected)
     {
+        $invokedAtMost = new \PHPUnit_Framework_MockObject_Matcher_InvokedAtMostCount(1);
+
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods(['getShippingAmount', 'getShippingTaxAmount'])
             ->getMock();
         $orderMock->expects($this->atLeastOnce())->method('getShippingAmount')->willReturn($shippingAmount);
-        $orderMock->method('getShippingTaxAmount')->willReturn($taxAmount);
+        $orderMock->expects($invokedAtMost)->method('getShippingTaxAmount')->willReturn($taxAmount);
 
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->exactly(($shippingAmount ? 1 : 0)))
