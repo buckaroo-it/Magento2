@@ -1,21 +1,40 @@
 <?php
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Model\ConfigProvider\Method;
@@ -48,7 +67,6 @@ class Klarna extends AbstractConfigProvider
     const XPATH_KLARNA_ZERO_TAX               = 'payment/tig_buckaroo_klarna/zero_tax';
     const XPATH_KLARNA_NO_TAX                 = 'payment/tig_buckaroo_klarna/no_tax';
     const XPATH_KLARNA_GET_INVOICE            = 'payment/tig_buckaroo_klarna/send_invoice';
-    const XPATH_KLARNA_CREATE_INVOICE_BY_SHIP = 'payment/tig_buckaroo_klarna/create_invoice_after_shipment';
 
     public function getConfig()
     {
@@ -97,37 +115,5 @@ class Klarna extends AbstractConfigProvider
     public function getInvoiceSendMethod($storeId = null)
     {
         return $this->getConfigFromXpath(static::XPATH_KLARNA_GET_INVOICE, $storeId);
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return bool
-     */
-    public function getEnabled($storeId = null)
-    {
-        $enabled = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $enabled ? $enabled : false;
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return bool
-     */
-    public function getCreateInvoiceAfterShipment($storeId = null)
-    {
-        $createInvoiceAfterShipment = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_CREATE_INVOICE_BY_SHIP,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
     }
 }

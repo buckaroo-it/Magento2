@@ -1,22 +1,41 @@
 <?php
 
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
 namespace TIG\Buckaroo\Gateway\Http\TransactionBuilder;
@@ -25,7 +44,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\UrlInterface;
-use Magento\Framework\Encryption\Encryptor;
 use TIG\Buckaroo\Gateway\Http\Transaction;
 use TIG\Buckaroo\Model\ConfigProvider\Account;
 use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
@@ -48,7 +66,6 @@ class Refund extends AbstractTransactionBuilder
      * @param RemoteAddress        $remoteAddress
      * @param Factory              $configProviderMethodFactory
      * @param FormKey              $formKey
-     * @param Encryptor            $encryptor
      * @param null                 $amount
      * @param null                 $currency
      */
@@ -59,13 +76,12 @@ class Refund extends AbstractTransactionBuilder
         Transaction $transaction,
         UrlInterface $urlBuilder,
         FormKey $formKey,
-        Encryptor $encryptor,
         RemoteAddress $remoteAddress,
         Factory $configProviderMethodFactory,
         $amount = null,
         $currency = null
     ) {
-        parent::__construct($scopeConfig, $softwareData, $configProviderAccount, $transaction, $urlBuilder, $formKey, $encryptor, $amount, $currency);
+        parent::__construct($scopeConfig, $softwareData, $configProviderAccount, $transaction, $urlBuilder, $formKey, $amount, $currency);
 
         $this->remoteAddress = $remoteAddress;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -140,43 +156,8 @@ class Refund extends AbstractTransactionBuilder
             'Services' => (object)[
                 'Service' => $this->getServices()
             ],
-            'AdditionalParameters' => (object)[
-                'AdditionalParameter' => $this->getAdditionalParameters()
-            ],
         ];
 
         return $body;
-    }
-
-
-    /**
-     * @return array
-     */
-    private function getAdditionalParameters()
-    {
-        $parameterLine = [];
-        if (isset($this->getServices()['Action'])) {
-            $parameterLine[] = $this->getParameterLine('service_action_from_magento', strtolower($this->getServices()['Action']));
-        }
-
-        $parameterLine[] = $this->getParameterLine('initiated_by_magento', 1);
-
-        return $parameterLine;
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     *
-     * @return array
-     */
-    private function getParameterLine($name, $value)
-    {
-        $line = [
-            '_'    => $value,
-            'Name' => $name,
-        ];
-
-        return $line;
     }
 }

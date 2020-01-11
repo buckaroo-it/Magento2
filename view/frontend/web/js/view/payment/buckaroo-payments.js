@@ -1,20 +1,39 @@
 /**
+ *                  ___________       __            __
+ *                  \__    ___/____ _/  |_ _____   |  |
+ *                    |    |  /  _ \\   __\\__  \  |  |
+ *                    |    | |  |_| ||  |   / __ \_|  |__
+ *                    |____|  \____/ |__|  (____  /|____/
+ *                                              \/
+ *          ___          __                                   __
+ *         |   |  ____ _/  |_   ____ _______   ____    ____ _/  |_
+ *         |   | /    \\   __\_/ __ \\_  __ \ /    \ _/ __ \\   __\
+ *         |   ||   |  \|  |  \  ___/ |  | \/|   |  \\  ___/ |  |
+ *         |___||___|  /|__|   \_____>|__|   |___|  / \_____>|__|
+ *                  \/                           \/
+ *                  ________
+ *                 /  _____/_______   ____   __ __ ______
+ *                /   \  ___\_  __ \ /  _ \ |  |  \\____ \
+ *                \    \_\  \|  | \/|  |_| ||  |  /|  |_| |
+ *                 \______  /|__|    \____/ |____/ |   __/
+ *                        \/                       |__|
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the Creative Commons License.
  * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
+ * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Total Internet Group B.V. https://tig.nl/copyright
+ * @license   http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 /*browser:true*/
 /*global define*/
@@ -58,10 +77,6 @@ define(
                 component: 'TIG_Buckaroo/js/view/payment/method-renderer/afterpay2'
             },
             {
-              type:  'tig_buckaroo_afterpay20',
-              component:  'TIG_Buckaroo/js/view/payment/method-renderer/afterpay20'
-            },
-            {
                 type: 'tig_buckaroo_payperemail',
                 component: 'TIG_Buckaroo/js/view/payment/method-renderer/payperemail'
             },
@@ -80,10 +95,6 @@ define(
             {
                 type: 'tig_buckaroo_creditcard',
                 component: 'TIG_Buckaroo/js/view/payment/method-renderer/creditcard'
-            },
-            {
-                type: 'tig_buckaroo_creditcards',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/creditcards'
             },
             {
                 type: 'tig_buckaroo_transfer',
@@ -124,26 +135,6 @@ define(
             {
                 type: 'tig_buckaroo_emandate',
                 component: 'TIG_Buckaroo/js/view/payment/method-renderer/emandate'
-            },
-            {
-                type: 'tig_buckaroo_applepay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/applepay'
-            },
-            {
-                type: 'tig_buckaroo_capayablein3',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/capayablein3'
-            },
-            {
-                type: 'tig_buckaroo_capayablepostpay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/capayablepostpay'
-            },
-            {
-                type: 'tig_buckaroo_alipay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/alipay'
-            },
-            {
-                type: 'tig_buckaroo_wechatpay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/wechatpay'
             }
 
         );
