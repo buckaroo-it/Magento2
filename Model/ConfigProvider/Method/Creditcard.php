@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 /**
  * @method getPaymentFeeLabel();
@@ -44,22 +44,22 @@ class Creditcard extends AbstractConfigProvider
     const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
     /**#@-*/
 
-    const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/tig_buckaroo_creditcard/payment_fee';
-    const XPATH_CREDITCARD_PAYMENT_FEE_LABEL    = 'payment/tig_buckaroo_creditcard/payment_fee_label';
-    const XPATH_CREDITCARD_ACTIVE               = 'payment/tig_buckaroo_creditcard/active';
-    const XPATH_CREDITCARD_ACTIVE_STATUS        = 'payment/tig_buckaroo_creditcard/active_status';
-    const XPATH_CREDITCARD_ORDER_STATUS_SUCCESS = 'payment/tig_buckaroo_creditcard/order_status_success';
-    const XPATH_CREDITCARD_ORDER_STATUS_FAILED  = 'payment/tig_buckaroo_creditcard/order_status_failed';
-    const XPATH_CREDITCARD_ALLOWED_CREDITCARDS  = 'payment/tig_buckaroo_creditcard/allowed_creditcards';
+    const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
+    const XPATH_CREDITCARD_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_creditcard/payment_fee_label';
+    const XPATH_CREDITCARD_ACTIVE               = 'payment/buckaroo_magento2_creditcard/active';
+    const XPATH_CREDITCARD_ACTIVE_STATUS        = 'payment/buckaroo_magento2_creditcard/active_status';
+    const XPATH_CREDITCARD_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcard/order_status_success';
+    const XPATH_CREDITCARD_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_creditcard/order_status_failed';
+    const XPATH_CREDITCARD_ALLOWED_CREDITCARDS  = 'payment/buckaroo_magento2_creditcard/allowed_creditcards';
 
-    const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'payment/tig_buckaroo_creditcard/mastercard_unsecure_hold';
-    const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'payment/tig_buckaroo_creditcard/visa_unsecure_hold';
-    const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'payment/tig_buckaroo_creditcard/maestro_unsecure_hold';
+    const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'payment/buckaroo_magento2_creditcard/mastercard_unsecure_hold';
+    const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'payment/buckaroo_magento2_creditcard/visa_unsecure_hold';
+    const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'payment/buckaroo_magento2_creditcard/maestro_unsecure_hold';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_creditcard/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcard/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_creditcard/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_creditcard/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_creditcard/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_creditcard/specificcountry';
 
     protected $issuers = [
         [
@@ -131,7 +131,7 @@ class Creditcard extends AbstractConfigProvider
     {
         $issuers = $this->formatIssuers();
         $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Creditcard::PAYMENT_METHOD_CODE);
+            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Creditcard::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

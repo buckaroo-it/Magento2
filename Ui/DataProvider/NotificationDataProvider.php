@@ -17,9 +17,9 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Ui\DataProvider;
+namespace Buckaroo\Magento2\Ui\DataProvider;
 
-use TIG\Buckaroo\Ui\DataProvider\Modifier\Notifications;
+use Buckaroo\Magento2\Ui\DataProvider\Modifier\Notifications;
 
 class NotificationDataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
 {

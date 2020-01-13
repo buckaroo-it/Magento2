@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\ConfigProvider;
+namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 class AllowedCurrencies extends AbstractConfigProvider
 {

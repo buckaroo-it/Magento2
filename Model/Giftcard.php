@@ -17,17 +17,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Model\AbstractModel;
-use TIG\Buckaroo\Api\Data\GiftcardInterface;
+use Buckaroo\Magento2\Api\Data\GiftcardInterface;
 
 class Giftcard extends AbstractModel implements GiftcardInterface
 {
     /**
      * @var string
      */
-    protected $_eventPrefix = 'tig_buckaroo_giftcard';
+    protected $_eventPrefix = 'buckaroo_magento2_giftcard';
 
     /**
      * @var string
@@ -41,7 +41,7 @@ class Giftcard extends AbstractModel implements GiftcardInterface
      */
     protected function _construct()
     {
-        $this->_init('TIG\Buckaroo\Model\ResourceModel\Giftcard');
+        $this->_init('Buckaroo\Magento2\Model\ResourceModel\Giftcard');
     }
 
     /**

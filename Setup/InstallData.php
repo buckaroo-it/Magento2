@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Setup;
+namespace Buckaroo\Magento2\Setup;
 
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;

@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Service\Formatter\Address;
+namespace Buckaroo\Magento2\Test\Unit\Service\Formatter\Address;
 
-use TIG\Buckaroo\Service\Formatter\Address\PhoneFormatter;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class PhoneFormatterTest extends BaseTest
 {

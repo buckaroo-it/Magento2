@@ -17,17 +17,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Sales\Api\Data\OrderAddressInterface;
-use TIG\Buckaroo\Model\Invoice;
+use Buckaroo\Magento2\Model\Invoice;
 
 class PaymentGuarantee extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_paymentguarantee';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_paymentguarantee';
 
     /**
      * @var string
@@ -103,12 +103,12 @@ class PaymentGuarantee extends AbstractMethod
     protected $_isPartialCapture        = false;
 
     /**
-     * @var \TIG\Buckaroo\Model\InvoiceFactory
+     * @var \Buckaroo\Magento2\Model\InvoiceFactory
      */
     private $invoiceFactory;
 
     /**
-     * @var \TIG\Buckaroo\Api\InvoiceRepositoryInterface
+     * @var \Buckaroo\Magento2\Api\InvoiceRepositoryInterface
      */
     private $invoiceRepository;
 
@@ -118,7 +118,7 @@ class PaymentGuarantee extends AbstractMethod
     private $searchCriteriaBuilder;
 
     /**
-     * @var \TIG\Buckaroo\Service\Formatter\AddressFormatter
+     * @var \Buckaroo\Magento2\Service\Formatter\AddressFormatter
      */
     private $addressFormatter;
     // @codingStandardsIgnoreEnd
@@ -133,20 +133,20 @@ class PaymentGuarantee extends AbstractMethod
      * @param \Magento\Framework\App\Config\ScopeConfigInterface      $scopeConfig
      * @param \Magento\Payment\Model\Method\Logger                    $logger
      * @param \Magento\Developer\Helper\Data                          $developmentHelper
-     * @param \TIG\Buckaroo\Model\InvoiceFactory                      $invoiceFactory
-     * @param \TIG\Buckaroo\Api\InvoiceRepositoryInterface            $invoiceRepository
+     * @param \Buckaroo\Magento2\Model\InvoiceFactory                      $invoiceFactory
+     * @param \Buckaroo\Magento2\Api\InvoiceRepositoryInterface            $invoiceRepository
      * @param \Magento\Framework\Api\SearchCriteriaBuilder            $searchCriteriaBuilder
-     * @param \TIG\Buckaroo\Service\Formatter\AddressFormatter        $addressFormatter
+     * @param \Buckaroo\Magento2\Service\Formatter\AddressFormatter        $addressFormatter
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
-     * @param \TIG\Buckaroo\Gateway\GatewayInterface                  $gateway
-     * @param \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
-     * @param \TIG\Buckaroo\Model\ValidatorFactory                    $validatorFactory
-     * @param \TIG\Buckaroo\Helper\Data                               $helper
+     * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
+     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
+     * @param \Buckaroo\Magento2\Model\ValidatorFactory                    $validatorFactory
+     * @param \Buckaroo\Magento2\Helper\Data                               $helper
      * @param \Magento\Framework\App\RequestInterface                 $request
-     * @param \TIG\Buckaroo\Model\RefundFieldsFactory                 $refundFieldsFactory
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Factory              $configProviderFactory
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
+     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory                 $refundFieldsFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory              $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data                  $priceHelper
      * @param array                                                   $data
      */
@@ -160,20 +160,20 @@ class PaymentGuarantee extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \TIG\Buckaroo\Model\InvoiceFactory $invoiceFactory,
-        \TIG\Buckaroo\Api\InvoiceRepositoryInterface $invoiceRepository,
+        \Buckaroo\Magento2\Model\InvoiceFactory $invoiceFactory,
+        \Buckaroo\Magento2\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \TIG\Buckaroo\Service\Formatter\AddressFormatter $addressFormatter,
+        \Buckaroo\Magento2\Service\Formatter\AddressFormatter $addressFormatter,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \TIG\Buckaroo\Gateway\GatewayInterface $gateway = null,
-        \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \TIG\Buckaroo\Model\ValidatorFactory $validatorFactory = null,
-        \TIG\Buckaroo\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        \Buckaroo\Magento2\Helper\Data $helper = null,
         \Magento\Framework\App\RequestInterface $request = null,
-        \TIG\Buckaroo\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
@@ -474,7 +474,7 @@ class PaymentGuarantee extends AbstractMethod
      */
     private function getPaymentGuaranteeRequestParameters($payment)
     {
-        /** @var \TIG\Buckaroo\Model\ConfigProvider\Method\PaymentGuarantee $config */
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PaymentGuarantee $config */
         $config = $this->configProviderMethodFactory->get('paymentguarantee');
 
         /** @var OrderAddressInterface $billingAddress */

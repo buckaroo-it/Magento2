@@ -21,12 +21,12 @@
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Support section -->
-    <group id="tig_buckaroo_support_section" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+    <group id="buckaroo_magento2_support_section" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Version &amp; Support</label>
-        <fieldset_css>tig_buckaroo-section</fieldset_css>
+        <fieldset_css>buckaroo_magento2-section</fieldset_css>
         <attribute type="expanded">1</attribute>
-        <group id="tig_buckaroo" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
-            <frontend_model>TIG\Buckaroo\Block\Adminhtml\Config\Support\SupportTab</frontend_model>
+        <group id="buckaroo_magento2" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+            <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab</frontend_model>
         </group>
     </group>
 </include>

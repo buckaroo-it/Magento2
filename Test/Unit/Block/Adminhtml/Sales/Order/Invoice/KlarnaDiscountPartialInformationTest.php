@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Block\Adminhtml\Sales\Order\Invoice;
+namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Sales\Order\Invoice;
 
 use Magento\Framework\Registry;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Block\Adminhtml\Sales\Order\Invoice\KlarnaDiscountPartialInformation;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice\KlarnaDiscountPartialInformation;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class KlarnaDiscountPartialInformationTest extends BaseTest
 {
@@ -38,17 +38,17 @@ class KlarnaDiscountPartialInformationTest extends BaseTest
         return [
             'return false by partial capture' => [
                 true,
-                'tig_buckaroo_klarna',
+                'buckaroo_magento2_klarna',
                 false
             ],
             'return false by incorrect method' => [
                 false,
-                'tig_buckaroo_ideal',
+                'buckaroo_magento2_ideal',
                 false
             ],
             'return true' => [
                 false,
-                'tig_buckaroo_klarna',
+                'buckaroo_magento2_klarna',
                 true
             ],
         ];

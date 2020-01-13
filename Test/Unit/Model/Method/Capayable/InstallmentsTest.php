@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method\Capayable;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method\Capayable;
 
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Model\Method\Capayable\Installments;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Method\Capayable\Installments;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class InstallmentsTest extends BaseTest
 {
@@ -36,7 +36,7 @@ class InstallmentsTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->getCode();
 
-        $this->assertEquals('tig_buckaroo_capayablein3', $result);
+        $this->assertEquals('buckaroo_magento2_capayablein3', $result);
     }
 
     public function testPaymentMethodCode()

@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
@@ -26,11 +26,11 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use TIG\Buckaroo\Api\Data\InvoiceInterface;
-use TIG\Buckaroo\Api\InvoiceRepositoryInterface;
-use TIG\Buckaroo\Model\ResourceModel\Invoice as InvoiceResource;
-use TIG\Buckaroo\Model\ResourceModel\Invoice\Collection as InvoiceCollection;
-use TIG\Buckaroo\Model\ResourceModel\Invoice\CollectionFactory as InvoiceCollectionFactory;
+use Buckaroo\Magento2\Api\Data\InvoiceInterface;
+use Buckaroo\Magento2\Api\InvoiceRepositoryInterface;
+use Buckaroo\Magento2\Model\ResourceModel\Invoice as InvoiceResource;
+use Buckaroo\Magento2\Model\ResourceModel\Invoice\Collection as InvoiceCollection;
+use Buckaroo\Magento2\Model\ResourceModel\Invoice\CollectionFactory as InvoiceCollectionFactory;
 
 class InvoiceRepository implements InvoiceRepositoryInterface
 {

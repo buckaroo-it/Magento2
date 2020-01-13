@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Method\Capayable;
+namespace Buckaroo\Magento2\Model\Method\Capayable;
 
-use TIG\Buckaroo\Model\ConfigProvider\Method\CapayableIn3 as CapayableIn3ConfigProvider;
-use TIG\Buckaroo\Model\Method\Capayable;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3 as CapayableIn3ConfigProvider;
+use Buckaroo\Magento2\Model\Method\Capayable;
 
 class Installments extends Capayable
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_capayablein3';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_capayablein3';
 
     const CAPAYABLE_ORDER_SERVICE_ACTION = 'PayInInstallments';
 
@@ -34,7 +34,7 @@ class Installments extends Capayable
 
     /** @var string */
     // @codingStandardsIgnoreLine
-    protected $_code = 'tig_buckaroo_capayablein3';
+    protected $_code = 'buckaroo_magento2_capayablein3';
 
     /**
      * {@inheritDoc}

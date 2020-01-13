@@ -18,11 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaymentInformationManagement;
-use TIG\Buckaroo\Api\GuestPaymentInformationManagementInterface;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 // @codingStandardsIgnoreStart
 class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
@@ -136,6 +136,6 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      */
     public function normalizePaymentMethodCode($methodCode = '')
     {
-        return strtolower(str_replace('tig_buckaroo_','', $methodCode));
+        return strtolower(str_replace('buckaroo_magento2_','', $methodCode));
     }
 }

@@ -53,7 +53,7 @@ define(
 
             selectPaymentMethod: function (paymentMethodData) {
                 selectPaymentMethodAction(paymentMethodData);
-                checkoutData.setSelectedPaymentMethod('tig_buckaroo_applepay');
+                checkoutData.setSelectedPaymentMethod('buckaroo_magento2_applepay');
 
                 return true;
             },
@@ -76,7 +76,7 @@ define(
                 var url = resourceUrlManager.getUrl(urls, params);
 
                 payload.paymentMethod = {
-                    method: 'tig_buckaroo_applepay',
+                    method: 'buckaroo_magento2_applepay',
                     additional_data: {
                         buckaroo_skip_validation: true
                     }

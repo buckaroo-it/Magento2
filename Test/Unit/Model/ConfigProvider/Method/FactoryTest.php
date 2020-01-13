@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Framework\ObjectManagerInterface;
-use TIG\Buckaroo\Exception;
-use TIG\Buckaroo\Model\ConfigProvider\Method\ConfigProviderInterface;
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class FactoryTest extends BaseTest
 {
@@ -77,7 +77,7 @@ class FactoryTest extends BaseTest
             $instance->get($model);
         } catch (\LogicException $e) {
             $exceptionMessage = 'The ConfigProvider must implement '
-                . '"TIG\Buckaroo\Model\ConfigProvider\Method\ConfigProviderInterface".';
+                . '"Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface".';
             $this->assertEquals($exceptionMessage, $e->getMessage());
         }
     }

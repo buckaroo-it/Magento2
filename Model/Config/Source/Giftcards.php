@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Config\Source;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SortOrderBuilder;
 use Magento\Framework\Option\ArrayInterface;
-use TIG\Buckaroo\Api\GiftcardRepositoryInterface;
+use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
 
 class Giftcards implements ArrayInterface
 {
@@ -65,7 +65,7 @@ class Giftcards implements ArrayInterface
             return $options;
         }
 
-        /** @var \TIG\Buckaroo\Api\Data\GiftcardInterface $model */
+        /** @var \Buckaroo\Magento2\Api\Data\GiftcardInterface $model */
         foreach ($giftcardData as $model) {
             $options[] = [
                 'value' => $model->getServicecode(),

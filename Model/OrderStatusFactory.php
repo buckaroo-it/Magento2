@@ -18,11 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
-use TIG\Buckaroo\Helper\Data;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class OrderStatusFactory
 {
@@ -67,14 +67,14 @@ class OrderStatusFactory
         $status = false;
 
         /**
-         * @var \TIG\Buckaroo\Model\Method\AbstractMethod $paymentMethodInstance
+         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $paymentMethodInstance
          */
         $paymentMethodInstance = $order->getPayment()->getMethodInstance();
         $paymentMethod = $paymentMethodInstance->buckarooPaymentMethodCode;
 
         if ($this->configProviderMethodFactory->has($paymentMethod)) {
             /**
-             * @var \TIG\Buckaroo\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
+             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
              */
             $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
 
@@ -88,21 +88,21 @@ class OrderStatusFactory
         }
 
         switch ($statusCode) {
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_REJECTED'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_TECHNICAL_ERROR'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_VALIDATION_FAILURE'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_USER'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_FAILED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
                 $status = $this->account->getOrderStatusFailed();
                 break;
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_SUCCESS'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
                 $status = $this->account->getOrderStatusSuccess();
                 break;
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_WAITING_ON_CONSUMER'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_PENDING_PROCESSING'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_WAITING_ON_USER_INPUT'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_HOLD'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT'):
                 $status = $this->account->getOrderStatusPending();
                 break;
         }
@@ -112,29 +112,29 @@ class OrderStatusFactory
 
     /**
      * @param int                                                               $statusCode
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
      *
      * @return string|false|null
      */
     public function getPaymentMethodStatus(
         $statusCode,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
     ) {
         /**
-         * @var \TIG\Buckaroo\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
          */
         $status = false;
 
         switch ($statusCode) {
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_TECHNICAL_ERROR'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_VALIDATION_FAILURE'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_USER'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_FAILED'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_REJECTED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
                 $status = $configProvider->getOrderStatusFailed();
                 break;
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_SUCCESS'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
                 $status = $configProvider->getOrderStatusSuccess();
                 break;
         }

@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Gateway\Http\Client;
+namespace Buckaroo\Magento2\Test\Unit\Gateway\Http\Client;
 
 use Magento\Store\Model\Store;
-use TIG\Buckaroo\Gateway\Http\Client\Soap;
-use TIG\Buckaroo\Soap\ClientFactory;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\Client\Soap;
+use Buckaroo\Magento2\Soap\ClientFactory;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class SoapTest extends BaseTest
 {

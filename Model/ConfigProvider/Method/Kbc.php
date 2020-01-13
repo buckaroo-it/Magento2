@@ -17,23 +17,23 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Kbc extends AbstractConfigProvider
 {
-    const XPATH_KBC_PAYMENT_FEE           = 'payment/tig_buckaroo_kbc/payment_fee';
-    const XPATH_KBC_PAYMENT_FEE_LABEL     = 'payment/tig_buckaroo_kbc/payment_fee_label';
-    const XPATH_KBC_ACTIVE                = 'payment/tig_buckaroo_kbc/active';
-    const XPATH_KBC_ACTIVE_STATUS         = 'payment/tig_buckaroo_kbc/active_status';
-    const XPATH_KBC_ORDER_STATUS_SUCCESS  = 'payment/tig_buckaroo_kbc/order_status_success';
-    const XPATH_KBC_ORDER_STATUS_FAILED   = 'payment/tig_buckaroo_kbc/order_status_failed';
-    const XPATH_KBC_ORDER_EMAIL           = 'payment/tig_buckaroo_kbc/order_email';
-    const XPATH_KBC_AVAILABLE_IN_BACKEND  = 'payment/tig_buckaroo_kbc/available_in_backend';
+    const XPATH_KBC_PAYMENT_FEE           = 'payment/buckaroo_magento2_kbc/payment_fee';
+    const XPATH_KBC_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_kbc/payment_fee_label';
+    const XPATH_KBC_ACTIVE                = 'payment/buckaroo_magento2_kbc/active';
+    const XPATH_KBC_ACTIVE_STATUS         = 'payment/buckaroo_magento2_kbc/active_status';
+    const XPATH_KBC_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_kbc/order_status_success';
+    const XPATH_KBC_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_kbc/order_status_failed';
+    const XPATH_KBC_ORDER_EMAIL           = 'payment/buckaroo_magento2_kbc/order_email';
+    const XPATH_KBC_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_kbc/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_kbc/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_kbc/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_kbc/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_kbc/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_kbc/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_kbc/specificcountry';
 
     /**
      * @return array
@@ -47,7 +47,7 @@ class Kbc extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Kbc::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Kbc::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

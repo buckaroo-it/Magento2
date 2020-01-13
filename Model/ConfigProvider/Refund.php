@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider;
+namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \TIG\Buckaroo\Model\ConfigProvider;
+use \Buckaroo\Magento2\Model\ConfigProvider;
 
 /**
  * @method mixed getEnabled()
@@ -30,10 +30,10 @@ class Refund extends AbstractConfigProvider
 {
 
     /**
-     * XPATHs to configuration values for tig_buckaroo_predefined
+     * XPATHs to configuration values for buckaroo_magento2_predefined
      */
-    const XPATH_REFUND_ENABLED      = 'tig_buckaroo/refund/enabled';
-    const XPATH_REFUND_ALLOW_PUSH   = 'tig_buckaroo/refund/allow_push';
+    const XPATH_REFUND_ENABLED      = 'buckaroo_magento2/refund/enabled';
+    const XPATH_REFUND_ALLOW_PUSH   = 'buckaroo_magento2/refund/allow_push';
 
     /**
      * {@inheritdoc}

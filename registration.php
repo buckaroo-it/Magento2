@@ -20,6 +20,6 @@
 
 \Magento\Framework\Component\ComponentRegistrar::register(
     \Magento\Framework\Component\ComponentRegistrar::MODULE,
-    'TIG_Buckaroo',
+    'Buckaroo_Magento2',
     __DIR__
 );

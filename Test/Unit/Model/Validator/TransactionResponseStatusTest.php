@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Validator;
+namespace Buckaroo\Magento2\Test\Unit\Model\Validator;
 
-use TIG\Buckaroo\Helper\Data;
-use TIG\Buckaroo\Model\Validator\TransactionResponseStatus;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\Validator\TransactionResponseStatus;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class TransactionResponseStatusTest extends BaseTest
 {

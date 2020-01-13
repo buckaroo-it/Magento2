@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Adminhtml\Giftcard\Edit;
+namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
 
 class Form extends \Magento\Backend\Block\Widget\Form\Generic
 {
@@ -29,7 +29,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     protected function _prepareForm()
     {
         /**
-        * @var \TIG\Buckaroo\Model\Giftcard $model
+        * @var \Buckaroo\Magento2\Model\Giftcard $model
         */
         $model = $this->_coreRegistry->registry('buckaroo_giftcard');
 

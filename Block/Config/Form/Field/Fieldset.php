@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Block\Config\Form\Field;
+namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
 use Magento\Config\Block\System\Config\Form\Fieldset as MagentoFieldset;
 use Magento\Framework\App\Config\ScopeConfigInterface;

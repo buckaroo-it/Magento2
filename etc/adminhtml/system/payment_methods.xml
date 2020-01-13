@@ -21,8 +21,8 @@
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Payment section -->
-    <group id="tig_buckaroo_payment_section" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label><![CDATA[<div class="buckaroo-payment-logo"></div><div class="buckaroo-payment-byline">This is the official Buckaroo extension - developed by TIG</div>
+    <group id="buckaroo_magento2_payment_section" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label><![CDATA[<div class="buckaroo-payment-logo"></div><div class="buckaroo-payment-byline">This is the official Buckaroo extension</div>
         <div class="block-legend">
             <h3>Legend</h3>
             <div>
@@ -45,59 +45,59 @@
                 </ul>
             </div>
         </div>]]></label>
-        <fieldset_css>tig_buckaroo-section</fieldset_css>
-        <frontend_model>TIG\Buckaroo\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+        <fieldset_css>buckaroo_magento2-section</fieldset_css>
+        <frontend_model>Buckaroo\Magento2\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
 
-        <include path="TIG_Buckaroo::system/payment_methods/ideal.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/ideal.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/idealprocessing.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/idealprocessing.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/creditcard.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/creditcard.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/creditcards.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/creditcards.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/paypal.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/paypal.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/transfer.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/transfer.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/sepa_direct_debit.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/sepa_direct_debit.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/mrcash.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/mrcash.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/sofort_banking.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/sofort_banking.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/giropay.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/giropay.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/afterpay.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/afterpay.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/afterpay2.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/afterpay2.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/payperemail.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/payperemail.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/eps.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/eps.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/giftcards.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/giftcards.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/paymentguarantee.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/paymentguarantee.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/payconiq.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/payconiq.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/kbc.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/kbc.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/klarna.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/klarna.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/emandate.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/emandate.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/afterpay20.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/afterpay20.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/applepay.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/applepay.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/capayable_in3.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/capayable_in3.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/capayable_postpay.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/capayable_postpay.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/alipay.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/alipay.xml"/>
 
-        <include path="TIG_Buckaroo::system/payment_methods/wechatpay.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/wechatpay.xml"/>
     </group>
 </include>

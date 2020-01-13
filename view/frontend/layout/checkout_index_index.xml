@@ -21,12 +21,12 @@
  -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="checkout" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="TIG_Buckaroo::css/styles.css" />
+        <css src="Buckaroo_Magento2::css/styles.css" />
     </head>
 
     <body>
         <referenceBlock name="content">
-            <block class="TIG\Buckaroo\Block\Frontend\ThemeBodyClass" name="buckaroo.theme-body-class" />
+            <block class="Buckaroo\Magento2\Block\Frontend\ThemeBodyClass" name="buckaroo.theme-body-class" />
         </referenceBlock>
 
         <referenceBlock name="checkout.root">
@@ -44,7 +44,7 @@
                                                         <item name="before_grandtotal" xsi:type="array">
                                                             <item name="children" xsi:type="array">
                                                                 <item name="buckaroo_fee" xsi:type="array">
-                                                                    <item name="component"  xsi:type="string">TIG_Buckaroo/js/view/summary/totals</item>
+                                                                    <item name="component"  xsi:type="string">Buckaroo_Magento2/js/view/summary/totals</item>
                                                                     <item name="config" xsi:type="array">
                                                                         <item name="title" xsi:type="string">Buckaroo Fee</item>
                                                                     </item>
@@ -66,7 +66,7 @@
                                                         <item name="payments-list" xsi:type="array">
                                                             <item name="children" xsi:type="array">
                                                                 <item name="order-buckaroo-payment" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">TIG_Buckaroo/js/view/payment/save-payment</item>
+                                                                    <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/payment/save-payment</item>
                                                                     <item name="displayArea" xsi:type="string">before-place-order</item>
                                                                     <item name="provider" xsi:type="string">checkoutProvider</item>
                                                                 </item>
@@ -76,84 +76,84 @@
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
                                                                 <item name="buckaroo-payments" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">TIG_Buckaroo/js/view/payment/buckaroo-payments</item>
+                                                                    <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/payment/buckaroo-payments</item>
                                                                     <item name="methods" xsi:type="array">
-                                                                        <item name="tig_buckaroo_ideal" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_ideal" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_idealprocessing" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_idealprocessing" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_sepadirectdebit" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_sepadirectdebit" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_paypal" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_paypal" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_payconiq" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_payconiq" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_creditcard" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_creditcard" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_creditcards" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_creditcards" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_transfer" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_transfer" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_giropay" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_giropay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_mrcash" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_mrcash" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_sofortbanking" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_sofortbanking" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_afterpay" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_afterpay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_afterpay2" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_afterpay2" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_afterpay20" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_afterpay20" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_eps" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_eps" xsi:type="array">
                                                                         	<item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_giftcards" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_giftcards" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_paymentguarantee" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_paymentguarantee" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_payperemail" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_payperemail" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_kbc" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_kbc" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_klarna" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_klarna" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_emandate" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_emandate" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_applepay" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_applepay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_capayablein3" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_capayablein3" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_capayablepostpay" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_capayablepostpay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_alipay" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_alipay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="tig_buckaroo_wechatpay" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_wechatpay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                     </item>

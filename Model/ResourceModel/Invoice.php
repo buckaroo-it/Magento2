@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\ResourceModel;
+namespace Buckaroo\Magento2\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
@@ -27,6 +27,6 @@ class Invoice extends AbstractDb
     protected function _construct()
     {
         // @codingStandardsIgnoreLine
-        $this->_init('tig_buckaroo_invoice', 'entity_id');
+        $this->_init('buckaroo_magento2_invoice', 'entity_id');
     }
 }

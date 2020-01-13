@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Logging;
+namespace Buckaroo\Magento2\Logging;
 
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
-use TIG\Buckaroo\Model\ConfigProvider\DebugConfiguration;
+use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 
 class Log extends Logger
 {

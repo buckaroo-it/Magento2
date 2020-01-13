@@ -6,7 +6,7 @@
 var config = {
     map: {
         '*': {
-            buckarooConfig: 'TIG_Buckaroo/js/adminJS'
+            buckarooConfig: 'Buckaroo_Magento2/js/adminJS'
         }
     }
 };

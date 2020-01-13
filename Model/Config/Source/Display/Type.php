@@ -10,7 +10,7 @@
  * @author             Magento Core Team <core@magentocommerce.com>
  * @codeCoverageIgnore
  */
-namespace TIG\Buckaroo\Model\Config\Source\Display;
+namespace Buckaroo\Magento2\Model\Config\Source\Display;
 
 class Type implements \Magento\Framework\Option\ArrayInterface
 {

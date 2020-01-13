@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Soap;
+namespace Buckaroo\Magento2\Soap;
 
-use TIG\Buckaroo\Model\ConfigProvider\PrivateKey;
+use Buckaroo\Magento2\Model\ConfigProvider\PrivateKey;
 
 class ClientFactory extends \Magento\Framework\Webapi\Soap\ClientFactory
 {
@@ -47,7 +47,7 @@ class ClientFactory extends \Magento\Framework\Webapi\Soap\ClientFactory
      * @param array  $options
      *
      * @return Client\SoapClientWSSEC
-     * @throws \TIG\Buckaroo\Exception|\LogicException
+     * @throws \Buckaroo\Magento2\Exception|\LogicException
      */
     public function create($wsdl, array $options = [])
     {

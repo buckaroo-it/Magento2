@@ -23,7 +23,7 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'TIG_Buckaroo/js/action/place-order',
+        'Buckaroo_Magento2/js/action/place-order',
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
@@ -72,7 +72,7 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template        : 'TIG_Buckaroo/payment/tig_buckaroo_creditcards',
+                    template        : 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcards',
                     CardNumber      : null,
                     Cvc             : null,
                     CardHolderName  : null,
@@ -136,9 +136,9 @@ define(
                      * Subscribe the fields to validate them on changes.
                      * The .valid() method inside validateIndividual will force the $.validator to run.
                      **/
-                    this.CardNumber.subscribe(this.validateIndividual, 'tig_buckaroo_creditcards_cardnumber');
-                    this.Cvc.subscribe(this.validateIndividual, 'tig_buckaroo_creditcards_cvc');
-                    this.CardHolderName.subscribe(this.validateIndividual, 'tig_buckaroo_creditcards_cardholdername');
+                    this.CardNumber.subscribe(this.validateIndividual, 'buckaroo_magento2_creditcards_cardnumber');
+                    this.Cvc.subscribe(this.validateIndividual, 'buckaroo_magento2_creditcards_cvc');
+                    this.CardHolderName.subscribe(this.validateIndividual, 'buckaroo_magento2_creditcards_cardholdername');
 
                     /** Check used to see if input is valid **/
                     this.buttoncheck = ko.computed(
@@ -184,17 +184,17 @@ define(
                 },
 
                 validateIssuer: function() {
-                    $('#tig_buckaroo_creditcards_issuer').valid();
+                    $('#buckaroo_magento2_creditcards_issuer').valid();
                     this.encryptCardDetails();
                 },
 
                 validateMonth: function() {
-                    $('#tig_buckaroo_creditcards_expirationmonth').valid();
+                    $('#buckaroo_magento2_creditcards_expirationmonth').valid();
                     this.encryptCardDetails();
                 },
 
                 validateYear: function() {
-                    $('#tig_buckaroo_creditcards_expirationyear').valid();
+                    $('#buckaroo_magento2_creditcards_expirationyear').valid();
                     this.encryptCardDetails();
                 },
 
@@ -233,7 +233,7 @@ define(
                  * Place order.
                  *
                  * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (TIG_Buckaroo/js/action/place-order) to prevent redirect and handle the response.
+                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
                  */
                 placeOrder: function (data, event) {
                     var self = this,

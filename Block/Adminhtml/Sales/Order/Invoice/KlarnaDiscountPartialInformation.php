@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Block\Adminhtml\Sales\Order\Invoice;
+namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice;
 
 class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\Template
 {
@@ -27,7 +27,7 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
     protected $registry;
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Factory
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
      */
     protected $configProviderFactory;
 
@@ -35,13 +35,13 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
      * RoundingWarning constructor.
      *
      * @param \Magento\Framework\Registry                       $registry
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory
      * @param \Magento\Backend\Block\Template\Context           $context
      * @param array                                             $data
      */
     public function __construct(
         \Magento\Framework\Registry $registry,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderFactory,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory,
         \Magento\Backend\Block\Template\Context $context,
         array $data = []
     ) {
@@ -64,7 +64,7 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
     /**
      * @return bool
      * @throws \LogicException
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     protected function shouldShowWarning()
     {
@@ -85,7 +85,7 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
          * The warning should only be shown for Klarna Buckaroo payment methods.
          */
         $paymentMethod = $payment->getMethod();
-        if (strpos($paymentMethod, 'tig_buckaroo_klarna') === false) {
+        if (strpos($paymentMethod, 'buckaroo_magento2_klarna') === false) {
             return false;
         }
 

@@ -3,7 +3,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace TIG\Buckaroo\Block\Adminhtml\System\Config\Fieldset;
+namespace Buckaroo\Magento2\Block\Adminhtml\System\Config\Fieldset;
 
 /**
  * Fieldset renderer for Buckaroo solution

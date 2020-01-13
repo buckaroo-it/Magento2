@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Order;
+namespace Buckaroo\Magento2\Block\Order;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\View\Element\AbstractBlock;
@@ -26,7 +26,7 @@ use Magento\Framework\View\Element\Context;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Creditmemo;
-use TIG\Buckaroo\Helper\PaymentFee;
+use Buckaroo\Magento2\Helper\PaymentFee;
 
 class TotalsEmail extends AbstractBlock
 {

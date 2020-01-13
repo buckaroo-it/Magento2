@@ -17,17 +17,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\DataObject;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order as orderTrxBuilder;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Refund as refundTrxBuilder;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\Method\Applepay;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as orderTrxBuilder;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Refund as refundTrxBuilder;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\Method\Applepay;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class ApplepayTest extends BaseTest
 {
@@ -39,7 +39,7 @@ class ApplepayTest extends BaseTest
         $data->setBuckarooSkipValidation(0);
         $data->setAdditionalData([
             'buckaroo_skip_validation' => 1,
-            'applepayTransaction' => 'TIG Apple Transaction'
+            'applepayTransaction' => 'Buckaroo Apple Transaction'
         ]);
 
         $infoInstanceMock = $this->getFakeMock(InfoInterface::class)
@@ -48,7 +48,7 @@ class ApplepayTest extends BaseTest
         $infoInstanceMock->expects($this->exactly(3))->method('setAdditionalInformation')->withConsecutive(
             ['buckaroo_skip_validation', 0],
             ['buckaroo_skip_validation', 1],
-            ['applepayTransaction', base64_encode('TIG Apple Transaction')]
+            ['applepayTransaction', base64_encode('Buckaroo Apple Transaction')]
         );
 
         $instance = $this->getInstance();

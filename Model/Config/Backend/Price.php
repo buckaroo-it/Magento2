@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Config\Backend;
+namespace Buckaroo\Magento2\Model\Config\Backend;
 
 class Price extends \Magento\Framework\App\Config\Value
 {

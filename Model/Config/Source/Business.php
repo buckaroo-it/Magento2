@@ -18,12 +18,12 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Config\Source;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
 /**
  * Class Business
  *
- * @package TIG\Buckaroo\Model\Config\Business
+ * @package Buckaroo\Magento2\Model\Config\Business
  */
 class Business implements \Magento\Framework\Option\ArrayInterface
 {

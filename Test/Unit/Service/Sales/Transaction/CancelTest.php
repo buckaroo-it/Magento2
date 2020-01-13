@@ -17,17 +17,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Service\Sales\Transaction;
+namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Transaction;
 
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Repository;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\OrderStatusFactory;
-use TIG\Buckaroo\Service\Sales\Transaction\Cancel;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Service\Sales\Transaction\Cancel;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class CancelTest extends BaseTest
 {
@@ -106,11 +106,11 @@ class CancelTest extends BaseTest
     {
         return [
             'method is afterpay' => [
-                'tig_buckaroo_method',
+                'buckaroo_magento2_method',
                 0
             ],
             'method is not afterpay' => [
-                'tig_buckaroo_afterpay',
+                'buckaroo_magento2_afterpay',
                 1
             ]
         ];

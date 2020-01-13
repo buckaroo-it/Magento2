@@ -20,13 +20,13 @@ var config = {
     map: {
         '*': {
             "BuckarooSDK": "//checkout.buckaroo.nl/api/buckaroosdk/script",
-            "buckaroo/applepay/catalog-product-view": "TIG_Buckaroo/js/view/checkout/applepay/catalog-product-view",
-            "buckaroo/applepay/checkout-cart": "TIG_Buckaroo/js/view/checkout/applepay/checkout-cart",
-            "buckaroo/applepay/pay": "TIG_Buckaroo/js/view/checkout/applepay/pay",
-            "buckaroo/applepay/billing-handler": "TIG_Buckaroo/js/view/checkout/applepay/handlers/billing-handler",
-            "buckaroo/applepay/shipping-handler": "TIG_Buckaroo/js/view/checkout/applepay/handlers/shipping-handler",
-            "buckaroo/applepay/order-handler": "TIG_Buckaroo/js/view/checkout/applepay/handlers/order-handler",
-            "buckaroo/payconiq/pay": "TIG_Buckaroo/js/view/checkout/payconiq/pay",
+            "buckaroo/applepay/catalog-product-view": "Buckaroo_Magento2/js/view/checkout/applepay/catalog-product-view",
+            "buckaroo/applepay/checkout-cart": "Buckaroo_Magento2/js/view/checkout/applepay/checkout-cart",
+            "buckaroo/applepay/pay": "Buckaroo_Magento2/js/view/checkout/applepay/pay",
+            "buckaroo/applepay/billing-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/billing-handler",
+            "buckaroo/applepay/shipping-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/shipping-handler",
+            "buckaroo/applepay/order-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/order-handler",
+            "buckaroo/payconiq/pay": "Buckaroo_Magento2/js/view/checkout/payconiq/pay",
             "BuckarooClientSideEncryption": "//static.buckaroo.nl/script/ClientSideEncryption001.js"
         }
     },

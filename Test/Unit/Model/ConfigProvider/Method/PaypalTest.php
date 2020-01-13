@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Helper\PaymentFee;
-use TIG\Buckaroo\Model\Method\Paypal as PaypalMethod;
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Paypal;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\Method\Paypal as PaypalMethod;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 
 class PaypalTest extends BaseTest

@@ -17,22 +17,22 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Config\Source;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
 class Creditcard implements \Magento\Framework\Option\ArrayInterface
 {
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard
      */
     protected $configProvider;
 
     /**
      * Use the constructor to get the requested config provider.
      *
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard $configProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
      */
     public function __construct(
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard $configProvider
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
     ) {
         $this->configProvider = $configProvider;
     }

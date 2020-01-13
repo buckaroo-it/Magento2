@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ResourceModel\Giftcard;
+namespace Buckaroo\Magento2\Model\ResourceModel\Giftcard;
 
 class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractCollection
 {
@@ -32,7 +32,7 @@ class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractC
      *
      * @var string
      */
-    protected $_eventPrefix = 'tig_buckaroo_giftcard_collection';
+    protected $_eventPrefix = 'buckaroo_magento2_giftcard_collection';
 
     /**
      * Event object
@@ -48,6 +48,6 @@ class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractC
      */
     protected function _construct()
     {
-        $this->_init('TIG\Buckaroo\Model\Giftcard', 'TIG\Buckaroo\Model\ResourceModel\Giftcard');
+        $this->_init('Buckaroo\Magento2\Model\Giftcard', 'Buckaroo\Magento2\Model\ResourceModel\Giftcard');
     }
 }

@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Soap;
+namespace Buckaroo\Magento2\Test\Unit\Soap;
 
 use Magento\Store\Model\Store;
-use TIG\Buckaroo\Soap\ClientFactory;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Soap\ClientFactory;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class ClientFactoryTest extends BaseTest
 {

@@ -18,11 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Adminhtml\Config\Support;
+namespace Buckaroo\Magento2\Block\Adminhtml\Config\Support;
 
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Data\Form\Element\Renderer\RendererInterface;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class SupportTab extends \Magento\Framework\View\Element\Template implements RendererInterface
 {

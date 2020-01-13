@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Observer;
+namespace Buckaroo\Magento2\Test\Unit\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Observer\VoidCm3Payment;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Observer\VoidCm3Payment;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class VoidCm3PaymentTest extends BaseTest
 {
@@ -63,7 +63,7 @@ class VoidCm3PaymentTest extends BaseTest
                 'createCreditNoteRequest'
             ])
             ->getMock();
-        $paymentMock->expects($this->once())->method('getMethod')->willReturn('tig_buckaroo_method');
+        $paymentMock->expects($this->once())->method('getMethod')->willReturn('buckaroo_magento2_method');
         $paymentMock->expects($this->once())->method('getAuthorizationTransaction')->willReturn(false);
         $paymentMock->expects($this->once())
             ->method('getAdditionalInformation')
@@ -90,7 +90,7 @@ class VoidCm3PaymentTest extends BaseTest
                 'createCreditNoteRequest'
             ])
             ->getMock();
-        $paymentMock->expects($this->once())->method('getMethod')->willReturn('tig_buckaroo_method');
+        $paymentMock->expects($this->once())->method('getMethod')->willReturn('buckaroo_magento2_method');
         $paymentMock->expects($this->once())->method('getAuthorizationTransaction')->willReturn(false);
         $paymentMock->expects($this->once())
             ->method('getAdditionalInformation')

@@ -22,87 +22,87 @@
 <payment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/payment.xsd">
     <groups>
-        <group id="tig_buckaroo">
+        <group id="buckaroo_magento2">
             <label>Buckaroo Payment Methods</label>
         </group>
     </groups>
     <methods>
-        <method name="tig_buckaroo_ideal">
+        <method name="buckaroo_magento2_ideal">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_idealprocessing">
+        <method name="buckaroo_magento2_idealprocessing">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_sepadirectdebit">
+        <method name="buckaroo_magento2_sepadirectdebit">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_paypal">
+        <method name="buckaroo_magento2_paypal">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_payconiq">
+        <method name="buckaroo_magento2_payconiq">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_creditcard">
+        <method name="buckaroo_magento2_creditcard">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_creditcards">
+        <method name="buckaroo_magento2_creditcards">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_transfer">
+        <method name="buckaroo_magento2_transfer">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_giropay">
+        <method name="buckaroo_magento2_giropay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_mrcash">
+        <method name="buckaroo_magento2_mrcash">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_sofortbanking">
+        <method name="buckaroo_magento2_sofortbanking">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_afterpay">
+        <method name="buckaroo_magento2_afterpay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_afterpay2">
+        <method name="buckaroo_magento2_afterpay2">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_afterpay20">
+        <method name="buckaroo_magento2_afterpay20">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_payperemail">
+        <method name="buckaroo_magento2_payperemail">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_eps">
+        <method name="buckaroo_magento2_eps">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_giftcards">
+        <method name="buckaroo_magento2_giftcards">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_paymentguarantee">
+        <method name="buckaroo_magento2_paymentguarantee">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_kbc">
+        <method name="buckaroo_magento2_kbc">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_klarna">
+        <method name="buckaroo_magento2_klarna">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_emandate">
+        <method name="buckaroo_magento2_emandate">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_applepay">
+        <method name="buckaroo_magento2_applepay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_capayablein3">
+        <method name="buckaroo_magento2_capayablein3">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_capayablepostpay">
+        <method name="buckaroo_magento2_capayablepostpay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_alipay">
+        <method name="buckaroo_magento2_alipay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="tig_buckaroo_wechatpay">
+        <method name="buckaroo_magento2_wechatpay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
     </methods>

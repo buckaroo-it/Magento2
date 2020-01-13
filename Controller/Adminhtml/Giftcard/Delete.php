@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Controller\Adminhtml\Giftcard;
+namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-class Delete extends \TIG\Buckaroo\Controller\Adminhtml\Giftcard\Index
+class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
 {
     public function execute()
     {

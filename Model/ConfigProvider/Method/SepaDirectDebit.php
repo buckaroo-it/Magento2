@@ -18,29 +18,29 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class SepaDirectDebit extends AbstractConfigProvider
 {
-    const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE             = 'payment/tig_buckaroo_sepadirectdebit/payment_fee';
-    const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE_LABEL       = 'payment/tig_buckaroo_sepadirectdebit/payment_fee_label';
-    const XPATH_SEPADIRECTDEBIT_ACTIVE                  = 'payment/tig_buckaroo_sepadirectdebit/active';
-    const XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS           = 'payment/tig_buckaroo_sepadirectdebit/active_status';
-    const XPATH_SEPADIRECTDEBIT_ORDER_STATUS_SUCCESS    = 'payment/tig_buckaroo_sepadirectdebit/order_status_success';
-    const XPATH_SEPADIRECTDEBIT_ORDER_STATUS_FAILED     = 'payment/tig_buckaroo_sepadirectdebit/order_status_failed';
-    const XPATH_SEPADIRECTDEBIT_AVAILABLE_IN_BACKEND    = 'payment/tig_buckaroo_sepadirectdebit/available_in_backend';
+    const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE             = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee';
+    const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE_LABEL       = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee_label';
+    const XPATH_SEPADIRECTDEBIT_ACTIVE                  = 'payment/buckaroo_magento2_sepadirectdebit/active';
+    const XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS           = 'payment/buckaroo_magento2_sepadirectdebit/active_status';
+    const XPATH_SEPADIRECTDEBIT_ORDER_STATUS_SUCCESS    = 'payment/buckaroo_magento2_sepadirectdebit/order_status_success';
+    const XPATH_SEPADIRECTDEBIT_ORDER_STATUS_FAILED     = 'payment/buckaroo_magento2_sepadirectdebit/order_status_failed';
+    const XPATH_SEPADIRECTDEBIT_AVAILABLE_IN_BACKEND    = 'payment/buckaroo_magento2_sepadirectdebit/available_in_backend';
 
 
-    const XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS_CM3           = 'payment/tig_buckaroo_sepadirectdebit/active_status_cm3';
-    const XPATH_SEPADIRECTDEBIT_SCHEME_KEY                  = 'payment/tig_buckaroo_sepadirectdebit/scheme_key';
-    const XPATH_SEPADIRECTDEBIT_MAX_STEP_INDEX              = 'payment/tig_buckaroo_sepadirectdebit/max_step_index';
-    const XPATH_SEPADIRECTDEBIT_CM3_DUE_DATE                = 'payment/tig_buckaroo_sepadirectdebit/cm3_due_date';
-    const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/tig_buckaroo_sepadirectdebit/payment_method_after_expiry';
+    const XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_sepadirectdebit/active_status_cm3';
+    const XPATH_SEPADIRECTDEBIT_SCHEME_KEY                  = 'payment/buckaroo_magento2_sepadirectdebit/scheme_key';
+    const XPATH_SEPADIRECTDEBIT_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_sepadirectdebit/max_step_index';
+    const XPATH_SEPADIRECTDEBIT_CM3_DUE_DATE                = 'payment/buckaroo_magento2_sepadirectdebit/cm3_due_date';
+    const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_sepadirectdebit/payment_method_after_expiry';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_sepadirectdebit/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_sepadirectdebit/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_sepadirectdebit/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_sepadirectdebit/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_sepadirectdebit/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_sepadirectdebit/specificcountry';
 
     /**
      * @return array|void
@@ -48,7 +48,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getConfig()
     {
         $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\SepaDirectDebit::PAYMENT_METHOD_CODE);
+            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\SepaDirectDebit::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

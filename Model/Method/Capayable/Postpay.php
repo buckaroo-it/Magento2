@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Method\Capayable;
+namespace Buckaroo\Magento2\Model\Method\Capayable;
 
-use TIG\Buckaroo\Model\Method\Capayable;
+use Buckaroo\Magento2\Model\Method\Capayable;
 
 class Postpay extends Capayable
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_capayablepostpay';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_capayablepostpay';
 
     const CAPAYABLE_ORDER_SERVICE_ACTION = 'Pay';
 
@@ -33,5 +33,5 @@ class Postpay extends Capayable
 
     /** @var string */
     // @codingStandardsIgnoreLine
-    protected $_code = 'tig_buckaroo_capayablepostpay';
+    protected $_code = 'buckaroo_magento2_capayablepostpay';
 }

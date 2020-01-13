@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Observer;
+namespace Buckaroo\Magento2\Test\Unit\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Observer\SendOrderConfirmation;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Observer\SendOrderConfirmation;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class SendOrderConfirmationTest extends BaseTest
 {
@@ -54,7 +54,7 @@ class SendOrderConfirmationTest extends BaseTest
         $paymentMock = $this->getFakeMock(Payment::class)
             ->setMethods(['getMethod', 'getOrder', 'getMethodInstance'])
             ->getMock();
-        $paymentMock->expects($this->once())->method('getMethod')->willReturn('tig_buckaroo');
+        $paymentMock->expects($this->once())->method('getMethod')->willReturn('buckaroo_magento2');
         $paymentMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
         $paymentMock->expects($this->once())->method('getMethodInstance')->willReturn($methodInstanceMock);
 
@@ -81,7 +81,7 @@ class SendOrderConfirmationTest extends BaseTest
         $paymentMock = $this->getFakeMock(Payment::class)
             ->setMethods(['getMethod', 'getOrder', 'getMethodInstance'])
             ->getMock();
-        $paymentMock->expects($this->once())->method('getMethod')->willReturn('tig_buckaroo');
+        $paymentMock->expects($this->once())->method('getMethod')->willReturn('buckaroo_magento2');
         $paymentMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
         $paymentMock->expects($this->once())->method('getMethodInstance')->willReturn($methodInstanceMock);
 

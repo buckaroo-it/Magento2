@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Service\Sales\Pdf;
+namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Pdf;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order;
-use TIG\Buckaroo\Helper\PaymentFee;
-use TIG\Buckaroo\Model\Config\Source\Display\Type;
-use TIG\Buckaroo\Service\Sales\Pdf\BuckarooFee;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\Config\Source\Display\Type;
+use Buckaroo\Magento2\Service\Sales\Pdf\BuckarooFee;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class BuckarooFeeTest extends BaseTest
 {

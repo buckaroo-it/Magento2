@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider;
+namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \TIG\Buckaroo\Model\Config\Source\Display\Type as DisplayType;
+use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
 
 /**
  * @method int getPriceDisplayCart()

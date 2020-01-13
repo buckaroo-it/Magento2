@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Observer;
+namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 
 class SendInvoiceMail implements ObserverInterface
 {
@@ -54,7 +54,7 @@ class SendInvoiceMail implements ObserverInterface
         $invoice = $observer->getEvent()->getInvoice();
         $payment = $invoice->getOrder()->getPayment();
 
-        if (strpos($payment->getMethod(), 'tig_buckaroo') === false) {
+        if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
             return;
         }
 

@@ -19,12 +19,12 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="TIG_Buckaroo::css/styles.css" />
+        <css src="Buckaroo_Magento2::css/styles.css" />
     </head>
 
     <body>
         <referenceContainer name="content">
-            <block class="TIG\Buckaroo\Block\Checkout\Payconiq\Pay" name="tig_buckaroo.checkout.payconic_pay" template="TIG_Buckaroo::checkout/payconiq/pay.phtml" cacheable="false" />
+            <block class="Buckaroo\Magento2\Block\Checkout\Payconiq\Pay" name="buckaroo_magento2.checkout.payconic_pay" template="Buckaroo_Magento2::checkout/payconiq/pay.phtml" cacheable="false" />
         </referenceContainer>
     </body>
 </page>

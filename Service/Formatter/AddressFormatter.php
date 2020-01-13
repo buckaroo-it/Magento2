@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Service\Formatter;
+namespace Buckaroo\Magento2\Service\Formatter;
 
 use Magento\Sales\Api\Data\OrderAddressInterface;
-use TIG\Buckaroo\Service\Formatter\Address\PhoneFormatter;
-use TIG\Buckaroo\Service\Formatter\Address\StreetFormatter;
+use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
+use Buckaroo\Magento2\Service\Formatter\Address\StreetFormatter;
 
 class AddressFormatter
 {

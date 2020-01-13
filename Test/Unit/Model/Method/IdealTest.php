@@ -18,19 +18,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Ideal as IdealConfig;
-use TIG\Buckaroo\Model\Method\Ideal;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal as IdealConfig;
+use Buckaroo\Magento2\Model\Method\Ideal;
 
-class IdealTest extends \TIG\Buckaroo\Test\BaseTest
+class IdealTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Ideal::class;
 

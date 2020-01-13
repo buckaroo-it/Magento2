@@ -22,7 +22,7 @@
         <total name="buckaroo_fee">
             <title translate="true">Buckaroo Fee</title>
             <source_field>buckaroo_fee</source_field>
-            <model>TIG\Buckaroo\Service\Sales\Pdf\BuckarooFee</model>
+            <model>Buckaroo\Magento2\Service\Sales\Pdf\BuckarooFee</model>
             <font_size>7</font_size>
             <display_zero>false</display_zero>
             <sort_order>450</sort_order>

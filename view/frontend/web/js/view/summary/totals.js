@@ -8,7 +8,7 @@ define(
         'Magento_Checkout/js/view/summary/abstract-total',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/totals',
-        'TIG_Buckaroo/js/model/buckaroo-fee',
+        'Buckaroo_Magento2/js/model/buckaroo-fee',
         'ko'
     ],
     function (Component, quote, totals, BuckarooFee, ko) {
@@ -17,7 +17,7 @@ define(
         return Component.extend(
             {
                 defaults            : {
-                    template : 'TIG_Buckaroo/summary/buckaroo_fee'
+                    template : 'Buckaroo_Magento2/summary/buckaroo_fee'
                 },
                 totals              : quote.getTotals(),
                 model               : {},

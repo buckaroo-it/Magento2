@@ -18,17 +18,17 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Helper;
+namespace Buckaroo\Magento2\Helper;
 
 use \Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 /**
  * Class Data
  *
- * @package TIG\Buckaroo\Helper
+ * @package Buckaroo\Magento2\Helper
  */
 class Data extends AbstractHelper
 {
@@ -37,27 +37,27 @@ class Data extends AbstractHelper
     const MODE_LIVE     = 2;
 
     /**
-     * TIG_Buckaroo status codes
+     * Buckaroo_Magento2 status codes
      *
      * @var array $statusCode
      */
     protected $statusCodes = [
-        'TIG_BUCKAROO_STATUSCODE_SUCCESS'               => 190,
-        'TIG_BUCKAROO_STATUSCODE_FAILED'                => 490,
-        'TIG_BUCKAROO_STATUSCODE_VALIDATION_FAILURE'    => 491,
-        'TIG_BUCKAROO_STATUSCODE_TECHNICAL_ERROR'       => 492,
-        'TIG_BUCKAROO_STATUSCODE_REJECTED'              => 690,
-        'TIG_BUCKAROO_STATUSCODE_WAITING_ON_USER_INPUT' => 790,
-        'TIG_BUCKAROO_STATUSCODE_PENDING_PROCESSING'    => 791,
-        'TIG_BUCKAROO_STATUSCODE_WAITING_ON_CONSUMER'   => 792,
-        'TIG_BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD'       => 793,
-        'TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_USER'     => 890,
-        'TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT' => 891,
+        'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'               => 190,
+        'BUCKAROO_MAGENTO2_STATUSCODE_FAILED'                => 490,
+        'BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE'    => 491,
+        'BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR'       => 492,
+        'BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'              => 690,
+        'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT' => 790,
+        'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'    => 791,
+        'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER'   => 792,
+        'BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_HOLD'       => 793,
+        'BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'     => 890,
+        'BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT' => 891,
 
         /**
-         * Codes below are created by TIG, not by Buckaroo.
+         * Codes below are created by dev, not by Buckaroo.
          */
-        'TIG_BUCKAROO_ORDER_FAILED'                     => 11014,
+        'BUCKAROO_MAGENTO2_ORDER_FAILED'                     => 11014,
     ];
 
     protected $debugConfig = [];
@@ -169,7 +169,7 @@ class Data extends AbstractHelper
      * @param null|string $paymentMethod
      *
      * @return int
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getMode($paymentMethod = null)
     {
@@ -180,7 +180,7 @@ class Data extends AbstractHelper
         }
 
         /**
-         * @var \TIG\Buckaroo\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
          */
         $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
         $mode = $configProvider->getActive();

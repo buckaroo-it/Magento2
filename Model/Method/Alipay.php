@@ -18,14 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 class Alipay extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_alipay';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_alipay';
 
     /**
      * @var string

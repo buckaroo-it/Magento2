@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
-use TIG\Buckaroo\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
 
 class Applepay extends AbstractMethod
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_applepay';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_applepay';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'applepay';

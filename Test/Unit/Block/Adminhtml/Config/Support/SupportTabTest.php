@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Block\Adminhtml\Config\Support;
+namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Config\Support;
 
-use TIG\Buckaroo\Block\Adminhtml\Config\Support\SupportTab;
-use TIG\Buckaroo\Service\Software\Data;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab;
+use Buckaroo\Magento2\Service\Software\Data;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class SupportTabTest extends BaseTest
 {

@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Source\PayPerEmail;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\PayPerEmail;
 
-use TIG\Buckaroo\Model\Config\Source\PaymentMethods\AfterExpiry;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Config\Source\PaymentMethods\AfterExpiry;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class AfterExpiryTest extends BaseTest
 {

@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Gateway\Http;
+namespace Buckaroo\Magento2\Test\Unit\Gateway\Http;
 
 use Magento\Framework\DataObject;
-use TIG\Buckaroo\Exception;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Test\BaseTest;
 use Magento\Framework\ObjectManagerInterface;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface;
 
 class TransactionBuilderFactoryTest extends BaseTest
 {
@@ -85,7 +85,7 @@ class TransactionBuilderFactoryTest extends BaseTest
         try {
             $instance->get('model1');
         } catch (\LogicException $e) {
-            $msg = 'The transaction builder must implement "TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface".';
+            $msg = 'The transaction builder must implement "Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface".';
             $this->assertEquals($msg, $e->getMessage());
         }
     }

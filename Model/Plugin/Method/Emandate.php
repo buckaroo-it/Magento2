@@ -17,30 +17,30 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Plugin\Method;
+namespace Buckaroo\Magento2\Model\Plugin\Method;
 
 use \Magento\Sales\Model\Order;
 
 /**
  * Class Klarna
  *
- * @package TIG\Buckaroo\Model\Plugin\Method
+ * @package Buckaroo\Magento2\Model\Plugin\Method
  */
 class Emandate
 {
-    const EMANDATE_METHOD_NAME = 'tig_buckaroo_emandate';
+    const EMANDATE_METHOD_NAME = 'buckaroo_magento2_emandate';
 
     /**
-     * \TIG\Buckaroo\Model\Method\Emandate
+     * \Buckaroo\Magento2\Model\Method\Emandate
      *
      * @var bool
      */
     public $emandateMethod = false;
 
     /**
-     * @param \TIG\Buckaroo\Model\Method\Klarna $klarna
+     * @param \Buckaroo\Magento2\Model\Method\Klarna $klarna
      */
-    public function __construct(\TIG\Buckaroo\Model\Method\Emandate $emandate)
+    public function __construct(\Buckaroo\Magento2\Model\Method\Emandate $emandate)
     {
         $this->emandateMethod = $emandate;
     }

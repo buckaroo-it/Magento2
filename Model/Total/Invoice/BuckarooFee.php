@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Total\Invoice;
+namespace Buckaroo\Magento2\Model\Total\Invoice;
 
 class BuckarooFee extends \Magento\Sales\Model\Order\Invoice\Total\AbstractTotal
 {

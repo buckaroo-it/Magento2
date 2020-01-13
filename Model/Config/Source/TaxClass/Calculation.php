@@ -18,12 +18,12 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Config\Source\TaxClass;
+namespace Buckaroo\Magento2\Model\Config\Source\TaxClass;
 
 /**
  * Class Calculation
  *
- * @package TIG\Buckaroo\Model\Config\Source\TaxClass
+ * @package Buckaroo\Magento2\Model\Config\Source\TaxClass
  */
 class Calculation implements \Magento\Framework\Option\ArrayInterface
 {

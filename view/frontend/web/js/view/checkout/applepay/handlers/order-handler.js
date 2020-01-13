@@ -22,7 +22,7 @@ define(
         'Magento_Checkout/js/model/quote',
         'buckaroo/applepay/shipping-handler',
         'buckaroo/applepay/billing-handler',
-        'TIG_Buckaroo/js/action/place-order',
+        'Buckaroo_Magento2/js/action/place-order',
     ],
     function (
         $,
@@ -73,7 +73,7 @@ define(
                 var transactionData = this.formatTransactionResponse();
 
                 return {
-                    "method": 'tig_buckaroo_applepay',
+                    "method": 'buckaroo_magento2_applepay',
                     "po_number": null,
                     "additional_data": {
                         "applepayTransaction" : transactionData

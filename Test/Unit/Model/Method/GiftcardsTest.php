@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Model\InfoInterface;
@@ -27,12 +27,12 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection;
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
-use TIG\Buckaroo\Model\Method\Giftcards;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
+use Buckaroo\Magento2\Model\Method\Giftcards;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class GiftcardsTest extends BaseTest
 {

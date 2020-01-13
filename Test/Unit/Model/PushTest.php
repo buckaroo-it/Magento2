@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model;
+namespace Buckaroo\Magento2\Test\Unit\Model;
 
 use Magento\Directory\Model\Currency;
 use Magento\Framework\Webapi\Rest\Request;
@@ -27,14 +27,14 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\Method\AbstractMethod;
-use TIG\Buckaroo\Model\Method\Giftcards;
-use TIG\Buckaroo\Logging\Log;
-use TIG\Buckaroo\Exception;
-use TIG\Buckaroo\Model\Push;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Method\Giftcards;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\Push;
 
-class PushTest extends \TIG\Buckaroo\Test\BaseTest
+class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Push::class;
 

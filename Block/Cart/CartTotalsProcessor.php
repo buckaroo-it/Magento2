@@ -3,7 +3,7 @@
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace TIG\Buckaroo\Block\Cart;
+namespace Buckaroo\Magento2\Block\Cart;
 
 use Magento\Checkout\Model\Layout\AbstractTotalsProcessor;
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
@@ -11,19 +11,19 @@ use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
 class CartTotalsProcessor extends AbstractTotalsProcessor implements LayoutProcessorInterface
 {
     /**
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Factory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory
      */
     protected $configProviderFactory;
 
     /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Factory         $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory         $configProviderFactory
      *
      * @codeCoverageIgnore
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
     ) {
         parent::__construct($scopeConfig);
         $this->configProviderFactory = $configProviderFactory;
@@ -35,7 +35,7 @@ class CartTotalsProcessor extends AbstractTotalsProcessor implements LayoutProce
     public function process($jsLayout)
     {
         /**
-        * @var \TIG\Buckaroo\Model\ConfigProvider\Account $configProvider
+        * @var \Buckaroo\Magento2\Model\ConfigProvider\Account $configProvider
         */
         $configProvider = $this->configProviderFactory->get('account');
         $paymentFeeLabel = $configProvider->getPaymentFeeLabel();

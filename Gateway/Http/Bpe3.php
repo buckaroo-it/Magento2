@@ -18,15 +18,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Gateway\Http;
+namespace Buckaroo\Magento2\Gateway\Http;
 
 use Magento\Payment\Gateway\Http\TransferBuilder;
-use TIG\Buckaroo\Gateway\Http\Client\Soap;
-use TIG\Buckaroo\Logging\Log;
-use TIG\Buckaroo\Model\ConfigProvider\Predefined;
-use TIG\Buckaroo\Model\ConfigProvider\Refund;
+use Buckaroo\Magento2\Gateway\Http\Client\Soap;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Predefined;
+use Buckaroo\Magento2\Model\ConfigProvider\Refund;
 
-class Bpe3 implements \TIG\Buckaroo\Gateway\GatewayInterface
+class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
 {
     /** @var Soap */
     protected $client;
@@ -82,7 +82,7 @@ class Bpe3 implements \TIG\Buckaroo\Gateway\GatewayInterface
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array
      * @throws \Exception
@@ -93,7 +93,7 @@ class Bpe3 implements \TIG\Buckaroo\Gateway\GatewayInterface
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array
      * @throws \Exception
@@ -104,7 +104,7 @@ class Bpe3 implements \TIG\Buckaroo\Gateway\GatewayInterface
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array
      * @throws \Exception
@@ -115,10 +115,10 @@ class Bpe3 implements \TIG\Buckaroo\Gateway\GatewayInterface
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array
-     * @throws \Exception|\TIG\Buckaroo\Exception
+     * @throws \Exception|\Buckaroo\Magento2\Exception
      */
     public function refund(Transaction $transaction)
     {
@@ -127,11 +127,11 @@ class Bpe3 implements \TIG\Buckaroo\Gateway\GatewayInterface
         }
 
         $this->logger->addDebug('Failed to refund because the configuration is set to disabled');
-        throw new \TIG\Buckaroo\Exception(__("Online refunds are currently disabled for Buckaroo payment methods."));
+        throw new \Buckaroo\Magento2\Exception(__("Online refunds are currently disabled for Buckaroo payment methods."));
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array
      * @throws \Exception
@@ -142,7 +142,7 @@ class Bpe3 implements \TIG\Buckaroo\Gateway\GatewayInterface
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array
      * @throws \Exception
@@ -155,7 +155,7 @@ class Bpe3 implements \TIG\Buckaroo\Gateway\GatewayInterface
     /**
      * @return string
      *
-     * @throws \TIG\Buckaroo\Exception|\LogicException
+     * @throws \Buckaroo\Magento2\Exception|\LogicException
      */
     protected function getWsdl()
     {
@@ -164,14 +164,14 @@ class Bpe3 implements \TIG\Buckaroo\Gateway\GatewayInterface
         }
 
         switch ($this->mode) {
-            case \TIG\Buckaroo\Helper\Data::MODE_TEST:
+            case \Buckaroo\Magento2\Helper\Data::MODE_TEST:
                 $wsdl = $this->configProviderPredefined->getWsdlTestWeb();
                 break;
-            case \TIG\Buckaroo\Helper\Data::MODE_LIVE:
+            case \Buckaroo\Magento2\Helper\Data::MODE_LIVE:
                 $wsdl = $this->configProviderPredefined->getWsdlLiveWeb();
                 break;
             default:
-                throw new \TIG\Buckaroo\Exception(
+                throw new \Buckaroo\Magento2\Exception(
                     __(
                         "Invalid mode set: %1",
                         [

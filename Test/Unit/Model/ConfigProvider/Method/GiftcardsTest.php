@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Giftcards;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 
 class GiftcardsTest extends BaseTest
 {
@@ -38,8 +38,8 @@ class GiftcardsTest extends BaseTest
         $scopeConfigMock->expects($this->exactly(2))
             ->method('getValue')
             ->withConsecutive(
-                ['payment/tig_buckaroo_giftcards/active', ScopeInterface::SCOPE_STORE],
-                ['payment/tig_buckaroo_giftcards/allowed_currencies', ScopeInterface::SCOPE_STORE, null]
+                ['payment/buckaroo_magento2_giftcards/active', ScopeInterface::SCOPE_STORE],
+                ['payment/buckaroo_magento2_giftcards/allowed_currencies', ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls(true, '');
 
@@ -63,7 +63,7 @@ class GiftcardsTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with('payment/tig_buckaroo_giftcards/active', ScopeInterface::SCOPE_STORE)
+            ->with('payment/buckaroo_magento2_giftcards/active', ScopeInterface::SCOPE_STORE)
             ->willReturn(false);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

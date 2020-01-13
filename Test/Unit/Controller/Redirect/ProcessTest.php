@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Controller\Redirect;
+namespace Buckaroo\Magento2\Test\Unit\Controller\Redirect;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Response\RedirectInterface;
@@ -26,11 +26,11 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Model\ConfigProvider\Factory;
-use TIG\Buckaroo\Model\OrderStatusFactory;
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Helper\Data;
-use TIG\Buckaroo\Controller\Redirect\Process;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Controller\Redirect\Process;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
 use Magento\Checkout\Model\Cart;
@@ -326,12 +326,12 @@ class ProcessTest extends BaseTest
         return [
             'by invoicenumber' => [
                 'brq_invoicenumber',
-                'TIG-001',
+                'Buckaroo-001',
                 false
             ],
             'by ordernumber' => [
                 'brq_ordernumber',
-                'TIG-002',
+                'Buckaroo-002',
                 false
             ],
             'by transaction' => [
@@ -384,7 +384,7 @@ class ProcessTest extends BaseTest
             $transactionResult = false;
 
             $exceptionMessage = 'There was no order found by transaction Id';
-            $this->setExpectedException(\TIG\Buckaroo\Exception::class, $exceptionMessage);
+            $this->setExpectedException(\Buckaroo\Magento2\Exception::class, $exceptionMessage);
         }
 
         $transactionMock = $this->getFakeMock(TransactionInterface::class)

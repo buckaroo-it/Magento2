@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Config\Source\PaymentMethods;
+namespace Buckaroo\Magento2\Model\Config\Source\PaymentMethods;
 
 class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
 {

@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Controller\Adminhtml\Giftcard;
+namespace Buckaroo\Magento2\Test\Unit\Controller\Adminhtml\Giftcard;
 
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
-use TIG\Buckaroo\Controller\Adminhtml\Giftcard\Index;
-use TIG\Buckaroo\Model\GiftcardFactory;
+use Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index;
+use Buckaroo\Magento2\Model\GiftcardFactory;
 
-class IndexTest extends \TIG\Buckaroo\Test\BaseTest
+class IndexTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Index::class;
 

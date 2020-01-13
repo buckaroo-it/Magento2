@@ -18,12 +18,12 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Observer;
+namespace Buckaroo\Magento2\Observer;
 
 class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterface
 {
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Account
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
      */
     protected $accountConfig;
 
@@ -33,11 +33,11 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
     protected $orderSender;
 
     /**
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Account          $accountConfig
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account          $accountConfig
      * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
      */
     public function __construct(
-        \TIG\Buckaroo\Model\ConfigProvider\Account $accountConfig,
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
     ) {
         $this->accountConfig    = $accountConfig;
@@ -59,7 +59,7 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
          */
         $payment = $observer->getPayment();
 
-        if (strpos($payment->getMethod(), 'tig_buckaroo') === false) {
+        if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
             return;
         }
 

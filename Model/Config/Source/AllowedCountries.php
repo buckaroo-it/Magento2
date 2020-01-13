@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Config\Source;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 use Magento\Framework\Locale\Bundle\RegionBundle;
 use Magento\Framework\Locale\ListsInterface;
 use Magento\Framework\Locale\ResolverInterface;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderFactory;
 
 class AllowedCountries implements OptionSourceInterface
 {
@@ -63,7 +63,7 @@ class AllowedCountries implements OptionSourceInterface
      * @param null $method
      *
      * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function toOptionArray($method = null)
     {
@@ -98,7 +98,7 @@ class AllowedCountries implements OptionSourceInterface
      * @param null $params
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function __call($method, $params = null)
     {

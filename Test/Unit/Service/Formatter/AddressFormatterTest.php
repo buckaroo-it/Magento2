@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Service\Formatter;
+namespace Buckaroo\Magento2\Test\Unit\Service\Formatter;
 
-use TIG\Buckaroo\Service\Formatter\AddressFormatter;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class AddressFormatterTest extends BaseTest
 {
@@ -28,8 +28,8 @@ class AddressFormatterTest extends BaseTest
 
     public function testFormat()
     {
-        $streetFormatter = $this->getObject(\TIG\Buckaroo\Service\Formatter\Address\StreetFormatter::class);
-        $phoneFormatter = $this->getObject(\TIG\Buckaroo\Service\Formatter\Address\PhoneFormatter::class);
+        $streetFormatter = $this->getObject(\Buckaroo\Magento2\Service\Formatter\Address\StreetFormatter::class);
+        $phoneFormatter = $this->getObject(\Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter::class);
 
         $addressMock = $this->getFakeMock(\Magento\Sales\Api\Data\OrderAddressInterface::class)->getMock();
         $addressMock->method('getCountryId')->willReturn('NL');

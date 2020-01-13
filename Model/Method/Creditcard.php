@@ -18,14 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 class Creditcard extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_creditcard';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_creditcard';
 
     /**
      * @var string
@@ -93,7 +93,7 @@ class Creditcard extends AbstractMethod
     /**
      * @var string
      */
-    protected $_infoBlockType = 'TIG\Buckaroo\Block\Info\Creditcard';
+    protected $_infoBlockType = 'Buckaroo\Magento2\Block\Info\Creditcard';
     // @codingStandardsIgnoreEnd
 
     /**
@@ -149,7 +149,7 @@ class Creditcard extends AbstractMethod
          * If there are no credit cards chosen, we can't be available
          */
         /**
-         * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard $ccConfig
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $ccConfig
          */
         $ccConfig = $this->configProviderMethodFactory->get('creditcard');
         if (null === $ccConfig->getAllowedCreditcards()) {

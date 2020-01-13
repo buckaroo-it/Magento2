@@ -17,16 +17,16 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Backend;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\DriverPool;
 use Magento\Framework\Filesystem\File\ReadFactory;
-use TIG\Buckaroo\Model\Certificate as CertificateModel;
-use TIG\Buckaroo\Model\CertificateFactory;
-use TIG\Buckaroo\Model\Config\Backend\Certificate;
+use Buckaroo\Magento2\Model\Certificate as CertificateModel;
+use Buckaroo\Magento2\Model\CertificateFactory;
+use Buckaroo\Magento2\Model\Config\Backend\Certificate;
 
-class CertificateTest extends \TIG\Buckaroo\Test\BaseTest
+class CertificateTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Certificate::class;
 

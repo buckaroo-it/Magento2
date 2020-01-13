@@ -19,18 +19,18 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Validator;
+namespace Buckaroo\Magento2\Model\Validator;
 
-use TIG\Buckaroo\Helper\Data;
-use TIG\Buckaroo\Logging\Log;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use \TIG\Buckaroo\Model\ValidatorInterface;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use \Buckaroo\Magento2\Model\ValidatorInterface;
 use \Magento\Framework\Encryption\Encryptor;
 
 /**
  * Class Push
  *
- * @package TIG\Buckaroo\Model\Validator
+ * @package Buckaroo\Magento2\Model\Validator
  */
 class Push implements ValidatorInterface
 {
@@ -108,7 +108,7 @@ class Push implements ValidatorInterface
         } else {
             return [
                 'message' => 'Onbekende responsecode: ' . $code,
-                'status'  => 'TIG_BUCKAROO_STATUSCODE_NEUTRAL',
+                'status'  => 'BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL',
                 'code'    => $code,
             ];
         }

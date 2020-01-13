@@ -23,16 +23,16 @@
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
-            <item name="provider" xsi:type="string">tig_release_notification.release_notification_data_source</item>
+            <item name="provider" xsi:type="string">buckaroo_release_notification.release_notification_data_source</item>
         </item>
         <item name="label" xsi:type="string" translate="true">Installation Notification</item>
         <item name="template" xsi:type="string">templates/form/collapsible</item>
     </argument>
     <settings>
-        <namespace>tig_release_notification</namespace>
+        <namespace>buckaroo_release_notification</namespace>
         <dataScope>data</dataScope>
         <deps>
-            <dep>tig_release_notification.release_notification_data_source</dep>
+            <dep>buckaroo_release_notification.release_notification_data_source</dep>
         </deps>
     </settings>
     <dataSource name="release_notification_data_source">
@@ -50,10 +50,10 @@
                 <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
             </item>
         </argument>
-        <dataProvider class="TIG\Buckaroo\Ui\DataProvider\NotificationDataProvider" name="release_notification_data_source">
+        <dataProvider class="Buckaroo\Magento2\Ui\DataProvider\NotificationDataProvider" name="release_notification_data_source">
             <settings>
-                <requestFieldName>tig_release_notification</requestFieldName>
-                <primaryFieldName>tig_release_notification</primaryFieldName>
+                <requestFieldName>buckaroo_release_notification</requestFieldName>
+                <primaryFieldName>buckaroo_release_notification</primaryFieldName>
             </settings>
         </dataProvider>
     </dataSource>

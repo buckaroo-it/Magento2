@@ -18,21 +18,21 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order as TransactionOrder;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Transfer;
-use TIG\Buckaroo\Service\CreditManagement\ServiceParameters;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as TransactionOrder;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
+use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
-class TransferTest extends \TIG\Buckaroo\Test\BaseTest
+class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
 {
-    protected $instanceClass = \TIG\Buckaroo\Model\Method\Transfer::class;
+    protected $instanceClass = \Buckaroo\Magento2\Model\Method\Transfer::class;
 
     /**
      * Test the getOrderTransactionBuilder method.
@@ -216,7 +216,7 @@ class TransferTest extends \TIG\Buckaroo\Test\BaseTest
         $instance = $this->getInstance();
         $result = $this->invokeArgs('afterOrder', [$infoInstanceMock, $respone], $instance);
 
-        $this->assertInstanceOf(\TIG\Buckaroo\Model\Method\Transfer::class, $result);
+        $this->assertInstanceOf(\Buckaroo\Magento2\Model\Method\Transfer::class, $result);
         $this->assertEquals($expected, $infoInstanceMock->getAdditionalInformation('buckaroo_cm3_invoice_key'));
     }
 
@@ -233,7 +233,7 @@ class TransferTest extends \TIG\Buckaroo\Test\BaseTest
             'object, no invoiceKey' => [
                 (Object)[
                     'Name' => 'Debtor',
-                    '_' => 'TIG'
+                    '_' => 'Buckaroo'
                 ],
                 ''
             ],
@@ -250,7 +250,7 @@ class TransferTest extends \TIG\Buckaroo\Test\BaseTest
                 [
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'TIG'
+                        '_' => 'Buckaroo'
                     ]
                 ],
                 ''
@@ -267,7 +267,7 @@ class TransferTest extends \TIG\Buckaroo\Test\BaseTest
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'TIG'
+                        '_' => 'Buckaroo'
                     ],
                 ],
                 'order789'
@@ -280,7 +280,7 @@ class TransferTest extends \TIG\Buckaroo\Test\BaseTest
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'TIG'
+                        '_' => 'Buckaroo'
                     ],
                 ],
                 ''

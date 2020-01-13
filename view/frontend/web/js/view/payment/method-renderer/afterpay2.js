@@ -23,7 +23,7 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'TIG_Buckaroo/js/action/place-order',
+        'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
         'ko',
         'Magento_Checkout/js/checkout-data',
@@ -94,7 +94,7 @@ define(
         return Component.extend(
             {
                 defaults                : {
-                    template : 'TIG_Buckaroo/payment/tig_buckaroo_afterpay2',
+                    template : 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay2',
                     businessMethod: null,
                     paymentMethod: null,
                     telephoneNumber: null,
@@ -386,7 +386,7 @@ define(
                  *          on our parent class (Magento_Checkout/js/view/payment/default) so we can
                  *
                  *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
-                 *          version (TIG_Buckaroo/js/action/place-order) to prevent redirect and handle the response.
+                 *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
                  */
                 placeOrder: function (data, event) {
                     var self = this,

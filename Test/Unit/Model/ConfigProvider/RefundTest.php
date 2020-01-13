@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\ConfigProvider;
+namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Model\ConfigProvider\Refund;
+use Buckaroo\Magento2\Model\ConfigProvider\Refund;
 
-class RefundTest extends \TIG\Buckaroo\Test\BaseTest
+class RefundTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Refund::class;
 

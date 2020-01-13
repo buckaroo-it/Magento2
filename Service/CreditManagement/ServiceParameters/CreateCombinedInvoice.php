@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Service\CreditManagement\ServiceParameters;
+namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
-use TIG\Buckaroo\Model\ConfigProvider\Method\AbstractConfigProvider;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class CreateCombinedInvoice
 {

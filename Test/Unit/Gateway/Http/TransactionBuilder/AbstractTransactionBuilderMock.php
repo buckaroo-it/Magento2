@@ -18,14 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Test\Unit\Gateway\Http\TransactionBuilder;
+namespace Buckaroo\Magento2\Test\Unit\Gateway\Http\TransactionBuilder;
 
 /**
  * Class AbstractTransactionBuilder. Temporary for testing only.
  *
- * @package TIG\Buckaroo\Test\Unit\Gateway\Http\TransactionBuilder
+ * @package Buckaroo\Magento2\Test\Unit\Gateway\Http\TransactionBuilder
  */
-class AbstractTransactionBuilderMock extends \TIG\Buckaroo\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder
+class AbstractTransactionBuilderMock extends \Buckaroo\Magento2\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder
 {
     /**
      * @return array

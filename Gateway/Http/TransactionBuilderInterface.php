@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Gateway\Http;
+namespace Buckaroo\Magento2\Gateway\Http;
 
 interface TransactionBuilderInterface
 {
@@ -155,7 +155,7 @@ interface TransactionBuilderInterface
     public function getReturnUrl();
 
     /**
-     * @return \TIG\Buckaroo\Gateway\Http\Transaction
+     * @return \Buckaroo\Magento2\Gateway\Http\Transaction
      */
     public function build();
 }

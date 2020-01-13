@@ -5,14 +5,14 @@
 /*global define*/
 define(
     [
-        'TIG_Buckaroo/js/view/summary/totals'
+        'Buckaroo_Magento2/js/view/summary/totals'
     ],
     function (Component) {
         "use strict";
         return Component.extend(
             {
                 defaults: {
-                    template: 'TIG_Buckaroo/cart/totals/buckaroo_fee'
+                    template: 'Buckaroo_Magento2/cart/totals/buckaroo_fee'
                 },
                 /**
              * @override

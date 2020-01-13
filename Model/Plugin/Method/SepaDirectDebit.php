@@ -18,18 +18,18 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Plugin\Method;
+namespace Buckaroo\Magento2\Model\Plugin\Method;
 
 class SepaDirectDebit
 {
     /**
-     * @param \TIG\Buckaroo\Model\Method\SepaDirectDebit $payment
+     * @param \Buckaroo\Magento2\Model\Method\SepaDirectDebit $payment
      * @param array|\StdCLass                            $response
      *
      * @return $this
      */
     public function afterOrderTransaction(
-        \TIG\Buckaroo\Model\Method\SepaDirectDebit $payment,
+        \Buckaroo\Magento2\Model\Method\SepaDirectDebit $payment,
         $response
     ) {
         if (!empty($response[0]->ConsumerMessage) && $response[0]->ConsumerMessage->MustRead == 1) {

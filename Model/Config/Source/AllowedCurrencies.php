@@ -17,17 +17,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Config\Source;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
 class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
 {
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies
      */
     protected $allowedCurrenciesConfig;
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Factory
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
      */
     protected $configProviderMethodFactory;
 
@@ -47,15 +47,15 @@ class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
     protected $currencyBundle;
 
     /**
-     * @param \TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies $allowedCurrenciesConfig
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory    $configProviderMethodFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies $allowedCurrenciesConfig
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory    $configProviderMethodFactory
      * @param \Magento\Framework\Locale\Bundle\CurrencyBundle      $currencyBundle
      * @param \Magento\Framework\Locale\ResolverInterface          $localeResolver
      * @param \Magento\Framework\Locale\TranslatedLists            $listModels
      */
     public function __construct(
-        \TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies $allowedCurrenciesConfig,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
+        \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies $allowedCurrenciesConfig,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
         \Magento\Framework\Locale\Bundle\CurrencyBundle $currencyBundle,
         \Magento\Framework\Locale\ResolverInterface $localeResolver,
         \Magento\Framework\Locale\TranslatedLists $listModels
@@ -73,14 +73,14 @@ class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
      * @param null $method
      *
      * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function toOptionArray($method = null)
     {
         $currencies = $this->allowedCurrenciesConfig->getAllowedCurrencies();
         if ($method) {
             /**
-             * @var \TIG\Buckaroo\Model\ConfigProvider\Method\ConfigProviderInterface $methodConfig
+             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $methodConfig
              */
             $methodConfig = $this->configProviderMethodFactory->get($method);
             $currencies = $methodConfig->getBaseAllowedCurrencies();

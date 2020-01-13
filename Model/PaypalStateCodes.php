@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 class PaypalStateCodes
 {

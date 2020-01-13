@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Helper\PaymentFee;
-use TIG\Buckaroo\Model\Method\Afterpay20 as Afterpay20Method;
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Afterpay20;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\Method\Afterpay20 as Afterpay20Method;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 
 class Afterpay20Test extends BaseTest

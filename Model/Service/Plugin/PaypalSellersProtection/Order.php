@@ -18,10 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Service\Plugin\PaypalSellersProtection;
+namespace Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection;
 
-use TIG\Buckaroo\Model\ConfigProvider\Method\Paypal;
-use TIG\Buckaroo\Model\PaypalStateCodes;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
+use Buckaroo\Magento2\Model\PaypalStateCodes;
 
 class Order
 {
@@ -48,14 +48,14 @@ class Order
     }
 
     /**
-     * @param \TIG\Buckaroo\Model\Method\Paypal                      $paymentMethod
-     * @param \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface $result
+     * @param \Buckaroo\Magento2\Model\Method\Paypal                      $paymentMethod
+     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface $result
      *
-     * @return \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface
      */
     public function afterGetOrderTransactionBuilder(
-        \TIG\Buckaroo\Model\Method\Paypal $paymentMethod,
-        \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface $result
+        \Buckaroo\Magento2\Model\Method\Paypal $paymentMethod,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface $result
     ) {
         $sellersProtectionActive = (bool) $this->configProviderPaypal->getSellersProtection();
 

@@ -17,29 +17,29 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use TIG\Buckaroo\Helper\PaymentFee;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Applepay extends AbstractConfigProvider
 {
-    const XPATH_APPLEPAY_ACTIVE                = 'payment/tig_buckaroo_applepay/active';
-    const XPATH_APPLEPAY_ACTIVE_STATUS         = 'payment/tig_buckaroo_applepay/active_status';
-    const XPATH_APPLEPAY_ORDER_STATUS_SUCCESS  = 'payment/tig_buckaroo_applepay/order_status_success';
-    const XPATH_APPLEPAY_ORDER_STATUS_FAILED   = 'payment/tig_buckaroo_applepay/order_status_failed';
-    const XPATH_APPLEPAY_ORDER_EMAIL           = 'payment/tig_buckaroo_applepay/order_email';
-    const XPATH_APPLEPAY_AVAILABLE_IN_BACKEND  = 'payment/tig_buckaroo_applepay/available_in_backend';
+    const XPATH_APPLEPAY_ACTIVE                = 'payment/buckaroo_magento2_applepay/active';
+    const XPATH_APPLEPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_applepay/active_status';
+    const XPATH_APPLEPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_applepay/order_status_success';
+    const XPATH_APPLEPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_applepay/order_status_failed';
+    const XPATH_APPLEPAY_ORDER_EMAIL           = 'payment/buckaroo_magento2_applepay/order_email';
+    const XPATH_APPLEPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_applepay/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_applepay/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC     = 'payment/tig_buckaroo_applepay/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY   = 'payment/tig_buckaroo_applepay/specificcountry';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_applepay/allowed_currencies';
+    const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_applepay/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_applepay/specificcountry';
 
     /**
      * @var array

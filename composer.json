@@ -22,14 +22,14 @@
         "docs": "https://support.buckaroo.nl"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v1.15.2",
+    "version" : "v1.16.0",
     "minimum-stability": "stable",
     "autoload": {
         "files": [
             "registration.php"
         ],
         "psr-4": {
-            "TIG\\Buckaroo\\": ""
+            "Buckaroo\\Magento2\\": ""
         }
     },
     "require-dev": {

@@ -17,18 +17,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\DataObject;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\PayPerEmail as PayPerEmailConfig;
-use TIG\Buckaroo\Model\Method\PayPerEmail;
-use TIG\Buckaroo\Service\CreditManagement\ServiceParameters;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail as PayPerEmailConfig;
+use Buckaroo\Magento2\Model\Method\PayPerEmail;
+use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class PayPerEmailTest extends BaseTest
 {
@@ -54,7 +54,7 @@ class PayPerEmailTest extends BaseTest
                 [
                     'additional_data' => [
                         'customer_gender' => 'female',
-                        'customer_billingFirstName' => 'TIG',
+                        'customer_billingFirstName' => 'Buckaroo',
                         'customer_billingLastName' => 'TEST',
                         'customer_email' => '07/10/1990',
                     ]
@@ -253,7 +253,7 @@ class PayPerEmailTest extends BaseTest
             'object, no invoiceKey' => [
                 (Object)[
                     'Name' => 'Debtor',
-                    '_' => 'TIG'
+                    '_' => 'Buckaroo'
                 ],
                 ''
             ],
@@ -270,7 +270,7 @@ class PayPerEmailTest extends BaseTest
                 [
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'TIG'
+                        '_' => 'Buckaroo'
                     ]
                 ],
                 ''
@@ -287,7 +287,7 @@ class PayPerEmailTest extends BaseTest
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'TIG'
+                        '_' => 'Buckaroo'
                     ],
                 ],
                 'order789'
@@ -300,7 +300,7 @@ class PayPerEmailTest extends BaseTest
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'TIG'
+                        '_' => 'Buckaroo'
                     ],
                 ],
                 ''

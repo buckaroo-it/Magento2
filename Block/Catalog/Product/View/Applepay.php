@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Block\Catalog\Product\View;
+namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
 
 class Applepay extends Template
 {

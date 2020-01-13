@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Block\Checkout\Payconiq;
+namespace Buckaroo\Magento2\Block\Checkout\Payconiq;
 
 class Pay extends \Magento\Framework\View\Element\Template
 {

@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 
 /**
@@ -27,28 +27,28 @@ namespace TIG\Buckaroo\Model\ConfigProvider\Method;
  */
 class Klarna extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/tig_buckaroo_klarna/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC                = 'payment/tig_buckaroo_klarna/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY              = 'payment/tig_buckaroo_klarna/specificcountry';
-    const XPATH_KLARNA_ACTIVE                 = 'payment/tig_buckaroo_klarna/active';
-    const XPATH_KLARNA_PAYMENT_FEE            = 'payment/tig_buckaroo_klarna/payment_fee';
-    const XPATH_KLARNA_PAYMENT_FEE_LABEL      = 'payment/tig_buckaroo_klarna/payment_fee_label';
-    const XPATH_KLARNA_SEND_EMAIL             = 'payment/tig_buckaroo_klarna/send_email';
-    const XPATH_KLARNA_ACTIVE_STATUS          = 'payment/tig_buckaroo_klarna/active_status';
-    const XPATH_KLARNA_ORDER_STATUS_SUCCESS   = 'payment/tig_buckaroo_klarna/order_status_success';
-    const XPATH_KLARNA_ORDER_STATUS_FAILED    = 'payment/tig_buckaroo_klarna/order_status_failed';
-    const XPATH_KLARNA_AVAILABLE_IN_BACKEND   = 'payment/tig_buckaroo_klarna/available_in_backend';
-    const XPATH_KLARNA_DUE_DATE               = 'payment/tig_buckaroo_klarna/due_date';
-    const XPATH_KLARNA_ALLOWED_CURRENCIES     = 'payment/tig_buckaroo_klarna/allowed_currencies';
-    const XPATH_KLARNA_BUSINESS               = 'payment/tig_buckaroo_klarna/business';
-    const XPATH_KLARNA_PAYMENT_METHODS        = 'payment/tig_buckaroo_klarna/payment_method';
-    const XPATH_KLARNA_HIGH_TAX               = 'payment/tig_buckaroo_klarna/high_tax';
-    const XPATH_KLARNA_MIDDLE_TAX             = 'payment/tig_buckaroo_klarna/middle_tax';
-    const XPATH_KLARNA_LOW_TAX                = 'payment/tig_buckaroo_klarna/low_tax';
-    const XPATH_KLARNA_ZERO_TAX               = 'payment/tig_buckaroo_klarna/zero_tax';
-    const XPATH_KLARNA_NO_TAX                 = 'payment/tig_buckaroo_klarna/no_tax';
-    const XPATH_KLARNA_GET_INVOICE            = 'payment/tig_buckaroo_klarna/send_invoice';
-    const XPATH_KLARNA_CREATE_INVOICE_BY_SHIP = 'payment/tig_buckaroo_klarna/create_invoice_after_shipment';
+    const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarna/allowed_currencies';
+    const XPATH_ALLOW_SPECIFIC                = 'payment/buckaroo_magento2_klarna/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY              = 'payment/buckaroo_magento2_klarna/specificcountry';
+    const XPATH_KLARNA_ACTIVE                 = 'payment/buckaroo_magento2_klarna/active';
+    const XPATH_KLARNA_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarna/payment_fee';
+    const XPATH_KLARNA_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarna/payment_fee_label';
+    const XPATH_KLARNA_SEND_EMAIL             = 'payment/buckaroo_magento2_klarna/send_email';
+    const XPATH_KLARNA_ACTIVE_STATUS          = 'payment/buckaroo_magento2_klarna/active_status';
+    const XPATH_KLARNA_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_klarna/order_status_success';
+    const XPATH_KLARNA_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_klarna/order_status_failed';
+    const XPATH_KLARNA_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_klarna/available_in_backend';
+    const XPATH_KLARNA_DUE_DATE               = 'payment/buckaroo_magento2_klarna/due_date';
+    const XPATH_KLARNA_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_klarna/allowed_currencies';
+    const XPATH_KLARNA_BUSINESS               = 'payment/buckaroo_magento2_klarna/business';
+    const XPATH_KLARNA_PAYMENT_METHODS        = 'payment/buckaroo_magento2_klarna/payment_method';
+    const XPATH_KLARNA_HIGH_TAX               = 'payment/buckaroo_magento2_klarna/high_tax';
+    const XPATH_KLARNA_MIDDLE_TAX             = 'payment/buckaroo_magento2_klarna/middle_tax';
+    const XPATH_KLARNA_LOW_TAX                = 'payment/buckaroo_magento2_klarna/low_tax';
+    const XPATH_KLARNA_ZERO_TAX               = 'payment/buckaroo_magento2_klarna/zero_tax';
+    const XPATH_KLARNA_NO_TAX                 = 'payment/buckaroo_magento2_klarna/no_tax';
+    const XPATH_KLARNA_GET_INVOICE            = 'payment/buckaroo_magento2_klarna/send_invoice';
+    const XPATH_KLARNA_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarna/create_invoice_after_shipment';
 
     public function getConfig()
     {
@@ -59,7 +59,7 @@ class Klarna extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Klarna::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Klarna::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

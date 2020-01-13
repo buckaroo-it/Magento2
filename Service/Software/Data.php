@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Service\Software;
+namespace Buckaroo\Magento2\Service\Software;
 
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Module\ModuleListInterface;
@@ -25,13 +25,13 @@ use Magento\Framework\Module\ModuleListInterface;
 class Data
 {
     /** Module supplier */
-    const MODULE_SUPPLIER = 'TIG';
+    const MODULE_SUPPLIER = 'Buckaroo';
 
     /** Module code */
-    const MODULE_CODE = 'TIG_Buckaroo';
+    const MODULE_CODE = 'Buckaroo_Magento2';
 
     /** Version of Module */
-    const BUCKAROO_VERSION = '1.15.2';
+    const BUCKAROO_VERSION = '1.16.0';
 
     /** @var ProductMetadataInterface */
     private $productMetadata;

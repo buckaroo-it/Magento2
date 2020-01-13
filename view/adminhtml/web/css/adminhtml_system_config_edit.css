@@ -1,4 +1,4 @@
-/* ==================== Buckaroo / TIG -  Navigation Logo - Top Menu ==================== */
+/* ==================== Buckaroo / Buckaroo -  Navigation Logo - Top Menu ==================== */
 .buckaroo-config-page .page-main-actions .page-actions .page-actions-inner:after {
     background-image: url(../images/buckaroo_config_logo_black.png) !important;
     background-repeat: no-repeat;
@@ -17,7 +17,7 @@
     */
 }
 
-/* ==================== Buckaroo / TIG -  Navigation Logo - Left Menu ==================== */
+/* ==================== Buckaroo / Buckaroo -  Navigation Logo - Left Menu ==================== */
 
 .buckaroo-section .admin__page-nav-link:before {
     float:left;
@@ -36,31 +36,7 @@
     padding: 2rem 1rem 2rem 1rem;
 }
 
-.buckaroo-section .admin__page-nav-link:after {
-    float:right;
-    width: 30px;
-    height: 30px;
-    margin-top:-7px;
-    margin-right: 3px;
-
-    background-image: url(../images/logo_tig.png) !important;
-    background-size: 30px !important;
-    background-repeat:no-repeat;
-    content: ' ';
-}
-
 /* ======================= Identity ======================= */
-
-.buckaroo-config-page .admin__scope-old:before {
-    background-image: url(../images/logo_tig.png) !important;
-    background-repeat: no-repeat;
-    content: ' ';
-
-    width: 50px;
-    float:right;
-    height: 50px;
-    background-size: auto 50px;
-}
 
 .buckaroo-config-page #container:before  {
     background-image: url(../images/buckaroo_config_logo_black.png) !important;
@@ -151,7 +127,7 @@
     margin-bottom: 10px;
 }
 
-#tig_buckaroo_tig_buckaroo_account_section_tig_buckaroo_advanced .comment {
+#buckaroo_magento2_buckaroo_magento2_account_section_buckaroo_magento2_advanced .comment {
     color: red;
 }
 
@@ -159,10 +135,10 @@
 
 /* activate Beta */
 /*
-#tig_buckaroo_tig_buckaroo_support_section-head:after,
-#tig_buckaroo_tig_buckaroo_account_section-head:after,
-#tig_buckaroo_tig_buckaroo_payment_section-head:after,
-#tig_buckaroo_tig_buckaroo_refund_section-head:after {
+#buckaroo_magento2_buckaroo_magento2_support_section-head:after,
+#buckaroo_magento2_buckaroo_magento2_account_section-head:after,
+#buckaroo_magento2_buckaroo_magento2_payment_section-head:after,
+#buckaroo_magento2_buckaroo_magento2_refund_section-head:after {
     color:#db1200;
     content: 'Beta';
     text-transform: uppercase;
@@ -242,28 +218,28 @@
 
 /* ==================================== SupportTab - Support ==================================== */
 
-.buckaroo_logo, .tig_logo {
+.buckaroo_logo, .buckaroo_logo {
     padding:10px 10px 10px 0;
 }
 .buckaroo_logo img { width: 180px; }
-.tig_logo img { width: 50px; }
+.buckaroo_logo img { width: 50px; }
 
-.support-buck-tig ul {
+.support-buck-magento2 ul {
     float:left;
     width:100%;
     clear:both;
 }
 
-.support-buck-tig li.first {
+.support-buck-magento2 li.first {
     font-weight :600;
     width: 300px;
 }
-.support-buck-tig li.last {
+.support-buck-magento2 li.last {
     width: 200px;
 }
 
-.support-buck-tig li.first,
-.support-buck-tig li.last {
+.support-buck-magento2 li.first,
+.support-buck-magento2 li.last {
     line-height: normal;
     float:left;
 }
@@ -277,13 +253,13 @@
 
 /* ==================================== SupportTab - Error message ==================================== */
 
-.tig-buckaroo-supporttab .message-system-inner {
+.buckaroo-magento2-supporttab .message-system-inner {
     border-top: 1px solid #d1d1d1;
     margin-bottom: 25px;
     margin-left: -40px;
 }
 
-.tig-buckaroo-supporttab .message-system-inner .italic {
+.buckaroo-magento2-supporttab .message-system-inner .italic {
     font-style: italic;
 }
 
@@ -296,11 +272,11 @@
     /*clear: both;*/
 /*}*/
 
-.section-config.with-button.tig_buckaroo-section .config-heading strong { font-weight: normal; }
-.tig_buckaroo-section .button-container { float:right; }
-.tig_buckaroo-section .buckaroo-payment-byline { display: inline-block; vertical-align: middle; width: 50%; }
+.section-config.with-button.buckaroo_magento2-section .config-heading strong { font-weight: normal; }
+.buckaroo_magento2-section .button-container { float:right; }
+.buckaroo_magento2-section .buckaroo-payment-byline { display: inline-block; vertical-align: middle; width: 50%; }
 
-.tig_buckaroo-section .buckaroo-payment-logo {
+.buckaroo_magento2-section .buckaroo-payment-logo {
     display:inline-block;
     vertical-align: middle;
     margin: 0 20px 0 0;
@@ -312,11 +288,11 @@
     background-position: 0 14px;
 }
 
-.tig_buckaroo-section.active .block-legend {
+.buckaroo_magento2-section.active .block-legend {
     display :block;
 }
 
-.tig_buckaroo-section fieldset.admin__collapsible-block {
+.buckaroo_magento2-section fieldset.admin__collapsible-block {
     float:left;
     width: 100%;
     clear: both;

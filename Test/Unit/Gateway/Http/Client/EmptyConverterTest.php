@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Gateway\Http\Client;
+namespace Buckaroo\Magento2\Test\Unit\Gateway\Http\Client;
 
-use TIG\Buckaroo\Gateway\Http\Client\EmptyConverter;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\Client\EmptyConverter;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class EmptyConverterTest extends BaseTest
 {

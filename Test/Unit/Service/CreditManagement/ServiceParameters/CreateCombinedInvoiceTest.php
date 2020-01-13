@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Service\CreditManagement\ServiceParameters;
+namespace Buckaroo\Magento2\Test\Unit\Service\CreditManagement\ServiceParameters;
 
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\PayPerEmail;
-use TIG\Buckaroo\Service\CreditManagement\ServiceParameters\CreateCombinedInvoice;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters\CreateCombinedInvoice;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class CreateCombinedInvoiceTest extends BaseTest
 {

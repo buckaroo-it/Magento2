@@ -18,14 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 class PayPerEmail extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_payperemail';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_payperemail';
 
     /**
      * @var string
@@ -91,7 +91,7 @@ class PayPerEmail extends AbstractMethod
     protected $_canRefundInvoicePartial = false;
     // @codingStandardsIgnoreEnd
 
-    /** @var \TIG\Buckaroo\Service\CreditManagement\ServiceParameters */
+    /** @var \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters */
     private $serviceParameters;
 
     public function __construct(
@@ -104,17 +104,17 @@ class PayPerEmail extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \TIG\Buckaroo\Service\CreditManagement\ServiceParameters $serviceParameters,
+        \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \TIG\Buckaroo\Gateway\GatewayInterface $gateway = null,
-        \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \TIG\Buckaroo\Model\ValidatorFactory $validatorFactory = null,
-        \TIG\Buckaroo\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        \Buckaroo\Magento2\Helper\Data $helper = null,
         \Magento\Framework\App\RequestInterface $request = null,
-        \TIG\Buckaroo\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
@@ -220,7 +220,7 @@ class PayPerEmail extends AbstractMethod
     {
         $areaCode = $this->_appState->getAreaCode();
 
-        /** @var \TIG\Buckaroo\Model\ConfigProvider\Method\PayPerEmail $ppeConfig */
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $ppeConfig */
         $ppeConfig = $this->configProviderMethodFactory->get('payperemail');
 
         if (!$ppeConfig->isVisibleForAreaCode($areaCode)) {
@@ -258,7 +258,7 @@ class PayPerEmail extends AbstractMethod
      */
     private function getPayperemailService($payment)
     {
-        /** @var \TIG\Buckaroo\Model\ConfigProvider\Method\PayPerEmail $config */
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $config */
         $config = $this->configProviderMethodFactory->get('payperemail');
 
         $services = [

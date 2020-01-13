@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Config\Source;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Option\ArrayInterface;
-use TIG\Buckaroo\Api\CertificateRepositoryInterface;
+use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
 
 class Certificates implements ArrayInterface
 {
@@ -65,7 +65,7 @@ class Certificates implements ArrayInterface
 
         $options[] = ['value' => '', 'label' => __('No certificate selected')];
 
-        /** @var \TIG\Buckaroo\Model\Certificate $model */
+        /** @var \Buckaroo\Magento2\Model\Certificate $model */
         foreach ($certificateData as $model) {
             $options[] = [
                 'value' => $model->getEntityId(),

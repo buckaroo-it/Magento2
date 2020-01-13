@@ -17,18 +17,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Refund;
+namespace Buckaroo\Magento2\Test\Unit\Model\Refund;
 
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Creditmemo\Item;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Item as OrderItem;
-use TIG\Buckaroo\Exception;
-use TIG\Buckaroo\Model\ConfigProvider\Refund;
-use TIG\Buckaroo\Model\Refund\Push;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\Refund;
+use Buckaroo\Magento2\Model\Refund\Push;
 
-class PushTest extends \TIG\Buckaroo\Test\BaseTest
+class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Push::class;
 

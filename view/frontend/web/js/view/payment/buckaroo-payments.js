@@ -42,108 +42,108 @@ define(
 
         rendererList.push(
             {
-                type: 'tig_buckaroo_ideal',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/ideal'
+                type: 'buckaroo_magento2_ideal',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/ideal'
             },
             {
-                type: 'tig_buckaroo_idealprocessing',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/idealprocessing'
+                type: 'buckaroo_magento2_idealprocessing',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/idealprocessing'
             },
             {
-                type: 'tig_buckaroo_afterpay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/afterpay'
+                type: 'buckaroo_magento2_afterpay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay'
             },
             {
-                type: 'tig_buckaroo_afterpay2',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/afterpay2'
+                type: 'buckaroo_magento2_afterpay2',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay2'
             },
             {
-              type:  'tig_buckaroo_afterpay20',
-              component:  'TIG_Buckaroo/js/view/payment/method-renderer/afterpay20'
+              type:  'buckaroo_magento2_afterpay20',
+              component:  'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay20'
             },
             {
-                type: 'tig_buckaroo_payperemail',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/payperemail'
+                type: 'buckaroo_magento2_payperemail',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/payperemail'
             },
             {
-                type: 'tig_buckaroo_sepadirectdebit',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/sepadirectdebit'
+                type: 'buckaroo_magento2_sepadirectdebit',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/sepadirectdebit'
             },
             {
-                type: 'tig_buckaroo_paypal',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/paypal'
+                type: 'buckaroo_magento2_paypal',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/paypal'
             },
             {
-                type: 'tig_buckaroo_payconiq',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/payconiq'
+                type: 'buckaroo_magento2_payconiq',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/payconiq'
             },
             {
-                type: 'tig_buckaroo_creditcard',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/creditcard'
+                type: 'buckaroo_magento2_creditcard',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditcard'
             },
             {
-                type: 'tig_buckaroo_creditcards',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/creditcards'
+                type: 'buckaroo_magento2_creditcards',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditcards'
             },
             {
-                type: 'tig_buckaroo_transfer',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/transfer'
+                type: 'buckaroo_magento2_transfer',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/transfer'
             },
             {
-                type: 'tig_buckaroo_giropay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/giropay'
+                type: 'buckaroo_magento2_giropay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/giropay'
             },
             {
-                type: 'tig_buckaroo_mrcash',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/mrcash'
+                type: 'buckaroo_magento2_mrcash',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/mrcash'
             },
             {
-                type: 'tig_buckaroo_sofortbanking',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/sofortbanking'
+                type: 'buckaroo_magento2_sofortbanking',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/sofortbanking'
             },
             {
-                type: 'tig_buckaroo_eps',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/eps'
+                type: 'buckaroo_magento2_eps',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/eps'
             },
             {
-                type: 'tig_buckaroo_giftcards',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/giftcards'
+                type: 'buckaroo_magento2_giftcards',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/giftcards'
             },
             {
-                type: 'tig_buckaroo_paymentguarantee',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/paymentguarantee'
+                type: 'buckaroo_magento2_paymentguarantee',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/paymentguarantee'
             },
             {
-                type: 'tig_buckaroo_kbc',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/kbc'
+                type: 'buckaroo_magento2_kbc',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/kbc'
             },
             {
-                type: 'tig_buckaroo_klarna',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/klarna'
+                type: 'buckaroo_magento2_klarna',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarna'
             },
             {
-                type: 'tig_buckaroo_emandate',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/emandate'
+                type: 'buckaroo_magento2_emandate',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/emandate'
             },
             {
-                type: 'tig_buckaroo_applepay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/applepay'
+                type: 'buckaroo_magento2_applepay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/applepay'
             },
             {
-                type: 'tig_buckaroo_capayablein3',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/capayablein3'
+                type: 'buckaroo_magento2_capayablein3',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/capayablein3'
             },
             {
-                type: 'tig_buckaroo_capayablepostpay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/capayablepostpay'
+                type: 'buckaroo_magento2_capayablepostpay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/capayablepostpay'
             },
             {
-                type: 'tig_buckaroo_alipay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/alipay'
+                type: 'buckaroo_magento2_alipay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/alipay'
             },
             {
-                type: 'tig_buckaroo_wechatpay',
-                component: 'TIG_Buckaroo/js/view/payment/method-renderer/wechatpay'
+                type: 'buckaroo_magento2_wechatpay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/wechatpay'
             }
 
         );

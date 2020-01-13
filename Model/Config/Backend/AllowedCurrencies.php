@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Config\Backend;
+namespace Buckaroo\Magento2\Model\Config\Backend;
 
 /**
  * @method mixed getValue()
@@ -25,7 +25,7 @@ namespace TIG\Buckaroo\Model\Config\Backend;
 class AllowedCurrencies extends \Magento\Framework\App\Config\Value
 {
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies
      */
     protected $configProvider;
 
@@ -44,7 +44,7 @@ class AllowedCurrencies extends \Magento\Framework\App\Config\Value
      * @param \Magento\Framework\Registry                                  $registry
      * @param \Magento\Framework\App\Config\ScopeConfigInterface           $config
      * @param \Magento\Framework\App\Cache\TypeListInterface               $cacheTypeList
-     * @param \TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies         $configProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies         $configProvider
      * @param \Magento\Framework\Locale\Bundle\CurrencyBundle              $currencyBundle
      * @param \Magento\Framework\Locale\ResolverInterface                  $localeResolver
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
@@ -56,7 +56,7 @@ class AllowedCurrencies extends \Magento\Framework\App\Config\Value
         \Magento\Framework\Registry $registry,
         \Magento\Framework\App\Config\ScopeConfigInterface $config,
         \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
-        \TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies $configProvider,
+        \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies $configProvider,
         \Magento\Framework\Locale\Bundle\CurrencyBundle $currencyBundle,
         \Magento\Framework\Locale\ResolverInterface $localeResolver,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,

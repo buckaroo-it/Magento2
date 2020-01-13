@@ -18,16 +18,16 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Total\Quote\Tax;
+namespace Buckaroo\Magento2\Model\Total\Quote\Tax;
 
 use Magento\Catalog\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
-use TIG\Buckaroo\Model\ConfigProvider\Account as ConfigProviderAccount;
-use TIG\Buckaroo\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
-class BuckarooFee extends \TIG\Buckaroo\Model\Total\Quote\BuckarooFee
+class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
 {
     const QUOTE_TYPE = 'buckaroo_fee';
     const CODE_QUOTE_GW = 'buckaroo_fee';
@@ -75,12 +75,12 @@ class BuckarooFee extends \TIG\Buckaroo\Model\Total\Quote\BuckarooFee
         }
 
         $paymentMethod = $quote->getPayment()->getMethod();
-        if (!$paymentMethod || strpos($paymentMethod, 'tig_buckaroo_') !== 0) {
+        if (!$paymentMethod || strpos($paymentMethod, 'buckaroo_magento2_') !== 0) {
             return $this;
         }
 
         $methodInstance = $quote->getPayment()->getMethodInstance();
-        if (!$methodInstance instanceof \TIG\Buckaroo\Model\Method\AbstractMethod) {
+        if (!$methodInstance instanceof \Buckaroo\Magento2\Model\Method\AbstractMethod) {
             return $this;
         }
 

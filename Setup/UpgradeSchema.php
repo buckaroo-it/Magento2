@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Setup;
+namespace Buckaroo\Magento2\Setup;
 
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
@@ -33,12 +33,32 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
         $installer = $setup;
         $installer->startSetup();
 
-        if (!$installer->tableExists('tig_buckaroo_giftcard')) {
-            $this->createGiftcardTable($installer);
+        if (!$installer->tableExists('buckaroo_magento2_giftcard')) {
+            if ($installer->tableExists('tig_buckaroo_giftcard')) {
+                $installer->getConnection()->renameTable(
+                    $installer->getTable('tig_buckaroo_giftcard'),
+                    $installer->getTable('buckaroo_magento2_giftcard')
+                );
+                $installer->getConnection()->query(
+                    "ALTER TABLE ".$installer->getTable('buckaroo_magento2_giftcard')." COMMENT = 'Buckaroo Giftcard'"
+                );
+            } else {
+                $this->createGiftcardTable($installer);
+            }
         }
 
-        if (!$installer->tableExists('tig_buckaroo_invoice')) {
-            $this->createInvoiceTable($installer);
+        if (!$installer->tableExists('buckaroo_magento2_invoice')) {
+            if ($installer->tableExists('tig_buckaroo_invoice')) {
+                $installer->getConnection()->renameTable(
+                    $installer->getTable('tig_buckaroo_invoice'),
+                    $installer->getTable('buckaroo_magento2_invoice')
+                );
+                $installer->getConnection()->query(
+                    "ALTER TABLE ".$installer->getTable('buckaroo_magento2_invoice')." COMMENT = 'Buckaroo Invoice'"
+                );
+            } else {
+                $this->createInvoiceTable($installer);
+            }
         }
 
         $installer->endSetup();
@@ -51,7 +71,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
      */
     protected function createGiftcardTable(SchemaSetupInterface $installer)
     {
-        $table = $installer->getConnection()->newTable($installer->getTable('tig_buckaroo_giftcard'));
+        $table = $installer->getConnection()->newTable($installer->getTable('buckaroo_magento2_giftcard'));
 
         $table->addColumn(
             'entity_id',
@@ -86,7 +106,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             'Label'
         );
 
-        $table->setComment('TIG Buckaroo Giftcard');
+        $table->setComment('Buckaroo Giftcard');
 
         $installer->getConnection()->createTable($table);
     }
@@ -98,7 +118,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
      */
     protected function createInvoiceTable(SchemaSetupInterface $installer)
     {
-        $table = $installer->getConnection()->newTable($installer->getTable('tig_buckaroo_invoice'));
+        $table = $installer->getConnection()->newTable($installer->getTable('buckaroo_magento2_invoice'));
 
         $table->addColumn(
             'entity_id',
@@ -133,7 +153,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             'Invoice Number'
         );
 
-        $table->setComment('TIG Buckaroo Invoice');
+        $table->setComment('Buckaroo Invoice');
 
         $installer->getConnection()->createTable($table);
     }

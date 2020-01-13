@@ -18,7 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Gateway\Http;
+namespace Buckaroo\Magento2\Gateway\Http;
 
 class Transaction
 {

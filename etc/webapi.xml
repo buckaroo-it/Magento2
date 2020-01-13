@@ -21,21 +21,21 @@
  -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
     <route url="/V1/buckaroo/push" method="POST">
-        <service class="TIG\Buckaroo\Api\PushInterface" method="receivePush"/>
+        <service class="Buckaroo\Magento2\Api\PushInterface" method="receivePush"/>
         <resources>
             <resource ref="anonymous"/>
         </resources>
     </route>
 
     <route url="/V1/guest-buckaroo/:cartId/payment-information" method="POST">
-        <service class="TIG\Buckaroo\Api\GuestPaymentInformationManagementInterface" method="buckarooSavePaymentInformationAndPlaceOrder"/>
+        <service class="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" method="buckarooSavePaymentInformationAndPlaceOrder"/>
         <resources>
             <resource ref="anonymous" />
         </resources>
     </route>
 
     <route url="/V1/buckaroo/payment-information" method="POST">
-        <service class="TIG\Buckaroo\Api\PaymentInformationManagementInterface" method="buckarooSavePaymentInformationAndPlaceOrder"/>
+        <service class="Buckaroo\Magento2\Api\PaymentInformationManagementInterface" method="buckarooSavePaymentInformationAndPlaceOrder"/>
         <resources>
             <resource ref="self" />
         </resources>

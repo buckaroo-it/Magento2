@@ -23,26 +23,26 @@
     <group id="classes">
         <field id="buckaroo_fee_tax_class" translate="label" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Tax Class for Buckaroo Fee</label>
-            <source_model>TIG\Buckaroo\Model\Config\Source\TaxClass\Product</source_model>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
         </field>
     </group>
     <group id="calculation">
         <field id="buckaroo_fee" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="0" showInStore="0">
             <label>Buckaroo Payment Fee Prices</label>
             <comment>This sets whether buckaroo payment fee amounts entered from Magento Admin include tax.</comment>
-            <source_model>TIG\Buckaroo\Model\Config\Source\TaxClass\Calculation</source_model>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation</source_model>
         </field>
     </group>
     <group id="cart_display">
         <field id="buckaroo_fee" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Display Buckaroo Fee Prices</label>
-            <source_model>TIG\Buckaroo\Model\Config\Source\Display\Type</source_model>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Display\Type</source_model>
         </field>
     </group>
     <group id="sales_display">
         <field id="buckaroo_fee" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Display Buckaroo Fee Prices</label>
-            <source_model>TIG\Buckaroo\Model\Config\Source\Display\Type</source_model>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Display\Type</source_model>
         </field>
     </group>
 </include>

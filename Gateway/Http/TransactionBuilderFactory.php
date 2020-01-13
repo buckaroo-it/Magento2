@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Gateway\Http;
+namespace Buckaroo\Magento2\Gateway\Http;
 
 class TransactionBuilderFactory
 {
@@ -51,7 +51,7 @@ class TransactionBuilderFactory
      * @param string $builderType
      *
      * @return TransactionBuilderInterface
-     * @throws \LogicException|\TIG\Buckaroo\Exception
+     * @throws \LogicException|\Buckaroo\Magento2\Exception
      */
     public function get($builderType)
     {
@@ -67,7 +67,7 @@ class TransactionBuilderFactory
         }
 
         if (!isset($transactionBuilderClass) || empty($transactionBuilderClass)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'Unknown transaction builder type requested: %1.',
                     [$builderType]
@@ -78,7 +78,7 @@ class TransactionBuilderFactory
         $transactionBuilder = $this->objectManager->get($transactionBuilderClass);
         if (!$transactionBuilder instanceof TransactionBuilderInterface) {
             throw new \LogicException(
-                'The transaction builder must implement "TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface".'
+                'The transaction builder must implement "Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface".'
             );
         }
         return $transactionBuilder;

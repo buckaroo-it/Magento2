@@ -21,11 +21,11 @@
  -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="TIG_Buckaroo::css/adminhtml_system_config_edit.css" />
+        <css src="Buckaroo_Magento2::css/adminhtml_system_config_edit.css" />
     </head>
     <body>
         <referenceContainer name="content">
-            <block class="TIG\Buckaroo\Block\Adminhtml\Config\Support\BodyClass" name="buckaroo.support" template="TIG_Buckaroo::support.phtml" before="system.config.edit" />
+            <block class="Buckaroo\Magento2\Block\Adminhtml\Config\Support\BodyClass" name="buckaroo.support" template="Buckaroo_Magento2::support.phtml" before="system.config.edit" />
         </referenceContainer>
     </body>
 </page>

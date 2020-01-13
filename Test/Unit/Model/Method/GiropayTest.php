@@ -18,17 +18,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\Method\Giropay;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\Method\Giropay;
 
-class GiropayTest extends \TIG\Buckaroo\Test\BaseTest
+class GiropayTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Giropay::class;
 

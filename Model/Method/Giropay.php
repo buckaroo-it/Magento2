@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Framework\Validator\Exception;
 use Magento\Sales\Model\Order\Payment;
@@ -28,7 +28,7 @@ class Giropay extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_giropay';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_giropay';
 
     /**
      * @var string

@@ -22,12 +22,12 @@
 
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="TIG_Buckaroo::css/adminhtml_dashboard.css" />
+        <css src="Buckaroo_Magento2::css/adminhtml_dashboard.css" />
     </head>
     <body>
         <referenceContainer name="content">
-            <uiComponent name="tig_release_notification">
-                <visibilityCondition name="can_view_tig_notification" className="TIG\Buckaroo\Model\Notification\CanViewNotification"/>
+            <uiComponent name="buckaroo_release_notification">
+                <visibilityCondition name="can_view_buckaroo_notification" className="Buckaroo\Magento2\Model\Notification\CanViewNotification"/>
             </uiComponent>
         </referenceContainer>
     </body>

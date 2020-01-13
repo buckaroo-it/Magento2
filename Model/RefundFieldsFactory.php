@@ -1,11 +1,11 @@
 <?php
 
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 /**
  * Class RefundFieldsFactory
  *
- * @package TIG\Bukcaroo\Model
+ * @package Buckaroo\Magento2\Model
  */
 class RefundFieldsFactory
 {
@@ -30,7 +30,7 @@ class RefundFieldsFactory
      *
      * @return array|false
      *
-     * @throws \LogicException|\TIG\Buckaroo\Exception
+     * @throws \LogicException|\Buckaroo\Magento2\Exception
      */
     public function get($paymentMethod)
     {

@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Checkout\Model\Cart;
 use Magento\Framework\App\Config;
@@ -27,11 +27,11 @@ use Magento\Quote\Model\Quote\Payment as QuotePayment;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order as orderTrxBuilder;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\Method\Klarna;
-use TIG\Buckaroo\Service\Software\Data;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as orderTrxBuilder;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\Method\Klarna;
+use Buckaroo\Magento2\Service\Software\Data;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class KlarnaTest extends BaseTest
 {
@@ -153,11 +153,11 @@ class KlarnaTest extends BaseTest
         return [
             'no existing reservation number' => [
                 null,
-                'TIG1234'
+                'Buckaroo1234'
             ],
             'existing reservation number' => [
-                '6543TIG',
-                '6543TIG'
+                '6543Buckaroo',
+                '6543Buckaroo'
             ]
         ];
     }
@@ -174,7 +174,7 @@ class KlarnaTest extends BaseTest
             'Services' => (Object)[
                 'Service' => (Object)[
                     'ResponseParameter' => (Object)[
-                        '_' => 'TIG1234'
+                        '_' => 'Buckaroo1234'
                     ]
                 ]
             ]
@@ -225,12 +225,12 @@ class KlarnaTest extends BaseTest
                     'additional_data' => [
                         'termsCondition'       => true,
                         'customer_gender'      => 'male',
-                        'customer_billingName' => 'TIG',
+                        'customer_billingName' => 'Buckaroo',
                         'customer_iban'        => 'INGBNL2A',
                         'customer_DoB'         => '10/07/1970',
                         'selectedBusiness'     => '2',
                         'COCNumber'            => '123456',
-                        'CompanyName'          => 'TIG',
+                        'CompanyName'          => 'Buckaroo',
                         'customer_telephone'   => '0201122233',
                     ]
                 ],
@@ -238,12 +238,12 @@ class KlarnaTest extends BaseTest
                     'buckaroo_skip_validation' => null,
                     'termsCondition'       => true,
                     'customer_gender'      => 'male',
-                    'customer_billingName' => 'TIG',
+                    'customer_billingName' => 'Buckaroo',
                     'customer_iban'        => 'INGBNL2A',
                     'customer_DoB'         => '10-07-1970',
                     'selectedBusiness'     => '2',
                     'COCNumber'            => '123456',
-                    'CompanyName'          => 'TIG',
+                    'CompanyName'          => 'Buckaroo',
                     'customer_telephone'   => '0201122233',
                 ]
             ],

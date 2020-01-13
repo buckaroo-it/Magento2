@@ -20,6 +20,6 @@
 ?>
 <?php $bpePaymentCode = $block->escapeHtml($block->getMethod()->buckarooPaymentMethodCode); ?>
 
-<div class="payment-method tig_buckaroo_payment_<?php echo $block->escapeHtml($bpePaymentCode) ?>">
+<div class="payment-method buckaroo_magento2_payment_<?php echo $block->escapeHtml($bpePaymentCode) ?>">
     <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
 </div>

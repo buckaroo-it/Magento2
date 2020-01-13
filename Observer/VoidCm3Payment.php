@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Observer;
+namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -35,7 +35,7 @@ class VoidCm3Payment implements ObserverInterface
         /* @var $payment \Magento\Sales\Model\Order\Payment */
         $payment = $observer->getPayment();
 
-        if (strpos($payment->getMethod(), 'tig_buckaroo') === false) {
+        if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
             return;
         }
 

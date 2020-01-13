@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Source\Display;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\Display;
 
-use TIG\Buckaroo\Model\Config\Source\Display\Type;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Config\Source\Display\Type;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class TypeTest extends BaseTest
 {

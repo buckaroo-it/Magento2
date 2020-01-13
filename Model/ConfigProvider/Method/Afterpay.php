@@ -18,10 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use TIG\Buckaroo\Model\Config\Source\AfterpayPaymentMethods;
-use TIG\Buckaroo\Model\Config\Source\Business;
+use Buckaroo\Magento2\Model\Config\Source\AfterpayPaymentMethods;
+use Buckaroo\Magento2\Model\Config\Source\Business;
 
 /**
  * @method getDueDate()
@@ -29,28 +29,28 @@ use TIG\Buckaroo\Model\Config\Source\Business;
  */
 class Afterpay extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES              = 'buckaroo/tig_buckaroo_afterpay/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES              = 'buckaroo/buckaroo_magento2_afterpay/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_afterpay/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_afterpay/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_afterpay/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_afterpay/specificcountry';
 
-    const XPATH_AFTERPAY_ACTIVE                 = 'payment/tig_buckaroo_afterpay/active';
-    const XPATH_AFTERPAY_PAYMENT_FEE            = 'payment/tig_buckaroo_afterpay/payment_fee';
-    const XPATH_AFTERPAY_PAYMENT_FEE_LABEL      = 'payment/tig_buckaroo_afterpay/payment_fee_label';
-    const XPATH_AFTERPAY_SEND_EMAIL             = 'payment/tig_buckaroo_afterpay/send_email';
-    const XPATH_AFTERPAY_ACTIVE_STATUS          = 'payment/tig_buckaroo_afterpay/active_status';
-    const XPATH_AFTERPAY_ORDER_STATUS_SUCCESS   = 'payment/tig_buckaroo_afterpay/order_status_success';
-    const XPATH_AFTERPAY_ORDER_STATUS_FAILED    = 'payment/tig_buckaroo_afterpay/order_status_failed';
-    const XPATH_AFTERPAY_AVAILABLE_IN_BACKEND   = 'payment/tig_buckaroo_afterpay/available_in_backend';
-    const XPATH_AFTERPAY_DUE_DATE               = 'payment/tig_buckaroo_afterpay/due_date';
-    const XPATH_AFTERPAY_ALLOWED_CURRENCIES     = 'payment/tig_buckaroo_afterpay/allowed_currencies';
-    const XPATH_AFTERPAY_BUSINESS               = 'payment/tig_buckaroo_afterpay/business';
-    const XPATH_AFTERPAY_PAYMENT_METHODS        = 'payment/tig_buckaroo_afterpay/payment_method';
-    const XPATH_AFTERPAY_HIGH_TAX               = 'payment/tig_buckaroo_afterpay/high_tax';
-    const XPATH_AFTERPAY_MIDDLE_TAX             = 'payment/tig_buckaroo_afterpay/middle_tax';
-    const XPATH_AFTERPAY_LOW_TAX                = 'payment/tig_buckaroo_afterpay/low_tax';
-    const XPATH_AFTERPAY_ZERO_TAX               = 'payment/tig_buckaroo_afterpay/zero_tax';
-    const XPATH_AFTERPAY_NO_TAX                 = 'payment/tig_buckaroo_afterpay/no_tax';
+    const XPATH_AFTERPAY_ACTIVE                 = 'payment/buckaroo_magento2_afterpay/active';
+    const XPATH_AFTERPAY_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay/payment_fee';
+    const XPATH_AFTERPAY_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_afterpay/payment_fee_label';
+    const XPATH_AFTERPAY_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay/send_email';
+    const XPATH_AFTERPAY_ACTIVE_STATUS          = 'payment/buckaroo_magento2_afterpay/active_status';
+    const XPATH_AFTERPAY_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_afterpay/order_status_success';
+    const XPATH_AFTERPAY_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_afterpay/order_status_failed';
+    const XPATH_AFTERPAY_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_afterpay/available_in_backend';
+    const XPATH_AFTERPAY_DUE_DATE               = 'payment/buckaroo_magento2_afterpay/due_date';
+    const XPATH_AFTERPAY_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay/allowed_currencies';
+    const XPATH_AFTERPAY_BUSINESS               = 'payment/buckaroo_magento2_afterpay/business';
+    const XPATH_AFTERPAY_PAYMENT_METHODS        = 'payment/buckaroo_magento2_afterpay/payment_method';
+    const XPATH_AFTERPAY_HIGH_TAX               = 'payment/buckaroo_magento2_afterpay/high_tax';
+    const XPATH_AFTERPAY_MIDDLE_TAX             = 'payment/buckaroo_magento2_afterpay/middle_tax';
+    const XPATH_AFTERPAY_LOW_TAX                = 'payment/buckaroo_magento2_afterpay/low_tax';
+    const XPATH_AFTERPAY_ZERO_TAX               = 'payment/buckaroo_magento2_afterpay/zero_tax';
+    const XPATH_AFTERPAY_NO_TAX                 = 'payment/buckaroo_magento2_afterpay/no_tax';
 
     /**
      * @return array
@@ -64,7 +64,7 @@ class Afterpay extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Afterpay::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Afterpay::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

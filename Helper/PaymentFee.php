@@ -18,20 +18,20 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Helper;
+namespace Buckaroo\Magento2\Helper;
 
-use \TIG\Buckaroo\Model\Config\Source\Display\Type as DisplayType;
+use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
 
 class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    /** @var \TIG\Buckaroo\Model\ConfigProvider\Account */
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Account */
     protected $configProviderAccount;
 
-    /** @var \TIG\Buckaroo\Model\ConfigProvider\BuckarooFee */
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
     protected $configProviderBuckarooFee;
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Factory
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
      */
     protected $configProviderMethodFactory;
 
@@ -41,15 +41,15 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
 
     /**
      * @param \Magento\Framework\App\Helper\Context             $context
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Account        $configProviderAccount
-     * @param \TIG\Buckaroo\Model\ConfigProvider\BuckarooFee    $configProviderBuckarooFee
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account        $configProviderAccount
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee    $configProviderBuckarooFee
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \TIG\Buckaroo\Model\ConfigProvider\Account $configProviderAccount,
-        \TIG\Buckaroo\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
     ) {
         parent::__construct($context);
 

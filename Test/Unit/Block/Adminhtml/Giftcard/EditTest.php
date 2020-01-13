@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Block\Adminhtml\Giftcard;
+namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Giftcard;
 
 use Magento\Framework\Phrase;
 use Magento\Framework\Registry;
-use TIG\Buckaroo\Block\Adminhtml\Giftcard\Edit;
-use TIG\Buckaroo\Model\Giftcard;
+use Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
+use Buckaroo\Magento2\Model\Giftcard;
 
-class EditTest extends \TIG\Buckaroo\Test\BaseTest
+class EditTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Edit::class;
 

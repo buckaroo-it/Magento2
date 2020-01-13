@@ -17,28 +17,28 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Quote\Total;
+namespace Buckaroo\Magento2\Test\Unit\Model\Quote\Total;
 
 use Magento\Catalog\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\Total;
-use TIG\Buckaroo\Model\Config\Source\TaxClass\Calculation;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Model\Method\AbstractMethod;
-use TIG\Buckaroo\Model\Total\Quote\BuckarooFee;
+use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Total\Quote\BuckarooFee;
 
-class BuckarooFeeTest extends \TIG\Buckaroo\Test\BaseTest
+class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = BuckarooFee::class;
 
     public function testGetBaseFeeReturnsConfigValueIfIsNumber()
     {
         $expectedFee = 1.89;
-        $paymentCode = 'tig_buckaroo_ideal';
+        $paymentCode = 'buckaroo_magento2_ideal';
         $taxIncl = Calculation::DISPLAY_TYPE_INCLUDING_TAX;
 
         $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
@@ -74,7 +74,7 @@ class BuckarooFeeTest extends \TIG\Buckaroo\Test\BaseTest
 
     public function testGetBaseFeeReturnFalseForANonExistingConfigProvider()
     {
-        $paymentCode = 'tig_buckaroo_non_existing';
+        $paymentCode = 'buckaroo_magento2_non_existing';
 
         $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
@@ -92,7 +92,7 @@ class BuckarooFeeTest extends \TIG\Buckaroo\Test\BaseTest
 
     public function testGetBaseFeeReturnFalseForAnInvalidFeeValue()
     {
-        $paymentCode = 'tig_buckaroo_ideal';
+        $paymentCode = 'buckaroo_magento2_ideal';
         $invalidFee = 'invalid';
 
         $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
@@ -167,7 +167,7 @@ class BuckarooFeeTest extends \TIG\Buckaroo\Test\BaseTest
     {
         return [
             [
-                'tig_buckaroo_ideal',
+                'buckaroo_magento2_ideal',
                 '10%',
                 'subtotal',
                 'getBaseSubtotal',
@@ -175,7 +175,7 @@ class BuckarooFeeTest extends \TIG\Buckaroo\Test\BaseTest
                 4.5000
             ],
             [
-                'tig_buckaroo_ideal',
+                'buckaroo_magento2_ideal',
                 '9%',
                 'subtotal_incl_tax',
                 'getBaseSubtotalTotalInclTax',
@@ -342,7 +342,7 @@ class BuckarooFeeTest extends \TIG\Buckaroo\Test\BaseTest
     public function testCollectShouldReturnSelfIfFeeIsZero()
     {
         $expectedFee = 0;
-        $paymentCode = 'tig_buckaroo_ideal';
+        $paymentCode = 'buckaroo_magento2_ideal';
 
         $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
@@ -391,7 +391,7 @@ class BuckarooFeeTest extends \TIG\Buckaroo\Test\BaseTest
 
     public function testCollectShouldReturnSelfIfInvalidMessage()
     {
-        $paymentCode = 'tig_buckaroo_ideal';
+        $paymentCode = 'buckaroo_magento2_ideal';
 
         $quoteMock = $this->getFakeMock(Quote::class)
             ->setMethods(['getPayment', 'getMethod', 'getMethodInstance'])
@@ -417,7 +417,7 @@ class BuckarooFeeTest extends \TIG\Buckaroo\Test\BaseTest
 
     public function testCollectShouldSetTotalsOnQuote()
     {
-        $paymentCode = 'tig_buckaroo_ideal';
+        $paymentCode = 'buckaroo_magento2_ideal';
         $fee = 1.1;
         $grandTotal = 45.0000;
         $baseGrandTotal = 45.0000;

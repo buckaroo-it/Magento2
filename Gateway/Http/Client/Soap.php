@@ -18,15 +18,15 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Gateway\Http\Client;
+namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Magento\Payment\Model\Method\Logger;
-use TIG\Buckaroo\Soap\ClientFactory;
+use Buckaroo\Magento2\Soap\ClientFactory;
 
 /**
  * Class Soap
  *
- * @package TIG\Buckaroo\Gateway\Http\Client
+ * @package Buckaroo\Magento2\Gateway\Http\Client
  */
 class Soap extends \Magento\Payment\Gateway\Http\Client\Soap
 {

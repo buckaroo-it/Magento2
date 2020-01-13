@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Source\PaymentMethods;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\PaymentMethods;
 
-use TIG\Buckaroo\Model\Config\Source\PaymentMethods\In3Version;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Config\Source\PaymentMethods\In3Version;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class In3VersionTest extends BaseTest
 {

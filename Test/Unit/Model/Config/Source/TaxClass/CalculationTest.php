@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Source\TaxClass;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\TaxClass;
 
-use TIG\Buckaroo\Model\Config\Source\TaxClass\Calculation;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class CalculationTest extends BaseTest
 {

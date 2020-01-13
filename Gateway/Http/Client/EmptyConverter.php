@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Gateway\Http\Client;
+namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Magento\Payment\Gateway\Http\ConverterInterface;
 
 /**
  * Class EmptyConverter
  *
- * @package TIG\Buckaroo\Gateway\Http\Client
+ * @package Buckaroo\Magento2\Gateway\Http\Client
  */
 class EmptyConverter implements ConverterInterface
 {

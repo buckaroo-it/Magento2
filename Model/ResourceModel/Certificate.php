@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ResourceModel;
+namespace Buckaroo\Magento2\Model\ResourceModel;
 
 class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb
 {
@@ -28,7 +28,7 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
      *
      * @var string
      */
-    protected $_eventPrefix = 'tig_buckaroo_certificate_resource';
+    protected $_eventPrefix = 'buckaroo_magento2_certificate_resource';
 
     /**
      * Event object
@@ -83,7 +83,7 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
      */
     protected function _construct()
     {
-        $this->_init('tig_buckaroo_certificate', 'entity_id');
+        $this->_init('buckaroo_magento2_certificate', 'entity_id');
     }
 
     /**
@@ -94,7 +94,7 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
      */
     protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
     {
-        /** @var \TIG\Buckaroo\Model\Certificate $object */
+        /** @var \Buckaroo\Magento2\Model\Certificate $object */
         if ($object->isObjectNew()) {
             $object->setData('created_at', $this->dateTime->gmtDate());
         }

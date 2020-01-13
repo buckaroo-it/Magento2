@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider;
+namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \TIG\Buckaroo\Model\ConfigProvider;
+use \Buckaroo\Magento2\Model\ConfigProvider;
 
 /**
  * @method string getLocationLiveWeb()
@@ -32,12 +32,12 @@ class Predefined extends AbstractConfigProvider
 {
 
     /**
-     * XPATHs to configuration values for tig_buckaroo_predefined
+     * XPATHs to configuration values for buckaroo_magento2_predefined
      */
-    const XPATH_PREDEFINED_LOCATION_LIVE_WEB = 'tig_buckaroo/predefined/location_live_web';
-    const XPATH_PREDEFINED_LOCATION_TEST_WEB = 'tig_buckaroo/predefined/location_test_web';
-    const XPATH_PREDEFINED_WSDL_LIVE_WEB     = 'tig_buckaroo/predefined/wsdl_live_web';
-    const XPATH_PREDEFINED_WSDL_TEST_WEB     = 'tig_buckaroo/predefined/wsdl_test_web';
+    const XPATH_PREDEFINED_LOCATION_LIVE_WEB = 'buckaroo_magento2/predefined/location_live_web';
+    const XPATH_PREDEFINED_LOCATION_TEST_WEB = 'buckaroo_magento2/predefined/location_test_web';
+    const XPATH_PREDEFINED_WSDL_LIVE_WEB     = 'buckaroo_magento2/predefined/wsdl_live_web';
+    const XPATH_PREDEFINED_WSDL_TEST_WEB     = 'buckaroo_magento2/predefined/wsdl_test_web';
 
     /**
      * {@inheritdoc}

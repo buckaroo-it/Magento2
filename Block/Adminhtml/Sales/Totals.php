@@ -17,23 +17,23 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Block\Adminhtml\Sales;
+namespace Buckaroo\Magento2\Block\Adminhtml\Sales;
 
 class Totals extends \Magento\Framework\View\Element\Template
 {
     /**
-     * @var \TIG\Buckaroo\Helper\PaymentFee
+     * @var \Buckaroo\Magento2\Helper\PaymentFee
      */
     protected $helper = null;
 
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \TIG\Buckaroo\Helper\PaymentFee                  $helper
+     * @param \Buckaroo\Magento2\Helper\PaymentFee                  $helper
      * @param array                                            $data
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
-        \TIG\Buckaroo\Helper\PaymentFee $helper,
+        \Buckaroo\Magento2\Helper\PaymentFee $helper,
         array $data = []
     ) {
         $this->helper = $helper;

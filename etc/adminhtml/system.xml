@@ -22,21 +22,21 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="tax">
-            <include path="TIG_Buckaroo::system/tax.xml"/>
+            <include path="Buckaroo_Magento2::system/tax.xml"/>
         </section>
 
-        <section id="tig_buckaroo" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+        <section id="buckaroo_magento2" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Buckaroo</label>
             <tab>sales</tab>
             <resource>Sales_Buckaroo::configuration</resource>
             <class>buckaroo-section</class>
-            <include path="TIG_Buckaroo::system/support.xml"/>
-            <include path="TIG_Buckaroo::system/account.xml"/>
-            <include path="TIG_Buckaroo::system/refund.xml"/>
+            <include path="Buckaroo_Magento2::system/support.xml"/>
+            <include path="Buckaroo_Magento2::system/account.xml"/>
+            <include path="Buckaroo_Magento2::system/refund.xml"/>
         </section>
 
         <section id="payment">
-            <include path="TIG_Buckaroo::system/payment_methods.xml"/>
+            <include path="Buckaroo_Magento2::system/payment_methods.xml"/>
         </section>
     </system>
 </config>

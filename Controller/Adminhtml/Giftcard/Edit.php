@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Controller\Adminhtml\Giftcard;
+namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-class Edit extends \TIG\Buckaroo\Controller\Adminhtml\Giftcard\Index
+class Edit extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
 {
     /**
      * @return \Magento\Backend\Model\View\Result\Page|void
@@ -30,7 +30,7 @@ class Edit extends \TIG\Buckaroo\Controller\Adminhtml\Giftcard\Index
         $giftcardId = $this->getRequest()->getParam('entity_id');
 
         /**
-         * @var \TIG\Buckaroo\Model\Giftcard $model
+         * @var \Buckaroo\Magento2\Model\Giftcard $model
          */
         $model = $this->giftcardFactory->create();
 
@@ -53,7 +53,7 @@ class Edit extends \TIG\Buckaroo\Controller\Adminhtml\Giftcard\Index
          * @var \Magento\Backend\Model\View\Result\Page $resultPage
          */
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('TIG_Buckaroo::buckaroo_giftcards');
+        $resultPage->setActiveMenu('Buckaroo_Magento2::buckaroo_giftcards');
         $resultPage->getConfig()->getTitle()->prepend(__('Buckaroo Giftcards'));
 
         return $resultPage;

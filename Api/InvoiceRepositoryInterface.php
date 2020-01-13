@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Api;
+namespace Buckaroo\Magento2\Api;
 
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use TIG\Buckaroo\Api\Data\InvoiceInterface;
+use Buckaroo\Magento2\Api\Data\InvoiceInterface;
 
 interface InvoiceRepositoryInterface
 {

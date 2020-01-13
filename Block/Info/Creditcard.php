@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Info;
+namespace Buckaroo\Magento2\Block\Info;
 
-class Creditcard extends \TIG\Buckaroo\Block\Info
+class Creditcard extends \Buckaroo\Magento2\Block\Info
 {
     /**
      * @var string
@@ -33,7 +33,7 @@ class Creditcard extends \TIG\Buckaroo\Block\Info
     protected $mpiStatus;
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard
      */
     protected $configProvider;
 
@@ -41,18 +41,18 @@ class Creditcard extends \TIG\Buckaroo\Block\Info
     /**
      * @var string
      */
-    protected $_template = 'TIG_Buckaroo::info/creditcard.phtml';
+    protected $_template = 'Buckaroo_Magento2::info/creditcard.phtml';
     // @codingStandardsIgnoreEnd
 
     /**
      * @param \Magento\Framework\View\Element\Template\Context     $context
      * @param array                                                $data
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard $configProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         array $data = [],
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard $configProvider = null
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider = null
     ) {
         parent::__construct($context, $data);
 

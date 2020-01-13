@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Developer\Helper\Data as DeveloperHelperData;
 use Magento\Framework\Api\AttributeValueFactory;
@@ -39,15 +39,15 @@ use Magento\Payment\Model\Method\Logger;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order\Address;
-use TIG\Buckaroo\Gateway\GatewayInterface;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Helper\Data as BuckarooHelperData;
-use TIG\Buckaroo\Model\ConfigProvider\Factory as ConfigProviderFactory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
-use TIG\Buckaroo\Model\RefundFieldsFactory;
-use TIG\Buckaroo\Model\ValidatorFactory;
-use TIG\Buckaroo\Service\Formatter\AddressFormatter;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Helper\Data as BuckarooHelperData;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
+use Buckaroo\Magento2\Model\RefundFieldsFactory;
+use Buckaroo\Magento2\Model\ValidatorFactory;
+use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Capayable extends AbstractMethod
 {
@@ -251,7 +251,7 @@ class Capayable extends AbstractMethod
      * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getCapayableService($payment)
     {

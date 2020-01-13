@@ -18,17 +18,17 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
 
 class Giftcards extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_giftcards';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_giftcards';
 
     /**
      * @var string
@@ -116,7 +116,7 @@ class Giftcards extends AbstractMethod
          * If there are no giftcards chosen, we can't be available
          */
         /**
-         * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Giftcards $ccConfig
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards $ccConfig
          */
         $gcConfig = $this->configProviderMethodFactory->get('giftcards');
         if (null === $gcConfig->getAllowedGiftcards()) {

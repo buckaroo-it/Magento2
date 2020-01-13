@@ -19,7 +19,7 @@
  */
 
 
-namespace TIG\Buckaroo\Block\Widget\Button;
+namespace Buckaroo\Magento2\Block\Widget\Button;
 
 use Magento\Backend\Block\Widget\Button\Toolbar as ToolbarContext;
 use Magento\Framework\View\Element\AbstractBlock;
@@ -27,7 +27,7 @@ use Magento\Backend\Block\Widget\Button\ButtonList;
 
 /**
  * Class Toolbar
- * @package TIG\Buckaroo\Block\Widget\Button
+ * @package Buckaroo\Magento2\Block\Widget\Button
  */
 class Toolbar
 {
@@ -35,31 +35,31 @@ class Toolbar
      * @var array
      */
     private $allowedMethods = [
-        'tig_buckaroo_afterpay',
-        'tig_buckaroo_afterpay2',
-        'tig_buckaroo_afterpay20',
-        'tig_buckaroo_payperemail',
-        'tig_buckaroo_creditcard',
-        'tig_buckaroo_creditcards',
-        'tig_buckaroo_ideal',
-        'tig_buckaroo_idealprocessing',
-        'tig_buckaroo_mrcash',
-        'tig_buckaroo_paypal',
-        'tig_buckaroo_payconiq',
-        'tig_buckaroo_sepadirectdebit',
-        'tig_buckaroo_sofortbanking',
-        'tig_buckaroo_transfer',
-        'tig_buckaroo_paymentguarantee',
-        'tig_buckaroo_eps',
-        'tig_buckaroo_giropay',
-        'tig_buckaroo_kbc',
-        'tig_buckaroo_klarna',
-        'tig_buckaroo_emandate',
-        'tig_buckaroo_applepay',
-        'tig_buckaroo_capayablein3',
-        'tig_buckaroo_capayablepostpay',
-        'tig_buckaroo_alipay',
-        'tig_buckaroo_wechatpay',
+        'buckaroo_magento2_afterpay',
+        'buckaroo_magento2_afterpay2',
+        'buckaroo_magento2_afterpay20',
+        'buckaroo_magento2_payperemail',
+        'buckaroo_magento2_creditcard',
+        'buckaroo_magento2_creditcards',
+        'buckaroo_magento2_ideal',
+        'buckaroo_magento2_idealprocessing',
+        'buckaroo_magento2_mrcash',
+        'buckaroo_magento2_paypal',
+        'buckaroo_magento2_payconiq',
+        'buckaroo_magento2_sepadirectdebit',
+        'buckaroo_magento2_sofortbanking',
+        'buckaroo_magento2_transfer',
+        'buckaroo_magento2_paymentguarantee',
+        'buckaroo_magento2_eps',
+        'buckaroo_magento2_giropay',
+        'buckaroo_magento2_kbc',
+        'buckaroo_magento2_klarna',
+        'buckaroo_magento2_emandate',
+        'buckaroo_magento2_applepay',
+        'buckaroo_magento2_capayablein3',
+        'buckaroo_magento2_capayablepostpay',
+        'buckaroo_magento2_alipay',
+        'buckaroo_magento2_wechatpay',
     ];
 
     /**
@@ -117,7 +117,7 @@ class Toolbar
                 'Cannot Refund via Magento Backend. ' .
                 'Partial refunds combined with a payment fee can only be refunded via the Buckaroo Payment Plaza, ' .
                 'see also the ' .
-                '<a href="https://confluence.tig.nl/x/L4aC" target="_blank">KB article</a>.<br>' .
+                '<a href="https://support.buckaroo.nl" target="_blank">KB article</a>.<br>' .
                 '<a href="https://plaza.buckaroo.nl" target="_blank">' .
                 'Open a new window to the Buckaroo Payment Plaza</a>.'
             );

@@ -1,7 +1,7 @@
 <?php
-/** @var \TIG\Buckaroo\Block\Adminhtml\Config\Support\SupportTab $this */
+/** @var \Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab $this */
 ?>
-<div id="supporttab" class="tig-buckaroo-supporttab" data-mage-init='{"buckarooConfig": true}'>
+<div id="supporttab" class="buckaroo-magento2-supporttab" data-mage-init='{"buckarooConfig": true}'>
 
     <div class="message-system-inner">
         <div class="message-system-short-wrapper">
@@ -40,17 +40,17 @@
                                 <?php switch ($this->phpVersionCheck()) {
                                     case 1:
                                         echo '<img class="php-check-icon" src="' . $this->getViewFileUrl(
-                                                'TIG_Buckaroo::images/green-ok.png'
+                                                'Buckaroo_Magento2::images/green-ok.png'
                                             ) . '" alt="">';
                                         break;
                                     case 0:
                                         echo '<img class="php-check-icon" src="' . $this->getViewFileUrl(
-                                                'TIG_Buckaroo::images/red-nok.png'
+                                                'Buckaroo_Magento2::images/red-nok.png'
                                             ) . '" alt="">';
                                         break;
                                     default:
                                         echo '<img class="php-check-icon" src="' . $this->getViewFileUrl(
-                                                'TIG_Buckaroo::images/orange-unknown.png'
+                                                'Buckaroo_Magento2::images/orange-unknown.png'
                                             ) . '" alt="">';
                                         break;
                                 }
@@ -70,14 +70,9 @@
         <div class="collapse-title" data-role="title">
             <h3 data-role="trigger"><?php echo $block->escapeHtml(__('Support'));?></h3>
         </div>
-        <div class="collapse-content support-buck-tig" data-role="content" style="display:none;">
+        <div class="collapse-content support-buck-magento2" data-role="content" style="display:none;">
             <ul>
-                <p>
-                    <?php echo $block->escapeHtml(
-                        __('This extension is developed by TIG, commissioned by Buckaroo.')
-                    );?>
-                </p>
-                <h4><?php echo $block->escapeHtml(__('Extension basic configuration and account information'));?></h4>
+                <h4 style="margin-top:5px"><?php echo $block->escapeHtml(__('Extension basic configuration and account information'));?></h4>
                 <p>
                     <?php echo $block->escapeHtml(__(
                         'Before contacting Buckaroo technical support, please retrieve your (Merchant) key, ' .
@@ -86,11 +81,11 @@
                 </p>
             </ul>
             <ul>
-                <li class="buckaroo_logo" >
+                <li class="buckaroo_logo">
                     <a href="<?php echo $block->escapeHtml(__('https://buckaroo.nl/'));?>"
                        target="_blank">
-                        <img src="<?php echo $this->getViewFileUrl(
-                            'TIG_Buckaroo::images/buckaroo_config_logo_black.png'
+                        <img style="width:180px;" src="<?php echo $this->getViewFileUrl(
+                            'Buckaroo_Magento2::images/buckaroo_config_logo_black.png'
                         ); ?>"
                              alt="" />
                     </a>
@@ -112,89 +107,6 @@
                     <a href="<?php echo $block->escapeHtml(__('https://buckaroo.nl/'));?>"
                        target="_blank">
                         <?php echo $block->escapeHtml(__('buckaroo.nl'));?>
-                    </a>
-                </li>
-            </ul>
-
-
-            <ul>
-                <h4><?php echo $block->escapeHtml(__('Extension support and advanced configuration'));?></h4>
-
-                <li class="tig_logo">
-                    <a href="https://www.tig.nl/" target="_blank">
-                        <img class="tig_logo_img" src="<?php echo $this->getViewFileUrl('TIG_Buckaroo::images/logo_tig.png'); ?>" alt="" />
-                    </a>
-                    <div class="tig_logo_link_container">
-                        <a class="tig_logo_link" target="_blank" href="https://www.tig.nl/extensies"><?php echo __('Extensions'); ?></a>
-                        <a class="tig_logo_link" target="_blank" href="https://www.tig.nl/webshops"><?php echo __('Webshops'); ?> </a>
-                        <a class="tig_logo_link" target="_blank" href="https://www.tig.nl/commerce"><?php echo __('Commerce'); ?></a>
-                    </div>
-                    <div style="clear:both"></div>
-
-                    <style>
-                        .tig_logo_img { float:left; }
-                        .tig_logo_link_container { float:left; width: calc(100% - 50px); }
-                        .tig_logo_link { line-height: 50px; margin-left: 15px; }
-                    </style>
-                </li>
-                <li class="first"><?php echo $block->escapeHtml(__('Online documentation and FAQ:'));?></li>
-                <li class="last">
-                    <a target="_blank" href="https://confluence.tig.nl/x/EICC">
-                        <?php echo $block->escapeHtml(__('TIG Knowledge Base'));?>
-                    </a>
-                </li>
-            </ul>
-            <ul>
-                <li class="first"><?php echo $block->escapeHtml(__('Support question:'));?></li>
-                <li class="last">
-                    <a target="_blank" href="https://confluence.tig.nl/x/awFtAQ">
-                        <?php echo $block->escapeHtml(__('TIG Request Form'));?>
-                    </a>
-                </li>
-            </ul>
-            <ul>
-                <li class="first"><?php echo $block->escapeHtml(__('Website'));?></li>
-                <li class="last"><a href="https://www.tig.nl/" target="_blank">tig.nl</a></li>
-            </ul>
-        </div>
-    </div>
-
-    <div id="section">
-        <div class="collapse-title" data-role="title">
-            <h3 data-role="trigger"><?php echo $block->escapeHtml(__('Documentation'));?></h3>
-        </div>
-        <div class="collapse-content" data-role="content" style="display:none;">
-            <ul>
-                <p><?php echo $block->escapeHtml(__('A list of documents regarding the extension.'));?></p>
-                <li>
-                    <a class="pdf" target="_blank"
-                       href="https://<?php echo $block->escapeHtml(
-                           __("confluence.tig.nl/x/bwLj")
-                       );?>"
-                       title="<?php echo $block->escapeHtml(
-                           __('Download a PDF format of the manual. Currently the manual is only available in English.')
-                       );?>">
-                        <?php echo $block->escapeHtml(__('Installation and Configuration Manual Buckaroo.pdf'));?>
-                        <img class="external_link"
-                             src="<?php echo $this->getViewFileUrl('TIG_Buckaroo::images/external_link_32.png')?>"
-                             alt="<?php echo $block->escapeHtml(
-                                 __('Installation and Configuration Manual Buckaroo.pdf')
-                             );?>"
-                             width="16" height="16"/>
-                    </a>
-                </li>
-                <li>
-                    <a target="_blank"
-                       href="https://<?php echo $block->escapeHtml(
-                           __("confluence.tig.nl/x/v4SC")
-                       );?>"
-                       title="<?php echo $block->escapeHtml(
-                           __('View the complete release notes of the extension. Currently the release notes is only available in English.')
-                       );?>">
-                        <?php echo $block->escapeHtml(__('Full Release Notes'));?>
-                        <img class="external_link"
-                             src="<?php echo $this->getViewFileUrl('TIG_Buckaroo::images/external_link_32.png')?>"
-                             alt="<?php echo $block->escapeHtml(__('Full Release Notes'));?>" width="16" height="16"/>
                     </a>
                 </li>
             </ul>

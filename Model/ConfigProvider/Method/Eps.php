@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 /**
  * @method getDueDate()
@@ -26,20 +26,20 @@ namespace TIG\Buckaroo\Model\ConfigProvider\Method;
  */
 class Eps extends AbstractConfigProvider
 {
-    const XPATH_EPS_ACTIVE                 = 'payment/tig_buckaroo_eps/active';
-    const XPATH_EPS_PAYMENT_FEE            = 'payment/tig_buckaroo_eps/payment_fee';
-    const XPATH_EPS_PAYMENT_FEE_LABEL      = 'payment/tig_buckaroo_eps/payment_fee_label';
-    const XPATH_EPS_SEND_EMAIL             = 'payment/tig_buckaroo_eps/send_email';
-    const XPATH_EPS_ACTIVE_STATUS          = 'payment/tig_buckaroo_eps/active_status';
-    const XPATH_EPS_ORDER_STATUS_SUCCESS   = 'payment/tig_buckaroo_eps/order_status_success';
-    const XPATH_EPS_ORDER_STATUS_FAILED    = 'payment/tig_buckaroo_eps/order_status_failed';
-    const XPATH_EPS_AVAILABLE_IN_BACKEND   = 'payment/tig_buckaroo_eps/available_in_backend';
-    const XPATH_EPS_DUE_DATE               = 'payment/tig_buckaroo_eps/due_date';
+    const XPATH_EPS_ACTIVE                 = 'payment/buckaroo_magento2_eps/active';
+    const XPATH_EPS_PAYMENT_FEE            = 'payment/buckaroo_magento2_eps/payment_fee';
+    const XPATH_EPS_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_eps/payment_fee_label';
+    const XPATH_EPS_SEND_EMAIL             = 'payment/buckaroo_magento2_eps/send_email';
+    const XPATH_EPS_ACTIVE_STATUS          = 'payment/buckaroo_magento2_eps/active_status';
+    const XPATH_EPS_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_eps/order_status_success';
+    const XPATH_EPS_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_eps/order_status_failed';
+    const XPATH_EPS_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_eps/available_in_backend';
+    const XPATH_EPS_DUE_DATE               = 'payment/buckaroo_magento2_eps/due_date';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_eps/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_eps/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_eps/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_eps/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_eps/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_eps/specificcountry';
 
     /**
      * @return array
@@ -53,7 +53,7 @@ class Eps extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Eps::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Eps::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

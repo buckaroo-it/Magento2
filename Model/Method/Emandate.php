@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Developer\Helper\Data as DevelopmentHelper;
 use Magento\Framework\Api\AttributeValueFactory;
@@ -36,19 +36,19 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
-use TIG\Buckaroo\Gateway\GatewayInterface;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Helper\Data as HelperData;
-use TIG\Buckaroo\Model\ConfigProvider\Factory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Emandate as EmandateConfig;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory as MethodFactory;
-use TIG\Buckaroo\Model\RefundFieldsFactory;
-use TIG\Buckaroo\Model\ValidatorFactory;
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Helper\Data as HelperData;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate as EmandateConfig;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Buckaroo\Magento2\Model\RefundFieldsFactory;
+use Buckaroo\Magento2\Model\ValidatorFactory;
 
 class Emandate extends AbstractMethod
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_emandate';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_emandate';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'emandate';

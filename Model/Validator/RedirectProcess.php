@@ -19,9 +19,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Validator;
+namespace Buckaroo\Magento2\Model\Validator;
 
-class RedirectProcess implements \TIG\Buckaroo\Model\ValidatorInterface
+class RedirectProcess implements \Buckaroo\Magento2\Model\ValidatorInterface
 {
     /**
      * @param array|object $data

@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Observer;
+namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order\Invoice;
-use \TIG\Buckaroo\Model\ConfigProvider\Account;
-use \TIG\Buckaroo\Model\ConfigProvider\Method\Klarna;
+use \Buckaroo\Magento2\Model\ConfigProvider\Account;
+use \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Sales\Model\Order\ShipmentFactory;
@@ -35,7 +35,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
     const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
 
-    /** @var TIG\Buckaroo\Model\ConfigProvider\Method\Klarna */
+    /** @var Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna */
     private $klarnaConfig;
 
     /**
@@ -72,14 +72,14 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory
      * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Klarna $klarnaConfig
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna $klarnaConfig
      */
     public function __construct(
         \Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory $invoiceCollectionFactory,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Klarna $klarnaConfig
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna $klarnaConfig
     ) {
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;
@@ -104,7 +104,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $order = $shipment->getOrder();
 
         $payment = $order->getPayment();
-        if ($payment->getMethodInstance()->getCode() == 'tig_buckaroo_klarna') {
+        if ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarna') {
             $this->createInvoice($order, $shipment);
         }
     }

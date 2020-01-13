@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Helper;
+namespace Buckaroo\Magento2\Test\Helper;
 
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Helper\Data;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Helper\Data;
 
 class DataTest extends BaseTest
 {

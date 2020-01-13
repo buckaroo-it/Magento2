@@ -18,20 +18,20 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Observer;
+namespace Buckaroo\Magento2\Observer;
 
 class UpdateOrderStatus implements \Magento\Framework\Event\ObserverInterface
 {
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Account
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
      */
     protected $account;
 
     /**
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Account $account
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $account
      */
     public function __construct(
-        \TIG\Buckaroo\Model\ConfigProvider\Account $account
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $account
     ) {
         $this->account = $account;
     }
@@ -51,7 +51,7 @@ class UpdateOrderStatus implements \Magento\Framework\Event\ObserverInterface
          */
         $payment = $observer->getPayment();
 
-        if (strpos($payment->getMethod(), 'tig_buckaroo') === false) {
+        if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
             return;
         }
 

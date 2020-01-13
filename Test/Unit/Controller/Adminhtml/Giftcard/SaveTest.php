@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Controller\Adminhtml\Giftcard;
+namespace Buckaroo\Magento2\Test\Unit\Controller\Adminhtml\Giftcard;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http as RequestHttp;
-use TIG\Buckaroo\Controller\Adminhtml\Giftcard\Save;
-use TIG\Buckaroo\Model\GiftcardFactory;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Save;
+use Buckaroo\Magento2\Model\GiftcardFactory;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class SaveTest extends BaseTest
 {

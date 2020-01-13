@@ -19,12 +19,12 @@
  */
 if (strpos(__DIR__, 'app/code') !== false) {
     /**
-     * From app/code/TIG/Buckaroo
+     * From app/code/Buckaroo/Magento2
      */
     require_once(__DIR__ . '/../../../../../dev/tests/unit/framework/bootstrap.php');
 } else {
     /**
-     * From vendor/tig/buckaroo
+     * From vendor/buckaroo/magento2
      */
     require_once(__DIR__ . '/../../../../dev/tests/unit/framework/bootstrap.php');
 }

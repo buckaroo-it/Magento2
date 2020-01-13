@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Backend;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Locale\Bundle\CurrencyBundle;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use TIG\Buckaroo\Model\Config\Backend\AllowedCurrencies;
-use TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies as AllowedCurrenciesProvider;
+use Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies as AllowedCurrenciesProvider;
 
-class AllowedCurrenciesTest extends \TIG\Buckaroo\Test\BaseTest
+class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = AllowedCurrencies::class;
 

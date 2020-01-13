@@ -18,14 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 class Payconiq extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_payconiq';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_payconiq';
 
     /**
      * @var string

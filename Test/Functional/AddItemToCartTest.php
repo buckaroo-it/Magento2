@@ -1,14 +1,14 @@
 <?php
 // An example of using php-webdriver.
 
-namespace TIG\Buckaroo\Test\Functional;
+namespace Buckaroo\Magento2\Test\Functional;
 
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 
-class AddItemToCartTest extends \TIG\Buckaroo\Test\BaseTest
+class AddItemToCartTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     /**
      * @var \Facebook\WebDriver\Remote\RemoteWebDriver

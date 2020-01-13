@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Validator;
+namespace Buckaroo\Magento2\Test\Unit\Model\Validator;
 
-use TIG\Buckaroo\Model\Validator\Push;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Validator\Push;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class PayPerEmailTest extends BaseTest
 {
@@ -51,23 +51,23 @@ class PayPerEmailTest extends BaseTest
             ],
             'payconiq_PayconiqAndroidUrl' => [
                 'brq_SERVICE_payconiq_PayconiqAndroidUrl',
-                'http://tig.nl',
-                'http://tig.nl'
+                'https://support.buckaroo.nl',
+                'https://support.buckaroo.nl'
             ],
             'payconiq_PayconiqIosUrl' => [
                 'brq_SERVICE_payconiq_PayconiqIosUrl',
-                'http://tig.nl',
-                'http://tig.nl'
+                'https://support.buckaroo.nl',
+                'https://support.buckaroo.nl'
             ],
             'payconiq_PayconiqUrl' => [
                 'brq_SERVICE_payconiq_PayconiqUrl',
-                'http://tig.nl',
-                'http://tig.nl'
+                'https://support.buckaroo.nl',
+                'https://support.buckaroo.nl'
             ],
             'payconiq_QrUrl' => [
                 'brq_SERVICE_payconiq_QrUrl',
-                'http://tig.nl',
-                'http://tig.nl'
+                'https://support.buckaroo.nl',
+                'https://support.buckaroo.nl'
             ],
             'masterpass_CustomerPhoneNumber' => [
                 'brq_SERVICE_masterpass_CustomerPhoneNumber',

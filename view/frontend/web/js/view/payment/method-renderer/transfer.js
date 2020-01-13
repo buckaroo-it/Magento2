@@ -23,7 +23,7 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'TIG_Buckaroo/js/action/place-order',
+        'Buckaroo_Magento2/js/action/place-order',
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method'
@@ -42,7 +42,7 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'TIG_Buckaroo/payment/tig_buckaroo_transfer'
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_transfer'
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.transfer.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,

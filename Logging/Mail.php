@@ -17,9 +17,9 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Logging;
+namespace Buckaroo\Magento2\Logging;
 
-use TIG\Buckaroo\Model\ConfigProvider\DebugConfiguration;
+use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 
 class Mail
 {
@@ -30,7 +30,7 @@ class Mail
     private $message = [];
 
     /** @var string */
-    protected $mailSubject = 'TIG_Buckaroo log mail';
+    protected $mailSubject = 'Buckaroo_Magento2 log mail';
 
     /** @var string */
     protected $mailFrom = 'nobody@buckaroo.nl';

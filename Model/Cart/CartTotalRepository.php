@@ -8,7 +8,7 @@
  * fix for Magento 2.2.2: https://github.com/magento/magento2/issues/9646
  * Based on: https://github.com/ekuusela/magento2/commit/aa535ea5d4bf78915bddd4387a9d3c4b39943eea
  */
-namespace TIG\Buckaroo\Model\Cart;
+namespace Buckaroo\Magento2\Model\Cart;
 
 use Magento\Quote\Api;
 use Magento\Quote\Api\CartRepositoryInterface;

@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Service\Sales\Quote;
+namespace Buckaroo\Magento2\Service\Sales\Quote;
 
 use Magento\Checkout\Model\Cart;
 use Magento\Quote\Api\CartRepositoryInterface;

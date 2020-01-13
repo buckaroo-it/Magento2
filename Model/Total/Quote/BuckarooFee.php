@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Total\Quote;
+namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Magento\Catalog\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
-use TIG\Buckaroo\Model\Config\Source\TaxClass\Calculation;
-use TIG\Buckaroo\Model\ConfigProvider\Account as ConfigProviderAccount;
-use TIG\Buckaroo\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
+use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
@@ -101,12 +101,12 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         }
 
         $paymentMethod = $quote->getPayment()->getMethod();
-        if (!$paymentMethod || strpos($paymentMethod, 'tig_buckaroo_') !== 0) {
+        if (!$paymentMethod || strpos($paymentMethod, 'buckaroo_magento2_') !== 0) {
             return $this;
         }
 
         $methodInstance = $quote->getPayment()->getMethodInstance();
-        if (!$methodInstance instanceof \TIG\Buckaroo\Model\Method\AbstractMethod) {
+        if (!$methodInstance instanceof \Buckaroo\Magento2\Model\Method\AbstractMethod) {
             return $this;
         }
 
@@ -176,15 +176,15 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     }
 
     /**
-     * @param \TIG\Buckaroo\Model\Method\AbstractMethod $methodInstance
+     * @param \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance
      * @param \Magento\Quote\Model\Quote                $quote
      * @param bool                                      $inclTax
      *
      * @return bool|false|float
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getBaseFee(
-        \TIG\Buckaroo\Model\Method\AbstractMethod $methodInstance,
+        \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance,
         \Magento\Quote\Model\Quote $quote,
         $inclTax = false
     ) {
@@ -248,7 +248,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      * @param \Magento\Framework\DataObject|null $pseudoProduct
      *
      * @return float
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getFeePrice($price, $priceIncl = null, \Magento\Framework\DataObject $pseudoProduct = null)
     {

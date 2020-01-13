@@ -18,30 +18,30 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Plugin\Method;
+namespace Buckaroo\Magento2\Model\Plugin\Method;
 
 use \Magento\Sales\Model\Order;
 
 /**
  * Class Klarna
  *
- * @package TIG\Buckaroo\Model\Plugin\Method
+ * @package Buckaroo\Magento2\Model\Plugin\Method
  */
 class Klarna
 {
-    const KLARNA_METHOD_NAME = 'tig_buckaroo_klarna';
+    const KLARNA_METHOD_NAME = 'buckaroo_magento2_klarna';
 
     /**
-     * \TIG\Buckaroo\Model\Method\Klarna
+     * \Buckaroo\Magento2\Model\Method\Klarna
      *
      * @var bool
      */
     public $klarnaMethod = false;
 
     /**
-     * @param \TIG\Buckaroo\Model\Method\Klarna $klarna
+     * @param \Buckaroo\Magento2\Model\Method\Klarna $klarna
      */
-    public function __construct(\TIG\Buckaroo\Model\Method\Klarna $klarna)
+    public function __construct(\Buckaroo\Magento2\Model\Method\Klarna $klarna)
     {
         $this->klarnaMethod = $klarna;
     }
@@ -50,7 +50,7 @@ class Klarna
      * @param Order $subject
      *
      * @return Klarna|Order
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function afterCancel(
         Order $subject

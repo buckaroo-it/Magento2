@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Order;
+namespace Buckaroo\Magento2\Block\Order;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Block\Order\Totals;
-use TIG\Buckaroo\Helper\PaymentFee;
+use Buckaroo\Magento2\Helper\PaymentFee;
 
 class TotalsFee extends Totals
 {

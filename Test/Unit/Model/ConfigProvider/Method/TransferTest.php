@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Transfer;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 
-class TransferTest extends \TIG\Buckaroo\Test\BaseTest
+class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Transfer::class;
 

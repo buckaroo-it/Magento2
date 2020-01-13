@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Controller\Payconiq;
+namespace Buckaroo\Magento2\Controller\Payconiq;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;

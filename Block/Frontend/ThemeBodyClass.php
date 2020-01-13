@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Block\Frontend;
+namespace Buckaroo\Magento2\Block\Frontend;
 
 class ThemeBodyClass extends \Magento\Framework\View\Element\Template
 {

@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test;
+namespace Buckaroo\Magento2\Test;
 
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 

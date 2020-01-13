@@ -18,14 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 class Creditcards extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_creditcards';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_creditcards';
 
     /**
      * @var string
@@ -96,7 +96,7 @@ class Creditcards extends AbstractMethod
      */
     public $usesRedirect                = false;
 
-    /** @var \TIG\Buckaroo\Service\CreditManagement\ServiceParameters */
+    /** @var \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters */
     private $serviceParameters;
 
     public function __construct(
@@ -109,17 +109,17 @@ class Creditcards extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \TIG\Buckaroo\Service\CreditManagement\ServiceParameters $serviceParameters,
+        \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \TIG\Buckaroo\Gateway\GatewayInterface $gateway = null,
-        \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \TIG\Buckaroo\Model\ValidatorFactory $validatorFactory = null,
-        \TIG\Buckaroo\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        \Buckaroo\Magento2\Helper\Data $helper = null,
         \Magento\Framework\App\RequestInterface $request = null,
-        \TIG\Buckaroo\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
@@ -201,7 +201,7 @@ class Creditcards extends AbstractMethod
             $payment->setAdditionalInformation('skip_push', 2);
         }
 
-        /** @var \TIG\Buckaroo\Model\ConfigProvider\Method\Creditcards $creditcardsConfig */
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards $creditcardsConfig */
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
@@ -213,18 +213,18 @@ class Creditcards extends AbstractMethod
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getCreditcardsService($payment)
     {
         $additionalInformation = $payment->getAdditionalInformation();
 
         if (!isset($additionalInformation['customer_encrypteddata'])) {
-            throw new \TIG\Buckaroo\Exception(__('An error occured trying to send the encrypted creditcard data to Buckaroo.'));
+            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted creditcard data to Buckaroo.'));
         }
 
         if (!isset($additionalInformation['customer_creditcardcompany'])) {
-            throw new \TIG\Buckaroo\Exception(__('An error occured trying to send the creditcard company data to Buckaroo.'));
+            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the creditcard company data to Buckaroo.'));
         }
 
         $services = [

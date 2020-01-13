@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Service\Plugin\Mpi;
+namespace Buckaroo\Magento2\Model\Service\Plugin\Mpi;
 
-use TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 
 class Push
 {
@@ -39,24 +39,24 @@ class Push
     }
 
     /**
-     * @param \TIG\Buckaroo\Model\Push $push
+     * @param \Buckaroo\Magento2\Model\Push $push
      * @param boolean                  $result
      *
      * @return boolean
      */
     public function afterProcessSucceededPush(
-        \TIG\Buckaroo\Model\Push $push,
+        \Buckaroo\Magento2\Model\Push $push,
         $result
     ) {
         $payment = $push->order->getPayment();
         $method = $payment->getMethod();
 
-        if (strpos($method, 'tig_buckaroo') === false) {
+        if (strpos($method, 'buckaroo_magento2') === false) {
             return $this;
         }
 
         /**
-         * @var \TIG\Buckaroo\Model\Method\AbstractMethod $paymentMethodInstance
+         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $paymentMethodInstance
          */
         $paymentMethodInstance = $payment->getMethodInstance();
         $card = $paymentMethodInstance->getInfoInstance()->getAdditionalInformation('card_type');

@@ -21,8 +21,8 @@
     <body>
         <referenceBlock name="order.create.billing.method.form">
             <action method="setMethodFormTemplate">
-                <argument name="method" xsi:type="string">tig_buckaroo_payperemail</argument>
-                <argument name="template" xsi:type="string">TIG_Buckaroo::sales/order/create/billingmethod/payperemail.phtml</argument>
+                <argument name="method" xsi:type="string">buckaroo_magento2_payperemail</argument>
+                <argument name="template" xsi:type="string">Buckaroo_Magento2::sales/order/create/billingmethod/payperemail.phtml</argument>
             </action>
         </referenceBlock>
     </body>

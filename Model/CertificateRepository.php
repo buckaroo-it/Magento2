@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
@@ -26,11 +26,11 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use TIG\Buckaroo\Api\Data\CertificateInterface;
-use TIG\Buckaroo\Api\CertificateRepositoryInterface;
-use TIG\Buckaroo\Model\ResourceModel\Certificate as CertificateResource;
-use TIG\Buckaroo\Model\ResourceModel\Certificate\Collection as CertificateCollection;
-use TIG\Buckaroo\Model\ResourceModel\Certificate\CollectionFactory as CertificateCollectionFactory;
+use Buckaroo\Magento2\Api\Data\CertificateInterface;
+use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
+use Buckaroo\Magento2\Model\ResourceModel\Certificate as CertificateResource;
+use Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection as CertificateCollection;
+use Buckaroo\Magento2\Model\ResourceModel\Certificate\CollectionFactory as CertificateCollectionFactory;
 
 class CertificateRepository implements CertificateRepositoryInterface
 {

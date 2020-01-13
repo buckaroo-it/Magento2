@@ -18,22 +18,22 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Sofortbanking extends AbstractConfigProvider
 {
-    const XPATH_SOFORTBANKING_PAYMENT_FEE           = 'payment/tig_buckaroo_sofortbanking/payment_fee';
-    const XPATH_SOFORTBANKING_PAYMENT_FEE_LABEL     = 'payment/tig_buckaroo_sofortbanking/payment_fee_label';
-    const XPATH_SOFORTBANKING_ACTIVE                = 'payment/tig_buckaroo_sofortbanking/active';
-    const XPATH_SOFORTBANKING_ACTIVE_STATUS         = 'payment/tig_buckaroo_sofortbanking/active_status';
-    const XPATH_SOFORTBANKING_ORDER_STATUS_SUCCESS  = 'payment/tig_buckaroo_sofortbanking/order_status_success';
-    const XPATH_SOFORTBANKING_ORDER_STATUS_FAILED   = 'payment/tig_buckaroo_sofortbanking/order_status_failed';
-    const XPATH_SOFORTBANKING_AVAILABLE_IN_BACKEND  = 'payment/tig_buckaroo_sofortbanking/available_in_backend';
+    const XPATH_SOFORTBANKING_PAYMENT_FEE           = 'payment/buckaroo_magento2_sofortbanking/payment_fee';
+    const XPATH_SOFORTBANKING_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_sofortbanking/payment_fee_label';
+    const XPATH_SOFORTBANKING_ACTIVE                = 'payment/buckaroo_magento2_sofortbanking/active';
+    const XPATH_SOFORTBANKING_ACTIVE_STATUS         = 'payment/buckaroo_magento2_sofortbanking/active_status';
+    const XPATH_SOFORTBANKING_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_sofortbanking/order_status_success';
+    const XPATH_SOFORTBANKING_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_sofortbanking/order_status_failed';
+    const XPATH_SOFORTBANKING_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_sofortbanking/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_sofortbanking/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_sofortbanking/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_sofortbanking/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_sofortbanking/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_sofortbanking/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_sofortbanking/specificcountry';
 
     /**
      * @return array|void
@@ -41,7 +41,7 @@ class Sofortbanking extends AbstractConfigProvider
     public function getConfig()
     {
         $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Sofortbanking::PAYMENT_METHOD_CODE);
+            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Sofortbanking::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

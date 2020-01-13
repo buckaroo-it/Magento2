@@ -17,16 +17,16 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Framework\Locale\Resolver;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use TIG\Buckaroo\Helper\PaymentFee;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\Method\Applepay as ApplepayMethod;
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Applepay;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Method\Applepay as ApplepayMethod;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 
 class ApplepayTest extends BaseTest
@@ -43,7 +43,7 @@ class ApplepayTest extends BaseTest
                         'buckaroo' => [
                             'applepay' => [
                                 'allowedCurrencies' => ['EUR'],
-                                'storeName' => 'TIG Webshop',
+                                'storeName' => 'Buckaroo Webshop',
                                 'currency' => 'EUR',
                                 'cultureCode' => 'nl',
                                 'guid' => 'GUID12345'
@@ -87,7 +87,7 @@ class ApplepayTest extends BaseTest
             ->setMethods(['getStore', 'getName', 'getCurrentCurrency', 'getCode'])
             ->getMockForAbstractClass();
         $storeManagerMock->expects($this->exactly($expectedCount))->method('getStore')->willReturnSelf();
-        $storeManagerMock->expects($this->exactly($expectedCount))->method('getName')->willReturn('TIG Webshop');
+        $storeManagerMock->expects($this->exactly($expectedCount))->method('getName')->willReturn('Buckaroo Webshop');
         $storeManagerMock->expects($this->exactly($expectedCount))->method('getCurrentCurrency')->willReturnSelf();
         $storeManagerMock->expects($this->exactly($expectedCount))->method('getCode')->willReturn('EUR');
 

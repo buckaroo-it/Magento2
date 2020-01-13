@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Checkout;
+namespace Buckaroo\Magento2\Block\Checkout;
 
 class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
 {
@@ -34,7 +34,7 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
     /**
      * Buckaroo fee helper
      *
-     * @var \TIG\Buckaroo\Helper\PaymentFee
+     * @var \Buckaroo\Magento2\Helper\PaymentFee
      */
     protected $helper;
 
@@ -43,7 +43,7 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
      * @param \Magento\Customer\Model\Session                  $customerSession
      * @param \Magento\Checkout\Model\Session                  $checkoutSession
      * @param \Magento\Sales\Model\Config                      $salesConfig
-     * @param \TIG\Buckaroo\Helper\PaymentFee                  $helper
+     * @param \Buckaroo\Magento2\Helper\PaymentFee                  $helper
      * @param array                                            $layoutProcessors
      * @param array                                            $data
      */
@@ -52,7 +52,7 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Model\Config $salesConfig,
-        \TIG\Buckaroo\Helper\PaymentFee $helper,
+        \Buckaroo\Magento2\Helper\PaymentFee $helper,
         array $layoutProcessors = [],
         array $data = []
     ) {

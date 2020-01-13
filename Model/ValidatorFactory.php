@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 class ValidatorFactory
 {
@@ -51,7 +51,7 @@ class ValidatorFactory
      * @param string $validatorType
      *
      * @return ValidatorInterface
-     * @throws \LogicException|\TIG\Buckaroo\Exception
+     * @throws \LogicException|\Buckaroo\Magento2\Exception
      */
     public function get($validatorType)
     {
@@ -67,7 +67,7 @@ class ValidatorFactory
         }
 
         if (!isset($validatorClass) || empty($validatorClass)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'Unknown validator type requested: %1.',
                     [$validatorType]
@@ -78,7 +78,7 @@ class ValidatorFactory
         $validator = $this->objectManager->get($validatorClass);
         if (!$validator instanceof ValidatorInterface) {
             throw new \LogicException(
-                'The transaction builder must implement "TIG\Buckaroo\Model\ValidatorInterface".'
+                'The transaction builder must implement "Buckaroo\Magento2\Model\ValidatorInterface".'
             );
         }
         return $validator;

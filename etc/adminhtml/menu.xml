@@ -21,9 +21,9 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
-        <add id="TIG_Buckaroo::buckaroo_giftcards"
+        <add id="Buckaroo_Magento2::buckaroo_giftcards"
              title="Buckaroo Giftcards"
-             module="TIG_Buckaroo"
+             module="Buckaroo_Magento2"
              sortOrder="100"
              resource="Magento_Backend::content"
              parent="Magento_Backend::other_settings"

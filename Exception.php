@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo;
+namespace Buckaroo\Magento2;
 
 class Exception extends \Magento\Framework\Exception\LocalizedException
 {

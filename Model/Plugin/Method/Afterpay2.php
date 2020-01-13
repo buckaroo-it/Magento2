@@ -18,28 +18,28 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Plugin\Method;
+namespace Buckaroo\Magento2\Model\Plugin\Method;
 
 /**
  * Class Afterpay2
  *
- * @package TIG\Buckaroo\Model\Plugin\Method
+ * @package Buckaroo\Magento2\Model\Plugin\Method
  */
 class Afterpay2
 {
-    const AFTERPAY_METHOD_NAME = 'tig_buckaroo_afterpay2';
+    const AFTERPAY_METHOD_NAME = 'buckaroo_magento2_afterpay2';
 
     /**
-     * \TIG\Buckaroo\Model\Method\Afterpay2
+     * \Buckaroo\Magento2\Model\Method\Afterpay2
      *
      * @var bool
      */
     public $afterpayMethod = false;
 
     /**
-     * @param \TIG\Buckaroo\Model\Method\Afterpay2 $afterpay
+     * @param \Buckaroo\Magento2\Model\Method\Afterpay2 $afterpay
      */
-    public function __construct(\TIG\Buckaroo\Model\Method\Afterpay2 $afterpay)
+    public function __construct(\Buckaroo\Magento2\Model\Method\Afterpay2 $afterpay)
     {
         $this->afterpayMethod = $afterpay;
     }

@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ResourceModel;
+namespace Buckaroo\Magento2\Model\ResourceModel;
 
 class Giftcard extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb
 {
@@ -27,7 +27,7 @@ class Giftcard extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\
      *
      * @var string
      */
-    protected $_eventPrefix = 'tig_buckaroo_giftcard_resource';
+    protected $_eventPrefix = 'buckaroo_magento2_giftcard_resource';
 
     /**
      * Event object
@@ -43,6 +43,6 @@ class Giftcard extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\
      */
     protected function _construct()
     {
-        $this->_init('tig_buckaroo_giftcard', 'entity_id');
+        $this->_init('buckaroo_magento2_giftcard', 'entity_id');
     }
 }

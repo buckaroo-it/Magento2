@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider;
+namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \TIG\Buckaroo\Model\ConfigProvider;
+use \Buckaroo\Magento2\Model\ConfigProvider;
 
 /**
  * @method mixed getOrderStateNew()
@@ -33,13 +33,13 @@ class States extends AbstractConfigProvider
 {
 
     /**
-     * XPATHs to configuration values for tig_buckaroo_predefined
+     * XPATHs to configuration values for buckaroo_magento2_predefined
      */
-    const XPATH_STATES_ORDER_STATE_NEW          = 'tig_buckaroo/states/order_state_new';
-    const XPATH_STATES_ORDER_STATE_SUCCESS      = 'tig_buckaroo/states/order_state_success';
-    const XPATH_STATES_ORDER_STATE_FAILED       = 'tig_buckaroo/states/order_state_failed';
-    const XPATH_STATES_ORDER_STATE_PENDING      = 'tig_buckaroo/states/order_state_pending';
-    const XPATH_STATES_ORDER_STATE_INCORRECT    = 'tig_buckaroo/states/order_state_incorrect';
+    const XPATH_STATES_ORDER_STATE_NEW          = 'buckaroo_magento2/states/order_state_new';
+    const XPATH_STATES_ORDER_STATE_SUCCESS      = 'buckaroo_magento2/states/order_state_success';
+    const XPATH_STATES_ORDER_STATE_FAILED       = 'buckaroo_magento2/states/order_state_failed';
+    const XPATH_STATES_ORDER_STATE_PENDING      = 'buckaroo_magento2/states/order_state_pending';
+    const XPATH_STATES_ORDER_STATE_INCORRECT    = 'buckaroo_magento2/states/order_state_incorrect';
 
     /**
      * {@inheritdoc}

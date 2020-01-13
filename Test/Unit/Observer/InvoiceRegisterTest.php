@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Observer;
+namespace Buckaroo\Magento2\Test\Unit\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Sales\Model\Order;
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Observer\InvoiceRegister;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Observer\InvoiceRegister;
 
 class InvoiceRegisterTest extends BaseTest
 {

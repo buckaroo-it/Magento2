@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Block\Adminhtml\Config\Support;
+namespace Buckaroo\Magento2\Block\Adminhtml\Config\Support;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
@@ -40,7 +40,7 @@ class BodyClass extends Template implements BlockInterface
 
         $this->request = $context->getRequest();
 
-        if ($this->request->getParam('section') == 'tig_buckaroo') {
+        if ($this->request->getParam('section') == 'buckaroo_magento2') {
             $this->pageConfig->addBodyClass('buckaroo-config-page');
         }
     }

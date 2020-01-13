@@ -22,7 +22,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="TIG\Buckaroo\Block\Adminhtml\Giftcard\Edit" name="buckaroo_giftcard_edit" />
+            <block class="Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit" name="buckaroo_giftcard_edit" />
         </referenceContainer>
     </body>
 </page>

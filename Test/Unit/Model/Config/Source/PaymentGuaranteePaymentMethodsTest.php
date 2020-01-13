@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Source;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
-use TIG\Buckaroo\Model\Config\Source\PaymentGuaranteePaymentMethods;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Config\Source\PaymentGuaranteePaymentMethods;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class PaymentGuaranteePaymentMethodsTest extends BaseTest
 {

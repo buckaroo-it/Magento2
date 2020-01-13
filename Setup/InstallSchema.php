@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Setup;
+namespace Buckaroo\Magento2\Setup;
 
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
@@ -38,53 +38,67 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
         $installer = $setup;
         $installer->startSetup();
 
-        if (!$installer->tableExists('tig_buckaroo_certificate')) {
-            $table = $installer->getConnection()
-                ->newTable($installer->getTable('tig_buckaroo_certificate'));
-            $table->addColumn(
-                'entity_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                null,
-                [
-                    'identity' => true,
-                    'unsigned' => true,
-                    'nullable' => false,
-                    'primary'  => true,
-                ],
-                'Entity ID'
-            );
+        if (!$installer->tableExists('buckaroo_magento2_certificate')) {
+            if ($installer->tableExists('tig_buckaroo_certificate')) {
+                $GLOBALS['tig_buckaroo_upgrade'] = 1;
+                $installer->getConnection()->renameTable(
+                    $installer->getTable('tig_buckaroo_certificate'),
+                    $installer->getTable('buckaroo_magento2_certificate')
+                );
+                $installer->getConnection()->query(
+                    "ALTER TABLE ".$installer->getTable('buckaroo_magento2_certificate')." COMMENT = 'Buckaroo Certificate'"
+                );
+                $installer->getConnection()->query(
+                    "UPDATE core_config_data SET path = replace(path, 'tig_buckaroo','buckaroo_magento2') WHERE path LIKE '%tig_buckaroo%';"
+                );
+            } else {
+                $table = $installer->getConnection()
+                    ->newTable($installer->getTable('buckaroo_magento2_certificate'));
+                $table->addColumn(
+                    'entity_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'identity' => true,
+                        'unsigned' => true,
+                        'nullable' => false,
+                        'primary' => true,
+                    ],
+                    'Entity ID'
+                );
 
-            $table->addColumn(
-                'certificate',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                null,
-                [
-                    'nullable' => false,
-                ],
-                'Certificate'
-            );
+                $table->addColumn(
+                    'certificate',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    [
+                        'nullable' => false,
+                    ],
+                    'Certificate'
+                );
 
-            $table->addColumn(
-                'name',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                [
-                    'nullable' => false,
-                ],
-                'Name'
-            );
+                $table->addColumn(
+                    'name',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    [
+                        'nullable' => false,
+                    ],
+                    'Name'
+                );
 
-            $table->addColumn(
-                'created_at',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
-                null,
-                [],
-                'Created At'
-            );
+                $table->addColumn(
+                    'created_at',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    null,
+                    [],
+                    'Created At'
+                );
 
-            $table->setComment('TIG Buckaroo Certificate');
+                $table->setComment('Buckaroo Certificate');
 
-            $installer->getConnection()->createTable($table);
+                $installer->getConnection()->createTable($table);
+            }
         }
     }
 }

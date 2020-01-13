@@ -18,18 +18,18 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
-use TIG\Buckaroo\Model\ConfigProvider\Method\IdealProcessing as IdealProcessingConfig;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing as IdealProcessingConfig;
 
 class IdealProcessing extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_idealprocessing';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_idealprocessing';
 
     /**
      * @var string

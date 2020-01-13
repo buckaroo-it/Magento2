@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Sales\Model\Order\Payment;
 
@@ -27,7 +27,7 @@ class SepaDirectDebit extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_sepadirectdebit';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_sepadirectdebit';
 
     /**
      * @var string
@@ -96,7 +96,7 @@ class SepaDirectDebit extends AbstractMethod
     /** @var \Magento\Framework\Message\ManagerInterface */
     public $messageManager;
 
-    /** @var \TIG\Buckaroo\Service\CreditManagement\ServiceParameters */
+    /** @var \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters */
     private $serviceParameters;
 
     /**
@@ -114,18 +114,18 @@ class SepaDirectDebit extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \TIG\Buckaroo\Service\CreditManagement\ServiceParameters $serviceParameters,
+        \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \TIG\Buckaroo\Gateway\GatewayInterface $gateway = null,
-        \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \TIG\Buckaroo\Model\ValidatorFactory $validatorFactory = null,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
         \Magento\Framework\Message\ManagerInterface $messageManager = null,
-        \TIG\Buckaroo\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Helper\Data $helper = null,
         \Magento\Framework\App\RequestInterface $request = null,
-        \TIG\Buckaroo\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
@@ -443,7 +443,7 @@ class SepaDirectDebit extends AbstractMethod
         $customerAccountName = $paymentInfo->getAdditionalInformation('customer_account_name');
 
         if (empty($customerAccountName) || str_word_count($customerAccountName) < 2) {
-            throw new \TIG\Buckaroo\Exception(__('Please enter a valid bank account holder name'));
+            throw new \Buckaroo\Magento2\Exception(__('Please enter a valid bank account holder name'));
         }
         if ($paymentInfo instanceof Payment) {
             $billingCountry = $paymentInfo->getOrder()->getBillingAddress()->getCountryId();
@@ -456,11 +456,11 @@ class SepaDirectDebit extends AbstractMethod
 
         $ibanValidator = $this->objectManager->create(\Zend\Validator\Iban::class);
         if (empty($customerIban) || !$ibanValidator->isValid($customerIban)) {
-            throw new \TIG\Buckaroo\Exception(__('Please enter a valid bank account number'));
+            throw new \Buckaroo\Magento2\Exception(__('Please enter a valid bank account number'));
         }
 
         if ($billingCountry != 'NL' && !preg_match(self::BIC_NUMBER_REGEX, $customerBic)) {
-            throw new \TIG\Buckaroo\Exception(__('Please enter a valid BIC number'));
+            throw new \Buckaroo\Magento2\Exception(__('Please enter a valid BIC number'));
         }
 
         return $this;

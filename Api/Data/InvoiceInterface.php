@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Api\Data;
+namespace Buckaroo\Magento2\Api\Data;
 
 interface InvoiceInterface
 {

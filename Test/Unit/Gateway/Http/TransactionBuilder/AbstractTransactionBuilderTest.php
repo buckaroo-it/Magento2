@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Gateway\Http\TransactionBuilder;
+namespace Buckaroo\Magento2\Test\Unit\Gateway\Http\TransactionBuilder;
 
 use Magento\Sales\Model\Order;
-use TIG\Buckaroo\Gateway\Http\Transaction;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\Transaction;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class AbstractTransactionBuilderTest extends BaseTest
 {

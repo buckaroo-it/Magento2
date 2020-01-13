@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Total\Invoice\Tax;
+namespace Buckaroo\Magento2\Model\Total\Invoice\Tax;
 
 class BuckarooFee extends \Magento\Sales\Model\Order\Invoice\Total\AbstractTotal
 {

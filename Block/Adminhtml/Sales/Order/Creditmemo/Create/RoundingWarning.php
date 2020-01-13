@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Adminhtml\Sales\Order\Creditmemo\Create;
+namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create;
 
 class RoundingWarning extends \Magento\Backend\Block\Template
 {
@@ -29,7 +29,7 @@ class RoundingWarning extends \Magento\Backend\Block\Template
     protected $registry;
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Factory
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
      */
     protected $configProviderFactory;
 
@@ -37,13 +37,13 @@ class RoundingWarning extends \Magento\Backend\Block\Template
      * RoundingWarning constructor.
      *
      * @param \Magento\Framework\Registry                       $registry
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory
      * @param \Magento\Backend\Block\Template\Context           $context
      * @param array                                             $data
      */
     public function __construct(
         \Magento\Framework\Registry $registry,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderFactory,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory,
         \Magento\Backend\Block\Template\Context $context,
         array $data = []
     ) {
@@ -66,7 +66,7 @@ class RoundingWarning extends \Magento\Backend\Block\Template
     /**
      * @return bool
      * @throws \LogicException
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     protected function shouldShowWarning()
     {
@@ -98,12 +98,12 @@ class RoundingWarning extends \Magento\Backend\Block\Template
          */
         $payment = $creditmemo->getOrder()->getPayment();
         $paymentMethod = $payment->getMethod();
-        if (strpos($paymentMethod, 'tig_buckaroo') === false) {
+        if (strpos($paymentMethod, 'buckaroo_magento2') === false) {
             return false;
         }
 
         /**
-         * @var \TIG\Buckaroo\Model\Method\AbstractMethod $paymentMethodInstance
+         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $paymentMethodInstance
          */
         $paymentMethodInstance = $payment->getMethodInstance();
 

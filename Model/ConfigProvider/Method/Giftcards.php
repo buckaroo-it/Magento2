@@ -17,24 +17,24 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Giftcards extends AbstractConfigProvider
 {
-    const XPATH_GIFTCARDS_PAYMENT_FEE           = 'payment/tig_buckaroo_giftcards/payment_fee';
-    const XPATH_GIFTCARDS_PAYMENT_FEE_LABEL     = 'payment/tig_buckaroo_giftcards/payment_fee_label';
-    const XPATH_GIFTCARDS_ACTIVE                = 'payment/tig_buckaroo_giftcards/active';
-    const XPATH_GIFTCARDS_ACTIVE_STATUS         = 'payment/tig_buckaroo_giftcards/active_status';
-    const XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS  = 'payment/tig_buckaroo_giftcards/order_status_success';
-    const XPATH_GIFTCARDS_ORDER_STATUS_FAILED   = 'payment/tig_buckaroo_giftcards/order_status_failed';
-    const XPATH_GIFTCARDS_ORDER_EMAIL           = 'payment/tig_buckaroo_giftcards/order_email';
-    const XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND  = 'payment/tig_buckaroo_giftcards/available_in_backend';
-    const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS     = 'payment/tig_buckaroo_giftcards/allowed_giftcards';
+    const XPATH_GIFTCARDS_PAYMENT_FEE           = 'payment/buckaroo_magento2_giftcards/payment_fee';
+    const XPATH_GIFTCARDS_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_giftcards/payment_fee_label';
+    const XPATH_GIFTCARDS_ACTIVE                = 'payment/buckaroo_magento2_giftcards/active';
+    const XPATH_GIFTCARDS_ACTIVE_STATUS         = 'payment/buckaroo_magento2_giftcards/active_status';
+    const XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_giftcards/order_status_success';
+    const XPATH_GIFTCARDS_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_giftcards/order_status_failed';
+    const XPATH_GIFTCARDS_ORDER_EMAIL           = 'payment/buckaroo_magento2_giftcards/order_email';
+    const XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_giftcards/available_in_backend';
+    const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS     = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_giftcards/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_giftcards/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_giftcards/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_giftcards/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_giftcards/specificcountry';
 
     /**
      * @var array
@@ -55,7 +55,7 @@ class Giftcards extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Giftcards::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

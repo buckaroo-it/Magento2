@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Service\Plugin\PaypalSellersProtection;
+namespace Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection;
 
-use TIG\Buckaroo\Model\ConfigProvider\Method\Paypal;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 
 class Push
 {
@@ -49,14 +49,14 @@ class Push
     }
 
     /**
-     * @param \TIG\Buckaroo\Model\Push $push
+     * @param \Buckaroo\Magento2\Model\Push $push
      * @param boolean                  $result
      *
      * @return bool
      * @throws \InvalidArgumentException
      */
     public function afterProcessSucceededPush(
-        \TIG\Buckaroo\Model\Push $push,
+        \Buckaroo\Magento2\Model\Push $push,
         $result
     ) {
         if (empty($push->postData['brq_service_paypal_protectioneligibility'])

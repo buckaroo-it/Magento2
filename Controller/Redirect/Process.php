@@ -18,10 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Controller\Redirect;
+namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Magento\Sales\Api\Data\TransactionInterface;
-use TIG\Buckaroo\Logging\Log;
+use Buckaroo\Magento2\Logging\Log;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -44,7 +44,7 @@ class Process extends \Magento\Framework\App\Action\Action
     private $transaction;
 
     /**
-     * @var \TIG\Buckaroo\Helper\Data $helper
+     * @var \Buckaroo\Magento2\Helper\Data $helper
      */
     protected $helper;
 
@@ -64,7 +64,7 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $orderSender;
 
     /**
-     * @var \TIG\Buckaroo\Model\OrderStatusFactory
+     * @var \Buckaroo\Magento2\Model\OrderStatusFactory
      */
     protected $orderStatusFactory;
 
@@ -75,29 +75,29 @@ class Process extends \Magento\Framework\App\Action\Action
 
     /**
      * @param \Magento\Framework\App\Action\Context               $context
-     * @param \TIG\Buckaroo\Helper\Data                           $helper
+     * @param \Buckaroo\Magento2\Helper\Data                           $helper
      * @param \Magento\Checkout\Model\Cart                        $cart
      * @param \Magento\Sales\Model\Order                          $order
      * @param \Magento\Quote\Model\Quote                          $quote
      * @param TransactionInterface        $transaction
      * @param Log                                                 $logger
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Factory          $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory          $configProviderFactory
      * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
-     * @param \TIG\Buckaroo\Model\OrderStatusFactory              $orderStatusFactory
+     * @param \Buckaroo\Magento2\Model\OrderStatusFactory              $orderStatusFactory
      *
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \TIG\Buckaroo\Helper\Data $helper,
+        \Buckaroo\Magento2\Helper\Data $helper,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Sales\Model\Order $order,
         \Magento\Quote\Model\Quote $quote,
         TransactionInterface $transaction,
         Log $logger,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \TIG\Buckaroo\Model\OrderStatusFactory $orderStatusFactory
+        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -135,7 +135,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->loadOrder();
 
         if (!$this->order->getId()) {
-            $statusCode = $this->helper->getStatusCode('TIG_BUCKAROO_ORDER_FAILED');
+            $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED');
         } else {
             $this->quote->load($this->order->getQuoteId());
         }
@@ -147,12 +147,12 @@ class Process extends \Magento\Framework\App\Action\Action
         }
 
         switch ($statusCode) {
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_SUCCESS'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_PENDING_PROCESSING'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
                 if ($this->order->canInvoice()) {
                     // Set the 'Pending payment status' here
                     $pendingStatus = $this->orderStatusFactory->get(
-                        $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_PENDING_PROCESSING'),
+                        $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'),
                         $this->order
                     );
                     if ($pendingStatus) {
@@ -182,10 +182,10 @@ class Process extends \Magento\Framework\App\Action\Action
                 // Redirect to success page
                 $this->redirectSuccess();
                 break;
-            case $this->helper->getStatusCode('TIG_BUCKAROO_ORDER_FAILED'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_FAILED'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_REJECTED'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_USER'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
                 /*
                 * Something went wrong, so we're going to have to
                 * 1) recreate the quote for the user
@@ -195,16 +195,16 @@ class Process extends \Magento\Framework\App\Action\Action
 
                 // StatusCode specified error messages
                 $statusCodeAddErrorMessage = array();
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('TIG_BUCKAROO_ORDER_FAILED')] =
+                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
                     'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                     ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_FAILED')] =
+                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')] =
                     'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                     ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_REJECTED')] =
+                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')] =
                     'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                     ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_USER')] =
+                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')] =
                     'According to our system, you have canceled the payment. If this' .
                     ' is not the case, please contact us.';
 
@@ -231,7 +231,7 @@ class Process extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     private function loadOrder()
     {
@@ -255,7 +255,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
     /**
      * @return bool
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     private function getOrderByTransactionKey()
     {
@@ -273,7 +273,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $order = $this->transaction->getOrder();
 
         if (!$order) {
-            throw new \TIG\Buckaroo\Exception(__('There was no order found by transaction Id'));
+            throw new \Buckaroo\Magento2\Exception(__('There was no order found by transaction Id'));
         }
 
         return $order;

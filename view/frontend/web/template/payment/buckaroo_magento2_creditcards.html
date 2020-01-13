@@ -1,10 +1,10 @@
-<div class="tig_buckaroo_creditcards payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+<div class="buckaroo_magento2_creditcards payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
     <div class="payment-method-title field choice">
         <input type="radio"
                name="payment[method]"
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-        <label class="tig_buckaroo_image_title label" data-bind="attr: {'for': getCode()}" ><span data-bind="text: getTitle()"></span></label>
+        <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': getCode()}" ><span data-bind="text: getTitle()"></span></label>
     </div>
 
     <div class="payment-method-content">
@@ -30,13 +30,13 @@
                         </div>
 
                         <div class="field required width-70" >
-                            <label class="label" for="tig_buckaroo_creditcards_issuer"> <span data-bind="i18n: 'Card:'"> </span> </label>
+                            <label class="label" for="buckaroo_magento2_creditcards_issuer"> <span data-bind="i18n: 'Card:'"> </span> </label>
                             <div class="control">
-                                <select id="tig_buckaroo_creditcards_issuer" class="field"
+                                <select id="buckaroo_magento2_creditcards_issuer" class="field"
                                         data-bind="value: CardIssuer,
                                         event: { change: validateIssuer },
                                         attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
-                                        name="payment[tig_buckaroo_creditcards][issuer]">
+                                        name="payment[buckaroo_magento2_creditcards][issuer]">
                                     <option data-bind="i18n: 'Select a card', 'value': ''"></option>
                                     <!-- ko foreach: creditcards -->
                                         <!-- ko if: active -->
@@ -48,12 +48,12 @@
                         </div>
 
                         <div class="field required width-100" >
-                            <label class="label" for="tig_buckaroo_creditcards_cardholdername"> <span data-bind="i18n: 'Cardholder:'"> </span> </label>
+                            <label class="label" for="buckaroo_magento2_creditcards_cardholdername"> <span data-bind="i18n: 'Cardholder:'"> </span> </label>
                             <div class="control">
-                                <input id="tig_buckaroo_creditcards_cardholdername"
+                                <input id="buckaroo_magento2_creditcards_cardholdername"
                                        type="text"
                                        class="input-text field"
-                                       name="payment[tig_buckaroo_creditcards][cardholdername]"
+                                       name="payment[buckaroo_magento2_creditcards][cardholdername]"
                                        data-bind="
                             valueUpdate: 'blur',
                             value: CardHolderName,
@@ -64,12 +64,12 @@
                         </div>
 
                         <div class="field required width-100" >
-                            <label class="label" for="tig_buckaroo_creditcards_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
+                            <label class="label" for="buckaroo_magento2_creditcards_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
                             <div class="control">
-                                <input id="tig_buckaroo_creditcards_cardnumber"
+                                <input id="buckaroo_magento2_creditcards_cardnumber"
                                        type="text"
                                        class="input-text field"
-                                       name="payment[tig_buckaroo_creditcards][cardnumber]"
+                                       name="payment[buckaroo_magento2_creditcards][cardnumber]"
                                        data-bind="
                             valueUpdate: 'blur',
                             value: CardNumber,
@@ -80,13 +80,13 @@
                         </div>
 
                         <div class="field required width-50-l" >
-                            <label class="label" for="tig_buckaroo_creditcards_expirationmonth"><span data-bind="i18n: 'Month:'"></span></label>
+                            <label class="label" for="buckaroo_magento2_creditcards_expirationmonth"><span data-bind="i18n: 'Month:'"></span></label>
                             <div class="control">
-                                <select id="tig_buckaroo_creditcards_expirationmonth" class="field"
+                                <select id="buckaroo_magento2_creditcards_expirationmonth" class="field"
                                         data-bind="value: ExpirationMonth,
                                         attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
                                         event: { change: validateMonth }"
-                                        name="payment[tig_buckaroo_creditcards][expirationmonth]">
+                                        name="payment[buckaroo_magento2_creditcards][expirationmonth]">
                                     <!-- ko foreach: months -->
                                     <option data-bind="i18n: label, 'value': value"></option>
                                     <!--/ko-->
@@ -95,14 +95,14 @@
                         </div>
 
                         <div class="field required width-50-r" >
-                            <label class="label" for="tig_buckaroo_creditcards_expirationyear"><span data-bind="i18n: 'Year:'"></span></label>
+                            <label class="label" for="buckaroo_magento2_creditcards_expirationyear"><span data-bind="i18n: 'Year:'"></span></label>
                             <div class="control">
-                                <select id="tig_buckaroo_creditcards_expirationyear" class="field"
+                                <select id="buckaroo_magento2_creditcards_expirationyear" class="field"
                                         data-bind="value: ExpirationYear,
                                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
                                                    event: { change: validateYear },
                                                    foreach: getYears()"
-                                        name="payment[tig_buckaroo_creditcards][expirationyear]">
+                                        name="payment[buckaroo_magento2_creditcards][expirationyear]">
                                     <option data-bind="i18n: label, 'value': value"></option>
                                 </select>
                             </div>
@@ -114,12 +114,12 @@
                         <div class="magnet_stripe width-100"></div>
 
                         <div class="field required card_security width-100" >
-                            <label class="label width-65-l" for="tig_buckaroo_creditcards_cvc"> <span data-bind="i18n: 'Security Code:'"> </span> </label>
+                            <label class="label width-65-l" for="buckaroo_magento2_creditcards_cvc"> <span data-bind="i18n: 'Security Code:'"> </span> </label>
                             <div class="control card-info-input width-25-l">
-                                <input id="tig_buckaroo_creditcards_cvc"
+                                <input id="buckaroo_magento2_creditcards_cvc"
                                        type="text"
                                        class="input-text field"
-                                       name="payment[tig_buckaroo_creditcards][cvc]"
+                                       name="payment[buckaroo_magento2_creditcards][cvc]"
                                        data-bind="
                             valueUpdate: 'blur',
                             value: Cvc,
@@ -162,7 +162,7 @@
         </div>
 
         <!-- ko if: payWithBaseCurrency() -->
-        <div class="tig_buckaroo_currency-notification">
+        <div class="buckaroo_magento2_currency-notification">
             <span data-bind="text: getPayWithBaseCurrencyText()"></span>
         </div>
         <!--/ko-->

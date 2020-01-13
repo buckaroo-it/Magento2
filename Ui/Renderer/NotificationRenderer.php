@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Ui\Renderer;
+namespace Buckaroo\Magento2\Ui\Renderer;
 
 use Magento\Framework\Escaper;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
@@ -152,7 +152,7 @@ class NotificationRenderer
         foreach ($subHeadings as $subHeading) {
             if (! empty($subHeading['imageUrl'])) {
                 $imageUrl = $this->assetRepository->getUrl($subHeading['imageUrl']);
-                $content .= "<div class='tig-highlight-item'>";
+                $content .= "<div class='buckaroo-highlight-item'>";
                 $content .= '<img src="'.$this->escaper->escapeUrl($imageUrl).'" />';
             } else {
                 $content .= "<div class='highlight-item-no-image'>";

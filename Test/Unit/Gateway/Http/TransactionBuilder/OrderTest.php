@@ -17,17 +17,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Gateway\Http\TransactionBuilder;
+namespace Buckaroo\Magento2\Test\Unit\Gateway\Http\TransactionBuilder;
 
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Url;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class OrderTest extends BaseTest
 {
@@ -277,9 +277,9 @@ class OrderTest extends BaseTest
         return [
             'instance has no return url' => [
                 null,
-                'tig.nl',
+                'support.buckaroo.nl',
                 '123abc',
-                'tig.nl?form_key=123abc'
+                'support.buckaroo.nl?form_key=123abc'
             ],
             'instance has return url' => [
                 'magento.com',
@@ -327,7 +327,7 @@ class OrderTest extends BaseTest
 
     public function testGetAllowedCurrencies()
     {
-        $paymentMethod = 'tig_payment_method';
+        $paymentMethod = 'buckaroo_payment_method';
         $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['getMethodInstance'])->getMock();
         $paymentMock->expects($this->once())->method('getMethodInstance')->willReturnSelf();
         $paymentMock->buckarooPaymentMethodCode = $paymentMethod;

@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Controller\Adminhtml\Giftcard;
+namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
-use TIG\Buckaroo\Model\GiftcardFactory;
+use Buckaroo\Magento2\Model\GiftcardFactory;
 
 class Index extends \Magento\Backend\App\Action
 {
@@ -69,7 +69,7 @@ class Index extends \Magento\Backend\App\Action
          * @var \Magento\Backend\Model\View\Result\Page $resultPage
          */
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('TIG_Buckaroo::buckaroo_giftcards');
+        $resultPage->setActiveMenu('Buckaroo_Magento2::buckaroo_giftcards');
         $resultPage->getConfig()->getTitle()->prepend(__('Buckaroo Giftcards'));
 
         return $resultPage;
@@ -82,6 +82,6 @@ class Index extends \Magento\Backend\App\Action
      */
     protected function _isAllowed()
     {
-        return $this->_authorization->isAllowed('TIG_Buckaroo::buckaroo_giftcards');
+        return $this->_authorization->isAllowed('Buckaroo_Magento2::buckaroo_giftcards');
     }
 }

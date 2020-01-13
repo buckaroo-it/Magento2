@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Controller\Payconiq;
+namespace Buckaroo\Magento2\Controller\Payconiq;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Action;
@@ -29,9 +29,9 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Service\Sales\Transaction\Cancel as TransactionCancel;
-use TIG\Buckaroo\Service\Sales\Quote\Recreate as QuoteRecreate;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Service\Sales\Transaction\Cancel as TransactionCancel;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 
 class Process extends Action
 {
@@ -81,7 +81,7 @@ class Process extends Action
     /**
      * @return ResponseInterface|ResultInterface
      * @throws LocalizedException
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function execute()
     {
@@ -123,7 +123,7 @@ class Process extends Action
 
     /**
      * @return TransactionInterface|Transaction
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     private function getTransaction()
     {
@@ -134,7 +134,7 @@ class Process extends Action
         $list = $this->getList();
 
         if ($list->getTotalCount() <= 0) {
-            throw new \TIG\Buckaroo\Exception(__('There was no transaction found by transaction Id'));
+            throw new \Buckaroo\Magento2\Exception(__('There was no transaction found by transaction Id'));
         }
 
         $items = $list->getItems();
@@ -145,14 +145,14 @@ class Process extends Action
 
     /**
      * @return TransactionSearchResultInterface
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     private function getList()
     {
         $transactionKey = $this->getTransactionKey();
 
         if (!$transactionKey) {
-            throw new \TIG\Buckaroo\Exception(__('There was no transaction found by transaction Id'));
+            throw new \Buckaroo\Magento2\Exception(__('There was no transaction found by transaction Id'));
         }
 
         $searchCriteria = $this->searchCriteriaBuilder->addFilter('txn_id', $transactionKey);

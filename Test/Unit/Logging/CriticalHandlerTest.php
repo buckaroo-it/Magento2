@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Logging;
+namespace Buckaroo\Magento2\Test\Unit\Logging;
 
 use Monolog\Logger;
-use TIG\Buckaroo\Logging\CriticalHandler;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Logging\CriticalHandler;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class CriticalHandlerTest extends BaseTest
 {

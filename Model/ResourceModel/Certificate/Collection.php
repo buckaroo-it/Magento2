@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ResourceModel\Certificate;
+namespace Buckaroo\Magento2\Model\ResourceModel\Certificate;
 
 class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractCollection
 {
@@ -33,7 +33,7 @@ class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractC
      *
      * @var string
      */
-    protected $_eventPrefix = 'tig_buckaroo_certificate_collection';
+    protected $_eventPrefix = 'buckaroo_magento2_certificate_collection';
 
     /**
      * Event object
@@ -49,7 +49,7 @@ class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractC
      */
     protected function _construct()
     {
-        $this->_init('TIG\Buckaroo\Model\Certificate', 'TIG\Buckaroo\Model\ResourceModel\Certificate');
+        $this->_init('Buckaroo\Magento2\Model\Certificate', 'Buckaroo\Magento2\Model\ResourceModel\Certificate');
     }
     // @codingStandardsIgnoreEnd
 }

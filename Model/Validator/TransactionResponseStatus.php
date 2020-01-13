@@ -19,12 +19,12 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Validator;
+namespace Buckaroo\Magento2\Model\Validator;
 
-class TransactionResponseStatus implements \TIG\Buckaroo\Model\ValidatorInterface
+class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInterface
 {
     /**
-     * @var \TIG\Buckaroo\Helper\Data $helper
+     * @var \Buckaroo\Magento2\Helper\Data $helper
      */
     protected $helper;
 
@@ -34,9 +34,9 @@ class TransactionResponseStatus implements \TIG\Buckaroo\Model\ValidatorInterfac
     protected $transaction;
 
     /**
-     * @param \TIG\Buckaroo\Helper\Data $helper
+     * @param \Buckaroo\Magento2\Helper\Data $helper
      */
-    public function __construct(\TIG\Buckaroo\Helper\Data $helper)
+    public function __construct(\Buckaroo\Magento2\Helper\Data $helper)
     {
         $this->helper = $helper;
     }
@@ -45,7 +45,7 @@ class TransactionResponseStatus implements \TIG\Buckaroo\Model\ValidatorInterfac
      * @param array|object $data
      *
      * @return bool
-     * @throws \TIG\Buckaroo\Exception|\InvalidArgumentException
+     * @throws \Buckaroo\Magento2\Exception|\InvalidArgumentException
      */
     public function validate($data)
     {
@@ -59,24 +59,24 @@ class TransactionResponseStatus implements \TIG\Buckaroo\Model\ValidatorInterfac
         $statusCode = $this->getStatusCode();
 
         switch ($statusCode) {
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_SUCCESS'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_PENDING_PROCESSING'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_WAITING_ON_USER_INPUT'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_WAITING_ON_CONSUMER'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_HOLD'):
                 $success = true;
                 break;
-            case $this->helper->getStatusCode('TIG_BUCKAROO_ORDER_FAILED'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_VALIDATION_FAILURE'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_TECHNICAL_ERROR'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_FAILED'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_REJECTED'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_USER'):
-            case $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
+            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT'):
                 $success = false;
                 break;
             default:
-                throw new \TIG\Buckaroo\Exception(
+                throw new \Buckaroo\Magento2\Exception(
                     new \Magento\Framework\Phrase(
                         "Invalid Buckaroo status code received: %1.",
                         [$statusCode]
@@ -103,7 +103,7 @@ class TransactionResponseStatus implements \TIG\Buckaroo\Model\ValidatorInterfac
             && isset($this->transaction->Transaction->IsCanceled)
             && $this->transaction->Transaction->IsCanceled == true
         ) {
-            $statusCode = $this->helper->getStatusCode('TIG_BUCKAROO_STATUSCODE_SUCCESS');
+            $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         }
 
         return $statusCode;

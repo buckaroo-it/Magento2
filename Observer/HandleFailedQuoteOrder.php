@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Observer;
+namespace Buckaroo\Magento2\Observer;
 
 class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterface
 {
@@ -49,9 +49,9 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/AbstractMethod.php:880
             $payment = $order->getPayment();
-            if ($payment->getMethodInstance()->getCode() == 'tig_buckaroo_afterpay'
-                || $payment->getMethodInstance()->getCode() == 'tig_buckaroo_afterpay2'
-                || $payment->getMethodInstance()->getCode() == 'tig_buckaroo_klarna'
+            if ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay'
+                || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay2'
+                || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarna'
             ) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                 $payment->save();

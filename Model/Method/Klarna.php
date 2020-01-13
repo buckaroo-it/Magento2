@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use TIG\Buckaroo\Service\Formatter\AddressFormatter;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Checkout\Model\Cart;
@@ -35,7 +35,7 @@ class Klarna extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_klarna';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarna';
 
     /**
      * Check if the tax calculation includes tax.
@@ -161,14 +161,14 @@ class Klarna extends AbstractMethod
      * @param AddressFormatter $addressFormatter
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
-     * @param \TIG\Buckaroo\Gateway\GatewayInterface $gateway
-     * @param \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \TIG\Buckaroo\Model\ValidatorFactory $validatorFactory
-     * @param \TIG\Buckaroo\Helper\Data $helper
+     * @param \Buckaroo\Magento2\Gateway\GatewayInterface $gateway
+     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
+     * @param \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory
+     * @param \Buckaroo\Magento2\Helper\Data $helper
      * @param \Magento\Framework\App\RequestInterface $request
-     * @param \TIG\Buckaroo\Model\RefundFieldsFactory $refundFieldsFactory
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
+     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
      * @param array $data
      */
@@ -189,14 +189,14 @@ class Klarna extends AbstractMethod
         AddressFormatter $addressFormatter,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \TIG\Buckaroo\Gateway\GatewayInterface $gateway = null,
-        \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \TIG\Buckaroo\Model\ValidatorFactory $validatorFactory = null,
-        \TIG\Buckaroo\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        \Buckaroo\Magento2\Helper\Data $helper = null,
         \Magento\Framework\App\RequestInterface $request = null,
-        \TIG\Buckaroo\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
@@ -286,8 +286,8 @@ class Klarna extends AbstractMethod
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface|bool
-     * @throws \TIG\Buckaroo\Exception
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getCaptureTransactionBuilder($payment)
     {
@@ -389,8 +389,8 @@ class Klarna extends AbstractMethod
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface|bool
-     * @throws \TIG\Buckaroo\Exception
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getRefundTransactionBuilder($payment)
     {
@@ -450,8 +450,8 @@ class Klarna extends AbstractMethod
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface|bool
-     * @throws \TIG\Buckaroo\Exception
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getVoidTransactionBuilder($payment)
     {
@@ -689,11 +689,11 @@ class Klarna extends AbstractMethod
     /**
      * @return bool
      *
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     private function checkInvoiceSendByEmail()
     {
-        /** @var \TIG\Buckaroo\Model\ConfigProvider\Method\Klarna $klarnaConfig */
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna $klarnaConfig */
         $klarnaConfig = $this->configProviderMethodFactory->get(self::PAYMENT_METHOD_CODE);
 
         return (string)$klarnaConfig->getInvoiceSendMethod() === 'email';

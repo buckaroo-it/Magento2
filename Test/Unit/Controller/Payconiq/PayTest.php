@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Controller\Payconiq;
+namespace Buckaroo\Magento2\Test\Unit\Controller\Payconiq;
 
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
-use TIG\Buckaroo\Controller\Payconiq\Pay;
+use Buckaroo\Magento2\Controller\Payconiq\Pay;
 
-class PayTest extends \TIG\Buckaroo\Test\BaseTest
+class PayTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Pay::class;
 

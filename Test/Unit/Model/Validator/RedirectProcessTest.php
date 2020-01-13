@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Validator;
+namespace Buckaroo\Magento2\Test\Unit\Model\Validator;
 
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Model\Validator\RedirectProcess;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Model\Validator\RedirectProcess;
 
 class RedirectProcessTest extends BaseTest
 {

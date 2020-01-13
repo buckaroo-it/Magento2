@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Plugin;
+namespace Buckaroo\Magento2\Model\Plugin;
 
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -50,7 +50,7 @@ class CommandInterface
         $paymentAction = $methodInstance->getConfigPaymentAction();
         $paymentCode = substr($methodInstance->getCode(), 0, 13);
 
-        if ($paymentCode == 'tig_buckaroo_' && $paymentAction) {
+        if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
             $this->updateOrderStateAndStatus($order, $methodInstance);
         }
 

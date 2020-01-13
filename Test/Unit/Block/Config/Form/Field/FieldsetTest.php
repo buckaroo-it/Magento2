@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Block\Config\Form\Field;
+namespace Buckaroo\Magento2\Test\Unit\Block\Config\Form\Field;
 
 use Magento\Backend\Block\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Block\Config\Form\Field\Fieldset;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Block\Config\Form\Field\Fieldset;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class EditTest extends BaseTest
 {
@@ -80,7 +80,7 @@ class EditTest extends BaseTest
         $elementGroupArray = [
             'children' => [
                 'active' => [
-                    'config_path' => 'tig_buckaroo/config/path'
+                    'config_path' => 'buckaroo_magento2/config/path'
                 ]
             ]
         ];
@@ -92,7 +92,7 @@ class EditTest extends BaseTest
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with('tig_buckaroo/config/path', ScopeConfigInterface::SCOPE_TYPE_DEFAULT, null)
+            ->with('buckaroo_magento2/config/path', ScopeConfigInterface::SCOPE_TYPE_DEFAULT, null)
             ->willReturn('1');
 
         $contextMock = $this->getFakeMock(Context::class)->setMethods(['getScopeConfig', 'getRequest'])->getMock();

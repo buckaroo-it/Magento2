@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Ui\DataProvider\Modifier;
+namespace Buckaroo\Magento2\Ui\DataProvider\Modifier;
 
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\FileSystemException;
@@ -25,7 +25,7 @@ use Magento\Framework\Filesystem\Directory\ReadFactory;
 use Magento\Framework\Module\Dir\Reader;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Ui\DataProvider\Modifier\ModifierInterface;
-use TIG\Buckaroo\Ui\Renderer\NotificationRenderer;
+use Buckaroo\Magento2\Ui\Renderer\NotificationRenderer;
 
 /**
  * @see \Magento\ReleaseNotification\Ui\DataProvider\Modifier\Notifications
@@ -172,11 +172,11 @@ class Notifications implements ModifierInterface
      */
     private function getNotificationContent()
     {
-        $cacheKey = 'tig-release-notification';
+        $cacheKey = 'buckaroo-release-notification';
         $modalContent = $this->cacheStorage->load($cacheKey);
         if ($modalContent === false) {
             $readDirectory  = $this->readFactory->create(
-                $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'TIG_Buckaroo'),
+                $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Buckaroo_Magento2'),
                 \Magento\Framework\Filesystem\DriverPool::FILE
             );
             $modalContent = $readDirectory->readFile('release-notification.json');

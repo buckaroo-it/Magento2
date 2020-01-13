@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Observer;
+namespace Buckaroo\Magento2\Test\Unit\Observer;
 
 use Magento\Framework\Event\Observer;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Observer\UpdateOrderStatus;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Observer\UpdateOrderStatus;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class UpdateOrderStatusTest extends BaseTest
 {
@@ -50,15 +50,15 @@ class UpdateOrderStatusTest extends BaseTest
             ->setMethods(['getPayment', 'getMethod', 'getOrder', 'getStore', 'setStatus'])
             ->getMock();
         $observerMock->expects($this->once())->method('getPayment')->willReturnSelf();
-        $observerMock->expects($this->once())->method('getMethod')->willReturn('tig_buckaroo');
+        $observerMock->expects($this->once())->method('getMethod')->willReturn('buckaroo_magento2');
         $observerMock->expects($this->once())->method('getOrder')->willReturnSelf();
         $observerMock->method('getStore')->willReturnSelf();
-        $observerMock->expects($this->once())->method('setStatus')->willReturn('tig_buckaroo_pending_payment');
+        $observerMock->expects($this->once())->method('setStatus')->willReturn('buckaroo_magento2_pending_payment');
 
         $accountMock = $this->getFakeMock(Account::class)
             ->setMethods(['getOrderStatusNew', 'getCreateOrderBeforeTransaction'])
             ->getMock();
-        $accountMock->expects($this->once())->method('getOrderStatusNew')->willReturn('tig_buckaroo_pending_payment');
+        $accountMock->expects($this->once())->method('getOrderStatusNew')->willReturn('buckaroo_magento2_pending_payment');
         $accountMock->expects($this->once())->method('getCreateOrderBeforeTransaction')->willReturn(0);
 
         $instance = $this->getInstance(['account' => $accountMock]);

@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Adminhtml\Giftcard;
+namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard;
 
 use Magento\Backend\Block\Widget\Context;
 use Magento\Framework\Registry;
@@ -47,7 +47,7 @@ class Edit extends \Magento\Backend\Block\Widget\Form\Container
     protected function _construct()
     {
         $this->_objectId = 'entity_id';
-        $this->_blockGroup = 'TIG_Buckaroo';
+        $this->_blockGroup = 'Buckaroo_Magento2';
         $this->_controller = 'adminhtml_giftcard';
 
         parent::_construct();

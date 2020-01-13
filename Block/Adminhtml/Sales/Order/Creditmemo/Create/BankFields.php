@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Adminhtml\Sales\Order\Creditmemo\Create;
+namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create;
 
 class BankFields extends \Magento\Backend\Block\Template
 {
@@ -26,24 +26,24 @@ class BankFields extends \Magento\Backend\Block\Template
     protected $orderPaymentBlock    = 'order_payment';
 
     /**
-     * @var \TIG\Buckaroo\Model\RefundFieldsFactory
+     * @var \Buckaroo\Magento2\Model\RefundFieldsFactory
      */
     protected $refundFieldsFactory;
 
     /**
-     * @var \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory
+     * @var \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory
      */
     protected $transactionBuilder;
 
     /**
      * @param \Magento\Backend\Block\Template\Context              $context
-     * @param \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \TIG\Buckaroo\Model\RefundFieldsFactory              $refundFieldsFactory
+     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
+     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory              $refundFieldsFactory
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
-        \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \TIG\Buckaroo\Model\RefundFieldsFactory $refundFieldsFactory = null
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null
     ) {
         $this->refundFieldsFactory = $refundFieldsFactory;
         $this->transactionBuilder = $transactionBuilderFactory;

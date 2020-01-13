@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Adminhtml\Giftcard;
+namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard;
 
 class Grid extends \Magento\Backend\Block\Widget\Grid\Container
 {
     protected function _construct()
     {
-        $this->_blockGroup = 'TIG_Buckaroo';
+        $this->_blockGroup = 'Buckaroo_Magento2';
         $this->_controller = 'adminhtml_giftcard';
         $this->_headerText = __('Buckaroo Giftcards');
         $this->_addButtonLabel = __('Add New Giftcard');

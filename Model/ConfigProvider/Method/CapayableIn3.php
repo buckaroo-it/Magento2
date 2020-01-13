@@ -18,10 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Model\Method\Capayable\Installments as CapayableIn3Method;
+use Buckaroo\Magento2\Model\Method\Capayable\Installments as CapayableIn3Method;
 
 /**
  * @method getPaymentFeeLabel()
@@ -29,20 +29,20 @@ use TIG\Buckaroo\Model\Method\Capayable\Installments as CapayableIn3Method;
  */
 class CapayableIn3 extends AbstractConfigProvider
 {
-    const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/tig_buckaroo_capayablein3/payment_fee';
-    const XPATH_CAPAYABLEIN3_PAYMENT_FEE_LABEL    = 'payment/tig_buckaroo_capayablein3/payment_fee_label';
-    const XPATH_CAPAYABLEIN3_ACTIVE               = 'payment/tig_buckaroo_capayablein3/active';
-    const XPATH_CAPAYABLEIN3_ACTIVE_STATUS        = 'payment/tig_buckaroo_capayablein3/active_status';
-    const XPATH_CAPAYABLEIN3_ORDER_STATUS_SUCCESS = 'payment/tig_buckaroo_capayablein3/order_status_success';
-    const XPATH_CAPAYABLEIN3_ORDER_STATUS_FAILED  = 'payment/tig_buckaroo_capayablein3/order_status_failed';
-    const XPATH_CAPAYABLEIN3_ORDER_EMAIL          = 'payment/tig_buckaroo_capayablein3/order_email';
-    const XPATH_CAPAYABLEIN3_AVAILABLE_IN_BACKEND = 'payment/tig_buckaroo_capayablein3/available_in_backend';
+    const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
+    const XPATH_CAPAYABLEIN3_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_capayablein3/payment_fee_label';
+    const XPATH_CAPAYABLEIN3_ACTIVE               = 'payment/buckaroo_magento2_capayablein3/active';
+    const XPATH_CAPAYABLEIN3_ACTIVE_STATUS        = 'payment/buckaroo_magento2_capayablein3/active_status';
+    const XPATH_CAPAYABLEIN3_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_capayablein3/order_status_success';
+    const XPATH_CAPAYABLEIN3_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_capayablein3/order_status_failed';
+    const XPATH_CAPAYABLEIN3_ORDER_EMAIL          = 'payment/buckaroo_magento2_capayablein3/order_email';
+    const XPATH_CAPAYABLEIN3_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_capayablein3/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_capayablein3/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC     = 'payment/tig_buckaroo_capayablein3/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY   = 'payment/tig_buckaroo_capayablein3/specificcountry';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_capayablein3/allowed_currencies';
+    const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_capayablein3/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_capayablein3/specificcountry';
 
-    const XPATH_CAPAYABLEIN3_VERSION = 'payment/tig_buckaroo_capayablein3/version';
+    const XPATH_CAPAYABLEIN3_VERSION = 'payment/buckaroo_magento2_capayablein3/version';
 
     /** @var array */
     protected $allowedCurrencies = [

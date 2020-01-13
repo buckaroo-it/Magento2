@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Source;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
-use TIG\Buckaroo\Model\Config\Source\Giftcards;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Config\Source\Giftcards;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class GiftcardsTest extends BaseTest
 {
@@ -113,7 +113,7 @@ class GiftcardsTest extends BaseTest
         $modelsResult = [];
 
         foreach ($giftcardData as $giftcard) {
-            $modelMock = $this->getFakeMock(\TIG\Buckaroo\Api\Data\GiftcardInterface::class)->getMock();
+            $modelMock = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\GiftcardInterface::class)->getMock();
             $modelMock->expects($this->once())->method('getServicecode')->willReturn($giftcard['servicecode']);
             $modelMock->expects($this->once())->method('getLabel')->willReturn($giftcard['label']);
             $modelsResult[] = $modelMock;
@@ -123,7 +123,7 @@ class GiftcardsTest extends BaseTest
         $searchResult->setItems($modelsResult);
         $searchResult->setTotalCount(count($modelsResult));
 
-        $giftcardRepositoryMock = $this->getFakeMock(\TIG\Buckaroo\Api\GiftcardRepositoryInterface::class)->getMock();
+        $giftcardRepositoryMock = $this->getFakeMock(\Buckaroo\Magento2\Api\GiftcardRepositoryInterface::class)->getMock();
         $giftcardRepositoryMock->expects($this->once())
             ->method('getList')
             ->with($searchCriteriaMock)

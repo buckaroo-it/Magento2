@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block;
+namespace Buckaroo\Magento2\Block;
 
 class Info extends \Magento\Payment\Block\Info
 {
@@ -26,6 +26,6 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * @var string
      */
-    protected $_template = 'TIG_Buckaroo::info/payment_method.phtml';
+    protected $_template = 'Buckaroo_Magento2::info/payment_method.phtml';
     // @codingStandardsIgnoreEnd
 }

@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -39,7 +39,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public $buckarooPaymentMethodCode;
 
     /**
-     * @var \TIG\Buckaroo\Gateway\GatewayInterface
+     * @var \Buckaroo\Magento2\Gateway\GatewayInterface
      */
     protected $gateway;
 
@@ -49,17 +49,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $response;
 
     /**
-     * @var \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory
+     * @var \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory
      */
     protected $transactionBuilderFactory;
 
     /**
-     * @var \TIG\Buckaroo\Model\ValidatorFactory
+     * @var \Buckaroo\Magento2\Model\ValidatorFactory
      */
     protected $validatorFactory;
 
     /**
-     * @var \TIG\Buckaroo\Helper\Data
+     * @var \Buckaroo\Magento2\Helper\Data
      */
     public $helper;
 
@@ -74,17 +74,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public $payment;
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Factory
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory
      */
     public $configProviderFactory;
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Factory
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
      */
     public $configProviderMethodFactory;
 
     /**
-     * @var \TIG\Buckaroo\Model\RefundFieldsFactory
+     * @var \Buckaroo\Magento2\Model\RefundFieldsFactory
      */
     public $refundFieldsFactory;
 
@@ -132,7 +132,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @var string
      */
-    protected $_infoBlockType = 'TIG\Buckaroo\Block\Info';
+    protected $_infoBlockType = 'Buckaroo\Magento2\Block\Info';
     // @codingStandardsIgnoreEnd
 
     /**
@@ -162,18 +162,18 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param \Magento\Developer\Helper\Data                          $developmentHelper
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
-     * @param \TIG\Buckaroo\Gateway\GatewayInterface                  $gateway
-     * @param \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
-     * @param \TIG\Buckaroo\Model\ValidatorFactory                    $validatorFactory
-     * @param \TIG\Buckaroo\Helper\Data                               $helper
+     * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
+     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
+     * @param \Buckaroo\Magento2\Model\ValidatorFactory                    $validatorFactory
+     * @param \Buckaroo\Magento2\Helper\Data                               $helper
      * @param \Magento\Framework\App\RequestInterface                 $request
-     * @param \TIG\Buckaroo\Model\RefundFieldsFactory                 $refundFieldsFactory
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Factory              $configProviderFactory
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
+     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory                 $refundFieldsFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory              $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data                  $priceHelper
      * @param array                                                   $data
      *
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
@@ -187,14 +187,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Magento\Developer\Helper\Data $developmentHelper,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \TIG\Buckaroo\Gateway\GatewayInterface $gateway = null,
-        \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \TIG\Buckaroo\Model\ValidatorFactory $validatorFactory = null,
-        \TIG\Buckaroo\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        \Buckaroo\Magento2\Helper\Data $helper = null,
         \Magento\Framework\App\RequestInterface $request = null,
-        \TIG\Buckaroo\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
@@ -240,7 +240,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         /**
-         * @var \TIG\Buckaroo\Model\ConfigProvider\Refund $refundConfig
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\Refund $refundConfig
          */
         $refundConfig = $this->configProviderFactory->get('refund');
 
@@ -298,7 +298,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return false;
         }
         /**
-         * @var \TIG\Buckaroo\Model\ConfigProvider\Account $accountConfig
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig
          */
         $accountConfig = $this->configProviderFactory->get('account');
         if ($accountConfig->getActive() == 0) {
@@ -331,13 +331,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * Check if this payment method is limited by IP.
      *
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Account $accountConfig
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig
      * @param \Magento\Quote\Api\Data\CartInterface      $quote
      *
      * @return bool
      */
     protected function isAvailableBasedOnIp(
-        \TIG\Buckaroo\Model\ConfigProvider\Account $accountConfig,
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
         \Magento\Quote\Api\Data\CartInterface $quote = null
     ) {
         $methodValue = $this->getConfigData('limit_by_ip');
@@ -477,7 +477,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @return string
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getTitle()
     {
@@ -515,7 +515,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return $this
      *
-     * @throws \TIG\Buckaroo\Exception|\LogicException|\InvalidArgumentException
+     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
      */
     public function order(InfoInterface $payment, $amount)
     {
@@ -596,17 +596,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
-    public function orderTransaction(\TIG\Buckaroo\Gateway\Http\Transaction $transaction)
+    public function orderTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
     {
         $response = $this->gateway->authorize($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'The transaction response could not be verified.'
                 )
@@ -616,7 +616,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
             $failureMessage = $this->getFailureMessage($response);
 
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase($failureMessage)
             );
         }
@@ -630,7 +630,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return $this
      *
-     * @throws \TIG\Buckaroo\Exception|\LogicException|\InvalidArgumentException
+     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
      */
     public function authorize(InfoInterface $payment, $amount)
     {
@@ -689,17 +689,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
-    public function authorizeTransaction(\TIG\Buckaroo\Gateway\Http\Transaction $transaction)
+    public function authorizeTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
     {
         $response = $this->gateway->authorize($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'The transaction response could not be verified.'
                 )
@@ -709,7 +709,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
             $failureMessage = $this->getFailureMessage($response);
 
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase($failureMessage)
             );
         }
@@ -723,7 +723,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return $this
      *
-     * @throws \TIG\Buckaroo\Exception|\LogicException|\InvalidArgumentException
+     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
      */
     public function capture(InfoInterface $payment, $amount)
     {
@@ -765,17 +765,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array|\StdClass
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
-    public function captureTransaction(\TIG\Buckaroo\Gateway\Http\Transaction $transaction)
+    public function captureTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
     {
         $response = $this->gateway->capture($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'The transaction response could not be verified.'
                 )
@@ -783,7 +783,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'Unfortunately the payment was unsuccessful. Please try again or choose a different payment method.'
                 )
@@ -799,7 +799,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return $this
      *
-     * @throws \TIG\Buckaroo\Exception|\LogicException|\InvalidArgumentException
+     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
      */
     public function refund(InfoInterface $payment, $amount)
     {
@@ -870,17 +870,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array|\StdClass
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
-    public function refundTransaction(\TIG\Buckaroo\Gateway\Http\Transaction $transaction)
+    public function refundTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
     {
         $response = $this->gateway->refund($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'The transaction response could not be verified.'
                 )
@@ -888,7 +888,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'Unfortunately the payment was unsuccessful. Please try again or choose a different payment method.'
                 )
@@ -903,7 +903,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return $this
      *
-     * @throws \TIG\Buckaroo\Exception|\LogicException|\InvalidArgumentException
+     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
      */
     public function cancel(InfoInterface $payment)
     {
@@ -916,7 +916,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return $this
      *
-     * @throws \TIG\Buckaroo\Exception|\LogicException|\InvalidArgumentException
+     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
      */
     public function void(InfoInterface $payment)
     {
@@ -967,17 +967,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \TIG\Buckaroo\Gateway\Http\Transaction $transaction
+     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
      * @return array|\StdClass
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
-    public function voidTransaction(\TIG\Buckaroo\Gateway\Http\Transaction $transaction)
+    public function voidTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
     {
         $response = $this->gateway->void($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'The transaction response could not be verified.'
                 )
@@ -985,7 +985,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'Unfortunately the payment authorization could not be voided. Please try again.'
                 )
@@ -1022,7 +1022,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected function afterOrder($payment, $response)
     {
-        return $this->dispatchAfterEvent('tig_buckaroo_method_order_after', $payment, $response);
+        return $this->dispatchAfterEvent('buckaroo_magento2_method_order_after', $payment, $response);
     }
 
     /**
@@ -1033,7 +1033,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected function afterAuthorize($payment, $response)
     {
-        return $this->dispatchAfterEvent('tig_buckaroo_method_authorize_after', $payment, $response);
+        return $this->dispatchAfterEvent('buckaroo_magento2_method_authorize_after', $payment, $response);
     }
 
     /**
@@ -1044,7 +1044,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected function afterCapture($payment, $response)
     {
-        return $this->dispatchAfterEvent('tig_buckaroo_method_capture_after', $payment, $response);
+        return $this->dispatchAfterEvent('buckaroo_magento2_method_capture_after', $payment, $response);
     }
 
     /**
@@ -1055,7 +1055,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected function afterRefund($payment, $response)
     {
-        return $this->dispatchAfterEvent('tig_buckaroo_method_refund_after', $payment, $response);
+        return $this->dispatchAfterEvent('buckaroo_magento2_method_refund_after', $payment, $response);
     }
 
     /**
@@ -1076,7 +1076,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected function afterVoid($payment, $response)
     {
-        return $this->dispatchAfterEvent('tig_buckaroo_method_void_after', $payment, $response);
+        return $this->dispatchAfterEvent('buckaroo_magento2_method_void_after', $payment, $response);
     }
 
     /**
@@ -1183,7 +1183,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param string $paymentMethodCode
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function addExtraFields($paymentMethodCode)
     {
@@ -1218,35 +1218,35 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface|bool
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
     abstract public function getOrderTransactionBuilder($payment);
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface|bool
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
     abstract public function getAuthorizeTransactionBuilder($payment);
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface|bool
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
     abstract public function getCaptureTransactionBuilder($payment);
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface|bool
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
     abstract public function getRefundTransactionBuilder($payment);
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface|bool
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
     abstract public function getVoidTransactionBuilder($payment);
 }

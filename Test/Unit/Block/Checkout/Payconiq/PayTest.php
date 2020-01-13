@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Block\Checkout\Payconiq;
+namespace Buckaroo\Magento2\Test\Unit\Block\Checkout\Payconiq;
 
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\View\Element\Template\Context;
-use TIG\Buckaroo\Block\Checkout\Payconiq\Pay;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Block\Checkout\Payconiq\Pay;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class PayTest extends BaseTest
 {

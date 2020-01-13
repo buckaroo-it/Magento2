@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Service\Sales\Pdf;
+namespace Buckaroo\Magento2\Service\Sales\Pdf;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order\Pdf\Total\DefaultTotal;
@@ -25,9 +25,9 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Helper\Data;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\ResourceModel\Sales\Order\Tax\CollectionFactory;
-use TIG\Buckaroo\Helper\PaymentFee;
-use TIG\Buckaroo\Model\Config\Source\Display\Type;
-use TIG\Buckaroo\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\Config\Source\Display\Type;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 
 class BuckarooFee extends DefaultTotal
 {

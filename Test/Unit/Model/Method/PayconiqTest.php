@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order as TransactionBuilderOrder;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Refund as TransactionBuilderRefund;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\Method\Payconiq;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as TransactionBuilderOrder;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Refund as TransactionBuilderRefund;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\Method\Payconiq;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class PayconiqTest extends BaseTest
 {

@@ -21,23 +21,23 @@
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Refunding section -->
-    <group id="tig_buckaroo_refund_section" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+    <group id="buckaroo_magento2_refund_section" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
         <label>Refunding</label>
-        <fieldset_css>tig_buckaroo-section</fieldset_css>
+        <fieldset_css>buckaroo_magento2-section</fieldset_css>
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
             <label>Enabled</label>
             <comment><![CDATA[Enable or disable refunding.]]></comment>
             <tooltip>Set to 'No' refunds must be done manualy in Payment Plaza.</tooltip>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>tig_buckaroo/refund/enabled</config_path>
+            <config_path>buckaroo_magento2/refund/enabled</config_path>
         </field>
 
         <field id="allow_push" translate="label comment tooltip" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
             <label>Push Payment Plaza refunds to Magento</label>
             <comment><![CDATA[Allow 2-way refunding from Magento and Payment Plaza.]]></comment>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>tig_buckaroo/refund/allow_push</config_path>
+            <config_path>buckaroo_magento2/refund/allow_push</config_path>
             <depends>
                 <field id="active">1</field>
             </depends>

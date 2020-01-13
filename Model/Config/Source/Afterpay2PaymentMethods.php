@@ -18,12 +18,12 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Config\Source;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
 /**
  * Class AfterpayPaymentMethods
  *
- * @package TIG\Buckaroo\Model\Config\Source
+ * @package Buckaroo\Magento2\Model\Config\Source
  */
 class Afterpay2PaymentMethods implements \Magento\Framework\Option\ArrayInterface
 {

@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Setup;
+namespace Buckaroo\Magento2\Setup;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
@@ -38,12 +38,12 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     protected $quoteSetupFactory;
 
     /**
-     * @var \TIG\Buckaroo\Model\ResourceModel\Certificate\Collection
+     * @var \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection
      */
     protected $certificateCollection;
 
     /**
-     * @var \TIG\Buckaroo\Model\ResourceModel\Giftcard\Collection
+     * @var \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection
      */
     protected $giftcardCollection;
 
@@ -407,14 +407,14 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     /**
      * @param \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory
      * @param \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory
-     * @param \TIG\Buckaroo\Model\ResourceModel\Certificate\Collection $certificateCollection
+     * @param \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection
      * @param \Magento\Framework\Encryption\Encryptor $encryptor
      */
     public function __construct(
         \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory,
         \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory,
-        \TIG\Buckaroo\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
-        \TIG\Buckaroo\Model\ResourceModel\Certificate\Collection $certificateCollection,
+        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
+        \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection,
         \Magento\Framework\Encryption\Encryptor $encryptor
     )
     {
@@ -431,6 +431,22 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
+
+        if (!empty($GLOBALS['tig_buckaroo_upgrade']) && !$context->getVersion()) {
+            $setup->getConnection()->query(
+                "SET FOREIGN_KEY_CHECKS=0"
+            );
+            $setup->getConnection()->query(
+                "UPDATE ".$setup->getTable('sales_order_status')." SET status = replace(status, 'tig_buckaroo','buckaroo_magento2') WHERE status LIKE '%tig_buckaroo%'"
+            );
+            $setup->getConnection()->query(
+                "UPDATE ".$setup->getTable('sales_order_status_state')." SET status = replace(status, 'tig_buckaroo','buckaroo_magento2') WHERE status LIKE '%tig_buckaroo%'"
+            );
+            $setup->getConnection()->query(
+                "SET FOREIGN_KEY_CHECKS=1"
+            );
+            return false;
+        }
 
         if (version_compare($context->getVersion(), '0.1.1', '<')) {
             $this->installOrderStatusses($setup);
@@ -547,7 +563,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
                 ]
             )->where(
                 'status = ?',
-                'tig_buckaroo_new'
+                'buckaroo_magento2_new'
             );
 
         if (count($setup->getConnection()->fetchAll($select)) == 0) {
@@ -557,14 +573,14 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $setup->getConnection()->insert(
                 $setup->getTable('sales_order_status'),
                 [
-                    'status' => 'tig_buckaroo_new',
-                    'label'  => __('TIG Buckaroo New'),
+                    'status' => 'buckaroo_magento2_new',
+                    'label'  => __('Buckaroo New'),
                 ]
             );
             $setup->getConnection()->insert(
                 $setup->getTable('sales_order_status_state'),
                 [
-                    'status'           => 'tig_buckaroo_new',
+                    'status'           => 'buckaroo_magento2_new',
                     'state'            => 'processing',
                     'is_default'       => 0,
                     'visible_on_front' => 1,
@@ -573,7 +589,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         } else {
             // Do an update to turn on visible_on_front, since it already exists
             $bind = ['visible_on_front' => 1];
-            $where = ['status = ?' => 'tig_buckaroo_new'];
+            $where = ['status = ?' => 'buckaroo_magento2_new'];
             $setup->getConnection()->update($setup->getTable('sales_order_status_state'), $bind, $where);
         }
 
@@ -588,21 +604,21 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
                 ]
             )->where(
                 'status = ?',
-                'tig_buckaroo_pending_payment'
+                'buckaroo_magento2_pending_payment'
             );
 
         if (count($setup->getConnection()->fetchAll($select)) == 0) {
             $setup->getConnection()->insert(
                 $setup->getTable('sales_order_status'),
                 [
-                    'status' => 'tig_buckaroo_pending_payment',
-                    'label'  => __('TIG Buckaroo Pending Payment'),
+                    'status' => 'buckaroo_magento2_pending_payment',
+                    'label'  => __('Buckaroo Pending Payment'),
                 ]
             );
             $setup->getConnection()->insert(
                 $setup->getTable('sales_order_status_state'),
                 [
-                    'status'           => 'tig_buckaroo_pending_payment',
+                    'status'           => 'buckaroo_magento2_pending_payment',
                     'state'            => 'processing',
                     'is_default'       => 0,
                     'visible_on_front' => 1,
@@ -611,7 +627,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         } else {
             // Do an update to turn on visible_on_front, since it already exists
             $bind = ['visible_on_front' => 1];
-            $where = ['status = ?' => 'tig_buckaroo_pending_payment'];
+            $where = ['status = ?' => 'buckaroo_magento2_pending_payment'];
             $setup->getConnection()->update($setup->getTable('sales_order_status_state'), $bind, $where);
         }
 
@@ -973,7 +989,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     protected function encryptCertificates()
     {
         /**
-         * @var \TIG\Buckaroo\Model\Certificate $certificate
+         * @var \Buckaroo\Magento2\Model\Certificate $certificate
          */
         foreach ($this->certificateCollection as $certificate) {
             $certificate->setCertificate(
@@ -1003,7 +1019,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 
             if (count($foundGiftcards) <= 0) {
                 $setup->getConnection()->insert(
-                    $setup->getTable('tig_buckaroo_giftcard'),
+                    $setup->getTable('buckaroo_magento2_giftcard'),
                     [
                         'servicecode' => $giftcard['value'],
                         'label'  => $giftcard['label'],
@@ -1024,7 +1040,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
      */
     protected function updateFailureRedirectConfiguration(ModuleDataSetupInterface $setup)
     {
-        $path = 'tig_buckaroo/account/failure_redirect';
+        $path = 'buckaroo_magento2/account/failure_redirect';
         $data = [
             'scope' => ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             'scope_id' => Store::DEFAULT_STORE_ID,
@@ -1124,7 +1140,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
      */
     protected function updateSecretKeyConfiguration(ModuleDataSetupInterface $setup)
     {
-        $path = 'tig_buckaroo/account/secret_key';
+        $path = 'buckaroo_magento2/account/secret_key';
         $data = [
             'path' => $path,
             'value' => '',
@@ -1148,7 +1164,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
      */
     protected function updateMerchantKeyConfiguration(ModuleDataSetupInterface $setup)
     {
-        $path = 'tig_buckaroo/account/merchant_key';
+        $path = 'buckaroo_magento2/account/merchant_key';
         $data = [
             'path' => $path,
             'value' => '',

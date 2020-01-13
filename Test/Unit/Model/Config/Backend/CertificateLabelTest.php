@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Backend;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Backend;
 
-use TIG\Buckaroo\Model\Config\Backend\CertificateLabel;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Config\Backend\CertificateLabel;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class CertificateLabelTest extends BaseTest
 {

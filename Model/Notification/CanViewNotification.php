@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Notification;
+namespace Buckaroo\Magento2\Model\Notification;
 
 use Magento\Framework\FlagManager;
 use Magento\Framework\View\Layout\Condition\VisibilityConditionInterface;
@@ -27,7 +27,7 @@ class CanViewNotification implements VisibilityConditionInterface
     /**
      * @var string
      */
-    private static $conditionName = 'can_view_tig_notification';
+    private static $conditionName = 'can_view_buckaroo_notification';
 
     /** @var FlagManager $flagManager */
     private $flagManager;
@@ -45,7 +45,7 @@ class CanViewNotification implements VisibilityConditionInterface
      */
     public function isVisible(array $arguments)
     {
-        return ! (bool) $this->flagManager->getFlagData('tig_buckaroo_view_install_screen');
+        return ! (bool) $this->flagManager->getFlagData('buckaroo_magento2_view_install_screen');
     }
 
     /**

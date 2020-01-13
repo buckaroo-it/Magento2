@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Service\Sales\Transaction;
+namespace Buckaroo\Magento2\Service\Sales\Transaction;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -26,8 +26,8 @@ use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
 
 class Cancel
 {
@@ -89,7 +89,7 @@ class Cancel
         $payment = $order->getPayment();
         $paymentCode = $payment->getMethodInstance()->getCode();
 
-        if ($paymentCode == 'tig_buckaroo_afterpay' || $paymentCode == 'tig_buckaroo_afterpay2') {
+        if ($paymentCode == 'buckaroo_magento2_afterpay' || $paymentCode == 'buckaroo_magento2_afterpay2') {
             $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
             $payment->save();
         }

@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Config\Source;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
 class StatusesNew implements \Magento\Framework\Option\ArrayInterface
 {
@@ -29,17 +29,17 @@ class StatusesNew implements \Magento\Framework\Option\ArrayInterface
     protected $orderConfig;
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Factory
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory
      */
     protected $configProviderFactory;
 
     /**
      * @param \Magento\Sales\Model\Order\Config          $orderConfig
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      */
     public function __construct(
         \Magento\Sales\Model\Order\Config $orderConfig,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
     ) {
         $this->orderConfig = $orderConfig;
         $this->configProviderFactory = $configProviderFactory;
@@ -53,7 +53,7 @@ class StatusesNew implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
         /**
-         * @var \TIG\Buckaroo\Model\ConfigProvider\States $statesConfig
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\States $statesConfig
          */
         $statesConfig = $this->configProviderFactory->get('states');
         $state = $statesConfig->getOrderStateNew();

@@ -37,55 +37,55 @@
             </sales_display>
         </tax>
         <payment>
-            <tig_buckaroo_ideal>
+            <buckaroo_magento2_ideal>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Ideal</model>
+                <model>Buckaroo\Magento2\Model\Method\Ideal</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo iDEAL</title>
+                <title>Buckaroo iDEAL</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>10</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_ideal>
+            </buckaroo_magento2_ideal>
 
-            <tig_buckaroo_idealprocessing>
+            <buckaroo_magento2_idealprocessing>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\IdealProcessing</model>
+                <model>Buckaroo\Magento2\Model\Method\IdealProcessing</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo iDEAL Processing</title>
+                <title>Buckaroo iDEAL Processing</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>10</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_idealprocessing>
+            </buckaroo_magento2_idealprocessing>
 
-            <tig_buckaroo_sepadirectdebit>
+            <buckaroo_magento2_sepadirectdebit>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\SepaDirectDebit</model>
+                <model>Buckaroo\Magento2\Model\Method\SepaDirectDebit</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo SEPA Direct Debit</title>
+                <title>Buckaroo SEPA Direct Debit</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>110</sort_order>
                 <reminder_leve1>4</reminder_leve1>
                 <order_email>1</order_email>
                 <payment_fee_lavel>Fee</payment_fee_lavel>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
                 <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay</payment_method_after_expiry>
-            </tig_buckaroo_sepadirectdebit>
+            </buckaroo_magento2_sepadirectdebit>
 
-            <tig_buckaroo_paypal>
+            <buckaroo_magento2_paypal>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Paypal</model>
+                <model>Buckaroo\Magento2\Model\Method\Paypal</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo PayPal</title>
+                <title>Buckaroo PayPal</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>90</sort_order>
                 <sellers_protection>1</sellers_protection>
@@ -95,30 +95,30 @@
                 <sellers_protection_ineligible>processing</sellers_protection_ineligible>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_paypal>
+            </buckaroo_magento2_paypal>
 
-            <tig_buckaroo_payconiq>
+            <buckaroo_magento2_payconiq>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Payconiq</model>
+                <model>Buckaroo\Magento2\Model\Method\Payconiq</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Payconiq</title>
+                <title>Buckaroo Payconiq</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>90</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_payconiq>
+            </buckaroo_magento2_payconiq>
 
-            <tig_buckaroo_creditcard>
+            <buckaroo_magento2_creditcard>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Creditcard</model>
+                <model>Buckaroo\Magento2\Model\Method\Creditcard</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Creditcard and Debit Card</title>
+                <title>Buckaroo Creditcard and Debit Card</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>30</sort_order>
                 <order_email>1</order_email>
@@ -129,30 +129,30 @@
 
                 <dankort_payment_fee_label>Fee</dankort_payment_fee_label>
 
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_creditcard>
+            </buckaroo_magento2_creditcard>
 
-            <tig_buckaroo_creditcards>
+            <buckaroo_magento2_creditcards>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Creditcards</model>
+                <model>Buckaroo\Magento2\Model\Method\Creditcards</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Creditcards</title>
+                <title>Buckaroo Creditcards</title>
                 <sort_order>35</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
                 <card_design>1</card_design>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_creditcards>
+            </buckaroo_magento2_creditcards>
 
-            <tig_buckaroo_transfer>
+            <buckaroo_magento2_transfer>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Transfer</model>
+                <model>Buckaroo\Magento2\Model\Method\Transfer</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Transfer</title>
+                <title>Buckaroo Transfer</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>100</sort_order>
                 <send_email>1</send_email>
@@ -161,273 +161,273 @@
                 <reminder_level>4</reminder_level>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>1</available_in_backend>
                 <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay</payment_method_after_expiry>
-            </tig_buckaroo_transfer>
+            </buckaroo_magento2_transfer>
 
-            <tig_buckaroo_giropay>
+            <buckaroo_magento2_giropay>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Giropay</model>
+                <model>Buckaroo\Magento2\Model\Method\Giropay</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Giropay</title>
+                <title>Buckaroo Giropay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_giropay>
+            </buckaroo_magento2_giropay>
 
-            <tig_buckaroo_mrcash>
+            <buckaroo_magento2_mrcash>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Mrcash</model>
+                <model>Buckaroo\Magento2\Model\Method\Mrcash</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Bancontact/Mister Cash</title>
+                <title>Buckaroo Bancontact/Mister Cash</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>140</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <refund_extra_fields>customeriban,customeraccountname,customerbic</refund_extra_fields>
                 <refund_extra_fields_labels>customer iban,customer account name,customer bic</refund_extra_fields_labels>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_mrcash>
+            </buckaroo_magento2_mrcash>
 
-            <tig_buckaroo_sofortbanking>
+            <buckaroo_magento2_sofortbanking>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Sofortbanking</model>
+                <model>Buckaroo\Magento2\Model\Method\Sofortbanking</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Sofort</title>
+                <title>Buckaroo Sofort</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_sofortbanking>
+            </buckaroo_magento2_sofortbanking>
 
-            <tig_buckaroo_afterpay>
+            <buckaroo_magento2_afterpay>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Afterpay</model>
+                <model>Buckaroo\Magento2\Model\Method\Afterpay</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Afterpay</title>
+                <title>Buckaroo Afterpay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_afterpay>
+            </buckaroo_magento2_afterpay>
 
-            <tig_buckaroo_afterpay2>
+            <buckaroo_magento2_afterpay2>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Afterpay2</model>
+                <model>Buckaroo\Magento2\Model\Method\Afterpay2</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Afterpay 2</title>
+                <title>Buckaroo Afterpay 2</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_afterpay2>
+            </buckaroo_magento2_afterpay2>
 
-            <tig_buckaroo_payperemail>
+            <buckaroo_magento2_payperemail>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\PayPerEmail</model>
+                <model>Buckaroo\Magento2\Model\Method\PayPerEmail</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo PayPerEmail</title>
+                <title>Buckaroo PayPerEmail</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>170</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>1</available_in_backend>
                 <send_mail>1</send_mail>
                 <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,sepadirectdebit,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay</payment_method>
                 <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay</payment_method_after_expiry>
-            </tig_buckaroo_payperemail>
+            </buckaroo_magento2_payperemail>
 
-            <tig_buckaroo_eps>
+            <buckaroo_magento2_eps>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Eps</model>
+                <model>Buckaroo\Magento2\Model\Method\Eps</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo EPS</title>
+                <title>Buckaroo EPS</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>180</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_eps>
+            </buckaroo_magento2_eps>
 
-            <tig_buckaroo_giftcards>
+            <buckaroo_magento2_giftcards>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Giftcards</model>
+                <model>Buckaroo\Magento2\Model\Method\Giftcards</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Giftcards</title>
+                <title>Buckaroo Giftcards</title>
                 <sort_order>190</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_giftcards>
+            </buckaroo_magento2_giftcards>
 
-            <tig_buckaroo_paymentguarantee>
+            <buckaroo_magento2_paymentguarantee>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\PaymentGuarantee</model>
+                <model>Buckaroo\Magento2\Model\Method\PaymentGuarantee</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Payment Guarantee</title>
+                <title>Buckaroo Payment Guarantee</title>
                 <sort_order>200</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_paymentguarantee>
+            </buckaroo_magento2_paymentguarantee>
 
-            <tig_buckaroo_kbc>
+            <buckaroo_magento2_kbc>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Kbc</model>
+                <model>Buckaroo\Magento2\Model\Method\Kbc</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo KBC</title>
+                <title>Buckaroo KBC</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>210</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_kbc>
+            </buckaroo_magento2_kbc>
 
-            <tig_buckaroo_klarna>
+            <buckaroo_magento2_klarna>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Klarna</model>
+                <model>Buckaroo\Magento2\Model\Method\Klarna</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Klarna</title>
+                <title>Buckaroo Klarna</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>authorize</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_klarna>
+            </buckaroo_magento2_klarna>
 
-            <tig_buckaroo_emandate>
+            <buckaroo_magento2_emandate>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Emandate</model>
+                <model>Buckaroo\Magento2\Model\Method\Emandate</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Digitale Incassomachtiging</title>
+                <title>Buckaroo Digitale Incassomachtiging</title>
                 <sequence_type>1</sequence_type>
                 <language>nl_NL</language>
                 <allowspecific>0</allowspecific>
                 <sort_order>230</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_emandate>
+            </buckaroo_magento2_emandate>
 
-            <tig_buckaroo_afterpay20>
+            <buckaroo_magento2_afterpay20>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Afterpay20</model>
+                <model>Buckaroo\Magento2\Model\Method\Afterpay20</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Afterpay</title>
+                <title>Buckaroo Afterpay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_afterpay20>
+            </buckaroo_magento2_afterpay20>
 
-            <tig_buckaroo_applepay>
+            <buckaroo_magento2_applepay>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Applepay</model>
+                <model>Buckaroo\Magento2\Model\Method\Applepay</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Apple Pay</title>
+                <title>Buckaroo Apple Pay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_applepay>
+            </buckaroo_magento2_applepay>
 
-            <tig_buckaroo_capayablein3>
+            <buckaroo_magento2_capayablein3>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Capayable\Installments</model>
+                <model>Buckaroo\Magento2\Model\Method\Capayable\Installments</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Capayable In3</title>
+                <title>Buckaroo Capayable In3</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>250</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_capayablein3>
+            </buckaroo_magento2_capayablein3>
 
-            <tig_buckaroo_capayablepostpay>
+            <buckaroo_magento2_capayablepostpay>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Capayable\Postpay</model>
+                <model>Buckaroo\Magento2\Model\Method\Capayable\Postpay</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Capayable Postpay</title>
+                <title>Buckaroo Capayable Postpay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>260</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_capayablepostpay>
+            </buckaroo_magento2_capayablepostpay>
 
-            <tig_buckaroo_alipay>
+            <buckaroo_magento2_alipay>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Alipay</model>
+                <model>Buckaroo\Magento2\Model\Method\Alipay</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo Alipay</title>
+                <title>Buckaroo Alipay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>270</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_alipay>
+            </buckaroo_magento2_alipay>
 
-            <tig_buckaroo_wechatpay>
+            <buckaroo_magento2_wechatpay>
                 <active>0</active>
-                <model>TIG\Buckaroo\Model\Method\Wechatpay</model>
+                <model>Buckaroo\Magento2\Model\Method\Wechatpay</model>
                 <order_status>pending</order_status>
-                <title>TIG Buckaroo WeChatPay</title>
+                <title>Buckaroo WeChatPay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>270</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
-                <group>tig_buckaroo</group>
+                <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </tig_buckaroo_wechatpay>
+            </buckaroo_magento2_wechatpay>
         </payment>
 
-        <tig_buckaroo>
+        <buckaroo_magento2>
             <account>
                 <active>0</active>
                 <transaction_label>Magento Buckaroo</transaction_label>
@@ -464,7 +464,7 @@
                 <wsdl_live_web>https://checkout.buckaroo.nl/soap/soap.svc?singleWsdl</wsdl_live_web>
                 <wsdl_test_web>https://testcheckout.buckaroo.nl/soap/soap.svc?singleWsdl</wsdl_test_web>
             </predefined>
-        </tig_buckaroo>
+        </buckaroo_magento2>
 
     </default>
 </config>

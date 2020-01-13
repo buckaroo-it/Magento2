@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Service\Formatter\Address;
+namespace Buckaroo\Magento2\Service\Formatter\Address;
 
 class StreetFormatter
 {

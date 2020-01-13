@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order as orderTrxBuilder;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\Method\Kbc;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as orderTrxBuilder;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\Method\Kbc;
 
-class KbcTest extends \TIG\Buckaroo\Test\BaseTest
+class KbcTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Kbc::class;
 

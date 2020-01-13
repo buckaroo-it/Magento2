@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model;
+namespace Buckaroo\Magento2\Test\Unit\Model;
 
-use TIG\Buckaroo\Model\Invoice;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Invoice;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class InvoiceTest extends BaseTest
 {

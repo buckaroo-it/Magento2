@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Controller\Adminhtml\Notification;
+namespace Buckaroo\Magento2\Controller\Adminhtml\Notification;
 
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Controller\ResultFactory;
@@ -56,7 +56,7 @@ class MarkUserNotified extends \Magento\Backend\App\Action
     {
         try {
             $responseContent = [
-                'success' => $this->flagManager->saveFlag('tig_buckaroo_view_install_screen', true),
+                'success' => $this->flagManager->saveFlag('buckaroo_magento2_view_install_screen', true),
                 'error_message' => ''
             ];
         } catch (\Exception $e) {

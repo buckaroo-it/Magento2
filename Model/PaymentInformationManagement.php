@@ -18,11 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 use Magento\Checkout\Model\PaymentInformationManagement as MagentoPaymentInformationManagement;
-use TIG\Buckaroo\Api\PaymentInformationManagementInterface;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 // @codingStandardsIgnoreStart
 class PaymentInformationManagement extends MagentoPaymentInformationManagement implements PaymentInformationManagementInterface
@@ -131,6 +131,6 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
      */
     public function normalizePaymentMethodCode($methodCode = '')
     {
-        return strtolower(str_replace('tig_buckaroo_','', $methodCode));
+        return strtolower(str_replace('buckaroo_magento2_','', $methodCode));
     }
 }

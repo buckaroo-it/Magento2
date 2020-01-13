@@ -17,16 +17,16 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Model\Quote\Payment as QuotePayment;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Emandate as EmandateConfig;
-use TIG\Buckaroo\Model\Method\Emandate;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate as EmandateConfig;
+use Buckaroo\Magento2\Model\Method\Emandate;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class EmandateTest extends BaseTest
 {

@@ -18,17 +18,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\ConfigProvider;
+namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
-use TIG\Buckaroo\Api\CertificateRepositoryInterface;
+use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
 
 class PrivateKey implements ConfigProviderInterface
 {
     /**
      * Xpath to the 'certificate_upload' setting.
      */
-    const XPATH_CERTIFICATE_ID = 'tig_buckaroo/account/certificate_file';
+    const XPATH_CERTIFICATE_ID = 'buckaroo_magento2/account/certificate_file';
 
     /**
      * @var CertificateRepositoryInterface

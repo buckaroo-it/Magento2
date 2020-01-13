@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Checkout\Model\ConfigProviderInterface as CheckoutConfigProvider;
-use TIG\Buckaroo\Helper\PaymentFee;
-use TIG\Buckaroo\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
-use TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 /**
  * @method string getActiveStatus()
@@ -141,7 +141,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getImageUrl($imgName)
     {
-        return $this->assetRepo->getUrl('TIG_Buckaroo::images/' . $imgName . '.png');
+        return $this->assetRepo->getUrl('Buckaroo_Magento2::images/' . $imgName . '.png');
     }
 
     /**

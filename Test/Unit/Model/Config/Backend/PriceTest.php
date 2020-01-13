@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Backend;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use TIG\Buckaroo\Model\Config\Backend\Price;
+use Buckaroo\Magento2\Model\Config\Backend\Price;
 
-class PriceTest extends \TIG\Buckaroo\Test\BaseTest
+class PriceTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Price::class;
 

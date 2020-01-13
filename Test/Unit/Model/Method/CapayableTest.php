@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\DataObject;
 use Magento\Payment\Model\InfoInterface;
@@ -25,11 +25,11 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Item;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\Method\Capayable;
-use TIG\Buckaroo\Service\Formatter\AddressFormatter;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\Method\Capayable;
+use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class CapayableTest extends BaseTest
 {
@@ -44,7 +44,7 @@ class CapayableTest extends BaseTest
             'customer_DoB' => '01/05/1990',
             'customer_orderAs' => 'company',
             'customer_cocnumber' => '12345678',
-            'customer_companyName' => 'TIG',
+            'customer_companyName' => 'Buckaroo',
         ]);
 
         $infoInstanceMock = $this->getFakeMock(InfoInterface::class)
@@ -56,7 +56,7 @@ class CapayableTest extends BaseTest
             ['customer_DoB', '1990-05-01'],
             ['customer_orderAs', 'company'],
             ['customer_cocnumber', '12345678'],
-            ['customer_companyName', 'TIG']
+            ['customer_companyName', 'Buckaroo']
         );
 
         $instance = $this->getInstance();

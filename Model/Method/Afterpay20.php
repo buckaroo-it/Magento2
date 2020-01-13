@@ -18,20 +18,20 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Afterpay20 extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_afterpay20';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_afterpay20';
 
     /**
      * Max articles that can be handled by afterpay
@@ -135,7 +135,7 @@ class Afterpay20 extends AbstractMethod
      */
     public $closeAuthorizeTransaction   = false;
 
-    /** @var \TIG\Buckaroo\Model\ConfigProvider\BuckarooFee */
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
     protected $configProviderBuckarooFee;
 
     /** @var SoftwareData */
@@ -158,23 +158,23 @@ class Afterpay20 extends AbstractMethod
      * @param \Magento\Framework\App\Config\ScopeConfigInterface      $scopeConfig
      * @param \Magento\Payment\Model\Method\Logger                    $logger
      * @param \Magento\Developer\Helper\Data                          $developmentHelper
-     * @param \TIG\Buckaroo\Model\ConfigProvider\BuckarooFee          $configProviderBuckarooFee
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee          $configProviderBuckarooFee
      * @param AddressFactory                                          $addressFactory
      * @param SoftwareData                                            $softwareData
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
-     * @param \TIG\Buckaroo\Gateway\GatewayInterface                  $gateway
-     * @param \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
-     * @param \TIG\Buckaroo\Model\ValidatorFactory                    $validatorFactory
-     * @param \TIG\Buckaroo\Helper\Data                               $helper
+     * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
+     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
+     * @param \Buckaroo\Magento2\Model\ValidatorFactory                    $validatorFactory
+     * @param \Buckaroo\Magento2\Helper\Data                               $helper
      * @param \Magento\Framework\App\RequestInterface                 $request
-     * @param \TIG\Buckaroo\Model\RefundFieldsFactory                 $refundFieldsFactory
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Factory              $configProviderFactory
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
+     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory                 $refundFieldsFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory              $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data                  $priceHelper
      * @param array                                                   $data
      *
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
         Calculation $taxCalculation,
@@ -188,19 +188,19 @@ class Afterpay20 extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \TIG\Buckaroo\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         AddressFactory $addressFactory,
         SoftwareData $softwareData,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \TIG\Buckaroo\Gateway\GatewayInterface $gateway = null,
-        \TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \TIG\Buckaroo\Model\ValidatorFactory $validatorFactory = null,
-        \TIG\Buckaroo\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        \Buckaroo\Magento2\Helper\Data $helper = null,
         \Magento\Framework\App\RequestInterface $request = null,
-        \TIG\Buckaroo\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \TIG\Buckaroo\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
@@ -499,7 +499,7 @@ class Afterpay20 extends AbstractMethod
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getAfterPayRequestParameters($payment)
     {
@@ -521,7 +521,7 @@ class Afterpay20 extends AbstractMethod
      * @param $payment
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getRequestArticlesData($payment)
     {
@@ -601,7 +601,7 @@ class Afterpay20 extends AbstractMethod
      * @param \Magento\Sales\Model\Order\Invoice $invoice
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getInvoiceArticleData($invoice)
     {
@@ -667,7 +667,7 @@ class Afterpay20 extends AbstractMethod
      * @param $payment
      *
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getCreditmemoArticleData($payment)
     {
@@ -783,7 +783,7 @@ class Afterpay20 extends AbstractMethod
      *
      * @return   array
      * @internal param $ (int) $latestKey
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getServiceCostLine($latestKey, $order, $includesTax)
     {

@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order;
@@ -25,9 +25,9 @@ use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Creditmemo\Item;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Model\Method\Afterpay2;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Method\Afterpay2;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class Afterpay2Test extends BaseTest
 {

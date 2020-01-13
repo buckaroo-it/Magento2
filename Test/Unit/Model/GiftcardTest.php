@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model;
+namespace Buckaroo\Magento2\Test\Unit\Model;
 
-use TIG\Buckaroo\Model\Giftcard;
+use Buckaroo\Magento2\Model\Giftcard;
 
-class GiftcardTest extends \TIG\Buckaroo\Test\BaseTest
+class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Giftcard::class;
 

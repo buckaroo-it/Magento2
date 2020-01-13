@@ -22,7 +22,7 @@ THE SOFTWARE.
  */
 
 // @codingStandardsIgnoreFile
-namespace TIG\Buckaroo\Soap\Client;
+namespace Buckaroo\Magento2\Soap\Client;
 
 class SoapClientWSSEC extends \SoapClient
 {

@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Cart;
+namespace Buckaroo\Magento2\Test\Unit\Model\Cart;
 
 use Magento\Framework\App\ProductMetadataInterface;
-use TIG\Buckaroo\Model\Cart\CartTotalRepository;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Cart\CartTotalRepository;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class CartTotalRepositoryTest extends BaseTest
 {

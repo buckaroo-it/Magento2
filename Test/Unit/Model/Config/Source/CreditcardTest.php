@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Source;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
-use TIG\Buckaroo\Model\Config\Source\Creditcard;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Creditcard as CreditcardProvider;
+use Buckaroo\Magento2\Model\Config\Source\Creditcard;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard as CreditcardProvider;
 
-class CreditcardTest extends \TIG\Buckaroo\Test\BaseTest
+class CreditcardTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Creditcard::class;
 

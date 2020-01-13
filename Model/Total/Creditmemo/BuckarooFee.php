@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Total\Creditmemo;
+namespace Buckaroo\Magento2\Model\Total\Creditmemo;
 
 class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTotal
 {

@@ -35,18 +35,18 @@ sed -i -e "s/MAGENTO_DB_NAME/${MAGENTO_DB_NAME}/g" "${BUILD_DIR}/app/etc/env.php
 
 zip --exclude=node_modules/* --exclude=vendor/* --exclude=.git/* -r build.zip .
 
-REPOSITORY_CONFIG="{\"type\": \"package\",\"package\": { \"name\": \"tig/buckaroo-travis\", \"version\": \"master\", \"dist\": {\"type\": \"zip\",\"url\": \"${TRAVIS_BUILD_DIR}/build.zip\",\"reference\": \"master\" }, \"autoload\": {\"files\": [\"registration.php\"],\"psr-4\": {\"TIG\\\\Buckaroo\\\\\": \"\"}}}}"
+REPOSITORY_CONFIG="{\"type\": \"package\",\"package\": { \"name\": \"buckaroo/magento2-travis\", \"version\": \"master\", \"dist\": {\"type\": \"zip\",\"url\": \"${TRAVIS_BUILD_DIR}/build.zip\",\"reference\": \"master\" }, \"autoload\": {\"files\": [\"registration.php\"],\"psr-4\": {\"Buckaroo\\\\Buckaroo\\\\\": \"\"}}}}"
 
-if [ -d "$HOME/.cache/composer/files/tig/" ]; then
-    rm -rf $HOME/.cache/composer/files/tig/;
+if [ -d "$HOME/.cache/composer/files/buckaroo/" ]; then
+    rm -rf $HOME/.cache/composer/files/buckaroo/;
 fi
 
 ( cd "${BUILD_DIR}/" && composer config minimum-stability dev )
 ( cd "${BUILD_DIR}/" && composer config repositories.buckaroo "${REPOSITORY_CONFIG}" )
-( cd "${BUILD_DIR}/" && composer require tig/buckaroo-travis --ignore-platform-reqs )
+( cd "${BUILD_DIR}/" && composer require buckaroo/magento2-travis --ignore-platform-reqs )
 
 mysql -u${MAGENTO_DB_USER} ${MYSQLPASS} -h${MAGENTO_DB_HOST} -P${MAGENTO_DB_PORT} -e "DROP DATABASE IF EXISTS \`${MAGENTO_DB_NAME}\`; CREATE DATABASE \`${MAGENTO_DB_NAME}\`;"
-mysql -u${MAGENTO_DB_USER} ${MYSQLPASS} -h${MAGENTO_DB_HOST} -P${MAGENTO_DB_PORT} ${MAGENTO_DB_NAME} < Test/Fixtures/tig-buckaroo-fixture.sql
+mysql -u${MAGENTO_DB_USER} ${MYSQLPASS} -h${MAGENTO_DB_HOST} -P${MAGENTO_DB_PORT} ${MAGENTO_DB_NAME} < Test/Fixtures/buckaroo-magento2-fixture.sql
 
 chmod 777 "${BUILD_DIR}/var/"
 chmod 777 "${BUILD_DIR}/pub/"
@@ -60,6 +60,6 @@ if [ "$CODE_COVERAGE" = "false" ]; then
     cd ${BUILD_DIR} && php -d memory_limit=2048M bin/magento setup:di:compile;
 fi
 
-cd ${BUILD_DIR} && php -d memory_limit=2048M bin/magento i18n:collect-phrases vendor/tig/buckaroo-travis
+cd ${BUILD_DIR} && php -d memory_limit=2048M bin/magento i18n:collect-phrases vendor/buckaroo/magento2-travis
 
-"${BUILD_DIR}/vendor/phpunit/phpunit/phpunit" -c "${BUILD_DIR}/vendor/tig/buckaroo-travis/phpunit.xml.dist" --testsuite unit
+"${BUILD_DIR}/vendor/phpunit/phpunit/phpunit" -c "${BUILD_DIR}/vendor/buckaroo/magento2-travis/phpunit.xml.dist" --testsuite unit

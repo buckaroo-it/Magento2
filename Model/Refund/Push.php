@@ -17,19 +17,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Refund;
+namespace Buckaroo\Magento2\Model\Refund;
 
 use Magento\Sales\Api\CreditmemoManagementInterface;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
-use TIG\Buckaroo\Exception;
-use TIG\Buckaroo\Logging\Log;
-use TIG\Buckaroo\Model\ConfigProvider\Refund;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Refund;
 
 /**
  * Class Creditmemo
  *
- * @package TIG\Buckaroo\Model\Refund
+ * @package Buckaroo\Magento2\Model\Refund
  */
 class Push
 {
@@ -95,7 +95,7 @@ class Push
      * @param $order
      *
      * @return bool
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function receiveRefundPush($postData, $signatureValidation, $order)
     {

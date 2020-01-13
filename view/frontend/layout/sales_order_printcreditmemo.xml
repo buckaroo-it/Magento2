@@ -12,7 +12,7 @@
             <block class="Magento\Sales\Block\Order\Creditmemo" name="sales.order.creditmemo" cacheable="false" after="sales.order.info.links">
                 <block class="Magento\Sales\Block\Order\Creditmemo\Items" name="creditmemo_items" template="order/creditmemo/items.phtml">
                     <block class="Magento\Framework\View\Element\RendererList" name="sales.order.creditmemo.renderers" as="renderer.list"/>
-                    <block class="TIG\Buckaroo\Block\Order\Creditmemo\Totals" name="creditmemo_totals" template="TIG_Buckaroo::sales/order/totals.phtml">
+                    <block class="Buckaroo\Magento2\Block\Order\Creditmemo\Totals" name="creditmemo_totals" template="Buckaroo_Magento2::sales/order/totals.phtml">
                         <arguments>
                             <argument name="label_properties" xsi:type="string">colspan="6" class="mark"</argument>
                             <argument name="value_properties" xsi:type="string">class="amount"</argument>

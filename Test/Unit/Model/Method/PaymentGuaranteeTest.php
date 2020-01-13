@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\App\Config;
 use Magento\Framework\App\ProductMetadata;
@@ -30,16 +30,16 @@ use Magento\Sales\Model\Order\Invoice as MagentoInvoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection as CreditmemoCollection;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection as InvoiceCollection;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order as TransactionBuilderOrder;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\PaymentGuarantee as ConfigProviderPaymentGuarantee;
-use TIG\Buckaroo\Model\Invoice;
-use TIG\Buckaroo\Model\InvoiceFactory;
-use TIG\Buckaroo\Model\Method\PaymentGuarantee;
-use TIG\Buckaroo\Service\Formatter\Address\StreetFormatter;
-use TIG\Buckaroo\Service\Formatter\AddressFormatter;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as TransactionBuilderOrder;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PaymentGuarantee as ConfigProviderPaymentGuarantee;
+use Buckaroo\Magento2\Model\Invoice;
+use Buckaroo\Magento2\Model\InvoiceFactory;
+use Buckaroo\Magento2\Model\Method\PaymentGuarantee;
+use Buckaroo\Magento2\Service\Formatter\Address\StreetFormatter;
+use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class PaymentGuaranteeTest extends BaseTest
 {
@@ -59,7 +59,7 @@ class PaymentGuaranteeTest extends BaseTest
                     'additional_data' => [
                         'termsCondition' => '0',
                         'customer_gender' => 'female',
-                        'customer_billingName' => 'TIG',
+                        'customer_billingName' => 'Buckaroo',
                         'customer_DoB' => '07/10/1990',
                         'customer_iban' => 'BE67890'
                     ]
@@ -70,7 +70,7 @@ class PaymentGuaranteeTest extends BaseTest
                     'additional_data' => [
                         'termsCondition' => '1',
                         'customer_gender' => 'female',
-                        'customer_billingName' => 'TIG',
+                        'customer_billingName' => 'Buckaroo',
                         'customer_DoB' => '1990-01-01',
                         'customer_iban' => 'NL65498'
                     ]

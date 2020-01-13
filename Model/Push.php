@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -27,26 +27,26 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use TIG\Buckaroo\Api\PushInterface;
-use TIG\Buckaroo\Helper\Data;
-use TIG\Buckaroo\Logging\Log;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Model\Method\AbstractMethod;
-use TIG\Buckaroo\Model\Method\Giftcards;
-use TIG\Buckaroo\Model\Method\Transfer;
-use TIG\Buckaroo\Model\Method\Paypal;
-use TIG\Buckaroo\Model\Method\SepaDirectDebit;
-use TIG\Buckaroo\Model\Method\Sofortbanking;
-use TIG\Buckaroo\Model\Method\Alipay;
-use TIG\Buckaroo\Model\Method\Wechatpay;
-use TIG\Buckaroo\Model\Refund\Push as RefundPush;
-use TIG\Buckaroo\Model\Validator\Push as ValidatorPush;
+use Buckaroo\Magento2\Api\PushInterface;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Method\Giftcards;
+use Buckaroo\Magento2\Model\Method\Transfer;
+use Buckaroo\Magento2\Model\Method\Paypal;
+use Buckaroo\Magento2\Model\Method\SepaDirectDebit;
+use Buckaroo\Magento2\Model\Method\Sofortbanking;
+use Buckaroo\Magento2\Model\Method\Alipay;
+use Buckaroo\Magento2\Model\Method\Wechatpay;
+use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
+use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 
 /**
  * Class Push
  *
- * @package TIG\Buckaroo\Model
+ * @package Buckaroo\Magento2\Model
  */
 class Push implements PushInterface
 {
@@ -201,16 +201,16 @@ class Push implements PushInterface
 
         //Check if the push is a refund request or cancel authorize
         if (isset($this->postData['brq_amount_credit'])) {
-            if ($response['status'] !== 'TIG_BUCKAROO_STATUSCODE_SUCCESS'
+            if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && $this->order->isCanceled()
                 && $this->postData['brq_transaction_type'] == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
                 && $validSignature
             ) {
                 return $this->processCancelAuthorize();
-            } elseif ($response['status'] !== 'TIG_BUCKAROO_STATUSCODE_SUCCESS'
+            } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && !$this->order->hasInvoices()
             ) {
-                throw new \TIG\Buckaroo\Exception(
+                throw new \Buckaroo\Magento2\Exception(
                     __('Refund failed ! Status : %1 and the order does not contain an invoice', $response['status'])
                 );
             }
@@ -220,12 +220,12 @@ class Push implements PushInterface
         //Last validation before push can be completed
         if (!$validSignature) {
             $this->logging->addDebug('Invalid push signature');
-            throw new \TIG\Buckaroo\Exception(__('Signature from push is incorrect'));
+            throw new \Buckaroo\Magento2\Exception(__('Signature from push is incorrect'));
             //If the signature is valid but the order cant be updated, try to add a notification to the order comments.
         } elseif ($validSignature && !$canUpdateOrder) {
             $this->setOrderNotificationNote(__('The order has already been processed.'));
             $this->logging->addDebug('Order can not receive updates');
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 __('Signature from push is correct but the order can not receive updates')
             );
         }
@@ -241,7 +241,7 @@ class Push implements PushInterface
         if ($skipFirstPush > 0) {
             $payment->setAdditionalInformation('skip_push', $skipFirstPush - 1);
             $payment->save();
-            throw new \TIG\Buckaroo\Exception(__('Skipped handling this push, first handle response, action will be taken on the next push.'));
+            throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, first handle response, action will be taken on the next push.'));
         }
 
         $this->setTransactionKey();
@@ -255,7 +255,7 @@ class Push implements PushInterface
                 $this->processCm3Push();
                 break;
             case self::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE:
-                throw new \TIG\Buckaroo\Exception(
+                throw new \Buckaroo\Magento2\Exception(
                     __('Skipped handling this invoice push because it is too soon.')
                 );
                 break;
@@ -432,7 +432,7 @@ class Push implements PushInterface
     {
         try {
             $this->setTransactionKey();
-        } catch (\TIG\Buckaroo\Exception $e) {
+        } catch (\Buckaroo\Magento2\Exception $e) {
             $this->logging->addDebug($e->getLogMessage());
         }
 
@@ -446,7 +446,7 @@ class Push implements PushInterface
      *
      * @param $response
      *
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function processPush($response)
     {
@@ -464,21 +464,21 @@ class Push implements PushInterface
         $newStatus = $this->orderStatusFactory->get($this->postData['brq_statuscode'], $this->order);
 
         switch ($response['status']) {
-            case 'TIG_BUCKAROO_STATUSCODE_TECHNICAL_ERROR':
-            case 'TIG_BUCKAROO_STATUSCODE_VALIDATION_FAILURE':
-            case 'TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT':
-            case 'TIG_BUCKAROO_STATUSCODE_CANCELLED_BY_USER':
-            case 'TIG_BUCKAROO_STATUSCODE_FAILED':
-            case 'TIG_BUCKAROO_STATUSCODE_REJECTED':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_FAILED':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_REJECTED':
                 $this->processFailedPush($newStatus, $response['message']);
                 break;
-            case 'TIG_BUCKAROO_STATUSCODE_SUCCESS':
-                if ($this->order->getPayment()->getMethod() == \TIG\Buckaroo\Model\Method\Paypal::PAYMENT_METHOD_CODE) {
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS':
+                if ($this->order->getPayment()->getMethod() == \Buckaroo\Magento2\Model\Method\Paypal::PAYMENT_METHOD_CODE) {
                     $paypalConfig = $this->configProviderMethodFactory
-                        ->get(\TIG\Buckaroo\Model\Method\Paypal::PAYMENT_METHOD_CODE);
+                        ->get(\Buckaroo\Magento2\Model\Method\Paypal::PAYMENT_METHOD_CODE);
 
                     /**
-                     * @var \TIG\Buckaroo\Model\ConfigProvider\Method\Paypal $paypalConfig
+                     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal $paypalConfig
                      */
                     $newSellersProtectionStatus = $paypalConfig->getSellersProtectionIneligible();
                     if ($paypalConfig->getSellersProtection() && !empty($newSellersProtectionStatus)) {
@@ -487,13 +487,13 @@ class Push implements PushInterface
                 }
                 $this->processSucceededPush($newStatus, $response['message']);
                 break;
-            case 'TIG_BUCKAROO_STATUSCODE_NEUTRAL':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL':
                 $this->setOrderNotificationNote($response['message']);
                 break;
-            case 'TIG_BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD':
-            case 'TIG_BUCKAROO_STATUSCODE_WAITING_ON_CONSUMER':
-            case 'TIG_BUCKAROO_STATUSCODE_PENDING_PROCESSING':
-            case 'TIG_BUCKAROO_STATUSCODE_WAITING_ON_USER_INPUT':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_HOLD':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING':
+            case 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT':
                 $this->processPendingPaymentPush($newStatus, $response['message']);
                 break;
         }
@@ -674,7 +674,7 @@ class Push implements PushInterface
      * by using its own transactionkey.
      *
      * @return Order
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     protected function getOrderByTransactionKey()
     {
@@ -684,7 +684,7 @@ class Push implements PushInterface
         $order = $this->transaction->getOrder();
 
         if (!$order) {
-            throw new \TIG\Buckaroo\Exception(__('There was no order found by transaction Id'));
+            throw new \Buckaroo\Magento2\Exception(__('There was no order found by transaction Id'));
         }
 
         return $order;
@@ -744,8 +744,8 @@ class Push implements PushInterface
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/AbstractMethod.php:880
             $payment = $this->order->getPayment();
-            if ($payment->getMethodInstance()->getCode() == 'tig_buckaroo_afterpay'
-                || $payment->getMethodInstance()->getCode() == 'tig_buckaroo_afterpay2'
+            if ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay'
+                || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay2'
             ) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                 $payment->save();
@@ -862,7 +862,7 @@ class Push implements PushInterface
         try {
             $this->order->addStatusHistoryComment($note);
             $this->order->save();
-        } catch (\TIG\Buckaroo\Exception $e) {
+        } catch (\Buckaroo\Magento2\Exception $e) {
             $this->logging->addDebug($e->getLogMessage());
         }
     }
@@ -889,13 +889,13 @@ class Push implements PushInterface
      * Only when the order can be invoiced and has not been invoiced before.
      *
      * @return bool
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     protected function saveInvoice()
     {
         if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
             $this->logging->addDebug('Order can not be invoiced');
-            throw new \TIG\Buckaroo\Exception(__('Order can not be invoiced'));
+            throw new \Buckaroo\Magento2\Exception(__('Order can not be invoiced'));
         }
 
         /**
@@ -980,7 +980,7 @@ class Push implements PushInterface
         $transactionKey = $this->getTransactionKey();
 
         if (strlen($transactionKey) <= 0) {
-            throw new \TIG\Buckaroo\Exception(__('There was no transaction ID found'));
+            throw new \Buckaroo\Magento2\Exception(__('There was no transaction ID found'));
         }
 
         /**
@@ -1009,7 +1009,7 @@ class Push implements PushInterface
          */
         $payment->setParentTransactionId($transactionKey);
         $payment->setAdditionalInformation(
-            \TIG\Buckaroo\Model\Method\AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+            \Buckaroo\Magento2\Model\Method\AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
         );
 

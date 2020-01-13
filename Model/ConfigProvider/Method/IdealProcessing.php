@@ -18,25 +18,25 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Model\Method\IdealProcessing as IdealProcessingMethod;
+use Buckaroo\Magento2\Model\Method\IdealProcessing as IdealProcessingMethod;
 
 class IdealProcessing extends AbstractConfigProvider
 {
-    const XPATH_IDEALPROCESSING_PAYMENT_FEE          = 'payment/tig_buckaroo_idealprocessing/payment_fee';
-    const XPATH_IDEALPROCESSING_PAYMENT_FEE_LABEL    = 'payment/tig_buckaroo_idealprocessing/payment_fee_label';
-    const XPATH_IDEALPROCESSING_ACTIVE               = 'payment/tig_buckaroo_idealprocessing/active';
-    const XPATH_IDEALPROCESSING_ACTIVE_STATUS        = 'payment/tig_buckaroo_idealprocessing/active_status';
-    const XPATH_IDEALPROCESSING_ORDER_STATUS_SUCCESS = 'payment/tig_buckaroo_idealprocessing/order_status_success';
-    const XPATH_IDEALPROCESSING_ORDER_STATUS_FAILED  = 'payment/tig_buckaroo_idealprocessing/order_status_failed';
-    const XPATH_IDEALPROCESSING_ORDER_EMAIL          = 'payment/tig_buckaroo_idealprocessing/order_email';
-    const XPATH_IDEALPROCESSING_AVAILABLE_IN_BACKEND = 'payment/tig_buckaroo_idealprocessing/available_in_backend';
+    const XPATH_IDEALPROCESSING_PAYMENT_FEE          = 'payment/buckaroo_magento2_idealprocessing/payment_fee';
+    const XPATH_IDEALPROCESSING_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_idealprocessing/payment_fee_label';
+    const XPATH_IDEALPROCESSING_ACTIVE               = 'payment/buckaroo_magento2_idealprocessing/active';
+    const XPATH_IDEALPROCESSING_ACTIVE_STATUS        = 'payment/buckaroo_magento2_idealprocessing/active_status';
+    const XPATH_IDEALPROCESSING_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_idealprocessing/order_status_success';
+    const XPATH_IDEALPROCESSING_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_idealprocessing/order_status_failed';
+    const XPATH_IDEALPROCESSING_ORDER_EMAIL          = 'payment/buckaroo_magento2_idealprocessing/order_email';
+    const XPATH_IDEALPROCESSING_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_idealprocessing/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_idealprocessing/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC     = 'payment/tig_buckaroo_idealprocessing/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY   = 'payment/tig_buckaroo_idealprocessing/specificcountry';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_idealprocessing/allowed_currencies';
+    const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_idealprocessing/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_idealprocessing/specificcountry';
 
     /**
      * @var array

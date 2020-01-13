@@ -19,18 +19,18 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Gateway\Http\TransactionBuilder;
+namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Gateway\Http\Transaction;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Gateway\Http\Transaction;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
-abstract class AbstractTransactionBuilder implements \TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface
+abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface
 {
     /**
      * @var \Magento\Sales\Model\Order

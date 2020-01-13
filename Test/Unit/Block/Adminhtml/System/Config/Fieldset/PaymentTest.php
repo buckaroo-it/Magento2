@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Block\Adminhtml\System\Config\Fieldset;
+namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\System\Config\Fieldset;
 
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use TIG\Buckaroo\Block\Adminhtml\System\Config\Fieldset\Payment;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Block\Adminhtml\System\Config\Fieldset\Payment;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class PaymentTest extends BaseTest
 {

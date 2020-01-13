@@ -21,25 +21,25 @@
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="sales_order_payment_place_end">
-        <observer name="tig_buckaroo_update_order_status" instance="TIG\Buckaroo\Observer\UpdateOrderStatus" />
-        <observer name="tig_buckaroo_send_order_confirmation" instance="TIG\Buckaroo\Observer\SendOrderConfirmation" />
+        <observer name="buckaroo_magento2_update_order_status" instance="Buckaroo\Magento2\Observer\UpdateOrderStatus" />
+        <observer name="buckaroo_magento2_send_order_confirmation" instance="Buckaroo\Magento2\Observer\SendOrderConfirmation" />
     </event>
     <event name="sales_model_service_quote_submit_before">
-        <observer name="tig_buckaroo_fee_set" instance="TIG\Buckaroo\Observer\SetBuckarooFee" />
+        <observer name="buckaroo_magento2_fee_set" instance="Buckaroo\Magento2\Observer\SetBuckarooFee" />
     </event>
     <event name="sales_model_service_quote_submit_failure">
-        <observer name="tig_failed_quote_order" instance="TIG\Buckaroo\Observer\HandleFailedQuoteOrder"/>
+        <observer name="buckaroo_failed_quote_order" instance="Buckaroo\Magento2\Observer\HandleFailedQuoteOrder"/>
     </event>
     <event name="sales_order_invoice_register">
-        <observer name="tig_buckaroo_fee_invoice" instance="TIG\Buckaroo\Observer\InvoiceRegister" />
+        <observer name="buckaroo_magento2_fee_invoice" instance="Buckaroo\Magento2\Observer\InvoiceRegister" />
     </event>
     <event name="sales_order_invoice_pay">
-        <observer name="tig_buckaroo_send_invoice_mail" instance="TIG\Buckaroo\Observer\SendInvoiceMail" />
+        <observer name="buckaroo_magento2_send_invoice_mail" instance="Buckaroo\Magento2\Observer\SendInvoiceMail" />
     </event>
     <event name="sales_order_payment_cancel">
-        <observer name="tig_buckaroo_void_cm3_payment" instance="TIG\Buckaroo\Observer\VoidCm3Payment" />
+        <observer name="buckaroo_magento2_void_cm3_payment" instance="Buckaroo\Magento2\Observer\VoidCm3Payment" />
     </event>
     <event name="sales_order_shipment_save_after">
-        <observer name="tig_buckaroo_shipment_save_after" instance="TIG\Buckaroo\Observer\SalesOrderShipmentAfter" />
+        <observer name="buckaroo_magento2_shipment_save_after" instance="Buckaroo\Magento2\Observer\SalesOrderShipmentAfter" />
     </event>
 </config>

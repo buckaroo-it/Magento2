@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
@@ -26,11 +26,11 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use TIG\Buckaroo\Api\Data\GiftcardInterface;
-use TIG\Buckaroo\Api\GiftcardRepositoryInterface;
-use TIG\Buckaroo\Model\ResourceModel\Giftcard as GiftcardResource;
-use TIG\Buckaroo\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
-use TIG\Buckaroo\Model\ResourceModel\Giftcard\CollectionFactory as GiftcardCollectionFactory;
+use Buckaroo\Magento2\Api\Data\GiftcardInterface;
+use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard as GiftcardResource;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\CollectionFactory as GiftcardCollectionFactory;
 
 class GiftcardRepository implements GiftcardRepositoryInterface
 {

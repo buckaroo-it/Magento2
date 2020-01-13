@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Webapi\Rest\Request\Deserializer;
+namespace Buckaroo\Magento2\Webapi\Rest\Request\Deserializer;
 
 class XWwwFormUrlencoded implements \Magento\Framework\Webapi\Rest\Request\DeserializerInterface
 {

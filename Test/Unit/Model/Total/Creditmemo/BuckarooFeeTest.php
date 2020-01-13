@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Total\Creditmemo;
+namespace Buckaroo\Magento2\Test\Unit\Model\Total\Creditmemo;
 
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
-use TIG\Buckaroo\Model\Total\Creditmemo\BuckarooFee;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Total\Creditmemo\BuckarooFee;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class BuckarooFeeTest extends BaseTest
 {

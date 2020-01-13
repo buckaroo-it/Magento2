@@ -18,20 +18,20 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilder\Order as TransactionOrder;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderFactory;
-use TIG\Buckaroo\Model\Method\SepaDirectDebit;
-use TIG\Buckaroo\Service\CreditManagement\ServiceParameters;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as TransactionOrder;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\Method\SepaDirectDebit;
+use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 use Zend\Validator\Iban;
 
-class SepaDirectDebitTest extends \TIG\Buckaroo\Test\BaseTest
+class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = SepaDirectDebit::class;
 
@@ -71,7 +71,7 @@ class SepaDirectDebitTest extends \TIG\Buckaroo\Test\BaseTest
             'buckaroo_skip_validation' => 1,
             'customer_bic' => 'NL32INGB',
             'customer_iban' => '0000012345',
-            'customer_account_name' => 'TIG TEST'
+            'customer_account_name' => 'Buckaroo TEST'
         ]);
 
         $infoInstanceMock = $this->getFakeMock(InfoInterface::class)
@@ -82,7 +82,7 @@ class SepaDirectDebitTest extends \TIG\Buckaroo\Test\BaseTest
             ['buckaroo_skip_validation', 1],
             ['customer_bic', 'NL32INGB'],
             ['customer_iban', '0000012345'],
-            ['customer_account_name', 'TIG TEST']
+            ['customer_account_name', 'Buckaroo TEST']
         );
 
         $instance = $this->getInstance();
@@ -271,7 +271,7 @@ class SepaDirectDebitTest extends \TIG\Buckaroo\Test\BaseTest
             'object, no invoiceKey' => [
                 (Object)[
                     'Name' => 'Debtor',
-                    '_' => 'TIG'
+                    '_' => 'Buckaroo'
                 ],
                 ''
             ],
@@ -288,7 +288,7 @@ class SepaDirectDebitTest extends \TIG\Buckaroo\Test\BaseTest
                 [
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'TIG'
+                        '_' => 'Buckaroo'
                     ]
                 ],
                 ''
@@ -305,7 +305,7 @@ class SepaDirectDebitTest extends \TIG\Buckaroo\Test\BaseTest
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'TIG'
+                        '_' => 'Buckaroo'
                     ],
                 ],
                 'order789'
@@ -318,7 +318,7 @@ class SepaDirectDebitTest extends \TIG\Buckaroo\Test\BaseTest
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'TIG'
+                        '_' => 'Buckaroo'
                     ],
                 ],
                 ''

@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider;
+namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 class Factory
 {
@@ -50,7 +50,7 @@ class Factory
      * @param string $providerType
      *
      * @return \Magento\Checkout\Model\ConfigProviderInterface
-     * @throws \LogicException|\TIG\Buckaroo\Exception
+     * @throws \LogicException|\Buckaroo\Magento2\Exception
      */
     public function get($providerType)
     {
@@ -58,7 +58,7 @@ class Factory
             throw new \LogicException('ConfigProvider adapter is not set.');
         }
 
-        $providerType = str_replace('tig_buckaroo_', '', $providerType);
+        $providerType = str_replace('buckaroo_magento2_', '', $providerType);
 
         foreach ($this->configProviders as $configProviderMetaData) {
             $configProviderType = $configProviderMetaData['type'];
@@ -69,7 +69,7 @@ class Factory
         }
 
         if (!isset($configProviderClass) || empty($configProviderClass)) {
-            throw new \TIG\Buckaroo\Exception(
+            throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
                     'Unknown ConfigProvider type requested: %1.',
                     [$providerType]

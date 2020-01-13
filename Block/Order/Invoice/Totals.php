@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Block\Order\Invoice;
+namespace Buckaroo\Magento2\Block\Order\Invoice;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Block\Order\Invoice\Totals as InvoiceTotals;
-use TIG\Buckaroo\Helper\PaymentFee;
+use Buckaroo\Magento2\Helper\PaymentFee;
 
 class Totals extends InvoiceTotals
 {

@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Gateway;
+namespace Buckaroo\Magento2\Gateway;
 
 interface GatewayInterface
 {
@@ -35,40 +35,40 @@ interface GatewayInterface
      *
      * @return mixed
      */
-    public function order(\TIG\Buckaroo\Gateway\Http\Transaction $transaction);
+    public function order(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction);
 
     /**
      * @param Http\Transaction $transaction
      *
      * @return mixed
      */
-    public function capture(\TIG\Buckaroo\Gateway\Http\Transaction $transaction);
+    public function capture(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction);
 
     /**
      * @param Http\Transaction $transaction
      *
      * @return mixed
      */
-    public function authorize(\TIG\Buckaroo\Gateway\Http\Transaction $transaction);
+    public function authorize(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction);
 
     /**
      * @param Http\Transaction $transaction
      *
      * @return mixed
      */
-    public function refund(\TIG\Buckaroo\Gateway\Http\Transaction $transaction);
+    public function refund(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction);
 
     /**
      * @param Http\Transaction $transaction
      *
      * @return mixed
      */
-    public function cancel(\TIG\Buckaroo\Gateway\Http\Transaction $transaction);
+    public function cancel(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction);
 
     /**
      * @param Http\Transaction $transaction
      *
      * @return mixed
      */
-    public function void(\TIG\Buckaroo\Gateway\Http\Transaction $transaction);
+    public function void(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction);
 }

@@ -18,10 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider;
+namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
 
 /**
  * @method mixed getActive()
@@ -48,30 +48,30 @@ use TIG\Buckaroo\Model\ConfigProvider\Method\Factory as MethodFactory;
 class Account extends AbstractConfigProvider
 {
     /**
-     * XPATHs to configuration values for tig_buckaroo_account
+     * XPATHs to configuration values for buckaroo_magento2_account
      */
-    const XPATH_ACCOUNT_ACTIVE                          = 'tig_buckaroo/account/active';
-    const XPATH_ACCOUNT_SECRET_KEY                      = 'tig_buckaroo/account/secret_key';
-    const XPATH_ACCOUNT_MERCHANT_KEY                    = 'tig_buckaroo/account/merchant_key';
-    const XPATH_ACCOUNT_MERCHANT_GUID                   = 'tig_buckaroo/account/merchant_guid';
-    const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'tig_buckaroo/account/transaction_label';
-    const XPATH_ACCOUNT_CERTIFICATE_FILE                = 'tig_buckaroo/account/certificate_file';
-    const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL        = 'tig_buckaroo/account/order_confirmation_email';
-    const XPATH_ACCOUNT_INVOICE_EMAIL                   = 'tig_buckaroo/account/invoice_email';
-    const XPATH_ACCOUNT_SUCCESS_REDIRECT                = 'tig_buckaroo/account/success_redirect';
-    const XPATH_ACCOUNT_FAILURE_REDIRECT                = 'tig_buckaroo/account/failure_redirect';
-    const XPATH_ACCOUNT_CANCEL_ON_FAILED                = 'tig_buckaroo/account/cancel_on_failed';
-    const XPATH_ACCOUNT_DIGITAL_SIGNATURE               = 'tig_buckaroo/account/digital_signature';
-    const XPATH_ACCOUNT_DEBUG_TYPES                     = 'tig_buckaroo/account/debug_types';
-    const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'tig_buckaroo/account/debug_email';
-    const XPATH_ACCOUNT_LIMIT_BY_IP                     = 'tig_buckaroo/account/limit_by_ip';
-    const XPATH_ACCOUNT_FEE_PERCENTAGE_MODE             = 'tig_buckaroo/account/fee_percentage_mode';
-    const XPATH_ACCOUNT_PAYMENT_FEE_LABEL               = 'tig_buckaroo/account/payment_fee_label';
-    const XPATH_ACCOUNT_ORDER_STATUS_NEW                = 'tig_buckaroo/account/order_status_new';
-    const XPATH_ACCOUNT_ORDER_STATUS_PENDING            = 'tig_buckaroo/account/order_status_pending';
-    const XPATH_ACCOUNT_ORDER_STATUS_SUCCESS            = 'tig_buckaroo/account/order_status_success';
-    const XPATH_ACCOUNT_ORDER_STATUS_FAILED             = 'tig_buckaroo/account/order_status_failed';
-    const XPATH_ACCOUNT_CREATE_ORDER_BEFORE_TRANSACTION = 'tig_buckaroo/account/create_order_before_transaction';
+    const XPATH_ACCOUNT_ACTIVE                          = 'buckaroo_magento2/account/active';
+    const XPATH_ACCOUNT_SECRET_KEY                      = 'buckaroo_magento2/account/secret_key';
+    const XPATH_ACCOUNT_MERCHANT_KEY                    = 'buckaroo_magento2/account/merchant_key';
+    const XPATH_ACCOUNT_MERCHANT_GUID                   = 'buckaroo_magento2/account/merchant_guid';
+    const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'buckaroo_magento2/account/transaction_label';
+    const XPATH_ACCOUNT_CERTIFICATE_FILE                = 'buckaroo_magento2/account/certificate_file';
+    const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL        = 'buckaroo_magento2/account/order_confirmation_email';
+    const XPATH_ACCOUNT_INVOICE_EMAIL                   = 'buckaroo_magento2/account/invoice_email';
+    const XPATH_ACCOUNT_SUCCESS_REDIRECT                = 'buckaroo_magento2/account/success_redirect';
+    const XPATH_ACCOUNT_FAILURE_REDIRECT                = 'buckaroo_magento2/account/failure_redirect';
+    const XPATH_ACCOUNT_CANCEL_ON_FAILED                = 'buckaroo_magento2/account/cancel_on_failed';
+    const XPATH_ACCOUNT_DIGITAL_SIGNATURE               = 'buckaroo_magento2/account/digital_signature';
+    const XPATH_ACCOUNT_DEBUG_TYPES                     = 'buckaroo_magento2/account/debug_types';
+    const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
+    const XPATH_ACCOUNT_LIMIT_BY_IP                     = 'buckaroo_magento2/account/limit_by_ip';
+    const XPATH_ACCOUNT_FEE_PERCENTAGE_MODE             = 'buckaroo_magento2/account/fee_percentage_mode';
+    const XPATH_ACCOUNT_PAYMENT_FEE_LABEL               = 'buckaroo_magento2/account/payment_fee_label';
+    const XPATH_ACCOUNT_ORDER_STATUS_NEW                = 'buckaroo_magento2/account/order_status_new';
+    const XPATH_ACCOUNT_ORDER_STATUS_PENDING            = 'buckaroo_magento2/account/order_status_pending';
+    const XPATH_ACCOUNT_ORDER_STATUS_SUCCESS            = 'buckaroo_magento2/account/order_status_success';
+    const XPATH_ACCOUNT_ORDER_STATUS_FAILED             = 'buckaroo_magento2/account/order_status_failed';
+    const XPATH_ACCOUNT_CREATE_ORDER_BEFORE_TRANSACTION = 'buckaroo_magento2/account/create_order_before_transaction';
 
     /**
      * @var MethodFactory
@@ -134,7 +134,7 @@ class Account extends AbstractConfigProvider
      * @param null $paymentMethod
      *
      * @return string
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getOrderStatusSuccess($paymentMethod = null)
     {
@@ -148,7 +148,7 @@ class Account extends AbstractConfigProvider
          */
         if ($paymentMethod !== null) {
             /**
-             * @var \TIG\Buckaroo\Model\ConfigProvider\Method\AbstractConfigProvider $methodConfigProvider
+             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $methodConfigProvider
              */
             $methodConfigProvider = $this->getMethodConfigProvider($paymentMethod);
 
@@ -168,7 +168,7 @@ class Account extends AbstractConfigProvider
      * @param null $paymentMethod
      *
      * @return string
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function getOrderStatusFailed($paymentMethod = null)
     {
@@ -182,7 +182,7 @@ class Account extends AbstractConfigProvider
          */
         if ($paymentMethod !== null) {
             /**
-             * @var \TIG\Buckaroo\Model\ConfigProvider\Method\AbstractConfigProvider $methodConfigProvider
+             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $methodConfigProvider
              */
             $methodConfigProvider = $this->getMethodConfigProvider($paymentMethod);
 
@@ -202,7 +202,7 @@ class Account extends AbstractConfigProvider
      * @param $paymentMethod
      *
      * @return Method\ConfigProviderInterface
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     protected function getMethodConfigProvider($paymentMethod)
     {

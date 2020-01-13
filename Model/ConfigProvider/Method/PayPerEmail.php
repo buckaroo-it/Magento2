@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use TIG\Buckaroo\Model\Method\PayPerEmail as MethodPayPerEmail;
+use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
 
 /**
  * @method getCm3DueDate()
@@ -32,27 +32,27 @@ use TIG\Buckaroo\Model\Method\PayPerEmail as MethodPayPerEmail;
  */
 class PayPerEmail extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/tig_buckaroo_payperemail/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_payperemail/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                   = 'payment/tig_buckaroo_payperemail/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                 = 'payment/tig_buckaroo_payperemail/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_payperemail/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_payperemail/specificcountry';
 
-    const XPATH_PAYPEREMAIL_ACTIVE               = 'payment/tig_buckaroo_payperemail/active';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/tig_buckaroo_payperemail/payment_fee';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL    = 'payment/tig_buckaroo_payperemail/payment_fee_label';
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS        = 'payment/tig_buckaroo_payperemail/active_status';
-    const XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS = 'payment/tig_buckaroo_payperemail/order_status_success';
-    const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED  = 'payment/tig_buckaroo_payperemail/order_status_failed';
+    const XPATH_PAYPEREMAIL_ACTIVE               = 'payment/buckaroo_magento2_payperemail/active';
+    const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
+    const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_payperemail/payment_fee_label';
+    const XPATH_PAYPEREMAIL_ACTIVE_STATUS        = 'payment/buckaroo_magento2_payperemail/active_status';
+    const XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_payperemail/order_status_success';
+    const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_payperemail/order_status_failed';
 
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'payment/tig_buckaroo_payperemail/active_status_cm3';
-    const XPATH_PAYPEREMAIL_SEND_MAIL                   = 'payment/tig_buckaroo_payperemail/send_mail';
-    const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'payment/tig_buckaroo_payperemail/scheme_key';
-    const XPATH_PAYPEREMAIL_MAX_STEP_INDEX              = 'payment/tig_buckaroo_payperemail/max_step_index';
-    const XPATH_PAYPEREMAIL_CM3_DUE_DATE                = 'payment/tig_buckaroo_payperemail/cm3_due_date';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD              = 'payment/tig_buckaroo_payperemail/payment_method';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/tig_buckaroo_payperemail/payment_method_after_expiry';
-    const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK          = 'payment/tig_buckaroo_payperemail/visible_front_back';
-    const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE    = 'payment/tig_buckaroo_payperemail/is_visible_for_area_code';
+    const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_payperemail/active_status_cm3';
+    const XPATH_PAYPEREMAIL_SEND_MAIL                   = 'payment/buckaroo_magento2_payperemail/send_mail';
+    const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'payment/buckaroo_magento2_payperemail/scheme_key';
+    const XPATH_PAYPEREMAIL_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_payperemail/max_step_index';
+    const XPATH_PAYPEREMAIL_CM3_DUE_DATE                = 'payment/buckaroo_magento2_payperemail/cm3_due_date';
+    const XPATH_PAYPEREMAIL_PAYMENT_METHOD              = 'payment/buckaroo_magento2_payperemail/payment_method';
+    const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_payperemail/payment_method_after_expiry';
+    const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_payperemail/visible_front_back';
+    const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE    = 'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
 
     /**
      * @return array

@@ -19,9 +19,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Validator;
+namespace Buckaroo\Magento2\Model\Validator;
 
-class TransactionResponse implements \TIG\Buckaroo\Model\ValidatorInterface
+class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
 {
     /**
      * @var \StdClass
@@ -34,16 +34,16 @@ class TransactionResponse implements \TIG\Buckaroo\Model\ValidatorInterface
     protected $responseXml;
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\PublicKey
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\PublicKey
      */
     protected $publicKeyConfigProvider;
 
     /**
      * TransactionResponse constructor.
      *
-     * @param \TIG\Buckaroo\Model\ConfigProvider\PublicKey $publicKeyConfigProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\PublicKey $publicKeyConfigProvider
      */
-    public function __construct(\TIG\Buckaroo\Model\ConfigProvider\PublicKey $publicKeyConfigProvider)
+    public function __construct(\Buckaroo\Magento2\Model\ConfigProvider\PublicKey $publicKeyConfigProvider)
     {
         $this->publicKeyConfigProvider = $publicKeyConfigProvider;
     }

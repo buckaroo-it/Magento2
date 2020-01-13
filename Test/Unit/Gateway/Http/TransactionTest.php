@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Gateway\Http;
+namespace Buckaroo\Magento2\Test\Unit\Gateway\Http;
 
-use TIG\Buckaroo\Test\BaseTest;
-use TIG\Buckaroo\Gateway\Http\Transaction;
+use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Gateway\Http\Transaction;
 
 class TransactionTest extends BaseTest
 {

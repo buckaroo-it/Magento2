@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 use Magento\Developer\Helper\Data;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -34,17 +34,17 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Gateway\GatewayInterface;
-use TIG\Buckaroo\Gateway\Http\Transaction;
-use TIG\Buckaroo\Gateway\Http\TransactionBuilderInterface;
-use TIG\Buckaroo\Helper\Data as HelperData;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\ConfigProvider\Factory;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory as MethodFactory;
-use TIG\Buckaroo\Model\RefundFieldsFactory;
-use TIG\Buckaroo\Model\ValidatorFactory;
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Gateway\Http\Transaction;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface;
+use Buckaroo\Magento2\Helper\Data as HelperData;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Buckaroo\Magento2\Model\RefundFieldsFactory;
+use Buckaroo\Magento2\Model\ValidatorFactory;
 
-class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
+class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = AbstractMethodMock::class;
 
@@ -90,7 +90,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ->setMethods(['getValue'])
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->exactly(2))->method('getValue')
-            ->with('payment/tig_buckaroo_test/available_in_backend', ScopeInterface::SCOPE_STORE, null)
+            ->with('payment/buckaroo_magento2_test/available_in_backend', ScopeInterface::SCOPE_STORE, null)
             ->willReturn(0);
 
         $instance = $this->getInstance([
@@ -159,9 +159,9 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->exactly(3))->method('getValue')
             ->withConsecutive(
-                ['payment/tig_buckaroo_test/limit_by_ip', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/max_amount', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/min_amount', ScopeInterface::SCOPE_STORE, null]
+                ['payment/buckaroo_magento2_test/limit_by_ip', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/max_amount', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/min_amount', ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls(0, 20, 10);
 
@@ -199,9 +199,9 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->exactly(3))->method('getValue')
             ->withConsecutive(
-                ['payment/tig_buckaroo_test/limit_by_ip', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/max_amount', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/min_amount', ScopeInterface::SCOPE_STORE, null]
+                ['payment/buckaroo_magento2_test/limit_by_ip', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/max_amount', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/min_amount', ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls(0, 20, 10);
 
@@ -243,10 +243,10 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->exactly(4))->method('getValue')
             ->withConsecutive(
-                ['payment/tig_buckaroo_test/limit_by_ip', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/max_amount', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/min_amount', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/allowed_currencies', ScopeInterface::SCOPE_STORE, null]
+                ['payment/buckaroo_magento2_test/limit_by_ip', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/max_amount', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/min_amount', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/allowed_currencies', ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls(0, 20, 10, 'EUR,USD');
 
@@ -292,11 +292,11 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->exactly(5))->method('getValue')
             ->withConsecutive(
-                ['payment/tig_buckaroo_test/limit_by_ip', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/max_amount', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/min_amount', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/allowed_currencies', ScopeInterface::SCOPE_STORE, null],
-                ['payment/tig_buckaroo_test/active', ScopeInterface::SCOPE_STORE, null]
+                ['payment/buckaroo_magento2_test/limit_by_ip', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/max_amount', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/min_amount', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/allowed_currencies', ScopeInterface::SCOPE_STORE, null],
+                ['payment/buckaroo_magento2_test/active', ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls(0, 20, 10, 'EUR,USD', true);
 
@@ -435,8 +435,8 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
 
     public function testGetTitleNoConfigProvider()
     {
-        $method = 'tig_buckaroo_abstract_test';
-        $expectedTitle = 'tig_buckaroo_abstract_test_title';
+        $method = 'buckaroo_magento2_abstract_test';
+        $expectedTitle = 'buckaroo_magento2_abstract_test_title';
 
         $configProviderFactoryMock = $this->getFakeMock(MethodFactory::class)->setMethods(['has'])->getMock();
         $configProviderFactoryMock->expects($this->once())->method('has')->with($method)->willReturn(false);
@@ -445,7 +445,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ->setMethods(['getValue'])
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())->method('getValue')
-            ->with('payment/tig_buckaroo_test/title', ScopeInterface::SCOPE_STORE, null)
+            ->with('payment/buckaroo_magento2_test/title', ScopeInterface::SCOPE_STORE, null)
             ->willReturn($expectedTitle);
 
         $instance = $this->getInstance([
@@ -467,7 +467,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testGetTitlePaymentFee($title, $expectedTitle, $fee)
     {
-        $method = 'tig_buckaroo_abstract_test';
+        $method = 'buckaroo_magento2_abstract_test';
 
         $configProviderFactoryMock = $this->getFakeMock(MethodFactory::class)
             ->setMethods(['has', 'get', 'getPaymentFee'])
@@ -483,7 +483,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ->setMethods(['getValue'])
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())->method('getValue')
-            ->with('payment/tig_buckaroo_test/title', ScopeInterface::SCOPE_STORE, null)
+            ->with('payment/buckaroo_magento2_test/title', ScopeInterface::SCOPE_STORE, null)
             ->willReturn($title);
 
         $instance = $this->getInstance([
@@ -501,18 +501,18 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
     {
         return [
             'no fee' => [
-                'tig_buckaroo_abstract_test_title',
-                'tig_buckaroo_abstract_test_title',
+                'buckaroo_magento2_abstract_test_title',
+                'buckaroo_magento2_abstract_test_title',
                 false,
             ],
             'fixed fee' => [
-                'tig_buckaroo_abstract_test_title',
-                'tig_buckaroo_abstract_test_title + 5.00',
+                'buckaroo_magento2_abstract_test_title',
+                'buckaroo_magento2_abstract_test_title + 5.00',
                 '5.00',
             ],
             'percentage fee' => [
-                'tig_buckaroo_abstract_test_title',
-                'tig_buckaroo_abstract_test_title + 5%',
+                'buckaroo_magento2_abstract_test_title',
+                'buckaroo_magento2_abstract_test_title + 5%',
                 '5%',
             ],
         ];
@@ -718,7 +718,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
                 'setCanOrder',
                 'getOrderTransactionBuilder',
                 'orderTransaction',
-                'tig_buckaroo_method_order_after',
+                'buckaroo_magento2_method_order_after',
                 false,
             ],
             [
@@ -726,7 +726,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
                 'setCanAuthorize',
                 'getAuthorizeTransactionBuilder',
                 'authorizeTransaction',
-                'tig_buckaroo_method_authorize_after',
+                'buckaroo_magento2_method_authorize_after',
                 false,
             ],
             [
@@ -734,7 +734,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
                 'setCanCapture',
                 'getCaptureTransactionBuilder',
                 'captureTransaction',
-                'tig_buckaroo_method_capture_after',
+                'buckaroo_magento2_method_capture_after',
                 false,
             ],
             [
@@ -742,7 +742,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
                 'setCanRefund',
                 'getRefundTransactionBuilder',
                 'refundTransaction',
-                'tig_buckaroo_method_refund_after',
+                'buckaroo_magento2_method_refund_after',
                 'canRefund',
             ],
             [
@@ -750,7 +750,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
                 'setCanVoid',
                 'getVoidTransactionBuilder',
                 'VoidTransaction',
-                'tig_buckaroo_method_void_after',
+                'buckaroo_magento2_method_void_after',
                 false,
             ],
         ];
@@ -765,7 +765,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testProcessTransactionResponseNotValid($method, $gatewayMethod)
     {
-        $this->setExpectedException(\TIG\Buckaroo\Exception::class);
+        $this->setExpectedException(\Buckaroo\Magento2\Exception::class);
 
         $response = [];
 
@@ -823,7 +823,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
      */
     public function testProcessTransactionResponseStatusNotValid($method, $gatewayMethod)
     {
-        $this->setExpectedException(\TIG\Buckaroo\Exception::class);
+        $this->setExpectedException(\Buckaroo\Magento2\Exception::class);
 
         $response = [];
 
@@ -1025,16 +1025,16 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ],
             'creditmemo params no value' => [
                 [
-                    'creditmemo' => ['TIG_code' => null]
+                    'creditmemo' => ['buckaroo_code' => null]
                 ],
                 [
-                    ['code' => 'TIG_code']
+                    ['code' => 'buckaroo_code']
                 ],
                 [
                     'RequestParameter' => [
                         [
                             '_' => '',
-                            'Name' => 'TIG_code',
+                            'Name' => 'buckaroo_code',
                         ],
                     ],
                 ]
@@ -1044,7 +1044,7 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
                     'creditmemo' => []
                 ],
                 [
-                    ['code' => 'TIG_code']
+                    ['code' => 'buckaroo_code']
                 ],
                 []
             ],
@@ -1053,14 +1053,14 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
                     'transaction' => ['123qwerty456']
                 ],
                 [
-                    ['code' => 'TIG_code']
+                    ['code' => 'buckaroo_code']
                 ],
                 []
             ],
             'no params at all' => [
                 [],
                 [
-                    ['code' => 'TIG_code']
+                    ['code' => 'buckaroo_code']
                 ],
                 []
             ],
@@ -1161,8 +1161,8 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
             ],
             'null data, filled registry' => [
                 [null],
-                ['tig 123'],
-                ['tig 123', null]
+                ['buckaroo 123'],
+                ['buckaroo 123', null]
             ],
         ];
     }
@@ -1177,15 +1177,15 @@ class AbstractMethodTest extends \TIG\Buckaroo\Test\BaseTest
     public function testAddToRegistry($newData, $registryData, $expected)
     {
         $registryMock = $this->getFakeMock(Registry::class)->setMethods(null)->getMock();
-        $registryMock->register('tig_registry_key', $registryData);
+        $registryMock->register('buckaroo_registry_key', $registryData);
 
         $instance = $this->getInstance(['registry' => $registryMock]);
 
         foreach ($newData as $data) {
-            $this->invokeArgs('addToRegistry', ['tig_registry_key', $data], $instance);
+            $this->invokeArgs('addToRegistry', ['buckaroo_registry_key', $data], $instance);
         }
 
-        $result = $registryMock->registry('tig_registry_key');
+        $result = $registryMock->registry('buckaroo_registry_key');
         $this->assertEquals($expected, $result);
     }
 }

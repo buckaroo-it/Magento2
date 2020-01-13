@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Model\AbstractModel;
-use TIG\Buckaroo\Api\Data\InvoiceInterface;
+use Buckaroo\Magento2\Api\Data\InvoiceInterface;
 
 class Invoice extends AbstractModel implements InvoiceInterface
 {
@@ -28,7 +28,7 @@ class Invoice extends AbstractModel implements InvoiceInterface
     const FIELD_INVOICE_NUMBER = 'invoice_number';
 
     // @codingStandardsIgnoreLine
-    protected $_eventPrefix = 'tig_buckaroo_invoice';
+    protected $_eventPrefix = 'buckaroo_magento2_invoice';
 
     /**
      * Initialize resource model
@@ -38,7 +38,7 @@ class Invoice extends AbstractModel implements InvoiceInterface
     // @codingStandardsIgnoreLine
     protected function _construct()
     {
-        $this->_init('TIG\Buckaroo\Model\ResourceModel\Invoice');
+        $this->_init('Buckaroo\Magento2\Model\ResourceModel\Invoice');
     }
 
     /**

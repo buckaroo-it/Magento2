@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 /**
  * @method getPaymentFeeLabel()
@@ -30,30 +30,30 @@ namespace TIG\Buckaroo\Model\ConfigProvider\Method;
  */
 class Paypal extends AbstractConfigProvider
 {
-    const XPATH_PAYPAL_PAYMENT_FEE                      = 'payment/tig_buckaroo_paypal/payment_fee';
-    const XPATH_PAYPAL_PAYMENT_FEE_LABEL                = 'payment/tig_buckaroo_paypal/payment_fee_label';
-    const XPATH_PAYPAL_ACTIVE                           = 'payment/tig_buckaroo_paypal/active';
-    const XPATH_PAYPAL_ACTIVE_STATUS                    = 'payment/tig_buckaroo_paypal/active_status';
-    const XPATH_PAYPAL_ORDER_STATUS_SUCCESS             = 'payment/tig_buckaroo_paypal/order_status_success';
-    const XPATH_PAYPAL_ORDER_STATUS_FAILED              = 'payment/tig_buckaroo_paypal/order_status_failed';
-    const XPATH_PAYPAL_AVAILABLE_IN_BACKEND             = 'payment/tig_buckaroo_paypal/available_in_backend';
-    const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/tig_buckaroo_paypal/sellers_protection';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/tig_buckaroo_paypal/sellers_protection_eligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/tig_buckaroo_paypal/sellers_protection_ineligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/tig_buckaroo_paypal/sellers_protection_itemnotreceived_eligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/tig_buckaroo_paypal/sellers_protection_unauthorizedpayment_eligible';
+    const XPATH_PAYPAL_PAYMENT_FEE                      = 'payment/buckaroo_magento2_paypal/payment_fee';
+    const XPATH_PAYPAL_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_paypal/payment_fee_label';
+    const XPATH_PAYPAL_ACTIVE                           = 'payment/buckaroo_magento2_paypal/active';
+    const XPATH_PAYPAL_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_paypal/active_status';
+    const XPATH_PAYPAL_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_paypal/order_status_success';
+    const XPATH_PAYPAL_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_paypal/order_status_failed';
+    const XPATH_PAYPAL_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_paypal/available_in_backend';
+    const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_paypal/sellers_protection';
+    const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/buckaroo_magento2_paypal/sellers_protection_eligible';
+    const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/buckaroo_magento2_paypal/sellers_protection_ineligible';
+    const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/buckaroo_magento2_paypal/sellers_protection_itemnotreceived_eligible';
+    const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_paypal/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paypal/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_paypal/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_paypal/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_paypal/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_paypal/specificcountry';
 
     /**
      * @return array|void
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Paypal::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Paypal::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

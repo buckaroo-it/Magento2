@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
-use TIG\Buckaroo\Helper\PaymentFee;
-use TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 /**
  * @method getPaymentFeeLabel()
@@ -36,24 +36,24 @@ use TIG\Buckaroo\Model\ConfigProvider\AllowedCurrencies;
  */
 class Creditcards extends AbstractConfigProvider
 {
-    const XPATH_CREDITCARDS_PAYMENT_FEE                      = 'payment/tig_buckaroo_creditcards/payment_fee';
-    const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL                = 'payment/tig_buckaroo_creditcards/payment_fee_label';
-    const XPATH_CREDITCARDS_ACTIVE                           = 'payment/tig_buckaroo_creditcards/active';
-    const XPATH_CREDITCARDS_ACTIVE_STATUS                    = 'payment/tig_buckaroo_creditcards/active_status';
-    const XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS             = 'payment/tig_buckaroo_creditcards/order_status_success';
-    const XPATH_CREDITCARDS_ORDER_STATUS_FAILED              = 'payment/tig_buckaroo_creditcards/order_status_failed';
-    const XPATH_CREDITCARDS_AVAILABLE_IN_BACKEND             = 'payment/tig_buckaroo_creditcards/available_in_backend';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION               = 'payment/tig_buckaroo_creditcards/sellers_protection';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE      = 'payment/tig_buckaroo_creditcards/sellers_protection_eligible';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE    = 'payment/tig_buckaroo_creditcards/sellers_protection_ineligible';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/tig_buckaroo_creditcards/sellers_protection_itemnotreceived_eligible';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/tig_buckaroo_creditcards/sellers_protection_unauthorizedpayment_eligible';
-    const XPATH_CREDITCARDS_ALLOWED_ISSUERS                  = 'payment/tig_buckaroo_creditcards/allowed_creditcards';
-    const XPATH_USE_CARD_DESIGN                              = 'payment/tig_buckaroo_creditcards/card_design';
-    const XPATH_ALLOWED_CURRENCIES                           = 'payment/tig_buckaroo_creditcards/allowed_currencies';
+    const XPATH_CREDITCARDS_PAYMENT_FEE                      = 'payment/buckaroo_magento2_creditcards/payment_fee';
+    const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
+    const XPATH_CREDITCARDS_ACTIVE                           = 'payment/buckaroo_magento2_creditcards/active';
+    const XPATH_CREDITCARDS_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_creditcards/active_status';
+    const XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_creditcards/order_status_success';
+    const XPATH_CREDITCARDS_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_creditcards/order_status_failed';
+    const XPATH_CREDITCARDS_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_creditcards/available_in_backend';
+    const XPATH_CREDITCARDS_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_creditcards/sellers_protection';
+    const XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE      = 'payment/buckaroo_magento2_creditcards/sellers_protection_eligible';
+    const XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE    = 'payment/buckaroo_magento2_creditcards/sellers_protection_ineligible';
+    const XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/buckaroo_magento2_creditcards/sellers_protection_itemnotreceived_eligible';
+    const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/buckaroo_magento2_creditcards/sellers_protection_unauthorizedpayment_eligible';
+    const XPATH_CREDITCARDS_ALLOWED_ISSUERS                  = 'payment/buckaroo_magento2_creditcards/allowed_creditcards';
+    const XPATH_USE_CARD_DESIGN                              = 'payment/buckaroo_magento2_creditcards/card_design';
+    const XPATH_ALLOWED_CURRENCIES                           = 'payment/buckaroo_magento2_creditcards/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                               = 'payment/tig_buckaroo_creditcards/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                             = 'payment/tig_buckaroo_creditcards/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                               = 'payment/buckaroo_magento2_creditcards/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                             = 'payment/buckaroo_magento2_creditcards/specificcountry';
 
     /**
      * Creditcards constructor.
@@ -81,7 +81,7 @@ class Creditcards extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Creditcards::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Creditcards::PAYMENT_METHOD_CODE);
         $issuers = $this->formatIssuers();
 
         return [
@@ -90,7 +90,7 @@ class Creditcards extends AbstractConfigProvider
                     'creditcards' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'creditcards' => $issuers,
-                        'defaultCardImage' => $this->getImageUrl('tig_buckaroo_creditcard_title'),
+                        'defaultCardImage' => $this->getImageUrl('buckaroo_magento2_creditcard_title'),
                         'useCardDesign' => $this->useCardDesign(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],

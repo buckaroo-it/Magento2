@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Total\Quote\Tax;
+namespace Buckaroo\Magento2\Model\Total\Quote\Tax;
 
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
 

@@ -18,10 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Model\AbstractModel;
-use TIG\Buckaroo\Api\Data\CertificateInterface;
+use Buckaroo\Magento2\Api\Data\CertificateInterface;
 
 class Certificate extends AbstractModel implements CertificateInterface
 {
@@ -29,7 +29,7 @@ class Certificate extends AbstractModel implements CertificateInterface
     /**
      * @var string
      */
-    protected $_eventPrefix = 'tig_buckaroo_certificate';
+    protected $_eventPrefix = 'buckaroo_magento2_certificate';
 
     /**
      * @var string
@@ -48,7 +48,7 @@ class Certificate extends AbstractModel implements CertificateInterface
      */
     protected function _construct()
     {
-        $this->_init('TIG\Buckaroo\Model\ResourceModel\Certificate');
+        $this->_init('Buckaroo\Magento2\Model\ResourceModel\Certificate');
     }
     // @codingStandardsIgnoreEnd
 

@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\ResourceModel\Invoice;
+namespace Buckaroo\Magento2\Model\ResourceModel\Invoice;
 
 use Magento\Sales\Model\ResourceModel\Collection\AbstractCollection;
 
@@ -29,12 +29,12 @@ class Collection extends AbstractCollection
 
     /** @var string */
     // @codingStandardsIgnoreLine
-    protected $_eventPrefix = 'tig_buckaroo_invoice_collection';
+    protected $_eventPrefix = 'buckaroo_magento2_invoice_collection';
 
     // @codingStandardsIgnoreLine
     protected function _construct()
     {
         // @codingStandardsIgnoreLine
-        $this->_init('TIG\Buckaroo\Model\Invoice', 'TIG\Buckaroo\Model\ResourceModel\Invoice');
+        $this->_init('Buckaroo\Magento2\Model\Invoice', 'Buckaroo\Magento2\Model\ResourceModel\Invoice');
     }
 }

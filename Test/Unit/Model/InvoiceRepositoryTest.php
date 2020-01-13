@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model;
+namespace Buckaroo\Magento2\Test\Unit\Model;
 
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResults;
@@ -26,12 +26,12 @@ use Magento\Framework\Api\SearchResultsInterfaceFactory;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use TIG\Buckaroo\Model\Invoice;
-use TIG\Buckaroo\Model\InvoiceFactory;
-use TIG\Buckaroo\Model\InvoiceRepository;
-use TIG\Buckaroo\Model\ResourceModel\Invoice as InvoiceResource;
-use TIG\Buckaroo\Model\ResourceModel\Invoice\CollectionFactory;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Invoice;
+use Buckaroo\Magento2\Model\InvoiceFactory;
+use Buckaroo\Magento2\Model\InvoiceRepository;
+use Buckaroo\Magento2\Model\ResourceModel\Invoice as InvoiceResource;
+use Buckaroo\Magento2\Model\ResourceModel\Invoice\CollectionFactory;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class InvoiceRepositoryTest extends BaseTest
 {

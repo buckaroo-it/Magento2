@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Service\Sales\Quote;
+namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Quote;
 
 use Magento\Checkout\Model\Cart;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
-use TIG\Buckaroo\Service\Sales\Quote\Recreate;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class RecreateTest extends BaseTest
 {

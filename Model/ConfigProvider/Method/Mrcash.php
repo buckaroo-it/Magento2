@@ -18,29 +18,29 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Mrcash extends AbstractConfigProvider
 {
-    const XPATH_MRCASH_PAYMENT_FEE              = 'payment/tig_buckaroo_mrcash/payment_fee';
-    const XPATH_MRCASH_PAYMENT_FEE_LABEL        = 'payment/tig_buckaroo_mrcash/payment_fee_label';
-    const XPATH_MRCASH_ACTIVE                   = 'payment/tig_buckaroo_mrcash/active';
-    const XPATH_MRCASH_ACTIVE_STATUS            = 'payment/tig_buckaroo_mrcash/active_status';
-    const XPATH_MRCASH_ORDER_STATUS_SUCCESS     = 'payment/tig_buckaroo_mrcash/order_status_success';
-    const XPATH_MRCASH_ORDER_STATUS_FAILED      = 'payment/tig_buckaroo_mrcash/order_status_failed';
-    const XPATH_MRCASH_AVAILABLE_IN_BACKEND     = 'payment/tig_buckaroo_mrcash/available_in_backend';
+    const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
+    const XPATH_MRCASH_PAYMENT_FEE_LABEL        = 'payment/buckaroo_magento2_mrcash/payment_fee_label';
+    const XPATH_MRCASH_ACTIVE                   = 'payment/buckaroo_magento2_mrcash/active';
+    const XPATH_MRCASH_ACTIVE_STATUS            = 'payment/buckaroo_magento2_mrcash/active_status';
+    const XPATH_MRCASH_ORDER_STATUS_SUCCESS     = 'payment/buckaroo_magento2_mrcash/order_status_success';
+    const XPATH_MRCASH_ORDER_STATUS_FAILED      = 'payment/buckaroo_magento2_mrcash/order_status_failed';
+    const XPATH_MRCASH_AVAILABLE_IN_BACKEND     = 'payment/buckaroo_magento2_mrcash/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_mrcash/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_mrcash/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_mrcash/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_mrcash/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_mrcash/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_mrcash/specificcountry';
 
     /**
      * @return array|void
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Mrcash::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Mrcash::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

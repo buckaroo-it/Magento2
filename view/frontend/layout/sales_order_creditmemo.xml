@@ -9,7 +9,7 @@
     <update handle="sales_order_item_price"/>
     <body>
         <referenceBlock name="creditmemo_items">
-            <block class="TIG\Buckaroo\Block\Order\Creditmemo\Totals" name="creditmemo_totals" template="TIG_Buckaroo::sales/order/totals.phtml">
+            <block class="Buckaroo\Magento2\Block\Order\Creditmemo\Totals" name="creditmemo_totals" template="Buckaroo_Magento2::sales/order/totals.phtml">
                 <arguments>
                     <argument name="label_properties" xsi:type="string">colspan="6" class="mark"</argument>
                     <argument name="value_properties" xsi:type="string">class="amount"</argument>

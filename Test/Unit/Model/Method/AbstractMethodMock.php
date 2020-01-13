@@ -18,17 +18,17 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Test\Unit\Model\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 
 /**
  * Class AbstractMethodMock
  *
- * @package TIG\Buckaroo\Test\Unit\Model\Method
+ * @package Buckaroo\Magento2\Test\Unit\Model\Method
  */
-class AbstractMethodMock extends \TIG\Buckaroo\Model\Method\AbstractMethod
+class AbstractMethodMock extends \Buckaroo\Magento2\Model\Method\AbstractMethod
 {
     // @codingStandardsIgnoreStart
-    protected $_code = 'tig_buckaroo_test';
+    protected $_code = 'buckaroo_magento2_test';
     // @codingStandardsIgnoreEnd
 
     public function getOrderTransactionBuilder($payment)

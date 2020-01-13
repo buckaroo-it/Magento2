@@ -19,12 +19,12 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model;
+namespace Buckaroo\Magento2\Model;
 
 /**
  * Interface ValidatorInterface
  *
- * @package TIG\Buckaroo\Model
+ * @package Buckaroo\Magento2\Model
  */
 interface ValidatorInterface
 {

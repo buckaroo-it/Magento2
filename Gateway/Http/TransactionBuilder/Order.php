@@ -19,17 +19,17 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Gateway\Http\TransactionBuilder;
+namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Encryption\Encryptor;
-use TIG\Buckaroo\Gateway\Http\Transaction;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Model\ConfigProvider\Method\Factory;
-use TIG\Buckaroo\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Gateway\Http\Transaction;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Order extends AbstractTransactionBuilder
 {
@@ -228,12 +228,12 @@ class Order extends AbstractTransactionBuilder
 
     /**
      * @return array
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     private function getAllowedCurrencies()
     {
         /**
-         * @var \TIG\Buckaroo\Model\Method\AbstractMethod $methodInstance
+         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance
          */
         $methodInstance = $this->order->getPayment()->getMethodInstance();
         $method = $methodInstance->buckarooPaymentMethodCode;
@@ -256,7 +256,7 @@ class Order extends AbstractTransactionBuilder
 
     /**
      * @return $this
-     * @throws \TIG\Buckaroo\Exception
+     * @throws \Buckaroo\Magento2\Exception
      */
     private function setOrderCurrency()
     {
@@ -268,7 +268,7 @@ class Order extends AbstractTransactionBuilder
             return $this->setCurrency($this->order->getBaseCurrencyCode());
         }
 
-        throw new \TIG\Buckaroo\Exception(
+        throw new \Buckaroo\Magento2\Exception(
             __("The selected payment method does not support the selected currency or the store's base currency.")
         );
     }

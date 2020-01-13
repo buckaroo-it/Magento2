@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Service\Software;
+namespace Buckaroo\Magento2\Test\Unit\Service\Software;
 
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Module\ModuleListInterface;
-use TIG\Buckaroo\Service\Software\Data;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Service\Software\Data;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class DataTest extends BaseTest
 {
@@ -42,7 +42,7 @@ class DataTest extends BaseTest
                 [
                     'PlatformName' => 'Magento - Community',
                     'PlatformVersion' => '2.0',
-                    'ModuleSupplier' => 'TIG',
+                    'ModuleSupplier' => 'Buckaroo',
                     'ModuleName' => 'Buckaroo',
                     'ModuleVersion' => Data::BUCKAROO_VERSION
                 ]
@@ -55,7 +55,7 @@ class DataTest extends BaseTest
                 [
                     'PlatformName' => 'Magento - Enterprise',
                     'PlatformVersion' => '2.1',
-                    'ModuleSupplier' => 'TIG',
+                    'ModuleSupplier' => 'Buckaroo',
                     'ModuleName' => 'Buckaroo',
                     'ModuleVersion' => Data::BUCKAROO_VERSION
                 ]

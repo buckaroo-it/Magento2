@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Config\Backend;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use TIG\Buckaroo\Model\Config\Backend\Number;
+use Buckaroo\Magento2\Model\Config\Backend\Number;
 
-class NumberTest extends \TIG\Buckaroo\Test\BaseTest
+class NumberTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Number::class;
 

@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Method\Capayable;
+namespace Buckaroo\Magento2\Test\Unit\Model\Method\Capayable;
 
-use TIG\Buckaroo\Model\Method\Capayable\Postpay;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Method\Capayable\Postpay;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class PostpayTest extends BaseTest
 {
@@ -31,7 +31,7 @@ class PostpayTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->getCode();
 
-        $this->assertEquals('tig_buckaroo_capayablepostpay', $result);
+        $this->assertEquals('buckaroo_magento2_capayablepostpay', $result);
     }
 
     public function testPaymentMethodCode()

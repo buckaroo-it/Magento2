@@ -17,10 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\ResourceModel;
+namespace Buckaroo\Magento2\Test\Unit\Model\ResourceModel;
 
-use TIG\Buckaroo\Model\ResourceModel\Invoice;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\ResourceModel\Invoice;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class InvoiceTest extends BaseTest
 {
@@ -33,7 +33,7 @@ class InvoiceTest extends BaseTest
         $idFieldNameProperty = $this->getProperty('_idFieldName', $instance);
 
         $this->assertInstanceOf(Invoice::class, $instance);
-        $this->assertEquals('tig_buckaroo_invoice', $mainTableProperty);
+        $this->assertEquals('buckaroo_magento2_invoice', $mainTableProperty);
         $this->assertEquals('entity_id', $idFieldNameProperty);
     }
 }

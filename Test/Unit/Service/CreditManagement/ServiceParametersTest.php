@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Service\CreditManagement\ServiceParameters;
+namespace Buckaroo\Magento2\Test\Unit\Service\CreditManagement\ServiceParameters;
 
 use Magento\Sales\Model\Order\Payment;
-use TIG\Buckaroo\Service\CreditManagement\ServiceParameters;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class ServiceParametersTest extends BaseTest
 {

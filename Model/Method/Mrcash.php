@@ -18,16 +18,16 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\Method;
+namespace Buckaroo\Magento2\Model\Method;
 
 class Mrcash extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'tig_buckaroo_mrcash';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_mrcash';
 
-    const REFUND_EXTRA_FIELDS_XPATH = 'payment/tig_buckaroo_mrcash/refund_extra_fields';
+    const REFUND_EXTRA_FIELDS_XPATH = 'payment/buckaroo_magento2_mrcash/refund_extra_fields';
 
     /**
      * @var string

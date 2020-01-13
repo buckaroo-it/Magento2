@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Model\Config\Backend;
+namespace Buckaroo\Magento2\Model\Config\Backend;
 
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -28,8 +28,8 @@ use Magento\Framework\Filesystem\File\ReadFactory;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
-use TIG\Buckaroo\Api\CertificateRepositoryInterface;
-use TIG\Buckaroo\Model\CertificateFactory;
+use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
+use Buckaroo\Magento2\Model\CertificateFactory;
 
 class Certificate extends \Magento\Framework\App\Config\Value
 {
@@ -120,7 +120,7 @@ class Certificate extends \Magento\Framework\App\Config\Value
              * change the selected value.
              */
             $oldValue = $this->_config->getValue(
-                'tig_buckaroo/account/certificate_file',
+                'buckaroo_magento2/account/certificate_file',
                 $this->getScope(),
                 $this->getScopeId()
             );
@@ -131,7 +131,7 @@ class Certificate extends \Magento\Framework\App\Config\Value
                  * Set the current configuration value to this new uploaded certificate.
                  */
                 $this->writer->save(
-                    'tig_buckaroo/account/certificate_file',
+                    'buckaroo_magento2/account/certificate_file',
                     $certificate->getId(),
                     $this->getScope() ? $this->getScope() : 'default',
                     $this->getScopeId()

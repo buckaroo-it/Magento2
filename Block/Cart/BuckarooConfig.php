@@ -3,7 +3,7 @@
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace TIG\Buckaroo\Block\Cart;
+namespace Buckaroo\Magento2\Block\Cart;
 
 class BuckarooConfig extends \Magento\Backend\Block\Template
 {
@@ -15,7 +15,7 @@ class BuckarooConfig extends \Magento\Backend\Block\Template
     // @codingStandardsIgnoreEnd
 
     /**
-     * @var \TIG\Buckaroo\Model\ConfigProvider\Factory
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory
      */
     protected $configProviderFactory;
 
@@ -27,13 +27,13 @@ class BuckarooConfig extends \Magento\Backend\Block\Template
     /**
      * @param \Magento\Backend\Block\Template\Context    $context
      * @param \Magento\Framework\Json\Encoder            $jsonEncoder
-     * @param \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      * @param array                                      $data
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Json\Encoder $jsonEncoder,
-        \TIG\Buckaroo\Model\ConfigProvider\Factory $configProviderFactory,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         array $data = []
     ) {
         parent::__construct($context, $data);

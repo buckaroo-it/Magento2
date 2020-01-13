@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Controller\Payconiq;
+namespace Buckaroo\Magento2\Test\Unit\Controller\Payconiq;
 
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchCriteriaBuilder;
@@ -30,9 +30,9 @@ use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use TIG\Buckaroo\Controller\Payconiq\Process;
-use TIG\Buckaroo\Model\ConfigProvider\Account;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Controller\Payconiq\Process;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class ProcessTest extends BaseTest
 {
@@ -225,7 +225,7 @@ class ProcessTest extends BaseTest
         try {
             $result = $this->invoke('getTransaction', $instance);
             $this->assertEquals($expected, $result);
-        } catch (\TIG\Buckaroo\Exception $e) {
+        } catch (\Buckaroo\Magento2\Exception $e) {
             $this->assertEquals('There was no transaction found by transaction Id', $e->getMessage());
         }
     }
@@ -285,7 +285,7 @@ class ProcessTest extends BaseTest
         try {
             $result = $this->invoke('getList', $instance);
             $this->assertEquals('list of items', $result);
-        } catch (\TIG\Buckaroo\Exception $e) {
+        } catch (\Buckaroo\Magento2\Exception $e) {
             $this->assertEquals('There was no transaction found by transaction Id', $e->getMessage());
         }
     }

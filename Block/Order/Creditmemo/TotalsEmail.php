@@ -17,9 +17,9 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Block\Order\Creditmemo;
+namespace Buckaroo\Magento2\Block\Order\Creditmemo;
 
-class TotalsEmail extends \TIG\Buckaroo\Block\Order\TotalsEmail
+class TotalsEmail extends \Buckaroo\Magento2\Block\Order\TotalsEmail
 {
     public function initTotals()
     {

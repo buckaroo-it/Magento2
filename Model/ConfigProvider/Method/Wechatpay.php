@@ -18,22 +18,22 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace TIG\Buckaroo\Model\ConfigProvider\Method;
+namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Wechatpay extends AbstractConfigProvider
 {
-    const XPATH_WECHATPAY_PAYMENT_FEE           = 'payment/tig_buckaroo_wechatpay/payment_fee';
-    const XPATH_WECHATPAY_PAYMENT_FEE_LABEL     = 'payment/tig_buckaroo_wechatpay/payment_fee_label';
-    const XPATH_WECHATPAY_ACTIVE                = 'payment/tig_buckaroo_wechatpay/active';
-    const XPATH_WECHATPAY_ACTIVE_STATUS         = 'payment/tig_buckaroo_wechatpay/active_status';
-    const XPATH_WECHATPAY_ORDER_STATUS_SUCCESS  = 'payment/tig_buckaroo_wechatpay/order_status_success';
-    const XPATH_WECHATPAY_ORDER_STATUS_FAILED   = 'payment/tig_buckaroo_wechatpay/order_status_failed';
-    const XPATH_WECHATPAY_AVAILABLE_IN_BACKEND  = 'payment/tig_buckaroo_wechatpay/available_in_backend';
+    const XPATH_WECHATPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_wechatpay/payment_fee';
+    const XPATH_WECHATPAY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_wechatpay/payment_fee_label';
+    const XPATH_WECHATPAY_ACTIVE                = 'payment/buckaroo_magento2_wechatpay/active';
+    const XPATH_WECHATPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_wechatpay/active_status';
+    const XPATH_WECHATPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_wechatpay/order_status_success';
+    const XPATH_WECHATPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_wechatpay/order_status_failed';
+    const XPATH_WECHATPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_wechatpay/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/tig_buckaroo_wechatpay/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_wechatpay/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/tig_buckaroo_wechatpay/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/tig_buckaroo_wechatpay/specificcountry';
+    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_wechatpay/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_wechatpay/specificcountry';
 
     /**
      * @return array|void
@@ -41,7 +41,7 @@ class Wechatpay extends AbstractConfigProvider
     public function getConfig()
     {
         $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\TIG\Buckaroo\Model\Method\Wechatpay::PAYMENT_METHOD_CODE);
+            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Wechatpay::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [

@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Logging;
+namespace Buckaroo\Magento2\Logging;
 
 use Monolog\Logger;
 use Magento\Framework\Logger\Handler\Base;

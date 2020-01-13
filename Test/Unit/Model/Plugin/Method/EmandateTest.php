@@ -17,13 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace TIG\Buckaroo\Test\Unit\Model\Plugin\Method;
+namespace Buckaroo\Magento2\Test\Unit\Model\Plugin\Method;
 
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
-use TIG\Buckaroo\Model\Method\Emandate as EmandateMethod;
-use TIG\Buckaroo\Model\Plugin\Method\Emandate;
-use TIG\Buckaroo\Test\BaseTest;
+use Buckaroo\Magento2\Model\Method\Emandate as EmandateMethod;
+use Buckaroo\Magento2\Model\Plugin\Method\Emandate;
+use Buckaroo\Magento2\Test\BaseTest;
 
 class EmandateTest extends BaseTest
 {
@@ -36,18 +36,18 @@ class EmandateTest extends BaseTest
     {
         return [
             'different payment method' => [
-                'tig_buckaroo_ideal',
+                'buckaroo_magento2_ideal',
                 true,
                 null
 
             ],
             'emandate, can refund' => [
-                'tig_buckaroo_emandate',
+                'buckaroo_magento2_emandate',
                 true,
                 true
             ],
             'emandate, can not refund' => [
-                'tig_buckaroo_emandate',
+                'buckaroo_magento2_emandate',
                 false,
                 false
             ]
