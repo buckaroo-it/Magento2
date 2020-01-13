@@ -2,7 +2,7 @@
 
 ### Installation & Configuration 
 
-Below you will find a link to the installation and configuration manual of the Buckaroo Magento 1 extension. This will provide you a step-by-step description of how you can install the extension on your environment.
+Below you will find a link to the installation and configuration manual of the Buckaroo Magento 2 extension. This will provide you a step-by-step description of how you can install the extension on your environment.
 
 https://support.buckaroo.nl/categorie%C3%ABn/plugins/magento-2
 

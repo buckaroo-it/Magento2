@@ -1,0 +1,66 @@
+Installation
+1.1 Back-up
+We strongly advise to install and update the extension on a staging environment first and make a back-up of your webshop prior to the installation.
+
+1.2 Composer installation
+Login via SSH and execute the following commands via the command line:
+
+composer require buckaroo/magento2
+1.3 Extension activation and updates
+Execute the following commands via the command line:
+
+php bin/magento module:enable Buckaroo_Magento2
+php bin/magento setup:upgrade
+1.4 File access rights
+Depending on the operating system, make sure the just added files have the correct access rights so that the web server can access and execute the files correctly.
+
+The composer command can be executed by the logged in user on the server which is sometimes not the same as the user of the web server. The files created by composer can not be read by the web server which can lead to unexpected behaviour.
+
+Composer will install the files in:
+
+vendor/buckaroo/magento2
+1.5 Remove static files
+Depending on your webshop configuration, empty following static files directories:
+
+pub/static/frontend/
+pub/static/adminhtml/
+pub/static/_requirejs/
+1.6 Flush cache and reindex
+Flush your Magento cache using the following command:
+
+php bin/magento cache:flush
+Depending on your configuration, make sure the following directories are emptied:
+
+var/cache
+var/pagecache
+var/generation
+var/di (if this folder exists)
+Execute the following command via the command line to force a re-index:
+
+php bin/magento indexer:reindex
+The installation is now completed.
+
+Update
+2.1 Update the extension
+To be able to make use of the latest features and bugfixes you should update the extension frequently. To do this you have to execute the following commands and flush your Magento cache.
+
+composer update buckaroo/magento2
+php bin/magento setup:upgrade
+
+IMPORTANT NOTE: if you update from v1.14.1 or lower to v1.15.2 then you need to take specific actions instead :
+
+composer require buckaroo/magento2:1.15.2
+composer remove tig/buckaroo
+php bin/magento setup:upgrade
+
+IMPORTANT NOTE: if you update from v1.14.1 or lower to v1.16.0 or higher then you need to take specific actions instead :
+
+php bin/magento module:disable TIG_Buckaroo
+composer remove tig/buckaroo
+composer require buckaroo/magento2
+php bin/magento module:enable Buckaroo_Magento2
+php bin/magento setup:upgrade
+
+Need support with the Buckaroo extension? Please send an email to support@buckaroo.nl or call Buckaroo on phone number 030-711 5000.
+
+Do you have feedback? We would like to hear from 030-711 5000 or by e-mail at support@buckaroo.nl.
