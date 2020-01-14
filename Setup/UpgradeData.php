@@ -52,6 +52,8 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
      */
     protected $encryptor;
 
+    protected $registry;
+
     /**
      * @var array
      */
@@ -409,13 +411,15 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
      * @param \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory
      * @param \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection
      * @param \Magento\Framework\Encryption\Encryptor $encryptor
+     * @param \Magento\Framework\Registry $registry
      */
     public function __construct(
         \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory,
         \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory,
         \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
         \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection,
-        \Magento\Framework\Encryption\Encryptor $encryptor
+        \Magento\Framework\Encryption\Encryptor $encryptor,
+        \Magento\Framework\Registry $registry
     )
     {
         $this->salesSetupFactory = $salesSetupFactory;
@@ -423,6 +427,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         $this->giftcardCollection = $giftcardCollection;
         $this->certificateCollection = $certificateCollection;
         $this->encryptor = $encryptor;
+        $this->registry = $registry;
     }
 
     /**
@@ -432,7 +437,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     {
         $setup->startSetup();
 
-        if (!empty($GLOBALS['tig_buckaroo_upgrade']) && !$context->getVersion()) {
+        if ($this->registry->registry('tig_buckaroo_upgrade') && !$context->getVersion()) {
             $setup->getConnection()->query(
                 "SET FOREIGN_KEY_CHECKS=0"
             );

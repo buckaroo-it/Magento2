@@ -25,6 +25,12 @@ use Magento\Framework\Setup\SchemaSetupInterface;
 
 class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
 {
+    protected $registry;
+
+    public function __construct(\Magento\Framework\Registry $registry) {
+        $this->registry = $registry;
+    }
+
     /**
      * Installs DB schema for a module
      *
@@ -40,7 +46,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
 
         if (!$installer->tableExists('buckaroo_magento2_certificate')) {
             if ($installer->tableExists('tig_buckaroo_certificate')) {
-                $GLOBALS['tig_buckaroo_upgrade'] = 1;
+                $this->registry->register('tig_buckaroo_upgrade', 1);
                 $installer->getConnection()->renameTable(
                     $installer->getTable('tig_buckaroo_certificate'),
                     $installer->getTable('buckaroo_magento2_certificate')
