@@ -55,7 +55,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                     "ALTER TABLE ".$installer->getTable('buckaroo_magento2_certificate')." COMMENT = 'Buckaroo Certificate'"
                 );
                 $installer->getConnection()->query(
-                    "UPDATE core_config_data SET path = replace(path, 'tig_buckaroo','buckaroo_magento2') WHERE path LIKE '%tig_buckaroo%';"
+                    "UPDATE ".$installer->getTable('core_config_data')." SET path = replace(path, 'tig_buckaroo','buckaroo_magento2') WHERE path LIKE '%tig_buckaroo%';"
                 );
             } else {
                 $table = $installer->getConnection()
