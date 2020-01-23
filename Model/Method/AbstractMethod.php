@@ -666,23 +666,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // SET REGISTRY BUCKAROO REDIRECT
         $this->_registry->register('buckaroo_response', $response);
 
-        /**
-         * Fix for Magento setting the order to suspected fraud when the order currency doe snot match with the
-         * payment's currency.
-         */
-        $configProvider = $this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode);
-        $allowedCurrencies = $configProvider->getAllowedCurrencies();
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        if (!$payment->getCurrencyCode() || !in_array($payment->getCurrencyCode(), $allowedCurrencies)) {
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
-            $this->payment->setIsFraudDetected(false);
-        }
-
         $this->afterAuthorize($payment, $response);
 
         return $this;

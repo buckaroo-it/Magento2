@@ -797,6 +797,7 @@ class Push implements PushInterface
 
         if ($paymentMethod->canPushInvoice($this->postData)) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
+            $amount = $this->order->getBaseTotalDue();
             $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
@@ -933,7 +934,9 @@ class Push implements PushInterface
                 $payment->save();
             }
         } else {
-            $payment->registerCaptureNotification($this->order->getGrandTotal());
+            //Fix for suspected fraud when the order currency does not match with the payment's currency    
+            $amount = ($payment->isSameCurrency() && $payment->isCaptureFinal($this->order->getGrandTotal())) ? $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
+            $payment->registerCaptureNotification($amount);
             $payment->save();
         }
 
