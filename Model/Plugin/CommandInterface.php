@@ -48,7 +48,7 @@ class CommandInterface
         /** @var MethodInterface $methodInstance */
         $methodInstance = $payment->getMethodInstance();
         $paymentAction = $methodInstance->getConfigPaymentAction();
-        $paymentCode = substr($methodInstance->getCode(), 0, 13);
+        $paymentCode = substr($methodInstance->getCode(), 0, 18);
 
         if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
             $this->updateOrderStateAndStatus($order, $methodInstance);
