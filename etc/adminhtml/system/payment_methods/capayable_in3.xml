@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
-    <!-- Capayable In3 Payment method group -->
+    <!-- In3 Payment method group -->
     <group id="buckaroo_magento2_capayablein3" translate="label" type="text" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Capayable In3</label>
+        <label>In3</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Enable Capayable In3</label>
+            <label>Enable In3</label>
             <comment><![CDATA[Enable or disable this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_capayablein3/active</config_path>

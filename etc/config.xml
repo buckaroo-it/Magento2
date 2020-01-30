@@ -374,7 +374,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Capayable\Installments</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Capayable In3</title>
+                <title>In3 - betaal in 3 keer, 0% rente</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>250</sort_order>
                 <order_email>1</order_email>
@@ -383,20 +383,6 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_capayablein3>
-
-            <buckaroo_magento2_capayablepostpay>
-                <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Capayable\Postpay</model>
-                <order_status>pending</order_status>
-                <title>Buckaroo Capayable Postpay</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>260</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </buckaroo_magento2_capayablepostpay>
 
             <buckaroo_magento2_alipay>
                 <active>0</active>
