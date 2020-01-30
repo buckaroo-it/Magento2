@@ -119,7 +119,7 @@ define(
                     shippingMethods = [];
                     shippingContactCallback = null;
                     shipmentMethodCallback = null;
-                    requiredContactFields = [];
+                    requiredContactFields = ["postalAddress"];
                 }
 
                 this.applepayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
@@ -319,6 +319,7 @@ define(
                     status: ApplePaySession.STATUS_SUCCESS,
                     errors: []
                 };
+                //console.log('==========pvo11',payment); //ZAK
 
                 this.transactionResult(payment);
 

@@ -89,6 +89,10 @@ class Applepay extends AbstractMethod
             $this->getInfoInstance()->setAdditionalInformation('applepayTransaction', $applepayEncoded);
         }
 
+        if (!empty($data['additional_data']['billingContact'])) {
+            $this->getInfoInstance()->setAdditionalInformation('billingContact', $data['additional_data']['billingContact']);
+        }
+
         return $this;
     }
 
@@ -100,16 +104,27 @@ class Applepay extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
+        $requestParameters = [
+            [
+                '_'    => $payment->getAdditionalInformation('applepayTransaction'),
+                'Name' => 'PaymentData',
+            ]
+        ];
+
+        $billingContact = $payment->getAdditionalInformation('billingContact') ?
+            json_decode($payment->getAdditionalInformation('billingContact')) : null;
+        if ($billingContact && !empty($billingContact->givenName) && !empty($billingContact->familyName)) {
+            $requestParameters[] = [
+                '_'    => $billingContact->givenName . ' ' . $billingContact->familyName,
+                'Name' => 'CustomerCardName',
+            ];
+        }
+
         $services = [
             'Name'             => 'applepay',
             'Action'           => 'Pay',
             'Version'          => 0,
-            'RequestParameter' => [
-                [
-                    '_'    => $payment->getAdditionalInformation('applepayTransaction'),
-                    'Name' => 'PaymentData',
-                ],
-            ],
+            'RequestParameter' => $requestParameters,
         ];
 
         /**

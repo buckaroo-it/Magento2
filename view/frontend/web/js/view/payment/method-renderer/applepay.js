@@ -101,6 +101,8 @@ define(
                     var self = this,
                         placeOrder;
 
+                    //console.log('==========pvo13',payment); //ZAK
+
                     if (event) {
                         event.preventDefault();
                     }
@@ -123,6 +125,7 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
+                    //console.log('==========pvo14',payment); //ZAK
                     response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         window.location.replace(response.RequiredAction.RedirectURL);
@@ -137,6 +140,7 @@ define(
                 },
 
                 showPayButton: function () {
+                    //console.log('==========pvo6',payment); //ZAK
                     applepayPay.setIsOnCheckout(true);
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton();
@@ -155,13 +159,16 @@ define(
                 },
 
                 getData: function () {
-                    var transactionData = this.formatTransactionResponse(applepayPay.transactionResult());
+                    var transactionResult = applepayPay.transactionResult();
+                    var transactionData = this.formatTransactionResponse(transactionResult);
 
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "applepayTransaction" : transactionData
+                            "applepayTransaction" : transactionData,
+                            "billingContact" : transactionResult && transactionResult.billingContact ?
+                                JSON.stringify(transactionResult.billingContact) : ''
                         }
                     };
                 },
@@ -174,6 +181,8 @@ define(
                     if (null === response || 'undefined' === response) {
                         return null;
                     }
+
+                    //console.log('==========pvo10',payment); //ZAK
 
                     var paymentData = response.token.paymentData;
 
