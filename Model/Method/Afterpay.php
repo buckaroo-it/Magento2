@@ -1213,6 +1213,10 @@ class Afterpay extends AbstractMethod
                 'Name' => 'BillingInitials',
             ],
             [
+                '_'    => $billingAddress->getFirstname(),
+                'Name' => 'BillingFirstName',
+            ],
+            [
                 '_'    => $billingAddress->getLastName(),
                 'Name' => 'BillingLastName',
             ],
