@@ -23,12 +23,12 @@ use Magento\Framework\Registry;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
-use Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice\KlarnaDiscountPartialInformation;
+use Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice\KlarnakpDiscountPartialInformation;
 use Buckaroo\Magento2\Test\BaseTest;
 
-class KlarnaDiscountPartialInformationTest extends BaseTest
+class KlarnakpDiscountPartialInformationTest extends BaseTest
 {
-    protected $instanceClass = KlarnaDiscountPartialInformation::class;
+    protected $instanceClass = KlarnakpDiscountPartialInformation::class;
 
     /**
      * @return array
@@ -38,7 +38,7 @@ class KlarnaDiscountPartialInformationTest extends BaseTest
         return [
             'return false by partial capture' => [
                 true,
-                'buckaroo_magento2_klarna',
+                'buckaroo_magento2_klarnakp',
                 false
             ],
             'return false by incorrect method' => [
@@ -48,7 +48,7 @@ class KlarnaDiscountPartialInformationTest extends BaseTest
             ],
             'return true' => [
                 false,
-                'buckaroo_magento2_klarna',
+                'buckaroo_magento2_klarnakp',
                 true
             ],
         ];

@@ -118,8 +118,8 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/kbc'
             },
             {
-                type: 'buckaroo_magento2_klarna',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarna'
+                type: 'buckaroo_magento2_klarnakp',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarnakp'
             },
             {
                 type: 'buckaroo_magento2_emandate',

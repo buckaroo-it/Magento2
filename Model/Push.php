@@ -299,7 +299,7 @@ class Push implements PushInterface
         }
 
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
-            $this->hasPostData('brq_transaction_method', 'klarna') &&
+            $this->hasPostData('brq_transaction_method', 'klarnakp') &&
             $this->hasPostData('add_service_action_from_magento', 'pay')
         ) {
             return false;
@@ -665,6 +665,10 @@ class Push implements PushInterface
         if (isset($this->postData['brq_datarequest']) && !empty($this->postData['brq_datarequest'])) {
             $trxId = $this->postData['brq_datarequest'];
         }
+        
+        if (isset($this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey']) && !empty($this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey'])) {
+            $trxId = $this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey'];
+        }
 
         return $trxId;
     }
@@ -773,6 +777,11 @@ class Push implements PushInterface
             $amount = floatval($this->originalPostData['brq_amount']);
         }
 
+        if (isset($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']) && !empty($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber'])) {
+            $this->order->setBuckarooReservationNumber($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']);
+            $this->order->save();
+        }
+        
         $store = $this->order->getStore();
 
         $payment = $this->order->getPayment();
@@ -807,6 +816,10 @@ class Push implements PushInterface
         }
 
         if ($paymentMethod->canPushInvoice($this->postData)) {
+            $this->saveInvoice();
+        }
+
+        if (!empty($this->originalPostData['brq_SERVICE_klarnakp_AutoPayTransactionKey']) && ($this->originalPostData['brq_statuscode'] == 190)) {
             $this->saveInvoice();
         }
 

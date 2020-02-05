@@ -68,7 +68,7 @@
 .buckaroo_magento2_payment_card_cartebancaire,
 .buckaroo_magento2_payment_card_dankort,
 .buckaroo_magento2_payment_card_nexi,
-.buckaroo_magento2_payment_klarna,
+.buckaroo_magento2_payment_klarnakp,
 .buckaroo_magento2_payment_capayablein3,
 .buckaroo_magento2_payment_capayablepostpay
 {
@@ -261,8 +261,8 @@
 }
 
 /* Klarna */
-.buckaroo_magento2_payment_klarna:before {
-    background: url(../images/buckaroo_magento2_klarna_title.png) no-repeat;
+.buckaroo_magento2_payment_klarnakp:before {
+    background: url(../images/buckaroo_magento2_klarnakp_title.png) no-repeat;
     float: left;
     margin-right: 10px;
     margin-top: -3px;

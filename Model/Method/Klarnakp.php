@@ -30,12 +30,12 @@ use Magento\Tax\Model\Config;
 use Magento\Checkout\Model\Cart;
 use Zend_Locale;
 
-class Klarna extends AbstractMethod
+class Klarnakp extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarna';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarnakp';
 
     /**
      * Check if the tax calculation includes tax.
@@ -43,10 +43,10 @@ class Klarna extends AbstractMethod
     const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
     const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
-    /** Klarna Article Types */
-    const KLARNA_ARTICLE_TYPE_GENERAL = 'General';
-    const KLARNA_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
-    const KLARNA_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
+    /** Klarnakp Article Types */
+    const KLARNAKP_ARTICLE_TYPE_GENERAL = 'General';
+    const KLARNAKP_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
+    const KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
 
 
     /**
@@ -58,7 +58,7 @@ class Klarna extends AbstractMethod
     /**
      * @var string
      */
-    public $buckarooPaymentMethodCode = 'klarna';
+    public $buckarooPaymentMethodCode = 'klarnakp';
 
     // @codingStandardsIgnoreStart
     /**
@@ -267,10 +267,10 @@ class Klarna extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name' => 'klarna',
+            'Name' => 'klarnakp',
             'Action' => 'Reserve',
             'Version' => 1,
-            'RequestParameter' => $this->getKlarnaRequestParameters($payment),
+            'RequestParameter' => $this->getKlarnakpRequestParameters($payment),
         ];
 
         /**
@@ -328,7 +328,7 @@ class Klarna extends AbstractMethod
          * @noinspection PhpUndefinedMethodInspection
          */
         $services = [
-            'Name' => 'klarna',
+            'Name' => 'klarnakp',
             'Action' => 'Pay',
             'Version' => 1,
         ];
@@ -425,7 +425,7 @@ class Klarna extends AbstractMethod
         }
 
         $services = [
-            'Name'    => 'klarna',
+            'Name'    => 'klarnakp',
             'Action'  => 'Refund',
             'Version' => 1,
         ];
@@ -458,7 +458,7 @@ class Klarna extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name' => 'klarna',
+            'Name' => 'klarnakp',
             'Action' => 'CancelReservation',
             'Version' => 1,
             'RequestParameter' => $this->getCancelReservationData($payment),
@@ -639,8 +639,10 @@ class Klarna extends AbstractMethod
             return;
         }
 
-        $order->setBuckarooReservationNumber($postData->Services->Service->ResponseParameter->_);
-        $order->save();
+        if (isset($postData->Services) && count($postData->Services->Service->ResponseParameter) > 0) {
+            $order->setBuckarooReservationNumber($postData->Services->Service->ResponseParameter->_);
+            $order->save();
+        }
     }
 
     /**
@@ -670,33 +672,12 @@ class Klarna extends AbstractMethod
 
         $additionalinformation = [
             [
-                '_' => !$this->checkInvoiceSendByEmail() ? 'true' : 'false',
-                'Name' => 'SendByMail',
-            ],
-            [
-                '_' => $this->checkInvoiceSendByEmail() ? 'true' : 'false' ,
-                'Name' => 'SendByEmail',
-            ],
-            [
                 '_' => $order->getBuckarooReservationNumber(),
                 'Name' => 'ReservationNumber',
             ]
         ];
 
         return $additionalinformation;
-    }
-
-    /**
-     * @return bool
-     *
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    private function checkInvoiceSendByEmail()
-    {
-        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna $klarnaConfig */
-        $klarnaConfig = $this->configProviderMethodFactory->get(self::PAYMENT_METHOD_CODE);
-
-        return (string)$klarnaConfig->getInvoiceSendMethod() === 'email';
     }
 
     /**
@@ -748,7 +729,7 @@ class Klarna extends AbstractMethod
      *
      * @return array
      */
-    public function getKlarnaRequestParameters($payment)
+    public function getKlarnakpRequestParameters($payment)
     {
         // First data to set is the billing address data.
         $requestData = $this->getRequestBillingData($payment);
@@ -856,10 +837,6 @@ class Klarna extends AbstractMethod
             [
                 '_' => $birthDayStamp,
                 'Name' => 'Pno',
-            ],
-            [
-                '_' => $listCountries[$billingAddress->getCountryId()],
-                'Name' => 'Encoding',
             ]
         ];
 
@@ -950,7 +927,7 @@ class Klarna extends AbstractMethod
                     'Name' => 'ArticleNumber',
                 ],
                 [
-                    '_' => self::KLARNA_ARTICLE_TYPE_GENERAL,
+                    '_' => self::KLARNAKP_ARTICLE_TYPE_GENERAL,
                     'Group' => 'Article',
                     'GroupID' => $group,
                     'Name' => 'ArticleType',
@@ -1160,7 +1137,7 @@ class Klarna extends AbstractMethod
                 'Name' => 'ArticleVat',
             ],
             [
-                '_' => self::KLARNA_ARTICLE_TYPE_SHIPMENTFEE,
+                '_' => self::KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE,
                 'Group' => 'Article',
                 'GroupID' => $group,
                 'Name' => 'ArticleType',
@@ -1226,7 +1203,7 @@ class Klarna extends AbstractMethod
                         'Name' => 'ArticleVat',
                     ],
                     [
-                        '_' => self::KLARNA_ARTICLE_TYPE_HANDLINGFEE,
+                        '_' => self::KLARNAKP_ARTICLE_TYPE_HANDLINGFEE,
                         'Group' => 'Article',
                         'GroupID' => $group,
                         'Name' => 'ArticleType',

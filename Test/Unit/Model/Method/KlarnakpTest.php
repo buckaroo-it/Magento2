@@ -29,13 +29,13 @@ use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Payment;
 use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as orderTrxBuilder;
 use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
-use Buckaroo\Magento2\Model\Method\Klarna;
+use Buckaroo\Magento2\Model\Method\Klarnakp;
 use Buckaroo\Magento2\Service\Software\Data;
 use Buckaroo\Magento2\Test\BaseTest;
 
-class KlarnaTest extends BaseTest
+class KlarnakpTest extends BaseTest
 {
-    protected $instanceClass = Klarna::class;
+    protected $instanceClass = Klarnakp::class;
 
     /**
      * @return array
@@ -268,7 +268,7 @@ class KlarnaTest extends BaseTest
         $instance->setData('info_instance', $infoInstanceMock);
 
         $result = $instance->assignData($dataObject);
-        $this->assertInstanceOf(Klarna::class, $result);
+        $this->assertInstanceOf(Klarnakp::class, $result);
 
         $tst = $infoInstanceMock->getAdditionalInformation();
         $this->assertEquals($expected, $tst);

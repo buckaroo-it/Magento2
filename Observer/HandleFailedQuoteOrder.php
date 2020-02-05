@@ -51,7 +51,7 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             $payment = $order->getPayment();
             if ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay'
                 || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay2'
-                || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarna'
+                || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp'
             ) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                 $payment->save();

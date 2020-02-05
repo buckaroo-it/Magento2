@@ -24,7 +24,7 @@ use Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order\Invoice;
 use \Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
+use \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Sales\Model\Order\ShipmentFactory;
@@ -35,8 +35,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
     const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
 
-    /** @var Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna */
-    private $klarnaConfig;
+    /** @var Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp */
+    private $klarnakpConfig;
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -72,27 +72,27 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory
      * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna $klarnaConfig
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig
      */
     public function __construct(
         \Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory $invoiceCollectionFactory,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna $klarnaConfig
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig
     ) {
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;
         $this->shipmentFactory = $shipmentFactory;
         $this->transactionFactory = $transactionFactory;
-        $this->klarnaConfig = $klarnaConfig;
+        $this->klarnakpConfig = $klarnakpConfig;
     }
 
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        if ( !$this->klarnaConfig->getEnabled() ||
-             !$this->klarnaConfig->getCreateInvoiceAfterShipment()
+        if ( !$this->klarnakpConfig->getEnabled() ||
+             !$this->klarnakpConfig->getCreateInvoiceAfterShipment()
         ) {
             return;
         }
@@ -104,7 +104,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $order = $shipment->getOrder();
 
         $payment = $order->getPayment();
-        if ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarna') {
+        if ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp') {
             $this->createInvoice($order, $shipment);
         }
     }

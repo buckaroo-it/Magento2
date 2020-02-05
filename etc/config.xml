@@ -313,9 +313,9 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_kbc>
 
-            <buckaroo_magento2_klarna>
+            <buckaroo_magento2_klarnakp>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Klarna</model>
+                <model>Buckaroo\Magento2\Model\Method\Klarnakp</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Klarna</title>
                 <sort_oder>220</sort_oder>
@@ -324,7 +324,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>authorize</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </buckaroo_magento2_klarna>
+            </buckaroo_magento2_klarnakp>
 
             <buckaroo_magento2_emandate>
                 <active>0</active>

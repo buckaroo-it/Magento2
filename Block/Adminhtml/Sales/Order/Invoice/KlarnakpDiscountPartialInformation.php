@@ -19,7 +19,7 @@
  */
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice;
 
-class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\Template
+class KlarnakpDiscountPartialInformation extends \Magento\Framework\View\Element\Template
 {
     /**
      * @var \Magento\Framework\Registry
@@ -85,7 +85,7 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
          * The warning should only be shown for Klarna Buckaroo payment methods.
          */
         $paymentMethod = $payment->getMethod();
-        if (strpos($paymentMethod, 'buckaroo_magento2_klarna') === false) {
+        if (strpos($paymentMethod, 'buckaroo_magento2_klarnakp') === false) {
             return false;
         }
 

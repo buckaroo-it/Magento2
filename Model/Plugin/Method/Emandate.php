@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Model\Plugin\Method;
 use \Magento\Sales\Model\Order;
 
 /**
- * Class Klarna
+ * Class Klarnakp
  *
  * @package Buckaroo\Magento2\Model\Plugin\Method
  */
@@ -38,7 +38,7 @@ class Emandate
     public $emandateMethod = false;
 
     /**
-     * @param \Buckaroo\Magento2\Model\Method\Klarna $klarna
+     * @param \Buckaroo\Magento2\Model\Method\Klarnakp $klarnakp
      */
     public function __construct(\Buckaroo\Magento2\Model\Method\Emandate $emandate)
     {

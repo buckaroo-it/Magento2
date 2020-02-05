@@ -25,46 +25,46 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
  * @method getDueDate()
  * @method getSendEmail()
  */
-class Klarna extends AbstractConfigProvider
+class Klarnakp extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarna/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC                = 'payment/buckaroo_magento2_klarna/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY              = 'payment/buckaroo_magento2_klarna/specificcountry';
-    const XPATH_KLARNA_ACTIVE                 = 'payment/buckaroo_magento2_klarna/active';
-    const XPATH_KLARNA_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarna/payment_fee';
-    const XPATH_KLARNA_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarna/payment_fee_label';
-    const XPATH_KLARNA_SEND_EMAIL             = 'payment/buckaroo_magento2_klarna/send_email';
-    const XPATH_KLARNA_ACTIVE_STATUS          = 'payment/buckaroo_magento2_klarna/active_status';
-    const XPATH_KLARNA_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_klarna/order_status_success';
-    const XPATH_KLARNA_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_klarna/order_status_failed';
-    const XPATH_KLARNA_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_klarna/available_in_backend';
-    const XPATH_KLARNA_DUE_DATE               = 'payment/buckaroo_magento2_klarna/due_date';
-    const XPATH_KLARNA_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_klarna/allowed_currencies';
-    const XPATH_KLARNA_BUSINESS               = 'payment/buckaroo_magento2_klarna/business';
-    const XPATH_KLARNA_PAYMENT_METHODS        = 'payment/buckaroo_magento2_klarna/payment_method';
-    const XPATH_KLARNA_HIGH_TAX               = 'payment/buckaroo_magento2_klarna/high_tax';
-    const XPATH_KLARNA_MIDDLE_TAX             = 'payment/buckaroo_magento2_klarna/middle_tax';
-    const XPATH_KLARNA_LOW_TAX                = 'payment/buckaroo_magento2_klarna/low_tax';
-    const XPATH_KLARNA_ZERO_TAX               = 'payment/buckaroo_magento2_klarna/zero_tax';
-    const XPATH_KLARNA_NO_TAX                 = 'payment/buckaroo_magento2_klarna/no_tax';
-    const XPATH_KLARNA_GET_INVOICE            = 'payment/buckaroo_magento2_klarna/send_invoice';
-    const XPATH_KLARNA_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarna/create_invoice_after_shipment';
+    const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarnakp/allowed_currencies';
+    const XPATH_ALLOW_SPECIFIC                = 'payment/buckaroo_magento2_klarnakp/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY              = 'payment/buckaroo_magento2_klarnakp/specificcountry';
+    const XPATH_KLARNAKP_ACTIVE                 = 'payment/buckaroo_magento2_klarnakp/active';
+    const XPATH_KLARNAKP_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnakp/payment_fee';
+    const XPATH_KLARNAKP_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarnakp/payment_fee_label';
+    const XPATH_KLARNAKP_SEND_EMAIL             = 'payment/buckaroo_magento2_klarnakp/send_email';
+    const XPATH_KLARNAKP_ACTIVE_STATUS          = 'payment/buckaroo_magento2_klarnakp/active_status';
+    const XPATH_KLARNAKP_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_klarnakp/order_status_success';
+    const XPATH_KLARNAKP_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_klarnakp/order_status_failed';
+    const XPATH_KLARNAKP_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_klarnakp/available_in_backend';
+    const XPATH_KLARNAKP_DUE_DATE               = 'payment/buckaroo_magento2_klarnakp/due_date';
+    const XPATH_KLARNAKP_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_klarnakp/allowed_currencies';
+    const XPATH_KLARNAKP_BUSINESS               = 'payment/buckaroo_magento2_klarnakp/business';
+    const XPATH_KLARNAKP_PAYMENT_METHODS        = 'payment/buckaroo_magento2_klarnakp/payment_method';
+    const XPATH_KLARNAKP_HIGH_TAX               = 'payment/buckaroo_magento2_klarnakp/high_tax';
+    const XPATH_KLARNAKP_MIDDLE_TAX             = 'payment/buckaroo_magento2_klarnakp/middle_tax';
+    const XPATH_KLARNAKP_LOW_TAX                = 'payment/buckaroo_magento2_klarnakp/low_tax';
+    const XPATH_KLARNAKP_ZERO_TAX               = 'payment/buckaroo_magento2_klarnakp/zero_tax';
+    const XPATH_KLARNAKP_NO_TAX                 = 'payment/buckaroo_magento2_klarnakp/no_tax';
+    const XPATH_KLARNAKP_GET_INVOICE            = 'payment/buckaroo_magento2_klarnakp/send_invoice';
+    const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
 
     public function getConfig()
     {
         if (!$this->scopeConfig->getValue(
-            static::XPATH_KLARNA_ACTIVE,
+            static::XPATH_KLARNAKP_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         )) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Klarna::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Klarnakp::PAYMENT_METHOD_CODE);
 
         return [
             'payment' => [
                 'buckaroo' => [
-                    'klarna' => [
+                    'klarnakp' => [
                         'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
@@ -86,7 +86,7 @@ class Klarna extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_PAYMENT_FEE,
+            self::XPATH_KLARNAKP_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -96,7 +96,7 @@ class Klarna extends AbstractConfigProvider
 
     public function getInvoiceSendMethod($storeId = null)
     {
-        return $this->getConfigFromXpath(static::XPATH_KLARNA_GET_INVOICE, $storeId);
+        return $this->getConfigFromXpath(static::XPATH_KLARNAKP_GET_INVOICE, $storeId);
     }
 
     /**
@@ -107,7 +107,7 @@ class Klarna extends AbstractConfigProvider
     public function getEnabled($storeId = null)
     {
         $enabled = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_ACTIVE,
+            self::XPATH_KLARNAKP_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -123,7 +123,7 @@ class Klarna extends AbstractConfigProvider
     public function getCreateInvoiceAfterShipment($storeId = null)
     {
         $createInvoiceAfterShipment = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_CREATE_INVOICE_BY_SHIP,
+            self::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );

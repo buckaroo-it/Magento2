@@ -84,7 +84,7 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/kbc.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/klarna.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/klarnakp.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/emandate.xml"/>
 

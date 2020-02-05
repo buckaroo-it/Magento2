@@ -21,14 +21,14 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\Klarna as KlarnaMethod;
+use Buckaroo\Magento2\Model\Method\Klarnakp as KlarnakpMethod;
 use Buckaroo\Magento2\Test\BaseTest;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 
-class KlarnaTest extends BaseTest
+class KlarnakpTest extends BaseTest
 {
-    protected $instanceClass = Klarna::class;
+    protected $instanceClass = Klarnakp::class;
 
     public function getConfigProvider()
     {
@@ -38,7 +38,7 @@ class KlarnaTest extends BaseTest
                 [
                     'payment' => [
                         'buckaroo' => [
-                            'klarna' => [
+                            'klarnakp' => [
                                 'sendEmail' => true,
                                 'paymentFeeLabel' => 'Fee',
                                 'allowedCurrencies' => ['EUR'],
@@ -72,14 +72,14 @@ class KlarnaTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Klarna::XPATH_KLARNA_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Klarna::XPATH_KLARNA_SEND_EMAIL, ScopeInterface::SCOPE_STORE],
-                [Klarna::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [Klarnakp::XPATH_KLARNAKP_ACTIVE, ScopeInterface::SCOPE_STORE],
+                [Klarnakp::XPATH_KLARNAKP_SEND_EMAIL, ScopeInterface::SCOPE_STORE],
+                [Klarnakp::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(KlarnaMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(KlarnakpMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();
@@ -138,7 +138,7 @@ class KlarnaTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Klarna::XPATH_KLARNA_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(Klarnakp::XPATH_KLARNAKP_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -154,7 +154,7 @@ class KlarnaTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Klarna::XPATH_KLARNA_GET_INVOICE, ScopeInterface::SCOPE_STORE)
+            ->with(Klarnakp::XPATH_KLARNAKP_GET_INVOICE, ScopeInterface::SCOPE_STORE)
             ->willReturn('1');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

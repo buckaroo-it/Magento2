@@ -69,7 +69,7 @@ define(
         return Component.extend(
             {
                 defaults                : {
-                    template : 'Buckaroo_Magento2/payment/buckaroo_magento2_klarna',
+                    template : 'Buckaroo_Magento2/payment/buckaroo_magento2_klarnakp',
                     businessMethod: null,
                     paymentMethod: null,
                     telephoneNumber: null,
@@ -90,10 +90,10 @@ define(
                     invoiceText: ''
                 },
                 redirectAfterPlaceOrder : true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarna.paymentFeeLabel,
+                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarnakp.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                paymentFee : window.checkoutConfig.payment.buckaroo.klarna.paymentFee,
+                paymentFee : window.checkoutConfig.payment.buckaroo.klarnakp.paymentFee,
 
                 /**
                  * @override
@@ -131,8 +131,8 @@ define(
                         ]
                     );
 
-                    this.businessMethod = window.checkoutConfig.payment.buckaroo.klarna.businessMethod;
-                    this.paymentMethod  = window.checkoutConfig.payment.buckaroo.klarna.paymentMethod;
+                    this.businessMethod = window.checkoutConfig.payment.buckaroo.klarnakp.businessMethod;
+                    this.paymentMethod  = window.checkoutConfig.payment.buckaroo.klarnakp.paymentMethod;
 
                     /**
                      * Observe customer first & lastname
