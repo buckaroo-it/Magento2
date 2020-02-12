@@ -507,6 +507,21 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $this->updateSecretKeyConfiguration($setup);
             $this->updateMerchantKeyConfiguration($setup);
         }
+
+        if (version_compare($context->getVersion(), '1.18.0', '<')) {
+            $setup->getConnection()->query(
+                "UPDATE ".$setup->getTable('sales_order_payment')." SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
+            );
+            $setup->getConnection()->query(
+                "UPDATE ".$setup->getTable('sales_order_grid')." SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
+            );
+            $setup->getConnection()->query(
+                "UPDATE ".$setup->getTable('sales_invoice_grid')." SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
+            );
+            $setup->getConnection()->query(
+                "UPDATE ".$setup->getTable('quote_payment')." SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
+            );
+        }
     }
 
     /**
