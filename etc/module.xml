@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
  -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:TIG_Buckaroo:etc/tig_module.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Buckaroo_Magento2:etc/buckaroo_module.xsd">
     <module name="Buckaroo_Magento2" setup_version="1.18.0" build_number="1767" stability="stable">
         <sequence>
             <module name="Magento_Payment"/>
