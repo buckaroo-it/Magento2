@@ -23,6 +23,7 @@
     <module name="Buckaroo_Magento2" setup_version="1.18.0" build_number="1767" stability="stable">
         <sequence>
             <module name="Magento_Payment"/>
+            <module name="Magento_ReleaseNotification"/>
         </sequence>
     </module>
 </config>
