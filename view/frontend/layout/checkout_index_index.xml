@@ -125,6 +125,11 @@
                                                                         </item>
                                                                         <item name="buckaroo_magento2_giftcards" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                            <item name="children" xsi:type="array">
+                                                                                <item name="buckaroo_magento2_vvvgiftcard" xsi:type="array">
+                                                                                <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                                </item>
+                                                                            </item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_paymentguarantee" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>

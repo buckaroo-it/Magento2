@@ -30,6 +30,7 @@ class Giftcards extends AbstractConfigProvider
     const XPATH_GIFTCARDS_ORDER_EMAIL           = 'payment/buckaroo_magento2_giftcards/order_email';
     const XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_giftcards/available_in_backend';
     const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS     = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
+    const XPATH_GIFTCARDS_GROUP_GIFTCARDS     = 'payment/buckaroo_magento2_giftcards/group_giftcards';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
 
@@ -57,9 +58,34 @@ class Giftcards extends AbstractConfigProvider
 
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE);
 
+        // $allowedGiftcards = $this->getAllowedGiftcards(\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); 
+        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $connection = $resource->getConnection();
+        $tableName = $resource->getTableName('buckaroo_magento2_giftcard');
+        $result = $connection->fetchAll("SELECT * FROM " . $tableName);
+        foreach ($result as $item) {
+            $allGiftCards[$item['servicecode']] = $item;
+        }
+
+        $availableCards = $this->scopeConfig->getValue(
+            static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        foreach (explode(',',$availableCards.= ',ideal') as $key => $value) {
+           if($value == 'ideal'){$allGiftCards[$value]['label'] = 'Ideal Giftcard';}
+            $cards[] = [
+                'code' => $value,
+                'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : ''
+            ];
+        }
         return [
             'payment' => [
                 'buckaroo' => [
+                    'groupGiftcards' => $this->scopeConfig->getValue(
+                        static::XPATH_GIFTCARDS_GROUP_GIFTCARDS, \Magento\Store\Model\ScopeInterface::SCOPE_STORE),
+                    'avaibleGiftcards' => $cards,
                     'giftcards' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),

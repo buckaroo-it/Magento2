@@ -45,11 +45,13 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_giftcards'
                 },
                 giftcards: [],
+                allgiftcards: [],
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.giftcards.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
+                currentGiftcard : false,
+                
                 /**
              * @override
              */
@@ -57,11 +59,27 @@ define(
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
                     }
-
                     return this._super(options);
                 },
 
-                /**
+                initObservable: function () {
+                    this._super().observe(['allgiftcards']);
+
+                    this.allgiftcards = ko.observableArray(window.checkoutConfig.payment.buckaroo.avaibleGiftcards);
+
+                    var self = this;
+                    this.setCurrentGiftcard = function (value) {
+                        self.currentGiftcard = value;
+                        return true;
+                    };
+                    return this;
+                },
+
+                getGiftcardType: ko.observable(function () {
+                    return this.currentGiftcard;
+                }),
+
+            /**
              * Place order.
              *
              * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
@@ -97,12 +115,37 @@ define(
                     }
                 },
 
+                isCheckedGiftcard: function () {
+                    console.log(this.item.method);
+                    console.log(this.code);
+                    return this.item.method == this.code;
+                },
+
+                selectGiftCardPaymentMethod: function (code) {
+                    this.setCurrentGiftcard(code);
+                    this.getGiftcardType(code);
+                    this.item.method = 'buckaroo_magento2_giftcards';
+                    this.paymentMethod = this.item.method;
+                    window.checkoutConfig.buckarooFee.title('Fee');
+                    selectPaymentMethodAction({
+                        "method": this.item.method,
+                        "additional_data": {
+                            "giftcard_method" : code
+                        }
+                    });
+                    checkoutData.setSelectedPaymentMethod(this.item.method);
+                    return true;
+                },
+
                 selectPaymentMethod: function () {
                     window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
+                },
+
+                isGroupGiftcards: function () {
+                    return window.checkoutConfig.payment.buckaroo.groupGiftcards !== undefined && window.checkoutConfig.payment.buckaroo.groupGiftcards == 1 ? true : false;
                 },
 
                 payWithBaseCurrency: function () {
@@ -115,9 +158,20 @@ define(
                     var text = $.mage.__('The transaction will be processed using %s.');
 
                     return text.replace('%s', this.baseCurrencyCode);
+                },
+                
+                getData: function () {
+                    return {
+                        "method": this.item.method,
+                        "po_number": null,
+                        "additional_data": {
+                            "giftcard_method" : (this.currentGiftcard !== undefined) ? this.currentGiftcard : null
+                        }
+                    };
                 }
 
             }
         );
     }
 );
+

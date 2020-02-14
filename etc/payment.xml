@@ -78,6 +78,9 @@
         <method name="buckaroo_magento2_giftcards">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="buckaroo_magento2_vvvgiftcard">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
         <method name="buckaroo_magento2_paymentguarantee">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
