@@ -345,6 +345,62 @@
     content: ' ';
 }
 
+/* ===================== All Giftcards ============================ */
+.buckaroo_magento2_ajaxgiftcard .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_ajaxgiftcard_title.png) no-repeat;
+    float: right;
+    margin-right: 10px;
+    margin-top: -2px;
+    background-size: auto 25px;
+    width: 108px;
+    height: 25px;
+    content: ' ';
+}
+
+.buckaroo_magento2_vvvgiftcard .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_vvvgiftcard_title.png) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: -10px;
+    background-size: auto 37px;
+    width: 64px;
+    height: 48px;
+    content: ' ';
+}
+
+.buckaroo_magento2_fashioncheque .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_fashioncheque_title.png) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: -10px;
+    background-size: auto 37px;
+    width: 64px;
+    height: 48px;
+    content: ' ';
+}
+
+.buckaroo_magento2_yourgift .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_yourgift_title.png) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: -10px;
+    background-size: auto 37px;
+    width: 64px;
+    height: 48px;
+    content: ' ';
+}
+
+.buckaroo_magento2_webshopgiftcard .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_webshopgiftcard_title.png) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 37px;
+    width: 37px;
+    height: 37px;
+    content: ' ';
+}
+
 /* ===================== Afterpay ============================ */
 .buckaroo_magento2_afterpay .buckaroo_magento2_image_title:after,
 .buckaroo_magento2_afterpay2 .buckaroo_magento2_image_title:after,

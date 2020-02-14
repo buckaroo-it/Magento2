@@ -142,6 +142,7 @@ class Giftcards extends AbstractMethod
         );
         $availableCards .= ',ideal';
 
+        $availableCards = $payment->getAdditionalInformation('giftcard_method') ? $payment->getAdditionalInformation('giftcard_method') : $availableCards;
         $customVars = [
             'ServicesSelectableByClient' => $availableCards,
             'ContinueOnIncomplete' => 'RedirectToHTML',
@@ -152,6 +153,22 @@ class Giftcards extends AbstractMethod
             ->setMethod('TransactionRequest');
 
         return $transactionBuilder;
+    }
+
+    public function assignData(\Magento\Framework\DataObject $data)
+    {
+        parent::assignData($data);
+
+        $data = $this->assignDataConvertToArray($data);
+
+        if (isset($data['additional_data']['giftcard_method'])) {
+            $this->getInfoInstance()->setAdditionalInformation(
+                'giftcard_method',
+                $data['additional_data']['giftcard_method']
+            );
+        }
+
+        return $this;
     }
 
     /**

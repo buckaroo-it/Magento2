@@ -61,9 +61,9 @@ define(
                      * The API expects a JSON object with the selected payment method and the selected billing address
                      */
                     payload.paymentMethod = {
-                        method: $('.payment-methods input[type="radio"][name="payment[method]"]:checked').val(),
+                        method: $('.payment-methods input[type="radio"][name="payment[method]"]:checked').data('method') || $('.payment-methods input[type="radio"][name="payment[method]"]:checked').val(),
                         additional_data: {
-                            buckaroo_skip_validation: true
+                            buckaroo_skip_validation: 'true'
                         }
                     };
                     payload.billingAddress = quote.billingAddress();
