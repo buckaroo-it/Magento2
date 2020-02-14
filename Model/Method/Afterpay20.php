@@ -709,6 +709,8 @@ class Afterpay20 extends AbstractMethod
         $taxLine = $this->getTaxLine($count, $payment->getCreditmemo());
 
         if (!empty($taxLine)) {
+            $refundType = $this->getRefundType($count);
+            $articles = array_merge($articles, $refundType);
             $articles = array_merge($articles, $taxLine);
             $count++;
         }
