@@ -678,14 +678,14 @@ class Afterpay20 extends AbstractMethod
         $articles = [];
         $count = 1;
 
-        $refundType = $this->getRefundType($count);
-        $articles = array_merge($articles, $refundType);
-
         /** @var \Magento\Sales\Model\Order\Creditmemo\Item $item */
         foreach ($creditmemo->getAllItems() as $item) {
             if (empty($item) || $item->getRowTotalInclTax() == 0) {
                 continue;
             }
+
+            $refundType = $this->getRefundType($count);
+            $articles = array_merge($articles, $refundType);
 
             $article = $this->getArticleArrayLine(
                 $count,
