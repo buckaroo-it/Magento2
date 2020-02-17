@@ -1286,6 +1286,10 @@ class Afterpay extends AbstractMethod
 
         $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
 
+        $shippingPhoneNumber = empty($shippingAddressTelephone) ?
+            $payment->getAdditionalInformation('customer_telephone') :
+            $shippingAddress->getTelephone();
+
         $shippingData = [
             [
                 '_'    => $shippingAddress->getFirstname(),
@@ -1328,7 +1332,7 @@ class Afterpay extends AbstractMethod
                 'Name' => 'ShippingEmail',
             ],
             [
-                '_'    => $shippingAddress->getTelephone(),
+                '_'    => $shippingPhoneNumber,
                 'Name' => 'ShippingPhoneNumber',
             ],
             [
