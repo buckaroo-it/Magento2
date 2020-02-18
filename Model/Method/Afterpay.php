@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Exception;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
@@ -721,7 +722,7 @@ class Afterpay extends AbstractMethod
             }
 
             $itemTaxClassId = $invoice->getOrder()->getPayment()
-                                                  ->getAdditionalInformation('tax_pid_' . $item->getProductId());
+                ->getAdditionalInformation('tax_pid_' . $item->getProductId());
 
             $article = $this->getArticleArrayLine(
                 $count,
@@ -1213,10 +1214,6 @@ class Afterpay extends AbstractMethod
                 'Name' => 'BillingInitials',
             ],
             [
-                '_'    => $billingAddress->getFirstname(),
-                'Name' => 'BillingFirstName',
-            ],
-            [
                 '_'    => $billingAddress->getLastName(),
                 'Name' => 'BillingLastName',
             ],
@@ -1288,9 +1285,24 @@ class Afterpay extends AbstractMethod
 
         $shippingAddressTelephone = $shippingAddress->getTelephone();
 
+        // In case there is no phone number given in the shipping addres and
+        // there is no phone number given in the billing address, we can assume
+        // the additional `customer_telephone` is set.
         $shippingPhoneNumber = empty($shippingAddressTelephone) ?
             $payment->getAdditionalInformation('customer_telephone') :
             $shippingAddressTelephone;
+
+        // In case you have a phone number in your billing addres, but do not
+        // have a phone number in you shipping address.
+        // Then, there is no additional `customer_telephone` field in the checkout.
+        if (empty($shippingPhoneNumber)) {
+            $billingAddress = $payment->getOrder()->getBillingAddress();
+            $shippingPhoneNumber = $billingAddress->getTelephone();
+        }
+
+        if (empty($shippingPhoneNumber)) {
+            throw new Exception('Please enter a phone number for your shipping address');
+        }
 
         $shippingData = [
             [
