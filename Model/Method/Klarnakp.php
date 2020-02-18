@@ -933,8 +933,7 @@ class Klarnakp extends AbstractMethod
                     'Name' => 'ArticleType',
                 ],
                 [
-                    // '_' => $item->getBasePriceInclTax(),
-                    '_' => $this->calculateProductPrice($item, $includesTax) / $item->getQty(),
+                    '_' => $item->getBasePriceInclTax(),
                     'Group' => 'Article',
                     'GroupID' => $group,
                     'Name' => 'ArticlePrice',
