@@ -259,6 +259,10 @@
                     <item name="type" xsi:type="string">wechatpay</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Wechatpay</item>
                 </item>
+                <item name="p24" xsi:type="array">
+                    <item name="type" xsi:type="string">p24</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</item>
+                </item>
             </argument>
         </arguments>
     </type>

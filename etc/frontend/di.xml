@@ -51,6 +51,7 @@
                 <item name="buckaroo_config_provider_capayablepostpay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayablePostpay</item>
                 <item name="buckaroo_config_provider_alipay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Alipay</item>
                 <item name="buckaroo_config_provider_wechatpay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Wechatpay</item>
+                <item name="buckaroo_config_provider_p24" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</item>
             </argument>
         </arguments>
     </type>

@@ -321,6 +321,18 @@
     content: ' ';
 }
 
+/* ===================== P24 ======================= */
+.buckaroo_magento2_p24 .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_p24_title.png) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: 10px;
+    background-size: auto 37px;
+    width: 37px;
+    height: 37px;
+    content: ' ';
+}
+
 /* ===================== Giropay ============================== */
 .buckaroo_magento2_giropay .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_giropay_title.png) no-repeat;
@@ -716,6 +728,18 @@
         margin-right: 10px;
         background-size: auto 24px;
         width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* P24 */
+    .buckaroo_magento2_p24 .buckaroo_magento2_image_title:before {
+        background: url(../images/buckaroo_magento2_p24_title.png) no-repeat;
+        margin-top: -1px;
+        float:left;
+        margin-right: 10px;
+        background-size: auto 24px;
+        width: 30px;
         height: 30px;
         content: ' ';
     }

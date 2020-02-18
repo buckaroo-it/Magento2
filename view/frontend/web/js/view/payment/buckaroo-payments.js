@@ -144,8 +144,11 @@ define(
             {
                 type: 'buckaroo_magento2_wechatpay',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/wechatpay'
+            },
+            {
+                type: 'buckaroo_magento2_p24',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/p24'
             }
-
         );
         /**
          * Add view logic here if needed

@@ -48,6 +48,7 @@
 .buckaroo_magento2_payment_sofortbanking,
 .buckaroo_magento2_payment_alipay,
 .buckaroo_magento2_payment_wechatpay,
+.buckaroo_magento2_payment_p24,
 .buckaroo_magento2_payment_giropay,
 .buckaroo_magento2_payment_afterpay,
 .buckaroo_magento2_payment_afterpay2,
@@ -195,6 +196,18 @@
     margin-right: 10px;
     background-size: auto 37px;
     width: 55px;
+    height: 37px;
+    content: ' ';
+}
+
+/* P24 */
+.buckaroo_magento2_payment_p24:before {
+    background: url(../images/buckaroo_magento2_p24_title.png) no-repeat;
+    margin-top: -7px;
+    float: left;
+    margin-right: 10px;
+    background-size: auto 37px;
+    width: 37px;
     height: 37px;
     content: ' ';
 }

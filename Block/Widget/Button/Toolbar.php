@@ -60,6 +60,7 @@ class Toolbar
         'buckaroo_magento2_capayablepostpay',
         'buckaroo_magento2_alipay',
         'buckaroo_magento2_wechatpay',
+        'buckaroo_magento2_p24',
     ];
 
     /**
