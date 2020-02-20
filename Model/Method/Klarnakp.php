@@ -933,14 +933,13 @@ class Klarnakp extends AbstractMethod
                     'Name' => 'ArticleType',
                 ],
                 [
-                    // '_' => $item->getBasePriceInclTax(),
-                    '_' => $this->calculateProductPrice($item, $includesTax) / $item->getQty(),
+                    '_' => $this->calculateProductPrice($item, $includesTax),
                     'Group' => 'Article',
                     'GroupID' => $group,
                     'Name' => 'ArticlePrice',
                 ],
                 [
-                    '_' => $item->getQty(),
+                    '_' => 1,
                     'Group' => 'Article',
                     'GroupID' => $group,
                     'Name' => 'ArticleQuantity',
@@ -982,6 +981,13 @@ class Klarnakp extends AbstractMethod
 
         if (!empty($discountline)) {
             $requestData = array_merge($requestData, $discountline);
+        }
+
+        $taxLine = $this->getTaxLine($payment->getOrder(), $group);
+
+        if (!empty($taxLine)) {
+            $requestData = array_merge($requestData, $taxLine);
+            $group++;
         }
 
         return $requestData;
@@ -1228,5 +1234,81 @@ class Klarnakp extends AbstractMethod
         }
 
         return $taxPercent;
+    }
+
+    /**
+     * @param InvoiceInterface|OrderInterface|CreditmemoInterface $order
+     *
+     * @return float|int|null
+     */
+    private function getTaxes($order)
+    {
+        $catalogIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
+
+        $taxes = 0;
+
+        if (!$catalogIncludesTax) {
+            $taxes += $order->getTaxAmount() - $order->getShippingTaxAmount();
+        }
+
+        if (!$shippingIncludesTax) {
+            $taxes += $order->getShippingTaxAmount();
+        }
+
+        return $taxes;
+    }
+
+
+    /**
+     * Get the tax line
+     *
+     * @param (int)                                               $latestKey
+     * @param InvoiceInterface|OrderInterface|CreditmemoInterface $payment
+     *
+     * @return array
+     */
+    public function getTaxLine($payment, $group)
+    {
+        $article = [];
+        $taxes = $this->getTaxes($payment);
+
+       if ($taxes > 0) {
+
+        $article = [
+            [
+                '_' => 4,
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticleNumber',
+            ],
+            [
+                '_' => $taxes,
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticlePrice',
+            ],
+            [
+                '_' => 1,
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticleQuantity',
+            ],
+            [
+                '_' => 'Discount',
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticleTitle',
+            ],
+            [
+                '_' => 0,
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticleVat',
+            ],
+        ];
+        }
+
+        return $article;
     }
 }
