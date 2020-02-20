@@ -78,7 +78,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24</payment_method_after_expiry>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly</payment_method_after_expiry>
             </buckaroo_magento2_sepadirectdebit>
 
             <buckaroo_magento2_paypal>
@@ -164,7 +164,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>1</available_in_backend>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24</payment_method_after_expiry>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly</payment_method_after_expiry>
             </buckaroo_magento2_transfer>
 
             <buckaroo_magento2_giropay>
@@ -255,8 +255,8 @@
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>1</available_in_backend>
                 <send_mail>1</send_mail>
-                <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,sepadirectdebit,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24</payment_method>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24</payment_method_after_expiry>
+                <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,sepadirectdebit,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly</payment_method>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly</payment_method_after_expiry>
             </buckaroo_magento2_payperemail>
 
             <buckaroo_magento2_eps>
@@ -404,7 +404,7 @@
                 <order_status>pending</order_status>
                 <title>Buckaroo WeChatPay</title>
                 <allowspecific>0</allowspecific>
-                <sort_order>270</sort_order>
+                <sort_order>280</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
@@ -418,13 +418,27 @@
                 <order_status>pending</order_status>
                 <title>Buckaroo Przelewy24</title>
                 <allowspecific>0</allowspecific>
-                <sort_order>280</sort_order>
+                <sort_order>290</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_p24>
+
+            <buckaroo_magento2_trustly>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Trustly</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Trustly</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>300</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_trustly>
         </payment>
 
         <buckaroo_magento2>

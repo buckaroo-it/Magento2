@@ -101,5 +101,7 @@
         <include path="Buckaroo_Magento2::system/payment_methods/wechatpay.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/p24.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/trustly.xml"/>
     </group>
 </include>

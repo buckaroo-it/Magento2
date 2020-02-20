@@ -148,6 +148,10 @@ define(
             {
                 type: 'buckaroo_magento2_p24',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/p24'
+            },
+            {
+                type: 'buckaroo_magento2_trustly',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/trustly'
             }
         );
         /**

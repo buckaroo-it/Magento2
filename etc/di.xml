@@ -263,6 +263,10 @@
                     <item name="type" xsi:type="string">p24</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</item>
                 </item>
+                <item name="trustly" xsi:type="array">
+                    <item name="type" xsi:type="string">trustly</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Trustly</item>
+                </item>
             </argument>
         </arguments>
     </type>

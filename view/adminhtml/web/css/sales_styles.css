@@ -49,6 +49,7 @@
 .buckaroo_magento2_payment_alipay,
 .buckaroo_magento2_payment_wechatpay,
 .buckaroo_magento2_payment_p24,
+.buckaroo_magento2_payment_trustly,
 .buckaroo_magento2_payment_giropay,
 .buckaroo_magento2_payment_afterpay,
 .buckaroo_magento2_payment_afterpay2,
@@ -209,6 +210,18 @@
     background-size: auto 37px;
     width: 37px;
     height: 37px;
+    content: ' ';
+}
+
+/* Trustly */
+.buckaroo_magento2_payment_trustly:before {
+    background: url(../images/buckaroo_magento2_trustly_title.png) no-repeat;
+    margin-top: -4px;
+    float: left;
+    margin-right: 10px;
+    background-size: auto 24px;
+    width: 78px;
+    height: 34px;
     content: ' ';
 }
 

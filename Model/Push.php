@@ -41,6 +41,7 @@ use Buckaroo\Magento2\Model\Method\Sofortbanking;
 use Buckaroo\Magento2\Model\Method\Alipay;
 use Buckaroo\Magento2\Model\Method\Wechatpay;
 use Buckaroo\Magento2\Model\Method\P24;
+use Buckaroo\Magento2\Model\Method\Trustly;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 
@@ -852,6 +853,7 @@ class Push implements PushInterface
                                                         Alipay::PAYMENT_METHOD_CODE,
                                                         Wechatpay::PAYMENT_METHOD_CODE,
                                                         P24::PAYMENT_METHOD_CODE,
+                                                        Trustly::PAYMENT_METHOD_CODE,
             ))
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)

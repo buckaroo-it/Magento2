@@ -585,6 +585,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $responseCode = $transactionResponse->Status->Code->Code;
         $billingCountry = $this->payment->getOrder()->getBillingAddress()->getCountryId();
 
+        $method = null;
+        if ($this->payment->getMethodInstance() && !empty($this->payment->getMethodInstance()->buckarooPaymentMethodCode)) {
+            $method = $this->payment->getMethodInstance()->buckarooPaymentMethodCode;
+        }
+        if ($method == 'trustly') {
+            $methodMessage = $this->getFailureMessageFromMethod($transactionResponse);
+            $message = strlen($methodMessage) > 0 ? $methodMessage : $message;
+            return $message;
+        }
+
         $allowedResponseCodes = [490, 690];
 
         if ($billingCountry == 'NL' && in_array($responseCode, $allowedResponseCodes)) {
