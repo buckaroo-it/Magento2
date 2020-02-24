@@ -307,7 +307,10 @@ class Push
         if ($this->postData['brq_currency'] == $this->order->getBaseCurrencyCode()) {
             $amount = $this->postData['brq_amount_credit'];
         } else {
-            $amount = round($this->postData['brq_amount_credit'] * $this->order->getBaseToOrderRate(), 2);
+            $amount = round($this->postData['brq_amount_credit'] / $this->order->getBaseToOrderRate(), 2);
+            if ($amount > $this->order->getBaseGrandTotal()) {
+                $amount = $this->order->getBaseGrandTotal();
+            }
         }
 
         return $amount;
