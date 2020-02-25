@@ -721,7 +721,7 @@ class Afterpay extends AbstractMethod
             }
 
             $itemTaxClassId = $invoice->getOrder()->getPayment()
-                                                  ->getAdditionalInformation('tax_pid_' . $item->getProductId());
+                ->getAdditionalInformation('tax_pid_' . $item->getProductId());
 
             $article = $this->getArticleArrayLine(
                 $count,
@@ -1213,10 +1213,6 @@ class Afterpay extends AbstractMethod
                 'Name' => 'BillingInitials',
             ],
             [
-                '_'    => $billingAddress->getFirstname(),
-                'Name' => 'BillingFirstName',
-            ],
-            [
                 '_'    => $billingAddress->getLastName(),
                 'Name' => 'BillingLastName',
             ],
@@ -1328,14 +1324,26 @@ class Afterpay extends AbstractMethod
                 'Name' => 'ShippingEmail',
             ],
             [
-                '_'    => $shippingAddress->getTelephone(),
-                'Name' => 'ShippingPhoneNumber',
-            ],
-            [
                 '_'    => $shippingAddress->getCountryId(),
                 'Name' => 'ShippingLanguage',
             ],
         ];
+
+        $shippingAddressTelephone = $shippingAddress->getTelephone();
+        $shippingPhoneNumber = empty($shippingAddressTelephone) ?
+            $payment->getAdditionalInformation('customer_telephone') :
+            $shippingAddressTelephone;
+        if (empty($shippingPhoneNumber)) {
+            $billingAddress = $payment->getOrder()->getBillingAddress();
+            $shippingPhoneNumber = $billingAddress->getTelephone();
+        }
+
+        if (!empty($shippingPhoneNumber)) {
+            $shippingData[] = [
+                '_'    => $shippingPhoneNumber,
+                'Name' => 'ShippingPhoneNumber',
+            ];
+        }
 
         if (!empty($streetFormat['house_number'])) {
             $shippingData[] = [
