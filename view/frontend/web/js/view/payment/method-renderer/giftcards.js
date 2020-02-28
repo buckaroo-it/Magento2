@@ -145,6 +145,7 @@ define(
                 },
 
                 isGroupGiftcards: function () {
+                    return true;
                     return window.checkoutConfig.payment.buckaroo.groupGiftcards !== undefined && window.checkoutConfig.payment.buckaroo.groupGiftcards == 1 ? true : false;
                 },
 
