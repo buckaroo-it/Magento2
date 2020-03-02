@@ -223,6 +223,14 @@ define(
                         }
                         elements.valid();
                         this.selectPaymentMethod();
+
+                        if (this.calculateAge(this.dateValidate()) >= 18) {
+                            $('#' + this.getCode() + '_DoB-error').hide();
+                            $('#' + this.getCode() + '_DoB').removeClass('mage-error');
+                        } else {
+                            $('#' + this.getCode() + '_DoB-error').show();
+                            $('#' + this.getCode() + '_DoB').addClass('mage-error');
+                        }
                     };
 
                     this.telephoneNumber.subscribe(runValidation,this);
@@ -231,6 +239,22 @@ define(
                     this.genderValidate.subscribe(runValidation,this);
                     this.identificationValidate.subscribe(runValidation,this);
                     this.dummy.subscribe(runValidation,this);
+
+                    this.calculateAge = function (specifiedDate) {
+                        if (specifiedDate && (specifiedDate.length > 0)) {
+                            var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+                            if (specifiedDate.match(dateReg)) {
+                                var birthday = +new Date(
+                                    specifiedDate.substr(6, 4),
+                                    specifiedDate.substr(3, 2) - 1,
+                                    specifiedDate.substr(0, 2),
+                                    0, 0, 0
+                                );
+                                return ~~((Date.now() - birthday) / (31557600000));
+                            }
+                        }
+                        return false;
+                    }
 
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
