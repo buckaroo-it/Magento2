@@ -981,6 +981,7 @@ class Klarnakp extends AbstractMethod
 
         if (!empty($discountline)) {
             $requestData = array_merge($requestData, $discountline);
+            $group++;
         }
 
         $taxLine = $this->getTaxLine($payment->getOrder(), $group);
@@ -1295,7 +1296,7 @@ class Klarnakp extends AbstractMethod
                 'Name' => 'ArticleQuantity',
             ],
             [
-                '_' => 'Discount',
+                '_' => 'Tax',
                 'Group' => 'Article',
                 'GroupID' => $group,
                 'Name' => 'ArticleTitle',
