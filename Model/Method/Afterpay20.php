@@ -511,10 +511,55 @@ class Afterpay20 extends AbstractMethod
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
+        if (
+            ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
+            &&
+            $payment->getOrder()->getDhlparcelShippingServicepointId()
+        ) {
+            $this->updateShippingAddressByDhlParcel(
+                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
+            );
+        }
+
+
         // Merge the article data; products and fee's
         $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
 
         return $requestData;
+    }
+
+    public function updateShippingAddressByDhlParcel($servicePointId, &$requestData)
+    {
+        $matches = [];
+        if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
+            $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
+            $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/'.$matches[2].'/' . $servicePointId);
+            if (
+                ($response = $curl->getBody())
+                &&
+                ($parsedResponse = @json_decode($response))
+                &&
+                !empty($parsedResponse->address)
+            ) {
+                foreach ($requestData as $key => $value) {
+                    if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                        $mapping = [
+                            ['Street', 'street'],
+                            ['PostalCode', 'postalCode'],
+                            ['City', 'city'],
+                            ['Country', 'countryCode'],
+                            ['StreetNumber', 'number'],
+                        ];
+                        foreach ($mapping as $mappingItem) {
+                            if (($requestData[$key]['Name'] == $mappingItem[0]) && (!empty($parsedResponse->address->{$mappingItem[1]}))) {
+                                $requestData[$key]['_'] = $parsedResponse->address->{$mappingItem[1]};
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
     }
 
     /**
