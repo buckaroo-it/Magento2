@@ -818,6 +818,10 @@ class Afterpay20 extends AbstractMethod
             $productPrice = $productItem->getRowTotalInclTax();
         }
 
+        if ($productItem->getWeeeTaxAppliedRowAmount() > 0) {
+            $productPrice += $productItem->getWeeeTaxAppliedRowAmount();
+        }
+
         return $productPrice;
     }
 
