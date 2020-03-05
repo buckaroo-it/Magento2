@@ -33,11 +33,10 @@
         window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
         window.customerData = window.checkoutConfig.customerData;
     }
-
-    require(['jquery', 'buckaroo/applepay/checkout-cart'], function (jQuery, applepayPay) {
-        showPayButton = function() {
-            applepayPay.showPayButton();
-        }
-    });
+    showPayButton = function() {
+        require(['jquery', 'buckaroo/applepay/checkout-cart'], function (jQuery, applepayPay) {
+            //applepayPay.showPayButton();
+        });
+    }
 </script>
 <?php endif; ?>
