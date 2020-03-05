@@ -624,21 +624,21 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
                 ]
             )->where(
                 'status = ?',
-                'buckaroo_magento2_pending_payment'
+                'buckaroo_magento2_pending_paymen'
             );
 
         if (count($setup->getConnection()->fetchAll($select)) == 0) {
             $setup->getConnection()->insert(
                 $setup->getTable('sales_order_status'),
                 [
-                    'status' => 'buckaroo_magento2_pending_payment',
+                    'status' => 'buckaroo_magento2_pending_paymen',
                     'label'  => __('Buckaroo Pending Payment'),
                 ]
             );
             $setup->getConnection()->insert(
                 $setup->getTable('sales_order_status_state'),
                 [
-                    'status'           => 'buckaroo_magento2_pending_payment',
+                    'status'           => 'buckaroo_magento2_pending_paymen',
                     'state'            => 'processing',
                     'is_default'       => 0,
                     'visible_on_front' => 1,
@@ -647,7 +647,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         } else {
             // Do an update to turn on visible_on_front, since it already exists
             $bind = ['visible_on_front' => 1];
-            $where = ['status = ?' => 'buckaroo_magento2_pending_payment'];
+            $where = ['status = ?' => 'buckaroo_magento2_pending_paymen'];
             $setup->getConnection()->update($setup->getTable('sales_order_status_state'), $bind, $where);
         }
 
