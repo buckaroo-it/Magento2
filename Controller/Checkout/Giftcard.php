@@ -1,0 +1,391 @@
+<?php
+ /**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+
+namespace Buckaroo\Magento2\Controller\Checkout;
+
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Sales\Api\Data\TransactionInterface;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
+
+class Giftcard extends \Magento\Framework\App\Action\Action
+{
+    /**
+     * @var array
+     */
+    protected $response;
+
+    /**
+     * @var \Magento\Sales\Model\Order $order
+     */
+    protected $order;
+
+    /**
+     * @var \Magento\Quote\Model\Quote $quote
+     */
+    protected $quote;
+
+    /** @var TransactionInterface */
+    private $transaction;
+
+    /**
+     * @var \Buckaroo\Magento2\Helper\Data $helper
+     */
+    protected $helper;
+
+    /**
+     * @var \Magento\Checkout\Model\Cart
+     */
+    protected $cart;
+
+    /**
+     * @var \Magento\Checkout\Model\ConfigProviderInterface
+     */
+    protected $accountConfig;
+
+    /**
+     * @var \Magento\Sales\Model\Order\Email\Sender\OrderSender
+     */
+    protected $orderSender;
+
+    /**
+     * @var \Buckaroo\Magento2\Model\OrderStatusFactory
+     */
+    protected $orderStatusFactory;
+
+    /**
+     * @var Log
+     */
+    protected $logger;
+
+    /**
+     * @var \Magento\Framework\HTTP\Client\Curl
+     */
+    protected $curlClient;
+
+    /**
+     * @var Account
+     */
+    protected $configProviderAccount;
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /** @var CheckoutSession */
+    protected $_checkoutSession;
+
+    /** @var Encryptor $encryptor */
+    private $encryptor;
+
+    /**
+     * @var PriceCurrencyInterface
+     */
+    public $priceCurrency;
+
+    /**
+    * @var \Magento\Framework\Json\Helper\Data
+    */
+    protected $jsonHelper;
+
+    /**
+    * @var \Magento\Framework\Controller\Result\JsonFactory
+    */
+    protected $jsonResultFactory;
+
+    /** @var \Magento\Framework\Message\ManagerInterface */
+    public $messageManager;
+
+    protected $sequenceManager;
+
+    protected $eavConfig;
+
+    /**
+     * @param \Magento\Framework\App\Action\Context               $context
+     * @param \Buckaroo\Magento2\Helper\Data                           $helper
+     * @param \Magento\Checkout\Model\Cart                        $cart
+     * @param \Magento\Sales\Model\Order                          $order
+     * @param \Magento\Quote\Model\Quote                          $quote
+     * @param TransactionInterface        $transaction
+     * @param Log                                                 $logger
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory          $configProviderFactory
+     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+     * @param \Buckaroo\Magento2\Model\OrderStatusFactory              $orderStatusFactory
+     * @param \Magento\Framework\HTTP\Client\Curl              $curl
+     * @param Account       $configProviderAccount
+     * @param  \Magento\Store\Model\StoreManagerInterface       $storeManager
+     * @param  CheckoutSession $checkoutSession
+     * @param Encryptor     $encryptor
+     * @param PriceCurrencyInterface    $priceCurrency
+     *
+     * @throws \Buckaroo\Magento2\Exception
+     */
+    public function __construct(
+        \Magento\Framework\App\Action\Context $context,
+        \Buckaroo\Magento2\Helper\Data $helper,
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Sales\Model\Order $order,
+        \Magento\Quote\Model\Quote $quote,
+        TransactionInterface $transaction,
+        Log $logger,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
+        \Magento\Framework\HTTP\Client\Curl $curl,
+        Account $configProviderAccount,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        Encryptor $encryptor,
+        PriceCurrencyInterface $priceCurrency,
+        \Magento\Framework\Json\Helper\Data $jsonHelper,
+        \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory,
+        \Magento\Framework\Message\ManagerInterface $messageManager = null,
+        \Magento\Sales\Model\OrderFactory $orderFactory,
+        \Magento\SalesSequence\Model\Manager $sequenceManager,
+        \Magento\Eav\Model\Config $eavConfig
+    ) {
+        parent::__construct($context);
+        $this->helper             = $helper;
+        $this->cart               = $cart;
+        $this->order              = $order;
+        $this->quote              = $quote;
+        $this->transaction        = $transaction;
+        $this->logger             = $logger;
+        $this->orderSender        = $orderSender;
+        $this->orderStatusFactory = $orderStatusFactory;
+
+        $this->accountConfig = $configProviderFactory->get('account');
+
+        $this->_curlClient            = $curl;
+        $this->_configProviderAccount = $configProviderAccount;
+        $this->_storeManager          = $storeManager;
+        $this->_checkoutSession       = $checkoutSession;
+        $this->_encryptor             = $encryptor;
+        $this->priceCurrency          = $priceCurrency;
+        $this->jsonHelper = $jsonHelper;
+        $this->jsonResultFactory = $jsonResultFactory;
+        $this->messageManager = $messageManager;
+        $this->_orderFactory = $orderFactory;
+        $this->sequenceManager = $sequenceManager;
+        $this->eavConfig = $eavConfig;
+    }
+
+    /**
+     * Process action
+     *
+     * @return \Magento\Framework\App\ResponseInterface
+     * @throws \Exception
+     */
+    public function execute()
+    {
+        $this->response = $this->getRequest()->getParams();
+
+        $mode =  $this->_configProviderAccount->getActive();
+        $storeId = $this->_storeManager->getStore()->getId();
+
+        $secretKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getSecretKey());
+        $websiteKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey());
+
+        $data = $this->response;
+        $card = $data['card'];
+
+        $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
+
+        $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
+        if(!$orderId){
+            $orderId = $this->_checkoutSession->getQuote()->reserveOrderId()->getReservedOrderId();
+            $this->_checkoutSession->getQuote()->save();
+        }
+
+        $returnUrl = $this->_storeManager->getStore()->getUrl($this->_configProviderAccount->getSuccessRedirect());
+        $pushUrl = $this->_storeManager->getStore()->getUrl('rest/V1/buckaroo/push');
+
+        switch ($card) {
+            case 'fashioncheque':
+                $parameters = [
+                    'number' => 'FashionChequeCardNumber',
+                    'pin' => 'FashionChequePin',
+                ];
+                break;
+            case 'tcs':
+                $parameters = [
+                    'number' => 'TCSCardnumber',
+                    'pin' => 'TCSValidationCode',
+                ];
+                break;
+            default:
+                $parameters = [
+                    'number' => 'IntersolveCardnumber',
+                    'pin' => 'IntersolvePin',
+                ];
+        }
+
+        $cartTotals = $this->_checkoutSession->getQuote()->getTotals();
+        $grand_total = $cartTotals['grand_total']->getData();
+        $grandTotal =  $grand_total['value'];
+
+        $postArray = array(
+            "Currency" => $currency,
+            "AmountDebit" => $grandTotal,
+            "Invoice" => $orderId,
+            "ReturnURL" => $returnUrl,
+            "PushURL" => $pushUrl,
+            "Services" => array(
+                "ServiceList" => array(
+                    array(
+                        "Action" => "Pay",
+                        "Name" => $card,
+                        "Parameters" => array(
+                            array(
+                                "Name" => $parameters['number'],
+                                "Value" => $data['cardNumber']
+                            ),array(
+                                "Name" => $parameters['pin'],
+                                "Value" => $data['pin']
+                            )
+                        )
+                    )
+                )
+            )
+        );
+
+        if($originalTransactionKey = $this->getOriginalTransactionKey($orderId)){
+            $postArray['Services']['ServiceList'][0]['Action'] = 'PayRemainder';
+            $postArray['OriginalTransactionKey'] = $originalTransactionKey;
+        }
+
+        $url = ($mode == 1) ? 'testcheckout.buckaroo.nl' : 'checkout.buckaroo.nl';
+        $uri        = 'https://'.$url.'/json/Transaction';
+        $uri2       = strtolower(rawurlencode($url.'/json/Transaction'));
+
+        $timeStamp = time();
+        $httpMethod = 'POST';
+        $nonce      = $this->stringRandom();
+
+        $json = json_encode($postArray, JSON_PRETTY_PRINT);
+        $md5 = md5($json, true);
+        $encodedContent = base64_encode($md5);
+
+        $rawData = $websiteKey . $httpMethod . $uri2 . $timeStamp . $nonce . $encodedContent;
+        $hash = hash_hmac('sha256', $rawData, $secretKey, true);
+        $hmac = base64_encode($hash);
+
+        $hmac_full = $websiteKey . ':' . $hmac . ':' . $nonce . ':' . $timeStamp;
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($curl, CURLOPT_USERAGENT, 'Magento1');
+        curl_setopt($curl, CURLOPT_URL, $uri);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $httpMethod);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+        $headers = [
+            'Content-Type: application/json; charset=utf-8',
+            'Accept: application/json',
+            'Authorization: hmac ' . $hmac_full,
+        ];
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($curl);
+
+        $curlInfo = curl_getinfo($curl);
+        $response = json_decode($result, true);
+        $res['status'] = $response['Status']['Code']['Code'];
+        $orderId = $response['Invoice'];
+        
+        if($response['Status']['Code']['Code']=='190'){
+            $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
+            $alreadyPaid = $this->getAlreadyPaid($orderId) + $response['AmountDebit'];
+            
+            if($response['RequiredAction']['PayRemainderDetails']['RemainderAmount'] > 0){
+                $this->setOriginalTransactionKey($orderId, $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']);
+                $message = "A partial payment of ".$response['Currency']." ".$response['AmountDebit']." was successfully performed on a requested amount. Remainder amount ".$response['RequiredAction']['PayRemainderDetails']['RemainderAmount']." ".$response['RequiredAction']['PayRemainderDetails']['Currency'];
+            }else{
+                $message = "Your payed succesfully. Please finish your order";
+            }
+            $this->setAlreadyPaid($orderId, $alreadyPaid);
+            $res['alreadyPaid'] = $alreadyPaid;
+            $res['message'] = __($message);
+
+        }else{
+            $res['error'] = $response['Status']['SubCode']['Description'];
+        }
+
+        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
+    }
+
+    private function stringRandom($length = 16)
+    {
+        $chars = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+        $str = "";
+
+        for ($i=0; $i < $length; $i++)
+        {
+            $key = array_rand($chars);
+            $str .= $chars[$key];
+        }
+
+        return $str;
+    }
+
+    private function getAlreadyPaid($orderId = false)
+    {
+        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
+        return isset($alreadyPaid[$orderId]) ? $alreadyPaid[$orderId] : false;
+    }
+
+    private function setAlreadyPaid($orderId, $amount)
+    {
+        if($orderId){
+            $this->_checkoutSession->getQuote()->setBaseBuckarooAlreadyPaid($amount);
+            $this->_checkoutSession->getQuote()->setBuckarooAlreadyPaid($this->priceCurrency->convert($amount, $this->quote->getStore()));
+        }
+
+        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
+        $alreadyPaid[$orderId] = $amount;
+        $this->_checkoutSession->setBuckarooAlreadyPaid($alreadyPaid);
+    }
+
+    private function getOriginalTransactionKey($orderId)
+    {
+        $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
+        return isset($originalTransactionKey[$orderId]) ? $originalTransactionKey[$orderId] : false;
+    }
+
+    private function setOriginalTransactionKey($orderId, $transactionKey)
+    {
+        $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
+        $originalTransactionKey[$orderId] = $transactionKey;
+        $this->_checkoutSession->setOriginalTransactionKey($originalTransactionKey);
+    }
+
+    private function getOrder()
+    {
+        if ($this->_checkoutSession->getLastRealOrderId()) {
+            $order = $this->_orderFactory->create()->loadByIncrementId($this->_checkoutSession->getLastRealOrderId());
+            return $order;
+        }
+        return false;
+    }
+}

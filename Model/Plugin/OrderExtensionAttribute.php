@@ -33,7 +33,8 @@ class OrderExtensionAttribute
         'buckaroo_fee_base_tax_amount',
         'buckaroo_fee_incl_tax',
         'base_buckaroo_fee_incl_tax',
-        'buckaroo_push_data'
+        'buckaroo_push_data',
+        'buckaroo_already_paid'
     ];
 
     /** @var OrderExtensionFactory */

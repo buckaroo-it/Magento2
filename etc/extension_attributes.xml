@@ -27,6 +27,7 @@
         <attribute code="buckaroo_fee_base_tax_amount" type="float"/>
         <attribute code="buckaroo_fee_incl_tax" type="float"/>
         <attribute code="base_buckaroo_fee_incl_tax" type="float"/>
+        <attribute code="buckaroo_already_paid" type="float"/>
     </extension_attributes>
     <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">
         <attribute code="buckaroo_fee" type="float"/>

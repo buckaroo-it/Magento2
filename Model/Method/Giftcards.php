@@ -91,6 +91,65 @@ class Giftcards extends AbstractMethod
      * @var bool
      */
     protected $_canRefundInvoicePartial = false;
+    
+    protected $_checkoutSession;
+
+    protected $quoteRepository;
+
+    public function __construct(
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        \Magento\Framework\Model\Context $context,
+        \Magento\Framework\Registry $registry,
+        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
+        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
+        \Magento\Payment\Helper\Data $paymentData,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Developer\Helper\Data $developmentHelper,
+        \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        \Buckaroo\Magento2\Helper\Data $helper = null,
+        \Magento\Framework\App\RequestInterface $request = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        array $data = [],
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+    ) {
+        parent::__construct(
+            $objectManager,
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $paymentData,
+            $scopeConfig,
+            $logger,
+            $developmentHelper,
+            $resource,
+            $resourceCollection,
+            $gateway,
+            $transactionBuilderFactory,
+            $validatorFactory,
+            $helper,
+            $request,
+            $refundFieldsFactory,
+            $configProviderFactory,
+            $configProviderMethodFactory,
+            $priceHelper,
+            $data
+        );
+
+        $this->_checkoutSession = $checkoutSession;
+        $this->serviceParameters = $serviceParameters;
+        $this->quoteRepository = $quoteRepository;
+    }
 
     /**
      * Check capture availability
@@ -140,7 +199,6 @@ class Giftcards extends AbstractMethod
             ScopeInterface::SCOPE_STORE,
             $payment->getOrder()->getStore()
         );
-        $availableCards .= ',ideal';
 
         $availableCards = $payment->getAdditionalInformation('giftcard_method') ? $payment->getAdditionalInformation('giftcard_method') : $availableCards;
         $customVars = [
@@ -148,9 +206,13 @@ class Giftcards extends AbstractMethod
             'ContinueOnIncomplete' => 'RedirectToHTML',
         ];
 
+
         $transactionBuilder->setOrder($payment->getOrder())
             ->setCustomVars($customVars)
             ->setMethod('TransactionRequest');
+        
+        $this->_checkoutSession->unsBuckarooReservedOrderId();
+        return true;
 
         return $transactionBuilder;
     }
@@ -270,5 +332,29 @@ class Giftcards extends AbstractMethod
     public function getVoidTransactionBuilder($payment)
     {
         return true;
+    }
+
+        /**
+     * @return string
+     * @throws \Buckaroo\Magento2\Exception
+     */
+    public function getTitle()
+    {
+        $this->_checkoutSession->setBuckarooQuoteId($this->_checkoutSession->getQuote()->getId());
+        // return $this->getConfigData('title') . $this->_checkoutSession->getQuote()->getId();
+        // echo "<pre style='color:#ff0000'>"; print_r ($this->_checkoutSession->getQuote()->getId()); echo "</pre>"; 
+/*        if($quoteId = $this->_checkoutSession->getBuckarooQuoteId()){
+            $quote = $this->quoteRepository->get($quoteId);
+            $quote->setIsActive(true);
+            $quote->save($quote);
+            $this->_checkoutSession->replaceQuote($quote);
+        }*/
+/*        $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
+        if(!$orderId){
+            $orderId = $this->_checkoutSession->getQuote()->reserveOrderId()->getReservedOrderId();
+        }
+        echo "<pre style='color:#ff0000'>"; print_r ($orderId); echo "</pre>";
+        echo "<pre style='color:#ff0000'>"; print_r ('================'); echo "</pre>";die;*/
+        return parent::getTitle();
     }
 }

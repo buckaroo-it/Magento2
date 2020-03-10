@@ -58,8 +58,6 @@ class Giftcards extends AbstractConfigProvider
 
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE);
 
-        // $allowedGiftcards = $this->getAllowedGiftcards(\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); 
         $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
         $connection = $resource->getConnection();
@@ -73,8 +71,7 @@ class Giftcards extends AbstractConfigProvider
             static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        foreach (explode(',',$availableCards.= ',ideal') as $key => $value) {
-           if($value == 'ideal'){$allGiftCards[$value]['label'] = 'Ideal Giftcard';}
+        foreach (explode(',',$availableCards) as $key => $value) {
             $cards[] = [
                 'code' => $value,
                 'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : ''

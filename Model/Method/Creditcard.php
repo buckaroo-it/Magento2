@@ -168,9 +168,15 @@ class Creditcard extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
+        $serviceAction = 'Pay';
+        if($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())){
+            $serviceAction = 'PayRemainder';
+            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
+        }
+
         $services = [
             'Name'             => $payment->getAdditionalInformation('card_type'),
-            'Action'           => 'Pay',
+            'Action'           => $serviceAction,
             'Version'          => 1,
         ];
 

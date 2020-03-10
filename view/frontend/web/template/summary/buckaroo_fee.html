@@ -30,3 +30,12 @@
 </tr>
 <!-- /ko -->
 <!-- /ko -->
+
+<!-- ko if: getAlreadyPayValue() -->
+<tr class="totals buckaroo_already_paid">
+    <th class="mark">
+        <span data-bind="{text: getAlreadyPayTitle()}"></span>
+    </th>
+    <td data-bind="{text: getAlreadyPayValue(), attr: {'data-th': $t(getAlreadyPayTitle())}}" class="amount"></td>
+</tr>
+<!-- /ko -->

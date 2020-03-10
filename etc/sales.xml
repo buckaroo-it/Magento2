@@ -27,6 +27,7 @@
             </item>
             <item name="pretax_buckaroo_fee" instance="Buckaroo\Magento2\Model\Total\Quote\Tax\BuckarooFee" sort_order="425"/>
             <item name="tax_buckaroo_fee" instance="Buckaroo\Magento2\Model\Total\Quote\Tax\BuckarooFeeAfterTax" sort_order="475"/>
+            <item name="buckaroo_already_paid" instance="Buckaroo\Magento2\Model\Total\Quote\BuckarooAlreadyPay" sort_order="901"/>
         </group>
     </section>
     <section name="order_invoice">

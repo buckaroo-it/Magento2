@@ -51,12 +51,12 @@
             <source_model>Buckaroo\Magento2\Model\Config\Source\Giftcards</source_model>
         </field>
 
-<!--         <field id="group_giftcards" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="group_giftcards" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Group Giftcards</label>
             <comment><![CDATA[Enable group giftcards in checkout]]></comment>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/buckaroo_magento2_giftcards/group_giftcards</config_path>
-        </field> -->
+        </field>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>

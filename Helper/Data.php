@@ -77,6 +77,9 @@ class Data extends AbstractHelper
      */
     protected $httpHeader;
 
+    /** @var CheckoutSession */
+    protected $_checkoutSession;
+
     /**
      * @param Context $context
      * @param Account $configProviderAccount
@@ -86,7 +89,8 @@ class Data extends AbstractHelper
         Context $context,
         Account $configProviderAccount,
         Factory $configProviderMethodFactory,
-        \Magento\Framework\HTTP\Header $httpHeader
+        \Magento\Framework\HTTP\Header $httpHeader,
+        \Magento\Checkout\Model\Session $checkoutSession
 
     ) {
         parent::__construct($context);
@@ -95,6 +99,8 @@ class Data extends AbstractHelper
         $this->configProviderMethodFactory = $configProviderMethodFactory;
 
         $this->httpHeader = $httpHeader;
+
+        $this->_checkoutSession       = $checkoutSession;
     }
 
     /**
@@ -197,5 +203,15 @@ class Data extends AbstractHelper
     {
         $userAgent = $this->httpHeader->getHttpUserAgent();
         return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
+    }
+
+    public function getOriginalTransactionKey($orderId){
+        $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
+        return isset($originalTransactionKey[$orderId]) ? $originalTransactionKey[$orderId] : false;
+    }
+
+    public function getBuckarooAlreadyPaid($orderId){
+        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
+        return isset($alreadyPaid[$orderId]) ? $alreadyPaid[$orderId] : false;
     }
 }

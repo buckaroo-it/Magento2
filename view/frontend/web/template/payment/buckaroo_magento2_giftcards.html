@@ -61,7 +61,8 @@
                    name="payment[method]"
                    class="radio"
                    data-bind="attr: {'id': code, 'data-method': 'buckaroo_magento2_giftcards'}, value: code,  click: $parent.selectGiftCardPaymentMethod.bind($parent, code), checked: $parent.isChecked, visible: $parent.isRadioButtonVisible()"/>
-            <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': code }" ><span data-bind="text: title"></span></label>
+            <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': code }" >
+                <span data-bind="text: title"></span></label>
         </div>
 
         <div class="payment-method-content">
@@ -77,6 +78,59 @@
                 <!--/ko-->
             </div>
 
+        <div class="payment-method-second-col billing-address-form">
+            <form data-hasrequired="* Required Fields" data-role="$parent.save" data-bind="$parent.submit:$parent.save, mageInit: { 'validation': [] }" method="post">
+                <fieldset class="fieldset payment styled">
+
+                    <div class="fieldset card_front width-100">
+                        
+                        <div class="field required width-100" >
+                            <label class="label" for="buckaroo_magento2_creditcards_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
+                            <div class="control">
+                                <input type="text"
+                                       class="input-text field"
+                                       name="payment[buckaroo_magento2_creditcards][cardnumber]"
+                                       data-bind="
+                            valueUpdate: 'blur',
+                            value: $parent.CardNumber,
+                            textInput: $parent.CardNumber(),
+                            attr: { 'data-card': code, 'id': 'buckaroo_magento2_creditcards_cardnumber_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validateCardNumber': true }) },
+                            event: { blur: $parent.encryptCardDetails }">
+                            </div>
+                        </div>
+
+                    <div class="fieldset width-100">
+
+                        <div class="magnet_stripe width-100"></div>
+
+                        <div class="field required card_security width-100" >
+                            <label class="label width-65-l" for="buckaroo_magento2_creditcards_pin"> <span data-bind="i18n: 'PIN / Security code:'"> </span> </label>
+                            <div class="control card-info-input width-25-l">
+                                <input type="text"
+                                       class="input-text field"
+                                       name="payment[buckaroo_magento2_creditcards][pin]"
+                                       data-bind="
+                            valueUpdate: 'blur',
+                            value: $parent.Pin,
+                            textInput: $parent.Pin(),
+                            attr: { 'id': 'buckaroo_magento2_creditcards_pin_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validatePin': true }) },
+                            event: { blur: $parent.encryptCardDetails }">
+                            </div>
+                            <div class="card_info width-10">
+                                  <div class="popup">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field width-100">
+                        <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' "></span>
+                        <span class="apply-gift-card action primary" data-bind="click: $parent.applyGiftcard.bind($parent), i18n: 'Apply Gift Card', css: {disabled: $parent.buttoncheck()}"></span>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
             <div class="checkout-agreements-block">
                 <!-- ko foreach: $parent.getRegion('before-place-order') -->
                 <!-- ko template: getTemplate() --><!-- /ko -->
@@ -91,7 +145,7 @@
                             click: $parent.placeOrder.bind($parent),
                             attr: {title: $t('Place Order')},
                             enable: ($parent.getCode() == $parent.isChecked()),
-                            css: {disabled: !$parent.isPlaceOrderActionAllowed() }
+                            css: {disabled: !$parent.buttoncheck()}
                             "
                             disabled>
                         <span data-bind="i18n: 'Place Order'"></span>
@@ -109,3 +163,5 @@
     </div>
 
 <!-- /ko -->
+
+<div data-bind='afterRender: checkForPayments'> </div>

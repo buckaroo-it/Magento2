@@ -522,6 +522,11 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
                 "UPDATE ".$setup->getTable('quote_payment')." SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
             );
         }
+
+        if (version_compare($context->getVersion(), '1.19.1', '<')) {
+            $this->installAlreadyPayColumns($setup);
+        }
+
     }
 
     /**
@@ -720,6 +725,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             'base_buckaroo_fee',
             ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
         );
+
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
@@ -784,6 +790,111 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         $salesInstaller->addAttribute(
             'creditmemo',
             'buckaroo_fee',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        return $this;
+    }
+
+        /**
+     * @param ModuleDataSetupInterface $setup
+     *
+     * @return $this
+     */
+    protected function installAlreadyPayColumns(ModuleDataSetupInterface $setup)
+    {
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller = $this->quoteSetupFactory->create(['resourceName' => 'quote_setup', 'setup' => $setup]);
+        
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller->addAttribute(
+            'quote',
+            'buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller->addAttribute(
+            'quote',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'order',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'invoice',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'invoice',
+            'buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'buckaroo_already_paid',
             ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
         );
 

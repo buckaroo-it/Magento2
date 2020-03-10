@@ -122,9 +122,15 @@ class Ideal extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
+        $serviceAction = 'Pay';
+        if($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())){
+            $serviceAction = 'PayRemainder';
+            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
+        }
+        
         $services = [
             'Name'             => 'ideal',
-            'Action'           => 'Pay',
+            'Action'           => $serviceAction,
             'Version'          => 2,
             'RequestParameter' => [
                 [

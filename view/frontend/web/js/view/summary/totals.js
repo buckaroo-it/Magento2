@@ -134,6 +134,17 @@ define(
 
                 getTitle : function () {
                     return window.checkoutConfig.buckarooFee.title();
+                },
+
+                getAlreadyPayTitle : function () {
+                    return 'Paid with Giftcard';
+                },
+
+                getAlreadyPayValue : function () {
+                    var buckarooFeeSegment = totals.getSegment('buckaroo_already_paid');
+                    return buckarooFeeSegment.value ? 
+                            this.getFormattedPrice(buckarooFeeSegment.value) :
+                            false;
                 }
             }
         );

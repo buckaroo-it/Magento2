@@ -98,9 +98,15 @@ class Alipay extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
+        $serviceAction = 'Pay';
+        if($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())){
+            $serviceAction = 'PayRemainder';
+            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
+        }
+
         $services = [
             'Name'             => 'Alipay',
-            'Action'           => 'Pay',
+            'Action'           => $serviceAction,
             'Version'          => 1,
             'RequestParameter' => [
                 [
