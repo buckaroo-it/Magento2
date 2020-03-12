@@ -175,7 +175,7 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         $totals = [
             'code' => $this->getCode(),
             'title' => $this->getLabel(),
-            'value' => isset($alreadyPaid[$orderId]) && $alreadyPaid[$orderId] > 0 ? $alreadyPaid[$orderId] : false
+            'value' => isset($alreadyPaid[$orderId]) && $alreadyPaid[$orderId] > 0 ? - $alreadyPaid[$orderId] : false
         ];
         return $totals;
     }

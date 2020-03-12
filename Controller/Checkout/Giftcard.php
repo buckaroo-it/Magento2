@@ -121,6 +121,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
     protected $eavConfig;
 
+    protected $urlBuilder;
+
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
@@ -163,7 +165,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         \Magento\Framework\Message\ManagerInterface $messageManager = null,
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\SalesSequence\Model\Manager $sequenceManager,
-        \Magento\Eav\Model\Config $eavConfig
+        \Magento\Eav\Model\Config $eavConfig,
+        \Magento\Framework\UrlInterface $urlBuilder
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -189,6 +192,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->_orderFactory = $orderFactory;
         $this->sequenceManager = $sequenceManager;
         $this->eavConfig = $eavConfig;
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
@@ -219,7 +223,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         }
 
         $returnUrl = $this->_storeManager->getStore()->getUrl($this->_configProviderAccount->getSuccessRedirect());
-        $pushUrl = $this->_storeManager->getStore()->getUrl('rest/V1/buckaroo/push');
+        $pushUrl = $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push');
 
         switch ($card) {
             case 'fashioncheque':
@@ -259,10 +263,10 @@ class Giftcard extends \Magento\Framework\App\Action\Action
                         "Parameters" => array(
                             array(
                                 "Name" => $parameters['number'],
-                                "Value" => $data['cardNumber']
+                                "Value" => trim($data['cardNumber'])
                             ),array(
                                 "Name" => $parameters['pin'],
-                                "Value" => $data['pin']
+                                "Value" => trim($data['pin'])
                             )
                         )
                     )
