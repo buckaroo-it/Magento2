@@ -96,7 +96,7 @@ define(
                     };
 
                     quote.totals._latestValue.total_segments.forEach(function(item) {
-                        if(item.code == 'buckaroo_already_paid' && Math.round(item.value) >= Math.round(quote.totals._latestValue.grand_total)){
+                        if(item.code == 'buckaroo_already_paid' && quote.totals._latestValue.grand_total == 0.001){
                             self.alreadyPayed = true;
                             self.alreadyFullPayed(true);
                         }
@@ -253,7 +253,7 @@ define(
                 checkForPayments: function () {
                     setTimeout(function() {
                         quote.totals._latestValue.total_segments.forEach(function(item) {
-                            if(item.code == 'buckaroo_already_paid' && Math.round(item.value) > 0){
+                            if(item.code == 'buckaroo_already_paid' && Math.abs(Math.round(item.value)) > 0){
                                 checkPayments();
                             }
                         });
