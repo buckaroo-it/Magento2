@@ -74,6 +74,11 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $checkoutSession;
+
+    /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
      * @param \Magento\Checkout\Model\Cart                        $cart
@@ -97,7 +102,8 @@ class Process extends \Magento\Framework\App\Action\Action
         Log $logger,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory
+        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
+        \Magento\Checkout\Model\Session $checkoutSession
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -108,6 +114,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->logger             = $logger;
         $this->orderSender        = $orderSender;
         $this->orderStatusFactory = $orderStatusFactory;
+        $this->checkoutSession    = $checkoutSession;
 
         $this->accountConfig = $configProviderFactory->get('account');
     }
@@ -120,6 +127,8 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
+        $this->logger->addDebug(__METHOD__.'|'.var_export($this->getRequest()->getParams(), true));
+
         $this->response = $this->getRequest()->getParams();
         $this->response = array_change_key_case($this->response, CASE_LOWER);
 
@@ -379,7 +388,35 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->messageManager->addSuccessMessage(__('Your order has been placed succesfully.'));
 
+        if (
+            !empty($this->response['brq_payment_method'])
+            &&
+            ($this->response['brq_payment_method'] == 'applepay')
+            &&
+            !empty($this->response['brq_statuscode'])
+            &&
+            ($this->response['brq_statuscode'] == '190')
+            &&
+            !empty($this->response['brq_test'])
+            &&
+            ($this->response['brq_test'] == 'true')
+        ) {
+            $this->redirectSuccessApplePay();
+        }
+
         return $this->_redirect($url);
+    }
+
+    protected function redirectSuccessApplePay()
+    {
+        $this->logger->addDebug(__METHOD__);
+
+        $this->checkoutSession
+            ->setLastQuoteId($this->order->getQuoteId())
+            ->setLastSuccessQuoteId($this->order->getQuoteId())
+            ->setLastOrderId($this->order->getId())
+            ->setLastRealOrderId($this->order->getIncrementId())
+            ->setLastOrderStatus($this->order->getStatus());
     }
 
     /**

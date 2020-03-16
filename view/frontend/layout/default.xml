@@ -19,10 +19,10 @@
  -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-<!--        <referenceBlock name="minicart.addons">-->
-<!--            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay" cacheable="false"-->
-<!--                   name="buckaroo_magento2.checkout.cart.applepay" template="Buckaroo_Magento2::checkout/cart/applepay.phtml">-->
-<!--            </block>-->
-<!--        </referenceBlock>-->
+        <referenceBlock name="minicart.addons">
+            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay" cacheable="false"
+                   name="buckaroo_magento2.checkout.cart.applepay" template="Buckaroo_Magento2::checkout/cart/applepay.phtml">
+            </block>
+        </referenceBlock>
     </body>
 </page>

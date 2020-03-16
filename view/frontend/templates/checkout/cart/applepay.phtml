@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<?php if($this->canShowButton()): ?>
+<?php if(false && $this->canShowButton()): ?>
 <div class="box-tocart">
     <div class="fieldset">
         <div class="actions">
@@ -35,6 +35,7 @@
     }
     showPayButton = function() {
         require(['jquery', 'buckaroo/applepay/checkout-cart'], function (jQuery, applepayPay) {
+            console.log('==============checkout-cart/1', window.checkoutConfig); //ZAK
             //applepayPay.showPayButton();
         });
     }

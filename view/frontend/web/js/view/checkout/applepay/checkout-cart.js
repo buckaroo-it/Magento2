@@ -33,11 +33,14 @@ define(
 
         return {
             showPayButton: function () {
+                console.log('==============checkout-cart/2'); //ZAK
+                console.log(quote); //ZAK
                 applepayPay.setQuote(quote);
                 applepayPay.showPayButton();
 
                 applepayPay.transactionResult.subscribe(
                     function () {
+                        console.log('==============checkout-cart/3'); //ZAK
                         orderHandler.setApplepayTransaction(applepayPay.transactionResult());
                         orderHandler.placeOrder();
                     }.bind(this)

@@ -29,14 +29,13 @@
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_applepay/active</config_path>
         </field>
-<!--
+
         <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enable or disable applepay buttons</label>
             <comment><![CDATA[Select which buttons you want to be active.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
             <config_path>payment/buckaroo_magento2_applepay/available_buttons</config_path>
         </field>
-        -->
 
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend label</label>

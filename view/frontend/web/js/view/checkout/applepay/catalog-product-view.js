@@ -21,7 +21,7 @@ define(
         'jquery',
         'uiComponent',
         'Magento_Checkout/js/model/quote',
-        'buckaroo/applepay/pay'
+        'buckaroo/applepay/pay',
     ],
     function (
         $,
@@ -31,14 +31,14 @@ define(
     ) {
         'use strict';
 
+        console.log('==============catalog-product-view/2'); //ZAK
+
         return Component.extend({
             showPayButton: function () {
-                // applepayPay.setQuote(quote);
-                applepayPay.showPayButton();
-            },
-
-            addProductToCart: function () {
-                $('#product-addtocart-button').click();
+                console.log('==============catalog-product-view/4'); //ZAK
+                console.log(quote); //ZAK
+                applepayPay.setQuote(quote);
+                applepayPay.showPayButton('product');
             }
         });
     }

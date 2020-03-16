@@ -100,6 +100,9 @@ class Applepay extends AbstractConfigProvider
                         'storeName' => $storeName,
                         'currency' => $currency,
                         'cultureCode' => $shortLocale,
+                        'country' => $this->scopeConfig->getValue(
+                            'general/country/default', ScopeInterface::SCOPE_WEBSITES
+                        ),
                         'guid' => $this->configProvicerAccount->getMerchantGuid(),
                     ],
                 ],

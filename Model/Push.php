@@ -182,7 +182,7 @@ class Push implements PushInterface
         $this->getPostData();
 
         //Start debug mailing/logging with the postdata.
-        $this->logging->addDebug(print_r($this->originalPostData, true));
+        $this->logging->addDebug(__METHOD__.'|'.print_r($this->originalPostData, true));
 
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
@@ -452,7 +452,7 @@ class Push implements PushInterface
      */
     public function processPush($response)
     {
-        $this->logging->addDebug('RESPONSE STATUS: '.$response['status']);
+        $this->logging->addDebug(__METHOD__.'|'.'RESPONSE STATUS: '.$response['status']);
         $payment = $this->order->getPayment();
 
         if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->postData)) {
@@ -744,7 +744,7 @@ class Push implements PushInterface
         $buckarooCancelOnFailed = $this->configAccount->getCancelOnFailed($store);
 
         if ($buckarooCancelOnFailed && $this->order->canCancel()) {
-            $this->logging->addDebug('Buckaroo push failed : '.$message.' : Cancel order.');
+            $this->logging->addDebug(__METHOD__.'|'.'Buckaroo push failed : '.$message.' : Cancel order.');
 
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
