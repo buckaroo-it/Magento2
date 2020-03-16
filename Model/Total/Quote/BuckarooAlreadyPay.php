@@ -67,7 +67,6 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         $this->setCode('buckaroo_already_paid');
 
         $this->configProviderAccount = $configProviderAccount;
-        // $this->configProviderBuckarooAlreadyPay = $configProviderBuckarooAlreadyPay;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->priceCurrency = $priceCurrency;
         $this->catalogHelper = $catalogHelper;
@@ -113,7 +112,7 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
             return $this;
         }
 
-        $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
+        $orderId = $quote->getReservedOrderId();
         $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
 
         if (!isset($alreadyPaid[$orderId]) || $alreadyPaid[$orderId] < 0.01) {
@@ -171,7 +170,7 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
      */
     public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
     {
-        $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
+        $orderId = $quote->getReservedOrderId();
         $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
 
         /**
