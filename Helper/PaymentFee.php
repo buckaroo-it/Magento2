@@ -122,12 +122,21 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
             );
         }
 
+        $order = $dataObject->getOrder();
         if($dataObject->getBaseBuckarooAlreadyPaid()){
             $this->addTotalToTotals(
                 $totals,
                 'buckaroo_already_paid',
-                $dataObject->getBuckarooAlreadyPaid(),
-                $dataObject->getBaseBuckarooAlreadyPaid(),
+                - $dataObject->getBuckarooAlreadyPaid(),
+                - $dataObject->getBaseBuckarooAlreadyPaid(),
+                __('Paid with Giftcard')
+            );
+        }elseif(isset($order) && $order->getBuckarooAlreadyPaid()){
+            $this->addTotalToTotals(
+                $totals,
+                'buckaroo_already_paid',
+                - $order->getBuckarooAlreadyPaid(),
+                - $order->getBaseBuckarooAlreadyPaid(),
                 __('Paid with Giftcard')
             );
         }

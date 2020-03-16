@@ -31,7 +31,8 @@ define(
         'Magento_Ui/js/model/messageList',
         'mage/translate',
         'mage/url',
-        'Magento_Checkout/js/action/get-totals'
+        'Magento_Checkout/js/action/get-totals',
+        'Magento_Customer/js/customer-data'
     ],
     function (
         $,
@@ -45,12 +46,13 @@ define(
         globalMessageList,
         $t,
         url,
-        getTotalsAction
+        getTotalsAction,
+        customerData
     ) {
         'use strict';
 
         function checkPayments(){
-            var p = ["afterpay","afterpay2","afterpay20","klarnakp","capayableinstallments"];
+            var p = ["afterpay","afterpay2","afterpay20","klarnakp","capayableinstallments","creditcard"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
@@ -234,6 +236,10 @@ define(
                                 self.alreadyPayed = true;
                                 self.alreadyFullPayed(true);
                             }
+
+                            var sections = ['cart'];
+                            /* Minicart reloading */
+                            customerData.reload(sections, true);
 
                             /* Totals summary reloading */
                             var deferred = $.Deferred();

@@ -227,15 +227,9 @@ class Creditcards extends AbstractMethod
             throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the creditcard company data to Buckaroo.'));
         }
 
-        $serviceAction = 'PayEncrypted';
-        if($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())){
-            $serviceAction = 'PayRemainder';
-            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
-        }
-        
         $services = [
             'Name'             => $additionalInformation['customer_creditcardcompany'],
-            'Action'           => $serviceAction,
+            'Action'           => 'PayEncrypted',
             'Version'          => 2,
             'RequestParameter' => [
                 [

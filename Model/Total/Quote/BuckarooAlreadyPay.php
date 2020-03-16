@@ -142,22 +142,22 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
          */
         $total->setBaseBuckarooAlreadyPaid($baseAlreadyPaid);
 
-            $baseGrandTotal = $total->getBaseGrandTotal() - $baseAlreadyPaid;
-            $grandTotal = $total->getGrandTotal() - $alreadyPaid;
-            if($paymentMethod == 'buckaroo_magento2_giftcards'){
-                $baseGrandTotal = $baseGrandTotal < 0.001 ?  0.001 : $baseGrandTotal;
-                $grandTotal = $grandTotal < 0.001 ?  0.001 : $grandTotal;
-            }
+        $baseGrandTotal = $total->getBaseGrandTotal() - $baseAlreadyPaid;
+        $grandTotal = $total->getGrandTotal() - $alreadyPaid;
+        if($paymentMethod == 'buckaroo_magento2_giftcards'){
+            $baseGrandTotal = $baseGrandTotal < 0.001 ?  0.001 : $baseGrandTotal;
+            $grandTotal = $grandTotal < 0.001 ?  0.001 : $grandTotal;
+        }
 
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
-            $total->setBaseGrandTotal($baseGrandTotal);
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $total->setBaseGrandTotal($baseGrandTotal);
 
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
-            $total->setGrandTotal($grandTotal);
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $total->setGrandTotal($grandTotal);
 
         return $this;
     }

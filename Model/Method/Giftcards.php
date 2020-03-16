@@ -333,28 +333,4 @@ class Giftcards extends AbstractMethod
     {
         return true;
     }
-
-        /**
-     * @return string
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function getTitle()
-    {
-        $this->_checkoutSession->setBuckarooQuoteId($this->_checkoutSession->getQuote()->getId());
-        // return $this->getConfigData('title') . $this->_checkoutSession->getQuote()->getId();
-        // echo "<pre style='color:#ff0000'>"; print_r ($this->_checkoutSession->getQuote()->getId()); echo "</pre>"; 
-/*        if($quoteId = $this->_checkoutSession->getBuckarooQuoteId()){
-            $quote = $this->quoteRepository->get($quoteId);
-            $quote->setIsActive(true);
-            $quote->save($quote);
-            $this->_checkoutSession->replaceQuote($quote);
-        }*/
-/*        $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
-        if(!$orderId){
-            $orderId = $this->_checkoutSession->getQuote()->reserveOrderId()->getReservedOrderId();
-        }
-        echo "<pre style='color:#ff0000'>"; print_r ($orderId); echo "</pre>";
-        echo "<pre style='color:#ff0000'>"; print_r ('================'); echo "</pre>";die;*/
-        return parent::getTitle();
-    }
 }
