@@ -228,8 +228,10 @@ define(
                             $('#' + this.getCode() + '_DoB-error').hide();
                             $('#' + this.getCode() + '_DoB').removeClass('mage-error');
                         } else {
-                            $('#' + this.getCode() + '_DoB-error').show();
-                            $('#' + this.getCode() + '_DoB').addClass('mage-error');
+                            setTimeout(function() {
+                                $('#' + self.getCode() + '_DoB-error').show();
+                                $('#' + self.getCode() + '_DoB').addClass('mage-error');
+                            },200);
                         }
                     };
 
@@ -267,7 +269,8 @@ define(
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
                                 this.termsValidate() !== false &&
-                                this.validate()
+                                this.validate() &&
+                                (this.calculateAge(this.dateValidate()) >= 18)
                         },
                         this
                     );
