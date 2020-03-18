@@ -64,7 +64,15 @@ class Applepay extends Template
     {
         $result = false;
 
-        if ($this->cart->getSummaryQty() && $this->applepayConfigProvider->getActive() != 0) {
+        if (
+            $this->cart->getSummaryQty()
+            &&
+            ($this->applepayConfigProvider->getActive() != 0)
+            &&
+            ($this->applepayConfigProvider->getAvailableButtons())
+            &&
+            (in_array('Cart', $this->applepayConfigProvider->getAvailableButtons()))
+        ) {
             $result = true;
         }
 

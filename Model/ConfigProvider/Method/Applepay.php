@@ -36,6 +36,7 @@ class Applepay extends AbstractConfigProvider
     const XPATH_APPLEPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_applepay/order_status_failed';
     const XPATH_APPLEPAY_ORDER_EMAIL           = 'payment/buckaroo_magento2_applepay/order_email';
     const XPATH_APPLEPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_applepay/available_in_backend';
+    const XPATH_APPLEPAY_AVAILABLE_BUTTONS     = 'payment/buckaroo_magento2_applepay/available_buttons';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_applepay/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_applepay/allowspecific';
@@ -104,9 +105,25 @@ class Applepay extends AbstractConfigProvider
                             'general/country/default', ScopeInterface::SCOPE_WEBSITES
                         ),
                         'guid' => $this->configProvicerAccount->getMerchantGuid(),
+                        'availableButtons' => $this->getAvailableButtons()
                     ],
                 ],
             ],
         ];
+    }
+
+    public function getAvailableButtons()
+    {
+        $availableButtons = $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_AVAILABLE_BUTTONS,
+            ScopeInterface::SCOPE_STORE
+        );
+        if ($availableButtons) {
+            $availableButtons = explode(',', $availableButtons);
+        } else {
+            $availableButtons = false;
+        }
+
+        return $availableButtons;
     }
 }
