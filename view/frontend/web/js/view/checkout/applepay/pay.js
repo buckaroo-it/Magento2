@@ -58,6 +58,12 @@ define(
                     return;
                 }
 
+                if ((this.payMode == 'product') || (this.payMode == 'cart')) {
+                    this.setIsOnCheckout(false);
+                } else {
+                    this.setIsOnCheckout(true);
+                }
+
                 console.log('==============7'); //ZAK
 
                 BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid).then(
@@ -76,22 +82,23 @@ define(
                             this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
                             console.log('==============18'); //ZAK
                             this.payment.showPayButton('black', 'buy');
-                            this.payment.button.off("click");
-                            var self = this;
-                            this.payment.button.on("click", function (e) {
-                                console.log('==============24'); //ZAK
-                                var dataForm = $('#product_addtocart_form');
-                                dataForm.validation('isValid');
-                                setTimeout(function() {
-                                    console.log('==============25'); //ZAK
-                                    if ($('.mage-error:visible').length == 0) {
-                                        console.log('==============26'); //ZAK
-                                        self.payment.beginPayment(e);
-                                    }
-                                }, 100);
-                            });
+                            if (this.payMode == 'product') {
+                                this.payment.button.off("click");
+                                var self = this;
+                                this.payment.button.on("click", function (e) {
+                                    console.log('==============24'); //ZAK
+                                    var dataForm = $('#product_addtocart_form');
+                                    dataForm.validation('isValid');
+                                    setTimeout(function () {
+                                        console.log('==============25'); //ZAK
+                                        if ($('.mage-error:visible').length == 0) {
+                                            console.log('==============26'); //ZAK
+                                            self.payment.beginPayment(e);
+                                        }
+                                    }, 100);
+                                });
+                            }
                             console.log('==============19'); //ZAK
-
                         }
                     }.bind(this)
                 );
@@ -151,6 +158,7 @@ define(
                 ); //ZAK
 
                 if (!this.isOnCheckout && !window.isCustomerLoggedIn) {
+                    console.log('==============contact'); //ZAK
                     requiredContactFields.push("email");
                 }
 
@@ -290,9 +298,9 @@ define(
 
             onSelectedShipmentMethod: function (event) {
                 console.log('==============33');//ZAK
-                console.log(event.identifier);//ZAK
+                console.log(event);//ZAK
 
-                if (this.payMode == 'product') {
+                if ((this.payMode == 'product') || (this.payMode == 'cart')) {
                     console.log('==============34');//ZAK
 
                     var update = $.ajax({
@@ -401,6 +409,54 @@ define(
                     }.bind(this));
 
                     return update;
+                } else if (this.payMode == 'cart') {
+
+                    console.log('==============50');//ZAK
+
+                    var update = $.ajax({
+                        url: urlBuilder.build('buckaroo/applepay/getShippingMethods'),
+                        type: 'POST',
+                        data: {
+                            wallet: event
+                        },
+                        global: false,
+                        dataType: 'json',
+                        async: false,
+                        dataFilter: function(data, type) {
+                            var result = JSON.parse(data);
+
+                            console.log('==============51');//ZAK
+                            console.log(result);//ZAK
+                            if (result.success == 'true') {
+                                console.log('==============52');//ZAK
+
+                                this.shippingGroups = {};
+                                $.each(result.data.shipping_methods, function (index, rate) {
+                                    this.shippingGroups[rate['method_code']] = rate;
+                                }.bind(this));
+
+                                var authorizationResult = {
+                                    errors: [],
+                                    newShippingMethods: this.availableShippingMethodInformation(),
+                                    newTotal: this.processTotalLineItems('final', result.data.totals),
+                                    newLineItems: this.processLineItems('final', result.data.totals)
+                                };
+
+                                console.log('==============53');//ZAK
+                                console.log(authorizationResult);//ZAK
+
+                                return JSON.stringify(authorizationResult);
+
+                            } else {
+                                this.timeoutRedirect();
+                            }
+                        }.bind(this),
+                    })
+                    .fail(function() {
+                        this.timeoutRedirect();
+                    }.bind(this));
+
+                    return update;
                 } else {
                     var newShippingAddress = shippingHandler.setShippingAddress(event);
                     this.updateShippingMethods(newShippingAddress);
@@ -479,7 +535,7 @@ define(
                 };
                 console.log('==========pvo11',payment); //ZAK
 
-                if (this.payMode == 'product') {
+                if ((this.payMode == 'product') || (this.payMode == 'cart')) {
 
                     console.log('==============39');//ZAK
 
@@ -511,6 +567,7 @@ define(
                                 } else {
                                     this.timeoutRedirect();
                                 }
+                                this.payMode = '';
                                 return JSON.stringify(authorizationResult);
                             } else {
                                 this.timeoutRedirect();

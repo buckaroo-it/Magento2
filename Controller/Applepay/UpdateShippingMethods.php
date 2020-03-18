@@ -60,17 +60,7 @@ class UpdateShippingMethods extends Common
             }
         }
 
-        if ($errorMessage) {
-            $response = ['success' => 'false'];
-        } else {
-            $response = ['success' => 'true', 'data' => $data];
-        }
-        $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, true);
-
-        /** @var \Magento\Framework\Controller\Result\Json $resultJson */
-        $resultJson = $this->resultJsonFactory->create();
-
-        return $resultJson->setData($response);
+        return $this->commonResponse($data, $errorMessage);
     }
 
 }

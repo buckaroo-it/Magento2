@@ -23,10 +23,8 @@
 
     <script>
         if ('undefined' === typeof window.checkoutConfig) {
-            // window.checkoutConfig = {};
             window.checkoutConfig = <?php echo $this->getApplepayConfig(); ?>;
-            // window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
-            // window.customerData = window.checkoutConfig.customerData;
+            window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
         }
     </script>
 

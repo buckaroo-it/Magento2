@@ -36,7 +36,7 @@ define(
                 console.log('==============checkout-cart/2'); //ZAK
                 console.log(quote); //ZAK
                 applepayPay.setQuote(quote);
-                applepayPay.showPayButton();
+                applepayPay.showPayButton('cart');
 
                 applepayPay.transactionResult.subscribe(
                     function () {

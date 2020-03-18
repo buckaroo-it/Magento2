@@ -25,11 +25,9 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
-class Add extends Common
+class GetShippingMethods extends Common
 {
-    protected $formKey;
     protected $cart;
-    protected $product;
 
     /**
      * @param Context     $context
@@ -41,15 +39,11 @@ class Add extends Common
         \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         Log $logger,
-        \Magento\Framework\Data\Form\FormKey $formKey,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Catalog\Model\Product $product
+        \Magento\Checkout\Model\Cart $cart
     ) {
         parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger);
 
-        $this->formKey = $formKey;
         $this->cart = $cart;
-        $this->product = $product;
     }
 
     /**
@@ -59,43 +53,18 @@ class Add extends Common
     {
         $isPost = $this->getRequest()->getPostValue();
 
-        //var_dump("============1");
         $errorMessage = false;
         $data = [];
         $shippingMethodsResult = [];
         if ($isPost) {
             if (
-                ($product = $this->getRequest()->getParam('product'))
-                &&
-                !empty($product['id'])
-                &&
-                !empty($product['qty'])
-                &&
                 ($wallet = $this->getRequest()->getParam('wallet'))
             ) {
-                //var_dump("============3", $product, $wallet);
-
-                ////products
-                $params = array(
-                    'form_key' => $this->formKey->getFormKey(),
-                    'product' => $product['id'],
-                    'qty'   => $product['qty']
-                );
-                if (!empty($product['selected_options'])) {
-                    $params['super_attribute'] = $product['selected_options'];
-                }
-
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
                 $checkoutSession = $objectManager->get('Magento\Checkout\Model\Session');
                 $quoteRepository = $objectManager->get('Magento\Quote\Model\QuoteRepository');
 
                 $quote = $checkoutSession->getQuote();
-                $quote->removeAllItems();
-
-                //Load the product based on productID
-                $_product = $this->product->load($product['id']);
-                $this->cart->addProduct($_product, $params);
-                $this->cart->save();
 
                 ////shipping
                 $address = $quote->getShippingAddress();

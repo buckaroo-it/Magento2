@@ -69,6 +69,7 @@ class SaveOrder extends Common
         $isPost = $this->getRequest()->getPostValue();
         $errorMessage = false;
         $data = [];
+        $shippingMethodsResult = [];
 
         if ($isPost) {
             if (
@@ -77,6 +78,8 @@ class SaveOrder extends Common
                 ($extra = $this->getRequest()->getParam('extra'))
             ) {
                 $this->logger->addDebug(__METHOD__.'|1|');
+                $this->logger->addDebug(var_export($payment, true));
+                $this->logger->addDebug(var_export($extra, true));
 
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
                 $checkoutSession = $objectManager->get('Magento\Checkout\Model\Session');
@@ -85,6 +88,8 @@ class SaveOrder extends Common
                 $shippingAddress = $this->processAddressFromWallet($payment['shippingContact'], 'shipping');
                 $quote->getShippingAddress()->addData($shippingAddress);
                 $quote->setShippingAddress($quote->getShippingAddress());
+
+                $this->logger->addDebug(var_export($quote->getShippingAddress()->getShippingMethod(), true));
 
                 $billingAddress = $this->processAddressFromWallet($payment['billingContact'], 'billing');
                 $quote->getBillingAddress()->addData($billingAddress);
@@ -110,16 +115,16 @@ class SaveOrder extends Common
                 $data = [];
                 if ($this->registry && $this->registry->registry('buckaroo_response')) {
                     $data = $this->registry->registry('buckaroo_response')[0];
-                    $this->logger->addDebug(__METHOD__.'|2|'.var_export($data, true));
+                    $this->logger->addDebug(__METHOD__.'|4|'.var_export($data, true));
                     if (!empty($data->RequiredAction->RedirectURL)) {
                         //test mode
-                        $this->logger->addDebug(__METHOD__.'|3|');
+                        $this->logger->addDebug(__METHOD__.'|5|');
                         $data = [
                            'RequiredAction' => $data->RequiredAction
                         ];
                     } else {
                         //live mode
-                        $this->logger->addDebug(__METHOD__.'|4|');
+                        $this->logger->addDebug(__METHOD__.'|6|');
                         if (
                             !empty($data->Status->Code->Code)
                             &&
@@ -152,17 +157,7 @@ class SaveOrder extends Common
             }
         }
 
-        if ($errorMessage || empty($data)) {
-            $response = ['success' => 'false'];
-        } else {
-            $response = ['success' => 'true', 'data' => $data];
-        }
-        $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, true);
-
-        /** @var \Magento\Framework\Controller\Result\Json $resultJson */
-        $resultJson = $this->resultJsonFactory->create();
-
-        return $resultJson->setData($response);
+        return $this->commonResponse($data, $errorMessage);
     }
 
 }
