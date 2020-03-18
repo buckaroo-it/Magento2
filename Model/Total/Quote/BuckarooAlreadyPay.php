@@ -144,8 +144,12 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         $baseGrandTotal = $total->getBaseGrandTotal() - $baseAlreadyPaid;
         $grandTotal = $total->getGrandTotal() - $alreadyPaid;
         if($paymentMethod == 'buckaroo_magento2_giftcards'){
-            $baseGrandTotal = $baseGrandTotal < 0.001 ?  0.001 : $baseGrandTotal;
-            $grandTotal = $grandTotal < 0.001 ?  0.001 : $grandTotal;
+            $cartTotals = $quote->getTotals();
+            $grand_total = $cartTotals['grand_total']->getData();
+            if(($grand_total['value'] - $baseAlreadyPaid) < 0.001){
+               $baseGrandTotal = 0.001; 
+               $grandTotal = 0.001;
+            }
         }
 
         /**

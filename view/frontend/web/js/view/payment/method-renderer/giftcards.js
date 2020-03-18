@@ -32,7 +32,8 @@ define(
         'mage/translate',
         'mage/url',
         'Magento_Checkout/js/action/get-totals',
-        'Magento_Customer/js/customer-data'
+        'Magento_Customer/js/customer-data',
+        'Magento_Checkout/js/model/payment-service'
     ],
     function (
         $,
@@ -47,7 +48,8 @@ define(
         $t,
         url,
         getTotalsAction,
-        customerData
+        customerData,
+        paymentService
     ) {
         'use strict';
 
@@ -237,14 +239,11 @@ define(
                                 self.alreadyFullPayed(true);
                             }
 
-                            var sections = ['cart'];
-                            /* Minicart reloading */
-                            customerData.reload(sections, true);
-
                             /* Totals summary reloading */
-                            var deferred = $.Deferred();
-                            getTotalsAction([], deferred);
-
+                            // var deferred = $.Deferred();
+                            // getTotalsAction([], deferred);
+                            $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
+                            
                             checkPayments();
                         }
                         if(data.error){
