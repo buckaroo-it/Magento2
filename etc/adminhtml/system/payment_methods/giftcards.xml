@@ -53,7 +53,7 @@
 
         <field id="group_giftcards" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Group Giftcards</label>
-            <comment><![CDATA[Enable group giftcards in checkout]]></comment>
+            <comment><![CDATA[Enable group giftcards in checkout <br/><strong>Important:</strong> Group giftcards can only be refunded from the Buckaroo Plaza.]]></comment>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/buckaroo_magento2_giftcards/group_giftcards</config_path>
         </field>
