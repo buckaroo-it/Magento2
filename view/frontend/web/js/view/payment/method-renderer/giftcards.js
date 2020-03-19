@@ -243,7 +243,7 @@ define(
                             // var deferred = $.Deferred();
                             // getTotalsAction([], deferred);
                             $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
-                            
+
                             checkPayments();
                         }
                         if(data.error){
@@ -251,6 +251,8 @@ define(
                         }else{
                              self.messageContainer.addSuccessMessage({'message': $t(data.message)});
                         }
+
+                        $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
                     
                     });
 
