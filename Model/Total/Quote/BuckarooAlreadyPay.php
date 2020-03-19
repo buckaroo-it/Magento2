@@ -89,6 +89,8 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Quote\Model\Quote\Address\Total $total
     ) {
+        parent::collect($quote, $shippingAssignment, $total);
+
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
@@ -147,8 +149,8 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
             $cartTotals = $quote->getTotals();
             $grand_total = $cartTotals['grand_total']->getData();
             if(($grand_total['value'] - $baseAlreadyPaid) < 0.001){
-               $baseGrandTotal = 0.001; 
-               $grandTotal = 0.001;
+               $baseGrandTotal = $baseAlreadyPaid  + 0.001; 
+               $grandTotal = $grandTotal + 0.001;
             }
         }
 
