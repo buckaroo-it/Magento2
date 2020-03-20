@@ -92,10 +92,6 @@ class Giftcards extends AbstractMethod
      */
     protected $_canRefundInvoicePartial = false;
     
-    protected $_checkoutSession;
-
-    protected $quoteRepository;
-
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
@@ -118,9 +114,7 @@ class Giftcards extends AbstractMethod
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
-        array $data = [],
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+        array $data = []
     ) {
         parent::__construct(
             $objectManager,
@@ -146,9 +140,7 @@ class Giftcards extends AbstractMethod
             $data
         );
 
-        $this->_checkoutSession = $checkoutSession;
         $this->serviceParameters = $serviceParameters;
-        $this->quoteRepository = $quoteRepository;
     }
 
     /**
@@ -206,14 +198,10 @@ class Giftcards extends AbstractMethod
             'ContinueOnIncomplete' => 'RedirectToHTML',
         ];
 
-
         $transactionBuilder->setOrder($payment->getOrder())
             ->setCustomVars($customVars)
             ->setMethod('TransactionRequest');
         
-        $this->_checkoutSession->unsBuckarooReservedOrderId();
-        return true;
-
         return $transactionBuilder;
     }
 

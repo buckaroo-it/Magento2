@@ -239,28 +239,6 @@ define(
                                 self.alreadyFullPayed(true);
                             }
 
-//                             var availablePaymentMethods = paymentService.getAvailablePaymentMethods(),
-//                                 selectedPaymentMethod = checkoutData.getSelectedPaymentMethod(),
-//                                 paymentMethod = selectedPaymentMethod ? selectedPaymentMethod : 'braintree';
-
-// console.log('availablePaymentMethods',availablePaymentMethods);
-// console.log('selectedPaymentMethod',selectedPaymentMethod);
-// console.log('paymentMethod',paymentMethod);
-
-//                             if (availablePaymentMethods.length > 0) {
-//                                 availablePaymentMethods.some(function (payment) {
-//                                     if (payment.method == paymentMethod) {
-//                                         selectPaymentMethodAction(payment);
-//                                         console.log('selectPaymentMethodAction', payment);
-//                                     }
-//                                 });
-//                             }
-
-                            // var sections = ['checkout-data'];
-                            // customerData.invalidate(sections);
-                            // customerData.reload(sections, true);
-                            // console.log('checkout-data');
-
                             /* Totals summary reloading */
                             // var deferred = $.Deferred();
                             // getTotalsAction([], deferred);
@@ -273,6 +251,8 @@ define(
                         }else{
                              self.messageContainer.addSuccessMessage({'message': $t(data.message)});
                         }
+
+                        $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
                     
                     });
 
