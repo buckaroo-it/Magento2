@@ -102,7 +102,7 @@ class Common extends Action
                 '1' => isset($wallet['addressLines'][1]) ? $wallet['addressLines'][1] : null
             ),
             'city'       => isset($wallet['locality']) ? $wallet['locality'] : '',
-            'country_id' => isset($wallet['countryCode']) ? $wallet['countryCode'] : '',
+            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
             'region'     => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : '',
             'region_id'  => '',
             'postcode'   => isset($wallet['postalCode']) ? $wallet['postalCode'] : '',
