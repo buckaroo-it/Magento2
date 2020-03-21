@@ -133,4 +133,32 @@ class Common extends Action
         return $resultJson->setData($response);
     }
 
+    protected function setShippingAddress(&$quote, $data)
+    {
+        $shippingAddress = $this->processAddressFromWallet($data, 'shipping');
+        $quote->getShippingAddress()->addData($shippingAddress);
+        $quote->setShippingAddress($quote->getShippingAddress());
+
+        //$errors = $quote->getShippingAddress()->validate();
+
+        return true;
+
+        if ($errors === true) {
+            return true;
+        } else {
+
+            $errorMessage = __(
+                'xxxx'
+            );
+            $this->messageManager->addErrorMessage($errorMessage);
+            return false;
+        }
+    }
+
+    protected function setBillingAddress(&$quote, $data)
+    {
+        $billingAddress = $this->processAddressFromWallet($data, 'billing');
+        $quote->getBillingAddress()->addData($billingAddress);
+        $quote->setBillingAddress($quote->getBillingAddress());
+    }
 }

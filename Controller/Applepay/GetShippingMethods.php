@@ -66,19 +66,16 @@ class GetShippingMethods extends Common
 
                 $quote = $checkoutSession->getQuote();
 
-                ////shipping
-                $address = $quote->getShippingAddress();
-                $shippingAddress = $this->processAddressFromWallet($wallet, 'shipping');
-
-                $address->addData($shippingAddress);
-                $quote->setShippingAddress($address);
+                if (!$this->setShippingAddress($quote, $wallet)) {
+                    return $this->commonResponse(false, true);
+                }
 
                 $quote->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
                 $quote->getShippingAddress()->setCollectShippingRates(true);
                 $quoteRepository->save($quote);
 
                 $shippingMethodManagement = $objectManager->get('Magento\Quote\Model\ShippingMethodManagement');
-                $shippingMethods = $shippingMethodManagement->estimateByExtendedAddress($quote->getId(), $address);
+                $shippingMethods = $shippingMethodManagement->estimateByExtendedAddress($quote->getId(), $quote->getShippingAddress());
 
                 if (count($shippingMethods) == 0) {
                     $errorMessage = __(

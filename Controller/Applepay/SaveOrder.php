@@ -85,15 +85,14 @@ class SaveOrder extends Common
                 $checkoutSession = $objectManager->get('Magento\Checkout\Model\Session');
                 $quote = $checkoutSession->getQuote();
 
-                $shippingAddress = $this->processAddressFromWallet($payment['shippingContact'], 'shipping');
-                $quote->getShippingAddress()->addData($shippingAddress);
-                $quote->setShippingAddress($quote->getShippingAddress());
+                if (!$this->setShippingAddress($quote, $payment['shippingContact'])) {
+                    return $this->commonResponse(false, true);
+                }
+                if (!$this->setBillingAddress($quote, $payment['billingContact'])) {
+                    return $this->commonResponse(false, true);
+                }
 
                 $this->logger->addDebug(var_export($quote->getShippingAddress()->getShippingMethod(), true));
-
-                $billingAddress = $this->processAddressFromWallet($payment['billingContact'], 'billing');
-                $quote->getBillingAddress()->addData($billingAddress);
-                $quote->setBillingAddress($quote->getBillingAddress());
 
                 if ($this->customer->getCustomer() && $this->customer->getCustomer()->getId()) {
                 } else {

@@ -152,13 +152,8 @@ define(
                 if (this.quote && (null !== this.quote.shippingAddress())) {
                     country = this.quote.shippingAddress().countryId;
                 }
-                console.log('==============13',
-                    window.checkoutConfig.payment.buckaroo.applepay,
-                    country
-                ); //ZAK
 
                 if (!this.isOnCheckout && !window.isCustomerLoggedIn) {
-                    console.log('==============contact'); //ZAK
                     requiredContactFields.push("email");
                 }
 
@@ -169,6 +164,9 @@ define(
                     shipmentMethodCallback = null;
                     requiredContactFields = ["postalAddress"];
                 }
+
+                console.log('==============13', country); //ZAK
+                console.log(requiredContactFields); //ZAK
 
                 this.applepayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
                     window.checkoutConfig.payment.buckaroo.applepay.storeName,

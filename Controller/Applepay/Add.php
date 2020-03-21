@@ -59,7 +59,7 @@ class Add extends Common
     {
         $isPost = $this->getRequest()->getPostValue();
 
-        //var_dump("============1");
+        $this->logger->addDebug(__METHOD__.'|1|');
         $errorMessage = false;
         $data = [];
         $shippingMethodsResult = [];
@@ -73,7 +73,8 @@ class Add extends Common
                 &&
                 ($wallet = $this->getRequest()->getParam('wallet'))
             ) {
-                //var_dump("============3", $product, $wallet);
+                $this->logger->addDebug(__METHOD__.'|2|');
+                $this->logger->addDebug(var_export($wallet, true));
 
                 ////products
                 $params = array(
@@ -97,19 +98,19 @@ class Add extends Common
                 $this->cart->addProduct($_product, $params);
                 $this->cart->save();
 
-                ////shipping
-                $address = $quote->getShippingAddress();
-                $shippingAddress = $this->processAddressFromWallet($wallet, 'shipping');
+                $this->logger->addDebug(__METHOD__.'|3|');
+                $this->logger->addDebug(var_export(get_class($quote->getShippingAddress()), true));
 
-                $address->addData($shippingAddress);
-                $quote->setShippingAddress($address);
+                if (!$this->setShippingAddress($quote, $wallet)) {
+                    return $this->commonResponse(false, true);
+                }
 
                 $quote->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
                 $quote->getShippingAddress()->setCollectShippingRates(true);
                 $quoteRepository->save($quote);
 
                 $shippingMethodManagement = $objectManager->get('Magento\Quote\Model\ShippingMethodManagement');
-                $shippingMethods = $shippingMethodManagement->estimateByExtendedAddress($quote->getId(), $address);
+                $shippingMethods = $shippingMethodManagement->estimateByExtendedAddress($quote->getId(), $quote->getShippingAddress());
 
                 if (count($shippingMethods) == 0) {
                     $errorMessage = __(
