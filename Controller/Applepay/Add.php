@@ -99,7 +99,6 @@ class Add extends Common
                 $this->cart->save();
 
                 $this->logger->addDebug(__METHOD__.'|3|');
-                $this->logger->addDebug(var_export(get_class($quote->getShippingAddress()), true));
 
                 if (!$this->setShippingAddress($quote, $wallet)) {
                     return $this->commonResponse(false, true);

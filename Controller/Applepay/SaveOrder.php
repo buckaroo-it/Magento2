@@ -92,7 +92,7 @@ class SaveOrder extends Common
                     return $this->commonResponse(false, true);
                 }
 
-                $this->logger->addDebug(var_export($quote->getShippingAddress()->getShippingMethod(), true));
+                $this->logger->addDebug(__METHOD__.'|2|');
 
                 if ($this->customer->getCustomer() && $this->customer->getCustomer()->getId()) {
                 } else {

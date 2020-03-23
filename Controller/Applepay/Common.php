@@ -139,18 +139,31 @@ class Common extends Action
         $quote->getShippingAddress()->addData($shippingAddress);
         $quote->setShippingAddress($quote->getShippingAddress());
 
-        //$errors = $quote->getShippingAddress()->validate();
+        $errors = $quote->getShippingAddress()->validate();
 
-        return true;
+        $this->logger->addDebug(__METHOD__.'|3|');
+        $this->logger->addDebug(var_export($errors, true));
 
-        if ($errors === true) {
+        $errorFields = array();
+        if ($errors && is_array($errors)) {
+            foreach ($errors as $error) {
+                if (($arguments = $error->getArguments()) && !empty($arguments['fieldName'])) {
+                    if ($arguments['fieldName'] === 'postcode') {
+                        $errorFields[] = $arguments['fieldName'];
+                        $this->logger->addDebug(var_export($error->getArguments()['fieldName'], true));
+                        $this->messageManager->addErrorMessage(__(
+                            'Error: postcode is required'
+                        ));
+                    }
+                }
+            }
+        }
+
+        if (empty($errorFields)) {
+            $this->logger->addDebug(__METHOD__.'|4|');
             return true;
         } else {
-
-            $errorMessage = __(
-                'xxxx'
-            );
-            $this->messageManager->addErrorMessage($errorMessage);
+            $this->logger->addDebug(__METHOD__.'|5|');
             return false;
         }
     }
@@ -160,5 +173,6 @@ class Common extends Action
         $billingAddress = $this->processAddressFromWallet($data, 'billing');
         $quote->getBillingAddress()->addData($billingAddress);
         $quote->setBillingAddress($quote->getBillingAddress());
+        return true;
     }
 }
