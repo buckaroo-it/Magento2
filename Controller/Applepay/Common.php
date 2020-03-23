@@ -135,13 +135,31 @@ class Common extends Action
 
     protected function setShippingAddress(&$quote, $data)
     {
+        $this->logger->addDebug(__METHOD__.'|1|');
+
         $shippingAddress = $this->processAddressFromWallet($data, 'shipping');
         $quote->getShippingAddress()->addData($shippingAddress);
         $quote->setShippingAddress($quote->getShippingAddress());
 
         $errors = $quote->getShippingAddress()->validate();
+        return $this->setCommonAddressProceed($errors, 'shipping');
+    }
 
-        $this->logger->addDebug(__METHOD__.'|3|');
+    protected function setBillingAddress(&$quote, $data)
+    {
+        $this->logger->addDebug(__METHOD__.'|1|');
+
+        $billingAddress = $this->processAddressFromWallet($data, 'billing');
+        $quote->getBillingAddress()->addData($billingAddress);
+        $quote->setBillingAddress($quote->getBillingAddress());
+
+        $errors = $quote->getBillingAddress()->validate();
+        return $this->setCommonAddressProceed($errors, 'billing');
+    }
+
+    protected function setCommonAddressProceed($errors, $addressType)
+    {
+        $this->logger->addDebug(__METHOD__.'|1|');
         $this->logger->addDebug(var_export($errors, true));
 
         $errorFields = array();
@@ -152,7 +170,7 @@ class Common extends Action
                         $errorFields[] = $arguments['fieldName'];
                         $this->logger->addDebug(var_export($error->getArguments()['fieldName'], true));
                         $this->messageManager->addErrorMessage(__(
-                            'Error: postcode is required'
+                            'Error: ' . $addressType . ' address: postcode is required'
                         ));
                     }
                 }
@@ -160,19 +178,11 @@ class Common extends Action
         }
 
         if (empty($errorFields)) {
-            $this->logger->addDebug(__METHOD__.'|4|');
+            $this->logger->addDebug(__METHOD__.'|2|');
             return true;
         } else {
-            $this->logger->addDebug(__METHOD__.'|5|');
+            $this->logger->addDebug(__METHOD__.'|3|');
             return false;
         }
-    }
-
-    protected function setBillingAddress(&$quote, $data)
-    {
-        $billingAddress = $this->processAddressFromWallet($data, 'billing');
-        $quote->getBillingAddress()->addData($billingAddress);
-        $quote->setBillingAddress($quote->getBillingAddress());
-        return true;
     }
 }
