@@ -196,6 +196,11 @@ class Common extends Action
         $this->logger->addDebug(__METHOD__ . '|1|');
 
         $quoteRepository = $objectManager->get('Magento\Quote\Model\QuoteRepository');
+
+        $quote->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
+        $quote->getShippingAddress()->setCollectShippingRates(true);
+        $quoteRepository->save($quote);
+
         $shippingMethodManagement = $objectManager->get('Magento\Quote\Model\ShippingMethodManagement');
         $shippingMethods = $shippingMethodManagement->estimateByExtendedAddress($quote->getId(), $quote->getShippingAddress());
 
@@ -218,6 +223,7 @@ class Common extends Action
             $this->logger->addDebug(__METHOD__ . '|2|');
 
             $quote->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+            //$quote->getShippingAddress()->setPaymentMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
             $quote->setTotalsCollectedFlag(false);
             $quote->collectTotals();
             $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
