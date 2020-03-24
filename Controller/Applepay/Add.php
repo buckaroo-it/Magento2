@@ -28,7 +28,6 @@ use Magento\Framework\View\Result\PageFactory;
 class Add extends Common
 {
     protected $formKey;
-    protected $cart;
     protected $product;
 
     /**
@@ -41,14 +40,13 @@ class Add extends Common
         \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         Log $logger,
-        \Magento\Framework\Data\Form\FormKey $formKey,
         \Magento\Checkout\Model\Cart $cart,
+        \Magento\Framework\Data\Form\FormKey $formKey,
         \Magento\Catalog\Model\Product $product
     ) {
-        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger);
+        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart);
 
         $this->formKey = $formKey;
-        $this->cart = $cart;
         $this->product = $product;
     }
 
@@ -88,9 +86,8 @@ class Add extends Common
 
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
                 $checkoutSession = $objectManager->get('Magento\Checkout\Model\Session');
-                $quoteRepository = $objectManager->get('Magento\Quote\Model\QuoteRepository');
-
                 $quote = $checkoutSession->getQuote();
+
                 $quote->removeAllItems();
 
                 //Load the product based on productID
@@ -104,40 +101,7 @@ class Add extends Common
                     return $this->commonResponse(false, true);
                 }
 
-                $quote->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
-                $quote->getShippingAddress()->setCollectShippingRates(true);
-                $quoteRepository->save($quote);
-
-                $shippingMethodManagement = $objectManager->get('Magento\Quote\Model\ShippingMethodManagement');
-                $shippingMethods = $shippingMethodManagement->estimateByExtendedAddress($quote->getId(), $quote->getShippingAddress());
-
-                if (count($shippingMethods) == 0) {
-                    $errorMessage = __(
-                        'Apple Pay payment failed, because no shipping methods were found for the selected address. Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
-                    );
-                    $this->messageManager->addErrorMessage($errorMessage);
-                } else {
-
-                    foreach ($shippingMethods as $index => $shippingMethod) {
-                        $shippingMethodsResult[] = [
-                            'carrier_title' => $shippingMethod->getCarrierTitle(),
-                            'price_incl_tax' => round($shippingMethod->getAmount(), 2),
-                            'method_code' => $shippingMethod->getCarrierCode() . '_' .  $shippingMethod->getMethodCode(),
-                            'method_title' => $shippingMethod->getMethodTitle(),
-                        ];
-                    }
-
-                    $quote->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
-                    $quote->setTotalsCollectedFlag(false);
-                    $quote->collectTotals();
-                    $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
-                    $data = [
-                        'shipping_methods' => $shippingMethodsResult,
-                        'totals' => $totals
-                    ];
-                    $quoteRepository->save($quote);
-                    $this->cart->save();
-                }
+                $data = $this->getShippingMethods($quote, $objectManager);
             }
         }
 

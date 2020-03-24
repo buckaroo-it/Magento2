@@ -45,6 +45,7 @@ class SaveOrder extends Common
         \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         Log $logger,
+        \Magento\Checkout\Model\Cart $cart,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Customer\Model\Session $customer,
         \Magento\Framework\DataObjectFactory $objectFactory,
@@ -53,7 +54,7 @@ class SaveOrder extends Common
         \Magento\Checkout\Model\Session $checkoutSession,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
     ) {
-        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger);
+        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart);
 
         $this->quoteManagement = $quoteManagement;
         $this->customer = $customer;

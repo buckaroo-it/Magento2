@@ -42,8 +42,10 @@ class Common extends Action
 
     protected $logger;
 
+    protected $cart;
+
     /**
-     * @param Context     $context
+     * @param Context $context
      * @param PageFactory $resultPageFactory
      */
     public function __construct(
@@ -51,14 +53,17 @@ class Common extends Action
         PageFactory $resultPageFactory,
         \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        Log $logger
-    ) {
+        Log $logger,
+        \Magento\Checkout\Model\Cart $cart
+    )
+    {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->inlineParser = $inlineParser;
-        $this->logger             = $logger;
+        $this->logger = $logger;
+        $this->cart = $cart;
     }
 
     public function execute()
@@ -75,9 +80,9 @@ class Common extends Action
     public function gatherTotals($address, $quoteTotals)
     {
         $totals = array(
-            'subtotal'   => $quoteTotals['subtotal']->getValue(),
-            'discount'   => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping'   => $address->getData('shipping_incl_tax'),
+            'subtotal' => $quoteTotals['subtotal']->getValue(),
+            'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
+            'shipping' => $address->getData('shipping_incl_tax'),
             'grand_total' => $quoteTotals['grand_total']->getValue()
         );
 
@@ -93,22 +98,22 @@ class Common extends Action
     public function processAddressFromWallet($wallet, $type = 'shipping')
     {
         $address = array(
-            'prefix'     => '',
-            'firstname'  => isset($wallet['givenName']) ? $wallet['givenName'] : '',
+            'prefix' => '',
+            'firstname' => isset($wallet['givenName']) ? $wallet['givenName'] : '',
             'middlename' => '',
-            'lastname'   => isset($wallet['familyName']) ? $wallet['familyName'] : '',
-            'street'     => array(
+            'lastname' => isset($wallet['familyName']) ? $wallet['familyName'] : '',
+            'street' => array(
                 '0' => isset($wallet['addressLines'][0]) ? $wallet['addressLines'][0] : '',
                 '1' => isset($wallet['addressLines'][1]) ? $wallet['addressLines'][1] : null
             ),
-            'city'       => isset($wallet['locality']) ? $wallet['locality'] : '',
+            'city' => isset($wallet['locality']) ? $wallet['locality'] : '',
             'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
-            'region'     => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : '',
-            'region_id'  => '',
-            'postcode'   => isset($wallet['postalCode']) ? $wallet['postalCode'] : '',
-            'telephone'  => isset($wallet['phoneNumber']) ? $wallet['phoneNumber'] : 'N/A',
-            'fax'        => '',
-            'vat_id'     => ''
+            'region' => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : '',
+            'region_id' => '',
+            'postcode' => isset($wallet['postalCode']) ? $wallet['postalCode'] : '',
+            'telephone' => isset($wallet['phoneNumber']) ? $wallet['phoneNumber'] : 'N/A',
+            'fax' => '',
+            'vat_id' => ''
         );
 
         if ($type == 'shipping') {
@@ -135,7 +140,7 @@ class Common extends Action
 
     protected function setShippingAddress(&$quote, $data)
     {
-        $this->logger->addDebug(__METHOD__.'|1|');
+        $this->logger->addDebug(__METHOD__ . '|1|');
 
         $shippingAddress = $this->processAddressFromWallet($data, 'shipping');
         $quote->getShippingAddress()->addData($shippingAddress);
@@ -147,7 +152,7 @@ class Common extends Action
 
     protected function setBillingAddress(&$quote, $data)
     {
-        $this->logger->addDebug(__METHOD__.'|1|');
+        $this->logger->addDebug(__METHOD__ . '|1|');
 
         $billingAddress = $this->processAddressFromWallet($data, 'billing');
         $quote->getBillingAddress()->addData($billingAddress);
@@ -159,7 +164,7 @@ class Common extends Action
 
     protected function setCommonAddressProceed($errors, $addressType)
     {
-        $this->logger->addDebug(__METHOD__.'|1|');
+        $this->logger->addDebug(__METHOD__ . '|1|');
         $this->logger->addDebug(var_export($errors, true));
 
         $errorFields = array();
@@ -178,11 +183,57 @@ class Common extends Action
         }
 
         if (empty($errorFields)) {
-            $this->logger->addDebug(__METHOD__.'|2|');
+            $this->logger->addDebug(__METHOD__ . '|2|');
             return true;
         } else {
-            $this->logger->addDebug(__METHOD__.'|3|');
+            $this->logger->addDebug(__METHOD__ . '|3|');
             return false;
+        }
+    }
+
+    protected function getShippingMethods(&$quote, $objectManager)
+    {
+        $this->logger->addDebug(__METHOD__ . '|1|');
+
+        $quoteRepository = $objectManager->get('Magento\Quote\Model\QuoteRepository');
+        $shippingMethodManagement = $objectManager->get('Magento\Quote\Model\ShippingMethodManagement');
+        $shippingMethods = $shippingMethodManagement->estimateByExtendedAddress($quote->getId(), $quote->getShippingAddress());
+
+        if (count($shippingMethods) == 0) {
+            $errorMessage = __(
+                'Apple Pay payment failed, because no shipping methods were found for the selected address. Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
+            );
+            $this->messageManager->addErrorMessage($errorMessage);
+        } else {
+
+            foreach ($shippingMethods as $index => $shippingMethod) {
+                $shippingMethodsResult[] = [
+                    'carrier_title' => $shippingMethod->getCarrierTitle(),
+                    'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                    'method_code' => $shippingMethod->getCarrierCode() . '_' .  $shippingMethod->getMethodCode(),
+                    'method_title' => $shippingMethod->getMethodTitle(),
+                ];
+            }
+
+            $this->logger->addDebug(__METHOD__ . '|2|');
+
+            $quote->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+            $quote->setTotalsCollectedFlag(false);
+            $quote->collectTotals();
+            $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
+            if ($quote->getSubtotal() != $quote->getSubtotalWithDiscount()) {
+                $totals['discount'] = round($quote->getSubtotalWithDiscount() - $quote->getSubtotal(), 2);
+            }
+            $data = [
+                'shipping_methods' => $shippingMethodsResult,
+                'totals' => $totals
+            ];
+            $quoteRepository->save($quote);
+            $this->cart->save();
+
+            $this->logger->addDebug(__METHOD__ . '|3|');
+
+            return $data;
         }
     }
 }
