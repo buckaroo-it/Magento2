@@ -34,7 +34,6 @@
     }
     showPayButton = function() {
         require(['jquery', 'buckaroo/applepay/checkout-cart'], function (jQuery, applepayPay) {
-            console.log('==============checkout-cart/1', window.checkoutConfig); //ZAK
             applepayPay.showPayButton();
         });
     }

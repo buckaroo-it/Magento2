@@ -50,7 +50,7 @@ define(
             payment: null,
 
             showPayButton: function (payMode) {
-                console.log('==============6', payMode); //ZAK
+                //console.log('==============6', payMode); //ZAK
                 this.payMode = payMode;
                 this.productSelected = {};
 
@@ -64,11 +64,9 @@ define(
                     this.setIsOnCheckout(true);
                 }
 
-                console.log('==============7'); //ZAK
-
                 BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid).then(
                     function (applePaySupported) {
-                        console.log('==============8',applePaySupported); //ZAK
+                        //console.log('==============8',applePaySupported); //ZAK
 
                         //move to inner block
                         if (this.payMode == 'product') {
@@ -76,29 +74,24 @@ define(
                         }
 
                         if (applePaySupported) {
-                            console.log('==============9'); //ZAK
                             this.generateApplepayOptions();
 
                             this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
-                            console.log('==============18'); //ZAK
                             this.payment.showPayButton('black', 'buy');
                             if (this.payMode == 'product') {
                                 this.payment.button.off("click");
                                 var self = this;
                                 this.payment.button.on("click", function (e) {
-                                    console.log('==============24'); //ZAK
+                                    //console.log('==============24'); //ZAK
                                     var dataForm = $('#product_addtocart_form');
                                     dataForm.validation('isValid');
                                     setTimeout(function () {
-                                        console.log('==============25'); //ZAK
                                         if ($('.mage-error:visible').length == 0) {
-                                            console.log('==============26'); //ZAK
                                             self.payment.beginPayment(e);
                                         }
                                     }, 100);
                                 });
                             }
-                            console.log('==============19'); //ZAK
                         }
                     }.bind(this)
                 );
@@ -145,10 +138,8 @@ define(
                 var shipmentMethodCallback = self.onSelectedShipmentMethod.bind(this);
                 var requiredContactFields = ["name", "postalAddress", "phone"];
 
-                console.log('==============10'); //ZAK
-
                 var country = window.checkoutConfig.payment.buckaroo.applepay.country;
-                console.log('==============11', this.quote, country); //ZAK
+                //console.log('==============11', this.quote, country); //ZAK
                 if (this.quote && (null !== this.quote.shippingAddress())) {
                     country = this.quote.shippingAddress().countryId;
                 }
@@ -165,8 +156,8 @@ define(
                     requiredContactFields = ["postalAddress"];
                 }
 
-                console.log('==============13', country); //ZAK
-                console.log(requiredContactFields); //ZAK
+                //console.log('==============13', country); //ZAK
+                //console.log(requiredContactFields); //ZAK
 
                 this.applepayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
                     window.checkoutConfig.payment.buckaroo.applepay.storeName,
@@ -281,7 +272,7 @@ define(
             },
 
             timeoutRedirect: function (url = false) {
-                console.log('==============38');//ZAK
+                //console.log('==============38', url);//ZAK
                 /** Set Timeout to prevent Safari from crashing and reload window to show error in Magento. */
                 setTimeout(
                     function() {
@@ -295,12 +286,7 @@ define(
             },
 
             onSelectedShipmentMethod: function (event) {
-                console.log('==============33');//ZAK
-                console.log(event);//ZAK
-
                 if ((this.payMode == 'product') || (this.payMode == 'cart')) {
-                    console.log('==============34');//ZAK
-
                     var update = $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/updateShippingMethods'),
                         type: 'POST',
@@ -314,23 +300,17 @@ define(
                         async: false,
                         dataFilter: function(data, type) {
                             var result = JSON.parse(data);
-
-                            console.log('==============35');//ZAK
-                            console.log(result);//ZAK
-
                             if (result.success == 'true') {
-                                console.log('==============36');//ZAK
 
                                 var authorizationResult = {
                                     newTotal: this.processTotalLineItems('final', result.data.totals),
                                     newLineItems: this.processLineItems('final', result.data.totals)
                                 };
 
-                                console.log('==============37');//ZAK
-                                console.log(authorizationResult);//ZAK
+                                //console.log('==============37');//ZAK
+                                //console.log(authorizationResult);//ZAK
 
                                 return JSON.stringify(authorizationResult);
-
                             } else {
                                 this.timeoutRedirect();
                             }
@@ -357,10 +337,7 @@ define(
             },
 
             onSelectedShippingContact: function (event) {
-                console.log('==============15', this.payMode);//ZAK
                 if (this.payMode == 'product') {
-
-                    console.log('==============23', this.productSelected);//ZAK
 
                     var update = $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/add'),
@@ -374,11 +351,7 @@ define(
                         async: false,
                         dataFilter: function(data, type) {
                             var result = JSON.parse(data);
-
-                            console.log('==============17');//ZAK
-                            console.log(result);//ZAK
                             if (result.success == 'true') {
-                                console.log('==============28');//ZAK
 
                                 this.shippingGroups = {};
                                 $.each(result.data.shipping_methods, function (index, rate) {
@@ -392,11 +365,10 @@ define(
                                     newLineItems: this.processLineItems('final', result.data.totals)
                                 };
 
-                                console.log('==============30');//ZAK
-                                console.log(authorizationResult);//ZAK
+                                //console.log('==============30');//ZAK
+                                //console.log(authorizationResult);//ZAK
 
                                 return JSON.stringify(authorizationResult);
-
                             } else {
                                 this.timeoutRedirect();
                             }
@@ -409,8 +381,6 @@ define(
                     return update;
                 } else if (this.payMode == 'cart') {
 
-                    console.log('==============50');//ZAK
-
                     var update = $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/getShippingMethods'),
                         type: 'POST',
@@ -422,11 +392,7 @@ define(
                         async: false,
                         dataFilter: function(data, type) {
                             var result = JSON.parse(data);
-
-                            console.log('==============51');//ZAK
-                            console.log(result);//ZAK
                             if (result.success == 'true') {
-                                console.log('==============52');//ZAK
 
                                 this.shippingGroups = {};
                                 $.each(result.data.shipping_methods, function (index, rate) {
@@ -440,11 +406,10 @@ define(
                                     newLineItems: this.processLineItems('final', result.data.totals)
                                 };
 
-                                console.log('==============53');//ZAK
-                                console.log(authorizationResult);//ZAK
+                                //console.log('==============53');//ZAK
+                                //console.log(authorizationResult);//ZAK
 
                                 return JSON.stringify(authorizationResult);
-
                             } else {
                                 this.timeoutRedirect();
                             }
@@ -471,9 +436,8 @@ define(
             },
 
             updateShippingMethods: function (address) {
-                console.log('==============16');//ZAK
+                //console.log('==============16');//ZAK
                 var serviceUrl = resourceUrlManager.getUrlForEstimationShippingMethodsForNewAddress(this.quote);
-                console.log(serviceUrl);//ZAK
                 var payload = JSON.stringify({
                     address: {
                         'street': address.street,
@@ -531,11 +495,9 @@ define(
                     status: ApplePaySession.STATUS_SUCCESS,
                     errors: []
                 };
-                console.log('==========pvo11',payment); //ZAK
+                //console.log('==========pvo11',payment); //ZAK
 
                 if ((this.payMode == 'product') || (this.payMode == 'cart')) {
-
-                    console.log('==============39');//ZAK
 
                     var authorizationFailedResult = {
                         status: ApplePaySession.STATUS_FAILURE,
@@ -555,11 +517,7 @@ define(
                         async: false,
                         dataFilter: function(data, type) {
                             var result = JSON.parse(data);
-
-                            console.log('==============40');//ZAK
-                            console.log(result);//ZAK
                             if (result.success == 'true') {
-                                console.log('==============41');//ZAK
                                 if (result.data && result.data.RequiredAction !== undefined && result.data.RequiredAction.RedirectURL !== undefined) {
                                     this.timeoutRedirect(result.data.RequiredAction.RedirectURL);
                                 } else {
@@ -629,21 +587,17 @@ define(
             },
 
             initProductViewWatchers: function () {
-                console.log('==============initProductViewWatchers'); //ZAK
+                //console.log('==============initProductViewWatchers'); //ZAK
 
                 this.productSelected.id = $('.price-box').attr('data-product-id');
                 this.productSelected.qty = $('#qty').val();
-                console.log('==============applepay/product1', this.productSelected.id); //ZAK
                 var self = this;
 
                 $('#qty').change(function() {
-                    console.log('==============applepay/product3'); //ZAK
-                    console.log($(this).val()); //ZAK
                     self.productSelected.qty = $(this).val();
                 });
 
                 $('.product-options-wrapper div').click(function() {
-                    //console.log('==============applepay/product5'); //ZAK
                     var selected_options = {};
                     $('div.swatch-attribute').each(function(k,v){
                         var attribute_id    = $(v).attr('attribute-id');
@@ -652,23 +606,6 @@ define(
                         selected_options[attribute_id] = option_selected;
                     });
 
-                    /*
-                    var product_id_index = $('[data-role=swatch-options]').data('mageSwatchRenderer').options.jsonConfig.index;
-                    var found_ids = [];
-                    $.each(product_id_index, function(product_id,attributes){
-                        var productIsSelected = function(attributes, selected_options){
-                            return _.isEqual(attributes, selected_options);
-                        }
-                        if(productIsSelected(attributes, selected_options)){
-                            found_ids.push(product_id);
-                        }
-                    });
-                    */
-
-                    //console.log('==============applepay/product2'); //ZAK
-                    //console.log(found_ids); //ZAK
-                    //console.log(selected_options); //ZAK
-                    //self.productSelected.found_ids = found_ids;
                     self.productSelected.selected_options = selected_options;
                 });
             }

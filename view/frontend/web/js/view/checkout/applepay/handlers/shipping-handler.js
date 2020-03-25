@@ -56,7 +56,6 @@ define(
             },
 
             selectShippingMethod: function (newMethod) {
-                console.log('==============31');//ZAK
                 selectShippingMethod(newMethod);
                 checkoutData.setSelectedShippingRate(newMethod['carrier_code'] + '_' + newMethod['method_code']);
             },

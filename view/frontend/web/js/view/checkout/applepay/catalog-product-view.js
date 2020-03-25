@@ -31,16 +31,14 @@ define(
     ) {
         'use strict';
 
-        console.log('==============catalog-product-view/2'); //ZAK
-
         return Component.extend({
             showPayButton: function () {
                 if (window.checkoutConfig.payment.buckaroo.applepay.availableButtons
                     &&
                     (window.checkoutConfig.payment.buckaroo.applepay.availableButtons.indexOf('Product') !== -1)
                 ) {
-                    console.log('==============catalog-product-view/4'); //ZAK
-                    console.log(quote); //ZAK
+                    //console.log('==============catalog-product-view/4'); //ZAK
+                    //console.log(quote); //ZAK
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton('product');
                 }
