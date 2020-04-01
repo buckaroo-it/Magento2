@@ -583,10 +583,17 @@ class Afterpay20 extends AbstractMethod
 
         /** @var \Magento\Sales\Model\Order\Item $item */
         foreach ($cartData as $item) {
-            // Child objects of configurable products should not be requested because afterpay will fail on unit prices.
+
             if (empty($item)
                 || $item->getRowTotalInclTax() == 0
-                || $item->getProductType() == Type::TYPE_BUNDLE
+            ) {
+                continue;
+            }
+
+            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no), because the underlying simples are also in the quote
+            if ($item->getProductType() == Type::TYPE_BUNDLE
+                && $item->getProduct()->getCustomAttribute('price_type')
+                && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
             ) {
                 continue;
             }
