@@ -22,8 +22,8 @@
         "docs": "https://support.buckaroo.nl"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v1.21.0-RC2",
-    "minimum-stability": "RC",
+    "version" : "v1.21.0",
+    "minimum-stability": "stable",
     "autoload": {
         "files": [
             "registration.php"
