@@ -913,11 +913,11 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     protected function fixLanguageCodes(ModuleDataSetupInterface $setup)
     {
         $setup->getConnection()->query(
-            "UPDATE ".$setup->getTable('core_config_data')." SET value='nl-NL' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='nl_NL'"
+            "UPDATE ".$setup->getTable('core_config_data')." SET value='nl' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='nl_NL'"
         );
 
         $setup->getConnection()->query(
-            "UPDATE ".$setup->getTable('core_config_data')." SET value='en-US' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='en_US'"
+            "UPDATE ".$setup->getTable('core_config_data')." SET value='en' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='en_US'"
         );
 
         return $this;
