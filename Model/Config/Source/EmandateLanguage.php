@@ -22,8 +22,8 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 
 class EmandateLanguage implements \Magento\Framework\Option\ArrayInterface
 {
-    const EMANDATE_LANGUAGE_DUTCH = 'nl_NL';
-    const EMANDATE_LANGUAGE_ENGLISH = 'en_US';
+    const EMANDATE_LANGUAGE_DUTCH = 'nl-NL';
+    const EMANDATE_LANGUAGE_ENGLISH = 'en-US';
 
     public function toOptionArray()
     {

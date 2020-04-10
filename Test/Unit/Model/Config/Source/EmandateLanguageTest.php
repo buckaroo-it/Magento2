@@ -29,8 +29,8 @@ class EmandateLanguageTest extends BaseTest
     public function testToOptionArray()
     {
         $expectedResult = [
-            ['value' => 'nl_NL', 'label' => 'Dutch'],
-            ['value' => 'en_US', 'label' => 'English']
+            ['value' => 'nl-NL', 'label' => 'Dutch'],
+            ['value' => 'en-US', 'label' => 'English']
         ];
 
         $instance = $this->getInstance();

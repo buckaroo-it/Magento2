@@ -332,7 +332,7 @@
                 <order_status>pending</order_status>
                 <title>Buckaroo Digitale Incassomachtiging</title>
                 <sequence_type>1</sequence_type>
-                <language>nl_NL</language>
+                <language>nl-NL</language>
                 <allowspecific>0</allowspecific>
                 <sort_order>230</sort_order>
                 <order_email>1</order_email>

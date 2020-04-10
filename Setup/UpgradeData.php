@@ -527,6 +527,10 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $this->installAlreadyPayColumns($setup);
         }
 
+        if (version_compare($context->getVersion(), '1.22.0', '<')) {
+            $this->fixLanguageCodes($setup);
+        }
+
     }
 
     /**
@@ -796,7 +800,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         return $this;
     }
 
-        /**
+    /**
      * @param ModuleDataSetupInterface $setup
      *
      * @return $this
@@ -896,6 +900,24 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             'creditmemo',
             'buckaroo_already_paid',
             ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param ModuleDataSetupInterface $setup
+     *
+     * @return $this
+     */
+    protected function fixLanguageCodes(ModuleDataSetupInterface $setup)
+    {
+        $setup->getConnection()->query(
+            "UPDATE ".$setup->getTable('core_config_data')." SET value='nl-NL' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='nl_NL'"
+        );
+
+        $setup->getConnection()->query(
+            "UPDATE ".$setup->getTable('core_config_data')." SET value='en-US' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='en_US'"
         );
 
         return $this;
