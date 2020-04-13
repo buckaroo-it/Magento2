@@ -177,7 +177,7 @@ class Data extends AbstractHelper
      * @return int
      * @throws \Buckaroo\Magento2\Exception
      */
-    public function getMode($paymentMethod = null)
+    public function getMode($paymentMethod = null, $store = null)
     {
         $baseMode =  $this->configProviderAccount->getActive();
 
@@ -189,7 +189,11 @@ class Data extends AbstractHelper
          * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
          */
         $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
-        $mode = $configProvider->getActive();
+        if ($store === null) {
+            $mode = $configProvider->getActive();
+        } else {
+            $mode = $configProvider->getActive($store);
+        }
 
         return $mode;
     }

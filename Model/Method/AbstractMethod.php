@@ -805,6 +805,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
+        $this->gateway->setMode(
+            $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore())
+        );
+
         parent::refund($payment, $amount);
 
         $this->payment = $payment;
