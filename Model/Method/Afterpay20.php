@@ -511,6 +511,12 @@ class Afterpay20 extends AbstractMethod
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
+        if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
+            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+            $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+            $this->updateShippingAddressByDpdParcel($quote, $requestData);
+        }
+
         if (
             ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
             &&
@@ -556,6 +562,37 @@ class Afterpay20 extends AbstractMethod
                             }
                         }
 
+                    }
+                }
+            }
+        }
+    }
+
+    public function updateShippingAddressByDpdParcel($quote, &$requestData)
+    {
+        $fullStreet = $quote->getDpdStreet();
+        $matches = false;
+        if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
+            $street = $matches[1];
+            $streetHouseNumber = $matches[2];
+
+            foreach ($requestData as $key => $value) {
+                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                    $mapping = [
+                        ['Street', $street],
+                        ['PostalCode', $quote->getDpdZipcode()],
+                        ['City', $quote->getDpdCity()],
+                        ['Country', $quote->getDpdCountry()],
+                        ['StreetNumber', $streetHouseNumber],
+                    ];
+                    foreach ($mapping as $mappingItem) {
+                        if (($requestData[$key]['Name'] == $mappingItem[0]) && !empty($mappingItem[1])) {
+                            $requestData[$key]['_'] = $mappingItem[1];
+                        }
+                    }
+
+                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
+                        unset($requestData[$key]);
                     }
                 }
             }
