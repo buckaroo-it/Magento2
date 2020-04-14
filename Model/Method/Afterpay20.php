@@ -576,26 +576,44 @@ class Afterpay20 extends AbstractMethod
             $street = $matches[1];
             $streetHouseNumber = $matches[2];
 
-            foreach ($requestData as $key => $value) {
-                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                    $mapping = [
-                        ['Street', $street],
-                        ['PostalCode', $quote->getDpdZipcode()],
-                        ['City', $quote->getDpdCity()],
-                        ['Country', $quote->getDpdCountry()],
-                        ['StreetNumber', $streetHouseNumber],
-                    ];
-                    foreach ($mapping as $mappingItem) {
-                        if (($requestData[$key]['Name'] == $mappingItem[0]) && !empty($mappingItem[1])) {
-                            $requestData[$key]['_'] = $mappingItem[1];
+            $mapping = [
+                ['Street', $street],
+                ['PostalCode', $quote->getDpdZipcode()],
+                ['City', $quote->getDpdCity()],
+                ['Country', $quote->getDpdCountry()],
+                ['StreetNumber', $streetHouseNumber],
+            ];
+
+            foreach ($mapping as $mappingItem) {
+                if (!empty($mappingItem[1])) {
+                    $found = false;
+                    foreach ($requestData as $key => $value) {
+                        if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                            if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                                $requestData[$key]['_'] = $mappingItem[1];
+                                $found = true;
+                            }
                         }
                     }
+                    if (!$found) {
+                        $requestData[] = [
+                            '_'    => $mappingItem[1],
+                            'Name' => $mappingItem[0],
+                            'Group' => 'ShippingCustomer',
+                            'GroupID' =>  '',
+                        ];
+                    }
+                }
+            }
 
+            foreach ($requestData as $key => $value) {
+                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
                     if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
                         unset($requestData[$key]);
                     }
                 }
             }
+
         }
     }
 

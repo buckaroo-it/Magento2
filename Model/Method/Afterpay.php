@@ -565,6 +565,12 @@ class Afterpay extends AbstractMethod
             ]
         );
 
+        if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
+            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+            $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+            $this->updateShippingAddressByDpdParcel($quote, $requestData);
+        }
+
         // Merge the customer data; ip, iban and terms condition.
         $requestData = array_merge($requestData, $this->getRequestCustomerData($payment));
         // Merge the business data
@@ -573,6 +579,48 @@ class Afterpay extends AbstractMethod
         $requestData = $this->getRequestArticlesData($requestData, $payment);
 
         return $requestData;
+    }
+
+    public function updateShippingAddressByDpdParcel($quote, &$requestData)
+    {
+        $fullStreet = $quote->getDpdStreet();
+        $matches = false;
+        if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
+            $street = $matches[1];
+            $streetHouseNumber = $matches[2];
+
+            $mapping = [
+                ['ShippingStreet', $street],
+                ['ShippingPostalCode', $quote->getDpdZipcode()],
+                ['ShippingCity', $quote->getDpdCity()],
+                ['ShippingCountryCode', $quote->getDpdCountry()],
+                ['ShippingHouseNumber', $streetHouseNumber],
+            ];
+
+            foreach ($mapping as $mappingItem) {
+                if (!empty($mappingItem[1])) {
+                    $found = false;
+                    foreach ($requestData as $key => $value) {
+                        if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                            $requestData[$key]['_'] = $mappingItem[1];
+                            $found = true;
+                        }
+                    }
+                    if (!$found) {
+                        $requestData[] = [
+                            '_'    => $mappingItem[1],
+                            'Name' => $mappingItem[0]
+                        ];
+                    }
+                }
+            }
+
+            foreach ($requestData as $key => $value) {
+                if ($requestData[$key]['Name'] == 'ShippingHouseNumberSuffix') {
+                    unset($requestData[$key]);
+                }
+            }
+        }
     }
 
     /**
