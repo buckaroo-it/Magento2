@@ -585,9 +585,10 @@ class Afterpay extends AbstractMethod
     {
         $fullStreet = $quote->getDpdStreet();
         $matches = false;
-        if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
+        if ($fullStreet && preg_match('/(.*)\s([0-9]+)([^\w]*)([\w]*)/', $fullStreet, $matches)) {
             $street = $matches[1];
             $streetHouseNumber = $matches[2];
+            $streetHouseNumberSuffix = @$matches[4];
 
             $mapping = [
                 ['ShippingStreet', $street],
@@ -595,6 +596,7 @@ class Afterpay extends AbstractMethod
                 ['ShippingCity', $quote->getDpdCity()],
                 ['ShippingCountryCode', $quote->getDpdCountry()],
                 ['ShippingHouseNumber', $streetHouseNumber],
+                ['ShippingHouseNumberSuffix', $streetHouseNumberSuffix],
             ];
 
             foreach ($mapping as $mappingItem) {
@@ -615,9 +617,11 @@ class Afterpay extends AbstractMethod
                 }
             }
 
-            foreach ($requestData as $key => $value) {
-                if ($requestData[$key]['Name'] == 'ShippingHouseNumberSuffix') {
-                    unset($requestData[$key]);
+            if (!$streetHouseNumberSuffix) {
+                foreach ($requestData as $key => $value) {
+                    if ($requestData[$key]['Name'] == 'ShippingHouseNumberSuffix') {
+                        unset($requestData[$key]);
+                    }
                 }
             }
         }
