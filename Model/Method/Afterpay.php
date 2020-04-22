@@ -1251,6 +1251,16 @@ class Afterpay extends AbstractMethod
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
+        if (
+            $payment->getAdditionalInformation('selectedBusiness')
+            &&
+            ($payment->getAdditionalInformation('selectedBusiness') == 2)
+            &&
+            !$birthDayStamp
+        ) {
+            $birthDayStamp = '11-11-1990';
+        }
+
         $billingData = [
             [
                 '_'    => $billingAddress->getFirstname(),
@@ -1333,6 +1343,16 @@ class Afterpay extends AbstractMethod
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
 
         $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
+
+        if (
+            $payment->getAdditionalInformation('selectedBusiness')
+            &&
+            ($payment->getAdditionalInformation('selectedBusiness') == 2)
+            &&
+            !$birthDayStamp
+        ) {
+            $birthDayStamp = '11-11-1990';
+        }
 
         $shippingData = [
             [

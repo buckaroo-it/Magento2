@@ -335,7 +335,6 @@ define(
                         (this.telephoneNumber() !== null || this.hasTelephoneNumber) &&
                         this.selectedGender() !== null &&
                         this.BillingName() !== null &&
-                        this.dateValidate() !== null &&
                         this.CocNumber() !== null &&
                         this.CompanyName() !== null &&
                         this.termsValidate() !== false &&

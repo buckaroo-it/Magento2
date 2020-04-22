@@ -84,6 +84,7 @@
                     </div>
                     <!-- /ko -->
 
+                    <!-- ko if: ((businessMethod == '3') && (selectedBusiness() == 1)) || businessMethod == '1' -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_afterpay_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <span><sup data-bind="i18n: '(DD/MM/YYYY)' "></sup></span>
@@ -107,6 +108,7 @@
                                    name="payment[buckaroo_magento2_afterpay][customer_DoB]">
                         </div>
                     </div>
+                    <!-- /ko -->
 
                     <!-- Show IBAN field when Acceptgiro (paymentMethod: 1) is activated in the backend -->
 
