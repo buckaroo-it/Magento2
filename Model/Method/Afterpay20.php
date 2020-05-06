@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
@@ -146,6 +147,8 @@ class Afterpay20 extends AbstractMethod
      */
     private $addressFactory;
 
+    protected $logger2;
+
     /**
      * @param Calculation                                             $taxCalculation
      * @param Config                                                  $taxConfig
@@ -202,7 +205,8 @@ class Afterpay20 extends AbstractMethod
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
-        array $data = []
+        array $data = [],
+        Log $logger2
     ) {
         parent::__construct(
             $objectManager,
@@ -233,6 +237,7 @@ class Afterpay20 extends AbstractMethod
         $this->taxCalculation = $taxCalculation;
         $this->taxConfig = $taxConfig;
         $this->addressFactory  = $addressFactory;
+        $this->logger2 = $logger2;
     }
 
     /**
@@ -625,6 +630,8 @@ class Afterpay20 extends AbstractMethod
      */
     public function getRequestArticlesData($payment)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
         /**
@@ -657,7 +664,7 @@ class Afterpay20 extends AbstractMethod
                 $count,
                 $item->getQty() . ' x ' . $item->getName(),
                 $item->getSku(),
-                1,
+                $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getTaxPercent()
             );
@@ -728,7 +735,7 @@ class Afterpay20 extends AbstractMethod
                 $count,
                 (int) $item->getQty() . ' x ' . $item->getName(),
                 $item->getSku(),
-                1,
+                $item->getQty(),
 //                $item->getRowTotalInclTax(),
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getOrderItem()->getTaxPercent()
@@ -874,14 +881,14 @@ class Afterpay20 extends AbstractMethod
      */
     public function calculateProductPrice($productItem, $includesTax)
     {
-        $productPrice = $productItem->getRowTotal();
+        $productPrice = $productItem->getPrice();
 
         if ($includesTax) {
-            $productPrice = $productItem->getRowTotalInclTax();
+            $productPrice = $productItem->getPriceInclTax();
         }
 
-        if ($productItem->getWeeeTaxAppliedRowAmount() > 0) {
-            $productPrice += $productItem->getWeeeTaxAppliedRowAmount();
+        if ($productItem->getWeeeTaxAppliedAmount() > 0) {
+            $productPrice += $productItem->getWeeeTaxAppliedAmount();
         }
 
         return $productPrice;
@@ -1076,6 +1083,8 @@ class Afterpay20 extends AbstractMethod
      */
     private function getTaxes($order)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $catalogIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
         $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
 
@@ -1087,6 +1096,12 @@ class Afterpay20 extends AbstractMethod
 
         if (!$shippingIncludesTax) {
             $taxes += $order->getShippingTaxAmount();
+        }
+
+        if (!$catalogIncludesTax && !$shippingIncludesTax) {
+            $this->logger2->addDebug(__METHOD__.'|5|');
+            //to prevent playing with sum
+            $taxes = $order->getTaxAmount();
         }
 
         return $taxes;
