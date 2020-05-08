@@ -44,16 +44,17 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
         ConfigProviderBuckarooFee $configProviderBuckarooFee,
         Factory $configProviderMethodFactory,
         PriceCurrencyInterface $priceCurrency,
-        Data $catalogHelper
+        Data $catalogHelper,
+        \Magento\Checkout\Model\Session $checkoutSession
     ) {
         parent::__construct(
             $configProviderAccount,
             $configProviderBuckarooFee,
             $configProviderMethodFactory,
             $priceCurrency,
-            $catalogHelper
+            $catalogHelper,
+            $checkoutSession
         );
-
         $this->setCode('pretax_buckaroo_fee');
     }
 

@@ -144,6 +144,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
 
         $order = $dataObject->getOrder();
         if($dataObject->getBaseBuckarooAlreadyPaid()){
+            unset($totals['buckaroo_fee']);
             $this->addTotalToTotals(
                 $totals,
                 'buckaroo_already_paid',

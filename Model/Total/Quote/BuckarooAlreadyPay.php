@@ -44,6 +44,8 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
      * @var Data
      */
     public $catalogHelper;
+    
+    public $_checkoutSession;
 
     /**
      * @param ConfigProviderAccount     $configProviderAccount

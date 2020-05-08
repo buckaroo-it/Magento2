@@ -49,6 +49,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      */
     public $catalogHelper;
 
+    public $_checkoutSession;
+
     /**
      * @param ConfigProviderAccount     $configProviderAccount
      * @param ConfigProviderBuckarooFee $configProviderBuckarooFee
@@ -61,7 +63,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         ConfigProviderBuckarooFee $configProviderBuckarooFee,
         Factory $configProviderMethodFactory,
         PriceCurrencyInterface $priceCurrency,
-        Data $catalogHelper
+        Data $catalogHelper,
+        \Magento\Checkout\Model\Session $checkoutSession
     ) {
         $this->setCode('buckaroo_fee');
 
@@ -70,6 +73,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->priceCurrency = $priceCurrency;
         $this->catalogHelper = $catalogHelper;
+
+        $this->_checkoutSession = $checkoutSession;
     }
 
     /**
@@ -87,6 +92,14 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Quote\Model\Quote\Address\Total $total
     ) {
+
+        $orderId = $quote->getReservedOrderId();
+        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
+
+        if (isset($alreadyPaid[$orderId])) {
+            return $this;
+        }
+
         /**
          * @noinspection PhpUndefinedMethodInspection
          */

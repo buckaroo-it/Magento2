@@ -22,7 +22,7 @@
 
 ?>
 <?php foreach ($block->getTotals() as $_code => $_total): ?>
-    <?php if ($_total['block_name'] == 'buckaroo_already_paid'): ?>
+    <?php if (isset($_total['block_name']) && $_total['block_name'] == 'buckaroo_already_paid'): ?>
         <tr>
             <td class="label"><?= $_total['label'] ?><div id="buckaroo_already_paid_adv"></div></td>
             <td>
