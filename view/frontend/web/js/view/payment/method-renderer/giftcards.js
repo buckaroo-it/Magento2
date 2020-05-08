@@ -33,7 +33,8 @@ define(
         'mage/url',
         'Magento_Checkout/js/action/get-totals',
         'Magento_Customer/js/customer-data',
-        'Magento_Checkout/js/model/payment-service'
+        'Magento_Checkout/js/model/payment-service',
+        'Magento_Ui/js/modal/alert'
     ],
     function (
         $,
@@ -49,7 +50,8 @@ define(
         url,
         getTotalsAction,
         customerData,
-        paymentService
+        paymentService,
+        alert
     ) {
         'use strict';
 
@@ -248,8 +250,27 @@ define(
                             checkPayments();
                         }
                         if(data.error){
+                                alert({
+                                    title: $t('Error'),
+                                    content: $t(data.error),
+                                    actions: {always: function(){} }
+                                });
                              self.messageContainer.addErrorMessage({'message': $t(data.error)});
                         }else{
+                            if(data.RemainderAmount != null){
+                                alert({
+                                    title: $t('Success'),
+                                    content: $t(data.message),
+                                    actions: {always: function(){} },
+                                    buttons: [{
+                                    text: $t('Remaining amount: ' + data.RemainderAmount + ' ' + self.baseCurrencyCode),
+                                    class: 'action primary accept',
+                                        click: function () {
+                                            this.closeModal(true);
+                                        }
+                                    }]
+                                });
+                            }
                              self.messageContainer.addSuccessMessage({'message': $t(data.message)});
                         }
 
