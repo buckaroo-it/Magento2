@@ -118,5 +118,114 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                 $installer->getConnection()->createTable($table);
             }
         }
+
+        if (!$installer->tableExists('buckaroo_magento2_group_transaction')) {
+            $table = $installer->getConnection()
+                ->newTable($installer->getTable('buckaroo_magento2_group_transaction'));
+            $table->addColumn(
+                'entity_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
+                [
+                    'identity' => true,
+                    'unsigned' => true,
+                    'nullable' => false,
+                    'primary'  => true,
+                ],
+                'Entity ID'
+            );
+
+            $table->addColumn(
+                'order_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [
+                    'nullable' => false,
+                ],
+                'orderId'
+            );
+
+            $table->addColumn(
+                'transaction_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [
+                    'nullable' => false,
+                ],
+                'Transaction Id'
+            );
+
+            $table->addColumn(
+                'relatedtransaction',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [
+                    'nullable' => false,
+                ],
+                'Related Transaction'
+            );
+            
+            $table->addColumn(
+                'servicecode',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [
+                    'nullable' => false,
+                ],
+                'ServiceCode'
+            );
+
+            $table->addColumn(
+                'currency',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [
+                    'nullable' => false,
+                ],
+                'Currency'
+            );
+
+            $table->addColumn(
+                'amount',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [
+                    'nullable' => false,
+                ],
+                'AmountDebit'
+            );
+
+            $table->addColumn(
+                'type',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [
+                    'nullable' => false,
+                ],
+                'RelationType'
+            );
+
+            $table->addColumn(
+                'status',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [
+                    'nullable' => false,
+                ],
+                'Status'
+            );
+
+            $table->addColumn(
+                'created_at',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                null,
+                [],
+                'Created At'
+            );
+
+            $table->setComment('Buckaroo Group Transaction');
+
+            $installer->getConnection()->createTable($table);
+        }
     }
 }

@@ -45,6 +45,10 @@ use Buckaroo\Magento2\Model\Method\Trustly;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+
+use Magento\Sales\Model\Service\InvoiceService;
+
 /**
  * Class Push
  *
@@ -54,6 +58,7 @@ class Push implements PushInterface
 {
     const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE  = 'I014';
     const BUCK_PUSH_ACCEPT_AUTHORIZE_TYPE  = 'I013';
+    const BUCK_PUSH_GROUPTRANSACTION_TYPE  = 'I150';
 
     const BUCK_PUSH_TYPE_TRANSACTION            = 'transaction_push';
     const BUCK_PUSH_TYPE_INVOICE                = 'invoice_push';
@@ -130,6 +135,8 @@ class Push implements PushInterface
      */
     public $configProviderMethodFactory;
 
+    protected $groupTransaction;
+
     /**
      * @param Order                $order
      * @param TransactionInterface $transaction
@@ -156,7 +163,8 @@ class Push implements PushInterface
         RefundPush $refundPush,
         Log $logging,
         Factory $configProviderMethodFactory,
-        OrderStatusFactory $orderStatusFactory
+        OrderStatusFactory $orderStatusFactory,
+        PaymentGroupTransaction $groupTransaction
     ) {
         $this->order                        = $order;
         $this->transaction                  = $transaction;
@@ -170,6 +178,8 @@ class Push implements PushInterface
         $this->logging                      = $logging;
         $this->configProviderMethodFactory  = $configProviderMethodFactory;
         $this->orderStatusFactory           = $orderStatusFactory;
+
+        $this->groupTransaction = $groupTransaction;
     }
 
     /**
@@ -186,6 +196,10 @@ class Push implements PushInterface
 
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
+
+        if ($this->isGroupTransactionInfo()) {
+            return true;
+        }
 
         if (!$this->isPushNeeded()) {
             return true;
@@ -757,7 +771,13 @@ class Push implements PushInterface
                 $payment->save();
             }
 
-            $this->order->cancel()->save();
+            $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
+
+            try {
+                $this->order->cancel()->save();
+            } catch (\Throwable $t) {
+                //  SignifydGateway/Gateway error on line 208"
+            }
         }
 
         $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
@@ -864,7 +884,7 @@ class Push implements PushInterface
 
         $description = 'Payment push status : '.$message;
 
-        $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description);
+        // $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description);
 
         return true;
     }
@@ -926,6 +946,12 @@ class Push implements PushInterface
          * @var \Magento\Sales\Model\Order\Payment $payment
          */
         $payment = $this->order->getPayment();
+
+/*        if (!empty($this->postData['brq_ordernumber'])) {
+            if($this->groupTransaction->isGroupTransaction($this->postData['brq_ordernumber'])){
+                $this->saveGroupTransactionInvoice($payment);
+            }
+         }*/
 
         if ($payment->getMethod() == Giftcards::PAYMENT_METHOD_CODE) {
             $this->setReceivedPaymentFromBuckaroo();
@@ -990,14 +1016,14 @@ class Push implements PushInterface
      * @return Order\Payment
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function addTransactionData()
+    public function addTransactionData($transactionKey = false, $datas = false)
     {
         /**
          * @var \Magento\Sales\Model\Order\Payment $payment
          */
         $payment = $this->order->getPayment();
 
-        $transactionKey = $this->getTransactionKey();
+        $transactionKey = $transactionKey ? $transactionKey : $this->getTransactionKey();
 
         if (strlen($transactionKey) <= 0) {
             throw new \Buckaroo\Magento2\Exception(__('There was no transaction ID found'));
@@ -1006,7 +1032,8 @@ class Push implements PushInterface
         /**
          * Save the transaction's response as additional info for the transaction.
          */
-        $rawInfo = $this->helper->getTransactionAdditionalInfo($this->postData);
+        $postData = $datas ? $datas : $this->postData;
+        $rawInfo = $this->helper->getTransactionAdditionalInfo($postData);
 
         /**
          * @noinspection PhpUndefinedMethodInspection
@@ -1050,5 +1077,40 @@ class Push implements PushInterface
         }
 
         return $orderAmount;
+    }
+
+    private function isGroupTransactionInfo()
+    {
+        if($this->postData['brq_transaction_type'] == self::BUCK_PUSH_GROUPTRANSACTION_TYPE){
+            return true;
+        }
+        return false;
+    }
+
+    public function saveGroupTransactionInvoice($payment)
+    {
+        $payment = $this->order->getPayment();
+        $items = $this->groupTransaction->getGroupTransactionItems($this->originalPostData['brq_ordernumber']);
+
+        foreach ($items as $key => $item) {
+            $this->addTransactionData($item['transaction_id'], (array) $item);
+            if (!$payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS)) {
+                $payment->setAdditionalInformation(
+                    self::BUCKAROO_RECEIVED_TRANSACTIONS,
+                    array($item['transaction_id'] => floatval($item['amount']))
+                );
+            } else {
+                $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
+
+                $buckarooTransactionKeysArray[$item['transaction_id']] = floatval($item['amount']);
+
+                $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS, $buckarooTransactionKeysArray);
+            }
+
+            $invoiceAmount = floatval($item['amount']);
+            $payment->registerCaptureNotification($invoiceAmount, true);
+            $payment->save();
+
+        }
     }
 }

@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  * NOTICE OF LICENSE
  *
@@ -18,12 +17,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
- -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Buckaroo_Magento2:etc/buckaroo_module.xsd">
-    <module name="Buckaroo_Magento2" setup_version="1.23.1" build_number="1769" stability="stable">
-        <sequence>
-            <module name="Magento_Payment"/>
-            <module name="Magento_ReleaseNotification"/>
-        </sequence>
-    </module>
-</config>
+namespace Buckaroo\Magento2\Api\Data;
+
+interface GroupTransactionInterface
+{
+    /**
+     * @param string $servicecode
+     * @return $this
+     */
+    public function setServicecode($servicecode);
+
+    /**
+     * @return string
+     */
+    public function getServicecode();
+
+}

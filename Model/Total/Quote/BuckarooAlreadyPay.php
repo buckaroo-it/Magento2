@@ -23,16 +23,12 @@ use Magento\Catalog\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
-// use Buckaroo\Magento2\Model\ConfigProvider\BuckarooAlreadyPay as ConfigProviderBuckarooAlreadyPay;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
     /** @var ConfigProviderAccount */
     protected $configProviderAccount;
-
-    /** @var ConfigProviderBuckarooAlreadyPay */
-    protected $configProviderBuckarooAlreadyPay;
 
     /**
      * @var Factory
@@ -48,11 +44,9 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
      * @var Data
      */
     public $catalogHelper;
-        // ConfigProviderBuckarooAlreadyPay $configProviderBuckarooAlreadyPay,
 
     /**
      * @param ConfigProviderAccount     $configProviderAccount
-     * @param ConfigProviderBuckarooAlreadyPay $configProviderBuckarooAlreadyPay
      * @param Factory                   $configProviderMethodFactory
      * @param PriceCurrencyInterface    $priceCurrency
      * @param Data                      $catalogHelper
@@ -71,7 +65,8 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         $this->priceCurrency = $priceCurrency;
         $this->catalogHelper = $catalogHelper;
 
-        $this->_checkoutSession       = $checkoutSession;
+        $this->_checkoutSession = $checkoutSession;
+
     }
 
     /**
@@ -143,7 +138,7 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
          */
         $total->setBaseBuckarooAlreadyPaid($baseAlreadyPaid);
 
-        $baseGrandTotal = $total->getBaseGrandTotal() - $baseAlreadyPaid;
+/*        $baseGrandTotal = $total->getBaseGrandTotal() - $baseAlreadyPaid;
         $grandTotal = $total->getGrandTotal() - $alreadyPaid;
         if($paymentMethod == 'buckaroo_magento2_giftcards'){
             $cartTotals = $quote->getTotals();
@@ -152,17 +147,17 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
                $baseGrandTotal = $baseAlreadyPaid  + 0.001; 
                $grandTotal = $grandTotal + 0.001;
             }
-        }
+        }*/
 
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $total->setBaseGrandTotal($baseGrandTotal);
+        // $total->setBaseGrandTotal($baseGrandTotal);
 
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $total->setGrandTotal($grandTotal);
+        // $total->setGrandTotal($grandTotal);
 
         return $this;
     }

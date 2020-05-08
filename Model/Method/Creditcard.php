@@ -172,6 +172,10 @@ class Creditcard extends AbstractMethod
         if($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())){
             $serviceAction = 'PayRemainder';
             $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
+                        
+            if($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())){
+                $transactionBuilder->setAmount($transactionBuilder->getAmount() - $alreadyPaid);
+            }
         }
 
         $services = [

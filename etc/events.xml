@@ -35,6 +35,7 @@
         <observer name="buckaroo_magento2_fee_invoice" instance="Buckaroo\Magento2\Observer\InvoiceRegister" />
     </event>
     <event name="sales_order_invoice_pay">
+        <observer name="buckaroo_magento2_group_transaction_register" instance="Buckaroo\Magento2\Observer\GroupTransactionRegister" />
         <observer name="buckaroo_magento2_send_invoice_mail" instance="Buckaroo\Magento2\Observer\SendInvoiceMail" />
     </event>
     <event name="sales_order_payment_cancel">

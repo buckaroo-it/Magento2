@@ -22,6 +22,8 @@ namespace Buckaroo\Magento2\Helper;
 
 use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+
 class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /** @var \Buckaroo\Magento2\Model\ConfigProvider\Account */
@@ -30,14 +32,19 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
     /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
     protected $configProviderBuckarooFee;
 
-    /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
-     */
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory */
     protected $configProviderMethodFactory;
 
     public $buckarooFee = false;
 
     public $buckarooFeeTax = false;
+
+    protected $groupTransaction;
+
+    /**
+     * @var \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection
+     */
+    protected $giftcardCollection;
 
     /**
      * @param \Magento\Framework\App\Helper\Context             $context
@@ -49,13 +56,17 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\App\Helper\Context $context,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
+        PaymentGroupTransaction $groupTransaction,
+        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection
     ) {
         parent::__construct($context);
 
         $this->configProviderAccount = $configProviderAccount;
         $this->configProviderBuckarooFee = $configProviderBuckarooFee;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
+        $this->groupTransaction = $groupTransaction;
+        $this->giftcardCollection = $giftcardCollection;
     }
 
     /**
@@ -122,23 +133,39 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
             );
         }
 
+        if ($dataObject instanceof \Magento\Sales\Model\Order) {
+            $order_id = $dataObject->getIncrementId();
+        } elseif ($dataObject instanceof \Magento\Sales\Model\Order\Invoice
+            || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
+        ) {
+            $order = $dataObject->getOrder();
+            $order_id = $order->getIncrementId();
+        }
+
         $order = $dataObject->getOrder();
         if($dataObject->getBaseBuckarooAlreadyPaid()){
             $this->addTotalToTotals(
                 $totals,
                 'buckaroo_already_paid',
-                - $dataObject->getBuckarooAlreadyPaid(),
-                - $dataObject->getBaseBuckarooAlreadyPaid(),
+                $dataObject->getBuckarooAlreadyPaid(),
+                $dataObject->getBaseBuckarooAlreadyPaid(),
                 __('Paid with Giftcard')
             );
         }elseif(isset($order) && $order->getBuckarooAlreadyPaid()){
-            $this->addTotalToTotals(
-                $totals,
-                'buckaroo_already_paid',
-                - $order->getBuckarooAlreadyPaid(),
-                - $order->getBaseBuckarooAlreadyPaid(),
-                __('Paid with Giftcard')
-            );
+            $items = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
+            foreach ($items as $key => $giftcard) {
+                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode']);
+                $label = __('Paid with ' . $foundGiftcard['label']);
+                $this->addTotalToTotals(
+                    $totals,
+                    'buckaroo_already_paid',
+                    - $giftcard['amount'],
+                    - $giftcard['amount'],
+                    $label,
+                    'buckaroo_already_paid',
+                    $giftcard['transaction_id'].'|'.$giftcard['servicecode'].'|'.$giftcard['amount']
+                );
+            }
         }
 
         //Set public object data
@@ -150,7 +177,6 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
          * @noinspection PhpUndefinedMethodInspection
          */
         $this->buckarooFeeTax = $dataObject->getBuckarooFeeTaxAmount();
-
         return $totals;
     }
 
@@ -387,12 +413,14 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
      * @param  string $label
      * @return void
      */
-    protected function addTotalToTotals(&$totals, $code, $value, $baseValue, $label)
+    protected function addTotalToTotals(&$totals, $code, $value, $baseValue, $label, $block_name = false, $transaction_id = false)
     {
         if ($value == 0 && $baseValue == 0) {
             return;
         }
         $total = ['code' => $code, 'value' => $value, 'base_value' => $baseValue, 'label' => $label];
+        if($block_name){$total['block_name'] = $block_name;}
+        if($transaction_id){$total['transaction_id'] = $transaction_id;}
         $totals[] = $total;
     }
 }

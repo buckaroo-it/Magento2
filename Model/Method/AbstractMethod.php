@@ -818,6 +818,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->createCreditNoteRequest($payment);
         }
 
+        $amount = $this->refundGroupTransactions($payment, $amount);
+
         $transactionBuilder = $this->getRefundTransactionBuilder($payment);
 
         if (!$transactionBuilder) {
@@ -1246,4 +1248,38 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
     abstract public function getVoidTransactionBuilder($payment);
+    
+    public function refundGroupTransactions(InfoInterface $payment, $amount)
+    {
+        $requestParams = $this->request->getParams();
+        if(isset($requestParams['creditmemo']) && isset($requestParams['creditmemo']['buckaroo_already_paid'])){
+            foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $amount_value) {
+                
+                $transaction = explode('|',$transaction);
+                $amount = $amount - $transaction[2];
+
+                if($amount_value>0){
+
+                    $transactionBuilder = $this->transactionBuilderFactory->get('refund');
+
+                    $services = [
+                        'Name'    => $transaction[1],
+                        'Action'  => 'Refund',
+                        'Version' => 1,
+                    ];
+
+                    $transactionBuilder->setOrder($payment->getOrder())
+                        ->setServices($services)
+                        ->setMethod('TransactionRequest')
+                        ->setOriginalTransactionKey($transaction[0]);
+
+                        $transactionBuilder->setAmount($amount_value);
+                        $transaction = $transactionBuilder->build();
+                        $response = $this->refundTransaction($transaction);
+                        $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
+                }
+            }
+        }
+        return $amount;
+    }
 }

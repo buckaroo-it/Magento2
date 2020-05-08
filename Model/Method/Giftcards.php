@@ -23,6 +23,8 @@ namespace Buckaroo\Magento2\Model\Method;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+
 class Giftcards extends AbstractMethod
 {
     /**
@@ -92,6 +94,8 @@ class Giftcards extends AbstractMethod
      */
     protected $_canRefundInvoicePartial = false;
     
+    protected $groupTransaction;
+
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
@@ -114,7 +118,8 @@ class Giftcards extends AbstractMethod
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
-        array $data = []
+        array $data = [],
+        PaymentGroupTransaction $groupTransaction
     ) {
         parent::__construct(
             $objectManager,
@@ -141,6 +146,8 @@ class Giftcards extends AbstractMethod
         );
 
         $this->serviceParameters = $serviceParameters;
+
+        $this->groupTransaction = $groupTransaction;
     }
 
     /**
@@ -197,6 +204,10 @@ class Giftcards extends AbstractMethod
             'ServicesSelectableByClient' => $availableCards,
             'ContinueOnIncomplete' => 'RedirectToHTML',
         ];
+
+        if($this->groupTransaction->isGroupTransaction($payment->getOrder()->getIncrementId())){
+            return true;
+        }
 
         $transactionBuilder->setOrder($payment->getOrder())
             ->setCustomVars($customVars)

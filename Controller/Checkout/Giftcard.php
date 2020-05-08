@@ -28,6 +28,8 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+
 class Giftcard extends \Magento\Framework\App\Action\Action
 {
     /**
@@ -123,6 +125,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
     protected $urlBuilder;
 
+    protected $groupTransaction;
+
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
@@ -166,7 +170,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\SalesSequence\Model\Manager $sequenceManager,
         \Magento\Eav\Model\Config $eavConfig,
-        \Magento\Framework\UrlInterface $urlBuilder
+        \Magento\Framework\UrlInterface $urlBuilder,
+        PaymentGroupTransaction $groupTransaction
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -193,6 +198,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->sequenceManager = $sequenceManager;
         $this->eavConfig = $eavConfig;
         $this->urlBuilder = $urlBuilder;
+
+        $this->groupTransaction = $groupTransaction;
     }
 
     /**
@@ -300,7 +307,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
-        curl_setopt($curl, CURLOPT_USERAGENT, 'Magento1');
+        curl_setopt($curl, CURLOPT_USERAGENT, 'Magento2');
         curl_setopt($curl, CURLOPT_URL, $uri);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $httpMethod);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
@@ -319,6 +326,9 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $orderId = $response['Invoice'];
         
         if($response['Status']['Code']['Code']=='190'){
+            
+            $this->groupTransaction->saveGroupTransaction($response);
+
             $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
             $alreadyPaid = $this->getAlreadyPaid($orderId) + $response['AmountDebit'];
             

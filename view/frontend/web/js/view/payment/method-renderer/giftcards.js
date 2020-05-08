@@ -54,7 +54,7 @@ define(
         'use strict';
 
         function checkPayments(){
-            var p = ["afterpay","afterpay2","afterpay20","klarnakp","capayableinstallments","creditcard"];
+            var p = ["afterpay","afterpay2","afterpay20","klarnakp","capayableinstallments","creditcard","sofort","giropay","transfer","sepadirectdebit"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
@@ -99,13 +99,13 @@ define(
                         return true;
                     };
 
-                    quote.totals._latestValue.total_segments.forEach(function(item) {
+/*                    quote.totals._latestValue.total_segments.forEach(function(item) {
                         if(item.code == 'buckaroo_already_paid' && quote.totals._latestValue.grand_total == 0.001){
                             self.alreadyPayed = true;
                             self.alreadyFullPayed(true);
                         }
                     });
-
+*/
                     /** Check used to see if input is valid **/
                     this.buttoncheck = ko.computed(
                         function () {
@@ -237,6 +237,7 @@ define(
                             if(data.RemainderAmount == null){
                                 self.alreadyPayed = true;
                                 self.alreadyFullPayed(true);
+                                self.placeOrder(null, null);
                             }
 
                             /* Totals summary reloading */

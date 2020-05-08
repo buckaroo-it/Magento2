@@ -24,6 +24,7 @@
     <preference for="Buckaroo\Magento2\Api\CertificateRepositoryInterface" type="Buckaroo\Magento2\Model\CertificateRepository"/>
     <preference for="Buckaroo\Magento2\Api\InvoiceRepositoryInterface" type="Buckaroo\Magento2\Model\InvoiceRepository"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
+    <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>
     <preference for="Buckaroo\Magento2\Api\PushInterface" type="Buckaroo\Magento2\Model\Push"/>
     <preference for="Buckaroo\Magento2\Api\PaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\PaymentInformationManagement"/>
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
