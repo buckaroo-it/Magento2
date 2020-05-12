@@ -56,7 +56,7 @@ define(
         'use strict';
 
         function checkPayments(){
-            var p = ["afterpay","afterpay2","afterpay20","klarnakp","capayableinstallments","creditcard","sofort","giropay","transfer","sepadirectdebit"];
+            var p = ["afterpay","afterpay2","afterpay20","klarnakp","capayableinstallments","creditcard","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
