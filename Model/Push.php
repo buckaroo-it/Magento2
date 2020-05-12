@@ -591,6 +591,10 @@ class Push implements PushInterface
             return false;
         }
 
+        if($this->groupTransaction->isGroupTransaction($this->postData['brq_invoicenumber'])){
+            return false;
+        }
+
         $payment->setAdditionalInformation(
             AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $this->postData['brq_relatedtransaction_partialpayment']
@@ -843,6 +847,10 @@ class Push implements PushInterface
 
         if (!empty($this->originalPostData['brq_SERVICE_klarnakp_AutoPayTransactionKey']) && ($this->originalPostData['brq_statuscode'] == 190)) {
             $this->saveInvoice();
+        }
+
+        if($this->groupTransaction->isGroupTransaction($this->postData['brq_invoicenumber'])){
+            $forceState = true;
         }
 
         $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description, $forceState);

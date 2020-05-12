@@ -23,6 +23,10 @@
     <body>
         <referenceBlock name="creditmemo_totals">
             <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_fee"/>
+            <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_already_paid"
+                template="Buckaroo_Magento2::sales/order/creditmemo/buckaroo_already_paid.phtml"
+                />
         </referenceBlock>
+         <move element="buckaroo_already_paid" destination="creditmemo_totals" after="creditmemo_totals" />
     </body>
 </page>

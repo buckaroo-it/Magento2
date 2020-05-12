@@ -223,11 +223,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
 
-        $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
-        if(!$orderId){
-            $orderId = $this->_checkoutSession->getQuote()->reserveOrderId()->getReservedOrderId();
-            $this->_checkoutSession->getQuote()->save();
-        }
+        $orderId = $this->helper->getOrderId();
 
         $returnUrl = $this->_storeManager->getStore()->getUrl($this->_configProviderAccount->getSuccessRedirect());
         $pushUrl = $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push');

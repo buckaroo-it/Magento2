@@ -25,6 +25,8 @@ use Magento\Framework\App\Helper\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+
 /**
  * Class Data
  *
@@ -79,6 +81,8 @@ class Data extends AbstractHelper
 
     /** @var CheckoutSession */
     protected $_checkoutSession;
+    
+    protected $groupTransaction;
 
     /**
      * @param Context $context
@@ -90,7 +94,8 @@ class Data extends AbstractHelper
         Account $configProviderAccount,
         Factory $configProviderMethodFactory,
         \Magento\Framework\HTTP\Header $httpHeader,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        PaymentGroupTransaction $groupTransaction
 
     ) {
         parent::__construct($context);
@@ -100,7 +105,8 @@ class Data extends AbstractHelper
 
         $this->httpHeader = $httpHeader;
 
-        $this->_checkoutSession       = $checkoutSession;
+        $this->_checkoutSession  = $checkoutSession;
+        $this->groupTransaction  = $groupTransaction;
     }
 
     /**
@@ -217,5 +223,21 @@ class Data extends AbstractHelper
     public function getBuckarooAlreadyPaid($orderId){
         $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
         return isset($alreadyPaid[$orderId]) ? $alreadyPaid[$orderId] : false;
+    }
+
+    public function getOrderId(){
+        $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
+        if(!$orderId){
+            $orderId = $this->_checkoutSession->getQuote()->reserveOrderId()->getReservedOrderId();
+            $this->_checkoutSession->getQuote()->save();
+        }
+        return $orderId;
+    }
+
+    public function isGroupTransaction(){
+        if($this->groupTransaction->isGroupTransaction($orderId = $this->getOrderId())){
+            return true;
+        }
+        return false;
     }
 }
