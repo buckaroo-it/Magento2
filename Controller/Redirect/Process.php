@@ -188,6 +188,17 @@ class Process extends \Magento\Framework\App\Action\Action
                     $this->orderSender->send($this->order, true);
                 }
 
+                if($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING')){
+                    $this->messageManager->addErrorMessage(
+                        __(
+                            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+                            ' error persists, please choose a different payment method.'
+                        )
+                    );
+                    return $this->_redirect('/');
+                    // $this->redirectFailure();
+                }
+
                 // Redirect to success page
                 $this->redirectSuccess();
                 break;

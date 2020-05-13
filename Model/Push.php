@@ -262,6 +262,11 @@ class Push implements PushInterface
 
         $this->setTransactionKey();
 
+        if ($this->isGroupTransactionPart()) {
+            $this->savePartGroupTransaction();
+            return true;
+        }
+
         switch ($transactionType) {
             case self::BUCK_PUSH_TYPE_TRANSACTION:
             case self::BUCK_PUSH_TYPE_DATAREQUEST:
@@ -1093,6 +1098,20 @@ class Push implements PushInterface
             return true;
         }
         return false;
+    }
+
+    private function isGroupTransactionPart()
+    {
+        return $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
+    }
+
+    private function savePartGroupTransaction()
+    {
+        $items = $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
+        foreach ($items as $key => $item) {
+            $item['status'] = $this->originalPostData['brq_statuscode'];
+            $this->groupTransaction->updateGroupTransaction($item);
+        }
     }
 
     public function saveGroupTransactionInvoice($payment)

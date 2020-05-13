@@ -80,6 +80,13 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return $groupTransaction->save();
     }
 
+    public function updateGroupTransaction($item){
+        $groupTransaction = $this->groupTransactionFactory->create();
+        $groupTransaction->load($item['entity_id']);
+        $groupTransaction->setData($item);
+        return $groupTransaction->save();
+    }
+
     public function isGroupTransaction($order_id){
         return $this->getGroupTransactionItems($order_id);
     }
@@ -91,6 +98,11 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
 
     public function getGroupTransactionById($entity_id){
         $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('entity_id', ['eq' => $entity_id]);
+        return $collection->getItems();
+    }
+
+    public function getGroupTransactionByTrxId($trx_id){
+        $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('transaction_id', ['eq' => $trx_id]);
         return $collection->getItems();
     }
 }
