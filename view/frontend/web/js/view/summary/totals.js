@@ -149,7 +149,7 @@ define(
                             var items = JSON.parse(buckarooFeeSegment.title);
                             if ((typeof items === 'object') && (items.length > 0)) {
                                 //console.log("==========2");
-                                console.log(items);
+                                //console.log(items);
                                 for (var i = 0; i < items.length; i++) {
                                     items[i].amount = this.getFormattedPrice(items[i].amount);
                                 }
