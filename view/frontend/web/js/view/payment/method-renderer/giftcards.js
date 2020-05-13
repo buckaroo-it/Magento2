@@ -235,6 +235,12 @@ define(
                         }
                    }).done(function (data) {
 
+                        // self.CardNumber(null);
+                        // self.Pin.(null);
+                        $('#buckaroo_magento2_creditcards_cardnumber_'+self.currentGiftcard +', #buckaroo_magento2_creditcards_pin_'+self.currentGiftcard).val('');
+                        
+                        buckaroo_magento2_creditcards_cardnumber_fashioncheque
+
                         if(data.alreadyPaid){
                             if(data.RemainderAmount == null){
                                 self.alreadyPayed = true;
@@ -263,7 +269,7 @@ define(
                                     content: $t(data.message),
                                     actions: {always: function(){} },
                                     buttons: [{
-                                    text: $t('Remaining amount: ' + data.RemainderAmount + ' ' + self.baseCurrencyCode),
+                                    text: $t(data.PayRemainingAmountButton),
                                     class: 'action primary accept',
                                         click: function () {
                                             this.closeModal(true);

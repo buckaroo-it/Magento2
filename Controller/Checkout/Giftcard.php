@@ -328,15 +328,17 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
             $alreadyPaid = $this->getAlreadyPaid($orderId) + $response['AmountDebit'];
             
+            $res['PayRemainingAmountButton'] = '';
             if($response['RequiredAction']['PayRemainderDetails']['RemainderAmount'] > 0){
                 $this->setOriginalTransactionKey($orderId, $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']);
-                $message = "A partial payment of ".$response['Currency']." ".$response['AmountDebit']." was successfully performed on a requested amount. Remainder amount ".$response['RequiredAction']['PayRemainderDetails']['RemainderAmount']." ".$response['RequiredAction']['PayRemainderDetails']['Currency'];
+                $message = __('A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4', $response['Currency'], $response['AmountDebit'],$response['RequiredAction']['PayRemainderDetails']['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
+                $res['PayRemainingAmountButton'] = __('Pay remaining amount: %1 %2', $res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
             }else{
-                $message = "Your payed succesfully. Please finish your order";
+                $message = __("Your paid successfully. Please finish your order");
             }
             $this->setAlreadyPaid($orderId, $alreadyPaid);
             $res['alreadyPaid'] = $alreadyPaid;
-            $res['message'] = __($message);
+            $res['message'] = $message;
 
         }else{
             $res['error'] = $response['Status']['SubCode']['Description'];
