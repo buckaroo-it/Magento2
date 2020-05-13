@@ -56,7 +56,7 @@ define(
         'use strict';
 
         function checkPayments(){
-            var p = ["afterpay","afterpay2","afterpay20","klarnakp","capayableinstallments","creditcard","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3"];
+            var p = ["afterpay","afterpay2","afterpay20","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
@@ -238,7 +238,7 @@ define(
                         // self.CardNumber(null);
                         // self.Pin.(null);
                         $('#buckaroo_magento2_creditcards_cardnumber_'+self.currentGiftcard +', #buckaroo_magento2_creditcards_pin_'+self.currentGiftcard).val('');
-                        
+
                         buckaroo_magento2_creditcards_cardnumber_fashioncheque
 
                         if(data.alreadyPaid){
