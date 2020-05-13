@@ -606,6 +606,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $message = strlen($methodMessage) > 0 ? $methodMessage : $message;
         }
 
+        if(isset($transactionResponse->Status->SubCode->_)){
+            $message = $transactionResponse->Status->SubCode->_;
+        }
+
         return $message;
     }
 
@@ -891,10 +895,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
+            $failureMessage = $this->getFailureMessage($response);
+
             throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
-                    'Unfortunately the payment was unsuccessful. Please try again or choose a different payment method.'
-                )
+                new \Magento\Framework\Phrase($failureMessage)
             );
         }
 
