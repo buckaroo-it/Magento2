@@ -19,11 +19,13 @@
  */
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Catalog\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Logging\Log;
 
 class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
@@ -47,6 +49,10 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
     
     public $_checkoutSession;
 
+    protected $groupTransaction;
+    protected $logger;
+    protected $giftcardCollection;
+
     /**
      * @param ConfigProviderAccount     $configProviderAccount
      * @param Factory                   $configProviderMethodFactory
@@ -58,7 +64,10 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         Factory $configProviderMethodFactory,
         PriceCurrencyInterface $priceCurrency,
         Data $catalogHelper,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        PaymentGroupTransaction $groupTransaction,
+        Log $logger,
+        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection
     ) {
         $this->setCode('buckaroo_already_paid');
 
@@ -68,7 +77,9 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         $this->catalogHelper = $catalogHelper;
 
         $this->_checkoutSession = $checkoutSession;
-
+        $this->groupTransaction = $groupTransaction;
+        $this->logger             = $logger;
+        $this->giftcardCollection = $giftcardCollection;
     }
 
     /**
@@ -173,16 +184,35 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
      */
     public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
     {
+        $this->logger->addDebug(__METHOD__.'|1|');
+
         $orderId = $quote->getReservedOrderId();
+        $this->logger->addDebug(var_export($orderId, true));
         $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
+
+        $customTitle = [];
+        if ($orderId && !empty($alreadyPaid[$orderId]) && ($alreadyPaid[$orderId] > 0)) {
+            $items = $this->groupTransaction->getGroupTransactionItems($orderId);
+            foreach ($items as $key => $giftcard) {
+                //$this->logger->addDebug(__METHOD__.'|2|');
+                //$this->logger->addDebug(var_export($giftcard['servicecode'], true));
+                if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode'])) {
+                    //$this->logger->addDebug(var_export($foundGiftcard['label'], true));
+                    $customTitle[] = [
+                        'label' => $foundGiftcard['label'],
+                        'amount' => -$giftcard['amount'],
+                    ];
+                }
+            }
+        }
 
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
         $totals = [
             'code' => $this->getCode(),
-            'title' => $this->getLabel(),
-            'value' => isset($alreadyPaid[$orderId]) && $alreadyPaid[$orderId] > 0 ? - $alreadyPaid[$orderId] : false
+            'title' => $customTitle ? __(json_encode($customTitle)) : $this->getLabel(),
+            'value' => isset($alreadyPaid[$orderId]) && $alreadyPaid[$orderId] > 0 ? - $alreadyPaid[$orderId] : false,
         ];
         return $totals;
     }

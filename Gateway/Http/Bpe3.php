@@ -192,6 +192,9 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
      */
     public function doRequest(Transaction $transaction)
     {
+        $this->logger->addDebug(__METHOD__.'|1|');
+        $this->logger->addDebug(var_export($transaction->getBody(), true));
+
         $clientConfig = [
             'wsdl' => $this->getWsdl()
         ];

@@ -142,9 +142,26 @@ define(
 
                 getAlreadyPayValue : function () {
                     var buckarooFeeSegment = totals.getSegment('buckaroo_already_paid');
-                    return buckarooFeeSegment.value ? 
-                            this.getFormattedPrice(buckarooFeeSegment.value) :
-                            false;
+                    //console.log("==========1");
+                    //console.log(buckarooFeeSegment);
+                    try {
+                        if (buckarooFeeSegment.title) {
+                            var items = JSON.parse(buckarooFeeSegment.title);
+                            if ((typeof items === 'object') && (items.length > 0)) {
+                                //console.log("==========2");
+                                console.log(items);
+                                for (var i = 0; i < items.length; i++) {
+                                    items[i].amount = this.getFormattedPrice(items[i].amount);
+                                }
+                                return items;
+                            }
+                        }
+                    } catch (e) {
+                    }
+
+                    return buckarooFeeSegment.value ?
+                        this.getFormattedPrice(buckarooFeeSegment.value) :
+                        false;
                 }
             }
         );
