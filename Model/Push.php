@@ -262,7 +262,7 @@ class Push implements PushInterface
 
         $this->setTransactionKey();
 
-        if ($this->isGroupTransactionPart()) {
+        if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
             $this->savePartGroupTransaction();
             return true;
         }
@@ -1112,7 +1112,7 @@ class Push implements PushInterface
                 foreach ($items as $key => $item) {
                     $item2['status'] = $this->originalPostData['brq_statuscode'];
                     $item2['entity_id'] = $item['entity_id'];
-                    $this->groupTransaction->updateGroupTransaction($item2);
+                    $this->groupTransaction->updateGroupTransaction($item);
                 }
             }
     }
