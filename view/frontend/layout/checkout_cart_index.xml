@@ -30,15 +30,15 @@
                                                 <item name="level" xsi:type="string">order</item>
                                             </item>
                                         </item>
+                                        <item name="paid_gift" xsi:type="array">
+                                            <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/summary/totals</item>
+                                            <item name="config" xsi:type="array">
+                                                <item name="template" xsi:type="string">Buckaroo_Magento2/cart/totals/paid_gift</item>
+                                            </item>
+                                        </item>
                                    </item>
                                 </item>
-                                <item name="paid_gift" xsi:type="array">
-                                    <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/summary/totals</item>
-                                    <item name="sortOrder" xsi:type="string">20</item>
-                                    <item name="config" xsi:type="array">
-                                        <item name="template" xsi:type="string">Buckaroo_Magento2/cart/totals/paid_gift</item>
-                                    </item>
-                                </item>
+
                             </item>
                         </item>
                     </item>
