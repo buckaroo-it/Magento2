@@ -1,0 +1,19 @@
+<!-- ko if: typeof getAlreadyPayValue() === 'object' -->
+<!-- ko foreach: getAlreadyPayValue() -->
+<tr class="totals buckaroo_already_paid">
+    <th class="mark">
+        <span data-bind="{text: label}"></span>
+    </th>
+    <td data-bind="{text: amount}" class="amount"></td>
+</tr>
+<!-- /ko -->
+<!-- /ko -->
+
+<!-- ko if: getAlreadyPayValue() && (typeof getAlreadyPayValue() !== 'object') -->
+<tr class="totals buckaroo_already_paid">
+    <th class="mark">
+        <span data-bind="{text: getAlreadyPayTitle()}"></span>
+    </th>
+    <td data-bind="{text: getAlreadyPayValue(), attr: {'data-th': $t(getAlreadyPayTitle())}}" class="amount"></td>
+</tr>
+<!-- /ko -->
