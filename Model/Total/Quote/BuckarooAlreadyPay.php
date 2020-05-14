@@ -194,10 +194,8 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         if ($orderId && !empty($alreadyPaid[$orderId]) && ($alreadyPaid[$orderId] > 0)) {
             $items = $this->groupTransaction->getGroupTransactionItems($orderId);
             foreach ($items as $key => $giftcard) {
-                //$this->logger->addDebug(__METHOD__.'|2|');
-                //$this->logger->addDebug(var_export($giftcard['servicecode'], true));
                 if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode'])) {
-                    //$this->logger->addDebug(var_export($foundGiftcard['label'], true));
+                    $this->logger->addDebug(var_export($foundGiftcard['label'], true));
                     $customTitle[] = [
                         'label' => __('Paid with') . ' ' . $foundGiftcard['label'],
                         'amount' => -$giftcard['amount'],

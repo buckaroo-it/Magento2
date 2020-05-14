@@ -22,7 +22,7 @@
         "docs": "https://support.buckaroo.nl"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v1.23.0-RC2",
+    "version" : "v1.23.1-RC1",
     "minimum-stability": "RC",
     "autoload": {
         "files": [
