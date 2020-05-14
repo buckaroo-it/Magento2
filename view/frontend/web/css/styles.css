@@ -392,6 +392,17 @@
     content: ' ';
 }
 
+.buckaroo_magento2_boekenbon .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_boekenbon_title.png) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: -10px;
+    background-size: auto 72px;
+    width: 72px;
+    height: 72px;
+    content: ' ';
+}
+
 .buckaroo_magento2_fashioncheque .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_fashioncheque_title.png) no-repeat;
     margin-top: -7px;

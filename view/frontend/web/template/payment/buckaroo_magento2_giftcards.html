@@ -54,7 +54,7 @@
 <!-- ko ifnot: isGroupGiftcards() -->
 
     <div data-bind="foreach: { data: allgiftcards, as: 'giftcard', noChildContext: true }">
-    <div data-bind="attr: { 'class': 'payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.getGiftcardType() == code)}">
+    <div data-bind="attr: { 'class': 'buckaroo_magento2_ajaxgiftcard payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.getGiftcardType() == code)}">
 
         <div class="payment-method-title field choice">
             <input type="radio"
@@ -85,16 +85,16 @@
                     <div class="fieldset card_front width-100">
                         
                         <div class="field required width-100" >
-                            <label class="label" for="buckaroo_magento2_creditcards_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
+                            <label class="label" for="buckaroo_magento2_giftcards_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
                             <div class="control">
                                 <input type="text"
-                                       class="input-text field"
-                                       name="payment[buckaroo_magento2_creditcards][cardnumber]"
+                                       class="input-text field buckaroo_magento2_giftcards_input"
+                                       name="payment[buckaroo_magento2_giftcards][cardnumber]"
                                        data-bind="
                             valueUpdate: 'blur',
                             value: $parent.CardNumber,
                             textInput: $parent.CardNumber(),
-                            attr: { 'data-card': code, 'id': 'buckaroo_magento2_creditcards_cardnumber_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validateCardNumber': true }) },
+                            attr: { 'data-card': code, 'id': 'buckaroo_magento2_giftcards_cardnumber_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validateCardNumber': true }) },
                             event: { blur: $parent.encryptCardDetails }">
                             </div>
                         </div>
@@ -104,16 +104,16 @@
                         <div class="magnet_stripe width-100"></div>
 
                         <div class="field required card_security width-100" >
-                            <label class="label width-65-l" for="buckaroo_magento2_creditcards_pin"> <span data-bind="i18n: 'PIN / Security code:'"> </span> </label>
+                            <label class="label width-65-l" for="buckaroo_magento2_giftcards_pin"> <span data-bind="i18n: 'PIN / Security code:'"> </span> </label>
                             <div class="control card-info-input width-25-l">
                                 <input type="text"
-                                       class="input-text field"
-                                       name="payment[buckaroo_magento2_creditcards][pin]"
+                                       class="input-text field buckaroo_magento2_giftcards_input"
+                                       name="payment[buckaroo_magento2_giftcards][pin]"
                                        data-bind="
                             valueUpdate: 'blur',
                             value: $parent.Pin,
                             textInput: $parent.Pin(),
-                            attr: { 'id': 'buckaroo_magento2_creditcards_pin_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validatePin': true }) },
+                            attr: { 'id': 'buckaroo_magento2_giftcards_pin_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validatePin': true }) },
                             event: { blur: $parent.encryptCardDetails }">
                             </div>
                             <div class="card_info width-10">

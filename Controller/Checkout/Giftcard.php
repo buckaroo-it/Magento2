@@ -341,7 +341,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $res['message'] = $message;
 
         }else{
-            $res['error'] = $response['Status']['SubCode']['Description'];
+            $res['error'] = isset($response['Status']['SubCode']['Description']) ? $response['Status']['SubCode']['Description'] : $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
         }
 
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);

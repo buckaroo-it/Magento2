@@ -235,11 +235,7 @@ define(
                         }
                    }).done(function (data) {
 
-                        // self.CardNumber(null);
-                        // self.Pin.(null);
-                        $('#buckaroo_magento2_creditcards_cardnumber_'+self.currentGiftcard +', #buckaroo_magento2_creditcards_pin_'+self.currentGiftcard).val('');
-
-                        buckaroo_magento2_creditcards_cardnumber_fashioncheque
+                        $('.buckaroo_magento2_giftcards_input').val('');
 
                         if(data.alreadyPaid){
                             if(data.RemainderAmount == null){
