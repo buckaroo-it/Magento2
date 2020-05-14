@@ -102,7 +102,6 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     }
 
     public function getGroupTransactionByTrxId($trx_id){
-        $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('transaction_id', ['eq' => $trx_id]);
-        return $collection->getItems();
+        return $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('transaction_id', ['eq' => $trx_id])->getItems();
     }
 }

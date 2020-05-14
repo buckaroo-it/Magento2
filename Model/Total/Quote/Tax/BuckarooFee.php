@@ -85,6 +85,13 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
             return $this;
         }
 
+        $orderId = $quote->getReservedOrderId();
+        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
+
+        if (isset($alreadyPaid[$orderId])) {
+            return $this;
+        }
+
         $basePaymentFee = $this->getBaseFee($methodInstance, $quote, true);
 
         if ($basePaymentFee < 0.01) {
