@@ -1108,10 +1108,13 @@ class Push implements PushInterface
     private function savePartGroupTransaction()
     {
         $items = $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
-        foreach ($items as $key => $item) {
-            $item['status'] = $this->originalPostData['brq_statuscode'];
-            $this->groupTransaction->updateGroupTransaction($item);
-        }
+            if(is_array($items) && count($items) > 0) {
+                foreach ($items as $key => $item) {
+                    $item2['status'] = $this->originalPostData['brq_statuscode'];
+                    $item2['entity_id'] = $item['entity_id'];
+                    $this->groupTransaction->updateGroupTransaction($item2);
+                }
+            }
     }
 
     public function saveGroupTransactionInvoice($payment)
