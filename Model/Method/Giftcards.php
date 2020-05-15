@@ -199,7 +199,7 @@ class Giftcards extends AbstractMethod
             $payment->getOrder()->getStore()
         );
 
-        $availableCards = $payment->getAdditionalInformation('giftcard_method') ? $payment->getAdditionalInformation('giftcard_method') : $availableCards;
+        $availableCards = $payment->getAdditionalInformation('giftcard_method') ? $payment->getAdditionalInformation('giftcard_method') : $availableCards.',ideal';
         $customVars = [
             'ServicesSelectableByClient' => $availableCards,
             'ContinueOnIncomplete' => 'RedirectToHTML',
