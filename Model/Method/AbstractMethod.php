@@ -827,6 +827,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $amount = $this->refundGroupTransactions($payment, $amount);
+        if($amount<=0){
+            return $this;
+        }
 
         $transactionBuilder = $this->getRefundTransactionBuilder($payment);
 
@@ -1259,15 +1262,19 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     
     public function refundGroupTransactions(InfoInterface $payment, $amount)
     {
+        $order = $payment->getOrder();
+        $totalOrder = $order->getBaseGrandTotal();
+
         $requestParams = $this->request->getParams();
         if(isset($requestParams['creditmemo']) && isset($requestParams['creditmemo']['buckaroo_already_paid'])){
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $amount_value) {
                 
                 $transaction = explode('|',$transaction);
-                $amount = $amount - $transaction[2];
+                $totalOrder = $totalOrder - $transaction[2];
 
-                if($amount_value>0){
-
+                if($amount_value>0 && $amount>0){
+                    if($amount<$amount_value){$amount_value=$amount;}
+                    $amount = $amount - $amount_value;
                     $transactionBuilder = $this->transactionBuilderFactory->get('refund');
 
                     $services = [
@@ -1288,6 +1295,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 }
             }
         }
-        return $amount;
+
+        if($amount>0){
+            if($amount>$totalOrder){
+                return $totalOrder;
+            }
+            return $amount;
+        }
+        return 0;
     }
 }
