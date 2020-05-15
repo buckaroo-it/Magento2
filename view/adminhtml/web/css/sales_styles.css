@@ -451,6 +451,80 @@
     content: ' ';
 }
 
+/* giftcards */
+
+.buckaroo_magento2_payment_ajaxgiftcard:before {
+    background: url(../images/buckaroo_magento2_ajaxgiftcard_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: 0px;
+    background-size: auto 23px;
+    width: 30px;
+    height: 30px;
+    content: ' ';
+    display :block;
+}
+
+.buckaroo_magento2_payment_vvvgiftcard:before {
+    background: url(../images/buckaroo_magento2_vvvgiftcard_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: 0px;
+    background-size: auto 23px;
+    width: 30px;
+    height: 30px;
+    content: ' ';
+    display :block;
+}
+
+.buckaroo_magento2_payment_boekenbon:before {
+    background: url(../images/buckaroo_magento2_boekenbon_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: 0px;
+    background-size: auto 23px;
+    width: 30px;
+    height: 30px;
+    content: ' ';
+    display :block;
+}
+
+.buckaroo_magento2_payment_fashioncheque:before {
+    background: url(../images/buckaroo_magento2_fashioncheque_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: 0px;
+    background-size: auto 23px;
+    width: 30px;
+    height: 30px;
+    content: ' ';
+    display :block;
+}
+
+.buckaroo_magento2_payment_yourgift:before {
+    background: url(../images/buckaroo_magento2_yourgift_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: 0px;
+    background-size: auto 23px;
+    width: 30px;
+    height: 30px;
+    content: ' ';
+    display :block;
+}
+
+.buckaroo_magento2_payment_webshopgiftcard:before {
+    background: url(../images/buckaroo_magento2_webshopgiftcard_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: 0px;
+    background-size: auto 23px;
+    width: 30px;
+    height: 30px;
+    content: ' ';
+    display :block;
+}
+
 /* ===================== Creditmemo create -  Warning message regarding rounding errors ======================= */
 .buckaroo-magento2-warning-message {
     text-align: justify;

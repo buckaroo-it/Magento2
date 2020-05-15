@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Block;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+
 class Info extends \Magento\Payment\Block\Info
 {
     // @codingStandardsIgnoreStart
@@ -27,5 +29,45 @@ class Info extends \Magento\Payment\Block\Info
      * @var string
      */
     protected $_template = 'Buckaroo_Magento2::info/payment_method.phtml';
+    protected $groupTransaction;
+    protected $giftcardCollection;
+
     // @codingStandardsIgnoreEnd
+
+    /**
+     * @param \Magento\Framework\View\Element\Template\Context     $context
+     * @param array                                                $data
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
+     */
+    public function __construct(
+        \Magento\Framework\View\Element\Template\Context $context,
+        array $data = [],
+        PaymentGroupTransaction $groupTransaction,
+        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection
+    ) {
+        parent::__construct($context, $data);
+
+        $this->groupTransaction = $groupTransaction;
+        $this->giftcardCollection = $giftcardCollection;
+    }
+
+    public function getGiftCards()
+    {
+        $result = [];
+
+        if ($this->getInfo()->getOrder() && $this->getInfo()->getOrder()->getIncrementId()) {
+            $items = $this->groupTransaction->getGroupTransactionItems($this->getInfo()->getOrder()->getIncrementId());
+            foreach ($items as $key => $giftcard) {
+                if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode'])) {
+                    $result[] = [
+                        'code' => $giftcard['servicecode'],
+                        'label' => $foundGiftcard['label'],
+                    ];
+                }
+            }
+        }
+
+        return $result;
+    }
+
 }
