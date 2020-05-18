@@ -55,11 +55,20 @@ define(
     ) {
         'use strict';
 
+        function checkLabels(){
+            $.each($('.buckaroo_magento2_image_title span'), function(key, item){
+                var label = $(item).html(),
+                    label_part = label.split(' + ');
+                $(item).html(label_part[0]);
+            });
+        }
+
         function checkPayments(){
             var p = ["afterpay","afterpay2","afterpay20","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
+            checkLabels();
         }
 
         return Component.extend(
@@ -249,7 +258,7 @@ define(
                             // getTotalsAction([], deferred);
                             $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
 
-                            checkPayments();
+                            checkPayments();                            
                         }
                         if(data.error){
                                 alert({
