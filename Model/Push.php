@@ -981,7 +981,7 @@ class Push implements PushInterface
 
             /* partial payment, do not create invoice yet */
             if ($this->order->getGrandTotal() != array_sum($receivedPaymentsArray)) {
-                return;
+                // return;
             }
 
             /* partially paid giftcard, create invoice */
