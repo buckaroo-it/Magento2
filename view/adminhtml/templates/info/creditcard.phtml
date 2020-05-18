@@ -24,6 +24,16 @@
  */
 ?>
 <?php /** @var \Buckaroo\Magento2\Model\Method\AbstractMethod $method */ ?>
+<?php
+if ($giftCards = $block->getGiftCards()) {
+    foreach ($giftCards as $giftCard) { ?>
+        <div class="buckaroo_magento2_payment_<?php echo $block->escapeHtml($giftCard['code']); ?>">
+            <?php echo $block->escapeHtml($giftCard['label']) ?>
+        </div>
+        <?php
+    }
+}
+?>
 <?php $method = $block->getMethod(); ?>
 <div class="buckaroo_magento2_payment_<?php echo $block->escapeHtml($method->buckarooPaymentMethodCode); ?>">
     <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
