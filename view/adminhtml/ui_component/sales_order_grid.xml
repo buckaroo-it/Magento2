@@ -1,0 +1,9 @@
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <columns name="sales_order_columns">
+        <column name="payment_method" class="Buckaroo\Magento2\Ui\Component\Listing\Column\Method\Options">
+            <settings>
+                <options class="Buckaroo\Magento2\Ui\Component\Listing\Column\Method\Filter"/>
+            </settings>
+        </column>
+    </columns>
+</listing>

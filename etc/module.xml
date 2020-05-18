@@ -24,6 +24,7 @@
         <sequence>
             <module name="Magento_Payment"/>
             <module name="Magento_ReleaseNotification"/>
+            <module name="Magento_Sales"/>
         </sequence>
     </module>
 </config>
