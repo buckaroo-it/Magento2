@@ -1498,7 +1498,7 @@ class Afterpay20 extends AbstractMethod
             'street'          => $street
         ];
 
-        if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+        if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
             // Check if the number is at the beginning of streetname
             if ('' == $matches[1]) {
                 $format['house_number'] = trim($matches[2]);
