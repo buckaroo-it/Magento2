@@ -197,7 +197,7 @@ class Push implements PushInterface
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
 
-        if ($this->isGroupTransactionInfo()) {
+        if ($this->isGroupTransactionInfoType()) {
             return true;
         }
 
@@ -260,7 +260,9 @@ class Push implements PushInterface
             throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, first handle response, action will be taken on the next push.'));
         }
 
-        $this->setTransactionKey();
+        if (!$this->isGroupTransactionInfo()) {
+            $this->setTransactionKey();
+        }
 
         if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
             $this->savePartGroupTransaction();
@@ -600,12 +602,14 @@ class Push implements PushInterface
             return false;
         }
 
-        $payment->setAdditionalInformation(
-            AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
-            $this->postData['brq_relatedtransaction_partialpayment']
-        );
+        if(!$this->isGroupTransactionInfoType()){
+            $payment->setAdditionalInformation(
+                AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+                $this->postData['brq_relatedtransaction_partialpayment']
+            );
 
-        $this->addGiftcardPartialPaymentToPaymentInformation();
+            $this->addGiftcardPartialPaymentToPaymentInformation();
+        }
 
         return true;
     }
@@ -1092,9 +1096,17 @@ class Push implements PushInterface
         return $orderAmount;
     }
 
-    private function isGroupTransactionInfo()
+    private function isGroupTransactionInfoType()
     {
         if($this->postData['brq_transaction_type'] == self::BUCK_PUSH_GROUPTRANSACTION_TYPE){
+            return true;
+        }
+        return false;
+    }
+
+    private function isGroupTransactionInfo()
+    {
+        if($this->isGroupTransactionInfoType()){
             if($this->postData['brq_statuscode'] != 190){
                 return true;
             }
