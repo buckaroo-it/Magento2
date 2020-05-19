@@ -1095,7 +1095,9 @@ class Push implements PushInterface
     private function isGroupTransactionInfo()
     {
         if($this->postData['brq_transaction_type'] == self::BUCK_PUSH_GROUPTRANSACTION_TYPE){
-            return true;
+            if($this->postData['brq_statuscode'] != 190){
+                return true;
+            }
         }
         return false;
     }
