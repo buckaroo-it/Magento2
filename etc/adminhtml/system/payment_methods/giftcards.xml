@@ -53,7 +53,7 @@
 
         <field id="group_giftcards" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>GiftCard handling</label>
-            <comment><![CDATA[Giftcards option to show in checkout <br/><strong>Inline:</strong> giftcards are show seperate in checkout<br/><strong>Redirect:</strong> giftcards get redirected to the buckaroo checkout]]></comment>
+            <comment><![CDATA[Giftcards option to show in checkout <br/><strong>Inline:</strong> giftcards are show seperate in checkout<br/><strong>Redirect:</strong> giftcards get redirected to the buckaroo checkout. <br/><strong>Important:</strong> Group giftcards can only be refunded from the Buckaroo Plaza.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\InlineOrRedirect</source_model>
             <config_path>payment/buckaroo_magento2_giftcards/group_giftcards</config_path>
         </field>
