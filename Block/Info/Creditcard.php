@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Block\Info;
 
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-
 class Creditcard extends \Buckaroo\Magento2\Block\Info
 {
     /**
@@ -54,11 +52,9 @@ class Creditcard extends \Buckaroo\Magento2\Block\Info
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         array $data = [],
-        PaymentGroupTransaction $groupTransaction,
-        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider = null
     ) {
-        parent::__construct($context, $data, $groupTransaction, $giftcardCollection);
+        parent::__construct($context, $data);
 
         $this->configProvider = $configProvider;
     }

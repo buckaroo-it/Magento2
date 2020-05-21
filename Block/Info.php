@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Block;
 
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-
 class Info extends \Magento\Payment\Block\Info
 {
     // @codingStandardsIgnoreStart
@@ -41,14 +39,13 @@ class Info extends \Magento\Payment\Block\Info
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
-        array $data = [],
-        PaymentGroupTransaction $groupTransaction,
-        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection
+        array $data = []
     ) {
         parent::__construct($context, $data);
 
-        $this->groupTransaction = $groupTransaction;
-        $this->giftcardCollection = $giftcardCollection;
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $this->groupTransaction = $objectManager->create('Buckaroo\Magento2\Helper\PaymentGroupTransaction');
+        $this->giftcardCollection = $objectManager->create('\Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection');
     }
 
     public function getGiftCards()

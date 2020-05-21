@@ -166,7 +166,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         PriceCurrencyInterface $priceCurrency,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory,
-        \Magento\Framework\Message\ManagerInterface $messageManager = null,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\SalesSequence\Model\Manager $sequenceManager,
         \Magento\Eav\Model\Config $eavConfig,

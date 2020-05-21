@@ -205,8 +205,7 @@ class Afterpay20 extends AbstractMethod
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
-        array $data = [],
-        Log $logger2
+        array $data = []
     ) {
         parent::__construct(
             $objectManager,
@@ -237,7 +236,7 @@ class Afterpay20 extends AbstractMethod
         $this->taxCalculation = $taxCalculation;
         $this->taxConfig = $taxConfig;
         $this->addressFactory  = $addressFactory;
-        $this->logger2 = $logger2;
+        $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
     }
 
     /**
