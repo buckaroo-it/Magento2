@@ -381,7 +381,7 @@
     content: ' ';
 }
 
-.buckaroo_magento2_allgiftcards .buckaroo_magento2_image_title:after {
+.buckaroo_magento2_all_giftcard .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_giftcards_title.png) no-repeat;
     float: right;
     margin-right: 5px;
