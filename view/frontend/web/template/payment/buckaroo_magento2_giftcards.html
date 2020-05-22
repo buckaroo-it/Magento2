@@ -54,7 +54,7 @@
 <!-- ko ifnot: isGroupGiftcards() -->
 
     <div data-bind="foreach: { data: allgiftcards, as: 'giftcard', noChildContext: true }">
-    <div data-bind="attr: { 'class': 'buckaroo_magento2_ajaxgiftcard payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.getGiftcardType() == code)}">
+    <div data-bind="attr: { 'class': 'buckaroo_magento2_allgiftcards payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.getGiftcardType() == code)}">
 
         <div class="payment-method-title field choice">
             <input type="radio"
@@ -127,7 +127,7 @@
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' "></span>
                         <span class="apply-gift-card action primary" data-bind="click: $parent.applyGiftcard.bind($parent), i18n: 'Apply Gift Card', css: {disabled: $parent.buttoncheck()}"></span>
                     </div>
-                    
+
                     </div>
                 </fieldset>
             </form>
