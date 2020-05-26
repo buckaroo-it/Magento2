@@ -62,6 +62,7 @@ class Toolbar
         'buckaroo_magento2_wechatpay',
         'buckaroo_magento2_p24',
         'buckaroo_magento2_trustly',
+        'buckaroo_magento2_rtp',
     ];
 
     /**

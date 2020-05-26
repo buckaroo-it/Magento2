@@ -53,6 +53,7 @@
                 <item name="buckaroo_config_provider_wechatpay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Wechatpay</item>
                 <item name="buckaroo_config_provider_p24" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</item>
                 <item name="buckaroo_config_provider_trustly" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Trustly</item>
+                <item name="buckaroo_config_provider_rtp" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Rtp</item>
             </argument>
         </arguments>
     </type>
