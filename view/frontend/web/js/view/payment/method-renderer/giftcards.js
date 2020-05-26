@@ -199,7 +199,7 @@ define(
                     return true;
                 },
 
-                isGroupGiftcards: function () {
+                isGiftcardsRedirectMode: function () {
                     return window.checkoutConfig.payment.buckaroo.groupGiftcards !== undefined && window.checkoutConfig.payment.buckaroo.groupGiftcards == 1 ? true : false;
                 },
 

@@ -34,7 +34,7 @@ increment_id
 from sales_order_payment 
 inner join sales_order on sales_order.entity_id = sales_order_payment.parent_id 
 inner join buckaroo_magento2_group_transaction on buckaroo_magento2_group_transaction.order_id=sales_order.increment_id 
-where sales_order.increment_id in ('.join(',', $incrementIds).')
+where sales_order.increment_id in ("'.join('","', $incrementIds).'")
 group by sales_order.increment_id
                 ');
 

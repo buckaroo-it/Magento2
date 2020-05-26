@@ -465,6 +465,18 @@
 
 /* giftcards */
 
+.buckaroo_magento2_payment_allgiftcards:before {
+    background: url(../images/buckaroo_magento2_ajaxgiftcard_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: 0px;
+    background-size: auto 23px;
+    width: 30px;
+    height: 30px;
+    content: ' ';
+    display :block;
+}
+
 .buckaroo_magento2_payment_ajaxgiftcard:before {
     background: url(../images/buckaroo_magento2_ajaxgiftcard_title.png) no-repeat;
     float: left;
