@@ -225,6 +225,18 @@
     content: ' ';
 }
 
+/* Rtp */
+.buckaroo_magento2_payment_rtp:before {
+    background: url(../images/buckaroo_magento2_rtp_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: -4px;
+    background-size: auto 30px;
+    width: 30px;
+    height: 30px;
+    content: ' ';
+}
+
 /* Giropay */
 .buckaroo_magento2_payment_giropay:before {
     background: url(../images/buckaroo_magento2_giropay_title.png) no-repeat;

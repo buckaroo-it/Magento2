@@ -152,6 +152,10 @@ define(
             {
                 type: 'buckaroo_magento2_trustly',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/trustly'
+            },
+            {
+                type: 'buckaroo_magento2_rtp',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/rtp'
             }
         );
         /**
