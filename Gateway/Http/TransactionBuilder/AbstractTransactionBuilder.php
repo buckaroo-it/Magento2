@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\UrlInterface;
@@ -120,6 +121,56 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
 
     /** @var Encryptor $encryptor */
     private $encryptor;
+
+    /** @var Factory */
+    protected $configProviderMethodFactory;
+
+    /**
+     * TransactionBuilder constructor.
+     *
+     * @param ScopeConfigInterface $scopeConfig
+     * @param SoftwareData $softwareData
+     * @param Account $configProviderAccount
+     * @param Transaction $transaction
+     * @param UrlInterface $urlBuilder
+     * @param FormKey $formKey
+     * @param Encryptor $encryptor
+     * @param AbstractMethod $abstractMethod
+     * @param Factory $configProviderMethodFactory
+     * @param null|int|float|double $amount
+     * @param null|string $currency
+     */
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        SoftwareData $softwareData,
+        Account $configProviderAccount,
+        Transaction $transaction,
+        UrlInterface $urlBuilder,
+        FormKey $formKey,
+        Encryptor $encryptor,
+        Factory $configProviderMethodFactory,
+        $amount = null,
+        $currency = null
+    )
+    {
+        $this->scopeConfig = $scopeConfig;
+        $this->softwareData = $softwareData;
+        $this->configProviderAccount = $configProviderAccount;
+        $this->transaction = $transaction;
+        $this->urlBuilder = $urlBuilder;
+        $this->formKey = $formKey;
+        $this->encryptor = $encryptor;
+
+        if ($amount !== null) {
+            $this->amount = $amount;
+        }
+
+        if ($currency !== null) {
+            $this->currency = $currency;
+        }
+
+        $this->configProviderMethodFactory = $configProviderMethodFactory;
+    }
 
     /**
      * {@inheritdoc}
@@ -240,47 +291,6 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         $this->currency = $currency;
 
         return $this;
-    }
-
-    /**
-     * TransactionBuilder constructor.
-     *
-     * @param ScopeConfigInterface  $scopeConfig
-     * @param SoftwareData          $softwareData
-     * @param Account               $configProviderAccount
-     * @param Transaction           $transaction
-     * @param UrlInterface          $urlBuilder
-     * @param FormKey               $formKey
-     * @param Encryptor             $encryptor
-     * @param null|int|float|double $amount
-     * @param null|string           $currency
-     */
-    public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        SoftwareData $softwareData,
-        Account $configProviderAccount,
-        Transaction $transaction,
-        UrlInterface $urlBuilder,
-        FormKey $formKey,
-        Encryptor $encryptor,
-        $amount = null,
-        $currency = null
-    ) {
-        $this->scopeConfig           = $scopeConfig;
-        $this->softwareData          = $softwareData;
-        $this->configProviderAccount = $configProviderAccount;
-        $this->transaction           = $transaction;
-        $this->urlBuilder            = $urlBuilder;
-        $this->formKey               = $formKey;
-        $this->encryptor             = $encryptor;
-
-        if ($amount !== null) {
-            $this->amount = $amount;
-        }
-
-        if ($currency !== null) {
-            $this->currency = $currency;
-        }
     }
 
     /**
@@ -438,12 +448,12 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             'https://checkout.buckaroo.nl/PaymentEngine/',
             'MessageControlBlock',
             [
-                'Id'                => '_control',
-                'WebsiteKey'        => $merchantKey,
-                'Culture'           => $localeCountry,
-                'TimeStamp'         => time(),
-                'Channel'           => $this->channel,
-                'Software'          => $this->softwareData->get()
+                'Id' => '_control',
+                'WebsiteKey' => $merchantKey,
+                'Culture' => $localeCountry,
+                'TimeStamp' => time(),
+                'Channel' => $this->channel,
+                'Software' => $this->softwareData->get()
             ],
             false
         );
@@ -497,5 +507,70 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         );
 
         return $headers;
+    }
+
+    protected function getIp($order)
+    {
+        $ip = $order->getRemoteIp();
+        $store = $order->getStore();
+
+        $ipHeaders = $this->configProviderAccount->getIpHeader($store);
+
+        if ($ipHeaders) {
+            $ipHeaders = explode(',', strtoupper($ipHeaders));
+            foreach ($ipHeaders as &$ipHeader) {
+                $ipHeader = 'HTTP_' . str_replace('-', '_', $ipHeader);
+            }
+            $ip = $order->getPayment()->getMethodInstance()->getRemoteAddress(false, $ipHeaders);
+        }
+
+        //trustly anyway should be w/o private ip
+        if (
+            ($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly')
+            &&
+            $this->isIpPrivate($ip)
+            &&
+            $order->getXForwardedFor()
+        ) {
+            $ip = $order->getXForwardedFor();
+        }
+
+        if (!$ip) {
+            $ip = $order->getPayment()->getMethodInstance()->getRemoteAddress();
+        }
+
+        // Some of the plaza gateway requests do not support IPv6.
+        if (strpos($ip, ':') !== false) {
+            $ip = '127.0.0.' . rand(1, 100);
+        }
+
+        return $ip;
+    }
+
+    private function isIpPrivate ($ip)
+    {
+        if (!$ip) return false;
+
+        $pri_addrs = array (
+            '10.0.0.0|10.255.255.255', // single class A network
+            '172.16.0.0|172.31.255.255', // 16 contiguous class B network
+            '192.168.0.0|192.168.255.255', // 256 contiguous class C network
+            '169.254.0.0|169.254.255.255', // Link-local address also referred to as Automatic Private IP Addressing
+            '127.0.0.0|127.255.255.255' // localhost
+        );
+
+        $long_ip = ip2long ($ip);
+        if ($long_ip != -1) {
+
+            foreach ($pri_addrs AS $pri_addr) {
+                list ($start, $end) = explode('|', $pri_addr);
+
+                if ($long_ip >= ip2long ($start) && $long_ip <= ip2long ($end)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

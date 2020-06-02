@@ -185,6 +185,13 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>buckaroo_magento2/account/create_order_before_transaction</config_path>
             </field>
+
+            <field id="ip_header" translate="label comment" type="text" sortOrder="180" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Client IP detection headers</label>
+                <comment><![CDATA[Optional HTTP headers what will be taken into account for client IP detection. Comma separated list of multiple values is allowed.]]></comment>
+                <tooltip>Example: "X-Forwarded-For,CF-Connecting-IP". If "X-Forwarded-For" is empty then "CF-Connecting-IP" will be checked.</tooltip>
+                <config_path>buckaroo_magento2/account/ip_header</config_path>
+            </field>
         </group>
     </group>
 </include>

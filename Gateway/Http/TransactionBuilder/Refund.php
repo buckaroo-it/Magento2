@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Encryption\Encryptor;
 use Buckaroo\Magento2\Gateway\Http\Transaction;
@@ -33,44 +32,6 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Refund extends AbstractTransactionBuilder
 {
-    /** @var RemoteAddress */
-    protected $remoteAddress;
-
-    /** @var Factory */
-    protected $configProviderMethodFactory;
-
-    /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param SoftwareData         $softwareData
-     * @param Account              $configProviderAccount
-     * @param Transaction          $transaction
-     * @param UrlInterface         $urlBuilder
-     * @param RemoteAddress        $remoteAddress
-     * @param Factory              $configProviderMethodFactory
-     * @param FormKey              $formKey
-     * @param Encryptor            $encryptor
-     * @param null                 $amount
-     * @param null                 $currency
-     */
-    public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        SoftwareData $softwareData,
-        Account $configProviderAccount,
-        Transaction $transaction,
-        UrlInterface $urlBuilder,
-        FormKey $formKey,
-        Encryptor $encryptor,
-        RemoteAddress $remoteAddress,
-        Factory $configProviderMethodFactory,
-        $amount = null,
-        $currency = null
-    ) {
-        parent::__construct($scopeConfig, $softwareData, $configProviderAccount, $transaction, $urlBuilder, $formKey, $encryptor, $amount, $currency);
-
-        $this->remoteAddress = $remoteAddress;
-        $this->configProviderMethodFactory = $configProviderMethodFactory;
-    }
-
     /**
      * @throws \Buckaroo\Magento2\Exception
      */
@@ -114,10 +75,7 @@ class Refund extends AbstractTransactionBuilder
         $order = $this->getOrder();
         $store = $order->getStore();
 
-        $ip = $order->getRemoteIp();
-        if (!$ip) {
-            $ip = $this->remoteAddress->getRemoteAddress();
-        }
+        $ip = $this->getIp($order);
 
         $body = [
             'Currency' => $this->getCurrency(),

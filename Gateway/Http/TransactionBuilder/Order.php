@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Encryption\Encryptor;
 use Buckaroo\Magento2\Gateway\Http\Transaction;
@@ -33,44 +32,6 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Order extends AbstractTransactionBuilder
 {
-    /** @var RemoteAddress */
-    protected $remoteAddress;
-
-    /** @var Factory */
-    protected $configProviderMethodFactory;
-
-    /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param SoftwareData         $softwareData
-     * @param Account              $configProviderAccount
-     * @param Transaction          $transaction
-     * @param UrlInterface         $urlBuilder
-     * @param RemoteAddress        $remoteAddress
-     * @param Factory              $configProviderMethodFactory
-     * @param FormKey              $formKey
-     * @param Encryptor            $encryptor
-     * @param null                 $amount
-     * @param null                 $currency
-     */
-    public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        SoftwareData $softwareData,
-        Account $configProviderAccount,
-        Transaction $transaction,
-        UrlInterface $urlBuilder,
-        FormKey $formKey,
-        Encryptor $encryptor,
-        RemoteAddress $remoteAddress,
-        Factory $configProviderMethodFactory,
-        $amount = null,
-        $currency = null
-    ) {
-        parent::__construct($scopeConfig, $softwareData, $configProviderAccount, $transaction, $urlBuilder, $formKey, $encryptor, $amount, $currency);
-
-        $this->remoteAddress = $remoteAddress;
-        $this->configProviderMethodFactory = $configProviderMethodFactory;
-    }
-
     /**
      * @return array
      */
@@ -105,21 +66,7 @@ class Order extends AbstractTransactionBuilder
             $order->save();
         }
 
-        $ip = $order->getRemoteIp();
-
-        $methodInstance = $order->getPayment()->getMethodInstance();
-        $method = $methodInstance->buckarooPaymentMethodCode;
-        if (($method == 'trustly') && $this->isIpPrivate($ip)) {
-            $ip = $order->getXForwardedFor();
-        }
-        if (!$ip) {
-            $ip = $this->remoteAddress->getRemoteAddress();
-        }
-
-        // Some of the plaza gateway requests do not support IPv6.
-        if (strpos($ip, ':') !== false) {
-            $ip = '127.0.0.' . rand(1, 100);
-        }
+        $ip = $this->getIp($order);
 
         $body = [
             'Currency' => $this->getCurrency(),
@@ -279,30 +226,4 @@ class Order extends AbstractTransactionBuilder
         );
     }
 
-    private function isIpPrivate ($ip)
-    {
-        if (!$ip) return false;
-
-        $pri_addrs = array (
-            '10.0.0.0|10.255.255.255', // single class A network
-            '172.16.0.0|172.31.255.255', // 16 contiguous class B network
-            '192.168.0.0|192.168.255.255', // 256 contiguous class C network
-            '169.254.0.0|169.254.255.255', // Link-local address also referred to as Automatic Private IP Addressing
-            '127.0.0.0|127.255.255.255' // localhost
-        );
-
-        $long_ip = ip2long ($ip);
-        if ($long_ip != -1) {
-
-            foreach ($pri_addrs AS $pri_addr) {
-                list ($start, $end) = explode('|', $pri_addr);
-
-                if ($long_ip >= ip2long ($start) && $long_ip <= ip2long ($end)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 }
