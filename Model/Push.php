@@ -966,12 +966,6 @@ class Push implements PushInterface
          */
         $payment = $this->order->getPayment();
 
-/*        if (!empty($this->postData['brq_ordernumber'])) {
-            if($this->groupTransaction->isGroupTransaction($this->postData['brq_ordernumber'])){
-                $this->saveGroupTransactionInvoice($payment);
-            }
-         }*/
-
         if ($payment->getMethod() == Giftcards::PAYMENT_METHOD_CODE) {
             $this->setReceivedPaymentFromBuckaroo();
 
@@ -1014,6 +1008,13 @@ class Push implements PushInterface
         /** @var \Magento\Sales\Model\Order\Invoice $invoice */
         foreach ($this->order->getInvoiceCollection() as $invoice) {
             $invoice->setTransactionId($transactionKey)->save();
+            
+            if (!empty($this->postData['brq_invoicenumber'])) {
+                if($this->groupTransaction->isGroupTransaction($this->postData['brq_invoicenumber'])){
+                    $invoice->setGrandTotal($invoice->getGrandTotal() + $this->order->getBuckarooAlreadyPaid());
+                    $invoice->setBaseGrandTotal($invoice->getBaseGrandTotal() + $this->order->getBaseBuckarooAlreadyPaid());
+                }
+             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
                 $this->invoiceSender->send($invoice, true);
