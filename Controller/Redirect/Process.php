@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Magento\Sales\Api\Data\TransactionInterface;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\App\Request\Http as Http;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -117,6 +118,14 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->checkoutSession    = $checkoutSession;
 
         $this->accountConfig = $configProviderFactory->get('account');
+
+        if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
+            $request = $this->getRequest();
+            if ($request instanceof Http && $request->isPost()) {
+                $request->setParam('isAjax', true);
+                $request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
+            }
+        }
     }
 
     /**
