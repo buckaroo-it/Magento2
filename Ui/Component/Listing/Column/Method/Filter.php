@@ -37,13 +37,13 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
         $result = $db->query('
             select 
             method, 
-            group_concat(distinct(buckaroo_magento2_giftcard.servicecode) SEPARATOR "-") as giftcard_codes,
-            group_concat(distinct(buckaroo_magento2_giftcard.label) SEPARATOR "-") as giftcard_titles 
-            from sales_order_payment 
-            inner join sales_order on sales_order.entity_id = sales_order_payment.parent_id 
-            inner join buckaroo_magento2_group_transaction on buckaroo_magento2_group_transaction.order_id=sales_order.increment_id 
-            inner join buckaroo_magento2_giftcard on buckaroo_magento2_giftcard.servicecode=buckaroo_magento2_group_transaction.servicecode 
-            group by buckaroo_magento2_group_transaction.order_id
+            group_concat(distinct('.$db->getTableName('buckaroo_magento2_giftcard').'.servicecode) SEPARATOR "-") as giftcard_codes,
+            group_concat(distinct('.$db->getTableName('buckaroo_magento2_giftcard').'.label) SEPARATOR "-") as giftcard_titles 
+            from '.$db->getTableName('sales_order_payment').'  
+            inner join '.$db->getTableName('sales_order').' on '.$db->getTableName('sales_order').'.entity_id = '.$db->getTableName('sales_order_payment').'.parent_id 
+            inner join '.$db->getTableName('buckaroo_magento2_group_transaction').' on '.$db->getTableName('buckaroo_magento2_group_transaction').'.order_id='.$db->getTableName('sales_order').'.increment_id 
+            inner join '.$db->getTableName('buckaroo_magento2_giftcard').' on '.$db->getTableName('buckaroo_magento2_giftcard').'.servicecode='.$db->getTableName('buckaroo_magento2_group_transaction').'.servicecode 
+            group by '.$db->getTableName('buckaroo_magento2_group_transaction').'.order_id
         ');
 
         $additionalOptions = [];
