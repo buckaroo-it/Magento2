@@ -63,8 +63,13 @@ define(
 
                 initObservable: function () {
                     this._super().observe(['selectedCard', 'creditcards']);
-
-                    this.creditcards = ko.observableArray(window.checkoutConfig.payment.buckaroo.creditcard.cards);
+                    var filteredCards = [];
+                    for (var key in window.checkoutConfig.payment.buckaroo.creditcard.cards) {
+                        if (window.checkoutConfig.payment.buckaroo.creditcard.cards[key].active) {
+                            filteredCards.push(window.checkoutConfig.payment.buckaroo.creditcard.cards[key]);
+                        }
+                    }
+                    this.creditcards = ko.observableArray(filteredCards);
 
                     /**
                      * observe radio buttons
