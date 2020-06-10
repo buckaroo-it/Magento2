@@ -219,6 +219,12 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $websiteKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey());
 
         $data = $this->response;
+
+        if (!isset($data['card']) || empty($data['card']) || !isset($data['cardNumber']) || empty($data['cardNumber']) || !isset($data['pin']) || empty($data['pin'])) {
+            $res['error'] = 'Card number or pin not valid';
+            return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
+        }
+
         $card = $data['card'];
 
         $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
