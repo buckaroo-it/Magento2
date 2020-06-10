@@ -138,6 +138,8 @@ class Push implements PushInterface
 
     protected $groupTransaction;
 
+    protected $forceInvoice = false;
+
     /**
      * @param Order                $order
      * @param TransactionInterface $transaction
@@ -193,7 +195,7 @@ class Push implements PushInterface
         $this->getPostData();
 
         //Start debug mailing/logging with the postdata.
-        $this->logging->addDebug(__METHOD__.'|'.print_r($this->originalPostData, true));
+        $this->logging->addDebug(__METHOD__.'|1|'.var_export($this->originalPostData, true));
 
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
@@ -214,7 +216,11 @@ class Push implements PushInterface
         $postDataStatusCode = $this->getStatusCode();
         $response = $this->validator->validateStatusCode($postDataStatusCode);
 
-        $canUpdateOrder = $this->canUpdateOrderStatus();
+        $this->logging->addDebug(__METHOD__.'|2|'.var_export($response, true));
+
+        $canUpdateOrder = $this->canUpdateOrderStatus($response);
+
+        $this->logging->addDebug(__METHOD__.'|3|'.var_export($canUpdateOrder, true));
 
         //Check if the push is a refund request or cancel authorize
         if (isset($this->postData['brq_amount_credit'])) {
@@ -300,6 +306,9 @@ class Push implements PushInterface
         /** Magento may adds the SID session parameter, depending on the store configuration.
          * We don't need or want to use this parameter, so remove it from the retrieved post data. */
         unset($postData['SID']);
+
+        //ZAK
+        //$postData['brq_invoicenumber'] = $postData['brq_ordernumber'] = '050900790';
 
         //Set original postdata before setting it to case lower.
         $this->originalPostData = $postData;
@@ -474,7 +483,7 @@ class Push implements PushInterface
      */
     public function processPush($response)
     {
-        $this->logging->addDebug(__METHOD__.'|'.'RESPONSE STATUS: '.$response['status']);
+        $this->logging->addDebug(__METHOD__.'|1|'.var_export($response['status'], true));
         $payment = $this->order->getPayment();
 
         if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->postData)) {
@@ -532,8 +541,9 @@ class Push implements PushInterface
             return;
         }
 
-        $this->updateCm3InvoiceStatus();
-        $this->sendCm3ConfirmationMail();
+        if ($this->updateCm3InvoiceStatus()) {
+            $this->sendCm3ConfirmationMail();
+        }
     }
 
     private function updateCm3InvoiceStatus()
@@ -560,10 +570,14 @@ class Push implements PushInterface
             $this->postData['brq_transactions'] = $this->order->getPayment()->getAdditionalInformation($originalKey);
             $this->postData['brq_amount'] = $this->postData['brq_amountdebit'];
 
-            $this->saveInvoice();
+            if (!$this->saveInvoice()) {
+                return false;
+            }
         }
 
         $this->updateOrderStatus($this->order->getState(), $this->order->getStatus(), $statusMessage);
+
+        return true;
     }
 
     private function sendCm3ConfirmationMail()
@@ -729,7 +743,7 @@ class Push implements PushInterface
      *
      * @return bool
      */
-    protected function canUpdateOrderStatus()
+    protected function canUpdateOrderStatus($response)
     {
         /**
          * Types of statusses
@@ -743,6 +757,8 @@ class Push implements PushInterface
          */
         $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
 
+        $this->logging->addDebug(__METHOD__.'|1|'.var_export($currentStateAndStatus, true));
+
         /**
          * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
          */
@@ -751,6 +767,26 @@ class Push implements PushInterface
             && $holdedStateAndStatus    != $currentStateAndStatus
             && $closedStateAndStatus    != $currentStateAndStatus
         ) {
+            return true;
+        }
+
+        if (
+            ($this->order->getState() === Order::STATE_CANCELED)
+            &&
+            ($this->order->getStatus() === Order::STATE_CANCELED)
+            &&
+            ($response['status'] === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+        ) {
+            $this->logging->addDebug(__METHOD__.'|2|');
+
+            $this->order->setState(Order::STATE_NEW);
+            $this->order->setStatus('pending');
+
+            foreach ($this->order->getAllItems() as $item) {
+                $item->setQtyCanceled(0);
+            }
+
+            $this->forceInvoice = true;
             return true;
         }
 
@@ -765,6 +801,18 @@ class Push implements PushInterface
      */
     public function processFailedPush($newStatus, $message)
     {
+        $this->logging->addDebug(__METHOD__.'|1|'.var_export($newStatus, true));
+
+        if (
+            ($this->order->getState() === Order::STATE_PROCESSING)
+            &&
+            ($this->order->getStatus() === Order::STATE_PROCESSING)
+        ) {
+            //do not update to failed if we had a success already
+            $this->logging->addDebug(__METHOD__.'|2|');
+            return false;
+        }
+
         $description = 'Payment status : '.$message;
 
         $store = $this->order->getStore();
@@ -790,10 +838,12 @@ class Push implements PushInterface
             try {
                 $this->order->cancel()->save();
             } catch (\Throwable $t) {
+                $this->logging->addDebug(__METHOD__.'|3|');
                 //  SignifydGateway/Gateway error on line 208"
             }
         }
 
+        $this->logging->addDebug(__METHOD__.'|4|');
         $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
 
         return true;
@@ -807,6 +857,8 @@ class Push implements PushInterface
      */
     public function processSucceededPush($newStatus, $message)
     {
+        $this->logging->addDebug(__METHOD__.'|1|'.var_export($newStatus, true));
+
         $amount = $this->order->getTotalDue();
 
         if (isset($this->originalPostData['brq_amount']) && !empty($this->originalPostData['brq_amount'])) {
@@ -840,7 +892,10 @@ class Push implements PushInterface
          */
         $forceState = false;
 
+        $this->logging->addDebug(__METHOD__.'|2|');
+
         if ($paymentMethod->canPushInvoice($this->postData)) {
+            $this->logging->addDebug(__METHOD__.'|3|');
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             $amount = $this->order->getBaseTotalDue();
             $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
@@ -852,7 +907,10 @@ class Push implements PushInterface
         }
 
         if ($paymentMethod->canPushInvoice($this->postData)) {
-            $this->saveInvoice();
+            $this->logging->addDebug(__METHOD__.'|4|');
+            if (!$this->saveInvoice()) {
+                return false;
+            }
         }
 
         if (!empty($this->originalPostData['brq_SERVICE_klarnakp_AutoPayTransactionKey']) && ($this->originalPostData['brq_statuscode'] == 190)) {
@@ -950,9 +1008,12 @@ class Push implements PushInterface
      */
     protected function saveInvoice()
     {
-        if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
-            $this->logging->addDebug('Order can not be invoiced');
-            throw new \Buckaroo\Magento2\Exception(__('Order can not be invoiced'));
+        if (!$this->forceInvoice) {
+            if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
+                $this->logging->addDebug('Order can not be invoiced');
+                //throw new \Buckaroo\Magento2\Exception(__('Order can not be invoiced'));
+                return false;
+            }
         }
 
         /**
