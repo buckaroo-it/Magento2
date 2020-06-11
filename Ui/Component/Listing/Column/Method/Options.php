@@ -29,13 +29,13 @@ class Options extends Column
                 $result = $db->query('
 select 
 method, 
-group_concat(distinct('.$db->getTableName('buckaroo_magento2_group_transaction').'.servicecode) SEPARATOR "-") as giftcard_codes,
+group_concat(distinct('.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.servicecode) SEPARATOR "-") as giftcard_codes,
 increment_id 
-from '.$db->getTableName('sales_order_payment').' 
-inner join '.$db->getTableName('sales_order').' on '.$db->getTableName('sales_order').'.entity_id = '.$db->getTableName('sales_order_payment').'.parent_id 
-inner join '.$db->getTableName('buckaroo_magento2_group_transaction').' on '.$db->getTableName('buckaroo_magento2_group_transaction').'.order_id='.$db->getTableName('sales_order').'.increment_id 
-where '.$db->getTableName('sales_order').'.increment_id in ("'.join('","', $incrementIds).'")
-group by '.$db->getTableName('sales_order').'.increment_id
+from '.$this->resourceConnection->getTableName('sales_order_payment').' 
+inner join '.$this->resourceConnection->getTableName('sales_order').' on '.$this->resourceConnection->getTableName('sales_order').'.entity_id = '.$this->resourceConnection->getTableName('sales_order_payment').'.parent_id 
+inner join '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').' on '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.order_id='.$this->resourceConnection->getTableName('sales_order').'.increment_id 
+where '.$this->resourceConnection->getTableName('sales_order').'.increment_id in ("'.join('","', $incrementIds).'")
+group by '.$this->resourceConnection->getTableName('sales_order').'.increment_id
                 ');
 
                 $additionalOptions = [];
