@@ -93,7 +93,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
 
     public function getGroupTransactionItems($order_id){
         $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('order_id', ['eq' => $order_id]);
-        return $collection->getItems();
+        return array_values($collection->getItems());
     }
 
     public function getGroupTransactionById($entity_id){

@@ -200,7 +200,7 @@ class Push implements PushInterface
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
 
-        if ($this->isGroupTransactionInfoType()) {
+        if ($this->isGroupTransactionInfo()) {
             return true;
         }
 
