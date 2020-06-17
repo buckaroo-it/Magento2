@@ -144,6 +144,14 @@ class Giftcards extends AbstractMethod
 
         $this->serviceParameters = $serviceParameters;
         $this->groupTransaction = $objectManager->create('Buckaroo\Magento2\Helper\PaymentGroupTransaction');
+
+        $groupGiftcards = $this->_scopeConfig->getValue(
+            GiftcardsConfig::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        $this->_canRefund = isset($groupGiftcards) && $groupGiftcards == '1' ? false : true;
+
     }
 
     /**
