@@ -1020,7 +1020,9 @@ class Push implements PushInterface
          * Only when the order can be invoiced and has not been invoiced before.
          */
 
-        $this->addTransactionData();
+        if(!$this->isGroupTransactionInfoType()){
+            $this->addTransactionData();
+        }
 
         /**
          * @var \Magento\Sales\Model\Order\Payment $payment
