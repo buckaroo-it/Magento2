@@ -151,6 +151,7 @@ class Giftcards extends AbstractMethod
         );
 
         $this->_canRefund = isset($groupGiftcards) && $groupGiftcards == '1' ? false : true;
+        $this->_canRefundInvoicePartial = isset($groupGiftcards) && $groupGiftcards == '1' ? false : true;
 
     }
 
