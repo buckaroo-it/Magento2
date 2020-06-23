@@ -1048,10 +1048,10 @@ class Push implements PushInterface
             }
 
             /* partially paid giftcard, create invoice */
-            if (count($receivedPaymentsArray) > 1) {
+            // if (count($receivedPaymentsArray) > 1) {
                 $payment->capture(); //creates invoice
                 $payment->save();
-            }
+            // }
         } else {
             //Fix for suspected fraud when the order currency does not match with the payment's currency    
             $amount = ($payment->isSameCurrency() && $payment->isCaptureFinal($this->order->getGrandTotal())) ? $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
