@@ -398,4 +398,8 @@
             <argument name="urlBuilder" xsi:type="object">Magento\Framework\Url</argument>
         </arguments>
     </type>
+
+    <type name="Magento\Framework\View\Asset\Minification">
+        <plugin name="my-exclude" type="Buckaroo\Magento2\Model\Plugin\ExcludeFilesFromMinification" />
+    </type>
 </config>
