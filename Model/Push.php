@@ -1029,10 +1029,10 @@ class Push implements PushInterface
          */
         $payment = $this->order->getPayment();
 
-        if ($payment->getMethod() == Giftcards::PAYMENT_METHOD_CODE) {
+        $invoiceAmount = floatval($this->postData['brq_amount']);
+        if ($payment->getMethod() == Giftcards::PAYMENT_METHOD_CODE && $invoiceAmount != $this->order->getGrandTotal()) {
             $this->setReceivedPaymentFromBuckaroo();
 
-            $invoiceAmount = floatval($this->postData['brq_amount']);
             $payment->registerCaptureNotification($invoiceAmount, true);
             $payment->save();
 
