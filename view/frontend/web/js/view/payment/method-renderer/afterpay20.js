@@ -270,7 +270,11 @@ define(
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
                                 this.termsValidate() !== false &&
                                 this.validate() &&
-                                (this.calculateAge(this.dateValidate()) >= 18)
+                                (
+                                    (this.country != 'NL' && this.country != 'BE')
+                                    ||
+                                    (this.calculateAge(this.dateValidate()) >= 18)
+                                )
                         },
                         this
                     );
