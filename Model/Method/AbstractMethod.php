@@ -492,10 +492,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return $title;
         }
 
-        if($this->helper->isGroupTransaction()){
-            return $title;
-        }
-
         if (strpos($paymentFee, '%') === false) {
             $title .= ' + ' . $this->priceHelper->currency(number_format($paymentFee, 2), true, false);
         } else {
