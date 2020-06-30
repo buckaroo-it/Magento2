@@ -1244,24 +1244,27 @@ class Afterpay20 extends AbstractMethod
                 'GroupID' => '',
             ],
             [
-                '_'    => $telephone,
-                'Name' => 'MobilePhone',
-                'Group' => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'    => $telephone,
-                'Name' => 'Phone',
-                'Group' => 'BillingCustomer',
-                'GroupID' => '',
-            ],
-            [
                 '_'    => $billingAddress->getEmail(),
                 'Name' => 'Email',
                 'Group' => 'BillingCustomer',
                 'GroupID' => '',
             ],
         ];
+
+        if (!empty($telephone)) {
+            $billingData[] = [
+                '_'    => $telephone,
+                'Name' => 'MobilePhone',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+            $billingData[] = [
+                '_'    => $telephone,
+                'Name' => 'Phone',
+                'Group' => 'BillingCustomer',
+                'GroupID' => '',
+            ];
+        }
 
         if (!empty($streetFormat['house_number'])) {
             $billingData[] = [
