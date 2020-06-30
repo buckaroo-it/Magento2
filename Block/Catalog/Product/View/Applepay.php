@@ -80,6 +80,26 @@ class Applepay extends Template
     }
 
     /**
+     * @return bool
+     */
+    public function canShowProductButton()
+    {
+        $result = false;
+
+        if (
+            ($this->applepayConfigProvider->getActive() != 0)
+            &&
+            ($this->applepayConfigProvider->getAvailableButtons())
+            &&
+            (in_array('Product', $this->applepayConfigProvider->getAvailableButtons()))
+        ) {
+            $result = true;
+        }
+
+        return $result;
+    }
+
+    /**
      * @return false|string
      */
     public function getCheckoutConfig()
