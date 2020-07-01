@@ -1,46 +1,74 @@
 <?php
 namespace Buckaroo\Magento2\Ui\Component\Listing\Column\Method;
 
-use \Magento\Sales\Api\OrderRepositoryInterface;
-use \Magento\Framework\View\Element\UiComponent\ContextInterface;
-use \Magento\Framework\View\Element\UiComponentFactory;
-use \Magento\Ui\Component\Listing\Columns\Column;
-use \Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
 
 class Options extends Column
 {
+    /**
+     * @var ResourceConnection
+     */
     protected $resourceConnection;
 
-    public function __construct(ContextInterface $context, UiComponentFactory $uiComponentFactory, \Magento\Framework\App\ResourceConnection $resourceConnection, array $components = [], array $data = [])
+    /**
+     * Options constructor.
+     *
+     * @param  ContextInterface $context
+     * @param  UiComponentFactory $uiComponentFactory
+     * @param  ResourceConnection $resourceConnection
+     * @param  array $components
+     * @param  array $data
+     */
+    public function __construct(
+        ContextInterface $context,
+        UiComponentFactory $uiComponentFactory,
+        ResourceConnection $resourceConnection,
+        array $components = [],
+        array $data = []
+    )
     {
-        parent::__construct($context, $uiComponentFactory, $components, $data);
         $this->resourceConnection = $resourceConnection;
+        parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function prepareDataSource(array $dataSource)
     {
         if (isset($dataSource['data']['items'])) {
-            $incrementIds = [];
-            foreach ($dataSource['data']['items'] as &$item) {
-                $incrementIds[] = $item['increment_id'];
-            }
+            $incrementIds = array_map(static function ($item) {
+                return $item['increment_id'];
+            }, $dataSource['data']['items'] ?? []);
+
             if ($incrementIds) {
-                $db = $this->resourceConnection->getConnection();
-                $result = $db->query('
-select 
-method, 
-group_concat(distinct('.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.servicecode) SEPARATOR "-") as giftcard_codes,
-increment_id 
-from '.$this->resourceConnection->getTableName('sales_order_payment').' 
-inner join '.$this->resourceConnection->getTableName('sales_order').' on '.$this->resourceConnection->getTableName('sales_order').'.entity_id = '.$this->resourceConnection->getTableName('sales_order_payment').'.parent_id 
-inner join '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').' on '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.order_id='.$this->resourceConnection->getTableName('sales_order').'.increment_id 
-where '.$this->resourceConnection->getTableName('sales_order').'.increment_id in ("'.join('","', $incrementIds).'")
-group by '.$this->resourceConnection->getTableName('sales_order').'.increment_id
-                ');
+                $result = $this->resourceConnection->getConnection()->fetchAll(
+                    $this->resourceConnection->getConnection()->select()->from(
+                        ['sop' => $this->resourceConnection->getTableName('sales_order_payment')],
+                        [
+                            'sop.method',
+                            'group_concat(distinct(bmgt.servicecode) SEPARATOR "-") as giftcard_codes',
+                            'so.increment_id',
+                        ]
+                    )->joinInner(
+                        ['so' => $this->resourceConnection->getTableName('sales_order')],
+                        'so.entity_id = sop.parent_id',
+                        ''
+                    )->joinInner(
+                        ['bmgt' => $this->resourceConnection->getTableName('buckaroo_magento2_group_transaction')],
+                        'bmgt.order_id = so.increment_id',
+                        ''
+                    )->where(
+                        'so.increment_id in (?)', $incrementIds
+                    )->group('so.increment_id')
+                );
 
                 $additionalOptions = [];
-                while ($row = $result->fetch()) {
-                        $additionalOptions[$row['increment_id']] = $row['method'] . '-' . $row['giftcard_codes'];
+                foreach ($result as $row) {
+                    $additionalOptions[$row['increment_id']] = $row['method'] . '-' . $row['giftcard_codes'];
                 }
 
                 if ($additionalOptions) {
@@ -50,10 +78,9 @@ group by '.$this->resourceConnection->getTableName('sales_order').'.increment_id
                         }
                     }
                 }
-
             }
         }
+
         return $dataSource;
     }
-
 }

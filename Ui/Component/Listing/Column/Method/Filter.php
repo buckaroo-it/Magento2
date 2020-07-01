@@ -2,58 +2,68 @@
 namespace Buckaroo\Magento2\Ui\Component\Listing\Column\Method;
 
 use Magento\Framework\App\ResourceConnection;
+use Magento\Payment\Helper\Data;
 
 /**
  * Class Filter
  */
 class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
 {
+    /**
+     * @var ResourceConnection
+     */
     protected $resourceConnection;
 
     /**
-     * Constructor
+     * Filter constructor.
      *
-     * @param \Magento\Payment\Helper\Data $paymentHelper
+     * @param  Data $paymentHelper
+     * @param  ResourceConnection $resourceConnection
      */
     public function __construct(
-        \Magento\Payment\Helper\Data $paymentHelper,
-        \Magento\Framework\App\ResourceConnection $resourceConnection
+        Data $paymentHelper,
+        ResourceConnection $resourceConnection
     ) {
-        parent::__construct($paymentHelper);
         $this->resourceConnection = $resourceConnection;
+        parent::__construct($paymentHelper);
     }
 
     /**
-     * Get options
-     *
-     * @return array
+     * @inheritDoc
      */
     public function toOptionArray()
     {
         parent::toOptionArray();
 
-        $db = $this->resourceConnection->getConnection();
-
-        $result = $db->query('
-            select 
-            method, 
-            group_concat(distinct('.$this->resourceConnection->getTableName('buckaroo_magento2_giftcard').'.servicecode) SEPARATOR "-") as giftcard_codes,
-            group_concat(distinct('.$this->resourceConnection->getTableName('buckaroo_magento2_giftcard').'.label) SEPARATOR "-") as giftcard_titles 
-            from '.$this->resourceConnection->getTableName('sales_order_payment').'  
-            inner join '.$this->resourceConnection->getTableName('sales_order').' on '.$this->resourceConnection->getTableName('sales_order').'.entity_id = '.$this->resourceConnection->getTableName('sales_order_payment').'.parent_id 
-            inner join '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').' on '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.order_id='.$this->resourceConnection->getTableName('sales_order').'.increment_id 
-            inner join '.$this->resourceConnection->getTableName('buckaroo_magento2_giftcard').' on '.$this->resourceConnection->getTableName('buckaroo_magento2_giftcard').'.servicecode='.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.servicecode 
-            group by '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.order_id
-        ');
+        $result = $this->resourceConnection->getConnection()->fetchAll(
+            $this->resourceConnection->getConnection()->select()->from(
+                ['sop' => $this->resourceConnection->getTableName('sales_order_payment')],
+                [
+                    'sop.method',
+                    'group_concat(distinct(bmg.servicecode) SEPARATOR "-") as giftcard_codes',
+                    'group_concat(distinct(bmg.label) SEPARATOR "-") as giftcard_titles',
+                ]
+            )->joinInner(
+                ['so' => $this->resourceConnection->getTableName('sales_order')],
+                'so.entity_id = sop.parent_id'
+            )->joinInner(
+                ['bmgt' => $this->resourceConnection->getTableName('buckaroo_magento2_group_transaction')],
+                'bmgt.order_id = so.increment_id'
+            )->joinInner(
+                ['bmg' => $this->resourceConnection->getTableName('buckaroo_magento2_giftcard')],
+                'bmg.servicecode = bmgt.servicecode'
+            )->group(
+                'bmgt.order_id'
+            )
+        );
 
         $additionalOptions = [];
-        while($row = $result->fetch())
-        {
+        foreach ($result as $row) {
             if (!isset($additionalOptions[$row['method']. '-' . $row['giftcard_codes']])) {
                 foreach ($this->options as $option) {
-                    if ($option['value'] == $row['method']) {
+                    if ($option['value'] === $row['method']) {
                         $additionalOptions[$row['method'] . '-' . $row['giftcard_codes']] =
-                            join(' + ', explode('-', $row['giftcard_titles'])) . ' + ' . $option['label'];
+                            implode(' + ', explode('-', $row['giftcard_titles'])) . ' + ' . $option['label'];
                     }
                 }
             }
@@ -67,7 +77,6 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
                     "__disableTmpl" => true
                 ];
             }
-
         }
 
         return $this->options;
