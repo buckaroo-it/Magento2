@@ -44,7 +44,7 @@ class Refund extends AbstractTransactionBuilder
         $method = $methodInstance->buckarooPaymentMethodCode;
 
         $configProvider = $this->configProviderMethodFactory->get($method);
-        $allowedCurrencies = $configProvider->getAllowedCurrencies();
+        $allowedCurrencies = $configProvider->getAllowedCurrencies($this->order->getStore());
 
         if (in_array($this->order->getOrderCurrencyCode(), $allowedCurrencies)) {
             /**
