@@ -143,7 +143,7 @@ class SaveOrder extends Common
                                     ->setLastOrderStatus($this->order->getStatus());
 
                                 $store = $this->order->getStore();
-                                $url = $this->accountConfig->getSuccessRedirect($store);
+                                $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
                                 $this->logger->addDebug(__METHOD__.'|7|'.var_export($url, true));
                                 $data = [
                                     'RequiredAction' => [
