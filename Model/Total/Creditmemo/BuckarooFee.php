@@ -36,6 +36,7 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
     public function __construct(RequestInterface $request)
     {
         $this->request = $request;
+        parent::__construct();
     }
 
     /**

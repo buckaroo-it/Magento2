@@ -20,7 +20,7 @@
     <?php endif?>
 <?php endforeach?>
 <script>
-    require(['prototype'], function(){
+    require(['prototype'], function() {
 
         let feeElement = document.getElementById('buckaroo_fee');
         let feeElementValue = feeElement.value;
@@ -36,7 +36,6 @@
                 let currentGrandTotalPrice = grandTotalElement.innerHTML.match(regExp);
                 let priceWithoutFee = currentGrandTotalPrice - feeElementValue;
 
-                console.log(priceWithoutFee);
                 let grandTotalPrice = grandTotalElement.innerHTML.replace(regExp, priceWithoutFee.toFixed(2).toString());
                 grandTotalElement.innerHTML = grandTotalPrice;
 
@@ -46,4 +45,5 @@
 
             }
         });
+    });
 </script>
