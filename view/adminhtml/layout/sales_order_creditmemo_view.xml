@@ -26,7 +26,9 @@
 
     <body>
         <referenceBlock name="creditmemo_totals">
-            <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_fee"/>
+            <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_fee"
+                   template="Buckaroo_Magento2::sales/order/creditmemo/buckaroo_fee.phtml"
+            />
             <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_already_paid"
                 template="Buckaroo_Magento2::sales/order/creditmemo/buckaroo_already_paid.phtml"
                 />

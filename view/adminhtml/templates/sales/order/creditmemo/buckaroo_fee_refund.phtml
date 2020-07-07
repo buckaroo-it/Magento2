@@ -1,0 +1,49 @@
+
+
+<?php foreach ($block->getTotals() as $_code => $_total): ?>
+    <?php if (isset($_total['block_name']) && $_total['block_name'] == 'buckaroo_fee'): ?>
+        <tr>
+            <td class="label">Refund <?= $_total['label'] ?>
+                <input type="checkbox" name="creditmemo[buckaroo_fee_refundable]" id="isRefund" checked>
+                <div id="buckaroo_fee_adv">
+                </div>
+            </td>
+            <td>
+                <input type="text"
+                       name="creditmemo[buckaroo_fee]"
+                       value="<?= abs($_total['value']) ?>"
+                       disabled
+                       class="input-text admin__control-text not-negative-amount"
+                       id="buckaroo_fee" />
+            </td>
+        </tr>
+    <?php endif?>
+<?php endforeach?>
+<script>
+    require(['prototype'], function(){
+
+        let feeElement = document.getElementById('buckaroo_fee');
+        let feeElementValue = feeElement.value;
+
+        let isFeeRefund = document.getElementById('isRefund');
+        let grandTotalElement = document.querySelector('tfoot span.price');
+        let grandTotalElementValue = grandTotalElement.innerHTML;
+
+        isFeeRefund.addEventListener('change', function () {
+            if (!this.checked) {
+                feeElement.value = 0;
+                let regExp = /[0-9\.,]{3,}/;
+                let currentGrandTotalPrice = grandTotalElement.innerHTML.match(regExp);
+                let priceWithoutFee = currentGrandTotalPrice - feeElementValue;
+
+                console.log(priceWithoutFee);
+                let grandTotalPrice = grandTotalElement.innerHTML.replace(regExp, priceWithoutFee.toFixed(2).toString());
+                grandTotalElement.innerHTML = grandTotalPrice;
+
+            } else {
+                feeElement.value = feeElementValue;
+                grandTotalElement.innerHTML = grandTotalElementValue;
+
+            }
+        });
+</script>
