@@ -32,6 +32,8 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Order extends AbstractTransactionBuilder
 {
+    private $emptyDescriptionFlag = false;
+
     /**
      * @return array
      */
@@ -74,7 +76,6 @@ class Order extends AbstractTransactionBuilder
             'AmountCredit' => $creditAmount,
             'Invoice' => $this->getInvoiceId(),
             'Order' => $order->getIncrementId(),
-            'Description' => $this->configProviderAccount->getTransactionLabel($store),
             'ClientIP' => (object)[
                 '_' => $ip,
                 'Type' => strpos($ip, ':') === false ? 'IPv4' : 'IPv6',
@@ -93,6 +94,10 @@ class Order extends AbstractTransactionBuilder
                 'AdditionalParameter' => $this->getAdditionalParameters()
             ],
         ];
+
+        if (!$this->emptyDescriptionFlag) {
+            $body['Description'] = $this->configProviderAccount->getTransactionLabel($store);
+        }
 
         $body = $this->filterBody($body);
 
@@ -224,6 +229,11 @@ class Order extends AbstractTransactionBuilder
         throw new \Buckaroo\Magento2\Exception(
             __("The selected payment method does not support the selected currency or the store's base currency.")
         );
+    }
+
+    public function setEmptyDescriptionFlag($enabled)
+    {
+        $this->emptyDescriptionFlag = $enabled;
     }
 
 }
