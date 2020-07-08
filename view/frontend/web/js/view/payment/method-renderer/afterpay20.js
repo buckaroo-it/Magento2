@@ -217,7 +217,7 @@ define(
                      */
 
                     var runValidation = function () {
-                        var elements = $('.' + this.getCode() + ' [data-validate]').filter(':not([name*="agreement"])');
+                        var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
                         if (this.country != 'NL' && this.country != 'BE') {
                             elements = elements.filter(':not([name*="customer_gender"])');
                         }
@@ -359,7 +359,7 @@ define(
                  */
 
                 validate: function () {
-                    var elements = $('.' + this.getCode() + ' [data-validate]:not([name*="agreement"])');
+                    var elements = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
                     if (this.country != 'NL' && this.country != 'BE') {
                         elements = elements.filter(':not([name*="customer_gender"])');
                     }
