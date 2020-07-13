@@ -120,6 +120,32 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 $dataObject->getBaseBuckarooFee() + $dataObject->getBuckarooFeeBaseTaxAmount(),
                 $label . __(' (Incl. Tax)')
             );
+        } elseif($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) {
+            $method = $dataObject->getOrder()->getPayment()->getMethod();
+            if (!preg_match('/afterpay/', $method)) {
+                /**
+                 * @noinspection PhpUndefinedMethodInspection
+                 */
+                $this->addTotalToTotals(
+                    $totals,
+                    'buckaroo_fee',
+                    $dataObject->getBuckarooFee(),
+                    $dataObject->getBaseBuckarooFee(),
+                    $label,
+                    'buckaroo_fee'
+                );
+            } else {
+                /**
+                 * @noinspection PhpUndefinedMethodInspection
+                 */
+                $this->addTotalToTotals(
+                    $totals,
+                    'buckaroo_fee',
+                    $dataObject->getBuckarooFee(),
+                    $dataObject->getBaseBuckarooFee(),
+                    $label
+                );
+            }
         } else {
             /**
              * @noinspection PhpUndefinedMethodInspection
@@ -129,8 +155,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 'buckaroo_fee',
                 $dataObject->getBuckarooFee(),
                 $dataObject->getBaseBuckarooFee(),
-                $label,
-                'buckaroo_fee'
+                $label
             );
         }
 
