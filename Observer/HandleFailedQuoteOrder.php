@@ -41,7 +41,6 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
          */
         $quote = $observer->getEvent()->getQuote();
 
-
         if ($order->canCancel()) {
             //$this->logging->addDebug('Buckaroo push failed : '.$message.' : Cancel order.');
 
@@ -57,11 +56,15 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                     $payment->save();  
                 } catch (\Exception $e) {
-                    
+                    //ignore
                 }
             }
 
-            $order->cancel()->save();
+            try {
+                $order->cancel()->save();
+            } catch (\Exception $e) {
+                //ignore
+            }
         }
 
     }

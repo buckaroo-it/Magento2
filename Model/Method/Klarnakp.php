@@ -485,9 +485,14 @@ class Klarnakp extends AbstractMethod
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $payment->getOrder()->getShippingAddress();
+        if($shippingAddress == null){
+            $shippingAddress = $payment->getOrder()->getBillingAddress();
+            $shippingSameAsBilling = "true";
+        }else{
+            $shippingSameAsBilling = $this->isAddressDataDifferent($payment);
+        }
+        
         $streetFormat = $this->addressFormatter->formatStreet($shippingAddress->getStreet());
-        $shippingSameAsBilling = $this->isAddressDataDifferent($payment);
-
 
         $rawPhoneNumber = $shippingAddress->getTelephone();
         if (!is_numeric($rawPhoneNumber) || $rawPhoneNumber == '-') {

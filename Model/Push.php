@@ -1189,7 +1189,10 @@ class Push implements PushInterface
 
     private function isGroupTransactionPart()
     {
-        return $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
+        if(isset($this->originalPostData['brq_transactions'])){
+            return $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
+        }
+        return false;
     }
 
     private function savePartGroupTransaction()
