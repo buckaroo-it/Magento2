@@ -143,7 +143,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                     'buckaroo_fee',
                     $dataObject->getBuckarooFee(),
                     $dataObject->getBaseBuckarooFee(),
-                    $label
+                    $label,
+                    'buckaroo_fee_afterpay'
                 );
             }
         } else {
