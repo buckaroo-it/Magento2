@@ -25,6 +25,9 @@
             <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_fee"
                    template="Buckaroo_Magento2::sales/order/creditmemo/buckaroo_fee_refund.phtml"
                 />
+            <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_fee_afterpay"
+                   template="Buckaroo_Magento2::sales/order/creditmemo/buckaroo_fee_afterpay.phtml"
+                />
             <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_already_paid"
                    template="Buckaroo_Magento2::sales/order/creditmemo/buckaroo_already_paid.phtml"
                 />
