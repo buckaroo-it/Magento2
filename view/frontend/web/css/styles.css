@@ -588,6 +588,18 @@
     content: ' ';
 }
 
+/* ======================= pospayment ======================== */
+.buckaroo_magento2_pospayment .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_pospayment_title.png) no-repeat;
+    float: right;
+    margin-right: -25px;
+    margin-top: 0px;
+    background-size: auto 26px;
+    width: 105px;
+    height: 36px;
+    content: ' ';
+}
+
 /* ======================= Klarna ======================== */
 .buckaroo_magento2_klarnakp .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_klarnakp_title.png) no-repeat;
@@ -972,6 +984,19 @@
         height: 30px;
         content: ' ';
     }
+
+    /* pospayment */
+    .buckaroo_magento2_pospayment .buckaroo_magento2_image_title:before {
+        background: url(../images/buckaroo_magento2_pospayment_title.png) no-repeat;
+        float: left;
+        margin-right: 10px;
+        margin-top: -1px;
+        background-size: auto 25px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
 }
 
 /* ================================================================================================================== */

@@ -272,6 +272,10 @@
                     <item name="type" xsi:type="string">rtp</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Rtp</item>
                 </item>
+                <item name="pospayment" xsi:type="array">
+                    <item name="type" xsi:type="string">pospayment</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment</item>
+                </item>
             </argument>
         </arguments>
     </type>

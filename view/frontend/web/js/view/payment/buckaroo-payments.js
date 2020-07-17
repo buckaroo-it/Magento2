@@ -156,6 +156,10 @@ define(
             {
                 type: 'buckaroo_magento2_rtp',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/rtp'
+            },
+            {
+                type: 'buckaroo_magento2_pospayment',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/pospayment'
             }
         );
         /**

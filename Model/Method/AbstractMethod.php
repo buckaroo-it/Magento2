@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Logging\Log;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -150,6 +151,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public $remoteAddress = null;
 
+    protected $logger2;
+
     /**
      * @param \Magento\Framework\ObjectManagerInterface               $objectManager
      * @param \Magento\Framework\Model\Context                        $context
@@ -228,6 +231,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
+
+        $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
     }
 
     /**

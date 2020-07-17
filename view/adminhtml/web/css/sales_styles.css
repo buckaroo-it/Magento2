@@ -72,7 +72,8 @@
 .buckaroo_magento2_payment_card_nexi,
 .buckaroo_magento2_payment_klarnakp,
 .buckaroo_magento2_payment_capayablein3,
-.buckaroo_magento2_payment_capayablepostpay
+.buckaroo_magento2_payment_capayablepostpay,
+.buckaroo_magento2_payment_pospayment
 {
     float:left;
     width: 100%;
@@ -346,6 +347,19 @@
     margin-top: -5px;
     background-size: auto 30px;
     width: 62px;
+    height: 31px;
+    content: ' ';
+    display :block;
+}
+
+/* pospayment */
+.buckaroo_magento2_payment_pospayment:before {
+    background: url(../images/buckaroo_magento2_pospayment_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: -4px;
+    background-size: auto 26px;
+    width: 73px;
     height: 31px;
     content: ' ';
     display :block;

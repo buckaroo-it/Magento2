@@ -147,8 +147,6 @@ class Afterpay20 extends AbstractMethod
      */
     private $addressFactory;
 
-    protected $logger2;
-
     /**
      * @param Calculation                                             $taxCalculation
      * @param Config                                                  $taxConfig
@@ -236,7 +234,6 @@ class Afterpay20 extends AbstractMethod
         $this->taxCalculation = $taxCalculation;
         $this->taxConfig = $taxConfig;
         $this->addressFactory  = $addressFactory;
-        $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
     }
 
     /**

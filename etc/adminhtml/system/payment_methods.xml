@@ -105,5 +105,7 @@
         <include path="Buckaroo_Magento2::system/payment_methods/trustly.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/rtp.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/pospayment.xml"/>
     </group>
 </include>
