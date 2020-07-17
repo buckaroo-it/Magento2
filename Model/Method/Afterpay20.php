@@ -804,8 +804,8 @@ class Afterpay20 extends AbstractMethod
                 $count,
                 $item->getQty() . ' x ' . $item->getName(),
                 $item->getSku(),
-                1,
-                $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount(),
+                $item->getQty(),
+                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
                 $item->getOrderItem()->getTaxPercent()
             );
 
