@@ -1503,9 +1503,11 @@ class Afterpay20 extends AbstractMethod
                 $format['house_number'] = trim($matches[2]);
                 $format['street']       = trim($matches[3]);
             } else {
-                $format['street']          = trim($matches[1]);
-                $format['house_number']    = trim($matches[2]);
-                $format['number_addition'] = trim($matches[3]);
+                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+                    $format['street']          = trim($matches[1]);
+                    $format['house_number']    = trim($matches[2]);
+                    $format['number_addition'] = trim($matches[3]);
+                }
             }
         }
 
