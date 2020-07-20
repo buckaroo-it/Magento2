@@ -909,6 +909,7 @@ class Push implements PushInterface
         if ($paymentMethod->canPushInvoice($this->postData)) {
             $this->logging->addDebug(__METHOD__.'|4|');
             if (!$this->saveInvoice()) {
+                $this->logging->addDebug(__METHOD__.'|5|');
                 return false;
             }
         }
@@ -920,6 +921,8 @@ class Push implements PushInterface
         if($this->groupTransaction->isGroupTransaction($this->postData['brq_invoicenumber'])){
             $forceState = true;
         }
+
+        $this->logging->addDebug(__METHOD__.'|7|');
 
         $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description, $forceState);
 
@@ -993,8 +996,10 @@ class Push implements PushInterface
     protected function updateOrderStatus($orderState, $newStatus, $description, $force = false)
     {
         if ($this->order->getState() == $orderState || $force == true) {
+            $this->logging->addDebug(__METHOD__.'|1|');
             $this->order->addStatusHistoryComment($description, $newStatus);
         } else {
+            $this->logging->addDebug(__METHOD__.'|2|');
             $this->order->addStatusHistoryComment($description);
         }
     }

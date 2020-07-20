@@ -36,6 +36,13 @@ class Pospayment extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_pospayment/specificcountry';
 
     /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'EUR'
+    ];
+
+    /**
      * @return array
      */
     public function getConfig()

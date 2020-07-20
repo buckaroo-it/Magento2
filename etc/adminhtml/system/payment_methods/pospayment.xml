@@ -121,7 +121,7 @@
                 <comment><![CDATA[Select payment method specific currencies.]]></comment>
                 <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
                 <config_path>payment/buckaroo_magento2_pospayment/allowed_currencies</config_path>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::ideal</source_model>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::pospayment</source_model>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
             </field>
 
