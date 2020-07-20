@@ -45,4 +45,8 @@
     <event name="sales_order_shipment_save_after">
         <observer name="buckaroo_magento2_shipment_save_after" instance="Buckaroo\Magento2\Observer\SalesOrderShipmentAfter" />
     </event>
+
+    <event name="payment_method_is_active">
+        <observer name="buckaroo_magento2_payment_method_is_active" instance="Buckaroo\Magento2\Observer\PaymentMethodAvailable" />
+    </event>
 </config>
