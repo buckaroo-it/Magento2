@@ -81,6 +81,7 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
         if (($params = $this->getRequest()->getParams()) && !empty($params['id'])) {
             $metadata = $this->cookieMetadataFactory
                 ->createPublicCookieMetadata()
+                ->setPath('/')
                 ->setDuration(86400 * 365);
             $this->cookieManager->setPublicCookie(
                 'Pos-Terminal-Id',
