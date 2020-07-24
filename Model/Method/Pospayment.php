@@ -74,7 +74,7 @@ class Pospayment extends AbstractMethod
         $services = [
             'Name'             => 'pospayment',
             'Action'           => 'Pay',
-            'Version'          => 1,
+            'Version'          => 2,
             'RequestParameter' => [
                 [
                     '_'    => $this->getPosPaymentTerminalId(),
