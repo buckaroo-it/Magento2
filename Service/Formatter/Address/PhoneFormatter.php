@@ -19,11 +19,15 @@
  */
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
+use Buckaroo\Magento2\Logging\Log;
+
 class PhoneFormatter
 {
     private $validMobile = [
         'NL' => ['00316'],
         'BE' => ['003246', '003247', '003248', '003249'],
+        'DE' => ['004915', '004916', '004917'],
+        'AT' => ['0049650', '0049660', '0049664','0049676', '0049680', '0049677','0049681', '0049688', '0049699'],
     ];
 
     private $invalidNotation = [
@@ -34,7 +38,16 @@ class PhoneFormatter
     private $startingNotation = [
         'NL' => ['0', '0', '3', '1'],
         'BE' => ['0', '0', '3', '2'],
+        'DE' => ['0', '0', '4', '9'],
+        'AT' => ['0', '0', '4', '3'],
     ];
+
+    public function __construct(
+        Log $logger
+    )
+    {
+        $this->logger = $logger;
+    }
 
     /**
      * @param $phoneNumber
@@ -44,6 +57,9 @@ class PhoneFormatter
      */
     public function format($phoneNumber, $country)
     {
+        $this->logger->addDebug(__METHOD__ . '|1|');
+        $this->logger->addDebug(var_export([$phoneNumber, $country], true));
+
         $return = ["orginal" => $phoneNumber, "clean" => false, "mobile" => false, "valid" => false];
 
         $match = preg_replace('/[^0-9]/Uis', '', $phoneNumber);
@@ -57,6 +73,9 @@ class PhoneFormatter
         if (strlen((string)$return['clean']) == 13) {
             $return['valid'] = true;
         }
+
+        $this->logger->addDebug(__METHOD__ . '|2|');
+        $this->logger->addDebug(var_export($return, true));
 
         return $return;
     }
@@ -75,9 +94,15 @@ class PhoneFormatter
             $phoneNumber = $this->isValidNotation($phoneNumber, $country);
         }
 
-        if ($phoneLength == 10) {
-            $notationStart = implode($this->startingNotation[$country]);
-            $phoneNumber = $notationStart . substr($phoneNumber, 1);
+        if (
+            (in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
+            ||
+            (in_array($country, ['AT', 'DE']))
+        )  {
+            if (isset($this->startingNotation[$country])) {
+                $notationStart = implode($this->startingNotation[$country]);
+                $phoneNumber = $notationStart . substr($phoneNumber, 1);
+            }
         }
 
         return $phoneNumber;
@@ -93,17 +118,19 @@ class PhoneFormatter
     {
         $isMobile = false;
 
-        array_walk(
-            $this->validMobile[$country],
-            function ($value) use (&$isMobile, $phoneNumber) {
-                $phoneNumberPart = substr($phoneNumber, 0, strlen($value));
-                $phoneNumberHasValue = strpos($phoneNumberPart, $value);
+        if (isset($this->validMobile[$country])) {
+            array_walk(
+                $this->validMobile[$country],
+                function ($value) use (&$isMobile, $phoneNumber) {
+                    $phoneNumberPart = substr($phoneNumber, 0, strlen($value));
+                    $phoneNumberHasValue = strpos($phoneNumberPart, $value);
 
-                if ($phoneNumberHasValue !== false) {
-                    $isMobile = true;
+                    if ($phoneNumberHasValue !== false) {
+                        $isMobile = true;
+                    }
                 }
-            }
-        );
+            );
+        }
 
         return $isMobile;
     }
@@ -116,16 +143,18 @@ class PhoneFormatter
      */
     private function isValidNotation($phoneNumber, $country)
     {
-        array_walk(
-            $this->invalidNotation[$country],
-            function ($invalid) use (&$phoneNumber, $country) {
-                $phoneNumberPart = substr($phoneNumber, 0, strlen($invalid));
+        if (isset($this->invalidNotation[$country])) {
+            array_walk(
+                $this->invalidNotation[$country],
+                function ($invalid) use (&$phoneNumber, $country) {
+                    $phoneNumberPart = substr($phoneNumber, 0, strlen($invalid));
 
-                if (strpos($phoneNumberPart, $invalid) !== false) {
-                    $phoneNumber = $this->formatNotation($phoneNumber, $invalid, $country);
+                    if (strpos($phoneNumberPart, $invalid) !== false) {
+                        $phoneNumber = $this->formatNotation($phoneNumber, $invalid, $country);
+                    }
                 }
-            }
-        );
+            );
+        }
 
         return $phoneNumber;
     }
@@ -139,22 +168,24 @@ class PhoneFormatter
      */
     private function formatNotation($phoneNumber, $invalid, $country)
     {
-        $valid = substr($invalid, 0, -1);
-        $countryNotation = $this->startingNotation[$country];
+        if (isset($this->startingNotation[$country])) {
+            $valid = substr($invalid, 0, -1);
+            $countryNotation = $this->startingNotation[$country];
 
-        if (substr($valid, 0, 2) == $countryNotation[2] . $countryNotation[3]) {
-            $valid = $countryNotation[0] . $countryNotation[1] . $valid;
+            if (substr($valid, 0, 2) == $countryNotation[2] . $countryNotation[3]) {
+                $valid = $countryNotation[0] . $countryNotation[1] . $valid;
+            }
+
+            if (substr($valid, 0, 2) == $countryNotation[1] . $countryNotation[2]) {
+                $valid = $countryNotation[0] . $valid;
+            }
+
+            if ($valid == $countryNotation[2]) {
+                $valid = $countryNotation[1] . $valid . $countryNotation[3];
+            }
+
+            $phoneNumber = substr_replace($phoneNumber, $valid, 0, strlen($invalid));
         }
-
-        if (substr($valid, 0, 2) == $countryNotation[1] . $countryNotation[2]) {
-            $valid = $countryNotation[0] . $valid;
-        }
-
-        if ($valid == $countryNotation[2]) {
-            $valid = $countryNotation[1] . $valid . $countryNotation[3];
-        }
-
-        $phoneNumber = substr_replace($phoneNumber, $valid, 0, strlen($invalid));
 
         return $phoneNumber;
     }
