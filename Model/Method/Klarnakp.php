@@ -1234,9 +1234,13 @@ class Klarnakp extends AbstractMethod
      */
     private function getTaxPercent($data)
     {
-        $taxPercent = $data->getTaxPercent();
-        if (!$taxPercent) {
-            $taxPercent = $data->getOrderItem()->getTaxPercent();
+        $taxPercent = 0;
+
+        if ($data) {
+            $taxPercent = $data->getTaxPercent();
+            if (!$taxPercent) {
+                $taxPercent = $data->getOrderItem()->getTaxPercent();
+            }
         }
 
         return $taxPercent;
