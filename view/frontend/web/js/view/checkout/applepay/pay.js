@@ -218,7 +218,7 @@ define(
                 if ('grand_total' in totals) {
                     grandTotal = parseFloat(totals['grand_total']).toFixed(2);
                 }
-
+                if (isNaN(grandTotal)) grandTotal = 0;
                 return {label: storeName, amount: grandTotal, type: type};
             },
 

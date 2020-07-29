@@ -24,6 +24,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Customer\Model\Session as CustomerSession;
 
 class Add extends Common
 {
@@ -42,9 +43,12 @@ class Add extends Common
         Log $logger,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Framework\Data\Form\FormKey $formKey,
-        \Magento\Catalog\Model\Product $product
+        \Magento\Catalog\Model\Product $product,
+        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
+        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
+        CustomerSession $customerSession = null
     ) {
-        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart);
+        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart, $totalsCollector, $converter, $customerSession);
 
         $this->formKey = $formKey;
         $this->product = $product;
