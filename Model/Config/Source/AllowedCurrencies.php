@@ -93,7 +93,7 @@ class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
         foreach ($currencies as $currency) {
             $output[] = [
                 'value' => $currency,
-                'label' => $translatedCurrencies[$currency][1],
+                'label' => $translatedCurrencies[$currency][1] ?? $currency,
             ];
         }
 
