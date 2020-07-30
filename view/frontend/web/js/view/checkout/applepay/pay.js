@@ -602,7 +602,13 @@ define(
                     $('div.swatch-attribute').each(function(k,v){
                         var attribute_id    = $(v).attr('attribute-id');
                         var option_selected = $(v).attr('option-selected');
-                        if(!attribute_id || !option_selected){ return;}
+                        if(!attribute_id || !option_selected) {
+                            attribute_id    = $(v).attr('data-attribute-id');
+                            option_selected = $(v).attr('data-option-selected');
+                            if(!attribute_id || !option_selected) {
+                                return;
+                            }
+                        }
                         selected_options[attribute_id] = option_selected;
                     });
 
