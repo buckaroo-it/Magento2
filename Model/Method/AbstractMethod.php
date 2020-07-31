@@ -1282,7 +1282,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $totalOrder = $order->getBaseGrandTotal();
 
         $requestParams = $this->request->getParams();
-        if(isset($requestParams['creditmemo']) && isset($requestParams['creditmemo']['buckaroo_already_paid'])){
+        if(isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])){
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $amount_value) {
                 
                 $transaction = explode('|',$transaction);
