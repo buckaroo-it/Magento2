@@ -565,6 +565,8 @@ class Klarnakp extends AbstractMethod
      */
     public function getPayRequestData($invoice, $payment)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $order = $payment->getOrder();
         $invoiceCollection = $order->getInvoiceCollection();
 
@@ -594,6 +596,13 @@ class Klarnakp extends AbstractMethod
                 'Name' => 'ArticleQuantity',
             ];
 
+            $this->groupId++;
+        }
+
+        $taxLine = $this->getTaxLine($payment->getOrder(), $this->groupId);
+
+        if (!empty($taxLine)) {
+            $articles = array_merge($articles, $taxLine);
             $this->groupId++;
         }
 
