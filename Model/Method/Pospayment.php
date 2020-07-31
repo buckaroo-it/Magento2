@@ -148,8 +148,6 @@ class Pospayment extends AbstractMethod
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        $this->logger2->addDebug(__METHOD__.'|1|');
-
         if (parent::isAvailable($quote)) {
             if (!$this->getPosPaymentTerminalId()) {
                 return false;
