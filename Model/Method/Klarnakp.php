@@ -577,26 +577,40 @@ class Klarnakp extends AbstractMethod
 
         $invoiceItems = $invoice->getAllItems();
 
+
+        $qtys = [];
         foreach ($invoiceItems as $item) {
             if (empty($item) || $this->calculateProductPrice($item, $includesTax) == 0) {
                 continue;
             }
 
-            $articles[] = [
-                '_' => $item->getSku(),
-                'Group' => 'Article',
-                'GroupID' => $this->groupId,
-                'Name' => 'ArticleNumber',
+            $qtys[$item->getSku()] = [
+                'qty' => intval($item->getQty()),
+                //'name' => $item->getName(),
+                'price' => $this->calculateProductPrice($item, $includesTax),
+                //'tax' => $item->getTaxPercent()
             ];
+        }
+
+        $this->logger2->addDebug(var_export($qtys, true));
+
+        foreach ($qtys as $sku => $item) {
 
             $articles[] = [
-                '_' => (int) $item->getQty(),
-                'Group' => 'Article',
-                'GroupID' => $this->groupId,
-                'Name' => 'ArticleQuantity',
+                    '_' => $sku,
+                    'Group' => 'Article',
+                    'GroupID' => $this->groupId,
+                    'Name' => 'ArticleNumber',
+            ];
+            $articles[] = [
+                    '_' => $item['qty'],
+                    'Group' => 'Article',
+                    'GroupID' => $this->groupId,
+                    'Name' => 'ArticleQuantity',
             ];
 
             $this->groupId++;
+
         }
 
         $taxLine = $this->getTaxLine($payment->getOrder(), $this->groupId);
@@ -909,6 +923,8 @@ class Klarnakp extends AbstractMethod
      */
     public function getRequestArticlesData($payment)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
         /**
