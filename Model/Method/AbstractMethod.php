@@ -228,11 +228,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->priceHelper                  = $priceHelper;
         $this->developmentHelper            = $developmentHelper;
 
+        $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
+
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
 
-        $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
+        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(var_export($this->buckarooPaymentMethodCode, true));
+
+
+
     }
 
     /**
@@ -729,6 +735,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function capture(InfoInterface $payment, $amount)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
         ) {
@@ -774,6 +782,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function captureTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(var_export([$this->buckarooPaymentMethodCode, $this->helper->getMode($this->buckarooPaymentMethodCode)], true));
+
+        $this->gateway->setMode(
+            $this->helper->getMode($this->buckarooPaymentMethodCode)
+        );
+
         $response = $this->gateway->capture($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {

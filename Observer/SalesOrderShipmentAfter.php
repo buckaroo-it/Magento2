@@ -68,6 +68,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
     protected $transactionFactory;
 
     /**
+     * @var \Buckaroo\Magento2\Gateway\GatewayInterface
+     */
+    protected $gateway;
+
+    /**
+     * @var \Buckaroo\Magento2\Helper\Data
+     */
+    public $helper;
+
+    /**
      * @param \Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory $invoiceCollectionFactory
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory
@@ -79,13 +89,20 @@ class SalesOrderShipmentAfter implements ObserverInterface
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
+        \Buckaroo\Magento2\Helper\Data $helper
     ) {
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;
         $this->shipmentFactory = $shipmentFactory;
         $this->transactionFactory = $transactionFactory;
         $this->klarnakpConfig = $klarnakpConfig;
+        $this->helper = $helper;
+        $this->gateway = $gateway;
+        $this->gateway->setMode(
+            $this->helper->getMode('buckaroo_magento2_klarnakp')
+        );
     }
 
 
