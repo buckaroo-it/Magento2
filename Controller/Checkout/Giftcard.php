@@ -341,7 +341,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             
             $this->groupTransaction->saveGroupTransaction($response);
 
-            $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'] ?? 0;
+            $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'] ?? null;
             $alreadyPaid = $this->getAlreadyPaid($orderId) + $response['AmountDebit'];
             
             $res['PayRemainingAmountButton'] = '';
