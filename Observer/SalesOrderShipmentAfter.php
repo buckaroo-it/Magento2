@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order\Invoice;
@@ -77,6 +78,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     public $helper;
 
+    protected $logger;
     /**
      * @param \Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory $invoiceCollectionFactory
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
@@ -91,7 +93,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
-        \Buckaroo\Magento2\Helper\Data $helper
+        \Buckaroo\Magento2\Helper\Data $helper,
+        Log $logger
     ) {
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;
@@ -103,6 +106,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->gateway->setMode(
             $this->helper->getMode('buckaroo_magento2_klarnakp')
         );
+        $this->logger = $logger;
     }
 
 
@@ -128,6 +132,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
     public function createInvoice($order, $shipment)
     {
+        $this->logger->addDebug(__METHOD__ . '|1|');
+
         try {
             if(!$order->canInvoice()) {
                 return null;
