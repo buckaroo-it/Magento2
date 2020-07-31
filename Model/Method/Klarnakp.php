@@ -953,7 +953,7 @@ class Klarnakp extends AbstractMethod
                     'Name' => 'ArticlePrice',
                 ],
                 [
-                    '_' => 1,
+                    '_' => $item->getQty(),
                     'Group' => 'Article',
                     'GroupID' => $group,
                     'Name' => 'ArticleQuantity',
@@ -1016,10 +1016,14 @@ class Klarnakp extends AbstractMethod
      */
     public function calculateProductPrice($productItem, $includesTax)
     {
+        $productPrice = $productItem->getPrice();
+
         if ($includesTax) {
-            $productPrice = $productItem->getRowTotalInclTax();
-        } else {
-            $productPrice = $productItem->getRowTotal();
+            $productPrice = $productItem->getPriceInclTax();
+        }
+
+        if ($productItem->getWeeeTaxAppliedAmount() > 0) {
+            $productPrice += $productItem->getWeeeTaxAppliedAmount();
         }
 
         return $productPrice;
