@@ -141,6 +141,11 @@ class Push implements PushInterface
     protected $forceInvoice = false;
 
     /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
      * @param Order                $order
      * @param TransactionInterface $transaction
      * @param Request              $request
@@ -167,7 +172,8 @@ class Push implements PushInterface
         Log $logging,
         Factory $configProviderMethodFactory,
         OrderStatusFactory $orderStatusFactory,
-        PaymentGroupTransaction $groupTransaction
+        PaymentGroupTransaction $groupTransaction,
+        \Magento\Framework\ObjectManagerInterface $objectManager
     ) {
         $this->order                        = $order;
         $this->transaction                  = $transaction;
@@ -183,6 +189,7 @@ class Push implements PushInterface
         $this->orderStatusFactory           = $orderStatusFactory;
 
         $this->groupTransaction = $groupTransaction;
+        $this->objectManager                = $objectManager;
     }
 
     /**
