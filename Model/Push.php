@@ -919,16 +919,17 @@ class Push implements PushInterface
             $klarnakpConfig = $this->objectManager->create('\Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp');
 
             if ($this->hasPostData('add_initiated_by_magento', 1) &&
-                $this->hasPostData('brq_transaction_method', 'klarnakp') &&
+                $this->hasPostData('brq_transaction_method', 'KlarnaKp') &&
                 $this->hasPostData('add_service_action_from_magento', 'pay') &&
                 empty($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']) &&
                 $klarnakpConfig->getCreateInvoiceAfterShipment()
             ) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
             } else {
+                $this->logging->addDebug(__METHOD__ . '|6|');
 
                 if (!$this->saveInvoice()) {
-                    $this->logging->addDebug(__METHOD__ . '|6|');
+                    $this->logging->addDebug(__METHOD__ . '|7|');
                     return false;
                 }
 
@@ -943,7 +944,7 @@ class Push implements PushInterface
             $forceState = true;
         }
 
-        $this->logging->addDebug(__METHOD__.'|7|');
+        $this->logging->addDebug(__METHOD__.'|8|');
 
         $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description, $forceState);
 
