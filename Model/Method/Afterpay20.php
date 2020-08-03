@@ -512,6 +512,9 @@ class Afterpay20 extends AbstractMethod
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
+        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
+
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
             $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
             $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
@@ -537,6 +540,8 @@ class Afterpay20 extends AbstractMethod
 
     public function updateShippingAddressByDhlParcel($servicePointId, &$requestData)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
@@ -571,19 +576,41 @@ class Afterpay20 extends AbstractMethod
 
     public function updateShippingAddressByDpdParcel($quote, &$requestData)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $fullStreet = $quote->getDpdStreet();
+        $postalCode = $quote->getDpdZipcode();
+        $city = $quote->getDpdCity();
+        $country = $quote->getDpdCountry();
+        
+        if (!$fullStreet && $quote->getDpdParcelshopId()) {
+            $this->logger2->addDebug(__METHOD__.'|2|');
+            $this->logger2->addDebug(var_export($_COOKIE, true));
+            //$DPDClient = $this->objectManager->create('DpdConnect\Shipping\Helper\DPDClient');
+            //$DPDClient2 = $DPDClient->authenticate();
+            //$dpdShop = $DPDClient2->getParcelshop()->get(787611561);
+            $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
+            $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
+            $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
+            $country = $_COOKIE['dpd-selected-parcelshop-country'] ?? '';
+        }
+
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
+            $this->logger2->addDebug(__METHOD__.'|3|');
+
             $street = $matches[1];
             $streetHouseNumber = $matches[2];
 
             $mapping = [
                 ['Street', $street],
-                ['PostalCode', $quote->getDpdZipcode()],
-                ['City', $quote->getDpdCity()],
-                ['Country', $quote->getDpdCountry()],
+                ['PostalCode', $postalCode],
+                ['City', $city],
+                ['Country', $country],
                 ['StreetNumber', $streetHouseNumber],
             ];
+
+            $this->logger2->addDebug(var_export($mapping, true));
 
             foreach ($mapping as $mappingItem) {
                 if (!empty($mappingItem[1])) {

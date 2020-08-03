@@ -234,8 +234,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
 
-        $this->logger2->addDebug(__METHOD__.'|1|');
-        $this->logger2->addDebug(var_export($this->buckarooPaymentMethodCode, true));
+        //$this->logger2->addDebug(__METHOD__.'|1|');
+        //$this->logger2->addDebug(var_export($this->buckarooPaymentMethodCode, true));
 
 
 
