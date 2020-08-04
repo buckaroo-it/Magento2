@@ -26,7 +26,11 @@ define(
         'Buckaroo_Magento2/js/action/place-order',
         'ko',
         'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method'
+        'Magento_Checkout/js/action/select-payment-method',
+        'mage/storage',
+        'mage/url',
+        'mage/translate',
+        'Magento_Ui/js/modal/alert'
     ],
     function (
         $,
@@ -35,9 +39,32 @@ define(
         placeOrderAction,
         ko,
         checkoutData,
-        selectPaymentMethodAction
+        selectPaymentMethodAction,
+        storage,
+        urlBuilder,
+        $t,
+        alert
     ) {
         'use strict';
+
+        function checkOrderState(orderId, interval) {
+            //console.log('==================31', orderId);
+            $.ajax({
+                url: urlBuilder.build('buckaroo/pos/checkOrderStatus'),
+                type: 'POST',
+                dataType: 'json',
+                //showLoader: true,
+                data: {
+                    orderId: orderId
+                }
+            }).done(function (response) {
+                if (response.status == 'processing' || response.status == 'canceled') {
+                    clearInterval(interval);
+                    location.href = urlBuilder.build('checkout/onepage/success/')
+                    //console.log('==================33');
+                }
+            });
+        }
 
         return Component.extend(
             {
@@ -75,7 +102,7 @@ define(
 
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
+                        placeOrder = placeOrderAction(this.getData(), false, this.messageContainer);
 
                         $.when(placeOrder).fail(
                             function () {
@@ -92,6 +119,23 @@ define(
                     response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         window.location.replace(response.RequiredAction.RedirectURL);
+                    }
+                    if (typeof response.Order !== "undefined") {
+                        alert({
+                            title: $t('You can pay at the cash register now.'),
+                            content: $t('You will be redirected to the next page once the payment has been fullfilled.'),
+                            actions: {always: function(){} }/*,
+                            buttons: [{
+                                text: $t(333),
+                                class: 'action primary accept',
+                                click: function () {
+                                    this.closeModal(true);
+                                }
+                            }]*/
+                        });
+                        var interval = setInterval(function () {
+                            checkOrderState(response.Order, interval);
+                        },5000);
                     }
                 },
 
