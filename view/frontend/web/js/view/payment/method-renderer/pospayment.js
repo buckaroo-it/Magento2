@@ -134,7 +134,7 @@ define(
                         });
                         var interval = setInterval(function () {
                             checkOrderState(response.Order, interval);
-                        },5000);
+                        },3000);
                     }
                 },
 
