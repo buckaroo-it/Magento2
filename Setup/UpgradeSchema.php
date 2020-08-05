@@ -67,7 +67,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         if (version_compare($context->getVersion(), '1.25.2', '<')) {
             $installer->getConnection()->addColumn(
-                $setup->getTable('buckaroo_magento2_group_transaction'),
+                $installer->getTable('buckaroo_magento2_group_transaction'),
                 'refunded_amount',
                 [
                     'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -77,7 +77,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             );
 
             $installer->getConnection()->addColumn(
-                $setup->getTable('buckaroo_magento2_giftcard'),
+                $installer->getTable('buckaroo_magento2_giftcard'),
                 'is_partial_refundable',
                 [
                     'type' => \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
