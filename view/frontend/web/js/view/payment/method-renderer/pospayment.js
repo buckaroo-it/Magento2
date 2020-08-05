@@ -121,8 +121,8 @@ define(
                     }
                     if (typeof response.Order !== "undefined") {
                         alert({
-                            title: $t('You can pay at the cash register now.'),
-                            content: $t('You will be redirected to the next page once the payment has been fullfilled.'),
+                            title: $t('Follow the instructions on the payment terminal'),
+                            content: $t('Your order will be completed as soon as payment has been made'),
                             actions: {always: function(){} }/*,
                             buttons: [{
                                 text: $t(333),
