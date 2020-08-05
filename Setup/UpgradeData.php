@@ -1386,7 +1386,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         $giftcardsForPartialRefund = [ 'fashioncheque' ];
 
         foreach ($giftcardsForPartialRefund as $giftcard) {
-            $setup->getConnection->update(
+            $setup->getConnection()->update(
                 $setup->getTable('buckaroo_magento2_giftcard'),
                 [
                     'is_partial_refundable' => 1
