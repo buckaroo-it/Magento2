@@ -77,4 +77,21 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     {
         return $this->setData('created_at', $createdAt);
     }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setRefundedAmount($refundedAmount)
+    {
+        return $this->setData('refunded_amount', $refundedAmount);
+    }
+
+    /**
+     * @return string
+     */
+    public function getRefundedAmount()
+    {
+        return $this->getData('refunded_amount');
+    }
 }

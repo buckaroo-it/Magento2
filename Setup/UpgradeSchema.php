@@ -65,6 +65,28 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             $this->createGroupTransactionTable($installer);
         }
 
+        if (version_compare($context->getVersion(), '1.25.2', '<')) {
+            $installer->getConnection()->addColumn(
+                $setup->getTable('buckaroo_magento2_group_transaction'),
+                'refunded_amount',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'nullable' => true,
+                    'comment' => 'RefundedAmount'
+                ]
+            );
+
+            $installer->getConnection()->addColumn(
+                $setup->getTable('buckaroo_magento2_giftcard'),
+                'is_partial_refundable',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+                    'nullable' => true,
+                    'comment' => 'Giftcard partial refund'
+                ]
+            );
+        }
+
         $installer->endSetup();
     }
 
@@ -203,7 +225,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             ],
             'Transaction Id'
         );
-            
+
         $table->addColumn(
             'relatedtransaction',
             \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -271,7 +293,6 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             [],
             'Created At'
         );
-
         $table->setComment('Buckaroo Group Transaction');
 
         $installer->getConnection()->createTable($table);

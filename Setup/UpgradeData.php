@@ -535,6 +535,9 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $this->zeroizeGiftcardsPaymentFee($setup);
         }
 
+        if (version_compare($context->getVersion(), '1.25.2', '<')) {
+            $this->giftcardPartialRefund($setup);
+        }
     }
 
     /**
@@ -1368,6 +1371,29 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $data,
             $setup->getConnection()->quoteInto('path = ?', $path)
         );
+
+        return $this;
+    }
+
+    /**
+     * add data connected with giftcard partial refund
+     *
+     * @param ModuleDataSetupInterface $setup
+     *
+     * @return $this
+     */
+    protected function giftcardPartialRefund(ModuleDataSetupInterface $setup){
+        $giftcardsForPartialRefund = [ 'fashioncheque' ];
+
+        foreach ($giftcardsForPartialRefund as $giftcard) {
+            $setup->getConnection->update(
+                $setup->getTable('buckaroo_magento2_giftcard'),
+                [
+                    'is_partial_refundable' => 1
+                ],
+                $setup->getConnection()->quoteInto('servicecode = ?', $giftcard)
+            );
+        }
 
         return $this;
     }
