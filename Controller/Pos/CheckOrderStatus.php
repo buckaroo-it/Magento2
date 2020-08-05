@@ -45,6 +45,11 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
     protected $resultJsonFactory;
 
     /**
+     * @var \Magento\Checkout\Model\ConfigProviderInterface
+     */
+    protected $accountConfig;
+
+    /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param Log                                                 $logger
      * @param \Magento\Sales\Model\Order                          $order
@@ -55,12 +60,14 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         Log $logger,
         \Magento\Sales\Model\Order $order,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
     ) {
         parent::__construct($context);
         $this->logger             = $logger;
         $this->order              = $order;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->accountConfig = $configProviderFactory->get('account');
     }
 
     /**
@@ -72,12 +79,28 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $this->logger->addDebug(__METHOD__.'|1|');
-        $response = ['success' => 'false', 'status' => ''];
+        $response = ['success' => 'false', 'redirect' => ''];
 
         if (($params = $this->getRequest()->getParams()) && !empty($params['orderId'])) {
             $this->order->loadByIncrementId($params['orderId']);
             if ($this->order->getId()) {
-                $response = ['success' => 'true', 'status' => $this->order->getState()];
+                $store = $this->order->getStore();
+                $url = '';
+
+                if (in_array($this->order->getState(), ['processing', 'complete'])) {
+                    $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
+                }
+
+                if (in_array($this->order->getState(), ['canceled', 'closed'])) {
+                    $url = $store->getBaseUrl() . '/' . $this->accountConfig->getFailureRedirect($store);
+                    $this->messageManager->addErrorMessage(
+                        __(
+                            'The transaction has not been completed, please try again'
+                        )
+                    );
+                }
+
+                $response = ['success' => 'true', 'redirect' => $url];
             }
         }
 

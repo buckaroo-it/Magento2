@@ -58,9 +58,9 @@ define(
                     orderId: orderId
                 }
             }).done(function (response) {
-                if (response.status == 'processing' || response.status == 'complete') {
+                if (response.redirect) {
                     clearInterval(interval);
-                    location.href = urlBuilder.build('checkout/onepage/success/')
+                    location.href = response.redirect;
                 }
             });
         }
