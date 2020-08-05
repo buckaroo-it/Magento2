@@ -531,6 +531,10 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $this->fixLanguageCodes($setup);
         }
 
+        if (version_compare($context->getVersion(), '1.25.1', '<')) {
+            $this->zeroizeGiftcardsPaymentFee($setup);
+        }
+
     }
 
     /**
@@ -1318,6 +1322,42 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     protected function updateMerchantKeyConfiguration(ModuleDataSetupInterface $setup)
     {
         $path = 'buckaroo_magento2/account/merchant_key';
+        $data = [
+            'path' => $path,
+            'value' => '',
+        ];
+
+        $setup->getConnection()->update(
+            $setup->getTable('core_config_data'),
+            $data,
+            $setup->getConnection()->quoteInto('path = ?', $path)
+        );
+
+        return $this;
+    }
+
+    /**
+     * zeroize giftcards payment fee
+     *
+     * @param ModuleDataSetupInterface $setup
+     *
+     * @return $this
+     */
+    protected function zeroizeGiftcardsPaymentFee(ModuleDataSetupInterface $setup)
+    {
+        $path = 'payment/buckaroo_magento2_giftcards/payment_fee';
+        $data = [
+            'path' => $path,
+            'value' => 0,
+        ];
+
+        $setup->getConnection()->update(
+            $setup->getTable('core_config_data'),
+            $data,
+            $setup->getConnection()->quoteInto('path = ?', $path)
+        );
+
+        $path = 'payment/buckaroo_magento2_giftcards/payment_fee_label';
         $data = [
             'path' => $path,
             'value' => '',
