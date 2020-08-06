@@ -235,12 +235,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
-
-        //$this->logger2->addDebug(__METHOD__.'|1|');
-        //$this->logger2->addDebug(var_export($this->buckarooPaymentMethodCode, true));
-
-
-
     }
 
     /**
@@ -832,13 +826,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (empty($amount)) {
-//            $this->messageManager->addError( __('This is your error message.') );
             throw new \Exception('Giftcard cannot be refunded without order items');
         }
 
-        $this->gateway->setMode(
-            $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore())
-        );
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
+        $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
+        if (!$activeMode) {
+            $activeMode = 2;
+        }
+        $this->gateway->setMode($activeMode);
 
         parent::refund($payment, $amount);
 
