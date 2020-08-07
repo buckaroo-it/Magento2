@@ -100,6 +100,16 @@ define(
                 function (response) {
                     errorProcessor.process(response, messageContainer);
                     fullScreenLoader.stopLoader();
+                    if (paymentData && paymentData.method && (paymentData.method == 'buckaroo_magento2_afterpay20')) {
+                        setInterval(function () {
+                            if (document.querySelector('.buckaroo_magento2_afterpay20.payment-method')) {
+                                var y = window.scrollY;
+                                window.scroll(0, 0);  // reset the scroll position to the top left of the document.
+                                window.scroll(0, y);
+                            }
+                        }, 2000);
+
+                    }
                 }
             );
         };
