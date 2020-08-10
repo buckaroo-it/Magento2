@@ -221,7 +221,7 @@ define(
                     this.hasTelephoneNumber = ko.computed(
                         function () {
                             var telephone = quote.billingAddress() ? quote.billingAddress().telephone : null;
-                            return telephone != '' && telephone != '-';
+                            return telephone != '' && telephone != '-' && telephone != null;
                         }
                     );
 
