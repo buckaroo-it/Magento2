@@ -61,7 +61,8 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             }
 
             try {
-                $order->cancel()->save();
+                $order->cancel();
+                $order->save();
             } catch (\Exception $e) {
                 //ignore
             }
