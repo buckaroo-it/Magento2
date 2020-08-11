@@ -155,7 +155,7 @@ class Rtp extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('refund');
 
         $services = [
-            'Name'    => 'rtp',
+            'Name'    => 'RequestToPay',
             'Action'  => 'Refund',
             'Version' => 1,
         ];
