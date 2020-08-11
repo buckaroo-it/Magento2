@@ -145,6 +145,8 @@ class Push implements PushInterface
      */
     protected $objectManager;
 
+    private $dontSaveOrderUponSuccessPush = false;
+
     /**
      * @param Order                $order
      * @param TransactionInterface $transaction
@@ -298,7 +300,11 @@ class Push implements PushInterface
                 break;
         }
 
-        $this->order->save();
+        $this->logging->addDebug(__METHOD__.'|5|');
+        if (!$this->dontSaveOrderUponSuccessPush) {
+            $this->order->save();
+        }
+        $this->logging->addDebug(__METHOD__.'|6|');
 
         return true;
     }
@@ -913,6 +919,7 @@ class Push implements PushInterface
             $forceState = true;
         }
 
+        $this->dontSaveOrderUponSuccessPush = false;
         if ($paymentMethod->canPushInvoice($this->postData)) {
             $this->logging->addDebug(__METHOD__.'|4|');
 
@@ -925,6 +932,8 @@ class Push implements PushInterface
                 $klarnakpConfig->getCreateInvoiceAfterShipment()
             ) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
+                $this->dontSaveOrderUponSuccessPush = true;
+                return true;
             } else {
                 $this->logging->addDebug(__METHOD__ . '|6|');
 
@@ -947,6 +956,8 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__.'|8|');
 
         $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description, $forceState);
+
+        $this->logging->addDebug(__METHOD__.'|9|');
 
         return true;
     }

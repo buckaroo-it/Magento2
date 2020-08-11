@@ -157,6 +157,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $order->addStatusHistoryComment($message, false);
             $transactionSave = $this->transactionFactory->create()->addObject($invoice)->addObject($invoice->getOrder());
             $transactionSave->save();
+
+            $this->logger->addDebug(__METHOD__ . '|3|' . var_export($order->getStatus(), true));
+
+            if ($order->getStatus() == 'complete') {
+                $description = 'Total amount of ' . $order->getBaseCurrency()->formatTxt($order->getTotalInvoiced()) . ' has been paid';
+                $order->addStatusHistoryComment($description, false);
+                $order->save();
+            }
+
+            $this->logger->addDebug(__METHOD__ . '|4|');
         } catch (\Exception $e) {
             $order->addStatusHistoryComment('Exception message: '.$e->getMessage(), false);
             $order->save();
