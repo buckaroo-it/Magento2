@@ -60,47 +60,58 @@ class Creditcard extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_creditcard/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_creditcard/specificcountry';
+    const XPATH_CREDITCARD_SORT                 = 'payment/buckaroo_magento2_creditcard/sorted_creditcards';
 
     protected $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
+            'sort' => 0
         ],
         [
             'name' => 'Carte Bancaire',
             'code' => self::CREDITCARD_SERVICE_CODE_CARTEBANCAIRE,
+            'sort' => 0
         ],
         [
             'name' => 'Carte Bleue',
             'code' => self::CREDITCARD_SERVICE_CODE_CARTEBLEUE,
+            'sort' => 0
         ],
         [
             'name' => 'Dankort',
             'code' => self::CREDITCARD_SERVICE_CODE_DANKORT,
+            'sort' => 0
         ],
         [
             'name' => 'Maestro',
             'code' => self::CREDITCARD_SERVICE_CODE_MAESTRO,
+            'sort' => 0
         ],
         [
             'name' => 'MasterCard',
             'code' => self::CREDITCARD_SERVICE_CODE_MASTERCARD,
+            'sort' => 0
         ],
         [
             'name' => 'Nexi',
             'code' => self::CREDITCARD_SERVICE_CODE_NEXI,
+            'sort' => 0
         ],
         [
             'name' => 'VISA',
             'code' => self::CREDITCARD_SERVICE_CODE_VISA,
+            'sort' => 0
         ],
         [
             'name' => 'VISA Electron',
             'code' => self::CREDITCARD_SERVICE_CODE_VISAELECTRON,
+            'sort' => 0
         ],
         [
             'name' => 'VPay',
             'code' => self::CREDITCARD_SERVICE_CODE_VPAY,
+            'sort' => 0
         ],
     ];
 
@@ -116,6 +127,28 @@ class Creditcard extends AbstractConfigProvider
             self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
         );
+
+        $sorted = explode(',', $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_SORT,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+        );
+
+        if (!empty($sorted)) {
+            $sortedPosition = 1;
+            foreach ($sorted as $cardName) {
+                foreach ($issuers as $key => $issuer) {
+                    if ($issuers[$key]['name'] == $cardName && empty($issuers[$key]['sort'])) {
+                        $issuers[$key]['sort'] = $sortedPosition;
+                        $sortedPosition++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        usort($issuers, function ($cardA, $cardB){
+            return $cardA['sort'] - $cardB['sort'];
+        });
 
         foreach ($issuers as $key => $issuer) {
             $issuers[$key]['active'] = in_array($issuer['code'], $allowed);

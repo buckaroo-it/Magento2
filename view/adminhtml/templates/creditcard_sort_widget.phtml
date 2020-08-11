@@ -1,0 +1,75 @@
+<?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+?>
+<div style="width: 100%; border: 1px solid #000; list-style: none" >
+    <input type="hidden" name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][sort_creditcards][value]" id="sort_cards"
+           value="<?php echo $this->helper('Buckaroo\Magento2\Helper\Data')->getConfigCardSort()?>">
+    <div id="ul">
+
+    </div>
+
+</div>
+
+<script>
+    require([
+        "jquery",
+        "jquery/ui",
+        "Magento_Theme/js/sortable"
+    ], function ($) {
+        'use strict';
+
+        $('#ul').sortable({
+            axis: 'y',
+            tolerance: 'pointer',
+            items: 'p'
+        });
+
+        let inputText = $('#sort_cards').val();
+
+        if (inputText !== '') {
+            let cardSortedArray = inputText.split(',');
+            cardSortedArray.forEach(function (item, index) {
+                let p = document.createElement("p");
+                p.innerHTML = item;
+                $('#ul').append(p);
+            });
+        }
+
+        $('#payment_us_buckaroo_magento2_payment_section_buckaroo_magento2_creditcard_allowed_creditcards').change(function () {
+            $('#ul p').remove();
+
+            $('#payment_us_buckaroo_magento2_payment_section_buckaroo_magento2_creditcard_allowed_creditcards option:selected').each(function () {
+                let p = document.createElement("p");
+                p.innerHTML = $(this).text();
+                $('#ul').append(p);
+            });
+        });
+
+        let cardList = '';
+
+        $('#save').click(function () {
+            $('#ul p').each(function () {
+                cardList += $(this).text() + ',';
+            });
+            cardList = cardList.slice(0, -1);
+            $('#sort_cards').val(cardList);
+        });
+    });
+</script>

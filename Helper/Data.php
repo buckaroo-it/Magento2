@@ -26,7 +26,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-
+use Magento\Store\Model\ScopeInterface;
 /**
  * Class Data
  *
@@ -81,7 +81,7 @@ class Data extends AbstractHelper
 
     /** @var CheckoutSession */
     protected $_checkoutSession;
-    
+
     protected $groupTransaction;
 
     /**
@@ -239,5 +239,11 @@ class Data extends AbstractHelper
             return true;
         }
         return false;
+    }
+
+    public function getConfigCardSort() {
+        $configValue = $this->scopeConfig->getValue('payment/buckaroo_magento2_creditcard/sorted_creditcards', ScopeInterface::SCOPE_STORE);
+
+        return $configValue;
     }
 }
