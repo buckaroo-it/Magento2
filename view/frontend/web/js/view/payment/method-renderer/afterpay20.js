@@ -359,6 +359,13 @@ define(
                  */
 
                 validate: function () {
+                    if (
+                        document.querySelector('.action.primary.checkout')
+                        &&
+                        !$('.action.primary.checkout').is(':visible')
+                    ) {
+                       return true;
+                    }
                     var elements = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
                     if (this.country != 'NL' && this.country != 'BE') {
                         elements = elements.filter(':not([name*="customer_gender"])');
