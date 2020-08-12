@@ -828,6 +828,10 @@ class Push implements PushInterface
 
         $description = 'Payment status : '.$message;
 
+        if(isset($this->originalPostData['brq_SERVICE_antifraud_Action'])){
+            $description .= $this->originalPostData['brq_SERVICE_antifraud_Action'] . ' ' . $this->originalPostData['brq_SERVICE_antifraud_Check'] . ' ' . $this->originalPostData['brq_SERVICE_antifraud_Details'];
+        }
+
         $store = $this->order->getStore();
 
         $buckarooCancelOnFailed = $this->configAccount->getCancelOnFailed($store);
