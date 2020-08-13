@@ -280,6 +280,10 @@ class Push implements PushInterface
             $this->setTransactionKey();
         }
 
+        if(isset($this->originalPostData['brq_statusmessage'])){
+            $this->order->addStatusHistoryComment($this->originalPostData['brq_statusmessage']);
+        }
+
         if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
             $this->savePartGroupTransaction();
             return true;
