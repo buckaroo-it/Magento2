@@ -164,9 +164,12 @@ class Process extends \Magento\Framework\App\Action\Action
             return $this->_redirect('/');
         }
 
+        $this->logger->addDebug(__METHOD__.'|2|'.var_export($statusCode, true));
+
         switch ($statusCode) {
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
+                $this->logger->addDebug(__METHOD__.'|3|');
                 if ($this->order->canInvoice()) {
                     // Set the 'Pending payment status' here
                     $pendingStatus = $this->orderStatusFactory->get(
@@ -194,6 +197,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         || $paymentMethod->getConfigData('order_email', $store) === "1"
                     )
                 ) {
+                    $this->logger->addDebug(__METHOD__.'|4|');
                     $this->orderSender->send($this->order, true);
                 }
 
@@ -204,17 +208,24 @@ class Process extends \Magento\Framework\App\Action\Action
                             ' error persists, please choose a different payment method.'
                         )
                     );
+                    $this->logger->addDebug(__METHOD__.'|5|');
                     return $this->_redirect('/');
                     // $this->redirectFailure();
                 }
 
+                if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
+                    $this->logger->addDebug(__METHOD__.'|51|');
+                    $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
+                }
+                $this->logger->addDebug(__METHOD__.'|6|');
                 // Redirect to success page
-                $this->redirectSuccess();
+                return $this->redirectSuccess();
                 break;
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
+                $this->logger->addDebug(__METHOD__.'|7|');
                 /*
                 * Something went wrong, so we're going to have to
                 * 1) recreate the quote for the user
@@ -250,12 +261,13 @@ class Process extends \Magento\Framework\App\Action\Action
                 if (!$this->cancelOrder($statusCode)) {
                     $this->logger->addError('Could not cancel the order.');
                 }
-
+                $this->logger->addDebug(__METHOD__.'|8|');
                 $this->redirectFailure();
                 break;
             //no default
         }
 
+        $this->logger->addDebug(__METHOD__.'|9|');
         return $this->_response;
     }
 
@@ -399,6 +411,8 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function redirectSuccess()
     {
+        $this->logger->addDebug(__METHOD__.'|1|');
+
         $store = $this->order->getStore();
 
         /**
@@ -423,6 +437,8 @@ class Process extends \Magento\Framework\App\Action\Action
         ) {
             $this->redirectSuccessApplePay();
         }
+
+        $this->logger->addDebug(__METHOD__.'|2|'.var_export($url, true));
 
         return $this->_redirect($url);
     }
