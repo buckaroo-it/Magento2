@@ -197,8 +197,16 @@ class Process extends \Magento\Framework\App\Action\Action
                         || $paymentMethod->getConfigData('order_email', $store) === "1"
                     )
                 ) {
-                    $this->logger->addDebug(__METHOD__.'|4|');
-                    $this->orderSender->send($this->order, true);
+                    if ($this->hasPostData('add_initiated_by_magento', 1) &&
+                        $this->hasPostData('brq_primary_service', 'KlarnaKp') &&
+                        $this->hasPostData('add_service_action_from_magento', 'reserve') &&
+                        !empty($this->response['brq_service_klarnakp_reservationnumber'])
+                    ) {
+
+                    } else {
+                        $this->logger->addDebug(__METHOD__ . '|4|');
+                        $this->orderSender->send($this->order, true);
+                    }
                 }
 
                 if($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING')){
@@ -470,5 +478,28 @@ class Process extends \Magento\Framework\App\Action\Action
         $url = $this->accountConfig->getFailureRedirect($store);
 
         return $this->_redirect($url);
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     * @return bool
+     */
+    private function hasPostData($name, $value)
+    {
+        if (is_array($value) &&
+            isset($this->response[$name]) &&
+            in_array($this->response[$name], $value)
+        ) {
+            return true;
+        }
+
+        if (isset($this->response[$name]) &&
+            $this->response[$name] == $value
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

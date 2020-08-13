@@ -905,6 +905,7 @@ class Push implements PushInterface
                 || $paymentMethod->getConfigData('order_email', $store)
             )
         ) {
+            $this->logging->addDebug(__METHOD__.'|sendemail|');
             $this->orderSender->send($this->order);
         }
 
