@@ -862,6 +862,7 @@ class Push implements PushInterface
                 $this->logging->addDebug(__METHOD__.'|3|');
                 //  SignifydGateway/Gateway error on line 208"
             }
+            return true;
         }
 
         $this->logging->addDebug(__METHOD__.'|4|');
