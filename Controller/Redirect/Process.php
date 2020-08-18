@@ -221,9 +221,27 @@ class Process extends \Magento\Framework\App\Action\Action
                     // $this->redirectFailure();
                 }
 
+                $this->logger->addDebug(__METHOD__.'|51|'.var_export(
+                    [
+                        $this->checkoutSession->getLastSuccessQuoteId(),
+                        $this->checkoutSession->getLastQuoteId(),
+                        $this->checkoutSession->getLastOrderId(),
+                        $this->order->getQuoteId(),
+                        $this->order->getId()
+                    ],
+               true));
+
                 if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__.'|51|');
+                    $this->logger->addDebug(__METHOD__.'|52|');
                     $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
+                }
+                if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
+                    $this->logger->addDebug(__METHOD__.'|53|');
+                    $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
+                }
+                if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
+                    $this->logger->addDebug(__METHOD__.'|54|');
+                    $this->checkoutSession->setLastOrderId($this->order->getId());
                 }
                 $this->logger->addDebug(__METHOD__.'|6|');
                 // Redirect to success page
