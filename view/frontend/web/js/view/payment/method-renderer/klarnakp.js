@@ -235,6 +235,7 @@ define(
                      */
 
                     var runValidation = function () {
+                        window.buckarooKlarnaDob = this.dateValidate();
                         $('.' + this.getCode() + ' [data-validate]').filter(':not([name*="agreement"])').valid();
                         this.selectPaymentMethod();
                     };

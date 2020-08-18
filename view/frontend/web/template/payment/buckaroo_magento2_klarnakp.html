@@ -98,11 +98,15 @@
                                             changeMonth: true,
                                             changeYear: true,
                                             yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
-                                            dateFormat: 'dd/mm/yy'
+                                            dateFormat: 'dd/mm/yy',
+                                            onClose: function(dateText, inst) {
+                                                if (window.buckarooKlarnaDob) {
+                                                    jQuery('#buckaroo_magento2_klarnakp_DoB').val(window.buckarooKlarnaDob);
+                                                }
+                                            }
                                         }
                                    },
                                    valueUpdate: 'change',
-                                   value: dateValidate,
                                    attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
                                        name="payment[buckaroo_magento2_klarnakp][customer_DoB]">
                             </div>
