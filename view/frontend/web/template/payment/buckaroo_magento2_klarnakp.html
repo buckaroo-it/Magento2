@@ -100,8 +100,14 @@
                                             yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
                                             dateFormat: 'dd/mm/yy',
                                             onClose: function(dateText, inst) {
+                                                if (!window.buckarooKlarnaDob && dateText) {
+                                                    setTimeout(function() {
+                                                        jQuery('#buckaroo_magento2_klarnakp_DoB').val(dateText);
+                                                    },100);
+                                                }
                                                 if (window.buckarooKlarnaDob) {
                                                     jQuery('#buckaroo_magento2_klarnakp_DoB').val(window.buckarooKlarnaDob);
+                                                    window.buckarooKlarnaDob = null;
                                                 }
                                             }
                                         }
