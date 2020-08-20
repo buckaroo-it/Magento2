@@ -99,6 +99,8 @@
 "Enable Request To Pay","Request To Pay inschakelen"
 "Giropay","Giropay"
 "Enable Giropay","Giropay inschakelen"
+"Tinka","Tinka"
+"Enable Tinka","Tinka inschakelen"
 "Refunding","Terugbetaling"
 "Enable or disable refunding.","Schakel de creditering/terugstorten in of uit."
 "Set to 'No' refunds must be done manualy in Payment Plaza.","Bij de selectie 'Nee' worden credit memo's in Magento niet aangeboden bij Payment Plaza."
