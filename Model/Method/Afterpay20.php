@@ -531,6 +531,13 @@ class Afterpay20 extends AbstractMethod
             );
         }
 
+        if (
+            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
+            &&
+            $payment->getOrder()->getSendcloudServicePointId()
+        ) {
+            $this->updateShippingAddressBySendcloud($payment->getOrder(), $requestData);
+        }
 
         // Merge the article data; products and fee's
         $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
@@ -1576,5 +1583,32 @@ class Afterpay20 extends AbstractMethod
         $methodMessage = trim(implode(':', $subcodeMessage));
 
         return $methodMessage;
+    }
+
+    public function updateShippingAddressBySendcloud($order, &$requestData)
+    {
+        if ($order->getSendcloudServicePointId() > 0) {
+            foreach ($requestData as $key => $value) {
+                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                    $mapping = [
+                        ['Street', $order->getSendcloudServicePointStreet()],
+                        ['PostalCode', $order->getSendcloudServicePointZipCode()],
+                        ['City', $order->getSendcloudServicePointCity()],
+                        ['Country', $order->getSendcloudServicePointCountry()],
+                        ['StreetNumber', $order->getSendcloudServicePointHouseNumber()],
+                    ];
+                    foreach ($mapping as $mappingItem) {
+                        if (($requestData[$key]['Name'] == $mappingItem[0]) && !empty($mappingItem[1])) {
+                            $requestData[$key]['_'] = $mappingItem[1];
+                        }
+                    }
+
+                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
+                        unset($requestData[$key]);
+                    }
+
+                }
+            }
+        }
     }
 }

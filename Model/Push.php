@@ -280,6 +280,10 @@ class Push implements PushInterface
             $this->setTransactionKey();
         }
 
+        if(isset($this->originalPostData['brq_statusmessage'])){
+            $this->order->addStatusHistoryComment($this->originalPostData['brq_statusmessage']);
+        }
+
         if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
             $this->savePartGroupTransaction();
             return true;
@@ -828,6 +832,10 @@ class Push implements PushInterface
 
         $description = 'Payment status : '.$message;
 
+        if(isset($this->originalPostData['brq_SERVICE_antifraud_Action'])){
+            $description .= $this->originalPostData['brq_SERVICE_antifraud_Action'] . ' ' . $this->originalPostData['brq_SERVICE_antifraud_Check'] . ' ' . $this->originalPostData['brq_SERVICE_antifraud_Details'];
+        }
+
         $store = $this->order->getStore();
 
         $buckarooCancelOnFailed = $this->configAccount->getCancelOnFailed($store);
@@ -854,6 +862,7 @@ class Push implements PushInterface
                 $this->logging->addDebug(__METHOD__.'|3|');
                 //  SignifydGateway/Gateway error on line 208"
             }
+            return true;
         }
 
         $this->logging->addDebug(__METHOD__.'|4|');
@@ -897,6 +906,7 @@ class Push implements PushInterface
                 || $paymentMethod->getConfigData('order_email', $store)
             )
         ) {
+            $this->logging->addDebug(__METHOD__.'|sendemail|');
             $this->orderSender->send($this->order);
         }
 
