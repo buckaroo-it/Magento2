@@ -577,10 +577,10 @@ class Klarnakp extends AbstractMethod
 
         $invoiceItems = $invoice->getAllItems();
 
-
         $qtys = [];
         foreach ($invoiceItems as $item) {
-            if (empty($item) || $this->calculateProductPrice($item, $includesTax) == 0) {
+            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()],true));
+            if (empty($item)  || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
                 continue;
             }
 
