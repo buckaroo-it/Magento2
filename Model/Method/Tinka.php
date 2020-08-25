@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Catalog\Model\Product\Type;
 
 class Tinka extends AbstractMethod
 {
@@ -305,6 +306,41 @@ class Tinka extends AbstractMethod
             ];
         }
 
+        if (!$this->isAddressDataDifferent($payment)) {
+//            $billingData[] = [
+            $billingData[] = [
+                "Name"=> "City",
+                "Group"=> "ShippingCustomer",
+                "GroupID"=> "",
+                "_"=> $billingAddress->getCity()
+            ];
+
+            $billingData[] = [
+                "Name"=> "PostalCode",
+                "Group"=> "ShippingCustomer",
+                "GroupID"=> "",
+                "_"=> $billingAddress->getPostcode()
+            ];
+
+            $billingData[] = [
+                "Name"=> "StreetNumber",
+                "Group"=> "ShippingCustomer",
+                "GroupID"=> "",
+                "_"=> $billingStreetFormat['house_number']
+            ];
+            $billingData[] = [
+                "Name"=> "Street",
+                "Group"=> "ShippingCustomer",
+                "GroupID"=> "",
+                "_"=> $billingStreetFormat['street']
+            ];
+            $billingData[] = [
+                "Name"=> "StreetNumberAdditional",
+                "Group"=> "ShippingCustomer",
+                "GroupID"=> "",
+                "_"=> $billingStreetFormat['number_addition']
+            ];
+        }
         return $billingData;
     }
 
@@ -674,6 +710,14 @@ class Tinka extends AbstractMethod
 
             if (empty($item)
                 || $item->getRowTotalInclTax() == 0
+            ) {
+                continue;
+            }
+
+            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no), because the underlying simples are also in the quote
+            if ($item->getProductType() == Type::TYPE_BUNDLE
+                && $item->getProduct()->getCustomAttribute('price_type')
+                && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
             ) {
                 continue;
             }
