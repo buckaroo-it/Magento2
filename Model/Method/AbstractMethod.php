@@ -556,6 +556,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);
 
         // SET REGISTRY BUCKAROO REDIRECT
+        $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
         $this->afterOrder($payment, $response);
@@ -685,6 +686,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->saveTransactionData($response[0], $payment, $this->closeAuthorizeTransaction, true);
 
         // SET REGISTRY BUCKAROO REDIRECT
+        $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
         $this->afterAuthorize($payment, $response);
@@ -763,6 +765,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->saveTransactionData($response[0], $payment, $this->closeCaptureTransaction, true);
 
         // SET REGISTRY BUCKAROO REDIRECT
+        $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
         $this->afterCapture($payment, $response);
