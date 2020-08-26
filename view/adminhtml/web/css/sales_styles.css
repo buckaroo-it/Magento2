@@ -373,7 +373,7 @@
     margin-right: 10px;
     margin-top: -4px;
     background-size: auto 26px;
-    width: 73px;
+    width: 83px;
     height: 31px;
     content: ' ';
     display :block;
@@ -390,7 +390,7 @@
     width: 40px;
     height: 23px;
     content: ' ';
- }
+}
 
 .buckaroo_magento2_payment_card_maestro:before {
     background: url(../images/creditcard/ico-mae.png) no-repeat;
@@ -434,7 +434,7 @@
     width: 40px;
     height: 23px;
     content: ' ';
- }
+}
 
 .buckaroo_magento2_payment_card_vpay:before {
     background: url(../images/creditcard/ico-vp.png) no-repeat;
