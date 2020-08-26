@@ -759,7 +759,7 @@ class Tinka extends AbstractMethod
         }
 
         // Add remaining price after rounding
-        if (floatval($orderTotal) > floatval($countOrderPrice)) {
+        if (round($orderTotal - $countOrderPrice, 2) > 0) {
             $remainingPrice = $this->getArticleArrayLine(
                 $count,
                 'Remaining price',
