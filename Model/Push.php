@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Webapi\Rest\Request;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
@@ -45,6 +46,7 @@ use Buckaroo\Magento2\Model\Method\Trustly;
 use Buckaroo\Magento2\Model\Method\Rtp;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
+use Magento\Framework\App\ResourceConnection;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
@@ -147,6 +149,8 @@ class Push implements PushInterface
 
     private $dontSaveOrderUponSuccessPush = false;
 
+    protected $resourceConnection;
+
     /**
      * @param Order                $order
      * @param TransactionInterface $transaction
@@ -175,7 +179,8 @@ class Push implements PushInterface
         Factory $configProviderMethodFactory,
         OrderStatusFactory $orderStatusFactory,
         PaymentGroupTransaction $groupTransaction,
-        \Magento\Framework\ObjectManagerInterface $objectManager
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        ResourceConnection $resourceConnection
     ) {
         $this->order                        = $order;
         $this->transaction                  = $transaction;
@@ -192,6 +197,7 @@ class Push implements PushInterface
 
         $this->groupTransaction = $groupTransaction;
         $this->objectManager                = $objectManager;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
@@ -323,9 +329,6 @@ class Push implements PushInterface
         /** Magento may adds the SID session parameter, depending on the store configuration.
          * We don't need or want to use this parameter, so remove it from the retrieved post data. */
         unset($postData['SID']);
-
-        //ZAK
-        //$postData['brq_invoicenumber'] = $postData['brq_ordernumber'] = '050900790';
 
         //Set original postdata before setting it to case lower.
         $this->originalPostData = $postData;
@@ -884,6 +887,7 @@ class Push implements PushInterface
         $amount = $this->order->getTotalDue();
 
         if (isset($this->originalPostData['brq_amount']) && !empty($this->originalPostData['brq_amount'])) {
+            $this->logging->addDebug(__METHOD__.'|11|');
             $amount = floatval($this->originalPostData['brq_amount']);
         }
 
@@ -914,14 +918,20 @@ class Push implements PushInterface
          *  like new -> processing
          */
         $forceState = false;
+        $state = Order::STATE_PROCESSING;
 
         $this->logging->addDebug(__METHOD__.'|2|');
 
         if ($paymentMethod->canPushInvoice($this->postData)) {
             $this->logging->addDebug(__METHOD__.'|3|');
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
-            $amount = $this->order->getBaseTotalDue();
-            $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+            if ($this->hasPostData('brq_transaction_method', 'transfer')) {
+                //keep amount fetched from brq_amount
+                $description .= 'Amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+            } else {
+                $amount = $this->order->getBaseTotalDue();
+                $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+            }
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($this->order->getTotalDue())
@@ -947,9 +957,89 @@ class Push implements PushInterface
             } else {
                 $this->logging->addDebug(__METHOD__ . '|6|');
 
-                if (!$this->saveInvoice()) {
-                    $this->logging->addDebug(__METHOD__ . '|7|');
-                    return false;
+                if (
+                    ($this->hasPostData('brq_transaction_method', 'transfer'))
+
+                ) {
+                    //invoice only in case of full or last remained amount
+                    $this->logging->addDebug(__METHOD__.'|61|'.var_export(
+                        [
+                            $this->order->getId(),
+                            $amount,
+                            $this->order->getTotalDue(),
+                            $this->order->getTotalPaid(),
+                        ], true)
+                    );
+
+                    $receivedPaymentsArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
+                    $this->setReceivedPaymentFromBuckaroo();
+                    $payment->save();
+
+                    //fight with double pushes for the same transaction id
+                    if (
+                        $receivedPaymentsArray
+                        &&
+                        is_array($receivedPaymentsArray)
+                        &&
+                        !empty($this->postData['brq_transactions'])
+                        &&
+                        in_array($this->postData['brq_transactions'], array_keys($receivedPaymentsArray))
+                    ) {
+
+                        $this->logging->addDebug(__METHOD__.'|63|');
+                        return;
+                    }
+
+                    $saveInvoice = true;
+                    if (
+                        ($amount < $this->order->getTotalDue())
+                        ||
+                        (
+                            ($amount == $this->order->getTotalDue())
+                            &&
+                            ($this->order->getTotalPaid() > 0)
+                        )
+                    ) {
+                        $this->logging->addDebug(__METHOD__.'|64|');
+
+                        $forceState = true;
+                        if ($amount < $this->order->getTotalDue()) {
+                            $this->logging->addDebug(__METHOD__.'|65|');
+                            $state = Order::STATE_NEW;
+                            $newStatus = $this->orderStatusFactory->get($this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'), $this->order);
+                            $saveInvoice = false;
+                        }
+
+                        $this->order->setTotalDue($this->order->getTotalDue() - $amount);
+                        $this->order->setBaseTotalDue($this->order->getTotalDue() - $amount);
+                        $this->order->setTotalPaid($this->order->getTotalPaid() + $amount);
+                        $this->order->setBaseTotalPaid($this->order->getBaseTotalPaid() + $amount);
+
+                        $this->resourceConnection->getConnection()->update(
+                            $this->resourceConnection->getConnection()->getTableName('sales_order'),
+                            [
+                                'total_due' => $this->order->getTotalDue(),
+                                'base_total_due' => $this->order->getTotalDue(),
+                                'total_paid' => $this->order->getTotalPaid(),
+                                'base_total_paid' => $this->order->getBaseTotalPaid()
+                            ],
+                            $this->resourceConnection->getConnection()->quoteInto('entity_id = ?', $this->order->getId())
+                        );
+
+                    }
+
+                    if ($saveInvoice) {
+                        if (!$this->saveInvoice()) {
+                            return false;
+                        }
+                    }
+
+                } else {
+
+                    if (!$this->saveInvoice()) {
+                        return false;
+                    }
+
                 }
 
             }
@@ -965,7 +1055,7 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__.'|8|');
 
-        $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description, $forceState);
+        $this->updateOrderStatus($state, $newStatus, $description, $forceState);
 
         $this->logging->addDebug(__METHOD__.'|9|');
 
@@ -1038,6 +1128,7 @@ class Push implements PushInterface
      */
     protected function updateOrderStatus($orderState, $newStatus, $description, $force = false)
     {
+        $this->logging->addDebug(__METHOD__.'|0|'.var_export([$orderState, $newStatus, $description], true));
         if ($this->order->getState() == $orderState || $force == true) {
             $this->logging->addDebug(__METHOD__.'|1|');
             $this->order->addStatusHistoryComment($description, $newStatus);
