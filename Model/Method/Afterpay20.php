@@ -147,8 +147,6 @@ class Afterpay20 extends AbstractMethod
      */
     private $addressFactory;
 
-    protected $logger2;
-
     /**
      * @param Calculation                                             $taxCalculation
      * @param Config                                                  $taxConfig
@@ -236,7 +234,6 @@ class Afterpay20 extends AbstractMethod
         $this->taxCalculation = $taxCalculation;
         $this->taxConfig = $taxConfig;
         $this->addressFactory  = $addressFactory;
-        $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
     }
 
     /**
@@ -515,6 +512,9 @@ class Afterpay20 extends AbstractMethod
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
+        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
+
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
             $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
             $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
@@ -531,6 +531,13 @@ class Afterpay20 extends AbstractMethod
             );
         }
 
+        if (
+            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
+            &&
+            $payment->getOrder()->getSendcloudServicePointId()
+        ) {
+            $this->updateShippingAddressBySendcloud($payment->getOrder(), $requestData);
+        }
 
         // Merge the article data; products and fee's
         $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
@@ -540,6 +547,8 @@ class Afterpay20 extends AbstractMethod
 
     public function updateShippingAddressByDhlParcel($servicePointId, &$requestData)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
@@ -574,19 +583,41 @@ class Afterpay20 extends AbstractMethod
 
     public function updateShippingAddressByDpdParcel($quote, &$requestData)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $fullStreet = $quote->getDpdStreet();
+        $postalCode = $quote->getDpdZipcode();
+        $city = $quote->getDpdCity();
+        $country = $quote->getDpdCountry();
+        
+        if (!$fullStreet && $quote->getDpdParcelshopId()) {
+            $this->logger2->addDebug(__METHOD__.'|2|');
+            $this->logger2->addDebug(var_export($_COOKIE, true));
+            //$DPDClient = $this->objectManager->create('DpdConnect\Shipping\Helper\DPDClient');
+            //$DPDClient2 = $DPDClient->authenticate();
+            //$dpdShop = $DPDClient2->getParcelshop()->get(787611561);
+            $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
+            $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
+            $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
+            $country = $_COOKIE['dpd-selected-parcelshop-country'] ?? '';
+        }
+
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
+            $this->logger2->addDebug(__METHOD__.'|3|');
+
             $street = $matches[1];
             $streetHouseNumber = $matches[2];
 
             $mapping = [
                 ['Street', $street],
-                ['PostalCode', $quote->getDpdZipcode()],
-                ['City', $quote->getDpdCity()],
-                ['Country', $quote->getDpdCountry()],
+                ['PostalCode', $postalCode],
+                ['City', $city],
+                ['Country', $country],
                 ['StreetNumber', $streetHouseNumber],
             ];
+
+            $this->logger2->addDebug(var_export($mapping, true));
 
             foreach ($mapping as $mappingItem) {
                 if (!empty($mappingItem[1])) {
@@ -804,8 +835,8 @@ class Afterpay20 extends AbstractMethod
                 $count,
                 $item->getQty() . ' x ' . $item->getName(),
                 $item->getSku(),
-                1,
-                $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount(),
+                $item->getQty(),
+                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
                 $item->getOrderItem()->getTaxPercent()
             );
 
@@ -1506,9 +1537,11 @@ class Afterpay20 extends AbstractMethod
                 $format['house_number'] = trim($matches[2]);
                 $format['street']       = trim($matches[3]);
             } else {
-                $format['street']          = trim($matches[1]);
-                $format['house_number']    = trim($matches[2]);
-                $format['number_addition'] = trim($matches[3]);
+                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+                    $format['street']          = trim($matches[1]);
+                    $format['house_number']    = trim($matches[2]);
+                    $format['number_addition'] = trim($matches[3]);
+                }
             }
         }
 
@@ -1550,5 +1583,32 @@ class Afterpay20 extends AbstractMethod
         $methodMessage = trim(implode(':', $subcodeMessage));
 
         return $methodMessage;
+    }
+
+    public function updateShippingAddressBySendcloud($order, &$requestData)
+    {
+        if ($order->getSendcloudServicePointId() > 0) {
+            foreach ($requestData as $key => $value) {
+                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                    $mapping = [
+                        ['Street', $order->getSendcloudServicePointStreet()],
+                        ['PostalCode', $order->getSendcloudServicePointZipCode()],
+                        ['City', $order->getSendcloudServicePointCity()],
+                        ['Country', $order->getSendcloudServicePointCountry()],
+                        ['StreetNumber', $order->getSendcloudServicePointHouseNumber()],
+                    ];
+                    foreach ($mapping as $mappingItem) {
+                        if (($requestData[$key]['Name'] == $mappingItem[0]) && !empty($mappingItem[1])) {
+                            $requestData[$key]['_'] = $mappingItem[1];
+                        }
+                    }
+
+                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
+                        unset($requestData[$key]);
+                    }
+
+                }
+            }
+        }
     }
 }

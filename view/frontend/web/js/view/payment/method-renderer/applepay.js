@@ -101,7 +101,7 @@ define(
                     var self = this,
                         placeOrder;
 
-                    //console.log('==========pvo13'); //ZAK
+                    //console.log('==========applepaydebug/60');
 
                     if (event) {
                         event.preventDefault();
@@ -125,7 +125,7 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    //console.log('==========pvo14'); //ZAK
+                    //console.log('==========applepaydebug/14');
                     response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         window.location.replace(response.RequiredAction.RedirectURL);
@@ -133,6 +133,7 @@ define(
                 },
 
                 selectPaymentMethod: function () {
+                    //console.log('==========applepaydebug/71');
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
 
@@ -140,7 +141,7 @@ define(
                 },
 
                 showPayButton: function () {
-                    //console.log('==========pvo6'); //ZAK
+                    //console.log('==========applepaydebug/66');
                     applepayPay.setIsOnCheckout(true);
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton();

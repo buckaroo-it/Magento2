@@ -54,6 +54,7 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'p24',                    'label' => __('P24')],
             ['value' => 'trustly',                'label' => __('Trustly')],
             ['value' => 'rtp',                    'label' => __('Request To Pay')],
+            ['value' => 'tinka',                    'label' => __('Tinka')],
         ];
 
         return $options;

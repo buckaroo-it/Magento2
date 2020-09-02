@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order\Invoice;
@@ -68,6 +69,17 @@ class SalesOrderShipmentAfter implements ObserverInterface
     protected $transactionFactory;
 
     /**
+     * @var \Buckaroo\Magento2\Gateway\GatewayInterface
+     */
+    protected $gateway;
+
+    /**
+     * @var \Buckaroo\Magento2\Helper\Data
+     */
+    public $helper;
+
+    protected $logger;
+    /**
      * @param \Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory $invoiceCollectionFactory
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory
@@ -79,13 +91,22 @@ class SalesOrderShipmentAfter implements ObserverInterface
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
+        \Buckaroo\Magento2\Helper\Data $helper,
+        Log $logger
     ) {
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;
         $this->shipmentFactory = $shipmentFactory;
         $this->transactionFactory = $transactionFactory;
         $this->klarnakpConfig = $klarnakpConfig;
+        $this->helper = $helper;
+        $this->gateway = $gateway;
+        $this->gateway->setMode(
+            $this->helper->getMode('buckaroo_magento2_klarnakp')
+        );
+        $this->logger = $logger;
     }
 
 
@@ -111,6 +132,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
     public function createInvoice($order, $shipment)
     {
+        $this->logger->addDebug(__METHOD__ . '|1|');
+
         try {
             if(!$order->canInvoice()) {
                 return null;
@@ -134,6 +157,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $order->addStatusHistoryComment($message, false);
             $transactionSave = $this->transactionFactory->create()->addObject($invoice)->addObject($invoice->getOrder());
             $transactionSave->save();
+
+            $this->logger->addDebug(__METHOD__ . '|3|' . var_export($order->getStatus(), true));
+
+            if ($order->getStatus() == 'complete') {
+                $description = 'Total amount of ' . $order->getBaseCurrency()->formatTxt($order->getTotalInvoiced()) . ' has been paid';
+                $order->addStatusHistoryComment($description, false);
+                $order->save();
+            }
+
+            $this->logger->addDebug(__METHOD__ . '|4|');
         } catch (\Exception $e) {
             $order->addStatusHistoryComment('Exception message: '.$e->getMessage(), false);
             $order->save();

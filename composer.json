@@ -2,9 +2,9 @@
     "name": "buckaroo/magento2",
     "description": "Buckaroo Magento 2 extension",
     "require": {
-        "php": "~7.1.0|~7.2.0|~7.3.0",
-        "magento/module-payment": "100.1.*|100.2.*|100.3.*",
-        "magento/framework": ">=100.1.0,<=100.1.18|>=101.0.0,<=101.0.11|>=102.0.0,<=102.0.5|102.0.2-p2"
+        "php": "~7.1.0|~7.2.0|~7.3.0|~7.4.0",
+        "magento/module-payment": "100.1.*|100.2.*|100.3.*|100.4.*",
+        "magento/framework": ">=100.1.0,<=100.1.18|>=101.0.0,<=101.0.11|>=102.0.0,<=102.0.5-p2|102.0.2-p2|>=103.0.0"
     },
     "type": "magento2-module",
     "license": "CC-BY-NC-ND-3.0",
@@ -22,8 +22,8 @@
         "docs": "https://support.buckaroo.nl"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v1.24.0-RC2",
-    "minimum-stability": "RC",
+    "version" : "v1.25.3",
+    "minimum-stability": "stable",
     "autoload": {
         "files": [
             "registration.php"

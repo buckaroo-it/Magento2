@@ -22,6 +22,8 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Logging\Log;
+use mysql_xdevapi\Exception;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -150,29 +152,32 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public $remoteAddress = null;
 
+    protected $logger2;
+
     /**
-     * @param \Magento\Framework\ObjectManagerInterface               $objectManager
-     * @param \Magento\Framework\Model\Context                        $context
-     * @param \Magento\Framework\Registry                             $registry
-     * @param \Magento\Framework\Api\ExtensionAttributesFactory       $extensionFactory
-     * @param \Magento\Framework\Api\AttributeValueFactory            $customAttributeFactory
-     * @param \Magento\Payment\Helper\Data                            $paymentData
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface      $scopeConfig
-     * @param \Magento\Payment\Model\Method\Logger                    $logger
-     * @param \Magento\Developer\Helper\Data                          $developmentHelper
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
+     * @param \Magento\Framework\Model\Context $context
+     * @param \Magento\Framework\Registry $registry
+     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
+     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
+     * @param \Magento\Payment\Helper\Data $paymentData
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \Magento\Developer\Helper\Data $developmentHelper
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
-     * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Model\ValidatorFactory                    $validatorFactory
-     * @param \Buckaroo\Magento2\Helper\Data                               $helper
-     * @param \Magento\Framework\App\RequestInterface                 $request
-     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory                 $refundFieldsFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory              $configProviderFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
-     * @param \Magento\Framework\Pricing\Helper\Data                  $priceHelper
-     * @param array                                                   $data
+     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param \Buckaroo\Magento2\Gateway\GatewayInterface $gateway
+     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
+     * @param \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory
+     * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param \Magento\Framework\App\RequestInterface $request
+     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
+     * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
+     * @param array $data
      *
+     * @param GroupTransaction $groupTransaction
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
@@ -224,6 +229,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->configProviderMethodFactory  = $configProviderMethodFactory; //Load interface, inject childs via di?
         $this->priceHelper                  = $priceHelper;
         $this->developmentHelper            = $developmentHelper;
+
+        $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
 
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
@@ -549,6 +556,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);
 
         // SET REGISTRY BUCKAROO REDIRECT
+        $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
         $this->afterOrder($payment, $response);
@@ -678,6 +686,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->saveTransactionData($response[0], $payment, $this->closeAuthorizeTransaction, true);
 
         // SET REGISTRY BUCKAROO REDIRECT
+        $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
         $this->afterAuthorize($payment, $response);
@@ -724,6 +733,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function capture(InfoInterface $payment, $amount)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
         ) {
@@ -754,6 +765,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->saveTransactionData($response[0], $payment, $this->closeCaptureTransaction, true);
 
         // SET REGISTRY BUCKAROO REDIRECT
+        $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
         $this->afterCapture($payment, $response);
@@ -769,6 +781,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function captureTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(var_export([$this->buckarooPaymentMethodCode, $this->helper->getMode($this->buckarooPaymentMethodCode)], true));
+
+        $this->gateway->setMode(
+            $this->helper->getMode($this->buckarooPaymentMethodCode)
+        );
+
         $response = $this->gateway->capture($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
@@ -809,9 +828,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
-        $this->gateway->setMode(
-            $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore())
-        );
+        if (empty($amount)) {
+            throw new \Exception('Giftcard cannot be refunded without order items');
+        }
+
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
+        $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
+        if (!$activeMode) {
+            $activeMode = 2;
+        }
+        $this->gateway->setMode($activeMode);
 
         parent::refund($payment, $amount);
 
@@ -823,6 +850,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $amount = $this->refundGroupTransactions($payment, $amount);
+
         if($amount<=0){
             return $this;
         }
@@ -1255,18 +1283,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
     abstract public function getVoidTransactionBuilder($payment);
-    
+
     public function refundGroupTransactions(InfoInterface $payment, $amount)
     {
         $order = $payment->getOrder();
         $totalOrder = $order->getBaseGrandTotal();
 
         $requestParams = $this->request->getParams();
-        if(isset($requestParams['creditmemo']) && isset($requestParams['creditmemo']['buckaroo_already_paid'])){
+        if(isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])){
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $amount_value) {
-                
+                $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
+
                 $transaction = explode('|',$transaction);
                 $totalOrder = $totalOrder - $transaction[2];
+
+                $groupTransaction = $paymentGroupTransaction->getGroupTransactionByTrxId($transaction[0]);
 
                 if($amount_value>0 && $amount>0){
                     if($amount<$amount_value){$amount_value=$amount;}
@@ -1284,10 +1315,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                         ->setMethod('TransactionRequest')
                         ->setOriginalTransactionKey($transaction[0]);
 
-                        $transactionBuilder->setAmount($amount_value);
-                        $transaction = $transactionBuilder->build();
-                        $response = $this->refundTransaction($transaction);
-                        $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
+                    $transactionBuilder->setAmount($amount_value);
+                    $transaction = $transactionBuilder->build();
+                    $response = $this->refundTransaction($transaction);
+                    $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
+
+                    foreach ($groupTransaction as $item) {
+                        if (!empty(floatval($item['refunded_amount']))) {
+                            $item['refunded_amount'] += $amount_value;
+                        } else {
+                            $item['refunded_amount'] = $amount_value;
+                        }
+                        $paymentGroupTransaction->updateGroupTransaction($item->_data);
+                    }
+//                    $refundedAmount = $this->groupTransaction->getRefundedAmount();
+
                 }
             }
         }

@@ -22,6 +22,7 @@ use Magento\Quote\Model\Cart\TotalsConverter;
 use Magento\Quote\Model\Cart\Totals;
 use Magento\Quote\Model\Cart\CartTotalRepository as MagentoTotalRepository;
 use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Quote\Api\Data\TotalsInterface as QuoteTotalsInterface;
 
 /**
  * Cart totals data object.
@@ -110,7 +111,7 @@ class CartTotalRepository extends MagentoTotalRepository
      * @param int $cartId The cart ID.
      * @return Totals Quote totals data.
      */
-    public function get($cartId)
+    public function get($cartId): QuoteTotalsInterface
     {
         if (!$this->isCorrectMagentoVersion()) {
             return parent::get($cartId);

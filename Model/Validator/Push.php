@@ -179,7 +179,13 @@ class Push implements ValidatorInterface
     private function decodePushValue($brq_key, $brq_value)
     {
         switch ($brq_key) {
+            case 'brq_customer_name':
+            case 'brq_SERVICE_ideal_consumerName':
+            case 'brq_SERVICE_transfer_consumerName':
             case 'brq_SERVICE_payconiq_PayconiqAndroidUrl':
+            case 'brq_SERVICE_paypal_payerEmail':
+            case 'brq_SERVICE_paypal_payerFirstname':
+            case 'brq_SERVICE_paypal_payerLastname':
             case 'brq_SERVICE_payconiq_PayconiqIosUrl':
             case 'brq_SERVICE_payconiq_PayconiqUrl':
             case 'brq_SERVICE_payconiq_QrUrl':

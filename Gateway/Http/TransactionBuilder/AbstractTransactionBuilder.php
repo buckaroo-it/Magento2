@@ -119,6 +119,8 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      */
     public $invoiceId;
 
+    private $isCustomInvoiceId = false;
+
     /** @var Encryptor $encryptor */
     private $encryptor;
 
@@ -253,9 +255,14 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      */
     public function getInvoiceId()
     {
-        if (empty($this->invoiceId)) {
-            $order = $this->getOrder();
-            $this->setInvoiceId($order->getIncrementId());
+        $order = $this->getOrder();
+
+        if (
+            empty($this->invoiceId)
+            ||
+            (!$this->isCustomInvoiceId && ($this->invoiceId != $order->getIncrementId()))
+        ) {
+            $this->setInvoiceId($order->getIncrementId(), false);
         }
 
         return $this->invoiceId;
@@ -266,9 +273,10 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      *
      * @return $this
      */
-    public function setInvoiceId($invoiceId)
+    public function setInvoiceId($invoiceId, $isCustomInvoiceId = true)
     {
         $this->invoiceId = $invoiceId;
+        $this->isCustomInvoiceId = $isCustomInvoiceId;
 
         return $this;
     }

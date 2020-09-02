@@ -485,9 +485,14 @@ class Klarnakp extends AbstractMethod
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $payment->getOrder()->getShippingAddress();
+        if($shippingAddress == null){
+            $shippingAddress = $payment->getOrder()->getBillingAddress();
+            $shippingSameAsBilling = "true";
+        }else{
+            $shippingSameAsBilling = $this->isAddressDataDifferent($payment);
+        }
+        
         $streetFormat = $this->addressFormatter->formatStreet($shippingAddress->getStreet());
-        $shippingSameAsBilling = $this->isAddressDataDifferent($payment);
-
 
         $rawPhoneNumber = $shippingAddress->getTelephone();
         if (!is_numeric($rawPhoneNumber) || $rawPhoneNumber == '-') {
@@ -560,6 +565,8 @@ class Klarnakp extends AbstractMethod
      */
     public function getPayRequestData($invoice, $payment)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $order = $payment->getOrder();
         $invoiceCollection = $order->getInvoiceCollection();
 
@@ -570,25 +577,46 @@ class Klarnakp extends AbstractMethod
 
         $invoiceItems = $invoice->getAllItems();
 
+        $qtys = [];
         foreach ($invoiceItems as $item) {
-            if (empty($item) || $this->calculateProductPrice($item, $includesTax) == 0) {
+            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()],true));
+            if (empty($item)  || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
                 continue;
             }
 
-            $articles[] = [
-                '_' => $item->getSku(),
-                'Group' => 'Article',
-                'GroupID' => $this->groupId,
-                'Name' => 'ArticleNumber',
+            $qtys[$item->getSku()] = [
+                'qty' => intval($item->getQty()),
+                //'name' => $item->getName(),
+                'price' => $this->calculateProductPrice($item, $includesTax),
+                //'tax' => $item->getTaxPercent()
             ];
+        }
+
+        $this->logger2->addDebug(var_export($qtys, true));
+
+        foreach ($qtys as $sku => $item) {
 
             $articles[] = [
-                '_' => (int) $item->getQty(),
-                'Group' => 'Article',
-                'GroupID' => $this->groupId,
-                'Name' => 'ArticleQuantity',
+                    '_' => $sku,
+                    'Group' => 'Article',
+                    'GroupID' => $this->groupId,
+                    'Name' => 'ArticleNumber',
+            ];
+            $articles[] = [
+                    '_' => $item['qty'],
+                    'Group' => 'Article',
+                    'GroupID' => $this->groupId,
+                    'Name' => 'ArticleQuantity',
             ];
 
+            $this->groupId++;
+
+        }
+
+        $taxLine = $this->getTaxLine($payment->getOrder(), $this->groupId);
+
+        if (!empty($taxLine)) {
+            $articles = array_merge($articles, $taxLine);
             $this->groupId++;
         }
 
@@ -895,6 +923,8 @@ class Klarnakp extends AbstractMethod
      */
     public function getRequestArticlesData($payment)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
         /**
@@ -939,13 +969,13 @@ class Klarnakp extends AbstractMethod
                     'Name' => 'ArticlePrice',
                 ],
                 [
-                    '_' => 1,
+                    '_' => $item->getQty(),
                     'Group' => 'Article',
                     'GroupID' => $group,
                     'Name' => 'ArticleQuantity',
                 ],
                 [
-                    '_' => $item->getTaxPercent(),
+                    '_' => $item->getTaxPercent() ?? 0,
                     'Group' => 'Article',
                     'GroupID' => $group,
                     'Name' => 'ArticleVat',
@@ -1002,10 +1032,14 @@ class Klarnakp extends AbstractMethod
      */
     public function calculateProductPrice($productItem, $includesTax)
     {
+        $productPrice = $productItem->getPrice() ?? 0;
+
         if ($includesTax) {
-            $productPrice = $productItem->getRowTotalInclTax();
-        } else {
-            $productPrice = $productItem->getRowTotal();
+            $productPrice = $productItem->getPriceInclTax() ?? 0;
+        }
+
+        if ($productItem->getWeeeTaxAppliedAmount() > 0) {
+            $productPrice += $productItem->getWeeeTaxAppliedAmount();
         }
 
         return $productPrice;
@@ -1229,9 +1263,15 @@ class Klarnakp extends AbstractMethod
      */
     private function getTaxPercent($data)
     {
-        $taxPercent = $data->getTaxPercent();
-        if (!$taxPercent) {
-            $taxPercent = $data->getOrderItem()->getTaxPercent();
+        $taxPercent = 0;
+
+        if ($data) {
+            $taxPercent = $data->getTaxPercent();
+            if (!$taxPercent) {
+                if ($data->getOrderItem()) {
+                    $taxPercent = $data->getOrderItem()->getTaxPercent();
+                }
+            }
         }
 
         return $taxPercent;

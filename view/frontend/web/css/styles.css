@@ -63,7 +63,8 @@
     .buckaroo_magento2_emandate .payment-method-second-col,
     .buckaroo_magento2_applepay .payment-method-second-col,
     .buckaroo_magento2_capayablein3 .payment-method-second-col,
-    .buckaroo_magento2_capayablepostpay .payment-method-second-col
+    .buckaroo_magento2_capayablepostpay .payment-method-second-col,
+    .buckaroo_magento2_tinka .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -87,7 +88,8 @@
     .buckaroo_magento2_emandate .payment-method-billing-address,
     .buckaroo_magento2_applepay .payment-method-billing-address,
     .buckaroo_magento2_capayablein3 .payment-method-billing-address,
-    .buckaroo_magento2_capayablepostpay .payment-method-billing-address
+    .buckaroo_magento2_capayablepostpay .payment-method-billing-address,
+    .buckaroo_magento2_tinka .payment-method-billing-address
     {
         float:left;
         width: 50%;
@@ -114,7 +116,8 @@
     .magento-blank .buckaroo_magento2_emandate .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .label
+    .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .label,
+    .magento-blank .buckaroo_magento2_tinka .fieldset > .field:not(.choice) > .label
     {
         padding: 6px 15px 0 0 !important;
         text-align: left !important;
@@ -140,6 +143,7 @@
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .control
+    .magento-blank .buckaroo_magento2_tinka .fieldset > .field:not(.choice) > .control
     {
         width: 100% !important;
         float: left !important;
@@ -163,6 +167,7 @@
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field.choice:before
+    .magento-blank .buckaroo_magento2_tinka .fieldset > .field.choice:before
     {
         padding:0 !important;
         width: auto !important;
@@ -588,6 +593,30 @@
     content: ' ';
 }
 
+/* ======================= pospayment ======================== */
+.buckaroo_magento2_pospayment .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_pospayment_title.png) no-repeat;
+    float: right;
+    margin-right: -25px;
+    margin-top: 0px;
+    background-size: auto 26px;
+    width: 105px;
+    height: 36px;
+    content: ' ';
+}
+
+/* ======================= tinka ======================== */
+.buckaroo_magento2_tinka .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_tinka_title.svg) no-repeat;
+    float: right;
+    margin-right: -25px;
+    margin-top: 0px;
+    background-size: auto 26px;
+    width: 105px;
+    height: 36px;
+    content: ' ';
+}
+
 /* ======================= Klarna ======================== */
 .buckaroo_magento2_klarnakp .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_klarnakp_title.png) no-repeat;
@@ -972,6 +1001,31 @@
         height: 30px;
         content: ' ';
     }
+
+    /* pospayment */
+    .buckaroo_magento2_pospayment .buckaroo_magento2_image_title:before {
+        background: url(../images/buckaroo_magento2_pospayment_title.png) no-repeat;
+        float: left;
+        margin-right: 10px;
+        margin-top: -1px;
+        background-size: auto 25px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* tinka */
+    .buckaroo_magento2_tinka .buckaroo_magento2_image_title:before {
+        background: url(../images/buckaroo_magento2_tinka_title.svg) no-repeat;
+        float: left;
+        margin-right: 10px;
+        margin-top: -1px;
+        background-size: auto 25px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
 }
 
 /* ================================================================================================================== */

@@ -63,6 +63,8 @@ class Toolbar
         'buckaroo_magento2_p24',
         'buckaroo_magento2_trustly',
         'buckaroo_magento2_rtp',
+        'buckaroo_magento2_pospayment',
+        'buckaroo_magento2_tinka'
     ];
 
     /**

@@ -72,7 +72,9 @@
 .buckaroo_magento2_payment_card_nexi,
 .buckaroo_magento2_payment_klarnakp,
 .buckaroo_magento2_payment_capayablein3,
-.buckaroo_magento2_payment_capayablepostpay
+.buckaroo_magento2_payment_capayablepostpay,
+.buckaroo_magento2_payment_pospayment
+.buckaroo_magento2_payment_tinka
 {
     float:left;
     width: 100%;
@@ -351,6 +353,32 @@
     display :block;
 }
 
+/* pospayment */
+.buckaroo_magento2_payment_pospayment:before {
+    background: url(../images/buckaroo_magento2_pospayment_title.png) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: -4px;
+    background-size: auto 26px;
+    width: 73px;
+    height: 31px;
+    content: ' ';
+    display :block;
+}
+
+/* tinka */
+.buckaroo_magento2_payment_tinka:before {
+    background: url(../images/buckaroo_magento2_tinka_title.svg) no-repeat;
+    float: left;
+    margin-right: 10px;
+    margin-top: -4px;
+    background-size: auto 26px;
+    width: 83px;
+    height: 31px;
+    content: ' ';
+    display :block;
+}
+
 /* ===================== Order Overview -  Credit Card / Debit Card Method Styling ======================= */
 
 .buckaroo_magento2_payment_card_mastercard:before {
@@ -362,7 +390,7 @@
     width: 40px;
     height: 23px;
     content: ' ';
- }
+}
 
 .buckaroo_magento2_payment_card_maestro:before {
     background: url(../images/creditcard/ico-mae.png) no-repeat;
@@ -406,7 +434,7 @@
     width: 40px;
     height: 23px;
     content: ' ';
- }
+}
 
 .buckaroo_magento2_payment_card_vpay:before {
     background: url(../images/creditcard/ico-vp.png) no-repeat;

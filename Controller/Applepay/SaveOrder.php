@@ -24,6 +24,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Customer\Model\Session as CustomerSession;
 
 class SaveOrder extends Common
 {
@@ -52,9 +53,12 @@ class SaveOrder extends Common
         \Magento\Framework\Registry $registry,
         \Magento\Sales\Model\Order $order,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
+        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
+        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
+        CustomerSession $customerSession = null
     ) {
-        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart);
+        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart,$totalsCollector, $converter, $customerSession);
 
         $this->quoteManagement = $quoteManagement;
         $this->customer = $customer;

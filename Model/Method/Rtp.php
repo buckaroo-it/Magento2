@@ -97,6 +97,7 @@ class Rtp extends AbstractMethod
     public function getOrderTransactionBuilder($payment)
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
+        $transactionBuilder->setEmptyDescriptionFlag(true);
 
         $billingAddress = $payment->getOrder()->getBillingAddress();
 
@@ -154,7 +155,7 @@ class Rtp extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('refund');
 
         $services = [
-            'Name'    => 'rtp',
+            'Name'    => 'RequestToPay',
             'Action'  => 'Refund',
             'Version' => 1,
         ];

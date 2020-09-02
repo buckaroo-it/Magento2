@@ -20,10 +20,15 @@
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Quote\Api\Data\EstimateAddressInterface;
+use Magento\Quote\Model\Quote;
 
 class Common extends Action
 {
@@ -45,6 +50,28 @@ class Common extends Action
     protected $cart;
 
     /**
+     * @var \Magento\Framework\Reflection\DataObjectProcessor $dataProcessor
+     */
+    private $dataProcessor;
+
+    /**
+     * @var Quote\TotalsCollector
+     */
+    protected $totalsCollector;
+
+    /**
+     * @var CustomerSession
+     */
+    private $customerSession;
+
+    /**
+     * Shipping method converter
+     *
+     * @var \Magento\Quote\Model\Cart\ShippingMethodConverter
+     */
+    protected $converter;
+
+    /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      */
@@ -54,7 +81,10 @@ class Common extends Action
         \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         Log $logger,
-        \Magento\Checkout\Model\Cart $cart
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
+        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
+        CustomerSession $customerSession = null
     )
     {
         parent::__construct($context);
@@ -64,6 +94,9 @@ class Common extends Action
         $this->inlineParser = $inlineParser;
         $this->logger = $logger;
         $this->cart = $cart;
+        $this->totalsCollector = $totalsCollector;
+        $this->converter = $converter;
+        $this->customerSession = $customerSession ?? ObjectManager::getInstance()->get(CustomerSession::class);
     }
 
     public function execute()
@@ -201,14 +234,14 @@ class Common extends Action
         $quote->getShippingAddress()->setCollectShippingRates(true);
         $quoteRepository->save($quote);
 
-        $shippingMethodManagement = $objectManager->get('Magento\Quote\Model\ShippingMethodManagement');
-        $shippingMethods = $shippingMethodManagement->estimateByExtendedAddress($quote->getId(), $quote->getShippingAddress());
+        $shippingMethods = $this->getShippingMethods2($quote, $quote->getShippingAddress());
 
         if (count($shippingMethods) == 0) {
             $errorMessage = __(
                 'Apple Pay payment failed, because no shipping methods were found for the selected address. Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
             );
             $this->messageManager->addErrorMessage($errorMessage);
+
         } else {
 
             foreach ($shippingMethods as $index => $shippingMethod) {
@@ -240,5 +273,80 @@ class Common extends Action
 
             return $data;
         }
+
+    }
+
+    /**
+     * Get transform address interface into Array
+     *
+     * @param \Magento\Framework\Api\ExtensibleDataInterface  $address
+     * @return array
+     */
+    private function extractAddressData($address)
+    {
+        $className = \Magento\Customer\Api\Data\AddressInterface::class;
+        if ($address instanceof \Magento\Quote\Api\Data\AddressInterface) {
+            $className = \Magento\Quote\Api\Data\AddressInterface::class;
+        } elseif ($address instanceof EstimateAddressInterface) {
+            $className = EstimateAddressInterface::class;
+        }
+        return $this->getDataObjectProcessor()->buildOutputDataArray(
+            $address,
+            $className
+        );
+    }
+
+    /**
+     * Gets the data object processor
+     *
+     * @return \Magento\Framework\Reflection\DataObjectProcessor
+     * @deprecated 101.0.0
+     */
+    private function getDataObjectProcessor()
+    {
+        if ($this->dataProcessor === null) {
+            $this->dataProcessor = ObjectManager::getInstance()
+                ->get(DataObjectProcessor::class);
+        }
+        return $this->dataProcessor;
+    }
+
+    /**
+     * Get list of available shipping methods
+     *
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param \Magento\Framework\Api\ExtensibleDataInterface $address
+     * @return \Magento\Quote\Api\Data\ShippingMethodInterface[]
+     */
+    private function getShippingMethods2(Quote $quote, $address)
+    {
+        $output = [];
+        $shippingAddress = $quote->getShippingAddress();
+        $extractedAddressData = $this->extractAddressData($address);
+        if (array_key_exists('extension_attributes', $extractedAddressData)) {
+            unset($extractedAddressData['extension_attributes']);
+        }
+        $shippingAddress->addData($extractedAddressData);
+
+
+        $shippingAddress->setCollectShippingRates(true);
+
+        $this->totalsCollector->collectAddressTotals($quote, $shippingAddress);
+        $quoteCustomerGroupId = $quote->getCustomerGroupId();
+        $customerGroupId = $this->customerSession->getCustomerGroupId();
+        $isCustomerGroupChanged = $quoteCustomerGroupId !== $customerGroupId;
+        if ($isCustomerGroupChanged) {
+            $quote->setCustomerGroupId($customerGroupId);
+        }
+        $shippingRates = $shippingAddress->getGroupedAllShippingRates();
+        foreach ($shippingRates as $carrierRates) {
+            foreach ($carrierRates as $rate) {
+                $output[] = $this->converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
+            }
+        }
+        if ($isCustomerGroupChanged) {
+            $quote->setCustomerGroupId($quoteCustomerGroupId);
+        }
+        return $output;
     }
 }

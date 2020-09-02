@@ -128,7 +128,7 @@ interface TransactionBuilderInterface
      *
      * @return TransactionBuilderInterface
      */
-    public function setInvoiceId($invoiceId);
+    public function setInvoiceId($invoiceId, $isCustomInvoiceId = true);
 
     /**
      * @param string $type

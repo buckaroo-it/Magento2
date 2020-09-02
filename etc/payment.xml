@@ -117,5 +117,11 @@
         <method name="buckaroo_magento2_rtp">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="buckaroo_magento2_pospayment">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="buckaroo_magento2_tinka">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
     </methods>
 </payment>

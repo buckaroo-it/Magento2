@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Helper;
 
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\GroupTransactionFactory;
 
 use Magento\Sales\Model\Order;
@@ -54,7 +55,8 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         GroupTransactionFactory $groupTransactionFactory,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         Order $order,
-        TransactionInterface $transaction
+        TransactionInterface $transaction,
+        Log $logging
     ) {
         parent::__construct($context);
 
@@ -63,17 +65,20 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
 
         $this->order                        = $order;
         $this->transaction                  = $transaction;
+        $this->logging                      = $logging;
     }
 
     public function saveGroupTransaction($response){
+        $this->logging->addDebug(__METHOD__.'|1|'.var_export($response, true));
+
         $groupTransaction = $this->groupTransactionFactory->create();
         $data['order_id'] = $response['Invoice'];
         $data['transaction_id'] = $response['Key'];
-        $data['relatedtransaction'] = $response['RequiredAction']['PayRemainderDetails']['GroupTransaction'];
+        $data['relatedtransaction'] = $response['RequiredAction']['PayRemainderDetails']['GroupTransaction'] ?? null;
         $data['servicecode'] = $response['ServiceCode'];
         $data['currency'] = $response['Currency'];
         $data['amount'] = $response['AmountDebit'];
-        $data['type'] = $response['RelatedTransactions'][0]['RelationType'];
+        $data['type'] = $response['RelatedTransactions'][0]['RelationType'] ?? null;
         $data['status'] = $response['Status']['Code']['Code'];
         $data['created_at'] = $this->dateTime->gmtDate();
         $groupTransaction->setData($data);

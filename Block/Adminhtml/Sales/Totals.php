@@ -27,16 +27,23 @@ class Totals extends \Magento\Framework\View\Element\Template
     protected $helper = null;
 
     /**
+     * @var \Magento\Framework\Pricing\PriceCurrencyInterface
+     */
+    protected $_currency;
+    /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Buckaroo\Magento2\Helper\PaymentFee                  $helper
+     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $currency
      * @param array                                            $data
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Buckaroo\Magento2\Helper\PaymentFee $helper,
+        \Magento\Framework\Pricing\PriceCurrencyInterface $currency,
         array $data = []
     ) {
         $this->helper = $helper;
+        $this->_currency = $currency;
         parent::__construct($context, $data);
     }
 
@@ -69,5 +76,15 @@ class Totals extends \Magento\Framework\View\Element\Template
         */
         $source = $parent->getSource();
         return $this->helper->getTotals($source);
+    }
+
+    /**
+     * Get currency symbol for current locale and currency code
+     *
+     * @return string
+     */
+    public function getCurrentCurrencySymbol()
+    {
+        return $this->_currency->getCurrency()->getCurrencySymbol();
     }
 }

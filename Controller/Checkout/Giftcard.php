@@ -210,6 +210,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
+        $this->logger->addDebug(__METHOD__.'|1|');
+
         $this->response = $this->getRequest()->getParams();
 
         $mode =  $this->_configProviderAccount->getActive();
@@ -313,6 +315,10 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         curl_setopt($curl, CURLOPT_URL, $uri);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $httpMethod);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+        //ZAK
+        //curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+        //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+
         $headers = [
             'Content-Type: application/json; charset=utf-8',
             'Accept: application/json',
@@ -326,18 +332,22 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $response = json_decode($result, true);
         $res['status'] = $response['Status']['Code']['Code'];
         $orderId = $response['Invoice'];
-        
+
+        $this->logger->addDebug(__METHOD__.'|2|');
+        $this->logger->addDebug(var_export($response, true));
+
+
         if($response['Status']['Code']['Code']=='190'){
             
             $this->groupTransaction->saveGroupTransaction($response);
 
-            $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
+            $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'] ?? null;
             $alreadyPaid = $this->getAlreadyPaid($orderId) + $response['AmountDebit'];
             
             $res['PayRemainingAmountButton'] = '';
-            if($response['RequiredAction']['PayRemainderDetails']['RemainderAmount'] > 0){
+            if($res['RemainderAmount'] > 0){
                 $this->setOriginalTransactionKey($orderId, $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']);
-                $message = __('A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4', $response['Currency'], $response['AmountDebit'],$response['RequiredAction']['PayRemainderDetails']['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
+                $message = __('A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4', $response['Currency'], $response['AmountDebit'],$res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
                 $res['PayRemainingAmountButton'] = __('Pay remaining amount: %1 %2', $res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
             }else{
                 $message = __("Your paid successfully. Please finish your order");
