@@ -819,6 +819,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function refund(InfoInterface $payment, $amount)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
         ) {
@@ -832,8 +834,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             throw new \Exception('Giftcard cannot be refunded without order items');
         }
 
-        $this->logger2->addDebug(__METHOD__.'|1|');
-
         $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
         if (!$activeMode) {
             $activeMode = 2;
@@ -841,6 +841,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->gateway->setMode($activeMode);
 
         parent::refund($payment, $amount);
+
+        $this->logger2->addDebug(__METHOD__.'|5|');
 
         $this->payment = $payment;
         $paymentCm3InvoiceKey = $payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
@@ -851,17 +853,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $amount = $this->refundGroupTransactions($payment, $amount);
 
-        if($amount<=0){
+        $this->logger2->addDebug(__METHOD__.'|10|'.var_export($amount, true));
+
+        if($amount<=0) {
             return $this;
         }
 
         $transactionBuilder = $this->getRefundTransactionBuilder($payment);
 
         if (!$transactionBuilder) {
+            $this->logger2->addDebug(__METHOD__.'|20|');
             throw new \LogicException(
                 'Refund action is not implemented for this payment method.'
             );
         } elseif ($transactionBuilder === true) {
+            $this->logger2->addDebug(__METHOD__.'|25|');
             return $this;
         }
         $transactionBuilder->setAmount($amount);
@@ -1286,6 +1292,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     public function refundGroupTransactions(InfoInterface $payment, $amount)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         $order = $payment->getOrder();
         $totalOrder = $order->getBaseGrandTotal();
 
@@ -1299,9 +1307,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
                 $groupTransaction = $paymentGroupTransaction->getGroupTransactionByTrxId($transaction[0]);
 
+                $this->logger2->addDebug(__METHOD__.'|10|'.var_export([$amount_value, $amount], true));
+
                 if($amount_value>0 && $amount>0){
                     if($amount<$amount_value){$amount_value=$amount;}
                     $amount = $amount - $amount_value;
+                    $this->logger2->addDebug(__METHOD__.'|15|'.var_export([$amount], true));
                     $transactionBuilder = $this->transactionBuilderFactory->get('refund');
 
                     $services = [
@@ -1334,7 +1345,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             }
         }
 
-        if($amount>0){
+        $this->logger2->addDebug(__METHOD__.'|20|'.var_export([$amount, $totalOrder, $amount>=0.01], true));
+
+        if($amount>=0.01){
             if($amount>$totalOrder){
                 return $totalOrder;
             }
