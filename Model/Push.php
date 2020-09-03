@@ -271,6 +271,8 @@ class Push implements PushInterface
         $payment = $this->order->getPayment();
         $skipFirstPush = $payment->getAdditionalInformation('skip_push');
 
+        $this->logging->addDebug(__METHOD__.'|4|'.var_export($skipFirstPush, true));
+
         /**
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * for some payment methods
