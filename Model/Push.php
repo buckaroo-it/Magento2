@@ -799,7 +799,7 @@ class Push implements PushInterface
             && $closedStateAndStatus    != $currentStateAndStatus
         ) {
             if ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL'){
-                $this->updateOrderStatus(Order::STATE_PROCESSING, 'buckaroo_magento2_pending_approval', $response['message']);
+                $this->updateOrderStatus(Order::STATE_PROCESSING, 'buckaroo_magento2_pending_approv', $response['message']);
             } elseif ($currentStateAndStatus[1] == 'buckaroo_magento2_pending_approv') {
                 $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
             }

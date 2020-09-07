@@ -691,7 +691,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
                 ]
             )->where(
                 'status = ?',
-                'buckaroo_magento2_pending_approval'
+                'buckaroo_magento2_pending_approv'
             );
 
         if (count($setup->getConnection()->fetchAll($select)) == 0) {
@@ -701,14 +701,14 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $setup->getConnection()->insert(
                 $setup->getTable('sales_order_status'),
                 [
-                    'status' => 'buckaroo_magento2_pending_approval',
+                    'status' => 'buckaroo_magento2_pending_approv',
                     'label'  => __('Pending Approval'),
                 ]
             );
             $setup->getConnection()->insert(
                 $setup->getTable('sales_order_status_state'),
                 [
-                    'status'           => 'buckaroo_magento2_pending_approval',
+                    'status'           => 'buckaroo_magento2_pending_approv',
                     'state'            => 'processing',
                     'is_default'       => 0,
                     'visible_on_front' => 1,
@@ -717,7 +717,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         } else {
             // Do an update to turn on visible_on_front, since it already exists
             $bind = ['visible_on_front' => 1];
-            $where = ['status = ?' => 'buckaroo_magento2_pending_approval'];
+            $where = ['status = ?' => 'buckaroo_magento2_pending_approv'];
             $setup->getConnection()->update($setup->getTable('sales_order_status_state'), $bind, $where);
         }
 
