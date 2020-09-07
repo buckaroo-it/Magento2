@@ -539,7 +539,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $this->giftcardPartialRefund($setup);
         }
 
-        if (version_compare($context->getVersion(), '1.25.5', '<')) {
+        if (version_compare($context->getVersion(), '1.26.0', '<')) {
             $this->installApprovedStatuses($setup);
         }
 
