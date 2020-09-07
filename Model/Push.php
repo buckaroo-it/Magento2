@@ -213,18 +213,19 @@ class Push implements PushInterface
             return true;
         }
 
-        if (!$this->isPushNeeded()) {
-            return true;
-        }
-
         $this->loadOrder();
-
-        $transactionType = $this->getTransactionType();
 
         //Validate status code and return response
         $postDataStatusCode = $this->getStatusCode();
-        $response = $this->validator->validateStatusCode($postDataStatusCode);
+        $this->logging->addDebug('||| $postDataStatusCode' . $postDataStatusCode);
 
+        $serviceAction = $this->originalPostData['ADD_service_action_from_magento'];
+        $transactionType = $this->getTransactionType();
+        if (!$this->isPushNeeded() && $postDataStatusCode != '794' && $serviceAction != 'refund') {
+            return true;
+        }
+
+        $response = $this->validator->validateStatusCode($postDataStatusCode);
         $this->logging->addDebug(__METHOD__.'|2|'.var_export($response, true));
 
         $canUpdateOrder = $this->canUpdateOrderStatus($response);
@@ -232,7 +233,7 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__.'|3|'.var_export($canUpdateOrder, true));
 
         //Check if the push is a refund request or cancel authorize
-        if (isset($this->postData['brq_amount_credit'])) {
+        if (isset($this->postData['brq_amount_credit']) && $postDataStatusCode != '794') {
             if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && $this->order->isCanceled()
                 && $this->postData['brq_transaction_type'] == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
@@ -402,7 +403,7 @@ class Push implements PushInterface
         if (!$this->order->getId()) {
             $this->logging->addDebug('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
             // try to get order by transaction id on payment.
-                $this->order = $this->getOrderByTransactionKey();
+            $this->order = $this->getOrderByTransactionKey();
         }
     }
 
@@ -413,6 +414,10 @@ class Push implements PushInterface
     {
         $transactionType = $this->getTransactionType();
         $statusCode = 0;
+
+//        if (!$transactionType && isset($this->postData['brq_statuscode'])) {
+//            $statusCode = $this->postData['brq_statuscode'];
+//        }
 
         switch ($transactionType) {
             case self::BUCK_PUSH_TYPE_TRANSACTION:
@@ -443,6 +448,7 @@ class Push implements PushInterface
     {
         //If an order has an invoice key, then it should only be processed by invoice pushes
         $savedInvoiceKey = $this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
+//        $savedInvoiceKey = !empty($this->order->getPayment()) ? $this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key') : 0;
 
         if (isset($this->postData['brq_invoicekey'])
             && isset($this->postData['brq_schemekey'])
@@ -511,8 +517,8 @@ class Push implements PushInterface
             return;
         }
 
-        $newStatus = $this->orderStatusFactory->get($this->postData['brq_statuscode'], $this->order);
-
+        $newStatus = $this->orderStatusFactory-> get($this->postData['brq_statuscode'], $this->order);
+        $this->logging->addDebug('||| $response[\'status\']: '. $response['status']);
         switch ($response['status']) {
             case 'BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR':
             case 'BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE':
@@ -546,6 +552,9 @@ class Push implements PushInterface
             case 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT':
                 $this->processPendingPaymentPush($newStatus, $response['message']);
                 break;
+//            case 'BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_APPROVE':
+//                $this->processPendingApprovePush($newStatus, $response['message']);
+//                break;
         }
     }
 
@@ -726,7 +735,7 @@ class Push implements PushInterface
         if (isset($this->postData['brq_datarequest']) && !empty($this->postData['brq_datarequest'])) {
             $trxId = $this->postData['brq_datarequest'];
         }
-        
+
         if (isset($this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey']) && !empty($this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey'])) {
             $trxId = $this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey'];
         }
@@ -773,7 +782,7 @@ class Push implements PushInterface
          * Get current state and status of order
          */
         $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
-
+        $this->logging->addDebug('||| $currentStateAndStatus: ' . var_export($currentStateAndStatus, true));
         $this->logging->addDebug(__METHOD__.'|1|'.var_export($currentStateAndStatus, true));
 
         /**
@@ -784,6 +793,11 @@ class Push implements PushInterface
             && $holdedStateAndStatus    != $currentStateAndStatus
             && $closedStateAndStatus    != $currentStateAndStatus
         ) {
+            if ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL'){
+                $this->updateOrderStatus(Order::STATE_PROCESSING, 'buckaroo_magento2_pending_approval', $response['message']);
+            } elseif ($currentStateAndStatus[1] == 'buckaroo_magento2_pending_approv') {
+                $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
+            }
             return true;
         }
 
@@ -891,7 +905,7 @@ class Push implements PushInterface
             $this->order->setBuckarooReservationNumber($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']);
             $this->order->save();
         }
-        
+
         $store = $this->order->getStore();
 
         $payment = $this->order->getPayment();
@@ -989,14 +1003,14 @@ class Push implements PushInterface
         // Transfer has a slightly different flow where a successful order has a 792 status code instead of an 190 one
         if (!$this->order->getEmailSent()
             && in_array($payment->getMethod(), array(   Transfer::PAYMENT_METHOD_CODE,
-                                                        Paypal::PAYMENT_METHOD_CODE,
-                                                        SepaDirectDebit::PAYMENT_METHOD_CODE,
-                                                        Sofortbanking::PAYMENT_METHOD_CODE,
-                                                        Alipay::PAYMENT_METHOD_CODE,
-                                                        Wechatpay::PAYMENT_METHOD_CODE,
-                                                        P24::PAYMENT_METHOD_CODE,
-                                                        Trustly::PAYMENT_METHOD_CODE,
-                                                        Rtp::PAYMENT_METHOD_CODE,
+                Paypal::PAYMENT_METHOD_CODE,
+                SepaDirectDebit::PAYMENT_METHOD_CODE,
+                Sofortbanking::PAYMENT_METHOD_CODE,
+                Alipay::PAYMENT_METHOD_CODE,
+                Wechatpay::PAYMENT_METHOD_CODE,
+                P24::PAYMENT_METHOD_CODE,
+                Trustly::PAYMENT_METHOD_CODE,
+                Rtp::PAYMENT_METHOD_CODE,
             ))
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
@@ -1012,6 +1026,12 @@ class Push implements PushInterface
         return true;
     }
 
+    public function processPendingApprovePush($newStatus, $message){
+        $description = 'Payment push status : '.$message;
+        $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description);
+
+        return true;
+    }
     /**
      * Try to add an notification note to the order comments.
      *
@@ -1040,9 +1060,11 @@ class Push implements PushInterface
     {
         if ($this->order->getState() == $orderState || $force == true) {
             $this->logging->addDebug(__METHOD__.'|1|');
+            $this->logging->addDebug('||| $orderState: '.'|1|'.$orderState);
             $this->order->addStatusHistoryComment($description, $newStatus);
         } else {
             $this->logging->addDebug(__METHOD__.'|2|');
+            $this->logging->addDebug('||| $orderState: '.'|2|'.$orderState);
             $this->order->addStatusHistoryComment($description);
         }
     }
@@ -1098,11 +1120,11 @@ class Push implements PushInterface
 
             /* partially paid giftcard, create invoice */
             // if (count($receivedPaymentsArray) > 1) {
-                $payment->capture(); //creates invoice
-                $payment->save();
+            $payment->capture(); //creates invoice
+            $payment->save();
             // }
         } else {
-            //Fix for suspected fraud when the order currency does not match with the payment's currency    
+            //Fix for suspected fraud when the order currency does not match with the payment's currency
             $amount = ($payment->isSameCurrency() && $payment->isCaptureFinal($this->order->getGrandTotal())) ? $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
             $payment->registerCaptureNotification($amount);
             $payment->save();
@@ -1120,7 +1142,7 @@ class Push implements PushInterface
         /** @var \Magento\Sales\Model\Order\Invoice $invoice */
         foreach ($this->order->getInvoiceCollection() as $invoice) {
             $invoice->setTransactionId($transactionKey)->save();
-            
+
             if (!empty($this->postData['brq_invoicenumber'])) {
                 if($this->groupTransaction->isGroupTransaction($this->postData['brq_invoicenumber'])){
                     $invoice->setGrandTotal($invoice->getGrandTotal() + $this->order->getBuckarooAlreadyPaid());
@@ -1129,7 +1151,7 @@ class Push implements PushInterface
                     $payment->setAmountPaid($payment->getAmountPaid() + $this->order->getBuckarooAlreadyPaid());
                     $payment->save();
                 }
-             }
+            }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
                 $this->invoiceSender->send($invoice, true);
@@ -1247,13 +1269,13 @@ class Push implements PushInterface
     private function savePartGroupTransaction()
     {
         $items = $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
-            if(is_array($items) && count($items) > 0) {
-                foreach ($items as $key => $item) {
-                    $item2['status'] = $this->originalPostData['brq_statuscode'];
-                    $item2['entity_id'] = $item['entity_id'];
-                    $this->groupTransaction->updateGroupTransaction($item2);
-                }
+        if(is_array($items) && count($items) > 0) {
+            foreach ($items as $key => $item) {
+                $item2['status'] = $this->originalPostData['brq_statuscode'];
+                $item2['entity_id'] = $item['entity_id'];
+                $this->groupTransaction->updateGroupTransaction($item2);
             }
+        }
     }
 
     public function saveGroupTransactionInvoice($payment)

@@ -178,6 +178,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param array $data
      *
      * @param GroupTransaction $groupTransaction
+     *
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
@@ -870,9 +871,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $response = $this->refundTransaction($transaction);
 
-        $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
+        $this->logger2->addDebug(__METHOD__.'|2|' . var_export($response[0], true));
+        $arrayResponse = json_decode(json_encode($response), true);
+        $this->logger2->addDebug(__METHOD__.'|3|' . var_export($arrayResponse[0]['Status']['Code']['Code'], true));
 
-        $this->afterRefund($payment, $response);
+        if (isset($arrayResponse[0]['Status']['Code']['Code']) && $arrayResponse[0]['Status']['Code']['Code'] == '794') {
+            $this->logger2->addDebug(__METHOD__.'|4|' . var_export($arrayResponse[0]['Status']['Code']['Code'], true));
+            $this->logger2->addDebug(__METHOD__.'|4||0|' . var_export($arrayResponse[0]['Order'], true));
+            $this->saveTransactionData($response[0], $payment, false, false);
+            $this->afterRefund($payment, $response);
+            throw new \LogicException('Waiting for approval');
+        } else {
+            $this->logger2->addDebug(__METHOD__.'|5|' . var_export($arrayResponse[0]['Status']['Code']['Code'], true));
+            $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
+            $this->afterRefund($payment, $response);
+        }
 
         return $this;
     }
@@ -1165,6 +1178,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
              */
             $rawInfo = $this->getTransactionAdditionalInfo($arrayResponse);
 
+            if (isset($arrayResponse['Status']['Code']['Code']) && $arrayResponse['Status']['Code']['Code'] == '794') {
+                $order = $payment->getOrder();
+                $order->setStatus('buckaroo_magento2_pending_approv');
+                $creditmemo = $payment->getCreditmemo();
+                $creditmemo->setStatus('buckaroo_magento2_pending_approv');
+                $payment->save();
+            }
             /**
              * @noinspection PhpUndefinedMethodInspection
              */
@@ -1341,5 +1361,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return $amount;
         }
         return 0;
+    }
+
+    protected function afterApproveRefund($payment, $response)
+    {
+        return $this->dispatchAfterEvent('buckaroo_magento2_method_refund_after', $payment, $response);
     }
 }
