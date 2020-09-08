@@ -225,7 +225,7 @@ class Push implements PushInterface
         $postDataStatusCode = $this->getStatusCode();
         $this->logging->addDebug('||| $postDataStatusCode' . $postDataStatusCode);
 
-        $serviceAction = $this->originalPostData['ADD_service_action_from_magento'];
+        $serviceAction = $this->originalPostData['ADD_service_action_from_magento'] ?? null;
         $transactionType = $this->getTransactionType();
         if (!$this->isPushNeeded() && $postDataStatusCode != '794' && $serviceAction != 'refund') {
             return true;
