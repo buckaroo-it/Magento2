@@ -982,6 +982,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
+        $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
+        if (!$activeMode) {
+            $activeMode = 2;
+        }
+        $this->gateway->setMode($activeMode);
+
         $this->_canVoid = true;
         parent::void($payment);
 
