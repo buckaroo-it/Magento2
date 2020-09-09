@@ -982,12 +982,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
-        $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
-        if (!$activeMode) {
-            $activeMode = 2;
-        }
-        $this->gateway->setMode($activeMode);
-
         $this->_canVoid = true;
         parent::void($payment);
 
@@ -1190,13 +1184,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
              */
             $rawInfo = $this->getTransactionAdditionalInfo($arrayResponse);
 
-            if (isset($arrayResponse['Status']['Code']['Code']) && $arrayResponse['Status']['Code']['Code'] == '794') {
-                $order = $payment->getOrder();
-                $order->setStatus('buckaroo_magento2_pending_approv');
-                $creditmemo = $payment->getCreditmemo();
-                $creditmemo->setStatus('buckaroo_magento2_pending_approv');
-                $payment->save();
-            }
             /**
              * @noinspection PhpUndefinedMethodInspection
              */
@@ -1221,6 +1208,15 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
             $skipFirstPush = $payment->getAdditionalInformation('skip_push');
 
+            if (isset($arrayResponse['Status']['Code']['Code']) && $arrayResponse['Status']['Code']['Code'] == '794') {
+                $order = $payment->getOrder();
+                $order->setStatus('buckaroo_magento2_pending_approv');
+                $payment->save();
+            } elseif(isset($arrayResponse['Status']['Code']['Code']) && $arrayResponse['Status']['Code']['Code'] == '891'){
+                $order = $payment->getOrder();
+                $order->setStatus('processing');
+                $payment->save();
+            }
             /**
              * Buckaroo Push is send before Response, for correct flow we skip the first push
              * for some payment methods
