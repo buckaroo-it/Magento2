@@ -215,10 +215,6 @@ class Push implements PushInterface
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
 
-        if ($this->isGroupTransactionInfo()) {
-            return true;
-        }
-
         $this->loadOrder();
 
         //Validate status code and return response
@@ -228,6 +224,11 @@ class Push implements PushInterface
         $serviceAction = $this->originalPostData['ADD_service_action_from_magento'] ?? null;
         $transactionType = $this->getTransactionType();
         $this->logging->addDebug(__METHOD__.'|1_1| $transactionType:'.var_export($transactionType, true));
+
+        if ($this->isGroupTransactionInfo() && $postDataStatusCode != '794' && $serviceAction != 'refund') { //&& $postDataStatusCode != '794' && $serviceAction != 'refund'
+            return true;
+        }
+
         if (!$this->isPushNeeded() && $postDataStatusCode != '794' && $serviceAction != 'refund' ) {
             return true;
         }
@@ -646,7 +647,7 @@ class Push implements PushInterface
         $payment = $this->order->getPayment();
 
         if ($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE
-            || $this->postData['brq_amount'] >= $this->order->getGrandTotal()
+            || isset($this->postData['brq_amount']) >= $this->order->getGrandTotal()
             || empty($this->postData['brq_relatedtransaction_partialpayment'])
         ) {
             return false;

@@ -1357,6 +1357,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     $transactionBuilder->setAmount($amount_value);
                     $transaction = $transactionBuilder->build();
                     $response = $this->refundTransaction($transaction);
+
+                    $this->logger2->addDebug(__METHOD__.'|16| '.var_export($response, true));
+                    $arrayResponse = json_decode(json_encode($response), true);
+
+                    if (isset($arrayResponse[0]['Status']['Code']['Code']) && $arrayResponse[0]['Status']['Code']['Code'] == '794') {
+                        $this->logger2->addDebug(__METHOD__.'|17| '.var_export($response, true));
+                        $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
+                        throw new \LogicException('Waiting for approval');
+                    }
+
                     $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
 
                     foreach ($groupTransaction as $item) {
@@ -1382,10 +1392,5 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return $amount;
         }
         return 0;
-    }
-
-    protected function afterApproveRefund($payment, $response)
-    {
-        return $this->dispatchAfterEvent('buckaroo_magento2_method_refund_after', $payment, $response);
     }
 }
