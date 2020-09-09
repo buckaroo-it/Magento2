@@ -227,7 +227,8 @@ class Push implements PushInterface
 
         $serviceAction = $this->originalPostData['ADD_service_action_from_magento'] ?? null;
         $transactionType = $this->getTransactionType();
-        if (!$this->isPushNeeded() && $postDataStatusCode != '794' && $serviceAction != 'refund') {
+        $this->logging->addDebug(__METHOD__.'|1_1| $transactionType:'.var_export($transactionType, true));
+        if (!$this->isPushNeeded() && $postDataStatusCode != '794' && $serviceAction != 'refund' ) {
             return true;
         }
 
@@ -239,7 +240,7 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__.'|3|'.var_export($canUpdateOrder, true));
 
         //Check if the push is a refund request or cancel authorize
-        if (isset($this->postData['brq_amount_credit']) && $postDataStatusCode != '794') {
+        if (isset($this->postData['brq_amount_credit']) && $postDataStatusCode != '794' && $postDataStatusCode != '891') { //&& $postDataStatusCode != '794' && $postDataStatusCode != '891'
             if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && $this->order->isCanceled()
                 && $this->postData['brq_transaction_type'] == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
@@ -255,7 +256,14 @@ class Push implements PushInterface
             }
             return $this->refundPush->receiveRefundPush($this->postData, $validSignature, $this->order);
         }
-
+        if ($postDataStatusCode == '891' && isset($this->postData['brq_amount_credit'])) {
+            $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
+            $this->order->save();
+            $this->logging->addDebug(__METHOD__.'|3_1 EXCEPTION!|');
+            throw new \Buckaroo\Magento2\Exception(
+                __('Refund was cancelled by user')
+            );
+        }
         //Last validation before push can be completed
         if (!$validSignature) {
             $this->logging->addDebug('Invalid push signature');
@@ -974,17 +982,17 @@ class Push implements PushInterface
                 $this->logging->addDebug(__METHOD__ . '|6|');
 
                 if (
-                    ($this->hasPostData('brq_transaction_method', 'transfer'))
+                ($this->hasPostData('brq_transaction_method', 'transfer'))
 
                 ) {
                     //invoice only in case of full or last remained amount
                     $this->logging->addDebug(__METHOD__.'|61|'.var_export(
-                        [
-                            $this->order->getId(),
-                            $amount,
-                            $this->order->getTotalDue(),
-                            $this->order->getTotalPaid(),
-                        ], true)
+                            [
+                                $this->order->getId(),
+                                $amount,
+                                $this->order->getTotalDue(),
+                                $this->order->getTotalPaid(),
+                            ], true)
                     );
 
                     $receivedPaymentsArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
