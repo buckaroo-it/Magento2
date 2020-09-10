@@ -258,7 +258,13 @@ class Push implements PushInterface
             return $this->refundPush->receiveRefundPush($this->postData, $validSignature, $this->order);
         }
         if ($postDataStatusCode == '891' && isset($this->postData['brq_amount_credit'])) {
-            $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
+            if ($this->order->getState() == Order::STATE_COMPLETE) {
+                $this->order->setStatus(Order::STATE_COMPLETE);
+            } else {
+                $this->order->setStatus(Order::STATE_PROCESSING);
+            }
+//            $this->order->setStatus('processing');
+//            $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
             $this->order->save();
             $this->logging->addDebug(__METHOD__.'|3_1 EXCEPTION!|');
             throw new \Buckaroo\Magento2\Exception(
@@ -807,11 +813,18 @@ class Push implements PushInterface
             && $holdedStateAndStatus    != $currentStateAndStatus
             && $closedStateAndStatus    != $currentStateAndStatus
         ) {
+            $this->logging->addDebug(__METHOD__.'|2 current :|' . var_export($currentStateAndStatus, true));
             if ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL'){
                 $this->updateOrderStatus(Order::STATE_PROCESSING, 'buckaroo_magento2_pending_approv', $response['message']);
             } elseif ($currentStateAndStatus[1] == 'buckaroo_magento2_pending_approv') {
                 $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
             }
+            return true;
+        } elseif ($currentStateAndStatus == $completedStateAndStatus && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL') {
+
+            $this->logging->addDebug(__METHOD__.'|2 current :|' . var_export($currentStateAndStatus == $completedStateAndStatus, true));
+            $this->updateOrderStatus(Order::STATE_COMPLETE, 'buckaroo_magento2_pending_approv', $response['message']);
+
             return true;
         }
 
