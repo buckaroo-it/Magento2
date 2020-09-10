@@ -815,9 +815,11 @@ class Push implements PushInterface
         ) {
             $this->logging->addDebug(__METHOD__.'|2 current :|' . var_export($currentStateAndStatus, true));
             if ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL'){
-                $this->updateOrderStatus(Order::STATE_PROCESSING, 'buckaroo_magento2_pending_approv', $response['message']);
+//                $this->updateOrderStatus(Order::STATE_PROCESSING, 'buckaroo_magento2_pending_approv', $response['message']);
+                $this->order->addStatusHistoryComment($response['message'], 'buckaroo_magento2_pending_approv');
             } elseif ($currentStateAndStatus[1] == 'buckaroo_magento2_pending_approv') {
-                $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
+//                $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
+                $this->order->addStatusHistoryComment($response['message'], 'processing');
             }
             return true;
         } elseif ($currentStateAndStatus == $completedStateAndStatus && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL') {
