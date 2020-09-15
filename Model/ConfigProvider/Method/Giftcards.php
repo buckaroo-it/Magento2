@@ -30,7 +30,8 @@ class Giftcards extends AbstractConfigProvider
     const XPATH_GIFTCARDS_ORDER_EMAIL           = 'payment/buckaroo_magento2_giftcards/order_email';
     const XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_giftcards/available_in_backend';
     const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS     = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
-    const XPATH_GIFTCARDS_GROUP_GIFTCARDS     = 'payment/buckaroo_magento2_giftcards/group_giftcards';
+    const XPATH_GIFTCARDS_GROUP_GIFTCARDS       = 'payment/buckaroo_magento2_giftcards/group_giftcards';
+    const XPATH_GIFTCARDS_SORT                  = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
 
@@ -56,6 +57,18 @@ class Giftcards extends AbstractConfigProvider
             return [];
         }
 
+        $sorted = explode(',', $this->scopeConfig->getValue(
+            self::XPATH_GIFTCARDS_SORT,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+        );
+
+        if (!empty($sorted)) {
+            $sortedPosition = 1;
+            foreach ($sorted as $cardName) {
+                $sorted_array[$cardName] = $sortedPosition++;
+            }
+        }
+
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE);
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); 
@@ -64,6 +77,7 @@ class Giftcards extends AbstractConfigProvider
         $tableName = $resource->getTableName('buckaroo_magento2_giftcard');
         $result = $connection->fetchAll("SELECT * FROM " . $tableName);
         foreach ($result as $item) {
+            $item['sort'] = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99'; 
             $allGiftCards[$item['servicecode']] = $item;
         }
 
@@ -74,9 +88,15 @@ class Giftcards extends AbstractConfigProvider
         foreach (explode(',',$availableCards) as $key => $value) {
             $cards[] = [
                 'code' => $value,
-                'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : ''
+                'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',
+                'sort' => isset($allGiftCards[$value]['sort']) ? $allGiftCards[$value]['sort'] : '99'
             ];
         }
+
+        usort($cards, function ($cardA, $cardB){
+            return $cardA['sort'] - $cardB['sort'];
+        });
+
         return [
             'payment' => [
                 'buckaroo' => [

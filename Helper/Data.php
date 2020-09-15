@@ -247,4 +247,10 @@ class Data extends AbstractHelper
 
         return $configValue;
     }
+    
+    public function getConfigGiftCardsSort() {
+        $configValue = $this->scopeConfig->getValue('payment/buckaroo_magento2_giftcards/sorted_giftcards', ScopeInterface::SCOPE_STORE);
+
+        return $configValue;
+    }
 }

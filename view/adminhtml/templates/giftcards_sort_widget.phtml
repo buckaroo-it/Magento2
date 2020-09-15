@@ -18,13 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<div class="creditcard_sort_wrapper">
-    <input type="hidden" name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][sort_creditcards][value]" id="sort_cards"
-           value="<?php echo $this->helper('Buckaroo\Magento2\Helper\Data')->getConfigCardSort()?>">
-    <div id="sort_creditcard_list">
-
-    </div>
-
+<div class="giftcards_sort_wrapper">
+    <input type="hidden" name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][sort_giftcards][value]" id="sort_giftcards"
+           value="<?php echo $this->helper('Buckaroo\Magento2\Helper\Data')->getConfigGiftCardsSort()?>">
+    <div id="sort_giftcards_list"></div>
 </div>
 
 <script>
@@ -35,50 +32,50 @@
     ], function ($) {
         'use strict';
 
-        $('#sort_creditcard_list').sortable({
+        $('#sort_giftcards_list').sortable({
             axis: 'y',
             tolerance: 'pointer',
             items: 'p'
         });
 
-        let inputText = $('#sort_cards').val();
+        let inputText = $('#sort_giftcards').val();
 
         if (inputText !== '') {
             let cardSortedArray = inputText.split(',');
             cardSortedArray.forEach(function (item, index) {
                 let p = document.createElement("p");
                 p.innerHTML = item;
-                p.classList.add('sort_creditcard');
-                $('#sort_creditcard_list').append(p);
+                p.classList.add('sort_giftcards');
+                $('#sort_giftcards_list').append(p);
             });
         } else {
-            $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"] option:selected').each(function () {
+            $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"] option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();
-                p.classList.add('sort_creditcard');
-                $('#sort_creditcard_list').append(p);
+                p.classList.add('sort_giftcards');
+                $('#sort_giftcards_list').append(p);
             });
         }
 
-        $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"]').change(function () {
-            $('#sort_creditcard_list p').remove();
+        $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"]').change(function () {
+            $('#sort_giftcards_list p').remove();
 
-            $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"] option:selected').each(function () {
+            $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"] option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();
-                p.classList.add('sort_creditcard');
-                $('#sort_creditcard_list').append(p);
+                p.classList.add('sort_giftcards');
+                $('#sort_giftcards_list').append(p);
             });
         });
 
         let cardList = '';
 
         $('#save').click(function () {
-            $('#sort_creditcard_list p').each(function () {
+            $('#sort_giftcards_list p').each(function () {
                 cardList += $(this).text() + ',';
             });
             cardList = cardList.slice(0, -1);
-            $('#sort_cards').val(cardList);
+            $('#sort_giftcards').val(cardList);
         });
     });
 </script>
