@@ -192,6 +192,13 @@
                 <tooltip>Example: "X-Forwarded-For,CF-Connecting-IP". If "X-Forwarded-For" is empty then "CF-Connecting-IP" will be checked.</tooltip>
                 <config_path>buckaroo_magento2/account/ip_header</config_path>
             </field>
+
+            <field id="cart_keep_alive" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="0" showInStore="0">
+              <label>Cart keep alive</label>
+              <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+              <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
+            </field>
+            
         </group>
     </group>
 </include>

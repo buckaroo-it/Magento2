@@ -49,4 +49,9 @@
     <event name="payment_method_is_active">
         <observer name="buckaroo_magento2_payment_method_is_active" instance="Buckaroo\Magento2\Observer\PaymentMethodAvailable" />
     </event>
+
+    <event name="controller_action_predispatch_checkout_index_index">
+        <observer name="initiate_checkout_onepage" instance="Buckaroo\Magento2\Observer\RestoreQuote" />
+    </event>
+
 </config>

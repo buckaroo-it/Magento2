@@ -72,7 +72,8 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_ORDER_STATUS_SUCCESS            = 'buckaroo_magento2/account/order_status_success';
     const XPATH_ACCOUNT_ORDER_STATUS_FAILED             = 'buckaroo_magento2/account/order_status_failed';
     const XPATH_ACCOUNT_CREATE_ORDER_BEFORE_TRANSACTION = 'buckaroo_magento2/account/create_order_before_transaction';
-    const XPATH_ACCOUNT_IP_HEADER = 'buckaroo_magento2/account/ip_header';
+    const XPATH_ACCOUNT_IP_HEADER                       = 'buckaroo_magento2/account/ip_header';
+    const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
 
     /**
      * @var MethodFactory
@@ -126,6 +127,7 @@ class Account extends AbstractConfigProvider
             'order_status_failed'               => $this->getOrderStatusFailed($store),
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
+            'cart_keep_alive'                   => $this->getCartKeepAlive($store),
         ];
         return $config;
     }
