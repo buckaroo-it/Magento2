@@ -197,6 +197,7 @@
               <label>Cart keep alive</label>
               <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
               <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
+              <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>
             </field>
             
         </group>
