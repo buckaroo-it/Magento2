@@ -23,5 +23,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Magento\Backend\Block\Widget\Button\Toolbar">
         <plugin name="orderFormToolbarButtons" type="Buckaroo\Magento2\Block\Widget\Button\Toolbar" />
+        <plugin name="Buckaroo_Magento2::pluginBefore" type="Buckaroo\Magento2\Model\Plugin\PluginBefore" />
     </type>
 </config>

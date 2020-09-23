@@ -194,7 +194,7 @@ class Order extends AbstractTransactionBuilder
          * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance
          */
         $methodInstance = $this->order->getPayment()->getMethodInstance();
-        $method = $methodInstance->buckarooPaymentMethodCode;
+        $method = $methodInstance->buckarooPaymentMethodCode ?? 'buckaroo_magento2_ideal';
 
         $configProvider = $this->configProviderMethodFactory->get($method);
         return $configProvider->getAllowedCurrencies();

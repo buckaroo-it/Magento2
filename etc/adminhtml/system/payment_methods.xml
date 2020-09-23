@@ -74,6 +74,8 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/payperemail.xml"/>
 
+        <include path="Buckaroo_Magento2::system/payment_methods/paylink.xml"/>
+
         <include path="Buckaroo_Magento2::system/payment_methods/eps.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/giftcards.xml"/>

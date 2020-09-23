@@ -240,6 +240,13 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__.'|3|'.var_export($canUpdateOrder, true));
 
+        if (isset($this->postData['ADD_fromPayLink']) && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && $validSignature){
+            $payment = $this->order->getPayment();
+            $payment->setMethod('buckaroo_magento2_payperemail');
+            $payment->save();
+            $this->order->save();
+        }
+
         //Check if the push is a refund request or cancel authorize
         if (isset($this->postData['brq_amount_credit']) && $postDataStatusCode != '794' && $postDataStatusCode != '891') { //&& $postDataStatusCode != '794' && $postDataStatusCode != '891'
             if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
