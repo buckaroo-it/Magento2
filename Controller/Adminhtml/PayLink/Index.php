@@ -105,12 +105,6 @@ class Index extends \Magento\Backend\App\Action
                     '_'    => $config->getPaymentMethod(),
                     'Name' => 'PaymentMethodsAllowed',
                 ],
-            ],
-            'AdditionalParameters' => [
-                'AdditionalParameter' => [
-                    "Name" => "fromPayLink",
-                    "Value" => "1"
-                ]
             ]
         ];
 
@@ -124,6 +118,7 @@ class Index extends \Magento\Backend\App\Action
 
         $transactionBuilder->setOrder($order)
             ->setServices($services)
+            ->setAdditionalParameter('fromPayLink', 1)
             ->setMethod('TransactionRequest');
 
         try {

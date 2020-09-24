@@ -240,7 +240,7 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__.'|3|'.var_export($canUpdateOrder, true));
 
-        if (isset($this->postData['ADD_fromPayLink']) && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && $validSignature){
+        if (isset($this->originalPostData['ADD_fromPayLink']) && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && $validSignature){
             $payment = $this->order->getPayment();
             $payment->setMethod('buckaroo_magento2_payperemail');
             $payment->save();

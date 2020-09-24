@@ -160,6 +160,10 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $payment = $this->order->getPayment();
 
+        if(!method_exists($payment->getMethodInstance(),'canProcessPostData')){
+            return $this->_redirect('/');
+        }
+        
         if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->response)) {
             return $this->_redirect('/');
         }
