@@ -855,7 +855,7 @@ class Klarnakp extends AbstractMethod
                 'Name' => 'BillingStreet',
             ],
             [
-                '_' => $payment->getAdditionalInformation('customer_gender'),
+                '_' => $payment->getAdditionalInformation('customer_gender') ?? 1,
                 'Name' => 'Gender',
             ],
             [
@@ -863,7 +863,7 @@ class Klarnakp extends AbstractMethod
                 'Name' => 'OperatingCountry',
             ],
             [
-                '_' => $birthDayStamp,
+                '_' => $birthDayStamp ?? '10071970',
                 'Name' => 'Pno',
             ]
         ];
