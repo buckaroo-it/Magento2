@@ -33,8 +33,8 @@ class PluginBefore
         \Magento\Framework\UrlInterface $urlBuilder
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
-        $this->orderRepository = $orderRepository;
-        $this->urlBuilder = $urlBuilder;
+        $this->orderRepository             = $orderRepository;
+        $this->urlBuilder                  = $urlBuilder;
     }
 
     public function beforePushButtons(
@@ -42,28 +42,23 @@ class PluginBefore
         \Magento\Framework\View\Element\AbstractBlock $context,
         \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
     ) {
-        $orderId = $context->getRequest()->getParam('order_id');
-        $viewUrl = $this->urlBuilder->getUrl('buckaroo/paylink/index/order',['order_id' =>  $orderId]);
-
-        $order = $this->orderRepository->get($orderId);
-        $state = $order->getState();
-
-        $config = $this->configProviderMethodFactory->get('paylink');
-
-        $this->_request = $context->getRequest();
-
-        if ($config->getActive() != '0' && $this->_request->getFullActionName() == 'sales_order_view' && $state == 'new') {
-            $buttonList->add(
-                'payLinkButton',
-                [
-                    'label'   => __('Create Paylink'),
-                    // 'onclick' => sprintf("setLocation('%s')", $viewUrl),
-                    'onclick' => sprintf("confirmSetLocation('%s', '%s')", __('Are you sure you want create Paylink?'), $viewUrl),
-                    'class'   => 'reset',
-                ],
-                -1
-            );
+        if ($orderId = $context->getRequest()->getParam('order_id')) {
+            $viewUrl        = $this->urlBuilder->getUrl('buckaroo/paylink/index/order', ['order_id' => $orderId]);
+            $order          = $this->orderRepository->get($orderId);
+            $state          = $order->getState();
+            $config         = $this->configProviderMethodFactory->get('paylink');
+            $this->_request = $context->getRequest();
+            if ($config->getActive() != '0' && $this->_request->getFullActionName() == 'sales_order_view' && $state == 'new') {
+                $buttonList->add(
+                    'payLinkButton',
+                    [
+                        'label'   => __('Create Paylink'),
+                        'onclick' => sprintf("confirmSetLocation('%s', '%s')", __('Are you sure you want create Paylink?'), $viewUrl),
+                        'class'   => 'reset',
+                    ],
+                    -1
+                );
+            }
         }
-
     }
 }
