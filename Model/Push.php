@@ -212,6 +212,14 @@ class Push implements PushInterface
         //Start debug mailing/logging with the postdata.
         $this->logging->addDebug(__METHOD__.'|1|'.var_export($this->originalPostData, true));
 
+        if ($this->isGroupTransactionInfo()) {
+            return true;
+        }
+
+        if (!$this->isPushNeeded()) {
+            return true;
+        }
+
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
 
@@ -225,13 +233,13 @@ class Push implements PushInterface
         $transactionType = $this->getTransactionType();
         $this->logging->addDebug(__METHOD__.'|1_1| $transactionType:'.var_export($transactionType, true));
 
-        if ($this->isGroupTransactionInfo() && $postDataStatusCode != '794' && $serviceAction != 'refund') { //&& $postDataStatusCode != '794' && $serviceAction != 'refund'
-            return true;
-        }
+//        if ($this->isGroupTransactionInfo() && $postDataStatusCode != '794' && $serviceAction != 'refund') { //&& $postDataStatusCode != '794' && $serviceAction != 'refund'
+//            return true;
+//        }
 
-        if (!$this->isPushNeeded() && $postDataStatusCode != '794' && $serviceAction != 'refund' ) {
-            return true;
-        }
+//        if (!$this->isPushNeeded() && $postDataStatusCode != '794' && $serviceAction != 'refund' ) {
+//            return true;
+//        }
 
         $response = $this->validator->validateStatusCode($postDataStatusCode);
         $this->logging->addDebug(__METHOD__.'|2|'.var_export($response, true));
