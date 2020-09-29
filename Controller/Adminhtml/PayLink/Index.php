@@ -119,6 +119,7 @@ class Index extends \Magento\Backend\App\Action
         $transactionBuilder->setOrder($order)
             ->setServices($services)
             ->setAdditionalParameter('fromPayLink', 1)
+            ->setAdditionalParameter('fromPayPerEmail', 1)
             ->setMethod('TransactionRequest');
 
         try {

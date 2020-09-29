@@ -67,4 +67,14 @@ class Info extends \Magento\Payment\Block\Info
         return $result;
     }
 
+    public function getPayPerEmailMethod(){
+        $payment = $this->getInfo()->getOrder()->getPayment();
+        if($servicecode = $payment->getAdditionalInformation('isPayPerEmail')){
+            return [
+                    'label' => __('Buckaroo PayPerEmail'),
+                ];
+        }
+        return false;
+    }
+
 }

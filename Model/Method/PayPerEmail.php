@@ -68,7 +68,7 @@ class PayPerEmail extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_canRefund               = false;
+    protected $_canRefund               = true;
 
     /**
      * @var bool
@@ -207,6 +207,7 @@ class PayPerEmail extends AbstractMethod
          */
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
+            ->setAdditionalParameter('fromPayPerEmail', 1)
             ->setMethod('TransactionRequest');
 
         return $transactionBuilder;

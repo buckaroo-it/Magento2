@@ -70,6 +70,16 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
 
         }
 
+        $options = new \Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail();
+        $option = $options->toOptionArray();
+        $option = array_merge($option, [['value'=>'creditcards','label'=>__('Creditcards')],['value'=>'sofortbanking','label'=>__('Sofort')]]);
+        foreach ($option as $item) {
+            $this->options[] = [
+                "value" => 'buckaroo_magento2_payperemail-'.$item['value'],
+                "label" => __('Buckaroo PayPerEmail') . ' + ' . $item['label'],
+                "__disableTmpl" => true
+            ];
+        }
         return $this->options;
     }
 }

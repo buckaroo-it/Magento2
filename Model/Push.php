@@ -247,6 +247,31 @@ class Push implements PushInterface
             $this->order->save();
         }
 
+        if (isset($this->originalPostData['ADD_fromPayPerEmail']) && isset($this->originalPostData['brq_transaction_method']) && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && $validSignature){
+            if($this->originalPostData['brq_transaction_method']!='payperemail'){
+                $brq_transaction_method = strtolower($this->originalPostData['brq_transaction_method']);
+                $payment = $this->order->getPayment();
+                $payment->setAdditionalInformation('isPayPerEmail', $brq_transaction_method);
+
+                $options = new \Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail();
+                foreach ($options->toOptionArray() as $item) {
+                    if($item['value'] == $brq_transaction_method){
+                        if(isset($item['code'])){
+                            $payment->setMethod($item['code']);
+                            $payment->setAdditionalInformation(AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, $this->getTransactionKey());
+                            if($item['code'] == 'buckaroo_magento2_creditcards'){
+                                $payment->setAdditionalInformation('customer_creditcardcompany', $brq_transaction_method);
+                            }
+                        }
+                    }
+                }
+
+                $payment->save();
+                $this->order->save();
+                return true;
+            }
+        }
+
         //Check if the push is a refund request or cancel authorize
         if (isset($this->postData['brq_amount_credit']) && $postDataStatusCode != '794' && $postDataStatusCode != '891') { //&& $postDataStatusCode != '794' && $postDataStatusCode != '891'
             if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
