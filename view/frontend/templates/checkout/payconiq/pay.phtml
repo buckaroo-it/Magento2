@@ -4,8 +4,8 @@
     <div id="buckaroo_magento2_payconiq_items">
         <div id="buckaroo_magento2_payconiq_qr"></div>
 
-        <button id="buckaroo_magento2_payconiq_cancel" type="button" title="Cancel" data-bind="click: cancelPayment">
-            <span>Cancel</span>
+        <button id="buckaroo_magento2_payconiq_cancel" type="button" title="<?php echo $block->escapeHtmlAttr('Cancel') ?>" data-bind="click: cancelPayment">
+            <span><?php echo $block->escapeHtml('Cancel') ?></span>
         </button>
     </div>
 </div>

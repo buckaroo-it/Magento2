@@ -79,7 +79,11 @@
             </div>
 
         <div class="payment-method-second-col billing-address-form">
-            <form data-hasrequired="* Required Fields" data-role="$parent.save" data-bind="$parent.submit:$parent.save, mageInit: { 'validation': [] }" method="post">
+            <form method="post"
+                  data-role="$parent.save" 
+                  data-bind="$parent.submit:$parent.save,
+                  mageInit: { 'validation': [] },
+                  attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment styled">
 
                     <div class="fieldset card_front width-100">
