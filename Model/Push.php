@@ -44,6 +44,9 @@ use Buckaroo\Magento2\Model\Method\Wechatpay;
 use Buckaroo\Magento2\Model\Method\P24;
 use Buckaroo\Magento2\Model\Method\Trustly;
 use Buckaroo\Magento2\Model\Method\Rtp;
+use Buckaroo\Magento2\Model\Method\Afterpay;
+use Buckaroo\Magento2\Model\Method\Afterpay2;
+use Buckaroo\Magento2\Model\Method\Afterpay20;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 use Magento\Framework\App\ResourceConnection;
@@ -69,6 +72,7 @@ class Push implements PushInterface
     const BUCK_PUSH_TYPE_DATAREQUEST            = 'datarequest_push';
 
     const BUCKAROO_RECEIVED_TRANSACTIONS = 'buckaroo_received_transactions';
+    const BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES = 'buckaroo_received_transactions_statuses';
 
     /**
      * @var Request $request
@@ -227,11 +231,15 @@ class Push implements PushInterface
 
         //Validate status code and return response
         $postDataStatusCode = $this->getStatusCode();
-        $this->logging->addDebug('||| $postDataStatusCode' . $postDataStatusCode);
+        $this->logging->addDebug(__METHOD__.'|1_5|'.var_export($postDataStatusCode, true));
 
-        $serviceAction = $this->originalPostData['ADD_service_action_from_magento'] ?? null;
+        //$serviceAction = $this->originalPostData['ADD_service_action_from_magento'] ?? null;
         $transactionType = $this->getTransactionType();
-        $this->logging->addDebug(__METHOD__.'|1_1| $transactionType:'.var_export($transactionType, true));
+        $this->logging->addDebug(__METHOD__.'|1_10|'.var_export($transactionType, true));
+
+        if ($this->receivePushCheckDuplicates()) {
+            return true;
+        }
 
 //        if ($this->isGroupTransactionInfo() && $postDataStatusCode != '794' && $serviceAction != 'refund') { //&& $postDataStatusCode != '794' && $serviceAction != 'refund'
 //            return true;
@@ -306,7 +314,7 @@ class Push implements PushInterface
 //            $this->order->setStatus('processing');
 //            $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
             $this->order->save();
-            $this->logging->addDebug(__METHOD__.'|3_1 EXCEPTION!|');
+            //$this->logging->addDebug(__METHOD__.'|3_1 EXCEPTION!|');
             throw new \Buckaroo\Magento2\Exception(
                 __('Refund was cancelled by user')
             );
@@ -370,6 +378,7 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__.'|5|');
         if (!$this->dontSaveOrderUponSuccessPush) {
+            $this->logging->addDebug(__METHOD__.'|5-1|');
             $this->order->save();
         }
         $this->logging->addDebug(__METHOD__.'|6|');
@@ -377,7 +386,42 @@ class Push implements PushInterface
         return true;
     }
 
-    /**
+    private function receivePushCheckDuplicates()
+    {
+        $this->logging->addDebug(__METHOD__.'|1|'.var_export($this->order->getPayment()->getMethod(), true));
+        $payment = $this->order->getPayment();
+        $ignoredPaymentMethods = [
+            Afterpay::PAYMENT_METHOD_CODE,
+            Afterpay2::PAYMENT_METHOD_CODE,
+            Afterpay20::PAYMENT_METHOD_CODE,
+            Giftcards::PAYMENT_METHOD_CODE
+        ];
+        if (
+            $payment && $payment->getMethod() && !empty($this->postData['brq_statuscode']) &&
+            ($this->getTransactionType() == self::BUCK_PUSH_TYPE_TRANSACTION) &&
+            (!in_array($payment->getMethod(), $ignoredPaymentMethods))
+        ) {
+            $this->logging->addDebug(__METHOD__.'|5|');
+
+            $receivedTransactionStatuses = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES);
+            $this->logging->addDebug(__METHOD__.'|10|'.var_export([$receivedTransactionStatuses, $this->postData['brq_statuscode']], true));
+            if (
+                $receivedTransactionStatuses && is_array($receivedTransactionStatuses) &&
+                !empty($this->postData['brq_transactions']) &&
+                isset($receivedTransactionStatuses[$this->postData['brq_transactions']]) &&
+                ($receivedTransactionStatuses[$this->postData['brq_transactions']] == $this->postData['brq_statuscode'])
+            ) {
+                $this->logging->addDebug(__METHOD__.'|15|');
+                return true;
+            }
+            $this->setReceivedTransactionStatuses();
+            $payment->save();
+        }
+        $this->logging->addDebug(__METHOD__.'|20|');
+        return false;
+    }
+
+     /**
      * Get and store the postdata parameters
      */
     private function getPostData()
@@ -781,6 +825,26 @@ class Push implements PushInterface
         }
     }
 
+    protected function setReceivedTransactionStatuses()
+    {
+        if (empty($this->postData['brq_transactions']) || empty($this->postData['brq_statuscode'])) {
+            return;
+        }
+
+        $payment = $this->order->getPayment();
+
+        if (!$payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES)) {
+            $payment->setAdditionalInformation(
+                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
+                array($this->postData['brq_transactions'] => $this->postData['brq_statuscode'])
+            );
+        } else {
+            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
+            $buckarooTransactionKeysArray[$this->postData['brq_transactions']] = $this->postData['brq_statuscode'];
+            $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES, $buckarooTransactionKeysArray);
+        }
+    }
+
     /**
      * @return string
      */
@@ -1051,25 +1115,6 @@ class Push implements PushInterface
                                 $this->order->getTotalPaid(),
                             ], true)
                     );
-
-                    $receivedPaymentsArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
-                    $this->setReceivedPaymentFromBuckaroo();
-                    $payment->save();
-
-                    //fight with double pushes for the same transaction id
-                    if (
-                        $receivedPaymentsArray
-                        &&
-                        is_array($receivedPaymentsArray)
-                        &&
-                        !empty($this->postData['brq_transactions'])
-                        &&
-                        in_array($this->postData['brq_transactions'], array_keys($receivedPaymentsArray))
-                    ) {
-
-                        $this->logging->addDebug(__METHOD__.'|63|');
-                        return;
-                    }
 
                     $saveInvoice = true;
                     if (
