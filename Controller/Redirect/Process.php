@@ -151,6 +151,8 @@ class Process extends \Magento\Framework\App\Action\Action
         $statusCode = (int)$this->response['brq_statuscode'];
 
         $this->loadOrder();
+        
+        $this->checkoutSession->setPaymentEnded($this->order->getId());
 
         if (!$this->order->getId()) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED');
