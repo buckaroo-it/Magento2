@@ -243,9 +243,7 @@ class Push implements PushInterface
         $this->receivePushCheckPayLink($response, $validSignature);
 
         //Check second push for PayPerEmail
-        if($this->receivePushCheckPayPerEmail($response, $validSignature)){
-            return true;
-        }
+        $this->receivePushCheckPayPerEmail($response, $validSignature);
 
         if ($this->receivePushCheckDuplicates()) {
             return true;
