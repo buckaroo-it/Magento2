@@ -489,7 +489,7 @@ class Afterpay20 extends AbstractMethod
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             $invoice = $creditmemo->getInvoice();
 
-            $transactionBuilder->setInvoiceId($invoice->getOrder()->getIncrementId())
+            $transactionBuilder->setInvoiceId($this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment))
                 ->setOriginalTransactionKey($payment->getParentTransactionId());
         }
 
@@ -1610,5 +1610,14 @@ class Afterpay20 extends AbstractMethod
                 }
             }
         }
+    }
+
+    private function getRefundTransactionBuilderInvoceId($invoiceIncrementId, $payment) {
+        if(!$refundIncrementInvoceId = $payment->getAdditionalInformation('refundIncrementInvoceId')){
+            $refundIncrementInvoceId = 0;
+        }
+        $refundIncrementInvoceId++;
+        $payment->setAdditionalInformation('refundIncrementInvoceId', $refundIncrementInvoceId);
+        return $invoiceIncrementId.'_R'.($refundIncrementInvoceId>1?$refundIncrementInvoceId:'');
     }
 }
