@@ -87,7 +87,28 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             );
         }
 
+        if (version_compare($context->getVersion(), '1.26.0', '<')) {
+            $this->addAWaitForRefundApprovalOrderItemColumn($installer);
+            if (!$installer->tableExists('buckaroo_magento2_waiting_for_approval')) {
+                $this->createWaitingForApprovalTable($installer);
+            }
+
+        }
+
         $installer->endSetup();
+    }
+
+    protected function addAWaitForRefundApprovalOrderItemColumn(SchemaSetupInterface $installer)
+    {
+        $installer->getConnection()->addColumn(
+            $installer->getTable('sales_order_item'),
+            'buckaroo_wait_for_approval_refund_item',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+                'nullable' => true,
+                'comment' => 'Order item count waiting for refund approve'
+            ]
+        );
     }
 
     /**
@@ -294,6 +315,73 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             'Created At'
         );
         $table->setComment('Buckaroo Group Transaction');
+
+        $installer->getConnection()->createTable($table);
+    }
+
+    /**
+     * @param SchemaSetupInterface $installer
+     *
+     * @throws \Zend_Db_Exception
+     */
+    protected function createWaitingForApprovalTable($installer)
+    {
+        $table = $installer->getConnection()->newTable($installer->getTable('buckaroo_magento2_waiting_for_approval'));
+
+        $table->addColumn(
+            'entity_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+            null,
+            [
+                'identity' => true,
+                'unsigned' => true,
+                'nullable' => false,
+                'primary'  => true,
+            ],
+            'Entity ID'
+        );
+
+        $table->addColumn(
+          'order_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'Order ID'
+        );
+
+        $table->addColumn(
+            'transaction_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'Transaction Id'
+        );
+
+        $table->addColumn(
+            'buckaroo_shipping_count',
+            \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+            null,
+            [
+                'nullable' => true,
+            ],
+            'Waiting for approval shipping price'
+        );
+
+        $table->addColumn(
+            'buckaroo_is_fee_waiting_for_refund',
+            \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+            null,
+            [
+                'nullable' => true,
+            ],
+            'Is Buckaroo fee waiting for refund'
+        );
+
+        $table->setComment('Buckaroo Waiting For Approval');
 
         $installer->getConnection()->createTable($table);
     }

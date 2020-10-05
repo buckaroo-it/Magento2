@@ -212,26 +212,28 @@ class Push implements PushInterface
         //Start debug mailing/logging with the postdata.
         $this->logging->addDebug(__METHOD__.'|1|'.var_export($this->originalPostData, true));
 
+        if ($this->isGroupTransactionInfo()) {
+            return true;
+        }
+
+        $this->logging->addDebug('CHECKING...' . var_export(!$this->isPushNeeded() && ($this->originalPostData['brq_statuscode'] != '794' && isset($this->originalPostData['ADD_service_action_from_magento']) != 'refund'), true));
+        if (!$this->isPushNeeded() && ($this->originalPostData['brq_statuscode'] != '794' && isset($this->originalPostData['ADD_service_action_from_magento']) != 'refund')) {
+            return true;
+        }
+
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
 
         $this->loadOrder();
 
+        $currentOrderStatus = $this->order->getStatus();
+        $this->logging->addDebug('||| $currentOrderStatus ' . var_export($currentOrderStatus, true));
         //Validate status code and return response
         $postDataStatusCode = $this->getStatusCode();
-        $this->logging->addDebug('||| $postDataStatusCode' . $postDataStatusCode);
+        $this->logging->addDebug('||| $postDataStatusCode ' . $postDataStatusCode);
 
-        $serviceAction = $this->originalPostData['ADD_service_action_from_magento'] ?? null;
         $transactionType = $this->getTransactionType();
         $this->logging->addDebug(__METHOD__.'|1_1| $transactionType:'.var_export($transactionType, true));
-
-        if ($this->isGroupTransactionInfo() && $postDataStatusCode != '794' && $serviceAction != 'refund') { //&& $postDataStatusCode != '794' && $serviceAction != 'refund'
-            return true;
-        }
-
-        if (!$this->isPushNeeded() && $postDataStatusCode != '794' && $serviceAction != 'refund' ) {
-            return true;
-        }
 
         $response = $this->validator->validateStatusCode($postDataStatusCode);
         $this->logging->addDebug(__METHOD__.'|2|'.var_export($response, true));
@@ -240,8 +242,16 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__.'|3|'.var_export($canUpdateOrder, true));
 
+        if ($currentOrderStatus != 'buckaroo_magento2_pending_approv'
+            && $postDataStatusCode == '190'
+            && isset($this->originalPostData['ADD_service_action_from_magento'])
+            && $this->originalPostData['ADD_service_action_from_magento'] == 'refund')
+        {
+            return true;
+        }
+
         //Check if the push is a refund request or cancel authorize
-        if (isset($this->postData['brq_amount_credit']) && $postDataStatusCode != '794' && $postDataStatusCode != '891') { //&& $postDataStatusCode != '794' && $postDataStatusCode != '891'
+        if (isset($this->postData['brq_amount_credit']) && $postDataStatusCode != '794' && $postDataStatusCode != '891') {
             if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && $this->order->isCanceled()
                 && $this->postData['brq_transaction_type'] == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
@@ -263,8 +273,9 @@ class Push implements PushInterface
             } else {
                 $this->order->setStatus(Order::STATE_PROCESSING);
             }
-//            $this->order->setStatus('processing');
-//            $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
+
+
+
             $this->order->save();
             $this->logging->addDebug(__METHOD__.'|3_1 EXCEPTION!|');
             throw new \Buckaroo\Magento2\Exception(
@@ -362,16 +373,24 @@ class Push implements PushInterface
      */
     private function isPushNeeded()
     {
-        if ($this->hasPostData('add_initiated_by_magento', 1) &&
-            $this->hasPostData('add_service_action_from_magento',
+        if (($this->hasPostData('add_initiated_by_magento', 1)
+                //|| $this->hasPostData('ADD_initiated_by_magento', 1)
+            ) &&
+            ($this->hasPostData('add_service_action_from_magento',
                 ['capture','cancelauthorize','cancelreserve','refund'])
+                //|| $this->hasPostData('ADD_service_action_from_magento', ['capture','cancelauthorize','cancelreserve','refund'])
+            )
         ) {
             return false;
         }
 
-        if ($this->hasPostData('add_initiated_by_magento', 1) &&
+        if (($this->hasPostData('add_initiated_by_magento', 1)
+                //|| $this->hasPostData('ADD_initiated_by_magento', 1)
+            ) &&
             $this->hasPostData('brq_transaction_method', 'klarnakp') &&
-            $this->hasPostData('add_service_action_from_magento', 'pay')
+            ($this->hasPostData('add_service_action_from_magento', 'pay')
+                //|| $this->hasPostData('ADD_service_action_from_magento', 'pay')
+            )
         ) {
             return false;
         }
@@ -815,18 +834,15 @@ class Push implements PushInterface
         ) {
             $this->logging->addDebug(__METHOD__.'|2 current :|' . var_export($currentStateAndStatus, true));
             if ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL'){
-//                $this->updateOrderStatus(Order::STATE_PROCESSING, 'buckaroo_magento2_pending_approv', $response['message']);
                 $this->order->addStatusHistoryComment($response['message'], 'buckaroo_magento2_pending_approv');
             } elseif ($currentStateAndStatus[1] == 'buckaroo_magento2_pending_approv') {
-//                $this->updateOrderStatus(Order::STATE_PROCESSING, 'processing', $response['message']);
                 $this->order->addStatusHistoryComment($response['message'], 'processing');
             }
             return true;
         } elseif ($currentStateAndStatus == $completedStateAndStatus && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL') {
 
             $this->logging->addDebug(__METHOD__.'|2 current :|' . var_export($currentStateAndStatus == $completedStateAndStatus, true));
-            $this->updateOrderStatus(Order::STATE_COMPLETE, 'buckaroo_magento2_pending_approv', $response['message']);
-
+            $this->order->addStatusHistoryComment($response['message'], 'buckaroo_magento2_pending_approv');
             return true;
         }
 
