@@ -46,7 +46,10 @@ define(
                 },
                 banktypes: [],
                 redirectAfterPlaceOrder: false,
+                idealIssuer: null,
                 selectedBank: null,
+                selectedBankDropDown: null,
+                selectionType: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.idealprocessing.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
@@ -63,9 +66,11 @@ define(
                 },
 
                 initObservable: function () {
-                    this._super().observe(['selectedBank', 'banktypes']);
+                    this._super().observe(['selectedBank', 'banktypes', 'selectionType']);
 
                     this.banktypes = ko.observableArray(window.checkoutConfig.payment.buckaroo.idealprocessing.banks);
+
+                    this.selectionType  = window.checkoutConfig.payment.buckaroo.ideal.selectionType;
 
                     /**
                      * observe radio buttons
@@ -89,6 +94,13 @@ define(
                     );
 
                     return this;
+                },
+
+                setSelectedBankDropDown: function() {
+                    var el = document.getElementById("buckaroo_magento2_idealp_issuer");
+                    this.selectedBank(el.options[el.selectedIndex].valu);
+                    this.selectPaymentMethod();
+                    return true;
                 },
 
                 /**
@@ -139,6 +151,10 @@ define(
                     var selectedBankCode = null;
                     if (this.selectedBank()) {
                         selectedBankCode = this.selectedBank().code;
+                    }
+
+                    if(this.idealIssuer){
+                        selectedBankCode = this.idealIssuer;
                     }
 
                     return {

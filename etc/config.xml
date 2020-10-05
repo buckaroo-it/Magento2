@@ -500,6 +500,7 @@
                 <create_order_before_transaction>1</create_order_before_transaction>
                 <debug_types>300,400,500,550,600</debug_types>
                 <cart_keep_alive>1</cart_keep_alive>
+                <selection_type>1</selection_type>
             </account>
 
             <refund>

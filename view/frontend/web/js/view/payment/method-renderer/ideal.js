@@ -46,7 +46,10 @@ define(
                 },
                 banktypes: [],
                 redirectAfterPlaceOrder: false,
+                idealIssuer: null,
                 selectedBank: null,
+                selectedBankDropDown: null,
+                selectionType: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.ideal.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
@@ -63,11 +66,13 @@ define(
                 },
 
                 initObservable: function () {
-                    this._super().observe(['selectedBank', 'banktypes']);
+                    this._super().observe(['selectedBank', 'banktypes', 'selectionType']);
 
                     this.banktypes = ko.observableArray(window.checkoutConfig.payment.buckaroo.ideal.banks);
 
-                    /**
+                    this.selectionType  = window.checkoutConfig.payment.buckaroo.ideal.selectionType;
+
+                /**
                  * observe radio buttons
                  * check if selected
                  */
@@ -78,7 +83,7 @@ define(
                         return true;
                     };
 
-                    /**
+                /**
                  * Check if the required fields are filled. If so: enable place order button (true) | ifnot: disable place order button (false)
                  */
                     this.buttoncheck = ko.computed(
@@ -89,6 +94,13 @@ define(
                     );
 
                     return this;
+                },
+
+                setSelectedBankDropDown: function() {
+                    var el = document.getElementById("buckaroo_magento2_ideal_issuer");
+                    this.selectedBank(el.options[el.selectedIndex].value);
+                    this.selectPaymentMethod();
+                    return true;
                 },
 
                 /**
@@ -139,6 +151,10 @@ define(
                     var selectedBankCode = null;
                     if (this.selectedBank()) {
                         selectedBankCode = this.selectedBank().code;
+                    }
+
+                    if(this.idealIssuer){
+                        selectedBankCode = this.idealIssuer;
                     }
 
                     return {

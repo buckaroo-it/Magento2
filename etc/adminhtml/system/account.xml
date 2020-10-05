@@ -200,6 +200,13 @@
               <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
               <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>
             </field>
+
+            <field id="selection_type" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="0" showInStore="0">
+              <label>Use selection</label>
+              <source_model>Buckaroo\Magento2\Model\Config\Source\SelectionType</source_model>
+              <comment><![CDATA[Optional use selection for iDEAL bank and CreditCard]]></comment>
+              <config_path>buckaroo_magento2/account/selection_type</config_path>
+            </field>
             
         </group>
     </group>

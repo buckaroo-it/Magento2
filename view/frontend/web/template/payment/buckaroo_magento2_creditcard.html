@@ -23,18 +23,35 @@
                 <div class="field required" >
                     <legend class="label" data-bind="i18n: 'Select a Credit Card or Debit Card:'"></legend>
                     <div class="control">
-                        <!-- ko foreach: creditcards -->
-                            <!-- ko if: active -->
-                            <label class="card-types">
-                                <img class="card-types-img" data-bind="attr: {
-                                         'src': img,
-                                         'width': 30,
-                                         'height': 20 }"
-                                        />
-                                <input class="card-types-input" type="radio" data-bind="value: code, text: name, click: $parent.setSelectedCard" name="card"> <!-- ko text: name --><!--/ko-->
-                            </label>
+
+                        <!-- ko if: selectionType == '1' -->
+                            <!-- ko foreach: creditcards -->
+                                <!-- ko if: active -->
+                                <label class="card-types">
+                                    <img class="card-types-img" data-bind="attr: {
+                                             'src': img,
+                                             'width': 30,
+                                             'height': 20 }"
+                                            />
+                                    <input class="card-types-input" type="radio" data-bind="value: code, text: name, click: $parent.setSelectedCard" name="card"> <!-- ko text: name --><!--/ko-->
+                                </label>
+                                <!--/ko-->
                             <!--/ko-->
                         <!--/ko-->
+
+                        <!-- ko if: selectionType == '2' -->
+                            <select id="buckaroo_magento2_creditcard_issuer" class="field"
+                                    data-bind="value: creditcardIssuer,
+                                    event: { change: setSelectedBankDropDown },
+                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                    name="card">
+                                <option data-bind="i18n: 'Select a Credit Card or Debit Card', 'value': ''"></option>
+                                <!-- ko foreach: creditcards -->
+                                    <option data-bind="i18n: name, 'value': code"></option>
+                                <!--/ko-->
+                            </select>
+                        <!--/ko-->
+
                     </div>
                 </div>
             </div>

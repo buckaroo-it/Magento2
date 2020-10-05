@@ -46,6 +46,10 @@ define(
                 },
                 creditcards: [],
                 redirectAfterPlaceOrder: false,
+                creditcardIssuer: null,
+                selectedBank: null,
+                selectedBankDropDown: null,
+                selectionType: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditcard.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
@@ -62,7 +66,7 @@ define(
                 },
 
                 initObservable: function () {
-                    this._super().observe(['selectedCard', 'creditcards']);
+                    this._super().observe(['selectedCard', 'creditcards', 'selectionType']);
                     var filteredCards = [];
                     for (var key in window.checkoutConfig.payment.buckaroo.creditcard.cards) {
                         if (window.checkoutConfig.payment.buckaroo.creditcard.cards[key].active) {
@@ -70,6 +74,8 @@ define(
                         }
                     }
                     this.creditcards = ko.observableArray(filteredCards);
+
+                    this.selectionType  = window.checkoutConfig.payment.buckaroo.ideal.selectionType;
 
                     /**
                      * observe radio buttons
@@ -92,6 +98,13 @@ define(
                     );
 
                     return this;
+                },
+
+                setSelectedBankDropDown: function() {
+                    var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
+                    this.selectedCard(el.options[el.selectedIndex].value);
+                    this.selectPaymentMethod();
+                    return true;
                 },
 
                 /**
@@ -142,6 +155,11 @@ define(
                     var selectedCardCode = null;
                     if (this.selectedCard()) {
                         selectedCardCode = this.selectedCard().code;
+                    }
+
+
+                    if(this.creditcardIssuer){
+                        selectedCardCode = this.creditcardIssuer;
                     }
 
                     return {
