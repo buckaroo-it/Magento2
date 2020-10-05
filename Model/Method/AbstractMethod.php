@@ -745,6 +745,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
+        $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
+
+        if (!$activeMode) {
+            $activeMode = 2;
+        }
+        $this->gateway->setMode($activeMode);
+
         parent::capture($payment, $amount);
 
         $this->payment = $payment;
@@ -783,11 +790,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public function captureTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
-        $this->logger2->addDebug(var_export([$this->buckarooPaymentMethodCode, $this->helper->getMode($this->buckarooPaymentMethodCode)], true));
-
-        $this->gateway->setMode(
-            $this->helper->getMode($this->buckarooPaymentMethodCode)
-        );
 
         $response = $this->gateway->capture($transaction);
 
