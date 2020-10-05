@@ -434,13 +434,6 @@ class Push implements PushInterface
      */
     private function isPushNeeded()
     {
-        if (($this->hasPostData('add_initiated_by_magento', 1)
-                //|| $this->hasPostData('ADD_initiated_by_magento', 1)
-            ) &&
-            ($this->hasPostData('add_service_action_from_magento',
-                ['capture','cancelauthorize','cancelreserve','refund'])
-                //|| $this->hasPostData('ADD_service_action_from_magento', ['capture','cancelauthorize','cancelreserve','refund'])
-            )
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
             $this->hasPostData('add_service_action_from_magento',
                 ['capture','cancelauthorize','cancelreservation','refund'])
