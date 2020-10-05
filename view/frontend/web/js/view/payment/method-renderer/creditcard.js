@@ -84,6 +84,7 @@ define(
                     var self = this;
                     this.setSelectedCard = function (value) {
                         self.selectedCard(value);
+                        self.selectPaymentMethod();
                         return true;
                     };
 
