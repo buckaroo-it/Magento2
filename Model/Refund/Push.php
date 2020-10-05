@@ -25,7 +25,7 @@ use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
-
+use Magento\Framework\App\ResourceConnection;
 /**
  * Class Creditmemo
  *
@@ -65,6 +65,7 @@ class Push
      */
     public $logging;
 
+    protected $resourceConnection;
     /**
      * @param CreditmemoFactory             $creditmemoFactory
      * @param CreditmemoManagementInterface $creditmemoManagement
@@ -77,13 +78,15 @@ class Push
         CreditmemoManagementInterface $creditmemoManagement,
         CreditmemoSender $creditEmailSender,
         Refund $configRefund,
-        Log $logging
+        Log $logging,
+        ResourceConnection $resourceConnection
     ) {
         $this->creditmemoFactory     = $creditmemoFactory;
         $this->creditmemoManagement  = $creditmemoManagement;
         $this->creditEmailSender     = $creditEmailSender;
         $this->logging               = $logging;
         $this->configRefund          = $configRefund;
+        $this->resourceConnection    = $resourceConnection;
     }
 
     /**
@@ -131,7 +134,7 @@ class Push
             'transaction_id',
             $this->postData['brq_transactions']
         );
-
+        $this->logging->addDebug('$creditmemosByTransactionId: ' . var_export($creditmemosByTransactionId, true));
         if (count($creditmemosByTransactionId) > 0) {
             $this->logging->addDebug('The transaction has already been refunded.');
 
@@ -168,9 +171,16 @@ class Push
                     (bool)$creditData['do_offline'],
                     !empty($creditData['send_email'])
                 );
+
+                if ($dataWaitingForRefund = $this->hasWaitingForApproveOrder()) {
+                    $this->removeWaitForRefundData($dataWaitingForRefund);
+                }
+
+                $this->logging->addDebug('$this->creditmemoManagement->refund: ');
                 if (!empty($data['send_email'])) {
                     $this->creditEmailSender->send($creditmemo);
                 }
+
                 return true;
             } else {
                 $debugMessage = 'Failed to create the creditmemo, method saveCreditmemo return value: ' . PHP_EOL;
@@ -198,16 +208,33 @@ class Push
             /**
              * @var \Magento\Sales\Model\Order\Creditmemo $creditmemo
              */
+            $this->logging->addDebug(__METHOD__ . '|1|' . var_export($creditData,true));
             $creditmemo = $this->creditmemoFactory->createByOrder($this->order, $creditData);
 
             /**
              * @var \Magento\Sales\Model\Order\Creditmemo\Item $creditmemoItem
              */
             foreach ($creditmemo->getAllItems() as $creditmemoItem) {
+
+                $itemId = $creditmemoItem->getData('order_item_id');
+                $itemQty = $creditmemoItem->getData('qty');
+                $this->logging->addDebug(__METHOD__ . '|2|' . var_export($itemId,true));
+
+                $orderItem = $this->order->getItemById($itemId);
+
+                $itemManualRefundedQty = $orderItem->getData('buckaroo_wait_for_approval_refund_item');
+
+                if ($itemManualRefundedQty) {
+                    $itemManualRefundedQty -= $itemQty;
+
+                    $orderItem->setData('buckaroo_wait_for_approval_refund_item', $itemManualRefundedQty);
+                }
+
                 /**
                  * @noinspection PhpUndefinedMethodInspection
                  */
                 $creditmemoItem->setBackToStock(false);
+
             }
 
             return $creditmemo;
@@ -233,6 +260,7 @@ class Push
 
         $totalAmountToRefund = $this->totalAmountToRefund();
         $this->creditAmount  = $totalAmountToRefund + $this->order->getBaseTotalRefunded();
+        $this->logging->addDebug('GETCREDITMEMO POSTDATA '. var_export( $this->postData, true));
 
         if ($this->creditAmount != $this->order->getBaseGrandTotal()) {
             $adjustment = $this->getAdjustmentRefundData();
@@ -249,6 +277,18 @@ class Push
             $data['adjustment_positive'] = $this->calculateRemainder();
             $data['items']               = $this->getCreditmemoDataItems();
             $data['qtys']                = $this->setCreditQtys($data['items']);
+        }
+        $this->logging->addDebug('!empty($this->postData[\'add_initiated_by_magento\']):  '. var_export(!empty($this->postData['add_initiated_by_magento']),true));
+        if (!empty($this->postData['ADD_initiated_by_magento']) || !empty($this->postData['add_initiated_by_magento'])) {
+            $this->logging->addDebug('With this approval refund of '. $this->creditAmount.' the grand total will be refunded.');
+
+            $shippingWaitingForApproveRefundCost = $this->hasWaitingForApproveOrder();
+            $this->logging->addDebug('$shippingWaitingForApproveRefundCost |||| '. var_export($shippingWaitingForApproveRefundCost, true));
+
+            $data['shipping_amount']     = !empty($shippingWaitingForApproveRefundCost['buckaroo_shipping_count']) ? $shippingWaitingForApproveRefundCost['buckaroo_shipping_count'] : $data['shipping_amount'];
+            $this->logging->addDebug('$data[\'shipping_amount\'] |||| '. $data['shipping_amount']);
+
+            $data['adjustment_positive'] = 0;
         }
 
         $debugMessage = 'Data used for credit nota: ' . PHP_EOL;
@@ -369,9 +409,16 @@ class Push
                 if ((float)$this->creditAmount == (float)$this->order->getBaseGrandTotal()) {
                     $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
                 }
+                elseif (!empty($orderItem->getBuckarooWaitForApprovalRefundItem())) {
+                    $this->logging->addDebug('WaitingFORApproval');
+                    $qty = $orderItem->getBuckarooWaitForApprovalRefundItem();
+
+                }
 
                 $items[$orderItem->getId()] = ['qty' => (int)$qty];
             }
+
+            $qty = 0;
         }
 
         $debugMessage = 'Total items to be refunded: ' . PHP_EOL;
@@ -400,4 +447,40 @@ class Push
 
         return $qtys;
     }
+
+    protected function hasWaitingForApproveOrder()
+    {
+        $dataWaitingForApprove = $this->resourceConnection->getConnection()->select()
+            ->from($this->resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'))
+            ->where('order_id = ?', $this->postData['brq_ordernumber'])
+            ->where('transaction_id = ?', $this->postData['brq_relatedtransaction_refund']);
+
+        if ($this->resourceConnection->getConnection()->fetchRow($dataWaitingForApprove)) {
+            return $this->resourceConnection->getConnection()->fetchRow($dataWaitingForApprove);
+        }
+
+        return false;
+    }
+
+    private function removeWaitForRefundData($data)
+    {
+        $this->resourceConnection->getConnection()->delete(
+            $this->resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'),
+            [
+                $this->resourceConnection->getConnection()->quoteInto('transaction_id = ?', $data['transaction_id']),
+                $this->resourceConnection->getConnection()->quoteInto('order_id = ?', $data['order_id'])
+            ]
+        );
+    }
+
+//
+//    public function setShippingRefundData()
+//    {
+//        $this->resourceConnection->getConnection()->update(
+//            $this->resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'),
+//            ['buckaroo_shipping_count' => $shippingCount ],
+//            $this->resourceConnection->getConnection()->quoteInto('transaction_id = ?', $transactionId)
+//        );
+//
+//    }
 }
