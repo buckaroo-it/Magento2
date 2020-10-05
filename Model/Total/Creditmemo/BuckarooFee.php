@@ -122,6 +122,11 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
 
     private function isWaitingForApproveOrderExist($resourceConnection, $transactionData)
     {
+
+        if (!$resourceConnection->getConnection()->isTableExists('buckaroo_magento2_waiting_for_approval')) {
+            return false;
+        }
+
         $this->logger->addDebug('$transactionData |||' . var_export($transactionData, true));
         $dataWaitingForApprove = $resourceConnection->getConnection()->select()
             ->from('buckaroo_magento2_waiting_for_approval')
