@@ -19,6 +19,8 @@
  */
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Model\Method\Giftcards;
+
 class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 {   
     /**
@@ -55,6 +57,9 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         if ($payment = $lastRealOrder->getPayment()) {
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
                 return;
+            }
+            if(in_array($payment->getMethod(), [Giftcards::PAYMENT_METHOD_CODE])){
+                return true;
             }
             $order = $payment->getOrder();
 
