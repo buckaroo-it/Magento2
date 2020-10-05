@@ -23,16 +23,33 @@
                 <div class="field required" >
                     <legend class="label" data-bind="i18n: 'Select a bank:'"></legend>
                     <div class="control">
-                        <!-- ko foreach: banktypes -->
-                        <label class="bank-types">
-                            <img class="bank-types-img" data-bind="attr: {
-                                     'src': img,
-                                     'width': 20,
-                                     'height': 20 }"
-                            />
-                            <input class="bank-types-input" type="radio" data-bind="value: code, text: name, click: $parent.setSelectedBank" name="bank"> <!-- ko text: name --><!--/ko-->
-                        </label>
+
+                        <!-- ko if: selectionType == '1' -->
+                            <!-- ko foreach: banktypes -->
+                                <label class="bank-types">
+                                    <img class="bank-types-img" data-bind="attr: {
+                                             'src': img,
+                                             'width': 20,
+                                             'height': 20 }"
+                                            />
+                                    <input class="bank-types-input" type="radio" data-bind="value: code, text: name, click: $parent.setSelectedBank" name="bank"> <!-- ko text: name --><!--/ko-->
+                                </label>
+                            <!--/ko-->
                         <!--/ko-->
+
+                        <!-- ko if: selectionType == '2' -->
+                            <select id="buckaroo_magento2_idealp_issuer" class="field"
+                                    data-bind="value: idealIssuer,
+                                    event: { change: setSelectedBankDropDown },
+                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                    name="bank">
+                                <option data-bind="i18n: 'Select a bank', 'value': ''"></option>
+                                <!-- ko foreach: banktypes -->
+                                    <option data-bind="i18n: name, 'value': code"></option>
+                                <!--/ko-->
+                            </select>
+                        <!--/ko-->
+
                     </div>
                 </div>
             </div>

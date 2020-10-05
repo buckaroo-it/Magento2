@@ -74,6 +74,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_CREATE_ORDER_BEFORE_TRANSACTION = 'buckaroo_magento2/account/create_order_before_transaction';
     const XPATH_ACCOUNT_IP_HEADER                       = 'buckaroo_magento2/account/ip_header';
     const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
+    const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
 
     /**
      * @var MethodFactory
@@ -128,6 +129,7 @@ class Account extends AbstractConfigProvider
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
+            'selection_type'                    => $this->getSelectionType($store),
         ];
         return $config;
     }
