@@ -507,10 +507,6 @@ class Klarnakp extends AbstractMethod
                 'Name' => 'ShippingSameAsBilling',
             ],
             [
-                '_' => $phoneNumber['clean'],
-                'Name' => ($phoneNumber['mobile'] ? 'ShippingCellPhoneNumber' : 'ShippingPhoneNumber'),
-            ],
-            [
                 '_' => $shippingAddress->getCity(),
                 'Name' => 'ShippingCity',
             ],
@@ -823,10 +819,6 @@ class Klarnakp extends AbstractMethod
         $birthDayStamp = str_replace('-', '', $payment->getAdditionalInformation('customer_DoB'));
         $billingData = [
             [
-                '_' => $telephone['clean'],
-                'Name' => ($telephone['mobile'] ? 'BillingCellPhoneNumber' : 'BillingPhoneNumber'),
-            ],
-            [
                 '_' => $billingAddress->getCity(),
                 'Name' => 'BillingCity',
             ],
@@ -855,16 +847,8 @@ class Klarnakp extends AbstractMethod
                 'Name' => 'BillingStreet',
             ],
             [
-                '_' => $payment->getAdditionalInformation('customer_gender'),
-                'Name' => 'Gender',
-            ],
-            [
                 '_' => $billingAddress->getCountryId(),
                 'Name' => 'OperatingCountry',
-            ],
-            [
-                '_' => $birthDayStamp,
-                'Name' => 'Pno',
             ]
         ];
 

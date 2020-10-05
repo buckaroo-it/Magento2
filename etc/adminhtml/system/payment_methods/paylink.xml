@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <!-- PayLink Payment method group -->
+    <group id="buckaroo_magento2_paylink" translate="label" type="text" sortOrder="220" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>PayLink</label>
+        <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
+
+        <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Enable PayLink</label>
+            <comment><![CDATA[Enable or disable this payment method.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
+            <config_path>payment/buckaroo_magento2_paylink/active</config_path>
+        </field>
+
+        <field id="payment_method" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>PayLink payment methods</label>
+            <comment><![CDATA[Select which payment methods can be used at PayLink.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayLink</source_model>
+            <config_path>payment/buckaroo_magento2_paylink/payment_method</config_path>
+        </field>
+
+    </group>
+</include>

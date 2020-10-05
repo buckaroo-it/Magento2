@@ -216,6 +216,10 @@
                     <item name="type" xsi:type="string">payperemail</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail</item>
                 </item>
+                <item name="paylink" xsi:type="array">
+                    <item name="type" xsi:type="string">paylink</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink</item>
+                </item>
                 <item name="eps" xsi:type="array">
                     <item name="type" xsi:type="string">eps</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Eps</item>

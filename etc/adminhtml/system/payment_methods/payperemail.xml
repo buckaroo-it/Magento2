@@ -71,7 +71,7 @@
 
             <field id="active_status_cm3" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Credit Management Enabled</label>
-                <comment><![CDATA[Enable or disable credit management.]]></comment>
+                <comment><![CDATA[Enable or disable credit management.<br/><strong>Important:</strong>Orders with enabled Credit Management can only be refunded from the Buckaroo Plaza.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_payperemail/active_status_cm3</config_path>
             </field>

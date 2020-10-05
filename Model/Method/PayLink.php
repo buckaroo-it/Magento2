@@ -20,17 +20,17 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-class PayPerEmail extends AbstractMethod
+class PayLink extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_payperemail';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_paylink';
 
     /**
      * @var string
      */
-    public $buckarooPaymentMethodCode = 'payperemail';
+    public $buckarooPaymentMethodCode = 'paylink';
 
     // @codingStandardsIgnoreStart
     /**
@@ -68,7 +68,7 @@ class PayPerEmail extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_canRefund               = true;
+    protected $_canRefund               = false;
 
     /**
      * @var bool
@@ -191,7 +191,7 @@ class PayPerEmail extends AbstractMethod
         $services = [];
         $services[] = $this->getPayperemailService($payment);
 
-        $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, 'payperemail');
+        $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, 'paylink');
         if (count($cmService) > 0) {
             $services[] = $cmService;
 
@@ -207,7 +207,6 @@ class PayPerEmail extends AbstractMethod
          */
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
-            ->setAdditionalParameter('fromPayPerEmail', 1)
             ->setMethod('TransactionRequest');
 
         return $transactionBuilder;
@@ -221,8 +220,8 @@ class PayPerEmail extends AbstractMethod
     {
         $areaCode = $this->_appState->getAreaCode();
 
-        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $ppeConfig */
-        $ppeConfig = $this->configProviderMethodFactory->get('payperemail');
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink $ppeConfig */
+        $ppeConfig = $this->configProviderMethodFactory->get('paylink');
 
         if (!$ppeConfig->isVisibleForAreaCode($areaCode)) {
             return false;
@@ -239,10 +238,10 @@ class PayPerEmail extends AbstractMethod
      */
     public function canProcessPostData($payment, $postData)
     {
-        // $transactionKey = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
-        // if ($transactionKey != $postData['brq_transactions']) {
-        //     return false;
-        // }
+        $transactionKey = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+        if ($transactionKey != $postData['brq_transactions']) {
+            return false;
+        }
 
         $orderState = $payment->getOrder()->getState();
         if ($orderState == \Magento\Sales\Model\Order::STATE_PROCESSING && $postData['brq_statuscode'] == "792") {
@@ -259,8 +258,8 @@ class PayPerEmail extends AbstractMethod
      */
     private function getPayperemailService($payment)
     {
-        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $config */
-        $config = $this->configProviderMethodFactory->get('payperemail');
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink $config */
+        $config = $this->configProviderMethodFactory->get('paylink');
 
         $services = [
             'Name'             => 'payperemail',

@@ -104,6 +104,8 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     /** @var FormKey */
     private $formKey;
 
+    private $additionaParameters;
+
     /**
      * @var int
      */
@@ -534,7 +536,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
 
         //trustly anyway should be w/o private ip
         if (
-            ($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly')
+            (isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) && $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly')
             &&
             $this->isIpPrivate($ip)
             &&
@@ -580,5 +582,22 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         }
 
         return false;
+    }
+
+    public function setAdditionalParameter($key, $value)
+    {
+        $this->additionaParameters[$key] = $value;
+
+        return $this;
+    }
+
+    public function getAdditionalParameter($key)
+    {
+        return $this->additionaParameters[$key];
+    }
+    
+    public function getAllAdditionalParameters()
+    {
+        return $this->additionaParameters;
     }
 }

@@ -51,8 +51,32 @@ group by '.$this->resourceConnection->getTableName('sales_order').'.increment_id
                     }
                 }
 
+                $result2 = $db->query('
+                    select 
+                    method,
+                    increment_id
+                    from '.$this->resourceConnection->getTableName('sales_order_payment').' 
+                    inner join '.$this->resourceConnection->getTableName('sales_order').' on '.$this->resourceConnection->getTableName('sales_order').'.entity_id = '.$this->resourceConnection->getTableName('sales_order_payment').'.parent_id 
+                    where '.$this->resourceConnection->getTableName('sales_order').'.increment_id in ("'.join('","', $incrementIds).'")
+                    AND additional_information like "%isPayPerEmail%"
+                    group by '.$this->resourceConnection->getTableName('sales_order').'.increment_id
+                ');
+
+                $additionalOptions2 = [];
+                while ($row = $result2->fetch()) {
+                    $additionalOptions2[$row['increment_id']] = 'buckaroo_magento2_payperemail-'.str_replace('buckaroo_magento2_','',$row['method']);
+                }
+
+                if ($additionalOptions2) {
+                    foreach ($dataSource['data']['items'] as &$item) {
+                        if (isset($additionalOptions2[$item['increment_id']])) {
+                            $item[$this->getData('name')] = $additionalOptions2[$item['increment_id']];
+                        }
+                    }
+                }
             }
         }
+
         return $dataSource;
     }
 

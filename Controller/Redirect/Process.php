@@ -151,6 +151,8 @@ class Process extends \Magento\Framework\App\Action\Action
         $statusCode = (int)$this->response['brq_statuscode'];
 
         $this->loadOrder();
+        
+        $this->checkoutSession->setPaymentEnded($this->order->getId());
 
         if (!$this->order->getId()) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED');
@@ -160,6 +162,10 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $payment = $this->order->getPayment();
 
+        if(!method_exists($payment->getMethodInstance(),'canProcessPostData')){
+            return $this->_redirect('/');
+        }
+        
         if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->response)) {
             return $this->_redirect('/');
         }
@@ -226,8 +232,10 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->checkoutSession->getLastSuccessQuoteId(),
                         $this->checkoutSession->getLastQuoteId(),
                         $this->checkoutSession->getLastOrderId(),
+                        $this->checkoutSession->getLastRealOrderId(),
                         $this->order->getQuoteId(),
-                        $this->order->getId()
+                        $this->order->getId(),
+                        $this->order->getIncrementId()
                     ],
                true));
 
@@ -242,6 +250,10 @@ class Process extends \Magento\Framework\App\Action\Action
                 if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
                     $this->logger->addDebug(__METHOD__.'|54|');
                     $this->checkoutSession->setLastOrderId($this->order->getId());
+                }
+                if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
+                    $this->logger->addDebug(__METHOD__.'|55|');
+                    $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                 }
                 $this->logger->addDebug(__METHOD__.'|6|');
                 // Redirect to success page

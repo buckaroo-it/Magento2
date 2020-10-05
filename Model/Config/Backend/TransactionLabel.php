@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  * NOTICE OF LICENSE
  *
@@ -18,11 +17,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
- -->
- 
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="Magento\Backend\Block\Widget\Button\Toolbar">
-        <plugin name="orderFormToolbarButtons" type="Buckaroo\Magento2\Block\Widget\Button\Toolbar" />
-        <plugin name="Buckaroo_Magento2::pluginBefore" type="Buckaroo\Magento2\Model\Plugin\PluginBefore" />
-    </type>
-</config>
+namespace Buckaroo\Magento2\Model\Config\Backend;
+
+class TransactionLabel extends \Magento\Framework\App\Config\Value
+{
+    public function _afterLoad(){
+        $value = $this->getValue();
+        if(!$value || $value == 'Magento Buckaroo') {
+            $storeName = \Magento\Framework\App\ObjectManager::getInstance()
+                    ->get(\Magento\Store\Model\StoreManagerInterface::class)
+                    ->getStore()
+                    ->getName();
+                $this->setValue($storeName);
+        }
+    }
+}

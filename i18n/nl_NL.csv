@@ -248,6 +248,8 @@
 "Enable Giftcard","Cadeaukaarten inschakelen"
 "PayPerEmail","PayPerEmail"
 "Enable PayPerEmail","PayPerEmail inschakelen"
+"PayLink","PayLink"
+"Enable PayLink","PayLink inschakelen"
 "Combined","Samengesteld"
 "Separate authorize and capture","Losse authorize en capture"
 "Payment flow","Betaalflow"

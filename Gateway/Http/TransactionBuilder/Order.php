@@ -123,6 +123,12 @@ class Order extends AbstractTransactionBuilder
 
         $parameterLine[] = $this->getParameterLine('initiated_by_magento', 1);
 
+        if($additionalParameters = $this->getAllAdditionalParameters()){
+            foreach ($additionalParameters as $key => $value) {
+                $parameterLine[] = $this->getParameterLine($key, $value);
+            }
+        }
+
         return $parameterLine;
     }
 
@@ -194,7 +200,7 @@ class Order extends AbstractTransactionBuilder
          * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance
          */
         $methodInstance = $this->order->getPayment()->getMethodInstance();
-        $method = $methodInstance->buckarooPaymentMethodCode;
+        $method = $methodInstance->buckarooPaymentMethodCode ?? 'buckaroo_magento2_ideal';
 
         $configProvider = $this->configProviderMethodFactory->get($method);
         return $configProvider->getAllowedCurrencies();

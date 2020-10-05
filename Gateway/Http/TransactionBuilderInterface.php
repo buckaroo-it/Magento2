@@ -158,4 +158,10 @@ interface TransactionBuilderInterface
      * @return \Buckaroo\Magento2\Gateway\Http\Transaction
      */
     public function build();
+
+    public function setAdditionalParameter($key, $value);
+    
+    public function getAdditionalParameter($key);
+
+    public function getAllAdditionalParameters();
 }
