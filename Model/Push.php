@@ -251,7 +251,7 @@ class Push implements PushInterface
         //Check second push for PayPerEmail
         $this->receivePushCheckPayPerEmail($response, $validSignature);
 
-        if ($this->receivePushCheckDuplicates()) {
+        if ($this->receivePushCheckDuplicates() && $currentOrderStatus != 'buckaroo_magento2_pending_approv') {
             return true;
         }
 
