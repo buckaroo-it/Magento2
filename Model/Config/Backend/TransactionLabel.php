@@ -28,7 +28,9 @@ class TransactionLabel extends \Magento\Framework\App\Config\Value
                     ->get(\Magento\Store\Model\StoreManagerInterface::class)
                     ->getStore()
                     ->getName();
+            if($storeName){
                 $this->setValue($storeName);
+            }
         }
     }
 }
