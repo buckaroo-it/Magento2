@@ -274,7 +274,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
                         "Parameters" => array(
                             array(
                                 "Name" => $parameters['number'],
-                                "Value" => trim($data['cardNumber'])
+                                "Value" => trim(preg_replace('/([\s-]+)/', '', $data['cardNumber']))
                             ),array(
                                 "Name" => $parameters['pin'],
                                 "Value" => trim($data['pin'])
