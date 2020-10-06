@@ -278,8 +278,9 @@ class Push
             $data['items']               = $this->getCreditmemoDataItems();
             $data['qtys']                = $this->setCreditQtys($data['items']);
         }
-        $this->logging->addDebug('!empty($this->postData[\'add_initiated_by_magento\']):  '. var_export(!empty($this->postData['add_initiated_by_magento']),true));
-        if (!empty($this->postData['ADD_initiated_by_magento']) || !empty($this->postData['add_initiated_by_magento'])) {
+
+        $orderStatus = $this->order->getStatus();
+        if ($orderStatus == 'buckaroo_magento2_pending_approv') {
             $this->logging->addDebug('With this approval refund of '. $this->creditAmount.' the grand total will be refunded.');
 
             $shippingWaitingForApproveRefundCost = $this->hasWaitingForApproveOrder();
