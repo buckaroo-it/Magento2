@@ -171,18 +171,6 @@ class Push
                     (bool)$creditData['do_offline'],
                     !empty($creditData['send_email'])
                 );
-
-                if ($dataWaitingForRefund = $this->hasWaitingForApproveOrder()) {
-                    $this->removeWaitForRefundData($dataWaitingForRefund);
-                }
-
-                if ($this->hasWaitingForApproveAllOrderTransactions()) {
-                    $this->logging->addDebug('Existed');
-                    $this->order->setStatus('buckaroo_magento2_pending_approv');
-                    $this->order->save();
-                }
-
-                $this->logging->addDebug('$this->creditmemoManagement->refund: ');
                 if (!empty($data['send_email'])) {
                     $this->creditEmailSender->send($creditmemo);
                 }
