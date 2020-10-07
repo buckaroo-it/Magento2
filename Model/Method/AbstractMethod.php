@@ -881,58 +881,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $response = $this->refundTransaction($transaction);
 
-        $this->logger2->addDebug(__METHOD__.'|2|' . var_export($response[0], true));
-        $arrayResponse = json_decode(json_encode($response), true);
-        $this->logger2->addDebug(__METHOD__.'|3|' . var_export($arrayResponse[0]['Status']['Code']['Code'], true));
-
-        if (isset($arrayResponse[0]['Status']['Code']['Code']) && $arrayResponse[0]['Status']['Code']['Code'] == '794') {
-            $this->logger2->addDebug(__METHOD__.'|4|' . var_export($arrayResponse[0]['Status']['Code']['Code'], true));
-            $this->logger2->addDebug(__METHOD__.'|4||0|' . var_export($arrayResponse[0]['Order'], true));
-
-            $resourceConnection = $this->objectManager->create('Magento\Framework\App\ResourceConnection');
-            $creditmemo = $payment->getCreditmemo();
-            $creditmemoItems = $creditmemo->getAllItems();
-
-            $buckarooFee = $creditmemo->getBuckarooFee();
-            $shippingWaitingApprovalAmount = $creditmemo->getData('shipping_amount');
-
-            $dataWaitingForApprovalRefund = [];
-            $dataWaitingForApprovalRefund['order_id'] = $arrayResponse[0]['Order'];
-            $dataWaitingForApprovalRefund['transaction_id'] = $arrayResponse[0]['RelatedTransactions']['RelatedTransaction']['_'];
-            $dataWaitingForApprovalRefund['transaction_key'] = $arrayResponse[0]['Key'];
-
-            if ($shippingWaitingApprovalAmount || $buckarooFee) {
-                if (!empty($shippingWaitingApprovalAmount)) {
-                    $dataWaitingForApprovalRefund['buckaroo_shipping_count'] = $shippingWaitingApprovalAmount;
-                }
-
-                if (!empty($buckarooFee)) {
-                    $dataWaitingForApprovalRefund['buckaroo_is_fee_waiting_for_refund'] = 1;
-                }
-                $this->setWaitForApproveRefundData($resourceConnection, $dataWaitingForApprovalRefund);
-            }
-
-            $this->logger2->addDebug(__METHOD__.'|4||1|' . var_export($shippingWaitingApprovalAmount, true));
-
-            foreach ($creditmemoItems as $item) {
-                $itemId = $item->getData('order_item_id');
-                $itemQty = $item->getData('qty');
-
-                $resourceConnection->getConnection()->update(
-                    $resourceConnection->getConnection()->getTableName('sales_order_item'),
-                    ['buckaroo_wait_for_approval_refund_item' => $itemQty ],
-                    $resourceConnection->getConnection()->quoteInto('item_id = ?', $itemId)
-                );
-            }
-
-            $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
-//            $this->afterRefund($payment, $response);
-            throw new \LogicException('Waiting for approval');
-        } else {
-            $this->logger2->addDebug(__METHOD__.'|5|' . var_export($arrayResponse[0]['Status']['Code']['Code'], true));
-            $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
-            $this->afterRefund($payment, $response);
-        }
+        $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
+        $this->afterRefund($payment, $response);
 
         return $this;
     }
@@ -1266,18 +1216,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             }
 
             $skipFirstPush = $payment->getAdditionalInformation('skip_push');
-
-            if (isset($arrayResponse['Status']['Code']['Code']) && $arrayResponse['Status']['Code']['Code'] == '794') {
-                $order = $payment->getOrder();
-                $order->setStatus('buckaroo_magento2_pending_approv');
-                $order->save();
-//                $payment->setAdditionalData();
-                $payment->save();
-            } elseif(isset($arrayResponse['Status']['Code']['Code']) && $arrayResponse['Status']['Code']['Code'] == '891'){
-                $order = $payment->getOrder();
-                $order->setStatus('processing');
-                $payment->save();
-            }
             /**
              * Buckaroo Push is send before Response, for correct flow we skip the first push
              * for some payment methods
@@ -1430,12 +1368,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
                 }
             }
-
-            if (isset($arrayResponse[0]['Status']['Code']['Code']) && $arrayResponse[0]['Status']['Code']['Code'] == '794') {
-                $this->logger2->addDebug(__METHOD__.'|17| '.var_export($response, true));
-                $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
-                throw new \LogicException('Waiting for approval');
-            }
         }
 
         $this->logger2->addDebug(__METHOD__.'|20|'.var_export([$amount, $totalOrder, $amount>=0.01], true));
@@ -1447,14 +1379,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return $amount;
         }
         return 0;
-    }
-
-    private function setWaitForApproveRefundData($resourceConnection, $dataWaitForApprove)
-    {
-        $resourceConnection->getConnection()->insert(
-            $resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'),
-            $dataWaitForApprove
-        );
     }
 }
 

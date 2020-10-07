@@ -216,53 +216,40 @@ class Push implements PushInterface
         //Start debug mailing/logging with the postdata.
         $this->logging->addDebug(__METHOD__.'|1|'.var_export($this->originalPostData, true));
 
-        if ($this->isGroupTransactionInfo() && ($this->originalPostData['brq_statuscode'] != '794'
-                && isset($this->originalPostData['ADD_service_action_from_magento']) && $this->originalPostData['ADD_service_action_from_magento'] != 'refund')) {
-            return true;
-        }
-
-        if (!$this->isPushNeeded() && ($this->originalPostData['brq_statuscode'] != '794'
-                && isset($this->originalPostData['ADD_service_action_from_magento']) && $this->originalPostData['ADD_service_action_from_magento'] != 'refund')) {
-            return true;
-        }
 
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
 
+        if ($this->isGroupTransactionInfo()) {
+            return true;
+        }
+
+        if (!$this->isPushNeeded()) {
+            return true;
+        }
+
         $this->loadOrder();
 
-        $currentOrderStatus = $this->order->getStatus();
-        $this->logging->addDebug('||| $currentOrderStatus ' . var_export($currentOrderStatus, true));
+        $transactionType = $this->getTransactionType();
         //Validate status code and return response
         $postDataStatusCode = $this->getStatusCode();
-
-        $this->logging->addDebug('||| $postDataStatusCode ' . $postDataStatusCode);
         $this->logging->addDebug(__METHOD__.'|1_5|'.var_export($postDataStatusCode, true));
 
         //$serviceAction = $this->originalPostData['ADD_service_action_from_magento'] ?? null;
 
-        $transactionType = $this->getTransactionType();
         $this->logging->addDebug(__METHOD__.'|1_10|'.var_export($transactionType, true));
 
         $response = $this->validator->validateStatusCode($postDataStatusCode);
-        
+
         //Check if the push have PayLink
         $this->receivePushCheckPayLink($response, $validSignature);
 
         //Check second push for PayPerEmail
         $this->receivePushCheckPayPerEmail($response, $validSignature);
 
-        if ($this->receivePushCheckDuplicates() && $currentOrderStatus != 'buckaroo_magento2_pending_approv') {
+        if ($this->receivePushCheckDuplicates()) {
             return true;
         }
-
-//        if ($this->isGroupTransactionInfo() && $postDataStatusCode != '794' && $serviceAction != 'refund') { //&& $postDataStatusCode != '794' && $serviceAction != 'refund'
-//            return true;
-//        }
-
-//        if (!$this->isPushNeeded() && $postDataStatusCode != '794' && $serviceAction != 'refund' ) {
-//            return true;
-//        }
 
         $this->logging->addDebug(__METHOD__.'|2|'.var_export($response, true));
 
@@ -270,16 +257,8 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__.'|3|'.var_export($canUpdateOrder, true));
 
-        if ($currentOrderStatus != 'buckaroo_magento2_pending_approv'
-            && $postDataStatusCode == '190'
-            && isset($this->originalPostData['ADD_service_action_from_magento'])
-            && $this->originalPostData['ADD_service_action_from_magento'] == 'refund')
-        {
-            return true;
-        }
-
         //Check if the push is a refund request or cancel authorize
-        if (isset($this->postData['brq_amount_credit']) && $postDataStatusCode != '794' && $postDataStatusCode != '891') {
+        if (isset($this->postData['brq_amount_credit'])) {
             if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && $this->order->isCanceled()
                 && $this->postData['brq_transaction_type'] == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
@@ -295,27 +274,7 @@ class Push implements PushInterface
             }
             return $this->refundPush->receiveRefundPush($this->postData, $validSignature, $this->order);
         }
-        if ($postDataStatusCode == '891' && isset($this->postData['brq_amount_credit'])) {
-            if ($this->order->getState() == Order::STATE_COMPLETE) {
-                $this->order->setStatus(Order::STATE_COMPLETE);
-            } else {
-                $this->order->setStatus(Order::STATE_PROCESSING);
-            }
 
-            if (isset($this->postData['brq_transactions'])) {
-                $data['order_id'] = $this->postData['brq_ordernumber'];
-                $data['transaction_id'] = $this->postData['brq_relatedtransaction_refund'];
-                $data['transaction_key'] = $this->postData['brq_transactions'];
-
-                $this->refundPush->removeWaitForRefundData($data);
-            }
-
-            $this->order->save();
-            //$this->logging->addDebug(__METHOD__.'|3_1 EXCEPTION!|');
-            throw new \Buckaroo\Magento2\Exception(
-                __('Refund was cancelled by user')
-            );
-        }
         //Last validation before push can be completed
         if (!$validSignature) {
             $this->logging->addDebug('Invalid push signature');

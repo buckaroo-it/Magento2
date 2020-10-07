@@ -266,7 +266,6 @@ class Push
 
         $totalAmountToRefund = $this->totalAmountToRefund();
         $this->creditAmount  = $totalAmountToRefund + $this->order->getBaseTotalRefunded();
-        $this->logging->addDebug('GETCREDITMEMO POSTDATA '. var_export( $this->postData, true));
 
         if ($this->creditAmount != $this->order->getBaseGrandTotal()) {
             $adjustment = $this->getAdjustmentRefundData();
@@ -283,23 +282,6 @@ class Push
             $data['adjustment_positive'] = $this->calculateRemainder();
             $data['items']               = $this->getCreditmemoDataItems();
             $data['qtys']                = $this->setCreditQtys($data['items']);
-        }
-
-        $this->logging->addDebug('!empty($this->postData[\'add_initiated_by_magento\']):  '. var_export(!empty($this->postData['add_initiated_by_magento']),true));
-
-//        $orderStatus = $this->order->getStatus();
-//        $this->logging->addDebug('$orderStatus ||| ' . var_export($orderStatus, true));
-        $waitingForApproveRefundData = $this->hasWaitingForApproveOrder();
-        if (!empty($waitingForApproveRefundData)) {
-            $this->logging->addDebug('With this approval refund of '. $this->creditAmount.' the grand total will be refunded.');
-
-            $waitingForApproveRefundData = $this->hasWaitingForApproveOrder();
-            $this->logging->addDebug('$shippingWaitingForApproveRefundCost |||| '. var_export($waitingForApproveRefundData['buckaroo_shipping_count'], true));
-
-            $data['shipping_amount']     = !empty($waitingForApproveRefundData['buckaroo_shipping_count']) ? $waitingForApproveRefundData['buckaroo_shipping_count'] : $data['shipping_amount'];
-            $this->logging->addDebug('$data[\'shipping_amount\'] |||| '. $data['shipping_amount']);
-
-            $data['adjustment_positive'] = 0;
         }
 
         $debugMessage = 'Data used for credit nota: ' . PHP_EOL;
@@ -342,15 +324,7 @@ class Push
             /**
              * @noinspection PhpUndefinedMethodInspection
              */
-
-            $dataWaitingForRefund = $this->hasWaitingForApproveOrder();
-
-            if (empty($dataWaitingForRefund['buckaroo_is_fee_waiting_for_refund'])) {
-                return $totalAmount;
-            }
-
             $totalAmount = $totalAmount - $this->order->getBaseBuckarooFeeInvoiced() - $this->order->getBuckarooFeeBaseTaxAmountInvoiced();
-            $this->logging(__METHOD__ . ' ||| ' . var_export( $totalAmount, true));
         }
 
         return $totalAmount;
@@ -428,16 +402,9 @@ class Push
                 if ((float)$this->creditAmount == (float)$this->order->getBaseGrandTotal()) {
                     $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
                 }
-                elseif (!empty($orderItem->getBuckarooWaitForApprovalRefundItem())) {
-                    $this->logging->addDebug('WaitingFORApproval');
-                    $qty = $orderItem->getBuckarooWaitForApprovalRefundItem();
-
-                }
 
                 $items[$orderItem->getId()] = ['qty' => (int)$qty];
             }
-
-            $qty = 0;
         }
 
         $debugMessage = 'Total items to be refunded: ' . PHP_EOL;
@@ -465,46 +432,5 @@ class Push
         }
 
         return $qtys;
-    }
-
-    protected function hasWaitingForApproveOrder()
-    {
-        $dataWaitingForApprove = $this->resourceConnection->getConnection()->select()
-            ->from($this->resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'))
-            ->where('order_id = ?', $this->postData['brq_ordernumber'])
-            ->where('transaction_id = ?', $this->postData['brq_relatedtransaction_refund'])
-            ->where('transaction_key = ?', $this->postData['brq_transactions']);
-
-        if ($this->resourceConnection->getConnection()->fetchRow($dataWaitingForApprove)) {
-            return $this->resourceConnection->getConnection()->fetchRow($dataWaitingForApprove);
-        }
-
-        return false;
-    }
-
-    private function hasWaitingForApproveAllOrderTransactions()
-    {
-        $dataWaitingForApprove = $this->resourceConnection->getConnection()->select()
-            ->from($this->resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'))
-            ->where('order_id = ?', $this->postData['brq_ordernumber'])
-            ->where('transaction_id = ?', $this->postData['brq_relatedtransaction_refund']);
-
-        if ($this->resourceConnection->getConnection()->fetchRow($dataWaitingForApprove)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public function removeWaitForRefundData($data)
-    {
-        $this->resourceConnection->getConnection()->delete(
-            $this->resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'),
-            [
-                $this->resourceConnection->getConnection()->quoteInto('transaction_id = ?', $data['transaction_id']),
-                $this->resourceConnection->getConnection()->quoteInto('order_id = ?', $data['order_id']),
-                $this->resourceConnection->getConnection()->quoteInto('transaction_key = ?', $data['transaction_key']),
-            ]
-        );
     }
 }
