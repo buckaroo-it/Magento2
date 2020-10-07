@@ -478,11 +478,6 @@ class Push implements PushInterface
     {
         $transactionType = $this->getTransactionType();
         $statusCode = 0;
-
-//        if (!$transactionType && isset($this->postData['brq_statuscode'])) {
-//            $statusCode = $this->postData['brq_statuscode'];
-//        }
-
         switch ($transactionType) {
             case self::BUCK_PUSH_TYPE_TRANSACTION:
             case self::BUCK_PUSH_TYPE_DATAREQUEST:
@@ -512,7 +507,6 @@ class Push implements PushInterface
     {
         //If an order has an invoice key, then it should only be processed by invoice pushes
         $savedInvoiceKey = $this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
-//        $savedInvoiceKey = !empty($this->order->getPayment()) ? $this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key') : 0;
 
         if (isset($this->postData['brq_invoicekey'])
             && isset($this->postData['brq_schemekey'])
@@ -582,7 +576,6 @@ class Push implements PushInterface
         }
 
         $newStatus = $this->orderStatusFactory-> get($this->postData['brq_statuscode'], $this->order);
-        $this->logging->addDebug('||| $response[\'status\']: '. $response['status']);
         switch ($response['status']) {
             case 'BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR':
             case 'BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE':
@@ -616,9 +609,6 @@ class Push implements PushInterface
             case 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT':
                 $this->processPendingPaymentPush($newStatus, $response['message']);
                 break;
-//            case 'BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_APPROVE':
-//                $this->processPendingApprovePush($newStatus, $response['message']);
-//                break;
         }
     }
 
@@ -877,17 +867,6 @@ class Push implements PushInterface
             && $holdedStateAndStatus    != $currentStateAndStatus
             && $closedStateAndStatus    != $currentStateAndStatus
         ) {
-            $this->logging->addDebug(__METHOD__.'|2 current :|' . var_export($currentStateAndStatus, true));
-            if ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL'){
-                $this->order->addStatusHistoryComment($response['message'], 'buckaroo_magento2_pending_approv');
-            } elseif ($currentStateAndStatus[1] == 'buckaroo_magento2_pending_approv') {
-                $this->order->addStatusHistoryComment($response['message'], 'processing');
-            }
-            return true;
-        } elseif ($currentStateAndStatus == $completedStateAndStatus && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL') {
-
-            $this->logging->addDebug(__METHOD__.'|2 current :|' . var_export($currentStateAndStatus == $completedStateAndStatus, true));
-            $this->order->addStatusHistoryComment($response['message'], 'buckaroo_magento2_pending_approv');
             return true;
         }
 
@@ -1181,13 +1160,6 @@ class Push implements PushInterface
         $description = 'Payment push status : '.$message;
 
         // $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description);
-
-        return true;
-    }
-
-    public function processPendingApprovePush($newStatus, $message){
-        $description = 'Payment push status : '.$message;
-        $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description);
 
         return true;
     }

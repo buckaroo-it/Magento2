@@ -64,7 +64,6 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_HOLD'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_ON_APPROVAL'):
                 $success = true;
                 break;
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):

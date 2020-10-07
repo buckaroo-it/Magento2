@@ -538,11 +538,6 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         if (version_compare($context->getVersion(), '1.25.2', '<')) {
             $this->giftcardPartialRefund($setup);
         }
-
-        if (version_compare($context->getVersion(), '1.26.0', '<')) {
-            $this->installApprovedStatuses($setup);
-        }
-
         $setup->endSetup();
     }
 
@@ -675,55 +670,6 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 
         return $this;
     }
-
-    /**
-     * @param ModuleDataSetupInterface $setup
-     *
-     * @return $this
-     */
-    protected function installApprovedStatuses(ModuleDataSetupInterface $setup)
-    {
-        $select = $setup->getConnection()->select()
-            ->from(
-                $setup->getTable('sales_order_status'),
-                [
-                    'status',
-                ]
-            )->where(
-                'status = ?',
-                'buckaroo_magento2_pending_approv'
-            );
-
-        if (count($setup->getConnection()->fetchAll($select)) == 0) {
-            /**
-             * Add New status and state
-             */
-            $setup->getConnection()->insert(
-                $setup->getTable('sales_order_status'),
-                [
-                    'status' => 'buckaroo_magento2_pending_approv',
-                    'label'  => __('Pending Approval'),
-                ]
-            );
-            $setup->getConnection()->insert(
-                $setup->getTable('sales_order_status_state'),
-                [
-                    'status'           => 'buckaroo_magento2_pending_approv',
-                    'state'            => 'processing',
-                    'is_default'       => 0,
-                    'visible_on_front' => 1,
-                ]
-            );
-        } else {
-            // Do an update to turn on visible_on_front, since it already exists
-            $bind = ['visible_on_front' => 1];
-            $where = ['status = ?' => 'buckaroo_magento2_pending_approv'];
-            $setup->getConnection()->update($setup->getTable('sales_order_status_state'), $bind, $where);
-        }
-
-        return $this;
-    }
-
     /**
      * @param ModuleDataSetupInterface $setup
      *

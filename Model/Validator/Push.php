@@ -56,7 +56,6 @@ class Push implements ValidatorInterface
         791 => 'Waiting for processor',
         792 => 'Waiting on consumer action',
         793 => 'Payment on hold',
-        794 => 'Waiting for approve',
         890 => 'Cancelled by consumer',
         891 => 'Cancelled by merchant'
     ];
