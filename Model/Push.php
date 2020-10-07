@@ -216,12 +216,13 @@ class Push implements PushInterface
         //Start debug mailing/logging with the postdata.
         $this->logging->addDebug(__METHOD__.'|1|'.var_export($this->originalPostData, true));
 
-        if ($this->isGroupTransactionInfo() && ($this->originalPostData['brq_statuscode'] != '794' && isset($this->originalPostData['ADD_service_action_from_magento']) != 'refund')) {
+        if ($this->isGroupTransactionInfo() && ($this->originalPostData['brq_statuscode'] != '794'
+                && isset($this->originalPostData['ADD_service_action_from_magento']) && $this->originalPostData['ADD_service_action_from_magento'] != 'refund')) {
             return true;
         }
 
-        $this->logging->addDebug('CHECKING...' . var_export(!$this->isPushNeeded() && ($this->originalPostData['brq_statuscode'] != '794' && isset($this->originalPostData['ADD_service_action_from_magento']) != 'refund'), true));
-        if (!$this->isPushNeeded() && ($this->originalPostData['brq_statuscode'] != '794' && isset($this->originalPostData['ADD_service_action_from_magento']) != 'refund')) {
+        if (!$this->isPushNeeded() && ($this->originalPostData['brq_statuscode'] != '794'
+                && isset($this->originalPostData['ADD_service_action_from_magento']) && $this->originalPostData['ADD_service_action_from_magento'] != 'refund')) {
             return true;
         }
 
