@@ -40,7 +40,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                     $installer->getTable('buckaroo_magento2_giftcard')
                 );
                 $installer->getConnection()->query(
-                    "ALTER TABLE ".$installer->getTable('buckaroo_magento2_giftcard')." COMMENT = 'Buckaroo Giftcard'"
+                    "ALTER TABLE " . $installer->getTable('buckaroo_magento2_giftcard') . " COMMENT = 'Buckaroo Giftcard'"
                 );
             } else {
                 $this->createGiftcardTable($installer);
@@ -54,7 +54,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                     $installer->getTable('buckaroo_magento2_invoice')
                 );
                 $installer->getConnection()->query(
-                    "ALTER TABLE ".$installer->getTable('buckaroo_magento2_invoice')." COMMENT = 'Buckaroo Invoice'"
+                    "ALTER TABLE " . $installer->getTable('buckaroo_magento2_invoice') . " COMMENT = 'Buckaroo Invoice'"
                 );
             } else {
                 $this->createInvoiceTable($installer);
@@ -92,8 +92,12 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             if (!$installer->tableExists('buckaroo_magento2_waiting_for_approval')) {
                 $this->createWaitingForApprovalTable($installer);
             }
-
         }
+
+        if (version_compare($context->getVersion(), '1.26.2', '<')) {
+            $this->addTransactionKeyField($installer);
+        }
+
 
         $installer->endSetup();
     }
@@ -128,7 +132,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary'  => true,
+                'primary' => true,
             ],
             'Entity ID'
         );
@@ -175,7 +179,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary'  => true,
+                'primary' => true,
             ],
             'Entity ID'
         );
@@ -222,7 +226,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary'  => true,
+                'primary' => true,
             ],
             'Entity ID'
         );
@@ -336,13 +340,13 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary'  => true,
+                'primary' => true,
             ],
             'Entity ID'
         );
 
         $table->addColumn(
-          'order_id',
+            'order_id',
             \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
             null,
             [
@@ -359,16 +363,6 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'nullable' => false,
             ],
             'Transaction Id'
-        );
-
-        $table->addColumn(
-            'transaction_key',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Transaction Original Key'
         );
 
         $table->addColumn(
@@ -394,5 +388,18 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
         $table->setComment('Buckaroo Waiting For Approval');
 
         $installer->getConnection()->createTable($table);
+    }
+
+    protected function addTransactionKeyField($installer)
+    {
+        $installer->getConnection()->addColumn(
+            $installer->getTable('buckaroo_magento2_waiting_for_approval'),
+            'transaction_key',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'nullable' => false,
+                'comment' => 'Transaction Original Key'
+            ]
+        );
     }
 }
