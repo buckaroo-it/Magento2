@@ -334,12 +334,15 @@ class Tinka extends AbstractMethod
                 "GroupID"=> "",
                 "_"=> $billingStreetFormat['street']
             ];
-            $billingData[] = [
-                "Name"=> "StreetNumberAdditional",
-                "Group"=> "ShippingCustomer",
-                "GroupID"=> "",
-                "_"=> $billingStreetFormat['number_addition']
-            ];
+
+            if (!empty($billingStreetFormat['number_addition'])) {
+                $billingData[] = [
+                    "Name" => "StreetNumberAdditional",
+                    "Group" => "ShippingCustomer",
+                    "GroupID" => "",
+                    "_" => $billingStreetFormat['number_addition']
+                ];
+            }
         }
         return $billingData;
     }
@@ -462,14 +465,17 @@ class Tinka extends AbstractMethod
                 "Group"=> "ShippingCustomer",
                 "GroupID"=> "",
                 "_"=> $shippingStreetFormat['street']
-            ],
-            [
-                "Name"=> "StreetNumberAdditional",
-                "Group"=> "ShippingCustomer",
-                "GroupID"=> "",
-                "_"=> $shippingStreetFormat['number_addition']
-            ],
+            ]
         ];
+
+        if (!empty($shippingStreetFormat['number_addition'])) {
+            $shippingData[] = [
+                "Name" => "StreetNumberAdditional",
+                "Group" => "ShippingCustomer",
+                "GroupID" => "",
+                "_" => $shippingStreetFormat['number_addition']
+            ];
+        }
 
         return $shippingData;
     }

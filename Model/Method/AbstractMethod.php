@@ -154,6 +154,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected $logger2;
 
+    public static $requestOnVoid = true;
+
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
@@ -1012,6 +1014,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function void(InfoInterface $payment)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
         ) {
@@ -1035,18 +1038,29 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // Do not cancel authorize when accept authorize is failed.
         // buckaroo_failed_authorize is set in Push.php
         if ($this->payment->getAdditionalInformation('buckaroo_failed_authorize') == 1) {
+            $this->logger2->addDebug(__METHOD__.'|5|');
             return $this;
         }
 
-        $transactionBuilder = $this->getVoidTransactionBuilder($payment);
+        if (self::$requestOnVoid) {
+            $this->logger2->addDebug(__METHOD__.'|10|');
+            $transactionBuilder = $this->getVoidTransactionBuilder($payment);
+        } else {
+            $this->logger2->addDebug(__METHOD__.'|15|');
+            $transactionBuilder = true;
+        }
 
         if (!$transactionBuilder) {
+            $this->logger2->addDebug(__METHOD__.'|20|');
             throw new \LogicException(
                 'Void action is not implemented for this payment method.'
             );
         } elseif ($transactionBuilder === true) {
+            $this->logger2->addDebug(__METHOD__.'|25|');
             return $this;
         }
+
+        $this->logger2->addDebug(__METHOD__.'|30|');
 
         $transaction = $transactionBuilder->build();
 

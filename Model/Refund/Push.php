@@ -284,13 +284,13 @@ class Push
             $data['items']               = $this->getCreditmemoDataItems();
             $data['qtys']                = $this->setCreditQtys($data['items']);
         }
+
         $this->logging->addDebug('!empty($this->postData[\'add_initiated_by_magento\']):  '. var_export(!empty($this->postData['add_initiated_by_magento']),true));
 
 //        $orderStatus = $this->order->getStatus();
 //        $this->logging->addDebug('$orderStatus ||| ' . var_export($orderStatus, true));
         $waitingForApproveRefundData = $this->hasWaitingForApproveOrder();
         if (!empty($waitingForApproveRefundData)) {
-//        if ($orderStatus == 'buckaroo_magento2_pending_approv') {
             $this->logging->addDebug('With this approval refund of '. $this->creditAmount.' the grand total will be refunded.');
 
             $waitingForApproveRefundData = $this->hasWaitingForApproveOrder();
@@ -507,15 +507,4 @@ class Push
             ]
         );
     }
-
-//
-//    public function setShippingRefundData()
-//    {
-//        $this->resourceConnection->getConnection()->update(
-//            $this->resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'),
-//            ['buckaroo_shipping_count' => $shippingCount ],
-//            $this->resourceConnection->getConnection()->quoteInto('transaction_id = ?', $transactionId)
-//        );
-//
-//    }
 }

@@ -414,8 +414,11 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function cancelOrder($statusCode)
     {
+        $this->logger->addDebug(__METHOD__.'|1|');
+
         // Mostly the push api already canceled the order, so first check in wich state the order is.
         if ($this->order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
+            $this->logger->addDebug(__METHOD__.'|5|');
             return true;
         }
 
@@ -425,11 +428,28 @@ class Process extends \Magento\Framework\App\Action\Action
          * @noinspection PhpUndefinedMethodInspection
          */
         if (!$this->accountConfig->getCancelOnFailed($store)) {
+            $this->logger->addDebug(__METHOD__.'|10|');
             return true;
         }
 
+        $this->logger->addDebug(__METHOD__.'|15|');
+
         if ($this->order->canCancel()) {
+            $this->logger->addDebug(__METHOD__.'|20|');
+
+            if ($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'klarnakp') {
+                $methodInstanceClass = get_class($this->order->getPayment()->getMethodInstance());
+                $methodInstanceClass::$requestOnVoid = false;
+            }
+
             $this->order->cancel();
+
+            if ($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'klarnakp') {
+                $this->logger->addDebug(__METHOD__.'|25|');
+                return true;
+            }
+
+            $this->logger->addDebug(__METHOD__.'|30|');
 
             $failedStatus = $this->orderStatusFactory->get(
                 $statusCode,
@@ -442,6 +462,8 @@ class Process extends \Magento\Framework\App\Action\Action
             $this->order->save();
             return true;
         }
+
+        $this->logger->addDebug(__METHOD__.'|40|');
 
         return false;
     }
