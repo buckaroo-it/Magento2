@@ -25,7 +25,6 @@ use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
-use Magento\Framework\App\ResourceConnection;
 /**
  * Class Creditmemo
  *
@@ -64,8 +63,6 @@ class Push
      * @var Log $logging
      */
     public $logging;
-
-    protected $resourceConnection;
     /**
      * @param CreditmemoFactory             $creditmemoFactory
      * @param CreditmemoManagementInterface $creditmemoManagement
@@ -78,15 +75,13 @@ class Push
         CreditmemoManagementInterface $creditmemoManagement,
         CreditmemoSender $creditEmailSender,
         Refund $configRefund,
-        Log $logging,
-        ResourceConnection $resourceConnection
+        Log $logging
     ) {
         $this->creditmemoFactory     = $creditmemoFactory;
         $this->creditmemoManagement  = $creditmemoManagement;
         $this->creditEmailSender     = $creditEmailSender;
         $this->logging               = $logging;
         $this->configRefund          = $configRefund;
-        $this->resourceConnection    = $resourceConnection;
     }
 
     /**
@@ -134,7 +129,6 @@ class Push
             'transaction_id',
             $this->postData['brq_transactions']
         );
-        $this->logging->addDebug('$creditmemosByTransactionId: ' . var_export($creditmemosByTransactionId, true));
         if (count($creditmemosByTransactionId) > 0) {
             $this->logging->addDebug('The transaction has already been refunded.');
 
@@ -174,7 +168,6 @@ class Push
                 if (!empty($data['send_email'])) {
                     $this->creditEmailSender->send($creditmemo);
                 }
-
                 return true;
             } else {
                 $debugMessage = 'Failed to create the creditmemo, method saveCreditmemo return value: ' . PHP_EOL;
@@ -202,33 +195,16 @@ class Push
             /**
              * @var \Magento\Sales\Model\Order\Creditmemo $creditmemo
              */
-            $this->logging->addDebug(__METHOD__ . '|1|' . var_export($creditData,true));
             $creditmemo = $this->creditmemoFactory->createByOrder($this->order, $creditData);
 
             /**
              * @var \Magento\Sales\Model\Order\Creditmemo\Item $creditmemoItem
              */
             foreach ($creditmemo->getAllItems() as $creditmemoItem) {
-
-                $itemId = $creditmemoItem->getData('order_item_id');
-                $itemQty = $creditmemoItem->getData('qty');
-                $this->logging->addDebug(__METHOD__ . '|2|' . var_export($itemId,true));
-
-                $orderItem = $this->order->getItemById($itemId);
-
-                $itemManualRefundedQty = $orderItem->getData('buckaroo_wait_for_approval_refund_item');
-
-                if ($itemManualRefundedQty) {
-                    $itemManualRefundedQty -= $itemQty;
-
-                    $orderItem->setData('buckaroo_wait_for_approval_refund_item', $itemManualRefundedQty);
-                }
-
                 /**
                  * @noinspection PhpUndefinedMethodInspection
                  */
                 $creditmemoItem->setBackToStock(false);
-
             }
 
             return $creditmemo;
