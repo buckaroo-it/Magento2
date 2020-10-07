@@ -897,6 +897,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $dataWaitingForApprovalRefund = [];
             $dataWaitingForApprovalRefund['order_id'] = $arrayResponse[0]['Order'];
             $dataWaitingForApprovalRefund['transaction_id'] = $arrayResponse[0]['RelatedTransactions']['RelatedTransaction']['_'];
+            $dataWaitingForApprovalRefund['transaction_key'] = $arrayResponse[0]['Key'];
 
             if ($shippingWaitingApprovalAmount || $buckarooFee) {
                 if (!empty($shippingWaitingApprovalAmount)) {
@@ -1401,12 +1402,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     $this->logger2->addDebug(__METHOD__.'|16| '.var_export($response, true));
                     $arrayResponse = json_decode(json_encode($response), true);
 
-                    if (isset($arrayResponse[0]['Status']['Code']['Code']) && $arrayResponse[0]['Status']['Code']['Code'] == '794') {
-                        $this->logger2->addDebug(__METHOD__.'|17| '.var_export($response, true));
-                        $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
-                        throw new \LogicException('Waiting for approval');
-                    }
-
                     $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
 
                     foreach ($groupTransaction as $item) {
@@ -1420,6 +1415,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 //                    $refundedAmount = $this->groupTransaction->getRefundedAmount();
 
                 }
+            }
+
+            if (isset($arrayResponse[0]['Status']['Code']['Code']) && $arrayResponse[0]['Status']['Code']['Code'] == '794') {
+                $this->logger2->addDebug(__METHOD__.'|17| '.var_export($response, true));
+                $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
+                throw new \LogicException('Waiting for approval');
             }
         }
 
@@ -1439,18 +1440,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $resourceConnection->getConnection()->insert(
             $resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'),
             $dataWaitForApprove
-        );
-    }
-
-    private function updateWaitForApproveRefundData($resourceConnection, $data)
-    {
-        $resourceConnection->getConnection()->update(
-            $resourceConnection->getConnection()->getTableName('buckaroo_magento2_waiting_for_approval'),
-            $data['update_data'],
-            [
-                $resourceConnection->getConnection()->quoteInto('transaction_id = ?', $data['transaction_id']),
-                $resourceConnection->getConnection()->quoteInto('order_id = ?', $data['order_id'])
-            ]
         );
     }
 }

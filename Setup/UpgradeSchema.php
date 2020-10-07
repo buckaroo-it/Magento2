@@ -362,6 +362,16 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
         );
 
         $table->addColumn(
+            'transaction_key',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'Transaction Original Key'
+        );
+
+        $table->addColumn(
             'buckaroo_shipping_count',
             \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
             null,

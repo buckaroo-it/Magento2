@@ -216,7 +216,7 @@ class Push implements PushInterface
         //Start debug mailing/logging with the postdata.
         $this->logging->addDebug(__METHOD__.'|1|'.var_export($this->originalPostData, true));
 
-        if ($this->isGroupTransactionInfo()) {
+        if ($this->isGroupTransactionInfo() && ($this->originalPostData['brq_statuscode'] != '794' && isset($this->originalPostData['ADD_service_action_from_magento']) != 'refund')) {
             return true;
         }
 
@@ -251,7 +251,7 @@ class Push implements PushInterface
         //Check second push for PayPerEmail
         $this->receivePushCheckPayPerEmail($response, $validSignature);
 
-        if ($this->receivePushCheckDuplicates()) {
+        if ($this->receivePushCheckDuplicates() && $currentOrderStatus != 'buckaroo_magento2_pending_approv') {
             return true;
         }
 
@@ -299,6 +299,14 @@ class Push implements PushInterface
                 $this->order->setStatus(Order::STATE_COMPLETE);
             } else {
                 $this->order->setStatus(Order::STATE_PROCESSING);
+            }
+
+            if (isset($this->postData['brq_transactions'])) {
+                $data['order_id'] = $this->postData['brq_ordernumber'];
+                $data['transaction_id'] = $this->postData['brq_relatedtransaction_refund'];
+                $data['transaction_key'] = $this->postData['brq_transactions'];
+
+                $this->refundPush->removeWaitForRefundData($data);
             }
 
             $this->order->save();

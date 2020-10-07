@@ -70,8 +70,11 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
         $this->logger->addDebug('ADDITIONAL INF ||| ' . var_export($order->getPayment()->getAdditionalInformation(), true));
         $transactionData['transaction_id'] = $order->getPayment()->getAdditionalInformation('buckaroo_original_transaction_key');
 
-        if ($this->isWaitingForApproveOrderExist($this->resourceConnection, $transactionData )) {
-            return $this;
+        if (isset($postData['brq_transactions'])) {
+            $transactionData['transaction_key'] = $postData['brq_transactions'];
+            if ($this->isWaitingForApproveOrderExist($this->resourceConnection, $transactionData )) {
+                return $this;
+            }
         }
         $method = $order->getPayment()->getMethod();
         $refundCollection = $order->getCreditmemosCollection();
@@ -131,7 +134,8 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
         $dataWaitingForApprove = $resourceConnection->getConnection()->select()
             ->from('buckaroo_magento2_waiting_for_approval')
             ->where('order_id = ?', $transactionData['order_id'])
-            ->where('transaction_id = ?', $transactionData['transaction_id']);
+            ->where('transaction_id = ?', $transactionData['transaction_id'])
+            ->where('transaction_key = ?', $transactionData['transaction_key']);
 
         $isBuckarooFeeWaitingForRefund = $resourceConnection->getConnection()->fetchRow($dataWaitingForApprove);
         $this->logger->addDebug('$isBuckarooFeeWaitingForRefund |||' . var_export($isBuckarooFeeWaitingForRefund, true));
