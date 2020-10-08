@@ -832,6 +832,7 @@ class Afterpay2 extends AbstractMethod
 
         $articles = [];
         $count = 1;
+        $itemsTotalAmount = 0;
 
         /** @var \Magento\Sales\Model\Order\Creditmemo\Item $item */
         foreach ($creditmemo->getAllItems() as $item) {
@@ -850,6 +851,8 @@ class Afterpay2 extends AbstractMethod
                 $this->getTaxCategory($itemTaxClassId, $payment->getOrder()->getStore())
             );
 
+            $itemsTotalAmount += $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount();
+
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -860,7 +863,7 @@ class Afterpay2 extends AbstractMethod
             break;
         }
 
-        $taxLine = $this->getTaxLine($count, $payment->getCreditmemo());
+        $taxLine = $this->getTaxLine($count, $payment->getCreditmemo(), $itemsTotalAmount);
 
         if (!empty($taxLine)) {
             $articles = array_merge($articles, $taxLine);
@@ -870,14 +873,22 @@ class Afterpay2 extends AbstractMethod
         // hasCreditmemos returns since 2.2.6 true or false.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
-            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax);
+            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax, $itemsTotalAmount);
             $articles = array_merge($articles, $serviceLine);
+            $count++;
         }
 
         // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($creditmemo);
+        $shippingCosts = $this->getShippingCostsLine($creditmemo, $itemsTotalAmount);
         $articles = array_merge($articles, $shippingCosts);
 
+        //Add diff line
+        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+            $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
+            $diffLine = $this->getDiffLine($count, $diff);
+            $articles = array_merge($articles, $diffLine);
+        }
+        
         return $articles;
     }
 
@@ -929,7 +940,7 @@ class Afterpay2 extends AbstractMethod
      * @return   array
      * @internal param $ (int) $latestKey
      */
-    public function getServiceCostLine($latestKey, $order, $includesTax)
+    public function getServiceCostLine($latestKey, $order, $includesTax, &$itemsTotalAmount = 0)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
@@ -961,6 +972,7 @@ class Afterpay2 extends AbstractMethod
                 round($buckarooFeeLine, 2),
                 $this->getTaxCategory($this->configProviderBuckarooFee->getTaxClass($storeId), $storeId)
             );
+            $itemsTotalAmount += round($buckarooFeeLine, 2);
         }
 
         return $article;
@@ -971,7 +983,7 @@ class Afterpay2 extends AbstractMethod
      *
      * @return array
      */
-    private function getShippingCostsLine($order)
+    private function getShippingCostsLine($order, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 
@@ -992,6 +1004,8 @@ class Afterpay2 extends AbstractMethod
                 'Name'    => 'ShippingCosts',
             ]
         ];
+
+        $itemsTotalAmount += $shippingAmount;
 
         return $shippingCostsArticle;
     }
@@ -1102,7 +1116,7 @@ class Afterpay2 extends AbstractMethod
      *
      * @return array
      */
-    public function getTaxLine($latestKey, $payment)
+    public function getTaxLine($latestKey, $payment, &$itemsTotalAmount = 0)
     {
         $taxes = $this->getTaxes($payment);
         $article = [];
@@ -1116,6 +1130,7 @@ class Afterpay2 extends AbstractMethod
                 number_format($taxes, 2),
                 4
             );
+            $itemsTotalAmount += number_format($taxes, 2);
         }
 
         return $article;
@@ -1553,5 +1568,21 @@ class Afterpay2 extends AbstractMethod
         $methodMessage = trim(implode(':', $subcodeMessage));
 
         return $methodMessage;
+    }
+
+    public function getDiffLine($latestKey, $diff)
+    {
+        $article = [];
+        
+        $article = $this->getArticleArrayLine(
+            $latestKey,
+            'Discount/Fee',
+            1,
+            1,
+            round($diff, 2),
+            4
+        );
+
+        return $article;
     }
 }
