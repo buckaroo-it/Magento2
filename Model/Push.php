@@ -687,7 +687,7 @@ class Push implements PushInterface
         $payment = $this->order->getPayment();
 
         if ($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE
-            || isset($this->postData['brq_amount']) >= $this->order->getGrandTotal()
+            || (isset($this->postData['brq_amount']) && $this->postData['brq_amount'] >= $this->order->getGrandTotal())
             || empty($this->postData['brq_relatedtransaction_partialpayment'])
         ) {
             return false;
