@@ -575,7 +575,7 @@ class Push implements PushInterface
             return;
         }
 
-        $newStatus = $this->orderStatusFactory-> get($this->postData['brq_statuscode'], $this->order);
+        $newStatus = $this->orderStatusFactory->get($this->postData['brq_statuscode'], $this->order);
         switch ($response['status']) {
             case 'BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR':
             case 'BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE':
