@@ -1099,7 +1099,7 @@ class Afterpay20 extends AbstractMethod
                 2,
                 1,
                 number_format($taxes, 2),
-                4
+                0
             );
         }
 
