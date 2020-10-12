@@ -177,15 +177,27 @@ class Process extends \Magento\Framework\App\Action\Action
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
                 $this->logger->addDebug(__METHOD__.'|3|');
                 if ($this->order->canInvoice()) {
-                    // Set the 'Pending payment status' here
-                    $pendingStatus = $this->orderStatusFactory->get(
-                        $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'),
-                        $this->order
-                    );
-                    if ($pendingStatus) {
-                        $this->order->setStatus($pendingStatus);
-                        $this->order->save();
+                    $this->logger->addDebug(__METHOD__.'|31|');
+                    if ($this->hasPostData('brq_primary_service', 'KlarnaKp') &&
+                        $this->hasPostData('add_service_action_from_magento', 'reserve') &&
+                        ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'))
+                    ) {
+                        //do nothing - push will change a status
+                        $this->logger->addDebug(__METHOD__.'|32|');
+                    } else {
+                        $this->logger->addDebug(__METHOD__.'|33|');
+                        // Set the 'Pending payment status' here
+                        $pendingStatus = $this->orderStatusFactory->get(
+                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'),
+                            $this->order
+                        );
+                        if ($pendingStatus) {
+                            $this->logger->addDebug(__METHOD__ . '|34|' . var_export($pendingStatus, true));
+                            $this->order->setStatus($pendingStatus);
+                            $this->order->save();
+                        }
                     }
+
                 }
 
                 $payment->getMethodInstance()->processCustomPostData($payment, $this->response);
