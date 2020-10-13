@@ -100,10 +100,10 @@ class Push
         $this->postData = $postData;
         $this->order    = $order;
 
-        $this->logging->addDebug('Trying to refund order ' . $this->order->getId(). ' out of paymentplaza. ');
+        $this->logging->addDebug(__METHOD__.'|1|Trying to refund order ' . $this->order->getId(). ' out of paymentplaza. ');
 
         if (!$this->configRefund->getAllowPush()) {
-            $this->logging->addDebug('But failed, the configuration is set not to accept refunds out of Payment Plaza');
+            $this->logging->addDebug(__METHOD__.'|5|But failed, the configuration is set not to accept refunds out of Payment Plaza');
             throw new Exception(
                 __('Buckaroo refund is disabled')
             );
@@ -130,14 +130,14 @@ class Push
             $this->postData['brq_transactions']
         );
         if (count($creditmemosByTransactionId) > 0) {
-            $this->logging->addDebug('The transaction has already been refunded.');
+            $this->logging->addDebug(__METHOD__.'|15|The transaction has already been refunded.');
 
             return false;
         }
 
         $creditmemo = $this->createCreditmemo();
 
-        $this->logging->addDebug('Order successful refunded = '. $creditmemo);
+        $this->logging->addDebug(__METHOD__.'|20|Order successful refunded = '. $creditmemo);
 
         return $creditmemo;
     }
@@ -147,39 +147,41 @@ class Push
      */
     public function createCreditmemo()
     {
+        $this->logging->addDebug(__METHOD__.'|1|');
         $creditData = $this->getCreditmemoData();
         $creditmemo = $this->initCreditmemo($creditData);
 
         try {
             if ($creditmemo) {
                 if (!$creditmemo->isValidGrandTotal()) {
-                    $this->logging->addDebug('The credit memo\'s total must be positive.');
+                    $this->logging->addDebug(__METHOD__.'|10|The credit memo\'s total must be positive.');
                     throw new \Magento\Framework\Exception\LocalizedException(
                         __('The credit memo\'s total must be positive.')
                     );
                 }
                 $creditmemo->setTransactionId($this->postData['brq_transactions']);
 
+                $this->logging->addDebug(__METHOD__.'|20');
                 $this->creditmemoManagement->refund(
                     $creditmemo,
                     (bool)$creditData['do_offline'],
                     !empty($creditData['send_email'])
                 );
-                if (!empty($data['send_email'])) {
-                    $this->creditEmailSender->send($creditmemo);
-                }
+                $this->logging->addDebug(__METHOD__.'|25');
+                $this->creditEmailSender->send($creditmemo);
                 return true;
             } else {
                 $debugMessage = 'Failed to create the creditmemo, method saveCreditmemo return value: ' . PHP_EOL;
                 $debugMessage .= print_r($creditmemo, true);
-                $this->logging->addDebug($debugMessage);
+                $this->logging->addDebug(__METHOD__.'|30|'.$debugMessage);
                 throw new Exception(
                     __('Failed to create the creditmemo')
                 );
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->logging->addDebug('Buckaroo failed to create the credit memo\'s { '. $e->getLogMessage().' }');
+            $this->logging->addDebug(__METHOD__.'|35|Buckaroo failed to create the credit memo\'s { '. $e->getLogMessage().' }');
         }
+        $this->logging->addDebug(__METHOD__.'|40');
         return false;
     }
 
