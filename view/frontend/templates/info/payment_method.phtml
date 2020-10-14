@@ -20,6 +20,17 @@
 ?>
 <?php $bpePaymentCode = $block->escapeHtml($block->getMethod()->buckarooPaymentMethodCode); ?>
 
+<?php
+if ($giftCards = $block->getGiftCards()) {
+    foreach ($giftCards as $giftCard) { ?>
+        <div class="buckaroo_magento2_payment_<?php echo $block->escapeHtml($giftCard['code']); ?>">
+            <?php echo $block->escapeHtml($giftCard['label']) ?>
+        </div>
+        <?php
+    }
+}
+?>
+
 <div class="payment-method buckaroo_magento2_payment_<?php echo $block->escapeHtml($bpePaymentCode) ?>">
     <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
 </div>
