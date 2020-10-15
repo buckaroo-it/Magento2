@@ -987,7 +987,7 @@ class Afterpay20 extends AbstractMethod
         $shippingAmount = $order->getShippingAmount();
 
         if ($shippingIncludesTax) {
-            $shippingAmount += $order->getShippingTaxAmount();
+            $shippingAmount = $order->getShippingInclTax();
         }
 
         $shippingCostsArticle = [
