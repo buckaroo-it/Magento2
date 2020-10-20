@@ -262,36 +262,45 @@ class PayPerEmail extends AbstractMethod
         /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $config */
         $config = $this->configProviderMethodFactory->get('payperemail');
 
+        $params = [
+            [
+                '_'    => $payment->getAdditionalInformation('customer_gender'),
+                'Name' => 'customergender',
+            ],
+            [
+                '_'    => $payment->getAdditionalInformation('customer_email'),
+                'Name' => 'CustomerEmail',
+            ],
+            [
+                '_'    => $payment->getAdditionalInformation('customer_billingFirstName'),
+                'Name' => 'CustomerFirstName',
+            ],
+            [
+                '_'    => $payment->getAdditionalInformation('customer_billingLastName'),
+                'Name' => 'CustomerLastName',
+            ],
+            [
+                '_'    => $config->getSendMail() ? 'false' : 'true',
+                'Name' => 'MerchantSendsEmail',
+            ],
+            [
+                '_'    => $config->getPaymentMethod(),
+                'Name' => 'PaymentMethodsAllowed',
+            ],
+        ];
+
+        if ($config->getEnabledB2B() && $config->getExpireDays()) {
+            $params[] = [
+                '_' => date('Y-m-d', time() + $config->getExpireDays() * 86400),
+                'Name' => 'ExpirationDate',
+            ];
+        }
+
         $services = [
             'Name'             => 'payperemail',
             'Action'           => 'PaymentInvitation',
             'Version'          => 1,
-            'RequestParameter' => [
-                [
-                    '_'    => $payment->getAdditionalInformation('customer_gender'),
-                    'Name' => 'customergender',
-                ],
-                [
-                    '_'    => $payment->getAdditionalInformation('customer_email'),
-                    'Name' => 'CustomerEmail',
-                ],
-                [
-                    '_'    => $payment->getAdditionalInformation('customer_billingFirstName'),
-                    'Name' => 'CustomerFirstName',
-                ],
-                [
-                    '_'    => $payment->getAdditionalInformation('customer_billingLastName'),
-                    'Name' => 'CustomerLastName',
-                ],
-                [
-                    '_'    => $config->getSendMail() ? 'false' : 'true',
-                    'Name' => 'MerchantSendsEmail',
-                ],
-                [
-                    '_'    => $config->getPaymentMethod(),
-                    'Name' => 'PaymentMethodsAllowed',
-                ],
-            ],
+            'RequestParameter' => $params
         ];
 
         return $services;

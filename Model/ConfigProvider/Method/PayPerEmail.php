@@ -53,6 +53,8 @@ class PayPerEmail extends AbstractConfigProvider
     const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_payperemail/payment_method_after_expiry';
     const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_payperemail/visible_front_back';
     const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE    = 'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
+    const XPATH_PAYPEREMAIL_ENABLE_B2B                  = 'payment/buckaroo_magento2_payperemail/enable_b2b';
+    const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'payment/buckaroo_magento2_payperemail/expire_days';
 
     /**
      * @return array
@@ -108,6 +110,28 @@ class PayPerEmail extends AbstractConfigProvider
         );
 
         return $sendMail ? true : false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getEnabledB2B()
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYPEREMAIL_ENABLE_B2B,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * @return integer
+     */
+    public function getExpireDays()
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYPEREMAIL_EXPIRE_DAYS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
