@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
@@ -130,6 +131,11 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     protected $configProviderMethodFactory;
 
     /**
+     * @var Log $logging
+     */
+    public $logging;
+
+    /**
      * TransactionBuilder constructor.
      *
      * @param ScopeConfigInterface $scopeConfig
@@ -153,6 +159,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         FormKey $formKey,
         Encryptor $encryptor,
         Factory $configProviderMethodFactory,
+        Log $logging,
         $amount = null,
         $currency = null
     )
@@ -164,6 +171,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
         $this->encryptor = $encryptor;
+        $this->logging = $logging;
 
         if ($amount !== null) {
             $this->amount = $amount;
@@ -425,6 +433,8 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      */
     public function build()
     {
+        $this->logging->addDebug(__METHOD__ . '|1|');
+
         $transaction = $this->transaction->setBody($this->getBody());
         $transaction->setHeaders($this->getHeaders());
         $transaction->setMethod($this->getMethod());

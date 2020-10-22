@@ -217,7 +217,7 @@ class Push implements PushInterface
         $this->getPostData();
 
         //Start debug mailing/logging with the postdata.
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export([$this->originalPostData, @$_SERVER['HTTP_USER_AGENT']], true));
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->originalPostData, true));
 
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
@@ -588,7 +588,6 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|5|' . var_export($newStatus, true));
 
         if ($this->isPayPerEmailB2BModePushInitial($response)) {
-            sleep(35); //ZAK
             $response['status'] = 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS';
             $newStatus = $this->configAccount->getOrderStatusSuccess();
             $this->logging->addDebug(__METHOD__ . '|15|' . var_export([$response['status'], $newStatus], true));
