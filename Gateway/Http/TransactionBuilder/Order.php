@@ -70,6 +70,10 @@ class Order extends AbstractTransactionBuilder
 
         $ip = $this->getIp($order);
 
+        $billingData = $order->getBillingAddress();
+        $shippingData = $order->getShippingAddress();
+        $customParametersKey = $this->configProviderAccount->getCustomerAdditionalInfo($store);
+
         $body = [
             'Currency' => $this->getCurrency(),
             'AmountDebit' => $this->getAmount(),
@@ -91,8 +95,12 @@ class Order extends AbstractTransactionBuilder
                 'Service' => $this->getServices()
             ],
             'AdditionalParameters' => (object)[
-                'AdditionalParameter' => $this->getAdditionalParameters()
+                'AdditionalParameter' => $this->getAdditionalParameters(),
+//                'CustomParameter' => $this->getCustomInfo($customParametersKey, $billingData, $shippingData)
             ],
+            'CustomParameters' => (object)[
+                'CustomParameter' => $this->getCustomInfo($customParametersKey, $billingData, $shippingData)
+            ]
         ];
 
         if (!$this->emptyDescriptionFlag) {
@@ -132,6 +140,125 @@ class Order extends AbstractTransactionBuilder
         return $parameterLine;
     }
 
+    private function getCustomInfo($customParametersKey, $billingData, $shippingData)
+    {
+        $customParameters = $this->getCustomNeededFieldsList($customParametersKey);
+        $customDataList = [];
+        $customParamList = [];
+
+        $customerBillingArray = $this->formatCustomData($customParameters, 'billing');
+        $customerShippingArray = $this->formatCustomData($customParameters, 'shipping');
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        foreach ($customerBillingArray as $key => $value) {
+            if (!empty($billingData->getData($value))){
+                if ($value == 'street') {
+                    $streetFormat = $this->formatStreet($billingData->getStreet());
+                    if (array_key_exists('CustomerBillingHouseNumber', $customerBillingArray) && !empty($streetFormat['housenumber'])) {
+                        $customerBillingArray['CustomerBillingHouseNumber'] = $streetFormat['housenumber'];
+                    }
+                    if (array_key_exists('CustomerBillingHouseAdditionalNumber', $customerBillingArray) && !empty($streetFormat['numberaddition'])) {
+                        $customerBillingArray['CustomerBillingHouseAdditionalNumber'] = $streetFormat['numberaddition'];
+                    }
+                    $customerBillingArray[$key] = $streetFormat['street'];
+                    continue;
+                }
+                if ($value == 'country'){
+                    $countryName = $objectManager->create('\Magento\Directory\Model\Country')->load($billingData->getData('country_id'))->getName();
+                    $customerBillingArray[$key] = $countryName;
+                    continue;
+                }
+                $customerBillingArray[$key] = $billingData->getData($value);
+            } else {
+                $customerBillingArray[$key] = '';
+            }
+        }
+        $customerBillingArray = $this->getNotEmptyCustomData($customerBillingArray);
+        foreach ($customerShippingArray as $key => $value) {
+            if (!empty($shippingData->getData($value))){
+                if ($value == 'street') {
+                    $streetFormat = $this->formatStreet($shippingData->getStreet());
+                    if (array_key_exists('CustomerShippingHouseNumber', $customerShippingArray) && !empty($streetFormat['housenumber'])) {
+                        $customerShippingArray['CustomerShippingHouseNumber'] = $streetFormat['housenumber'];
+                    }
+                    if (array_key_exists('CustomerShippingHouseAdditionalNumber', $customerShippingArray) && !empty($streetFormat['numberaddition'])) {
+                        $customerShippingArray['CustomerShippingHouseAdditionalNumber'] = $streetFormat['numberaddition'];
+                    }
+                    $customerShippingArray[$key] = $streetFormat['street'];
+                    continue;
+                }
+                if ($value == 'country'){
+                    $countryName = $objectManager->create('\Magento\Directory\Model\Country')->load($shippingData->getData('country_id'))->getName();
+                    $customerShippingArray[$key] = $countryName;
+                    continue;
+                }
+                $customerShippingArray[$key] = $shippingData->getData($value);
+            }
+            else {
+                $customerShippingArray[$key] = '';
+            }
+        }
+        $customerShippingArray = $this->getNotEmptyCustomData($customerShippingArray);
+        $customDataList = array_merge($customerBillingArray, $customerShippingArray);
+        foreach ($customDataList as $key => $value) {
+            $customParamList[] = $this->getParameterLine($key, $value);
+        }
+
+        return $customParamList;
+    }
+
+    private function getNotEmptyCustomData($customData)
+    {
+        foreach ($customData as $key => $value){
+            if (empty($value)) {
+                unset($customData[$key]);
+            }
+        }
+
+        return $customData;
+    }
+
+    private function formatCustomData($customParameters, $address)
+    {
+        $customDataList = [];
+
+        foreach ($customParameters[$address] as $customParameter) {
+            $customParameterLabel = $this->getCustomParameterLabel($customParameter);
+            $customValue = $this->getCustomParameterValue($customParameter);
+
+            $customDataList[$customParameterLabel] = $customValue;
+        }
+
+        return $customDataList;
+    }
+
+    private function formatStreet($street)
+    {
+        $street = implode(' ', $street);
+
+        $format = [
+            'housenumber'    => '',
+            'numberaddition' => '',
+            'street'          => $street
+        ];
+
+        if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
+            // Check if the number is at the beginning of streetname
+            if ('' == $matches[1]) {
+                $format['housenumber'] = trim($matches[2]);
+                $format['street']       = trim($matches[3]);
+            } else {
+                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+                    $format['street']          = trim($matches[1]);
+                    $format['housenumber']    = trim($matches[2]);
+                    $format['numberaddition'] = trim($matches[3]);
+                }
+            }
+        }
+
+        return $format;
+    }
     /**
      * @param $name
      * @param $value
@@ -242,4 +369,36 @@ class Order extends AbstractTransactionBuilder
         $this->emptyDescriptionFlag = $enabled;
     }
 
+    private function getCustomNeededFieldsList($customParameters)
+    {
+        $customParametersArray = explode(',', $customParameters);
+        $customBillingData = [];
+        $customShippingData = [];
+        foreach ($customParametersArray as $customParameter) {
+            if (strpos($customParameter, 'billing')) {
+                $customBillingData[] = $customParameter;
+            } else {
+                $customShippingData[] = $customParameter;
+            }
+        }
+        $customParametersArray = null;
+        $customParametersArray['billing'] = $customBillingData;
+        $customParametersArray['shipping'] = $customShippingData;
+
+        return $customParametersArray;
+    }
+
+    public function getCustomParameterLabel($parameterKey)
+    {
+        $parameterLabel = str_replace(' ','', ucwords(str_replace('_', ' ', $parameterKey)));
+
+        return $parameterLabel;
+    }
+
+    public function getCustomParameterValue($parameterKey)
+    {
+        $value = str_replace('_', '', preg_replace('/^customer_(billing|shipping)_/', '', $parameterKey));
+
+        return $value;
+    }
 }

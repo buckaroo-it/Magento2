@@ -44,6 +44,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
  * @method mixed getOrderStatusNew()
  * @method mixed getPaymentFeeLabel()
  * @method mixed getCreateOrderBeforeTransaction()
+ * @method mixed getCustomerAdditionalInfo()
  */
 class Account extends AbstractConfigProvider
 {
@@ -75,6 +76,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_IP_HEADER                       = 'buckaroo_magento2/account/ip_header';
     const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
     const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
+    const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
 
     /**
      * @var MethodFactory
@@ -130,10 +132,10 @@ class Account extends AbstractConfigProvider
             'ip_header'                         => $this->getIpHeader($store),
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
             'selection_type'                    => $this->getSelectionType($store),
+            'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
         ];
         return $config;
     }
-
     /**
      * Returns the method specific order status when available, or returns the global order status when not.
      *
