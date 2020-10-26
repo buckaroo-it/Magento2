@@ -129,7 +129,7 @@ class Push implements ValidatorInterface
         }
 
         $signature = $this->calculateSignature($postData);
-        $this->logging->addDebug('$signature:' . var_export($signature, 1) . ' | $postData[\'brq_signature\']' . var_export($postData['brq_signature'], true));
+
         if ($signature !== $postData['brq_signature']) {
             return false;
         }
@@ -162,7 +162,7 @@ class Push implements ValidatorInterface
         $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
 
         $signatureString .= $digitalSignature;
-        $this->logging->addDebug( '$signatureString |||' . var_export($signatureString, true));
+
         $signature = SHA1($signatureString);
 
         $this->logging->addDebug($signature);
