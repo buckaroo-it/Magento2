@@ -152,60 +152,59 @@ class Order extends AbstractTransactionBuilder
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 
         foreach ($customerBillingArray as $key => $value) {
+            $customerBillingArray[$key] = '';
             if (!empty($billingData->getData($value))){
-                if ($value == 'street') {
-                    $streetFormat = $this->formatStreet($billingData->getStreet());
-                    if (array_key_exists('CustomerBillingHouseNumber', $customerBillingArray) && !empty($streetFormat['housenumber'])) {
-                        $customerBillingArray['CustomerBillingHouseNumber'] = $streetFormat['housenumber'];
-                    }
-                    if (array_key_exists('CustomerBillingHouseAdditionalNumber', $customerBillingArray) && !empty($streetFormat['numberaddition'])) {
-                        $customerBillingArray['CustomerBillingHouseAdditionalNumber'] = $streetFormat['numberaddition'];
-                    }
-                    $customerBillingArray[$key] = $streetFormat['street'];
-                    continue;
-                }
-                if ($value == 'country'){
-                    $countryName = $objectManager->create('\Magento\Directory\Model\Country')->load($billingData->getData('country_id'))->getName();
-                    $customerBillingArray[$key] = $countryName;
-                    continue;
-                }
                 $customerBillingArray[$key] = $billingData->getData($value);
-            } else {
-                $customerBillingArray[$key] = '';
+            }
+            if ($value == 'country'){
+                $customerBillingArray[$key] = $this->getCountryName($objectManager, $billingData);
             }
         }
+        $this->setStreetData($billingData,$customerBillingArray);
         $customerBillingArray = $this->getNotEmptyCustomData($customerBillingArray);
+
         foreach ($customerShippingArray as $key => $value) {
+            $customerShippingArray[$key] = '';
             if (!empty($shippingData->getData($value))){
-                if ($value == 'street') {
-                    $streetFormat = $this->formatStreet($shippingData->getStreet());
-                    if (array_key_exists('CustomerShippingHouseNumber', $customerShippingArray) && !empty($streetFormat['housenumber'])) {
-                        $customerShippingArray['CustomerShippingHouseNumber'] = $streetFormat['housenumber'];
-                    }
-                    if (array_key_exists('CustomerShippingHouseAdditionalNumber', $customerShippingArray) && !empty($streetFormat['numberaddition'])) {
-                        $customerShippingArray['CustomerShippingHouseAdditionalNumber'] = $streetFormat['numberaddition'];
-                    }
-                    $customerShippingArray[$key] = $streetFormat['street'];
-                    continue;
-                }
-                if ($value == 'country'){
-                    $countryName = $objectManager->create('\Magento\Directory\Model\Country')->load($shippingData->getData('country_id'))->getName();
-                    $customerShippingArray[$key] = $countryName;
-                    continue;
-                }
                 $customerShippingArray[$key] = $shippingData->getData($value);
             }
-            else {
-                $customerShippingArray[$key] = '';
+            if ($value == 'country'){
+                $customerShippingArray[$key] = $this->getCountryName($objectManager, $shippingData);
             }
         }
+        $this->setStreetData($billingData,$customerShippingArray);
         $customerShippingArray = $this->getNotEmptyCustomData($customerShippingArray);
+
         $customDataList = array_merge($customerBillingArray, $customerShippingArray);
         foreach ($customDataList as $key => $value) {
             $customParamList[] = $this->getParameterLine($key, $value);
         }
 
         return $customParamList;
+    }
+
+    private function setStreetData($data, &$customerData)
+    {
+        $streetFormat = $this->formatStreet($data->getStreet());
+        if (array_key_exists('CustomerBillingHouseNumber', $customerData) && !empty($streetFormat['housenumber'])) {
+            $customerData['CustomerBillingHouseNumber'] = $streetFormat['housenumber'];
+        }
+        if (array_key_exists('CustomerBillingHouseAdditionalNumber', $customerData) && !empty($streetFormat['numberaddition'])) {
+            $customerData['CustomerBillingHouseAdditionalNumber'] = $streetFormat['numberaddition'];
+        }
+        $customerData['CustomerBillingStreet'] = $streetFormat['street'];
+    }
+
+    private function customDataChecking()
+    {
+
+    }
+
+    private function getCountryName($objectManager, $data)
+    {
+        $countryName = $objectManager->create('\Magento\Directory\Model\Country')->load($data->getData('country_id'))->getName();
+
+        return $countryName;
     }
 
     private function getNotEmptyCustomData($customData)
