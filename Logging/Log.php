@@ -34,6 +34,8 @@ class Log extends Logger
     /** @var array */
     protected $message = [];
 
+    private static $processUid = 0;
+
     /**
      * Log constructor.
      *
@@ -72,6 +74,12 @@ class Log extends Logger
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
         }
+
+        if (empty(self::$processUid)) {
+            self::$processUid = uniqid();
+        }
+
+        $message = self::$processUid . '|' . $message;
 
         // Prepare the message to be send to the debug email
         $this->mail->addToMessage($message);
