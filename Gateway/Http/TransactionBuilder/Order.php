@@ -152,7 +152,9 @@ class Order extends AbstractTransactionBuilder
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 
         foreach ($customerBillingArray as $key => $value) {
-            $customerBillingArray[$key] = '';
+            if ($value != 'housenumber' && $value != 'houseadditionalnumber') {
+                $customerBillingArray[$key] = '';
+            }
             if (!empty($billingData->getData($value))){
                 $customerBillingArray[$key] = $billingData->getData($value);
             }
@@ -160,11 +162,13 @@ class Order extends AbstractTransactionBuilder
                 $customerBillingArray[$key] = $this->getCountryName($objectManager, $billingData);
             }
         }
-        $this->setStreetData($billingData,$customerBillingArray);
+        $this->setStreetData('CustomerBillingStreet',$customerBillingArray);
         $customerBillingArray = $this->getNotEmptyCustomData($customerBillingArray);
 
         foreach ($customerShippingArray as $key => $value) {
-            $customerShippingArray[$key] = '';
+            if ($value != 'housenumber' && $value != 'houseadditionalnumber') {
+                $customerShippingArray[$key] = '';
+            }
             if (!empty($shippingData->getData($value))){
                 $customerShippingArray[$key] = $shippingData->getData($value);
             }
@@ -172,7 +176,7 @@ class Order extends AbstractTransactionBuilder
                 $customerShippingArray[$key] = $this->getCountryName($objectManager, $shippingData);
             }
         }
-        $this->setStreetData($billingData,$customerShippingArray);
+        $this->setStreetData('CustomerShippingStreet',$customerShippingArray);
         $customerShippingArray = $this->getNotEmptyCustomData($customerShippingArray);
 
         $customDataList = array_merge($customerBillingArray, $customerShippingArray);
@@ -183,21 +187,31 @@ class Order extends AbstractTransactionBuilder
         return $customParamList;
     }
 
-    private function setStreetData($data, &$customerData)
+    private function setStreetData($addressData, &$customerData)
     {
-        $streetFormat = $this->formatStreet($data->getStreet());
-        if (array_key_exists('CustomerBillingHouseNumber', $customerData) && !empty($streetFormat['housenumber'])) {
-            $customerData['CustomerBillingHouseNumber'] = $streetFormat['housenumber'];
-        }
-        if (array_key_exists('CustomerBillingHouseAdditionalNumber', $customerData) && !empty($streetFormat['numberaddition'])) {
-            $customerData['CustomerBillingHouseAdditionalNumber'] = $streetFormat['numberaddition'];
-        }
-        $customerData['CustomerBillingStreet'] = $streetFormat['street'];
-    }
+        $streetFormat = [];
+        if (!empty($customerData[$addressData])) {
+            $street = preg_replace('[\s]', ' ', $customerData[$addressData]);
+            $streetFormat = $this->formatStreet($street);
+            $customerData[$addressData] = 'street';
 
-    private function customDataChecking()
-    {
-
+            foreach ($customerData as $customerDataKey => $value) {
+                if ($value == 'street') {
+                    $customerData[$customerDataKey] = $streetFormat['street'];
+                }
+                if ($value == 'housenumber') {
+                    $customerData[$customerDataKey] = $streetFormat['housenumber'];
+                }
+                if ($value == 'houseadditionalnumber') {
+                    $customerData[$customerDataKey] = $streetFormat['numberaddition'];
+                }
+            }
+        }
+        foreach ($customerData as $customerDataKey => $value) {
+            if ($value == 'housenumber' || $value == 'houseadditionalnumber') {
+                $customerData[$customerDataKey] = '';
+            }
+        }
     }
 
     private function getCountryName($objectManager, $data)
@@ -234,7 +248,8 @@ class Order extends AbstractTransactionBuilder
 
     private function formatStreet($street)
     {
-        $street = implode(' ', $street);
+//        $street = implode(' ', $street);
+//        $street = preg_split('[\s]', $street);
 
         $format = [
             'housenumber'    => '',

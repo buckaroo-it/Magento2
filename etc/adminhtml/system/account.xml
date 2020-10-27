@@ -211,7 +211,7 @@
             <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="0" showInStore="0">
               <label>Add customer data to request</label>
               <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>
-              <comment><![CDATA[When adding custom fields to your transaction request you have to also add them to your Buckaroo Plaza account. Click on 'read more' for additional information about adding this fields to the Plaza.]]></comment>
+              <comment><![CDATA[When adding custom fields to your transaction request you have to also add them to your Buckaroo <a href = "https://admin.buckaroo.nl/Configuration/Merchant/CustomFields" > Plaza </a> account. Click on <a href="https://support.buckaroo.nl/categorie%C3%ABn/plugins/magento-2/faq-magento-2/add-custom-fields-to-transaction-requests"> read more </a> for additional information about adding this fields to the Plaza.]]></comment>
               <config_path>buckaroo_magento2/account/customer_additional_info</config_path>
             </field>
 
