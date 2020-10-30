@@ -96,12 +96,16 @@ class Order extends AbstractTransactionBuilder
             ],
             'AdditionalParameters' => (object)[
                 'AdditionalParameter' => $this->getAdditionalParameters(),
-//                'CustomParameter' => $this->getCustomInfo($customParametersKey, $billingData, $shippingData)
-            ],
-            'CustomParameters' => (object)[
-                'CustomParameter' => $this->getCustomInfo($customParametersKey, $billingData, $shippingData)
             ]
         ];
+
+        if (!empty($customParametersKey)) {
+            $body['CustomParameters']['CustomParameter'] = $this->getCustomInfo($customParametersKey, $billingData, $shippingData);
+
+        }
+//        $customData = 'CustomParameters' => (object)[
+//        'CustomParameter' => $this->getCustomInfo($customParametersKey, $billingData, $shippingData)
+//        ];
 
         if (!$this->emptyDescriptionFlag) {
             $body['Description'] = $this->configProviderAccount->getTransactionLabel($store);
