@@ -48,7 +48,6 @@ define(
             {
                 defaults                : {
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay20',
-                    telephoneNumber: null,
                     selectedGender: null,
                     identificationNumber: null,
                     firstName: '',
@@ -61,14 +60,17 @@ define(
                     termsValidate: false,
                     genderValidate: null,
                     identificationValidate: null,
+                    phoneValidate: null,
                     showNLBEFieldsValue: true,
                     showIdentificationValue: null,
                     showFrenchTosValue: null,
+                    showPhoneValue: null,
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                currentCustomerAddressId : null,
 
                 /**
                  * @override
@@ -84,7 +86,6 @@ define(
                 initObservable: function () {
                     this._super().observe(
                         [
-                            'telephoneNumber',
                             'selectedGender',
                             'firstname',
                             'lastname',
@@ -96,11 +97,22 @@ define(
                             'termsValidate',
                             'genderValidate',
                             'identificationValidate',
+                            'phoneValidate',
                             'dummy',
                             'showNLBEFieldsValue',
                             'showIdentificationValue',
                             'showFrenchTosValue',
+                            'showPhoneValue',
                         ]
+                    );
+
+                    this.showPhone = ko.computed(
+                        function () {
+                            if (this.showPhoneValue() !== null) {
+                                return this.showPhoneValue();
+                            }
+                        },
+                        this
                     );
 
                     this.showNLBEFields = ko.computed(
@@ -137,6 +149,7 @@ define(
 
                         this.showNLBEFieldsValue(false);
                         this.showIdentificationValue(false);
+                        this.showPhoneValue(false);
 
                         if (this.country === 'NL' || this.country === 'BE') {
                             this.showNLBEFieldsValue(true);
@@ -144,6 +157,15 @@ define(
 
                         if (this.country === 'FI') {
                             this.showIdentificationValue(true);
+                        }
+
+                        //console.log("=========updateShowFields1", this.country, this.phoneValidate());
+                        if (
+                            (this.country === 'NL' || this.country === 'BE')
+                            ||
+                            this.phoneValidate()
+                        ) {
+                            this.showPhoneValue(true);
                         }
                     };
 
@@ -166,8 +188,10 @@ define(
                     };
 
                     if (quote.billingAddress()) {
+                        //console.log("=========quote.billingAddress1");
                         this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
                         this.updateTermsUrl(quote.billingAddress().countryId);
+                        this.phoneValidate(quote.billingAddress().telephone);
                         this.updateShowFields();
                     }
 
@@ -178,6 +202,12 @@ define(
                                 !newAddress.getKey()
                             ) {
                                 return;
+                            }
+
+                            if (this.currentCustomerAddressId != newAddress.getKey()) {
+                                //console.log("=========billingAddress.subscribe2", newAddress.getKey());
+                                this.currentCustomerAddressId = newAddress.getKey();
+                                this.phoneValidate(newAddress.telephone);
                             }
 
                             if (newAddress.firstname !== this.firstName || newAddress.lastname !== this.lastName) {
@@ -202,15 +232,65 @@ define(
                         return true;
                     };
 
-                    /**
-                     * Check if TelephoneNumber is filled in. If not - show field
-                     */
-                    this.hasTelephoneNumber = ko.computed(
-                        function () {
-                            var telephone = quote.billingAddress() ? quote.billingAddress().telephone : null;
-                            return telephone != '' && telephone != '-' && telephone != null;
+                    this.validatePhone = function() {
+
+                        //console.log('====validatePhone1', this.country, this.phoneValidate());
+
+                        function returnSuccess() {
+                            $('#' + self.getCode() + '_Telephone-error').hide();
+                            $('#' + self.getCode() + '_Telephone').removeClass('mage-error');
+                            return true;
                         }
-                    );
+
+                        function returnError() {
+                            setTimeout(function () {
+                                $('#' + self.getCode() + '_Telephone-error').show();
+                                $('#' + self.getCode() + '_Telephone').addClass('mage-error');
+                            }, 200);
+                            return false;
+                        }
+
+                        if ((this.country == 'NL' || this.country == 'BE') || this.phoneValidate()) {
+                            var lengths = {
+                                'NL': {
+                                    min: 10,
+                                    max: 12
+                                },
+                                'BE': {
+                                    min: 9,
+                                    max: 12
+                                },
+                                'DE': {
+                                    min: 11,
+                                    max: 14
+                                },
+                                'FI': {
+                                    min: 5,
+                                    max: 12
+                                },
+                            };
+
+
+                            if (!this.phoneValidate()) {
+                                return returnError();
+                            }
+
+                            if (this.phoneValidate().match(/[^0-9]/g)) {
+                                return returnError();
+                            }
+
+                            if (lengths.hasOwnProperty(this.country)) {
+                                if (lengths[this.country].min && (this.phoneValidate().length < lengths[this.country].min)) {
+                                    return returnError();
+                                }
+                                if (lengths[this.country].max && (this.phoneValidate().length > lengths[this.country].max)) {
+                                    return returnError();
+                                }
+                            }
+
+                        }
+                        return returnSuccess();
+                    };
 
                     /**
                      * Validation on the input fields
@@ -235,11 +315,11 @@ define(
                         }
                     };
 
-                    this.telephoneNumber.subscribe(runValidation,this);
                     this.dateValidate.subscribe(runValidation,this);
                     this.termsValidate.subscribe(runValidation,this);
                     this.genderValidate.subscribe(runValidation,this);
                     this.identificationValidate.subscribe(runValidation,this);
+                    this.phoneValidate.subscribe(runValidation,this);
                     this.dummy.subscribe(runValidation,this);
 
                     this.calculateAge = function (specifiedDate) {
@@ -263,11 +343,12 @@ define(
                      */
                     this.buttoncheck = ko.computed(
                         function () {
-                            return (this.telephoneNumber() !== null || this.hasTelephoneNumber) &&
+                            var result =
                                 (!this.showNLBEFields() || this.selectedGender() !== null) &&
                                 (!this.showIdentification() || this.identificationValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
+                                (!this.showPhone() || ((this.phoneValidate() !== null) && (this.validatePhone()))) &&
                                 this.termsValidate() !== false &&
                                 this.validate() &&
                                 (
@@ -275,6 +356,7 @@ define(
                                     ||
                                     (this.calculateAge(this.dateValidate()) >= 18)
                                 )
+                            return result;
                         },
                         this
                     );
@@ -378,7 +460,7 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_telephone" : this.telephoneNumber(),
+                            "customer_telephone" : this.phoneValidate(),
                             "customer_gender" : this.genderValidate(),
                             "customer_identificationNumber" : this.identificationValidate(),
                             "customer_billingName" : this.BillingName(),

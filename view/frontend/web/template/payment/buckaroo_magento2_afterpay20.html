@@ -87,10 +87,7 @@
                         </div>
                     </div>
 
-                    <!-- Default | Hide this field if phone number is already filled in. Show this field if phone number is empty -->
-
-                    <!-- ko ifnot: hasTelephoneNumber -->
-                    <!-- ko if: showNLBEFields -->
+                    <!-- ko if: showPhone -->
                     <div class="field required" >
                         <label class="label" for="buckaroo_magento2_afterpay20_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
                         <div class="control">
@@ -98,13 +95,16 @@
                                    type="text"
                                    class="input-text field"
                                    data-bind="
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                   checked: phoneValidate
                                    valueUpdate: 'blur',
-                                   value: telephoneNumber,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true })}"
+                                   value: phoneValidate"
                                    name="payment[buckaroo_magento2_afterpay20][customer_telephone]">
+                            <div for="buckaroo_magento2_afterpay20_Telephone" generated="true" class="mage-error" id="buckaroo_magento2_afterpay20_Telephone-error" style="display: none;">
+                                <span data-bind="i18n: 'Phone number should be correct.' "></span>
+                            </div>
                         </div>
                     </div>
-                    <!-- /ko -->
                     <!-- /ko -->
 
                     <!-- ko if: showNLBEFields -->
