@@ -257,8 +257,8 @@ define(
                                     max: 12
                                 },
                                 'BE': {
-                                    min: 9,
-                                    max: 9
+                                    min: 10,
+                                    max: 10
                                 },
                                 'DE': {
                                     min: 11,
