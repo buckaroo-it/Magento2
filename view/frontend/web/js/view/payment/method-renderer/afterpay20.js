@@ -275,7 +275,7 @@ define(
                                 return returnError();
                             }
 
-                            if (this.phoneValidate().match(/[^0-9]/g)) {
+                            if (this.phoneValidate().match(/\+/g)) {
                                 return returnError();
                             }
 
