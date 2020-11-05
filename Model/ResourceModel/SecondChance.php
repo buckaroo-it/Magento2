@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  * NOTICE OF LICENSE
  *
@@ -18,13 +17,32 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
- -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Buckaroo_Magento2:etc/buckaroo_module.xsd">
-    <module name="Buckaroo_Magento2" setup_version="1.27.1" build_number="1769" stability="stable">
-        <sequence>
-            <module name="Magento_Payment"/>
-            <module name="Magento_ReleaseNotification"/>
-            <module name="Magento_Sales"/>
-        </sequence>
-    </module>
-</config>
+
+namespace Buckaroo\Magento2\Model\ResourceModel;
+
+class SecondChance extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb
+{
+    /**
+     * Event prefix
+     *
+     * @var string
+     */
+    protected $_eventPrefix = 'buckaroo_magento2_second_chance_resource';
+
+    /**
+     * Event object
+     *
+     * @var string
+     */
+    protected $_eventObject = 'resource';
+
+    /**
+     * Model Initialization
+     *
+     * @return void
+     */
+    protected function _construct()
+    {
+        $this->_init('buckaroo_magento2_second_chance', 'entity_id');
+    }
+}
