@@ -29,8 +29,8 @@ class ButtonStyle implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
         return [
-            ['value' => 'black', 'label' => __('Black')],
             ['value' => 'white', 'label' => __('White')],
+            ['value' => 'black', 'label' => __('Black')],
             ['value' => 'white-outline', 'label' => __('White outline')]
         ];
     }
@@ -43,8 +43,8 @@ class ButtonStyle implements \Magento\Framework\Option\ArrayInterface
     public function toArray()
     {
         return [
-            'black' => __('Black'),
             'white' => __('White'),
+            'black' => __('Black'),
             'white-outline' => __('White outline')
         ];
     }
