@@ -81,7 +81,10 @@ define(
                             this.generateApplepayOptions();
 
                             this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
-                            this.payment.showPayButton('black', 'buy');
+                            this.payment.showPayButton(
+                                window.checkoutConfig.payment.buckaroo.applepay.buttonStyle ?
+                                    window.checkoutConfig.payment.buckaroo.applepay.buttonStyle : 'black',
+                                'buy');
                             if (this.payMode == 'product') {
                                 this.payment.button.off("click");
                                 var self = this;
@@ -96,52 +99,9 @@ define(
                                     }, 100);
                                 });
                             }
-                            if (this.isOnCheckout && this.isOsc()) {
-                                this.devLog('==============applepaydebug/81');
-                                this.payment.button.off("click");
-                                var self = this;
-                                this.payment.button.on("click", function (e) {
-                                    self.devLog('==============applepaydebug/82');
-                                    var validationResult = additionalValidators.validate();
-                                    self.devLog('==========applepaydebug/83', validationResult);
-                                    var isError = document.querySelector("div[role='alert']");
-                                    self.devLog('==========applepaydebug/84', isError);
-                                    self.payment.beginPayment(e);
-                                });
-
-                                this.setShowOrderButton();
-
-                                if ($("input[name='payment[method]']:checked").val() == 'buckaroo_magento2_applepay') {
-                                    self.getOscButton().style.display = 'none';
-                                }
-                            }
                         }
                     }.bind(this)
                 );
-            },
-
-            setShowOrderButton: function () {
-                var self = this;
-                var paymentMethodsSelectors = document.querySelectorAll("input[name='payment[method]']");
-                if (paymentMethodsSelectors) {
-                    this.devLog('==========applepaydebug/85');
-                    $("input[name='payment[method]']").on('click change', function(e) {
-                        self.devLog('==========applepaydebug/86', e.target.value);
-                        if (e.target.value == 'buckaroo_magento2_applepay') {
-                            self.getOscButton().style.display='none';
-                        } else {
-                            self.getOscButton().style.display='block';
-                        }
-                    });
-                }
-            },
-
-            isOsc: function () {
-                return this.getOscButton();
-            },
-
-            getOscButton: function () {
-                return document.querySelector('.action.primary.checkout.iosc-place-order-button');
             },
 
             updateOptions: function () {

@@ -42,7 +42,7 @@
             <!--/ko-->
         </div>
 
-        <div class="actions-toolbar" style="display: block;">
+        <div class="actions-toolbar" style="display: none;">
             <div class="primary">
                 <div id="apple-pay-wrapper" data-bind="afterRender: showPayButton"></div>
             </div>
@@ -53,5 +53,21 @@
             <span data-bind="text: getPayWithBaseCurrencyText()"></span>
         </div>
         <!--/ko-->
+
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        enable: (getCode() == isChecked()),
+                        css: {disabled: !isPlaceOrderActionAllowed() }
+                        "
+                        disabled>
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
     </div>
 </div>

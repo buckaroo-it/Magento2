@@ -50,6 +50,13 @@
             <config_path>payment/buckaroo_magento2_applepay/sort_order</config_path>
         </field>
 
+        <field id="button_style" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Button style</label>
+            <comment><![CDATA[What type of button you want to show.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\ButtonStyle</source_model>
+            <config_path>payment/buckaroo_magento2_applepay/button_style</config_path>
+        </field>
+
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 

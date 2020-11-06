@@ -51,6 +51,7 @@ define(
                 },
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                submit: false,
 
                 /**
                  * @override
@@ -64,6 +65,7 @@ define(
 
                     applepayPay.transactionResult.subscribe(
                         function () {
+                            this.submit = true;
                             this.placeOrder(null, null);
                         }.bind(this)
                     );
@@ -101,7 +103,19 @@ define(
                     var self = this,
                         placeOrder;
 
-                    //console.log('==========applepaydebug/60');
+                    applepayPay.devLog('==========applepaydebug/60');
+
+                    if (!this.submit) {
+                        applepayPay.devLog('==========applepaydebug/61');
+                        var child = document.querySelector('.apple-pay-button');
+                        if (child) {
+                            child.click();
+                        }
+                        return false;
+                    }
+
+                    applepayPay.devLog('==========applepaydebug/62');
+                    this.submit = false;
 
                     if (event) {
                         event.preventDefault();
@@ -125,7 +139,7 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    //console.log('==========applepaydebug/14');
+                    applepayPay.devLog('==========applepaydebug/14');
                     response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         window.location.replace(response.RequiredAction.RedirectURL);
@@ -133,7 +147,7 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    //console.log('==========applepaydebug/71');
+                    applepayPay.devLog('==========applepaydebug/71');
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
 
@@ -141,7 +155,7 @@ define(
                 },
 
                 showPayButton: function () {
-                    //console.log('==========applepaydebug/66');
+                    applepayPay.devLog('==========applepaydebug/66');
                     applepayPay.setIsOnCheckout(true);
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton();
