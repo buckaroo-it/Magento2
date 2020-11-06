@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Observer;
 use Buckaroo\Magento2\Model\Method\Giftcards;
 
 class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
-{   
+{
     /**
      * @var \Magento\Checkout\Model\Session
      */
@@ -34,15 +34,75 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     protected $accountConfig;
 
     /**
-     * @param \Magento\Checkout\Model\Session\Proxy                 $checkoutSession
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account         $accountConfig
+     * @var \Buckaroo\Magento2\Model\SecondChanceFactory
+     */
+    protected $secondChanceFactory;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     */
+    protected $dateTime;
+
+    protected $request;
+
+    protected $mathRandom;
+
+    protected $resultFactory;
+
+    /**
+     * @var \Magento\Framework\App\ResponseFactory
+     */
+    private $responseFactory;
+
+    /**
+     * @var \Magento\Framework\UrlInterface
+     */
+    private $url;
+
+    protected $orderFactory;
+
+    /**
+     * @var \Magento\Quote\Model\Quote $quote
+     */
+    protected $quote;
+
+    /**
+     * @var \Magento\Checkout\Model\Cart
+     */
+    protected $cart;
+
+    /**
+     * @param \Magento\Checkout\Model\Session\Proxy                $checkoutSession
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
+     * @param \Buckaroo\Magento2\Model\SecondChanceFactory         $secondChanceFactory
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime          $dateTime
      */
     public function __construct(
         \Magento\Checkout\Model\Session\Proxy $checkoutSession,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
+        \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
+        \Magento\Framework\App\Request\Http $request,
+        \Magento\Framework\Math\Random $mathRandom,
+        \Magento\Framework\Controller\ResultFactory $resultFactory,
+        \Magento\Framework\App\ResponseFactory $responseFactory,
+        \Magento\Framework\UrlInterface $url,
+        \Magento\Sales\Model\OrderFactory $orderFactory,
+        \Magento\Quote\Model\Quote $quote,
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
     ) {
-        $this->checkoutSession = $checkoutSession;
-        $this->accountConfig    = $accountConfig;
+        $this->checkoutSession     = $checkoutSession;
+        $this->accountConfig       = $accountConfig;
+        $this->secondChanceFactory = $secondChanceFactory;
+        $this->request             = $request;
+        $this->mathRandom          = $mathRandom;
+        $this->resultFactory       = $resultFactory;
+        $this->responseFactory     = $responseFactory;
+        $this->url                 = $url;
+        $this->orderFactory        = $orderFactory;
+        $this->quote               = $quote;
+        $this->cart                = $cart;
+        $this->dateTime            = $dateTime;
     }
 
     /**
@@ -52,24 +112,35 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         if ($payment = $lastRealOrder->getPayment()) {
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
                 return;
             }
-            if(in_array($payment->getMethod(), [Giftcards::PAYMENT_METHOD_CODE])){
+            if (in_array($payment->getMethod(), [Giftcards::PAYMENT_METHOD_CODE])) {
                 return true;
             }
             $order = $payment->getOrder();
 
-            if($this->accountConfig->getCartKeepAlive($order->getStore())){
-                if(!$this->checkoutSession->getPaymentEnded() && $payment->getMethodInstance()->usesRedirect){
+            if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
+                if (!$this->checkoutSession->getPaymentEnded() && $payment->getMethodInstance()->usesRedirect) {
+
                     $this->checkoutSession->restoreQuote();
+
+                    if ($this->accountConfig->getSecondChance($order->getStore())) {
+                        $secondChance = $this->secondChanceFactory->create();
+                        $secondChance->setData([
+                            'order_id' => $order->getIncrementId(),
+                            'token' => $this->mathRandom->getUniqueHash(),
+                            'store_id' => $order->getStoreId(),
+                            'created_at' => $this->dateTime->gmtDate(),
+                        ]);
+                        $secondChance->save();
+                    }
+                    
                 }
             }
         }
         return true;
     }
-
 }

@@ -77,6 +77,9 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
     const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
     const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
+    const XPATH_ACCOUNT_SECOND_CHANCE                 = 'buckaroo_magento2/account/second_chance';
+    const XPATH_ACCOUNT_SECOND_CHANCE_TIMING                 = 'buckaroo_magento2/account/second_chance_timing';
+    const XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE                 = 'buckaroo_magento2/account/no_send_second_chance';
 
     /**
      * @var MethodFactory
@@ -131,6 +134,9 @@ class Account extends AbstractConfigProvider
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
+            'second_chance'                     => $this->getSecondChance($store),
+            'second_chance_timing'              => $this->getSecondChanceTiming($store),
+            'no_send_second_chance'             => $this->getNoSendSecondChance($store),
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
         ];
