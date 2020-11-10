@@ -175,13 +175,13 @@ class Process extends \Magento\Framework\App\Action\Action
         switch ($statusCode) {
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
-                $this->logger->addDebug(__METHOD__.'|3|');
+                $this->logger->addDebug(__METHOD__.'|3|'.var_export([$this->order->getStatus(), $this->orderStatusFactory->get(
+                        $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
+                        $this->order
+                    )], true));
                 if ($this->order->canInvoice()) {
                     $this->logger->addDebug(__METHOD__.'|31|');
-                    if ($this->hasPostData('brq_primary_service', 'KlarnaKp') &&
-                        $this->hasPostData('add_service_action_from_magento', 'reserve') &&
-                        ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'))
-                    ) {
+                    if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                         //do nothing - push will change a status
                         $this->logger->addDebug(__METHOD__.'|32|');
                     } else {
