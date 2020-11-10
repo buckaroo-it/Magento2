@@ -62,7 +62,7 @@
             <onCancel>actionCancel</onCancel>
             <state>true</state>
             <options>
-                <option name="modalClass" xsi:type="string">release-notification-modal</option>
+                <option name="modalClass" xsi:type="string">release-notification-modal2</option>
                 <option name="type" xsi:type="string">popup</option>
                 <option name="responsive" xsi:type="boolean">true</option>
                 <option name="innerScroll" xsi:type="boolean">true</option>

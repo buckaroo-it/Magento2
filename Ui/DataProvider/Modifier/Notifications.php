@@ -172,6 +172,7 @@ class Notifications implements ModifierInterface
      */
     private function getNotificationContent()
     {
+        return '';
         $cacheKey = 'buckaroo-release-notification';
         $modalContent = $this->cacheStorage->load($cacheKey);
         if ($modalContent === false) {
