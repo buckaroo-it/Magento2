@@ -92,8 +92,11 @@ class Process extends Action
 
         $transaction = $this->getTransaction();
         $order = $transaction->getOrder();
-        $this->transactionCancel->cancel($transaction);
-        $this->quoteRecreate->recreate($order);
+        try {
+            $this->transactionCancel->cancel($transaction);
+            $this->quoteRecreate->recreate($order);
+        } catch (\Exception $exception) {
+        }
 
         $cancelledErrorMessage = __(
             'According to our system, you have canceled the payment. If this is not the case, please contact us.'
