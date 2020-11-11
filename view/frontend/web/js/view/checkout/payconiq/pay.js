@@ -62,7 +62,7 @@ define(
                 var formKey = $.mage.cookies.get('form_key');
 
                 utils.submit({
-                    url: url.build('/buckaroo/payconiq/process/?form_key=' + formKey),
+                    url: url.build('/buckaroo/payconiq/process/?cancel=1&form_key=' + formKey),
                     data: data
                 });
             }
