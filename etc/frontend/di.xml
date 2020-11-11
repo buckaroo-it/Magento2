@@ -80,4 +80,8 @@
     <type name="Magento\Checkout\Model\Cart">
         <plugin name="interceptUpdateProductToCart" type="Buckaroo\Magento2\Block\Cart\QuoteCheck"/>
     </type>
+
+    <type name="Magento\Framework\Stdlib\Cookie\PhpCookieManager">
+        <plugin name="fixSession" type="Buckaroo\Magento2\Model\Plugin\FixSession" />
+    </type>
 </config>
