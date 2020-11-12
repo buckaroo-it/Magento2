@@ -61,6 +61,7 @@ class Creditcard extends AbstractConfigProvider
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_creditcard/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_creditcard/specificcountry';
     const XPATH_CREDITCARD_SORT                 = 'payment/buckaroo_magento2_creditcard/sorted_creditcards';
+    const XPATH_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
 
     protected $issuers = [
         [
@@ -166,6 +167,11 @@ class Creditcard extends AbstractConfigProvider
         $paymentFeeLabel = $this
             ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Creditcard::PAYMENT_METHOD_CODE);
 
+        $selectionType = $this->scopeConfig->getValue(
+            self::XPATH_SELECTION_TYPE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
         return [
             'payment' => [
                 'buckaroo' => [
@@ -173,6 +179,7 @@ class Creditcard extends AbstractConfigProvider
                         'cards' => $issuers,
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'selectionType' => $selectionType,
                     ],
                 ],
             ],

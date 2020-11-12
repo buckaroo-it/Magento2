@@ -37,6 +37,7 @@ class IdealProcessing extends AbstractConfigProvider
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_idealprocessing/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_idealprocessing/allowspecific';
     const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_idealprocessing/specificcountry';
+    const XPATH_SELECTION_TYPE     = 'buckaroo_magento2/account/selection_type';
 
     /**
      * @var array
@@ -111,6 +112,11 @@ class IdealProcessing extends AbstractConfigProvider
         $issuers = $this->formatIssuers();
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(IdealProcessingMethod::PAYMENT_METHOD_CODE);
 
+        $selectionType = $this->scopeConfig->getValue(
+            self::XPATH_SELECTION_TYPE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
         return [
             'payment' => [
                 'buckaroo' => [
@@ -118,6 +124,7 @@ class IdealProcessing extends AbstractConfigProvider
                         'banks' => $issuers,
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'selectionType' => $selectionType,
                     ],
                 ],
             ],

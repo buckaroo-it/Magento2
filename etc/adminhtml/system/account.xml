@@ -194,6 +194,13 @@
                 <config_path>buckaroo_magento2/account/ip_header</config_path>
             </field>
 
+            <field id="selection_type" translate="label" type="select" sortOrder="185" showInDefault="1" showInWebsite="0" showInStore="0">
+              <label>Use selection</label>
+              <source_model>Buckaroo\Magento2\Model\Config\Source\SelectionType</source_model>
+              <comment><![CDATA[Optional use selection for iDEAL bank and CreditCard]]></comment>
+              <config_path>buckaroo_magento2/account/selection_type</config_path>
+            </field>
+
             <field id="cart_keep_alive" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="0" showInStore="0">
               <label>Cart keep alive</label>
               <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -230,13 +237,6 @@
                 <depends>
                     <field id="second_chance">1</field>
                 </depends>
-            </field>
-
-            <field id="selection_type" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Use selection</label>
-              <source_model>Buckaroo\Magento2\Model\Config\Source\SelectionType</source_model>
-              <comment><![CDATA[Optional use selection for iDEAL bank and CreditCard]]></comment>
-              <config_path>buckaroo_magento2/account/selection_type</config_path>
             </field>
 
             <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="0" showInStore="0">

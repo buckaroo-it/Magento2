@@ -70,7 +70,7 @@ define(
 
                     this.banktypes = ko.observableArray(window.checkoutConfig.payment.buckaroo.idealprocessing.banks);
 
-                    this.selectionType  = window.checkoutConfig.payment.buckaroo.ideal.selectionType;
+                    this.selectionType  = window.checkoutConfig.payment.buckaroo.idealprocessing.selectionType;
 
                     /**
                      * observe radio buttons
