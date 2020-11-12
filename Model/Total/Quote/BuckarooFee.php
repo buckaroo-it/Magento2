@@ -25,6 +25,8 @@ use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Tax\Model\Calculation as TaxModelCalculation;
 
 class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
@@ -52,6 +54,16 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     public $_checkoutSession;
 
     /**
+     * @var Calculation
+     */
+    protected $taxCalculation;
+
+    /**
+     * @var Log $logging
+     */
+    protected $logging;
+
+    /**
      * @param ConfigProviderAccount     $configProviderAccount
      * @param ConfigProviderBuckarooFee $configProviderBuckarooFee
      * @param Factory                   $configProviderMethodFactory
@@ -64,7 +76,9 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         Factory $configProviderMethodFactory,
         PriceCurrencyInterface $priceCurrency,
         Data $catalogHelper,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        Log $logging,
+        TaxModelCalculation $taxCalculation
     ) {
         $this->setCode('buckaroo_fee');
 
@@ -75,6 +89,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $this->catalogHelper = $catalogHelper;
 
         $this->_checkoutSession = $checkoutSession;
+        $this->logging = $logging;
+        $this->taxCalculation = $taxCalculation;
     }
 
     /**
@@ -210,13 +226,38 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $basePaymentFee = trim($configProvider->getPaymentFee($quote->getStore()));
 
         if (is_numeric($basePaymentFee)) {
-            if ($inclTax) {
+            if (in_array($buckarooPaymentMethodCode, ['afterpay20','afterpay','paypal'])) {
+
+                $inclTax = $this->configProviderBuckarooFee->getPaymentFeeTax() == Calculation::DISPLAY_TYPE_INCLUDING_TAX;
+
+                //$this->logging->addDebug(__METHOD__.'|2|');
+                //$this->logging->addDebug(var_export([$basePaymentFee, $inclTax, $buckarooPaymentMethodCode], true));
+
+                if ($inclTax) {
+                    //$this->logging->addDebug(__METHOD__ . '|3|');
+                    $request = $this->taxCalculation->getRateRequest(null, null, null, $quote->getStore());
+                    $taxClassId = $this->configProviderBuckarooFee->getTaxClass($quote->getStore());
+                    $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+
+                    //$this->logging->addDebug(__METHOD__ . '|32|');
+                    //$this->logging->addDebug(var_export([$percent], true));
+
+                    if ($percent > 0) {
+                        return $basePaymentFee / (1 + ($percent / 100));
+                    }
+                }
+                //$this->logging->addDebug(__METHOD__ . '|4|');
                 return $basePaymentFee;
+            } else {
+                if ($inclTax) {
+                    return $basePaymentFee;
+                }
+                /**
+                 * Payment fee is a number
+                 */
+                return $this->getFeePrice($basePaymentFee);
             }
-            /**
-             * Payment fee is a number
-             */
-            return $this->getFeePrice($basePaymentFee);
+
         } elseif (strpos($basePaymentFee, '%') === false) {
             /**
              * Payment fee is invalid

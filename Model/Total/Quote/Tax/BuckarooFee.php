@@ -26,6 +26,8 @@ use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Tax\Model\Calculation as TaxModelCalculation;
 
 class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
 {
@@ -45,7 +47,9 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
         Factory $configProviderMethodFactory,
         PriceCurrencyInterface $priceCurrency,
         Data $catalogHelper,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        Log $logging,
+        TaxModelCalculation $taxCalculation
     ) {
         parent::__construct(
             $configProviderAccount,
@@ -53,7 +57,9 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
             $configProviderMethodFactory,
             $priceCurrency,
             $catalogHelper,
-            $checkoutSession
+            $checkoutSession,
+            $logging,
+            $taxCalculation
         );
         $this->setCode('pretax_buckaroo_fee');
     }
