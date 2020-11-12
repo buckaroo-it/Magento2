@@ -216,9 +216,9 @@
 .buckaroo_magento2_idealprocessing .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_ideal_title.png) no-repeat;
     float: right;
-    margin-right: 10px;
+    margin-right: 6px;
     margin-top: -1px;
-    background-size: auto 25px;
+    background-size: auto 27px;
     width: 30px;
     height: 25px;
     content: ' ';
