@@ -75,7 +75,7 @@ define(
                     }
                     this.creditcards = ko.observableArray(filteredCards);
 
-                    this.selectionType  = window.checkoutConfig.payment.buckaroo.ideal.selectionType;
+                    this.selectionType  = window.checkoutConfig.payment.buckaroo.creditcard.selectionType;
 
                     /**
                      * observe radio buttons
