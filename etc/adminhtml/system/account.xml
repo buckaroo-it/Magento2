@@ -225,6 +225,7 @@
                 <config_path>buckaroo_magento2/account/second_chance_timing</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
                 <depends>
+                    <field id="cart_keep_alive">1</field>
                     <field id="second_chance">1</field>
                 </depends>
             </field>
@@ -235,6 +236,7 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>buckaroo_magento2/account/no_send_second_chance</config_path>
                 <depends>
+                    <field id="cart_keep_alive">1</field>
                     <field id="second_chance">1</field>
                 </depends>
             </field>
