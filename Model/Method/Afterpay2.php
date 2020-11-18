@@ -893,27 +893,6 @@ class Afterpay2 extends AbstractMethod
     }
 
     /**
-     * @param                                      $lastestKey
-     * @param \Magento\Payment\Model\Order\Invoice $invoice
-     *
-     * @return array
-     */
-    public function getPartialRequestGrandTotal($lastestKey, $invoice)
-    {
-
-        $article = $this->getArticleArrayLine(
-            $lastestKey,
-            'Total',
-            '0',
-            1,
-            number_format($invoice->getBaseGrandTotal(), 2),
-            4
-        );
-
-        return $article;
-    }
-
-    /**
      * @param \Magento\Quote\Model\Quote\Item $productItem
      * @param                                 $includesTax
      *

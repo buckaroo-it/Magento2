@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
@@ -384,7 +386,7 @@ class Afterpay extends AbstractMethod
         // For the first invoice possible add payment fee
         if (is_array($articles) && $numberOfInvoices == 1) {
             $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice, $includesTax);
+            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
             $articles = array_merge($articles, $serviceLine);
         }
 
@@ -692,9 +694,9 @@ class Afterpay extends AbstractMethod
 
             $article = $this->getArticleArrayLine(
                 $count,
-                $item->getQty() . ' x ' . $item->getName(),
+                $item->getName(),
                 $item->getProductId(),
-                1,
+                $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($item->getTaxClassId(), $payment->getOrder()->getStore())
             );
@@ -714,7 +716,7 @@ class Afterpay extends AbstractMethod
             break;
         }
 
-        $serviceLine = $this->getServiceCostLine($count, $payment->getOrder(), $includesTax);
+        $serviceLine = $this->getServiceCostLine($count, $payment->getOrder());
 
         if (!empty($serviceLine)) {
             $requestData = array_merge($articles, $serviceLine);
@@ -744,13 +746,6 @@ class Afterpay extends AbstractMethod
             $count++;
         }
 
-        $taxLine = $this->getTaxLine($count, $payment->getOrder());
-
-        if (!empty($taxLine)) {
-            $requestData = array_merge($requestData, $taxLine);
-            $count++;
-        }
-
         return $requestData;
     }
 
@@ -777,9 +772,9 @@ class Afterpay extends AbstractMethod
 
             $article = $this->getArticleArrayLine(
                 $count,
-                (int) $item->getQty() . ' x ' . $item->getName(),
+                (int) $item->getName(),
                 $item->getProductId(),
-                1,
+                $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($itemTaxClassId, $invoice->getOrder()->getStore())
             );
@@ -791,7 +786,7 @@ class Afterpay extends AbstractMethod
                 $count++;
                 $article = $this->getArticleArrayLine(
                     $count,
-                    'Korting op '. (int) $item->getQty() . ' x ' . $item->getName(),
+                    'Korting op '. (int) $item->getName(),
                     $item->getProductId(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
@@ -806,13 +801,6 @@ class Afterpay extends AbstractMethod
             }
 
             break;
-        }
-
-        $taxLine = $this->getTaxLine($count, $invoice);
-
-        if (!empty($taxLine)) {
-            $articles = array_merge($articles, $taxLine);
-            $count++;
         }
 
         $requestData = $articles;
@@ -845,14 +833,14 @@ class Afterpay extends AbstractMethod
 
             $article = $this->getArticleArrayLine(
                 $count,
-                $item->getQty() . ' x ' . $item->getName(),
+                $item->getName(),
                 $item->getProductId(),
-                1,
-                $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount(),
+                $item->getQty(),
+                $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($itemTaxClassId, $payment->getOrder()->getStore())
             );
 
-            $itemsTotalAmount += $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount();
+            $itemsTotalAmount += $item->getQty() * $this->calculateProductPrice($item, $includesTax);
 
             $articles = array_merge($articles, $article);
 
@@ -864,17 +852,10 @@ class Afterpay extends AbstractMethod
             break;
         }
 
-        $taxLine = $this->getTaxLine($count, $payment->getCreditmemo(), $itemsTotalAmount);
-
-        if (!empty($taxLine)) {
-            $articles = array_merge($articles, $taxLine);
-            $count++;
-        }
-
         // hasCreditmemos returns since 2.2.6 true or false.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
-            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax, $itemsTotalAmount);
+            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $itemsTotalAmount);
             $articles = array_merge($articles, $serviceLine);
             $count++;
         }
@@ -894,27 +875,6 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param                                      $lastestKey
-     * @param \Magento\Payment\Model\Order\Invoice $invoice
-     *
-     * @return array
-     */
-    public function getPartialRequestGrandTotal($lastestKey, $invoice)
-    {
-
-        $article = $this->getArticleArrayLine(
-            $lastestKey,
-            'Total',
-            '0',
-            1,
-            number_format($invoice->getBaseGrandTotal(), 2),
-            4
-        );
-
-        return $article;
-    }
-
-    /**
      * @param \Magento\Quote\Model\Quote\Item $productItem
      * @param                                 $includesTax
      *
@@ -922,10 +882,17 @@ class Afterpay extends AbstractMethod
      */
     public function calculateProductPrice($productItem, $includesTax)
     {
-        if ($includesTax) {
-            $productPrice = $productItem->getRowTotalInclTax();
-        } else {
-            $productPrice = $productItem->getRowTotal();
+        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(var_export([$includesTax, $productItem->getPrice(), $productItem->getPriceInclTax()], true));
+
+        $productPrice = $productItem->getPriceInclTax();
+
+        if (!$includesTax) {
+            if ($productItem->getDiscountAmount()) {
+                $productPrice = $productItem->getPrice()
+                    + $productItem->getTaxAmount() / $productItem->getQty()
+                    ;
+            }
         }
 
         return $productPrice;
@@ -941,28 +908,13 @@ class Afterpay extends AbstractMethod
      * @return   array
      * @internal param $ (int) $latestKey
      */
-    public function getServiceCostLine($latestKey, $order, $includesTax, &$itemsTotalAmount = 0)
+    public function getServiceCostLine($latestKey, $order, &$itemsTotalAmount = 0)
     {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $buckarooFee = $order->getBuckarooFee();
-
-        if ($includesTax) {
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
-            $buckarooFeeLine = $order->getBaseBuckarooFee() + $order->getBuckarooFeeTaxAmount();
-        } else {
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
-            $buckarooFeeLine = $order->getBaseBuckarooFee();
-        }
+        $buckarooFeeLine = $order->getBuckarooFeeInclTax();
 
         $article = [];
 
-        if (false !== $buckarooFee && (double)$buckarooFee > 0) {
+        if (false !== $buckarooFeeLine && (double)$buckarooFeeLine > 0) {
             $storeId = (int) $order->getStoreId();
 
             $article = $this->getArticleArrayLine(
@@ -995,8 +947,8 @@ class Afterpay extends AbstractMethod
         $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
         $shippingAmount = $order->getShippingAmount();
 
-        if ($shippingIncludesTax) {
-            $shippingAmount += $order->getShippingTaxAmount();
+        if (!$shippingIncludesTax) {
+            $shippingAmount = $order->getShippingInclTax();
         }
 
         $shippingCostsArticle = [
@@ -1107,57 +1059,6 @@ class Afterpay extends AbstractMethod
         }
 
         return $discount;
-    }
-
-    /**
-     * Get the tax line
-     *
-     * @param (int)                                               $latestKey
-     * @param InvoiceInterface|OrderInterface|CreditmemoInterface $payment
-     *
-     * @return array
-     */
-    public function getTaxLine($latestKey, $payment, &$itemsTotalAmount = 0)
-    {
-        $taxes = $this->getTaxes($payment);
-        $article = [];
-
-        if ($taxes > 0) {
-            $article = $this->getArticleArrayLine(
-                $latestKey,
-                'BTW',
-                2,
-                1,
-                number_format($taxes, 2),
-                4
-            );
-            $itemsTotalAmount += number_format($taxes, 2);
-        }
-
-        return $article;
-    }
-
-    /**
-     * @param InvoiceInterface|OrderInterface|CreditmemoInterface $order
-     *
-     * @return float|int|null
-     */
-    private function getTaxes($order)
-    {
-        $catalogIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
-
-        $taxes = 0;
-
-        if (!$catalogIncludesTax) {
-            $taxes += $order->getTaxAmount() - $order->getShippingTaxAmount();
-        }
-
-        if (!$shippingIncludesTax) {
-            $taxes += $order->getShippingTaxAmount();
-        }
-
-        return $taxes;
     }
 
     /**
