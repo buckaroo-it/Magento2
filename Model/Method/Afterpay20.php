@@ -821,6 +821,7 @@ class Afterpay20 extends AbstractMethod
 
         $articles = [];
         $count = 1;
+        $itemsTotalAmount = 0;
 
         /** @var \Magento\Sales\Model\Order\Creditmemo\Item $item */
         foreach ($creditmemo->getAllItems() as $item) {
@@ -840,6 +841,8 @@ class Afterpay20 extends AbstractMethod
                 $item->getOrderItem()->getTaxPercent()
             );
 
+            $itemsTotalAmount += $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount();
+
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -850,7 +853,7 @@ class Afterpay20 extends AbstractMethod
             break;
         }
 
-        $taxLine = $this->getTaxLine($count, $payment->getCreditmemo());
+        $taxLine = $this->getTaxLine($count, $payment->getCreditmemo(), $itemsTotalAmount);
 
         if (!empty($taxLine)) {
             $refundType = $this->getRefundType($count);
@@ -862,7 +865,7 @@ class Afterpay20 extends AbstractMethod
         // hasCreditmemos returns since 2.2.6 true or false.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
-            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax);
+            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax, $itemsTotalAmount);
             $articles = array_merge($articles, $serviceLine);
 
             $refundType = $this->getRefundType($count);
@@ -871,13 +874,23 @@ class Afterpay20 extends AbstractMethod
         }
 
         // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($creditmemo, $count);
+        $shippingCosts = $this->getShippingCostsLine($creditmemo, $count, $itemsTotalAmount);
         if (!empty($shippingCosts)) {
             $articles = array_merge($articles, $shippingCosts);
 
             $refundType = $this->getRefundType($count);
             $articles = array_merge($articles, $refundType);
             $count++;
+        }
+
+        //Add diff line
+        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+            $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
+            $diffLine = $this->getDiffLine($count, $diff);
+            $articles = array_merge($articles, $diffLine);
+
+            $refundType = $this->getRefundType($count);
+            $articles = array_merge($articles, $refundType);
         }
 
         return $articles;
@@ -915,7 +928,7 @@ class Afterpay20 extends AbstractMethod
      * @internal param $ (int) $latestKey
      * @throws \Buckaroo\Magento2\Exception
      */
-    public function getServiceCostLine($latestKey, $order, $includesTax)
+    public function getServiceCostLine($latestKey, $order, $includesTax, &$itemsTotalAmount = 0)
     {
         $store = $order->getStore();
         $buckarooFeeLine = $order->getBaseBuckarooFee();
@@ -940,6 +953,7 @@ class Afterpay20 extends AbstractMethod
                 round($buckarooFeeLine, 2),
                 $percent
             );
+            $itemsTotalAmount += round($buckarooFeeLine, 2);
         }
 
         return $article;
@@ -951,7 +965,7 @@ class Afterpay20 extends AbstractMethod
      * @param $count
      * @return array
      */
-    private function getShippingCostsLine($order, $count)
+    private function getShippingCostsLine($order, $count, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 
@@ -1002,6 +1016,8 @@ class Afterpay20 extends AbstractMethod
                 'GroupID' => $count,
             ]
         ];
+
+        $itemsTotalAmount += $shippingAmount;
 
         return $shippingCostsArticle;
     }
@@ -1067,7 +1083,7 @@ class Afterpay20 extends AbstractMethod
      *
      * @return array
      */
-    public function getTaxLine($latestKey, $payment)
+    public function getTaxLine($latestKey, $payment, &$itemsTotalAmount = 0)
     {
         $taxes = $this->getTaxes($payment);
         $article = [];
@@ -1081,6 +1097,7 @@ class Afterpay20 extends AbstractMethod
                 number_format($taxes, 2),
                 0
             );
+            $itemsTotalAmount += number_format($taxes, 2);
         }
 
         return $article;
@@ -1599,5 +1616,21 @@ class Afterpay20 extends AbstractMethod
         $refundIncrementInvoceId++;
         $payment->setAdditionalInformation('refundIncrementInvoceId', $refundIncrementInvoceId);
         return $invoiceIncrementId.'_R'.($refundIncrementInvoceId>1?$refundIncrementInvoceId:'');
+    }
+
+    public function getDiffLine($latestKey, $diff)
+    {
+        $article = [];
+        
+        $article = $this->getArticleArrayLine(
+            $latestKey,
+            'Discount/Fee',
+            1,
+            1,
+            round($diff, 2),
+            4
+        );
+
+        return $article;
     }
 }
