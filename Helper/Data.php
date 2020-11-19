@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Helper;
 
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -27,6 +28,8 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Logging\Log;
+
 /**
  * Class Data
  *
@@ -84,6 +87,12 @@ class Data extends AbstractHelper
 
     protected $groupTransaction;
 
+    protected $logger;
+
+    protected $customerRepository;
+
+    private $staticCache = [];
+
     /**
      * @param Context $context
      * @param Account $configProviderAccount
@@ -95,18 +104,20 @@ class Data extends AbstractHelper
         Factory $configProviderMethodFactory,
         \Magento\Framework\HTTP\Header $httpHeader,
         \Magento\Checkout\Model\Session $checkoutSession,
-        PaymentGroupTransaction $groupTransaction
+        PaymentGroupTransaction $groupTransaction,
+        Log $logger,
+        CustomerRepositoryInterface $customerRepository
 
     ) {
         parent::__construct($context);
 
         $this->configProviderAccount = $configProviderAccount;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
-
         $this->httpHeader = $httpHeader;
-
         $this->_checkoutSession  = $checkoutSession;
         $this->groupTransaction  = $groupTransaction;
+        $this->logger = $logger;
+        $this->customerRepository = $customerRepository;
     }
 
     /**
@@ -251,5 +262,50 @@ class Data extends AbstractHelper
         $configValue = $this->scopeConfig->getValue('payment/buckaroo_magento2_giftcards/sorted_giftcards', ScopeInterface::SCOPE_STORE);
 
         return $configValue;
+    }
+
+    /**
+     * try to fetch customer details for PPE method in admin area
+     *
+     * @return array
+     */
+    public function getPPeCustomerDetails()
+    {
+        $this->logger->addDebug(__METHOD__ . '|1|');
+        $this->logger->addDebug(var_export($this->_getRequest()->getParams(),true));
+        if ($customerId = $this->_getRequest()->getParam('customer_id')) {
+            if (!isset($this->staticCache['getPPeCustomerDetails'])) {
+                if ($customer = $this->customerRepository->getById($customerId)) {
+                    $billingAddress = null;
+                    if ($addresses = $customer->getAddresses()) {
+                        foreach ($addresses as $address) {
+                            if ($address->isDefaultBilling()) {
+                                $billingAddress = $address;
+                                break;
+                            }
+                        }
+                    }
+                    $this->logger->addDebug(var_export([$customer->getEmail()], true));
+                    $this->staticCache['getPPeCustomerDetails'] = [
+                        'email' => $customer->getEmail(),
+                        'firstName' => $billingAddress ? $billingAddress->getFirstName() : '',
+                        'lastName' => $billingAddress ? $billingAddress->getLastName() : '',
+                    ];
+
+                }
+            }
+        }
+        if ($order = $this->_getRequest()->getParam('order')) {
+            if (isset($order['billing_address'])) {
+                $this->logger->addDebug(__METHOD__ . '|10|');
+                $this->staticCache['getPPeCustomerDetails'] = [
+                    'email' => $this->staticCache['getPPeCustomerDetails'] ? $this->staticCache['getPPeCustomerDetails']['email'] : '',
+                    'firstName' => $order['billing_address']['firstname'],
+                    'lastName' => $order['billing_address']['lastname'],
+                ];
+            }
+        }
+
+        return $this->staticCache['getPPeCustomerDetails'] ?? null;
     }
 }
