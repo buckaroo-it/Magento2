@@ -105,6 +105,14 @@ define(
 
                     applepayPay.devLog('==========applepaydebug/60');
 
+                    if (applepayPay.isOsc()) {
+                        var validationResult = additionalValidators.validate();
+                        applepayPay.devLog('==========applepaydebug/601', validationResult);
+                        if (!validationResult) {
+                            return false;
+                        }
+                    }
+
                     if (!this.submit) {
                         applepayPay.devLog('==========applepaydebug/61');
                         var child = document.querySelector('.apple-pay-button');

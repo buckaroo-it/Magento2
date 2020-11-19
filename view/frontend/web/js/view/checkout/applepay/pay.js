@@ -634,6 +634,14 @@ define(
                 });
             },
 
+            isOsc: function () {
+                return this.getOscButton();
+            },
+
+            getOscButton: function () {
+                return document.querySelector('.action.primary.checkout.iosc-place-order-button');
+            },
+
             devLog: function (msg, params) {
                 //window.buckarooDebug = 1;
                 if (window.buckarooDebug) {
