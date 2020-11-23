@@ -57,6 +57,10 @@
         <plugin name="buckaroo_magento2_add_order_extension_attributes" type="Buckaroo\Magento2\Model\Plugin\OrderExtensionAttribute" />
     </type>
 
+    <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
+        <plugin name="buckaroo_magento2_add_creditmemo_extension_attributes" type="Buckaroo\Magento2\Model\Plugin\CreditmemoExtensionAttribute" />
+    </type>
+
     <type name="Magento\Sales\Model\Order">
         <plugin name="buckaroo_magento2_plugin_afterpay" type="Buckaroo\Magento2\Model\Plugin\Method\Afterpay"/>
         <plugin name="buckaroo_magento2_plugin_afterpay2" type="Buckaroo\Magento2\Model\Plugin\Method\Afterpay2"/>
