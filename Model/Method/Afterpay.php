@@ -676,9 +676,9 @@ class Afterpay extends AbstractMethod
     {
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $cart = $this->objectManager->create('Magento\Checkout\Model\Cart');
-        $cartData = $cart->getItems();
-
+        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+        $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+        $cartData = $quote->getAllItems();
         // Set loop variables
         $articles = $requestData;
         $count    = 1;
@@ -739,7 +739,7 @@ class Afterpay extends AbstractMethod
             $count++;
         }
 
-        $thirdPartyGiftCardLine = $this->getThirdPartyGiftCardLine($count, $cart);
+        $thirdPartyGiftCardLine = $this->getThirdPartyGiftCardLine($count, $quote);
 
         if (!empty($thirdPartyGiftCardLine)) {
             $requestData = array_merge($requestData, $thirdPartyGiftCardLine);
@@ -996,16 +996,16 @@ class Afterpay extends AbstractMethod
      * Get the third party gift card lines
      *
      * @param (int)                        $latestKey
-     * @param  Magento\Checkout\Model\Cart $cart
+     * @param  \Magento\Quote\Model\Quote $quote
      *
      * @return array
      */
-    public function getThirdPartyGiftCardLine($latestKey, $cart)
+    public function getThirdPartyGiftCardLine($latestKey, $quote)
     {
         $article = [];
         $giftCardTotal = 0;
         $supportedGiftCards = ['amasty_giftcard', 'mageworx_giftcards'];
-        $cartTotals = $cart->getQuote()->getTotals();
+        $cartTotals = $quote->getTotals();
 
         foreach ($supportedGiftCards as $key => $giftCardCode) {
             if (!array_key_exists($giftCardCode, $cartTotals)) {

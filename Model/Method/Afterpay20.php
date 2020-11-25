@@ -664,11 +664,12 @@ class Afterpay20 extends AbstractMethod
 
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
+        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+        $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         /**
          * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
          */
-        $cartData = $this->objectManager->create('Magento\Checkout\Model\Cart')->getItems();
-
+        $cartData = $quote->getAllItems();
         // Set loop variables
         $articles = [];
         $count    = 1;
