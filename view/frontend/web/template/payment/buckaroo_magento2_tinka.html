@@ -16,7 +16,8 @@
         </div>
 
         <div class="payment-method-second-col billing-address-form">
-            <form data-hasrequired="* Required Fields" data-bind="mageInit: { 'validation': [] }">
+            <form data-bind="mageInit: { 'validation': [] },
+                attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
 
                     <!-- ko if: showNLBEFields -->
