@@ -140,6 +140,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     
                 }
             }
+
+            $this->checkoutSession->setPaymentEnded(false);
         }
         return true;
     }
