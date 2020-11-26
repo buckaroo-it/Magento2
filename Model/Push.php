@@ -1115,8 +1115,12 @@ class Push implements PushInterface
 
                         $this->order->setTotalDue($this->order->getTotalDue() - $amount);
                         $this->order->setBaseTotalDue($this->order->getTotalDue() - $amount);
-                        $this->order->setTotalPaid($this->order->getTotalPaid() + $amount);
-                        $this->order->setBaseTotalPaid($this->order->getBaseTotalPaid() + $amount);
+                        
+                        $totalPaid = $this->order->getTotalPaid() + $amount;
+                        $this->order->setTotalPaid($totalPaid>$this->order->getGrandTotal()?$this->order->getGrandTotal():$totalPaid);
+
+                        $baseTotalPaid = $this->order->getBaseTotalPaid() + $amount;
+                        $this->order->setBaseTotalPaid($baseTotalPaid>$this->order->getBaseGrandTotal()?$this->order->getBaseGrandTotal():$baseTotalPaid);
 
                         $this->resourceConnection->getConnection()->update(
                             $this->resourceConnection->getConnection()->getTableName('sales_order'),

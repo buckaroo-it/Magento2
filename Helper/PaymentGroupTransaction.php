@@ -101,6 +101,21 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return array_values($collection->getItems());
     }
 
+    public function getGroupTransactionItemsNotRefunded($order_id){
+        $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('order_id', ['eq' => $order_id])->addFieldToFilter('refunded_amount', ['null' => true]);
+        return array_values($collection->getItems());
+    }
+
+    public function getGroupTransactionAmount($order_id){
+        $total = 0;
+        foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
+            if($value['status']=='190'){
+                $total += $value['amount'];
+            }
+        }
+        return $total;
+    }
+
     public function getGroupTransactionById($entity_id){
         $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('entity_id', ['eq' => $entity_id]);
         return $collection->getItems();

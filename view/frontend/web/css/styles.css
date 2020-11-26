@@ -1289,3 +1289,18 @@
     margin-top: -3px;
     margin-bottom: 5px;
 }
+
+.giftcard-delete:before {
+    font-size: 18px;
+    line-height: 20px;
+    color: #757575;
+    content: '\e604';
+    font-family: 'luma-icons';
+    vertical-align: middle;
+    display: inline-block;
+    font-weight: normal;
+    overflow: hidden;
+    speak: none;
+    text-align: center;
+    cursor: pointer;
+}

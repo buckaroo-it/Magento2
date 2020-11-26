@@ -5,13 +5,17 @@
 /*global define*/
 define(
     [
+        'jquery',
         'Magento_Checkout/js/view/summary/abstract-total',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/totals',
         'Buckaroo_Magento2/js/model/buckaroo-fee',
+        'Magento_Ui/js/model/messageList',
+        'mage/translate',
+        'Magento_Ui/js/modal/alert',
         'ko'
     ],
-    function (Component, quote, totals, BuckarooFee, ko) {
+    function ($, Component, quote, totals, BuckarooFee, globalMessageList, $t, alert, ko) {
         'use strict';
 
         return Component.extend(
@@ -142,7 +146,6 @@ define(
 
                 getAlreadyPayValue : function () {
                     var buckarooFeeSegment = totals.getSegment('buckaroo_already_paid');
-                    //console.log(buckarooFeeSegment);
                     try {
                         if (buckarooFeeSegment.title) {
                             var items = JSON.parse(buckarooFeeSegment.title);
@@ -154,12 +157,61 @@ define(
                             }
                         }
                     } catch (e) {
+                        // console.log(e);
                     }
 
                     return buckarooFeeSegment.value ?
                         this.getFormattedPrice(buckarooFeeSegment.value) :
                         false;
+                },
+
+                removeGiftcard: function (transaction_id, servicecode, amount) {
+                    self = this;
+                    if (confirm('Are you sure you want to remove?')) {
+
+                    $.ajax({
+                        url: "/buckaroo/checkout/giftcard",
+                        type: 'POST',
+                        dataType: 'json',
+                        showLoader: true, //use for display loader 
+                        data: {
+                            refund: transaction_id,
+                            card: servicecode,
+                            amount: amount,
+                        }
+                   }).done(function (data) {
+                        if(data.error){
+                            alert({
+                                title: $t('Error'),
+                                content: $t(data.error),
+                                actions: {always: function(){} }
+                            });
+                        }else{
+                            alert({
+                                title: $t('Success'),
+                                content: $t(data.message),
+                                actions: {always: function(){} },
+                                buttons: [{
+                                text: $t(data.message),
+                                class: 'action primary accept',
+                                    click: function () {
+                                        this.closeModal(true);
+                                    }
+                                }]
+                            });
+                        }
+
+                        var deferred = $.Deferred();
+                        getTotalsAction([], deferred);
+                        // $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
+                    
+                    });
+
+                    } else {
+                        console.log('no');
+                    }
                 }
+
             }
         );
     }
