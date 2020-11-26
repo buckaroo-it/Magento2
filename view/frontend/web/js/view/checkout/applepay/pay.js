@@ -68,9 +68,11 @@ define(
 
                 BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid).then(
                     function (applePaySupported) {
-                        //ZAK
-                        //applePaySupported = true;
-                        this.devLog('==============applepaydebug/8',applePaySupported);
+                        this.devLog('==============applepaydebug/8',[
+                            applePaySupported,
+                            this.isOnCheckout,
+                            window.checkoutConfig.payment.buckaroo.applepay
+                        ]);
 
                         //move to inner block
                         if (this.payMode == 'product') {
@@ -145,7 +147,8 @@ define(
                 var shippingMethods = self.availableShippingMethodInformation();
                 var shippingContactCallback = self.onSelectedShippingContact.bind(this);
                 var shipmentMethodCallback = self.onSelectedShipmentMethod.bind(this);
-                var requiredContactFields = ["name", "postalAddress", "phone"];
+                var requiredBillingContactFields = ["name", "postalAddress", "phone"];
+                var requiredShippingContactFields = ["name", "postalAddress", "phone"];
 
                 var country = window.checkoutConfig.payment.buckaroo.applepay.country;
                 this.devLog('==============applepaydebug/11', this.quote);
@@ -154,7 +157,8 @@ define(
                 }
 
                 if (!this.isOnCheckout && !window.isCustomerLoggedIn) {
-                    requiredContactFields.push("email");
+                    requiredBillingContactFields.push("email");
+                    requiredShippingContactFields.push("email");
                 }
 
                 if (this.isOnCheckout) {
@@ -162,10 +166,14 @@ define(
                     shippingMethods = [];
                     shippingContactCallback = null;
                     shipmentMethodCallback = null;
-                    requiredContactFields = ["postalAddress"];
+                    requiredBillingContactFields = ["postalAddress"];
+                    requiredShippingContactFields = [];
+                    if (window.checkoutConfig.payment.buckaroo.applepay.dontAskBillingInfoInCheckout) {
+                        requiredBillingContactFields = [];
+                    }
                 }
 
-                this.devLog('==============applepaydebug/13', country);
+                this.devLog('==============applepaydebug/13', [country, requiredBillingContactFields, requiredShippingContactFields]);
 
                 this.applepayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
                     window.checkoutConfig.payment.buckaroo.applepay.storeName,
@@ -180,8 +188,8 @@ define(
                     self.captureFunds.bind(this),
                     shipmentMethodCallback,
                     shippingContactCallback,
-                    requiredContactFields,
-                    requiredContactFields
+                    requiredBillingContactFields,
+                    requiredShippingContactFields
                 );
             },
 
@@ -624,6 +632,14 @@ define(
 
                     self.productSelected.selected_options = selected_options;
                 });
+            },
+
+            isOsc: function () {
+                return this.getOscButton();
+            },
+
+            getOscButton: function () {
+                return document.querySelector('.action.primary.checkout.iosc-place-order-button');
             },
 
             devLog: function (msg, params) {
