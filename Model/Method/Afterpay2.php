@@ -695,7 +695,7 @@ class Afterpay2 extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                $item->getQty(),
+                intval($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($item->getTaxClassId(), $payment->getOrder()->getStore())
             );
@@ -773,7 +773,7 @@ class Afterpay2 extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                $item->getQty(),
+                intval($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($itemTaxClassId, $invoice->getOrder()->getStore())
             );
@@ -834,7 +834,7 @@ class Afterpay2 extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                $item->getQty(),
+                intval($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($itemTaxClassId, $payment->getOrder()->getStore())
             );
