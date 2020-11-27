@@ -408,8 +408,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $httpMethod);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
         //ZAK
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        //curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+        //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
 
         $headers = [
             'Content-Type: application/json; charset=utf-8',
