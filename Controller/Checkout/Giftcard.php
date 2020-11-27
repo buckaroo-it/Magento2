@@ -213,6 +213,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->logger->addDebug(__METHOD__.'|1|');
         // $this->response = $this->getRequest()->getParams();
         $data = $this->getRequest()->getParams();
+        $this->logger->addDebug(var_export($data, true));
 
         $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
         $orderId = $this->helper->getOrderId();
@@ -285,10 +286,17 @@ class Giftcard extends \Magento\Framework\App\Action\Action
                 ];
                 break;
             default:
-                $parameters = [
-                    'number' => 'IntersolveCardnumber',
-                    'pin' => 'IntersolvePin',
-                ];
+                if (stristr($card, 'customgiftcard') === false) {
+                    $parameters = [
+                        'number' => 'IntersolveCardnumber',
+                        'pin' => 'IntersolvePin',
+                    ];
+                } else {
+                    $parameters = [
+                        'number' => 'Cardnumber',
+                        'pin' => 'Pin',
+                    ];
+                }
         }
 
         $cartTotals = $this->_checkoutSession->getQuote()->getTotals();
@@ -353,7 +361,18 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $res['message'] = $message;
 
         }else{
-            $res['error'] = isset($response['Status']['SubCode']['Description']) ? $response['Status']['SubCode']['Description'] : $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
+            $res['error'] = isset($response['Status']['SubCode']['Description']) ?
+                $response['Status']['SubCode']['Description'] :
+                (
+                    isset($response['RequestErrors']['ServiceErrors'][0]['ErrorMessage']) ?
+                            $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'] :
+                            (
+                                isset($response['Status']['Code']['Description']) ?
+                                    $response['Status']['Code']['Description'] :
+                                    ''
+                            )
+                )
+            ;
         }
 
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
@@ -389,8 +408,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $httpMethod);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
         //ZAK
-        //curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-        //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
 
         $headers = [
             'Content-Type: application/json; charset=utf-8',
