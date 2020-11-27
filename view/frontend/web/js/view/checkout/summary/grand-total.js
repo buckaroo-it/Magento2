@@ -39,10 +39,8 @@ define([
             if (this.totals()) {
                 price = totals.getSegment('grand_total').value;
 
-                if(this.getAlreadyPayTotal()){
-                    console.log('this.getAlreadyPayTotal()', this.getAlreadyPayTotal());
+                if(!isNaN(parseFloat(this.getAlreadyPayTotal()))){
                     price = parseFloat(price) - parseFloat(this.getAlreadyPayTotal());
-                    console.log('price',price);
                 }
             }
 
