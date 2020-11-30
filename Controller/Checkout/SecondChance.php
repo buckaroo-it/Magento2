@@ -1,5 +1,5 @@
 <?php
- /**
+/**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
@@ -20,15 +20,12 @@
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
-use Magento\Framework\Controller\ResultInterface;
-use Magento\Framework\Controller\ResultFactory;
-use Magento\Sales\Api\Data\TransactionInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
-
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Sales\Api\Data\TransactionInterface;
 
 class SecondChance extends \Magento\Framework\App\Action\Action
 {
@@ -46,6 +43,12 @@ class SecondChance extends \Magento\Framework\App\Action\Action
      * @var \Magento\Quote\Model\Quote $quote
      */
     protected $quote;
+
+    protected $quoteRepository;
+    protected $quoteFactory;
+
+    /** @var QuoteRecreate */
+    private $quoteRecreate;
 
     /** @var TransactionInterface */
     private $transaction;
@@ -96,7 +99,7 @@ class SecondChance extends \Magento\Framework\App\Action\Action
     protected $storeManager;
 
     /** @var CheckoutSession */
-    protected $_checkoutSession;
+    protected $checkoutSession;
 
     /** @var Encryptor $encryptor */
     private $encryptor;
@@ -107,13 +110,13 @@ class SecondChance extends \Magento\Framework\App\Action\Action
     public $priceCurrency;
 
     /**
-    * @var \Magento\Framework\Json\Helper\Data
-    */
+     * @var \Magento\Framework\Json\Helper\Data
+     */
     protected $jsonHelper;
 
     /**
-    * @var \Magento\Framework\Controller\Result\JsonFactory
-    */
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
     protected $jsonResultFactory;
 
     /** @var \Magento\Framework\Message\ManagerInterface */
@@ -126,6 +129,9 @@ class SecondChance extends \Magento\Framework\App\Action\Action
     protected $urlBuilder;
 
     protected $secondChanceFactory;
+
+    protected $_customerFactory;
+    protected $_sessionFactory;
 
     /**
      * @param \Magento\Framework\App\Action\Context               $context
@@ -153,6 +159,9 @@ class SecondChance extends \Magento\Framework\App\Action\Action
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Sales\Model\Order $order,
         \Magento\Quote\Model\Quote $quote,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        QuoteRecreate $quoteRecreate,
         TransactionInterface $transaction,
         Log $logger,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
@@ -171,34 +180,54 @@ class SecondChance extends \Magento\Framework\App\Action\Action
         \Magento\SalesSequence\Model\Manager $sequenceManager,
         \Magento\Eav\Model\Config $eavConfig,
         \Magento\Framework\UrlInterface $urlBuilder,
-        \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory
+        \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
+        \Magento\Catalog\Model\ProductFactory $productFactory,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Quote\Api\GuestCartManagementInterface $guestCart,
+        \Magento\Customer\Model\CustomerFactory $customerFactory,
+        \Magento\Customer\Model\SessionFactory $sessionFactory,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface,
+        \Magento\Quote\Api\CartManagementInterface $quoteManagement
+
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
         $this->cart               = $cart;
         $this->order              = $order;
         $this->quote              = $quote;
+        $this->quoteRepository    = $quoteRepository;
+        $this->quoteFactory       = $quoteFactory;
         $this->transaction        = $transaction;
         $this->logger             = $logger;
         $this->orderSender        = $orderSender;
         $this->orderStatusFactory = $orderStatusFactory;
+        $this->quoteRecreate      = $quoteRecreate;
 
         $this->accountConfig = $configProviderFactory->get('account');
 
         $this->_curlClient            = $curl;
         $this->_configProviderAccount = $configProviderAccount;
         $this->_storeManager          = $storeManager;
-        $this->_checkoutSession       = $checkoutSession;
+        $this->checkoutSession        = $checkoutSession;
         $this->_encryptor             = $encryptor;
         $this->priceCurrency          = $priceCurrency;
-        $this->jsonHelper = $jsonHelper;
-        $this->jsonResultFactory = $jsonResultFactory;
-        $this->messageManager = $messageManager;
-        $this->_orderFactory = $orderFactory;
-        $this->sequenceManager = $sequenceManager;
-        $this->eavConfig = $eavConfig;
-        $this->urlBuilder = $urlBuilder;
+        $this->jsonHelper             = $jsonHelper;
+        $this->jsonResultFactory      = $jsonResultFactory;
+        $this->messageManager         = $messageManager;
+        $this->_orderFactory          = $orderFactory;
+        $this->sequenceManager        = $sequenceManager;
+        $this->eavConfig              = $eavConfig;
+        $this->urlBuilder             = $urlBuilder;
 
+        $this->productFactory  = $productFactory;
+        $this->quoteManagement = $quoteManagement;
+        $this->customerSession = $customerSession;
+
+        $this->_customerFactory             = $customerFactory;
+        $this->_sessionFactory              = $sessionFactory;
+        $this->_customerRepositoryInterface = $customerRepositoryInterface;
+
+        $this->guestCart           = $guestCart;
         $this->secondChanceFactory = $secondChanceFactory;
     }
 
@@ -211,30 +240,28 @@ class SecondChance extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $this->response = $this->getRequest()->getParams();
-        $mode =  $this->_configProviderAccount->getActive();
-        $storeId = $this->_storeManager->getStore()->getId();
-        $data = $this->response;
-        if($buckaroo_second_chance = $data['token']){
+        $mode           = $this->_configProviderAccount->getActive();
+        $storeId        = $this->_storeManager->getStore()->getId();
+        $data           = $this->response;
+        if ($buckaroo_second_chance = $data['token']) {
             $secondChance = $this->secondChanceFactory->create();
             $collection   = $secondChance->getCollection()
-                    ->addFieldToFilter(
-                        'token',
-                        array('eq' => $buckaroo_second_chance)
-                    );
+                ->addFieldToFilter(
+                    'token',
+                    array('eq' => $buckaroo_second_chance)
+                );
             foreach ($collection as $item) {
-                $order = $this->_orderFactory->create()->loadByIncrementId($item->getOrderId());
-                $this->quote->load($order->getQuoteId());
-                
-                $this->_checkoutSession
-                    ->setLastQuoteId($order->getQuoteId())
-                    ->setLastSuccessQuoteId($order->getQuoteId())
-                    ->setLastOrderId($order->getId())
-                    ->setLastRealOrderId($order->getIncrementId())
-                    ->setLastOrderStatus($order->getStatus());
-
-                $this->_checkoutSession->restoreQuote();
+                $order          = $this->_orderFactory->create()->loadByIncrementId($item->getOrderId());
+                if ($this->customerSession->isLoggedIn()) {
+                    $this->customerSession->logout();
+                }
+                $customer       = $this->_customerFactory->create()->load($order->getCustomerId());
+                $sessionManager = $this->_sessionFactory->create();
+                $sessionManager->setCustomerAsLoggedIn($customer);
+                $this->quoteRecreate->recreate($order);
             }
         }
         return $this->_redirect('checkout');
     }
+
 }
