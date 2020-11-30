@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Model\Refund;
 
+use Buckaroo\Magento2\Helper\Data;
 use Magento\Sales\Api\CreditmemoManagementInterface;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
@@ -60,6 +61,11 @@ class Push
     public $configRefund;
 
     /**
+     * @var Data
+     */
+    public $helper;
+
+    /**
      * @var Log $logging
      */
     public $logging;
@@ -75,11 +81,13 @@ class Push
         CreditmemoManagementInterface $creditmemoManagement,
         CreditmemoSender $creditEmailSender,
         Refund $configRefund,
+        Data $helper,
         Log $logging
     ) {
         $this->creditmemoFactory     = $creditmemoFactory;
         $this->creditmemoManagement  = $creditmemoManagement;
         $this->creditEmailSender     = $creditEmailSender;
+        $this->helper = $helper;
         $this->logging               = $logging;
         $this->configRefund          = $configRefund;
     }
@@ -233,7 +241,11 @@ class Push
         $totalAmountToRefund = $this->totalAmountToRefund();
         $this->creditAmount  = $totalAmountToRefund + $this->order->getBaseTotalRefunded();
 
-        if ($this->creditAmount != $this->order->getBaseGrandTotal()) {
+        $this->logging->addDebug(__METHOD__.'|1|'.var_export([
+            $this->creditAmount, $this->order->getBaseGrandTotal(),
+        ], true));
+
+        if (!$this->helper->isEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
             $adjustment = $this->getAdjustmentRefundData();
             $this->logging->addDebug('This is an adjustment refund of '. $totalAmountToRefund);
             $data['shipping_amount']     = '0';
@@ -365,7 +377,7 @@ class Push
              * @var \Magento\Sales\Model\Order\Item $orderItem
              */
             if (!array_key_exists($orderItem->getId(), $items)) {
-                if ((float)$this->creditAmount == (float)$this->order->getBaseGrandTotal()) {
+                if ($this->helper->isEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
                     $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
                 }
 
