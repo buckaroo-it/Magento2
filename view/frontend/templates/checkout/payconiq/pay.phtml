@@ -16,9 +16,10 @@
 
         payconiqPay.setTransactionKey(transactionKey);
         payconiqPay.showQrCode();
-
-        cancelPayment = function() {
-            payconiqPay.cancelPayment();
-        }
     });
+    cancelPayment = function() {
+        require(['buckaroo/payconiq/pay'], function (payconiqPay) {
+            payconiqPay.cancelPayment();
+        });
+    }
 </script>
