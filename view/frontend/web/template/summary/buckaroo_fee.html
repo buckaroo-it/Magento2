@@ -37,7 +37,10 @@
     <th class="mark">
         <span data-bind="{text: label}"></span>
     </th>
-    <td data-bind="{text: amount}" class="amount"></td>
+    <td class="amount" data-bind="{text: amount}">
+<!--         <span data-bind="{text: amount}"></span>
+        <span data-bind="{click: $parent.removeGiftcard.bind($parent,transaction_id,servicecode,amount)}" class="giftcard-delete"></span> -->
+    </td>
 </tr>
 <!-- /ko -->
 <!-- /ko -->

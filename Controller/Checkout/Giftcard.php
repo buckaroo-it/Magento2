@@ -211,16 +211,57 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $this->logger->addDebug(__METHOD__.'|1|');
+        // $this->response = $this->getRequest()->getParams();
+        $data = $this->getRequest()->getParams();
+        $this->logger->addDebug(var_export($data, true));
 
-        $this->response = $this->getRequest()->getParams();
+        $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
+        $orderId = $this->helper->getOrderId();
 
-        $mode =  $this->_configProviderAccount->getActive();
-        $storeId = $this->_storeManager->getStore()->getId();
+        /*if(isset($data['refund'])){
+            $transactionKey = $data['refund'];
+            $amount_value = preg_replace("/([^0-9\\.,])/i", "", $data['amount']);
+            $postArray = array(
+                "Currency" => $currency,
+                "AmountCredit" => $amount_value,
+                "Invoice" => $orderId,
+                "OriginalTransactionKey" => $transactionKey,
+                "Services" => array(
+                    "ServiceList" => array(
+                        array(
+                            "Action" => "Refund",
+                            "Name" => $data['card'],
+                            "Version" => 1,
+                        )
+                    )
+                )
+            );
 
-        $secretKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getSecretKey());
-        $websiteKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey());
+            $response = $this->sendResponse($postArray);
 
-        $data = $this->response;
+            $res['status'] = $response['Status']['Code']['Code'];
+
+            if($response['Status']['Code']['Code']=='190'){
+                $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($transactionKey);
+                foreach ($groupTransaction as $item) {
+                    if (!empty(floatval($item['refunded_amount']))) {
+                        $item['refunded_amount'] += $amount_value;
+                    } else {
+                        $item['refunded_amount'] = $amount_value;
+                    }
+                   $this->groupTransaction->updateGroupTransaction($item->_data);
+                }
+
+                $alreadyPaid = $this->getAlreadyPaid($orderId) - $amount_value;
+                $this->setAlreadyPaid($orderId, $alreadyPaid);
+
+                $res['message'] = __("Your refund successfully.");
+            }else{
+                $res['error'] = isset($response['Status']['SubCode']['Description']) ? $response['Status']['SubCode']['Description'] : $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
+            }
+
+            return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);     
+        }*/
 
         if (!isset($data['card']) || empty($data['card']) || !isset($data['cardNumber']) || empty($data['cardNumber']) || !isset($data['pin']) || empty($data['pin'])) {
             $res['error'] = 'Card number or pin not valid';
@@ -228,11 +269,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         }
 
         $card = $data['card'];
-
-        $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
-
-        $orderId = $this->helper->getOrderId();
-
         $returnUrl = $this->_storeManager->getStore()->getUrl($this->_configProviderAccount->getSuccessRedirect());
         $pushUrl = $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push');
 
@@ -250,10 +286,17 @@ class Giftcard extends \Magento\Framework\App\Action\Action
                 ];
                 break;
             default:
-                $parameters = [
-                    'number' => 'IntersolveCardnumber',
-                    'pin' => 'IntersolvePin',
-                ];
+                if (stristr($card, 'customgiftcard') === false) {
+                    $parameters = [
+                        'number' => 'IntersolveCardnumber',
+                        'pin' => 'IntersolvePin',
+                    ];
+                } else {
+                    $parameters = [
+                        'number' => 'Cardnumber',
+                        'pin' => 'Pin',
+                    ];
+                }
         }
 
         $cartTotals = $this->_checkoutSession->getQuote()->getTotals();
@@ -290,7 +333,56 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $postArray['OriginalTransactionKey'] = $originalTransactionKey;
         }
 
-        $url = ($mode == 1) ? 'testcheckout.buckaroo.nl' : 'checkout.buckaroo.nl';
+        $response = $this->sendResponse($postArray);
+
+        $res['status'] = $response['Status']['Code']['Code'];
+        $orderId = $response['Invoice'];
+
+        $this->logger->addDebug(__METHOD__.'|2|');
+        $this->logger->addDebug(var_export($response, true));
+
+        if($response['Status']['Code']['Code']=='190'){
+            
+            $this->groupTransaction->saveGroupTransaction($response);
+
+            $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'] ?? null;
+            $alreadyPaid = $this->getAlreadyPaid($orderId) + $response['AmountDebit'];
+            
+            $res['PayRemainingAmountButton'] = '';
+            if($res['RemainderAmount'] > 0){
+                $this->setOriginalTransactionKey($orderId, $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']);
+                $message = __('A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4', $response['Currency'], $response['AmountDebit'],$res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
+                $res['PayRemainingAmountButton'] = __('Pay remaining amount: %1 %2', $res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
+            }else{
+                $message = __("Your paid successfully. Please finish your order");
+            }
+            $this->setAlreadyPaid($orderId, $alreadyPaid);
+            $res['alreadyPaid'] = $alreadyPaid;
+            $res['message'] = $message;
+
+        }else{
+            $res['error'] = isset($response['Status']['SubCode']['Description']) ?
+                $response['Status']['SubCode']['Description'] :
+                (
+                    isset($response['RequestErrors']['ServiceErrors'][0]['ErrorMessage']) ?
+                            $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'] :
+                            (
+                                isset($response['Status']['Code']['Description']) ?
+                                    $response['Status']['Code']['Description'] :
+                                    ''
+                            )
+                )
+            ;
+        }
+
+        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
+    }
+
+    private function sendResponse($data){
+        $secretKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getSecretKey());
+        $websiteKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey());
+
+        $url = ($this->_configProviderAccount->getActive() == 1) ? 'testcheckout.buckaroo.nl' : 'checkout.buckaroo.nl';
         $uri        = 'https://'.$url.'/json/Transaction';
         $uri2       = strtolower(rawurlencode($url.'/json/Transaction'));
 
@@ -298,7 +390,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $httpMethod = 'POST';
         $nonce      = $this->stringRandom();
 
-        $json = json_encode($postArray, JSON_PRETTY_PRINT);
+        $json = json_encode($data, JSON_PRETTY_PRINT);
         $md5 = md5($json, true);
         $encodedContent = base64_encode($md5);
 
@@ -329,38 +421,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $result = curl_exec($curl);
 
         $curlInfo = curl_getinfo($curl);
-        $response = json_decode($result, true);
-        $res['status'] = $response['Status']['Code']['Code'];
-        $orderId = $response['Invoice'];
-
-        $this->logger->addDebug(__METHOD__.'|2|');
-        $this->logger->addDebug(var_export($response, true));
-
-
-        if($response['Status']['Code']['Code']=='190'){
-            
-            $this->groupTransaction->saveGroupTransaction($response);
-
-            $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'] ?? null;
-            $alreadyPaid = $this->getAlreadyPaid($orderId) + $response['AmountDebit'];
-            
-            $res['PayRemainingAmountButton'] = '';
-            if($res['RemainderAmount'] > 0){
-                $this->setOriginalTransactionKey($orderId, $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']);
-                $message = __('A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4', $response['Currency'], $response['AmountDebit'],$res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
-                $res['PayRemainingAmountButton'] = __('Pay remaining amount: %1 %2', $res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
-            }else{
-                $message = __("Your paid successfully. Please finish your order");
-            }
-            $this->setAlreadyPaid($orderId, $alreadyPaid);
-            $res['alreadyPaid'] = $alreadyPaid;
-            $res['message'] = $message;
-
-        }else{
-            $res['error'] = isset($response['Status']['SubCode']['Description']) ? $response['Status']['SubCode']['Description'] : $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
-        }
-
-        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
+        return json_decode($result, true);
     }
 
     private function stringRandom($length = 16)

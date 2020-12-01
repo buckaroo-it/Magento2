@@ -123,7 +123,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             $order = $payment->getOrder();
 
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
-                if (!$this->checkoutSession->getPaymentEnded() && $payment->getMethodInstance()->usesRedirect) {
+                if ((!$this->checkoutSession->getPaymentEnded() || $this->checkoutSession->getPaymentEnded() != $order->getIncrementId()) && $payment->getMethodInstance()->usesRedirect) {
 
                     $this->checkoutSession->restoreQuote();
 

@@ -786,7 +786,7 @@ class Afterpay extends AbstractMethod
                 $count++;
                 $article = $this->getArticleArrayLine(
                     $count,
-                    'Korting op '. (int) $item->getName(),
+                    'Korting op '. $item->getName(),
                     $item->getProductId(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
@@ -891,7 +891,7 @@ class Afterpay extends AbstractMethod
             if ($productItem->getDiscountAmount()) {
                 $productPrice = $productItem->getPrice()
                     + $productItem->getTaxAmount() / $productItem->getQty()
-                    ;
+                ;
             }
         }
 
