@@ -208,39 +208,6 @@
               <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>
             </field>
 
-            <field id="second_chance" translate="label comment" type="select" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Second Chance enabled</label>
-                <comment><![CDATA[Enables or disables Second Chance mode <br/> <b>Important: enable this function will enable keep cart alive function too</b>]]></comment>
-                <tooltip>Set to 'Yes' will enable Second Chance mode.</tooltip>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/second_chance</config_path>
-                <depends>
-                    <field id="cart_keep_alive">1</field>
-                </depends>
-            </field>
-
-            <field id="second_chance_timing" translate="label comment" type="text" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Due hours (between 0 and 24hr)</label>
-                <comment><![CDATA[Timing for this second-chance email .]]></comment>
-                <config_path>buckaroo_magento2/account/second_chance_timing</config_path>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
-                <depends>
-                    <field id="cart_keep_alive">1</field>
-                    <field id="second_chance">1</field>
-                </depends>
-            </field>
-
-            <field id="no_send_second_chance" translate="label comment" type="select" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Don't send payment reminder when product is out of stock</label>
-                <comment><![CDATA[Don't send payment reminder when product is out of stock]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/no_send_second_chance</config_path>
-                <depends>
-                    <field id="cart_keep_alive">1</field>
-                    <field id="second_chance">1</field>
-                </depends>
-            </field>
-
             <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="0" showInStore="0">
               <label>Add customer data to request</label>
               <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>
