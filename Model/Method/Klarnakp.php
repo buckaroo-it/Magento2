@@ -291,6 +291,8 @@ class Klarnakp extends AbstractMethod
      */
     public function getCaptureTransactionBuilder($payment)
     {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
         //$group = 1;
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
@@ -319,7 +321,7 @@ class Klarnakp extends AbstractMethod
             }
         }
 
-        if ($totalOrder == $currentInvoiceTotal && $numberOfInvoices == 1) {
+        if ($this->helper->areEqualAmounts($totalOrder, $currentInvoiceTotal) && $numberOfInvoices == 1) {
             //full capture
             $capturePartial = false;
         }
@@ -419,7 +421,7 @@ class Klarnakp extends AbstractMethod
             }
         }
 
-        if ($totalOrder == $currentInvoiceTotal && $numberOfInvoices == 1) {
+        if ($this->helper->areEqualAmounts($totalOrder, $currentInvoiceTotal) && $numberOfInvoices == 1) {
             //full capture
             $capturePartial = false;
         }
