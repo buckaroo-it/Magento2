@@ -245,7 +245,7 @@ class Push
             $this->creditAmount, $this->order->getBaseGrandTotal(),
         ], true));
 
-        if (!$this->helper->isEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
+        if (!$this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
             $adjustment = $this->getAdjustmentRefundData();
             $this->logging->addDebug('This is an adjustment refund of '. $totalAmountToRefund);
             $data['shipping_amount']     = '0';
@@ -377,7 +377,7 @@ class Push
              * @var \Magento\Sales\Model\Order\Item $orderItem
              */
             if (!array_key_exists($orderItem->getId(), $items)) {
-                if ($this->helper->isEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
+                if ($this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
                     $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
                 }
 

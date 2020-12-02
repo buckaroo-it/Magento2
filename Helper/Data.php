@@ -309,7 +309,7 @@ class Data extends AbstractHelper
         return $this->staticCache['getPPeCustomerDetails'] ?? null;
     }
 
-    public function isEqualAmounts($amount1, $amount2)
+    public function areEqualAmounts($amount1, $amount2)
     {
         if ($amount2 == 0) {
             return $amount1 == $amount2;
