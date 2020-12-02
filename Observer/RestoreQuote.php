@@ -89,6 +89,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\Quote\Model\Quote $quote,
         \Magento\Checkout\Model\Cart $cart,
+        \Buckaroo\Magento2\Helper\Data $helper,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
     ) {
         $this->checkoutSession     = $checkoutSession;
@@ -103,6 +104,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->quote               = $quote;
         $this->cart                = $cart;
         $this->dateTime            = $dateTime;
+        $this->helper             = $helper;
     }
 
     /**
@@ -123,7 +125,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             $order = $payment->getOrder();
 
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
-                if ((!$this->checkoutSession->getPaymentEnded() || $this->checkoutSession->getPaymentEnded() != $order->getIncrementId()) && $payment->getMethodInstance()->usesRedirect) {
+                if ($this->helper->getRestoreQuoteLastOrder() && ($lastRealOrder->getData('state') === 'new' && $lastRealOrder->getData('status') === 'pending') && $payment->getMethodInstance()->usesRedirect) {
 
                     $this->checkoutSession->restoreQuote();
 
@@ -140,6 +142,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     
                 }
             }
+            $this->helper->setRestoreQuoteLastOrder(false);
         }
         return true;
     }
