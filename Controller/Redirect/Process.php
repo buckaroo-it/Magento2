@@ -152,7 +152,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->loadOrder();
         
-        $this->checkoutSession->setPaymentEnded($this->order->getId());
+        $this->helper->setRestoreQuoteLastOrder(false);
 
         if (!$this->order->getId()) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED');
