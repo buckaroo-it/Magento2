@@ -308,4 +308,12 @@ class Data extends AbstractHelper
 
         return $this->staticCache['getPPeCustomerDetails'] ?? null;
     }
+    
+    public function getRestoreQuoteLastOrder(){
+        return $this->_checkoutSession->getRestoreQuoteLastOrder();
+    }
+
+    public function setRestoreQuoteLastOrder($value){
+        return $this->_checkoutSession->setRestoreQuoteLastOrder($value);
+    }
 }
