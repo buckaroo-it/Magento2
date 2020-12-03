@@ -320,4 +320,12 @@ class Data extends AbstractHelper
                 ) < 0.00001;
         }
     }
+
+    public function getRestoreQuoteLastOrder(){
+        return $this->_checkoutSession->getRestoreQuoteLastOrder();
+    }
+
+    public function setRestoreQuoteLastOrder($value){
+        return $this->_checkoutSession->setRestoreQuoteLastOrder($value);
+    }
 }
