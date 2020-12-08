@@ -328,4 +328,8 @@ class Data extends AbstractHelper
     public function setRestoreQuoteLastOrder($value){
         return $this->_checkoutSession->setRestoreQuoteLastOrder($value);
     }
+
+    public function getQuote(){
+        return $this->_checkoutSession->getQuote();
+    }
 }

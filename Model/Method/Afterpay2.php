@@ -738,6 +738,7 @@ class Afterpay2 extends AbstractMethod
             $count++;
         }
 
+        $quote = $this->helper->getQuote();
         $thirdPartyGiftCardLine = $this->getThirdPartyGiftCardLine($count, $quote);
 
         if (!empty($thirdPartyGiftCardLine)) {
@@ -1011,17 +1012,17 @@ class Afterpay2 extends AbstractMethod
                 continue;
             }
 
-            $giftCardData = $cartTotals[$giftCardCode]->getData();
-
-            if (isset($giftCardData['value']) && $giftCardData['value'] >= 0) {
-                continue;
+            if (is_array($cartTotals) || isset($cartTotals[$giftCardCode])) {
+                $total = $cartTotals[$giftCardCode];
+                $amount = $total->getValue();
+                if ($amount !== 0) {
+                    $giftCardTotal += $amount;
+                }
             }
-
-            $giftCardTotal += $giftCardData['value'];
         }
 
         if ($giftCardTotal >= 0) {
-            return $article;
+            return [];
         }
 
         $article = $this->getArticleArrayLine(
