@@ -108,6 +108,8 @@ class SecondChance
         foreach ($stores as $store) {
             if ($this->accountConfig->getSecondChance($store)) {
                 $now          = new \DateTime();
+                $secondChanceTiming = $this->accountConfig->getSecondChanceTiming($store)>0 ? ('-' . $this->accountConfig->getSecondChanceTiming($store) . ' hour') : 'now';
+                 $this->logging->addDebug(__METHOD__ . '|secondChanceTiming|' . $secondChanceTiming);
                 $secondChance = $this->secondChanceFactory->create();
                 $collection   = $secondChance->getCollection()
                     ->addFieldToFilter(
@@ -118,7 +120,7 @@ class SecondChance
                         'store_id',
                         array('eq' => $store->getId())
                     )
-                    ->addFieldToFilter('created_at', ['lteq' => date('Y-m-d H:i:s', strtotime('-' . $this->accountConfig->getSecondChanceTiming($store) . ' hour', strtotime($now->format('Y-m-d H:i:s'))))]);
+                    ->addFieldToFilter('created_at', ['lteq' => date('Y-m-d H:i:s', strtotime($secondChanceTiming, strtotime($now->format('Y-m-d H:i:s'))))]);
                 foreach ($collection as $item) {
                     $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
                     if (in_array($order->getState(), ['canceled', 'processing', 'new'])) {
@@ -219,7 +221,7 @@ class SecondChance
     public function checkOrderProductsIsInStock($order)
     {
         foreach ($order->getAllItems() as $orderItem) {
-            if (!$this->stockItemRepository->get($orderItem->getId())->getIsInStock()) {
+            if (!$this->stockItemRepository->get($orderItem->getProductId())->getIsInStock()) {
                 return false;
             }
         }

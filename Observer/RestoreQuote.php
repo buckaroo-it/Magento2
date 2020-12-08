@@ -67,6 +67,10 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     protected $quote;
 
+    protected $quoteFactory;
+
+    protected $productFactory;
+
     /**
      * @var \Magento\Checkout\Model\Cart
      */
@@ -89,6 +93,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Magento\Framework\UrlInterface $url,
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\Quote\Model\Quote $quote,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Checkout\Model\Cart $cart,
         \Buckaroo\Magento2\Helper\Data $helper,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
@@ -103,9 +109,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->url                 = $url;
         $this->orderFactory        = $orderFactory;
         $this->quote               = $quote;
+        $this->quoteFactory        = $quoteFactory;
+        $this->productFactory      = $productFactory;
         $this->cart                = $cart;
         $this->dateTime            = $dateTime;
-        $this->helper             = $helper;
+        $this->helper              = $helper;
     }
 
     /**
@@ -128,8 +136,6 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
                 if ($this->helper->getRestoreQuoteLastOrder() && ($lastRealOrder->getData('state') === 'new' && $lastRealOrder->getData('status') === 'pending') && $payment->getMethodInstance()->usesRedirect) {
 
-                    $this->checkoutSession->restoreQuote();
-
                     if ($this->accountConfig->getSecondChance($order->getStore())) {
                         $secondChance = $this->secondChanceFactory->create();
                         $secondChance->setData([
@@ -139,6 +145,10 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                             'created_at' => $this->dateTime->gmtDate(),
                         ]);
                         $secondChance->save();
+
+                        $this->duplicateQuote($order);
+                    }else{
+                        $this->checkoutSession->restoreQuote();
                     }
                     
                 }
@@ -146,5 +156,27 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             $this->helper->setRestoreQuoteLastOrder(false);
         }
         return true;
+    }
+
+    public function duplicateQuote($order){
+        $quote = $this->quoteFactory->create()->load($order->getQuoteId());
+        $items = $quote->getAllVisibleItems();
+        foreach ($items as $item) {
+            $productId = $item->getProductId();
+            $_product = $this->productFactory->create()->load($productId);
+
+            $options = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
+
+            $info = $options['info_buyRequest'];
+            $request1 = new \Magento\Framework\DataObject();
+            $request1->setData($info);
+
+            $this->cart->addProduct($_product, $request1);
+        }
+
+        $this->cart->save();
+        $this->cart->setQuote($quote);
+        $this->checkoutSession->setQuoteId($quote->getId());
+        $this->cart->save();
     }
 }
