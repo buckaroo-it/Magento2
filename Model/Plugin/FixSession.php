@@ -54,6 +54,7 @@ class FixSession
             //$this->logger->addDebug(__METHOD__ . '|1|' . var_export([$name, $value, $metadata->getSameSite()], true));
             if ($metadata->getSameSite() != 'None') {
                 $metadata->setSameSite('None');
+                $metadata->setSecure(true);
             }
         }
         return [$name, $value, $metadata];
