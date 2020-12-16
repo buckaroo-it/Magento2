@@ -812,6 +812,9 @@ class Klarnakp extends AbstractMethod
         $billingAddress = $payment->getOrder()->getBillingAddress();
         $streetFormat = $this->addressFormatter->formatStreet($billingAddress->getStreet());
 
+        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(var_export([$billingAddress->getStreet(), $streetFormat], true));
+
         $listCountries = Zend_Locale::getTranslationList('territory', 'en_US');
 
         $telephone = $payment->getAdditionalInformation('customer_telephone');

@@ -57,8 +57,12 @@ class StreetFormatter
     {
         $newStreet = $street[0];
 
-        if (isset($street[1])) {
+        if (!empty($street[1])) {
             $newStreet .= ' ' . $street[1];
+        }
+
+        if (!empty($street[2])) {
+            $newStreet .= ' ' . $street[2];
         }
 
         return $newStreet;
