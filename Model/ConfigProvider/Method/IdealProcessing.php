@@ -91,6 +91,10 @@ class IdealProcessing extends AbstractConfigProvider
             'name' => 'Handelsbanken',
             'code' => 'HANDNL2A',
         ],
+        [
+            'name' => 'Revolut',
+            'code' => 'REVOLT21',
+        ],
     ];
 
     /**
