@@ -127,6 +127,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
     protected $groupTransaction;
 
+    private $formKey;
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
@@ -171,7 +172,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         \Magento\SalesSequence\Model\Manager $sequenceManager,
         \Magento\Eav\Model\Config $eavConfig,
         \Magento\Framework\UrlInterface $urlBuilder,
-        PaymentGroupTransaction $groupTransaction
+        PaymentGroupTransaction $groupTransaction,
+        \Magento\Framework\Data\Form\FormKey $formKey
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -200,6 +202,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->urlBuilder = $urlBuilder;
 
         $this->groupTransaction = $groupTransaction;
+        $this->formKey          = $formKey;
     }
 
     /**
@@ -269,7 +272,10 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         }
 
         $card = $data['card'];
-        $returnUrl = $this->_storeManager->getStore()->getUrl($this->_configProviderAccount->getSuccessRedirect());
+        // $returnUrl = $this->_storeManager->getStore()->getUrl($this->_configProviderAccount->getSuccessRedirect());
+        $returnUrl = $this->urlBuilder->setScope($this->_storeManager->getStore()->getStoreId());
+        $returnUrl = $returnUrl->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->formKey->getFormKey();
+
         $pushUrl = $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push');
 
         switch ($card) {
@@ -308,6 +314,9 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             "AmountDebit" => $grandTotal,
             "Invoice" => $orderId,
             "ReturnURL" => $returnUrl,
+            "ReturnURLCancel" => $returnUrl,
+            "ReturnURLError" => $returnUrl,
+            "ReturnURLReject" => $returnUrl,
             "PushURL" => $pushUrl,
             "Services" => array(
                 "ServiceList" => array(
