@@ -54,4 +54,7 @@
         <observer name="initiate_checkout_onepage" instance="Buckaroo\Magento2\Observer\RestoreQuote" />
     </event>
 
+    <event name="checkout_onepage_controller_success_action">
+        <observer name="buckaroo_magento2_success_place_order" instance="Buckaroo\Magento2\Observer\SuccessOrder"  />
+    </event>
 </config>
