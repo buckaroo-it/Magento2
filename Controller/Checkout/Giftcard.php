@@ -128,6 +128,12 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     protected $groupTransaction;
 
     private $formKey;
+    
+    /**
+     * @var \Magento\Config\Model\Config
+     */
+    protected $_backendConfig;
+
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
@@ -173,6 +179,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         \Magento\Eav\Model\Config $eavConfig,
         \Magento\Framework\UrlInterface $urlBuilder,
         PaymentGroupTransaction $groupTransaction,
+        \Magento\Config\Model\Config $backendConfig,
         \Magento\Framework\Data\Form\FormKey $formKey
     ) {
         parent::__construct($context);
@@ -203,6 +210,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         $this->groupTransaction = $groupTransaction;
         $this->formKey          = $formKey;
+        $this->_backendConfig   = $backendConfig;
     }
 
     /**
@@ -391,7 +399,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $secretKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getSecretKey());
         $websiteKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey());
 
-        $url = ($this->_configProviderAccount->getActive() == 1) ? 'testcheckout.buckaroo.nl' : 'checkout.buckaroo.nl';
+        $url = ($this->_backendConfig->getConfigDataValue('payment/buckaroo_magento2_giftcards/active') == 2) ? 'checkout.buckaroo.nl': 'testcheckout.buckaroo.nl';
         $uri        = 'https://'.$url.'/json/Transaction';
         $uri2       = strtolower(rawurlencode($url.'/json/Transaction'));
 
