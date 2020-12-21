@@ -56,15 +56,18 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
 
         $salesModel = ($invoice ? $invoice : $order);
 
-        $refundItem = null;
-
         $refundItem = $this->request->getPost('creditmemo');
 
         if ($salesModel->getBaseBuckarooFee()
             && $order->getBaseBuckarooFeeInvoiced() > $order->getBaseBuckarooFeeRefunded()
         ) {
-            $baseBuckarooFee = !isset($refundItem['buckaroo_fee_refundable']) && !empty($refundItem) ? 0 : $salesModel->getBaseBuckarooFee();
-            $buckarooFee = !isset($refundItem['buckaroo_fee_refundable']) && !empty($refundItem) ? 0 : $salesModel->getBuckarooFee();
+            $baseBuckarooFee = $salesModel->getBaseBuckarooFee();
+            $buckarooFee = $salesModel->getBuckarooFee();
+
+            if (strpos($method, 'afterpay') === false) {
+                $baseBuckarooFee = !isset($refundItem['buckaroo_fee_refundable']) && !empty($refundItem) ? 0 : $salesModel->getBaseBuckarooFee();
+                $buckarooFee = !isset($refundItem['buckaroo_fee_refundable']) && !empty($refundItem) ? 0 : $salesModel->getBuckarooFee();
+            }
 
             if (preg_match('/afterpay/', $method) && count($refundCollection) > 1) {
                 $baseBuckarooFee = 0;
