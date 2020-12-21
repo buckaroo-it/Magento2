@@ -39,11 +39,6 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        //clear cart after success order
-        $allItems = $this->cart->getQuote()->getAllVisibleItems();
-        foreach ($allItems as $item) {
-            $itemId = $item->getItemId();
-            $this->cart->removeItem($itemId)->save();
-        }
+        $this->cart->truncate()->save();
     }
 }
