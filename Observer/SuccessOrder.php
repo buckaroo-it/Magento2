@@ -21,14 +21,21 @@ namespace Buckaroo\Magento2\Observer;
 
 class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
 {
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
+
     protected $cart;
 
     /**
      * @param \Magento\Checkout\Model\Cart          $cart
      */
     public function __construct(
+        \Magento\Checkout\Model\Session\Proxy $checkoutSession,
         \Magento\Checkout\Model\Cart $cart
     ) {
+        $this->checkoutSession     = $checkoutSession;
         $this->cart                = $cart;
     }
 
@@ -39,6 +46,7 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        $this->checkoutSession->setLoadInactive(false);
         $this->cart->truncate()->save();
     }
 }
