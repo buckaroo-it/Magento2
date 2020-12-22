@@ -470,7 +470,7 @@ class Push implements PushInterface
         }
 
         //Check if the order can receive further status updates
-        $this->order->loadByIncrementId($brqOrderId);
+        $this->order->loadByIncrementId((string) $brqOrderId);
 
         if (!$this->order->getId()) {
             $this->logging->addDebug('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
