@@ -26,6 +26,8 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     private $checkoutSession;
 
+    protected $quoteFactory;
+
     protected $cart;
 
     /**
@@ -33,9 +35,11 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     public function __construct(
         \Magento\Checkout\Model\Session\Proxy $checkoutSession,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Checkout\Model\Cart $cart
     ) {
         $this->checkoutSession     = $checkoutSession;
+        $this->quoteFactory        = $quoteFactory;
         $this->cart                = $cart;
     }
 
@@ -46,7 +50,10 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $this->checkoutSession->setLoadInactive(false);
         $this->cart->truncate()->save();
+        $quote = $this->quoteFactory->create();
+        $this->cart->setQuote($quote);
+        $this->checkoutSession->setQuoteId($quote->getId());
+        $this->cart->save();
     }
 }
