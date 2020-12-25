@@ -945,12 +945,7 @@ class Afterpay extends AbstractMethod
             return $shippingCostsArticle;
         }
 
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
-        $shippingAmount = $order->getShippingAmount();
-
-        if ($shippingIncludesTax) {
-            $shippingAmount = $order->getShippingInclTax();
-        }
+        $shippingAmount = $order->getShippingInclTax();
 
         $shippingCostsArticle = [
             [
