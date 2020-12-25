@@ -76,6 +76,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     protected $cart;
 
+    protected $_messageManager;
+
     /**
      * @param \Magento\Checkout\Model\Session\Proxy                $checkoutSession
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
@@ -95,6 +97,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Magento\Quote\Model\Quote $quote,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Catalog\Model\ProductFactory $productFactory,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Checkout\Model\Cart $cart,
         \Buckaroo\Magento2\Helper\Data $helper,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
@@ -111,6 +114,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->quote               = $quote;
         $this->quoteFactory        = $quoteFactory;
         $this->productFactory      = $productFactory;
+        $this->_messageManager     = $messageManager;
         $this->cart                = $cart;
         $this->dateTime            = $dateTime;
         $this->helper              = $helper;
@@ -171,7 +175,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             $request1 = new \Magento\Framework\DataObject();
             $request1->setData($info);
 
-            $this->cart->addProduct($_product, $request1);
+            try {
+                $this->cart->addProduct($_product, $request1);
+            } catch (\Exception $e) {
+                $this->_messageManager->addErrorMessage($e->getMessage());
+            }
         }
 
         $this->cart->save();
