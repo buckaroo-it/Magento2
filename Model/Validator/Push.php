@@ -195,6 +195,7 @@ class Push implements ValidatorInterface
             case 'brq_DueDate':
             case 'brq_PreviousStepDateTime':
             case 'brq_EventDateTime':
+            case 'brq_SERVICE_transfer_AccountHolderName':
                 $decodedValue = $brq_value;
                 break;
             default:
