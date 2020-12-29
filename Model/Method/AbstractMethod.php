@@ -1226,7 +1226,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
              */
             if ($skipFirstPush > 0) {
                 $payment->setAdditionalInformation('skip_push', $skipFirstPush - 1);
-                $payment->save();
+                if (!empty($payment->getOrder()) && !empty($payment->getOrder()->getId())) {
+                    // Only save payment if order is already saved, this to avoid foreign key constraint error
+                    // on table sales_order_payment, column parent_id.
+                    $payment->save();
+                }
             }
         }
 
