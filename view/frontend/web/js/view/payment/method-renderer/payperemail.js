@@ -91,8 +91,10 @@ define(
                         ]
                     );
 
-                    this.firstName      = quote.billingAddress().firstname;
-                    this.lastName       = quote.billingAddress().lastname;
+                    if (quote.billingAddress()) {
+                        this.firstName = quote.billingAddress().firstname;
+                        this.lastName = quote.billingAddress().lastname;
+                    }
                     this.email          = customerData.email || quote.guestEmail;
 
                     /**
