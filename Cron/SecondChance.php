@@ -224,6 +224,9 @@ class SecondChance
             if (!$this->stockItemRepository->get($orderItem->getProductId())->getIsInStock()) {
                 return false;
             }
+            if ($this->stockItemRepository->get($orderItem->getProductId())->getQty() < $orderItem->getQtyOrdered()) {
+                return false;
+            }
         }
         return true;
     }
