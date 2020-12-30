@@ -83,12 +83,15 @@ class CreateCombinedInvoice
                 'Name' => 'Email',
                 'Group' => 'Email',
             ],
-            [
+        ];
+
+        if ($order->getBillingAddress()->getTelephone()) {
+            $requestParameters[] = [
                 '_'    => $order->getBillingAddress()->getTelephone(),
                 'Name' => 'Mobile',
                 'Group' => 'Phone',
-            ],
-        ];
+            ];
+        }
 
         $ungroupedParameters = $this->getUngroupedCmParameters($order);
         $requestParameters = array_merge($requestParameters, $ungroupedParameters);
