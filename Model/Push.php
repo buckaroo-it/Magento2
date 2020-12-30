@@ -1190,17 +1190,13 @@ class Push implements PushInterface
             && in_array($payment->getMethod(), array(Transfer::PAYMENT_METHOD_CODE,
                 Paypal::PAYMENT_METHOD_CODE,
                 SepaDirectDebit::PAYMENT_METHOD_CODE,
-                Sofortbanking::PAYMENT_METHOD_CODE,
-                Alipay::PAYMENT_METHOD_CODE,
-                Wechatpay::PAYMENT_METHOD_CODE,
-                P24::PAYMENT_METHOD_CODE,
-                Trustly::PAYMENT_METHOD_CODE,
-                Rtp::PAYMENT_METHOD_CODE,
+                Sofortbanking::PAYMENT_METHOD_CODE
             ))
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
             )
         ) {
+            $this->logging->addDebug(__METHOD__ . '|sendemail|');
             $this->orderSender->send($this->order);
         }
 

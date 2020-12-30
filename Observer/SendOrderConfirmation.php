@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Logging\Log;
+
 class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -33,15 +35,23 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
     protected $orderSender;
 
     /**
+     * @var Log $logging
+     */
+    public $logging;
+
+    /**
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account          $accountConfig
      * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+     * @param \Buckaroo\Magento2\Logging\Log $logging
      */
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        Log $logging
     ) {
         $this->accountConfig    = $accountConfig;
         $this->orderSender      = $orderSender;
+        $this->logging = $logging;
     }
 
     /**
@@ -82,6 +92,7 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
             && $order->getIncrementId()
             && !$createOrderBeforeTransaction
         ) {
+            $this->logging->addDebug(__METHOD__ . '|sendemail|');
             $this->orderSender->send($order, true);
         }
     }

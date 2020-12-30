@@ -222,8 +222,10 @@ class Process extends \Magento\Framework\App\Action\Action
                     ) {
 
                     } else {
-                        $this->logger->addDebug(__METHOD__ . '|4|');
-                        $this->orderSender->send($this->order, true);
+                        if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
+                            $this->logger->addDebug(__METHOD__ . '|sendemail|');
+                            $this->orderSender->send($this->order, true);
+                        }
                     }
                 }
 
