@@ -33,7 +33,7 @@
                                              'width': 30,
                                              'height': 20 }"
                                             />
-                                    <input class="card-types-input" type="radio" data-bind="value: code, text: name, click: $parent.setSelectedCard" name="card"> <!-- ko text: name --><!--/ko-->
+                                    <input class="card-types-input" type="radio" data-bind="value: code, text: name, click: $parent.setSelectedCard" data-validate="{'validate-one-required-by-name':true}" name="card"> <!-- ko text: name --><!--/ko-->
                                 </label>
                                 <!--/ko-->
                             <!--/ko-->
