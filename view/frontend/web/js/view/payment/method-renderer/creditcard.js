@@ -25,6 +25,7 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'ko',
+        'mage/translate',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method'
     ],
@@ -34,6 +35,7 @@ define(
         additionalValidators,
         placeOrderAction,
         ko,
+        $t,
         checkoutData,
         selectPaymentMethodAction
     ) {
@@ -97,6 +99,12 @@ define(
                         },
                         this
                     );
+
+                    $('.iosc-place-order-button').on('click', function(e){
+                        if(self.selectedCard() == null){
+                            self.messageContainer.addErrorMessage({'message': $t('You need select a card')});
+                        }
+                    });
 
                     return this;
                 },
