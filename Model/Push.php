@@ -249,6 +249,22 @@ class Push implements PushInterface
         //Check second push for PayPerEmail
         $receivePushCheckPayPerEmailResult = $this->receivePushCheckPayPerEmail($response, $validSignature);
 
+        $payment = $this->order->getPayment();
+        $skipFirstPush = $payment->getAdditionalInformation('skip_push');
+
+        $this->logging->addDebug(__METHOD__ . '|4|' . var_export($skipFirstPush, true));
+
+        /**
+         * Buckaroo Push is send before Response, for correct flow we skip the first push
+         * for some payment methods
+         * @todo when buckaroo changes the push / response order this can be removed
+         */
+        if ($skipFirstPush > 0) {
+            $payment->setAdditionalInformation('skip_push', $skipFirstPush - 1);
+            $payment->save();
+            throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, first handle response, action will be taken on the next push.'));
+        }
+
         if ($this->receivePushCheckDuplicates()) {
             return true;
         }
@@ -296,22 +312,6 @@ class Push implements PushInterface
             );
         }
 
-        $payment = $this->order->getPayment();
-        $skipFirstPush = $payment->getAdditionalInformation('skip_push');
-
-        $this->logging->addDebug(__METHOD__ . '|4|' . var_export($skipFirstPush, true));
-
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * for some payment methods
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        if ($skipFirstPush > 0) {
-            $payment->setAdditionalInformation('skip_push', $skipFirstPush - 1);
-            $payment->save();
-            throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, first handle response, action will be taken on the next push.'));
-        }
-
         if (!$this->isGroupTransactionInfo()) {
             $this->setTransactionKey();
         }
@@ -355,9 +355,9 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->order->getPayment()->getMethod(), true));
         $payment = $this->order->getPayment();
         $ignoredPaymentMethods = [
-            Afterpay::PAYMENT_METHOD_CODE,
-            Afterpay2::PAYMENT_METHOD_CODE,
-            Afterpay20::PAYMENT_METHOD_CODE,
+            //Afterpay::PAYMENT_METHOD_CODE,
+            //Afterpay2::PAYMENT_METHOD_CODE,
+            //Afterpay20::PAYMENT_METHOD_CODE,
             Giftcards::PAYMENT_METHOD_CODE
         ];
         if (
