@@ -28,7 +28,12 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
 
     protected $quoteFactory;
 
+    protected $messageManager;
+
+    protected $layout;
+
     protected $cart;
+
 
     /**
      * @param \Magento\Checkout\Model\Cart          $cart
@@ -36,10 +41,14 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
     public function __construct(
         \Magento\Checkout\Model\Session\Proxy $checkoutSession,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Magento\Framework\View\LayoutInterface $layout,
         \Magento\Checkout\Model\Cart $cart
     ) {
         $this->checkoutSession     = $checkoutSession;
         $this->quoteFactory        = $quoteFactory;
+        $this->messageManager      = $messageManager;
+        $this->layout              = $layout;
         $this->cart                = $cart;
     }
 
@@ -50,10 +59,12 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $this->cart->truncate()->save();
-        $quote = $this->quoteFactory->create();
-        $this->cart->setQuote($quote);
-        $this->checkoutSession->setQuoteId($quote->getId());
-        $this->cart->save();
+        try {
+            $this->cart->truncate()->save();
+        } catch (\Exception $exception) {
+            $this->messageManager->addExceptionMessage($exception, __('We can\'t empty the shopping cart.'));
+        }
+
+        echo "<script>window.onload = function(){require(['Magento_Customer/js/customer-data'], function (customerData) {var sections = ['cart']; customerData.reload(sections, true); customerData.invalidate(sections); console.log('Reload shopping cart');});}</script>";
     }
 }
