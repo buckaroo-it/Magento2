@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -1190,7 +1191,8 @@ class Push implements PushInterface
             && in_array($payment->getMethod(), array(Transfer::PAYMENT_METHOD_CODE,
                 Paypal::PAYMENT_METHOD_CODE,
                 SepaDirectDebit::PAYMENT_METHOD_CODE,
-                Sofortbanking::PAYMENT_METHOD_CODE
+                Sofortbanking::PAYMENT_METHOD_CODE,
+                PayPerEmail::PAYMENT_METHOD_CODE,
             ))
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
