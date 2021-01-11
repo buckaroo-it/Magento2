@@ -97,6 +97,8 @@ class Data extends AbstractHelper
     /** @var StoreManagerInterface */
     private $storeManager;
 
+    private $scopeDefiner;
+
     /**
      * @param Context $context
      * @param Account $configProviderAccount
@@ -111,7 +113,8 @@ class Data extends AbstractHelper
         PaymentGroupTransaction $groupTransaction,
         Log $logger,
         CustomerRepositoryInterface $customerRepository,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        \Magento\Config\Model\Config\ScopeDefiner $scopeDefiner
 
     ) {
         parent::__construct($context);
@@ -124,6 +127,7 @@ class Data extends AbstractHelper
         $this->logger = $logger;
         $this->customerRepository = $customerRepository;
         $this->storeManager = $storeManager;
+        $this->scopeDefiner = $scopeDefiner;
     }
 
     /**
@@ -261,8 +265,8 @@ class Data extends AbstractHelper
     public function getConfigCardSort() {
         $configValue = $this->scopeConfig->getValue(
             'payment/buckaroo_magento2_creditcard/sorted_creditcards',
-            ScopeInterface::SCOPE_STORE,
-            $this->storeManager->getStore()
+            $this->scopeDefiner->getScope(),
+            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
         );
 
         return $configValue;
@@ -271,8 +275,8 @@ class Data extends AbstractHelper
     public function getConfigGiftCardsSort() {
         $configValue = $this->scopeConfig->getValue(
             'payment/buckaroo_magento2_giftcards/sorted_giftcards',
-            ScopeInterface::SCOPE_STORE,
-            $this->storeManager->getStore()
+            $this->scopeDefiner->getScope(),
+            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
         );
 
         return $configValue;
