@@ -71,9 +71,8 @@
             });
         });
 
-        let cardList = '';
-
         $('#save').click(function () {
+            let cardList = '';
             $('#sort_creditcard_list p').each(function () {
                 cardList += $(this).text() + ',';
             });

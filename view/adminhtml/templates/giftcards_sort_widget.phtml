@@ -68,9 +68,8 @@
             });
         });
 
-        let cardList = '';
-
         $('#save').click(function () {
+            let cardList = '';
             $('#sort_giftcards_list p').each(function () {
                 cardList += $(this).text() + ',';
             });
