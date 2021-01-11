@@ -29,6 +29,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Data
@@ -93,6 +94,9 @@ class Data extends AbstractHelper
 
     private $staticCache = [];
 
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
     /**
      * @param Context $context
      * @param Account $configProviderAccount
@@ -106,7 +110,8 @@ class Data extends AbstractHelper
         \Magento\Checkout\Model\Session $checkoutSession,
         PaymentGroupTransaction $groupTransaction,
         Log $logger,
-        CustomerRepositoryInterface $customerRepository
+        CustomerRepositoryInterface $customerRepository,
+        StoreManagerInterface $storeManager
 
     ) {
         parent::__construct($context);
@@ -118,6 +123,7 @@ class Data extends AbstractHelper
         $this->groupTransaction  = $groupTransaction;
         $this->logger = $logger;
         $this->customerRepository = $customerRepository;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -253,13 +259,21 @@ class Data extends AbstractHelper
     }
 
     public function getConfigCardSort() {
-        $configValue = $this->scopeConfig->getValue('payment/buckaroo_magento2_creditcard/sorted_creditcards', ScopeInterface::SCOPE_STORE);
+        $configValue = $this->scopeConfig->getValue(
+            'payment/buckaroo_magento2_creditcard/sorted_creditcards',
+            ScopeInterface::SCOPE_STORE,
+            $this->storeManager->getStore()
+        );
 
         return $configValue;
     }
     
     public function getConfigGiftCardsSort() {
-        $configValue = $this->scopeConfig->getValue('payment/buckaroo_magento2_giftcards/sorted_giftcards', ScopeInterface::SCOPE_STORE);
+        $configValue = $this->scopeConfig->getValue(
+            'payment/buckaroo_magento2_giftcards/sorted_giftcards',
+            ScopeInterface::SCOPE_STORE,
+            $this->storeManager->getStore()
+        );
 
         return $configValue;
     }
