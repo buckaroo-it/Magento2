@@ -217,6 +217,10 @@
                     <item name="type" xsi:type="string">afterpay20</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20</item>
                 </item>
+                <item name="billink" xsi:type="array">
+                    <item name="type" xsi:type="string">billink</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Billink</item>
+                </item>
                 <item name="payperemail" xsi:type="array">
                     <item name="type" xsi:type="string">payperemail</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail</item>

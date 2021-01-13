@@ -226,7 +226,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $basePaymentFee = trim($configProvider->getPaymentFee($quote->getStore()));
 
         if (is_numeric($basePaymentFee)) {
-            if (in_array($buckarooPaymentMethodCode, ['afterpay20','afterpay','paypal'])) {
+            if (in_array($buckarooPaymentMethodCode, ['billink','afterpay20','afterpay','paypal'])) {
 
                 $inclTax = $this->configProviderBuckarooFee->getPaymentFeeTax() == Calculation::DISPLAY_TYPE_INCLUDING_TAX;
 

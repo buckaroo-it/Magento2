@@ -38,6 +38,7 @@ class Toolbar
         'buckaroo_magento2_afterpay',
         'buckaroo_magento2_afterpay2',
         'buckaroo_magento2_afterpay20',
+        'buckaroo_magento2_billink',
         'buckaroo_magento2_payperemail',
         'buckaroo_magento2_paylink',
         'buckaroo_magento2_creditcard',

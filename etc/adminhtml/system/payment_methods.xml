@@ -91,6 +91,8 @@
         <include path="Buckaroo_Magento2::system/payment_methods/emandate.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/afterpay20.xml"/>
+        
+        <include path="Buckaroo_Magento2::system/payment_methods/billink.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/applepay.xml"/>
 
