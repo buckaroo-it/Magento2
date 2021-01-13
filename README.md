@@ -6,6 +6,25 @@ Below you will find a link to the installation and configuration manual of the B
 
 https://support.buckaroo.nl/categorie%C3%ABn/plugins/magento-2
 
+#### Install via composer
+We recommend you to install the Buckaroo Magento 2 module via composer. It is easy to install, update and maintain.
+
+Run the following commands in the Magento 2 root folder.
+
+##### Install
+composer require buckaroo/magento2
+php bin/magento setup:upgrade
+php bin/magento setup:static-content:deploy
+
+##### Upgrade
+composer update buckaroo/magento2
+php bin/magento setup:upgrade
+php bin/magento setup:static-content:deploy
+
+##### Run compile if your store in Production mode:
+php bin/magento setup:di:compile
+
+
 ### Additional information
 
 Release notes:
