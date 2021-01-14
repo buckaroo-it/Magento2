@@ -48,7 +48,8 @@ class Applepay extends AbstractConfigProvider
      * @var array
      */
     protected $allowedCurrencies = [
-        'EUR'
+        'EUR',
+        'GBP'
     ];
 
     /** @var Account */
