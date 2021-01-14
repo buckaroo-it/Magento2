@@ -545,9 +545,6 @@ class Afterpay20 extends AbstractMethod
                     $myparcelOptions = json_decode($myparcelOptions, true);
                     $isPickup = $myparcelOptions['isPickup'] ?? false;
                     if ($isPickup) {
-//                        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
-//                        $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
-
                         $this->updateShippingAddressByMyParcel($myparcelOptions['pickupLocation'], $requestData);
                     }
                 } catch (\JsonException $je) {
