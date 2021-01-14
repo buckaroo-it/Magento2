@@ -356,6 +356,21 @@
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_afterpay20>
+            
+            <buckaroo_magento2_billink>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Billink</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Billink</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>240</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <can_capture_partial>1</can_capture_partial>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_billink>
 
             <buckaroo_magento2_applepay>
                 <active>0</active>

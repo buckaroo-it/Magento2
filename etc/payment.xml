@@ -69,6 +69,9 @@
         <method name="buckaroo_magento2_afterpay20">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="buckaroo_magento2_billink">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
         <method name="buckaroo_magento2_payperemail">
             <allow_multiple_address>0</allow_multiple_address>
         </method>

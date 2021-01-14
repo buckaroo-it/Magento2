@@ -871,7 +871,7 @@ class Klarnakp extends AbstractMethod
             ];
         }
 
-        if (!empty($telephone)) {
+        if (!empty($telephone['orginal'])) {
             $billingData[] = [
                 '_'    => $telephone['orginal'],
                 'Name' => 'BillingPhoneNumber',
