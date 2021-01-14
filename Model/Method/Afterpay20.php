@@ -539,6 +539,22 @@ class Afterpay20 extends AbstractMethod
             $this->updateShippingAddressBySendcloud($payment->getOrder(), $requestData);
         }
 
+        if ($myparcelOptions = $payment->getOrder()->getData('myparcel_delivery_options')) {
+            if (!empty($myparcelOptions)) {
+                try{
+                    $myparcelOptions = json_decode($myparcelOptions, true);
+                    $isPickup = $myparcelOptions['isPickup'] ?? false;
+                    if ($isPickup) {
+//                        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+//                        $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+
+                        $this->updateShippingAddressByMyParcel($myparcelOptions['pickupLocation'], $requestData);
+                    }
+                } catch (\JsonException $je) {
+                    $this->logger2->addDebug(__METHOD__.'|2|'.' Error related to json_decode (MyParcel plugin compatibility)');
+                }
+            }
+        }
         // Merge the article data; products and fee's
         $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
 
@@ -589,7 +605,7 @@ class Afterpay20 extends AbstractMethod
         $postalCode = $quote->getDpdZipcode();
         $city = $quote->getDpdCity();
         $country = $quote->getDpdCountry();
-        
+
         if (!$fullStreet && $quote->getDpdParcelshopId()) {
             $this->logger2->addDebug(__METHOD__.'|2|');
             $this->logger2->addDebug(var_export($_COOKIE, true));
@@ -649,6 +665,41 @@ class Afterpay20 extends AbstractMethod
                 }
             }
 
+        }
+    }
+
+    public function updateShippingAddressByMyParcel($myParcelLocation, &$requestData) {
+        $mapping = [
+            ['Street', $myParcelLocation['street']],
+            ['PostalCode', $myParcelLocation['postal_code']],
+            ['City', $myParcelLocation['city']],
+            ['Country', $myParcelLocation['cc']],
+            ['StreetNumber', $myParcelLocation['number']],
+            ['StreetNumberAdditional', $myParcelLocation['number_suffix']],
+        ];
+
+        $this->logger2->addDebug(var_export($mapping, true));
+
+        foreach ($mapping as $mappingItem) {
+            if (!empty($mappingItem[1])) {
+                $found = false;
+                foreach ($requestData as $key => $value) {
+                    if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                        if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                            $requestData[$key]['_'] = $mappingItem[1];
+                            $found = true;
+                        }
+                    }
+                }
+                if (!$found) {
+                    $requestData[] = [
+                        '_'    => $mappingItem[1],
+                        'Name' => $mappingItem[0],
+                        'Group' => 'ShippingCustomer',
+                        'GroupID' =>  '',
+                    ];
+                }
+            }
         }
     }
 
@@ -1622,7 +1673,7 @@ class Afterpay20 extends AbstractMethod
     public function getDiffLine($latestKey, $diff)
     {
         $article = [];
-        
+
         $article = $this->getArticleArrayLine(
             $latestKey,
             'Discount/Fee',
