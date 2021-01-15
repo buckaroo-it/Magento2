@@ -1324,11 +1324,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $order = $payment->getOrder();
         $totalOrder = $order->getBaseGrandTotal();
+        $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
 
         $requestParams = $this->request->getParams();
         if(isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])){
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $amount_value) {
-                $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
 
                 $transaction = explode('|',$transaction);
                 $totalOrder = $totalOrder - $transaction[2];
@@ -1380,6 +1380,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->logger2->addDebug(__METHOD__.'|20|'.var_export([$amount, $totalOrder, $amount>=0.01], true));
 
         if($amount>=0.01){
+            $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
+            if($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0){
+                return $amount - $groupTransactionAmount;
+            }
+
             if($amount>$totalOrder){
                 return $totalOrder;
             }
