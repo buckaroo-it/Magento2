@@ -94,7 +94,7 @@ class Creditcards extends AbstractMethod
     /**
      * @var bool
      */
-    public $usesRedirect                = false;
+    public $usesRedirect                = true;
 
     /** @var \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters */
     private $serviceParameters;
