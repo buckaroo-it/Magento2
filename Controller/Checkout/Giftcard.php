@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use \Magento\Framework\App\Config\ScopeConfigInterface;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
@@ -128,11 +129,11 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     protected $groupTransaction;
 
     private $formKey;
-    
+
     /**
-     * @var \Magento\Config\Model\Config
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_backendConfig;
+    protected $scopeConfig;
 
     /**
      * @param \Magento\Framework\App\Action\Context               $context
@@ -179,7 +180,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         \Magento\Eav\Model\Config $eavConfig,
         \Magento\Framework\UrlInterface $urlBuilder,
         PaymentGroupTransaction $groupTransaction,
-        \Magento\Config\Model\Config $backendConfig,
+        ScopeConfigInterface $scopeConfig,
         \Magento\Framework\Data\Form\FormKey $formKey
     ) {
         parent::__construct($context);
@@ -210,7 +211,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         $this->groupTransaction = $groupTransaction;
         $this->formKey          = $formKey;
-        $this->_backendConfig   = $backendConfig;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -399,7 +400,10 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $secretKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getSecretKey());
         $websiteKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey());
 
-        $url = ($this->_backendConfig->getConfigDataValue('payment/buckaroo_magento2_giftcards/active') == 2) ? 'checkout.buckaroo.nl': 'testcheckout.buckaroo.nl';
+        $url = ($this->scopeConfig->getValue(
+                'payment/buckaroo_magento2_giftcards/active',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ) == 2) ? 'checkout.buckaroo.nl': 'testcheckout.buckaroo.nl';
         $uri        = 'https://'.$url.'/json/Transaction';
         $uri2       = strtolower(rawurlencode($url.'/json/Transaction'));
 
