@@ -19,6 +19,7 @@
  */
 
 // @codingStandardsIgnoreFile
+$post = $block->getRequest()->getPost('creditmemo');
 
 ?>
 <?php foreach ($block->getTotals() as $_code => $_total): ?>
@@ -28,7 +29,7 @@
             <td>
                 <input type="text"
                        name="creditmemo[buckaroo_already_paid][<?= $_total['transaction_id'] ?>]"
-                       value="<?= abs($_total['value']) ?>"
+                       value="<?= abs(isset($post['buckaroo_already_paid'][$_total['transaction_id']])?$post['buckaroo_already_paid'][$_total['transaction_id']]:$_total['value']) ?>"
                        class="input-text admin__control-text not-negative-amount"
                        id="buckaroo_already_paid" />
             </td>

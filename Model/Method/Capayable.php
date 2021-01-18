@@ -83,7 +83,7 @@ class Capayable extends AbstractMethod
     // @codingStandardsIgnoreEnd
 
     /** @var bool */
-    public $usesRedirect                = false;
+    public $usesRedirect                = true;
 
     /** @var AddressFormatter */
     public $addressFormatter;
