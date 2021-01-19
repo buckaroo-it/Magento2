@@ -506,6 +506,7 @@
                 <invoice_email>1</invoice_email>
                 <success_redirect>checkout/onepage/success</success_redirect>
                 <failure_redirect>checkout/cart</failure_redirect>
+                <failure_redirect_to_checkout>0</failure_redirect_to_checkout>
                 <cancel_on_failed>1</cancel_on_failed>
                 <payment_fee_label>Payment Fee</payment_fee_label>
                 <order_status_new>pending</order_status_new>

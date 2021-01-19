@@ -350,4 +350,8 @@ class Data extends AbstractHelper
     public function getQuote(){
         return $this->_checkoutSession->getQuote();
     }
+
+    public function addDebug($messages){
+        $this->logger->addDebug($messages);
+    }
 }

@@ -140,6 +140,13 @@
                 <config_path>buckaroo_magento2/account/failure_redirect</config_path>
             </field>
 
+            <field id="failure_redirect_to_checkout" translate="label comment" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Redirect to checkout payment section after 'Failure'</label>
+                <comment><![CDATA[Redirect after failed payments.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>buckaroo_magento2/account/failure_redirect_to_checkout</config_path>
+            </field>
+
             <field id="cancel_on_failed" translate="label comment" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>'Canceled' state on failed payment</label>
                 <comment><![CDATA[Orders will stay open after failed payments.]]></comment>

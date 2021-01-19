@@ -80,6 +80,13 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $checkoutSession;
 
     /**
+    * @var  \Magento\Customer\Model\Session
+    */
+    public $customerSession;
+    protected $customerRepository;
+    protected $_sessionFactory;
+
+    /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
      * @param \Magento\Checkout\Model\Cart                        $cart
@@ -104,7 +111,10 @@ class Process extends \Magento\Framework\App\Action\Action
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        \Magento\Customer\Model\SessionFactory $sessionFactory
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -116,6 +126,9 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->orderSender        = $orderSender;
         $this->orderStatusFactory = $orderStatusFactory;
         $this->checkoutSession    = $checkoutSession;
+        $this->customerSession    = $customerSession;
+        $this->customerRepository = $customerRepository;
+        $this->_sessionFactory    = $sessionFactory;
 
         $this->accountConfig = $configProviderFactory->get('account');
 
@@ -542,6 +555,20 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $store = $this->order->getStore();
 
+        if($this->accountConfig->getFailureRedirectToCheckout($store)){
+            if(!$this->customerSession->isLoggedIn()) {
+                if($this->order->getCustomerId()>0){
+                    try {
+                        $customer = $this->customerRepository->getById($this->order->getCustomerId());
+                        $this->customerSession->setCustomerDataAsLoggedIn($customer);
+                    } catch (\Exception $e) {
+                        $this->logger->addError('Could not load customer');
+                    }
+                }
+            }
+            return $this->_redirect('checkout', ['_fragment' => 'payment']);
+        }
+        
         /**
          * @noinspection PhpUndefinedMethodInspection
          */

@@ -127,6 +127,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        $this->helper->addDebug(__METHOD__ . '|RestoreQuote|1|');
+
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         if ($payment = $lastRealOrder->getPayment()) {
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
@@ -138,9 +140,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             $order = $payment->getOrder();
 
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
+                $this->helper->addDebug(__METHOD__ . '|cartKeepAlive enabled|');
                 if ($this->helper->getRestoreQuoteLastOrder() && ($lastRealOrder->getData('state') === 'new' && $lastRealOrder->getData('status') === 'pending') && $payment->getMethodInstance()->usesRedirect) {
 
                     if ($this->accountConfig->getSecondChance($order->getStore())) {
+                        $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
                         $secondChance = $this->secondChanceFactory->create();
                         $secondChance->setData([
                             'order_id' => $order->getIncrementId(),
@@ -152,13 +156,16 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
                         $this->duplicateQuote($order);
                     }else{
+                        $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
                         $this->checkoutSession->restoreQuote();
                     }
                     
                 }
             }
+            $this->helper->addDebug(__METHOD__ . '|setRestoreQuoteLastOrder for cartKeepAlive|');
             $this->helper->setRestoreQuoteLastOrder(false);
         }
+         $this->helper->addDebug(__METHOD__ . '|RestoreQuote|end|');
         return true;
     }
 
