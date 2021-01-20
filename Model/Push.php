@@ -224,12 +224,10 @@ class Push implements PushInterface
         $validSignature = $this->validator->validateSignature($this->originalPostData);
 
         if ($this->isGroupTransactionInfo()) {
-            $this->logging->addDebug(__METHOD__ . '|1_1| isGroupTransaction: ' . var_export($this->originalPostData, true));
             return true;
         }
 
         if (!$this->isPushNeeded()) {
-            $this->logging->addDebug(__METHOD__ . '|1_2| isPushNeeded: ' . var_export($this->originalPostData, true));
             return true;
         }
 
@@ -1442,6 +1440,7 @@ class Push implements PushInterface
 
     private function isGroupTransactionInfo()
     {
+        $this->logging->addDebug(__METHOD__ . '|1_1| isGroupTransaction: ' . var_export($this->originalPostData, true));
         if ($this->isGroupTransactionInfoType()) {
             if ($this->postData['brq_statuscode'] != 190) {
                 return true;
