@@ -224,10 +224,12 @@ class Push implements PushInterface
         $validSignature = $this->validator->validateSignature($this->originalPostData);
 
         if ($this->isGroupTransactionInfo()) {
+            $this->logging->addDebug(__METHOD__ . '|1_1| isGroupTransaction: ' . var_export($this->originalPostData, true));
             return true;
         }
 
         if (!$this->isPushNeeded()) {
+            $this->logging->addDebug(__METHOD__ . '|1_2| isPushNeeded: ' . var_export($this->originalPostData, true));
             return true;
         }
 
@@ -411,20 +413,18 @@ class Push implements PushInterface
      */
     private function isPushNeeded()
     {
+        $this->logging->addDebug(__METHOD__ . '|1_2| isPushNeeded: ' . var_export($this->postData, true));
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
             $this->hasPostData('add_service_action_from_magento',
-                ['capture', 'cancelauthorize', 'cancelreservation', 'refund'])
+                ['capture', 'cancelauthorize', 'cancelreservation', 'refund']) &&
+            empty($this->postData['brq_relatedtransaction_refund'])
         ) {
             return false;
         }
 
-        if (($this->hasPostData('add_initiated_by_magento', 1)
-                //|| $this->hasPostData('ADD_initiated_by_magento', 1)
-            ) &&
+        if ($this->hasPostData('add_initiated_by_magento', 1) &&
             $this->hasPostData('brq_transaction_method', 'klarnakp') &&
-            ($this->hasPostData('add_service_action_from_magento', 'pay')
-                //|| $this->hasPostData('ADD_service_action_from_magento', 'pay')
-            )
+            $this->hasPostData('add_service_action_from_magento', 'pay')
         ) {
             return false;
         }
@@ -1116,7 +1116,7 @@ class Push implements PushInterface
 
                         $this->order->setTotalDue($this->order->getTotalDue() - $amount);
                         $this->order->setBaseTotalDue($this->order->getTotalDue() - $amount);
-                        
+
                         $totalPaid = $this->order->getTotalPaid() + $amount;
                         $this->order->setTotalPaid($totalPaid>$this->order->getGrandTotal()?$this->order->getGrandTotal():$totalPaid);
 
