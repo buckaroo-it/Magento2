@@ -571,19 +571,7 @@ class Afterpay2 extends AbstractMethod
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
-        if ($myparcelOptions = $payment->getOrder()->getData('myparcel_delivery_options')) {
-            if (!empty($myparcelOptions)) {
-                try{
-                    $myparcelOptions = json_decode($myparcelOptions, true);
-                    $isPickup = $myparcelOptions['isPickup'] ?? false;
-                    if ($isPickup) {
-                       $this->updateShippingAddressByMyParcel($myparcelOptions['pickupLocation'], $requestData);
-                    }
-                } catch (\JsonException $je) {
-                    $this->logger2->addDebug(__METHOD__.'|2|'.' Error related to json_decode (MyParcel plugin compatibility)');
-                }
-            }
-        }
+        $this->handleShippingAddressByMyParcel($payment, $requestData);
 
         // Merge the customer data; ip, iban and terms condition.
         $requestData = array_merge($requestData, $this->getRequestCustomerData($payment));
@@ -636,37 +624,6 @@ class Afterpay2 extends AbstractMethod
                     if ($requestData[$key]['Name'] == 'ShippingHouseNumberSuffix') {
                         unset($requestData[$key]);
                     }
-                }
-            }
-        }
-    }
-
-    public function updateShippingAddressByMyParcel($myParcelLocation, &$requestData) {
-        $mapping = [
-            ['ShippingStreet', $myParcelLocation['street']],
-            ['ShippingPostalCode', $myParcelLocation['postal_code']],
-            ['ShippingCity', $myParcelLocation['city']],
-            ['ShippingCountryCode', $myParcelLocation['cc']],
-            ['ShippingHouseNumber', $myParcelLocation['number']],
-            ['ShippingHouseNumberSuffix', $myParcelLocation['number_suffix']],
-        ];
-
-        $this->logger2->addDebug(var_export($mapping, true));
-
-        foreach ($mapping as $mappingItem) {
-            if (!empty($mappingItem[1])) {
-                $found = false;
-                foreach ($requestData as $key => $value) {
-                    if ($requestData[$key]['Name'] == $mappingItem[0]) {
-                        $requestData[$key]['_'] = $mappingItem[1];
-                        $found = true;
-                    }
-                }
-                if (!$found) {
-                    $requestData[] = [
-                        '_'    => $mappingItem[1],
-                        'Name' => $mappingItem[0]
-                    ];
                 }
             }
         }

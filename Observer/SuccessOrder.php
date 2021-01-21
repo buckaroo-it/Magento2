@@ -19,6 +19,8 @@
  */
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Logging\Log;
+
 class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -34,7 +36,7 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
 
     protected $cart;
 
-
+    protected $logging;
     /**
      * @param \Magento\Checkout\Model\Cart          $cart
      */
@@ -43,13 +45,15 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\View\LayoutInterface $layout,
-        \Magento\Checkout\Model\Cart $cart
+        \Magento\Checkout\Model\Cart $cart,
+        Log $logging
     ) {
         $this->checkoutSession     = $checkoutSession;
         $this->quoteFactory        = $quoteFactory;
         $this->messageManager      = $messageManager;
         $this->layout              = $layout;
         $this->cart                = $cart;
+        $this->logging = $logging;
     }
 
     /**
@@ -59,6 +63,12 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        $this->logging->addDebug(__METHOD__ . '|1|');
+
+        if ($this->checkoutSession->getMyParcelNLBuckarooData()) {
+            $this->checkoutSession->setMyParcelNLBuckarooData(null);
+        }
+
         try {
             $this->cart->truncate()->save();
         } catch (\Exception $exception) {

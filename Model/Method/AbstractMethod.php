@@ -1392,5 +1392,74 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
         return 0;
     }
+
+    protected function handleShippingAddressByMyParcel($payment, &$requestData)
+    {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+        $myparcelFetched = false;
+        if ($myparcelOptions = $payment->getOrder()->getData('myparcel_delivery_options')) {
+            if (!empty($myparcelOptions)) {
+                try{
+                    $myparcelOptions = json_decode($myparcelOptions, true);
+                    $isPickup = $myparcelOptions['isPickup'] ?? false;
+                    if ($isPickup) {
+                        $this->updateShippingAddressByMyParcel($myparcelOptions['pickupLocation'], $requestData);
+                        $myparcelFetched = true;
+                    }
+                } catch (\JsonException $je) {
+                    $this->logger2->addDebug(__METHOD__.'|2|'.' Error related to json_decode (MyParcel plugin compatibility)');
+                }
+            }
+        }
+
+        if (!$myparcelFetched) {
+            $this->logger2->addDebug(__METHOD__.'|10|');
+            if (
+                (strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
+                &&
+                (strpos($payment->getOrder()->getShippingMethod(), 'pickup') !== false)
+            ) {
+                $this->logger2->addDebug(__METHOD__.'|15|');
+                if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()) {
+                    if ($myParcelNLData = $this->helper->getJson()->unserialize($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData())) {
+                        $this->logger2->addDebug(__METHOD__ . '|20|');
+                        $this->updateShippingAddressByMyParcel($myParcelNLData, $requestData);
+                    }
+                }
+            }
+        }
+    }
+
+    protected function updateShippingAddressByMyParcel($myParcelLocation, &$requestData)
+    {
+        $mapping = [
+            ['ShippingStreet', $myParcelLocation['street']],
+            ['ShippingPostalCode', $myParcelLocation['postal_code']],
+            ['ShippingCity', $myParcelLocation['city']],
+            ['ShippingCountryCode', $myParcelLocation['cc']],
+            ['ShippingHouseNumber', $myParcelLocation['number']],
+            ['ShippingHouseNumberSuffix', $myParcelLocation['number_suffix']],
+        ];
+
+        $this->logger2->addDebug(__METHOD__ . '|1|' . var_export($mapping, true));
+
+        foreach ($mapping as $mappingItem) {
+            if (!empty($mappingItem[1])) {
+                $found = false;
+                foreach ($requestData as $key => $value) {
+                    if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                        $requestData[$key]['_'] = $mappingItem[1];
+                        $found = true;
+                    }
+                }
+                if (!$found) {
+                    $requestData[] = [
+                        '_'    => $mappingItem[1],
+                        'Name' => $mappingItem[0]
+                    ];
+                }
+            }
+        }
+    }
 }
 

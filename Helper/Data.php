@@ -100,6 +100,11 @@ class Data extends AbstractHelper
     private $scopeDefiner;
 
     /**
+     * @var \Magento\Framework\Serialize\Serializer\Json
+     */
+    protected $json;
+
+    /**
      * @param Context $context
      * @param Account $configProviderAccount
      * @param Factory $configProviderMethodFactory
@@ -114,7 +119,8 @@ class Data extends AbstractHelper
         Log $logger,
         CustomerRepositoryInterface $customerRepository,
         StoreManagerInterface $storeManager,
-        \Magento\Config\Model\Config\ScopeDefiner $scopeDefiner
+        \Magento\Config\Model\Config\ScopeDefiner $scopeDefiner,
+        \Magento\Framework\Serialize\Serializer\Json $json
 
     ) {
         parent::__construct($context);
@@ -128,6 +134,7 @@ class Data extends AbstractHelper
         $this->customerRepository = $customerRepository;
         $this->storeManager = $storeManager;
         $this->scopeDefiner = $scopeDefiner;
+        $this->json = $json;
     }
 
     /**
@@ -353,5 +360,15 @@ class Data extends AbstractHelper
 
     public function addDebug($messages){
         $this->logger->addDebug($messages);
+    }
+
+    public function getCheckoutSession()
+    {
+        return $this->_checkoutSession;
+    }
+
+    public function getJson()
+    {
+        return $this->json;
     }
 }

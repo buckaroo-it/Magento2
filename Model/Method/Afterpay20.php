@@ -539,19 +539,8 @@ class Afterpay20 extends AbstractMethod
             $this->updateShippingAddressBySendcloud($payment->getOrder(), $requestData);
         }
 
-        if ($myparcelOptions = $payment->getOrder()->getData('myparcel_delivery_options')) {
-            if (!empty($myparcelOptions)) {
-                try{
-                    $myparcelOptions = json_decode($myparcelOptions, true);
-                    $isPickup = $myparcelOptions['isPickup'] ?? false;
-                    if ($isPickup) {
-                        $this->updateShippingAddressByMyParcel($myparcelOptions['pickupLocation'], $requestData);
-                    }
-                } catch (\JsonException $je) {
-                    $this->logger2->addDebug(__METHOD__.'|2|'.' Error related to json_decode (MyParcel plugin compatibility)');
-                }
-            }
-        }
+        $this->handleShippingAddressByMyParcel($payment, $requestData);
+
         // Merge the article data; products and fee's
         $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
 
@@ -665,7 +654,8 @@ class Afterpay20 extends AbstractMethod
         }
     }
 
-    public function updateShippingAddressByMyParcel($myParcelLocation, &$requestData) {
+    protected function updateShippingAddressByMyParcel($myParcelLocation, &$requestData)
+    {
         $mapping = [
             ['Street', $myParcelLocation['street']],
             ['PostalCode', $myParcelLocation['postal_code']],
@@ -675,7 +665,7 @@ class Afterpay20 extends AbstractMethod
             ['StreetNumberAdditional', $myParcelLocation['number_suffix']],
         ];
 
-        $this->logger2->addDebug(var_export($mapping, true));
+        $this->logger2->addDebug(__METHOD__ . '|1|' . var_export($mapping, true));
 
         foreach ($mapping as $mappingItem) {
             if (!empty($mappingItem[1])) {

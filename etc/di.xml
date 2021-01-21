@@ -423,4 +423,8 @@
     <type name="Magento\Framework\View\Asset\Minification">
         <plugin name="my-exclude" type="Buckaroo\Magento2\Model\Plugin\ExcludeFilesFromMinification" />
     </type>
+
+    <type name="MyParcelNL\Magento\Model\Checkout\ShippingMethods">
+        <plugin name="myParcelNLBuckarooPlugin" type="Buckaroo\Magento2\Model\Plugin\MyParcelNLBuckarooPlugin" />
+    </type>
 </config>
