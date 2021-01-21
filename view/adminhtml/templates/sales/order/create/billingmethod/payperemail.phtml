@@ -89,3 +89,17 @@
     </div>
 
 </fieldset>
+<script>
+    [
+        ['email', 'buckaroo_magento2_payperemail_Email'],
+        ['order-billing_address_firstname', 'buckaroo_magento2_payperemail_BillingFirstName'],
+        ['order-billing_address_lastname', 'buckaroo_magento2_payperemail_BillingLastName'],
+    ].forEach(function (item) {
+        if (
+            document.getElementById(item[1]) && (document.getElementById(item[1]).value.length == 0) &&
+            document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)
+        ) {
+            document.getElementById(item[1]).value = document.getElementById(item[0]).value;
+        }
+    })
+</script>
