@@ -296,11 +296,12 @@ class Data extends AbstractHelper
      */
     public function getPPeCustomerDetails()
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-        $this->logger->addDebug(var_export($this->_getRequest()->getParams(),true));
-        if ($customerId = $this->_getRequest()->getParam('customer_id')) {
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(),true));
+        if (($customerId = $this->_getRequest()->getParam('customer_id')) && ($customerId > 0)) {
+            $this->logger->addDebug(__METHOD__ . '|5|');
             if (!isset($this->staticCache['getPPeCustomerDetails'])) {
                 if ($customer = $this->customerRepository->getById($customerId)) {
+                    $this->logger->addDebug(__METHOD__ . '|15|');
                     $billingAddress = null;
                     if ($addresses = $customer->getAddresses()) {
                         foreach ($addresses as $address) {
@@ -320,15 +321,25 @@ class Data extends AbstractHelper
                 }
             }
         }
+
         if ($order = $this->_getRequest()->getParam('order')) {
             if (isset($order['billing_address'])) {
-                $this->logger->addDebug(__METHOD__ . '|10|');
+                $this->logger->addDebug(__METHOD__ . '|30|');
                 $this->staticCache['getPPeCustomerDetails'] = [
                     'email' => $this->staticCache['getPPeCustomerDetails'] ? $this->staticCache['getPPeCustomerDetails']['email'] : '',
                     'firstName' => $order['billing_address']['firstname'],
                     'lastName' => $order['billing_address']['lastname'],
                 ];
             }
+        }
+
+        if (($payment = $this->_getRequest()->getParam('payment')) && ($payment['method'] == 'buckaroo_magento2_payperemail')) {
+            $this->logger->addDebug(__METHOD__ . '|40|');
+            $this->staticCache['getPPeCustomerDetails'] = [
+                'email' => $payment['customer_email'],
+                'firstName' => $payment['customer_billingFirstName'],
+                'lastName' => $payment['customer_billingLastName'],
+            ];
         }
 
         return $this->staticCache['getPPeCustomerDetails'] ?? null;
