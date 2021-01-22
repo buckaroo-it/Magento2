@@ -831,6 +831,10 @@ class Push implements PushInterface
             $trxId = $this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey'];
         }
 
+        if (!empty($this->postData['brq_relatedtransaction_refund']) && isset($this->postData['brq_relatedtransaction_refund'])) {
+            $trxId = $this->postData['brq_relatedtransaction_refund'];
+        }
+
         return $trxId;
     }
 
