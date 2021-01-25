@@ -1570,3 +1570,5 @@ class Push implements PushInterface
     }
 
 }
+
+//test for BP-625
