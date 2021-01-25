@@ -143,6 +143,14 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                 $this->helper->addDebug(__METHOD__ . '|cartKeepAlive enabled|');
                 if ($this->helper->getRestoreQuoteLastOrder() && ($lastRealOrder->getData('state') === 'new' && $lastRealOrder->getData('status') === 'pending') && $payment->getMethodInstance()->usesRedirect) {
 
+                    //diactivate customer quotes
+                    if($order->getCustomerId()>0){
+                        if($quote = $this->cart->getForCustomer($order->getCustomerId())){
+                            $quote->setIsActive(false);
+                            $this->cart->save($quote);
+                        }
+                    }
+
                     if ($this->accountConfig->getSecondChance($order->getStore())) {
                         $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
                         $secondChance = $this->secondChanceFactory->create();
