@@ -87,7 +87,7 @@
                 <fieldset class="fieldset payment styled">
 
                     <div class="fieldset card_front width-100">
-                        
+
                         <div class="field required width-100" >
                             <label class="label" for="buckaroo_magento2_giftcards_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
                             <div class="control">
@@ -147,7 +147,8 @@
 
             <div class="actions-toolbar">
                 <div class="primary">
-                    <button class="action primary checkout"
+                    <button id="button-action-checkout-giftcards"
+                            class="action primary checkout"
                             type="submit"
                             data-bind="
                             click: $parent.placeOrder.bind($parent),

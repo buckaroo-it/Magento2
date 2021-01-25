@@ -21,7 +21,7 @@
                           <!--data-bind="css: CardDesign ? 'styled' : 'blank'">-->
 
                     <div class="fieldset card_front width-100">
-                        
+
                         <div class="card_kind">
                             <img class="issuer-img" data-bind="attr: {
                                      'src': issuerImage(),
@@ -148,7 +148,8 @@
 
         <div class="actions-toolbar">
             <div class="primary">
-                <button class="action primary checkout button-creditcards"
+                <button id="button-action-checkout-creditcards"
+                        class="action primary checkout button-creditcards"
                         type="submit"
                         data-bind="
                         click: placeOrder,
