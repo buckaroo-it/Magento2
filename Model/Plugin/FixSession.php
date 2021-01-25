@@ -53,8 +53,8 @@ class FixSession
         if ($metadata && method_exists($metadata, 'getSameSite') && ($name == 'PHPSESSID')) {
             //$this->logger->addDebug(__METHOD__ . '|1|' . var_export([$name, $value, $metadata->getSameSite()], true));
             if ($metadata->getSameSite() != 'None') {
-                $metadata->setSameSite('None');
                 $metadata->setSecure(true);
+                $metadata->setSameSite('None');
             }
         }
         return [$name, $value, $metadata];
