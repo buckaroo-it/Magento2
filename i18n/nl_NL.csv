@@ -307,6 +307,7 @@
 "Buckaroo version","Buckaroo versie"
 "The transaction will be processed using %s.","De betaling zal verwerkt worden in %s."
 "The order has already been processed.","De bestelling is reeds verwerkt."
+"push notification for refund has no success status, ignoring.","pushmelding voor terugbetaling heeft geen successtatus, negeert. "
 "Warning:","Waarschuwing:"
 "Due to compound rounding errors in Magento when using currencies other than the store's base currency when creating refunds, the amount that you refund may be several cents more or less than you intended. If you wish to make sure that the correct amount is refunded, please create an offline refund and then  use Buckaroo's payment plaza to do the actual refund.","Wegens oplopende afrondingsfouten in Magento wanneer gekrediteerd wordt in een andere valuta dan de winkel's basisvaluta, kan het voorkomen dat er enkele centen verschil zitten tussen het bedrag dat gekrediteerd moet worden en het bedrag dat daadwerkelijk teruggestort wordt. Indien u zeker wilt zijn dat het juiste bedrag teruggestort wordt, kunt u het beste een offline refund aanmaken en het eigenlijke bedrag terugstorten vanuit Buckaroo's Payment Plaza."
 "support.buckaroo.nl","support.buckaroo.nl"
