@@ -326,7 +326,7 @@ class Data extends AbstractHelper
             if (isset($order['billing_address'])) {
                 $this->logger->addDebug(__METHOD__ . '|30|');
                 $this->staticCache['getPPeCustomerDetails'] = [
-                    'email' => $this->staticCache['getPPeCustomerDetails'] ? $this->staticCache['getPPeCustomerDetails']['email'] : '',
+                    'email' => !empty($this->staticCache['getPPeCustomerDetails']['email']) ? $this->staticCache['getPPeCustomerDetails']['email'] : '',
                     'firstName' => $order['billing_address']['firstname'],
                     'lastName' => $order['billing_address']['lastname'],
                 ];
