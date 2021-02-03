@@ -65,7 +65,8 @@
     .buckaroo_magento2_applepay .payment-method-second-col,
     .buckaroo_magento2_capayablein3 .payment-method-second-col,
     .buckaroo_magento2_capayablepostpay .payment-method-second-col,
-    .buckaroo_magento2_tinka .payment-method-second-col
+    .buckaroo_magento2_tinka .payment-method-second-col,
+    .buckaroo_magento2_mrcash .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -91,7 +92,8 @@
     .buckaroo_magento2_applepay .payment-method-billing-address,
     .buckaroo_magento2_capayablein3 .payment-method-billing-address,
     .buckaroo_magento2_capayablepostpay .payment-method-billing-address,
-    .buckaroo_magento2_tinka .payment-method-billing-address
+    .buckaroo_magento2_tinka .payment-method-billing-address,
+    .buckaroo_magento2_mrcash .payment-method-billing-address
     {
         float:left;
         width: 50%;

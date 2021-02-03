@@ -144,6 +144,13 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_mrcash/limit_by_ip</config_path>
             </field>
+
+            <field id="card_design" translate="label comment" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Client side</label>
+                <comment><![CDATA[Enable or disable client sided payment method behavior.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>payment/buckaroo_magento2_mrcash/client_side</config_path>
+            </field>
         </group>
     </group>
 </include>

@@ -35,6 +35,7 @@ class Mrcash extends AbstractConfigProvider
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_mrcash/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_mrcash/specificcountry';
 
+    const XPATH_MRCASH_USE_CLIENT_SIDE          = 'payment/buckaroo_magento2_mrcash/client_side';
     /**
      * @return array|void
      */
@@ -48,6 +49,7 @@ class Mrcash extends AbstractConfigProvider
                     'mrcash' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'useClientSide' => intval($this->useClientSide()),
                     ],
                 ],
             ],
@@ -68,5 +70,16 @@ class Mrcash extends AbstractConfigProvider
         );
 
         return $paymentFee ? $paymentFee : false;
+    }
+
+    /**
+     * @return bool
+     */
+    private function useClientSide()
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_MRCASH_USE_CLIENT_SIDE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
     }
 }
