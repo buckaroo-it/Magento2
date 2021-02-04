@@ -20,6 +20,12 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+
 class Mrcash extends AbstractConfigProvider
 {
     const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
@@ -36,6 +42,36 @@ class Mrcash extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_mrcash/specificcountry';
 
     const XPATH_MRCASH_USE_CLIENT_SIDE          = 'payment/buckaroo_magento2_mrcash/client_side';
+
+    const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
+
+    /** @var FormKey */
+    private $formKey;
+
+    /**
+     * @param Repository           $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies    $allowedCurrencies
+     * @param PaymentFee           $paymentFeeHelper
+     * @param FormKey              $formKey
+     */
+    public function __construct(
+        Repository $assetRepo,
+        ScopeConfigInterface $scopeConfig,
+        AllowedCurrencies $allowedCurrencies,
+        PaymentFee $paymentFeeHelper,
+        FormKey $formKey
+    ) {
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+
+        $this->formKey = $formKey;
+    }
+
+    private function getFormKey()
+    {
+        return $this->formKey->getFormKey();
+    }
+
     /**
      * @return array|void
      */
@@ -50,6 +86,7 @@ class Mrcash extends AbstractConfigProvider
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'useClientSide' => intval($this->useClientSide()),
+                        'redirecturl' => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
                     ],
                 ],
             ],

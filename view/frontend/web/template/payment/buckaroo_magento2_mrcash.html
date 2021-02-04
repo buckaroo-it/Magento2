@@ -17,6 +17,12 @@
         <!-- ko if: useClientSide -->
 
         <div class="payment-method-second-col billing-address-form">
+
+            <input id="buckaroo_magento2_mrcash_clientSideModeCc" class="bank-types-input" type="radio" checked="checked"
+                   data-bind="click: setClientSideMode.bind($data, 'cc')" name="payment[buckaroo_magento2_mrcash][clientsidemode]">
+            <label for="buckaroo_magento2_mrcash_clientSideModeCc"><span data-bind="i18n: 'Credit card'"></span></label>
+
+            <!-- ko if: isCcMode -->
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment card styled">
@@ -90,6 +96,12 @@
                     </div>
                 </fieldset>
             </form>
+            <!--/ko-->
+
+            <input id="buckaroo_magento2_mrcash_clientSideModeMobile" class="bank-types-input" type="radio"
+                   data-bind="click: setClientSideMode.bind($data, 'mobile')" name="payment[buckaroo_magento2_mrcash][clientsidemode]">
+            <label for="buckaroo_magento2_mrcash_clientSideModeMobile"><span data-bind="i18n: 'Mobile application'"></span></label>
+
         </div>
 
         <!--/ko-->

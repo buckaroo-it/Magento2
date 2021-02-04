@@ -1329,3 +1329,23 @@
     text-align: center;
     cursor: pointer;
 }
+
+#bancontactMobilePopup {
+    z-index: 200;
+}
+
+#buckaroo_magento2_mrcash_qr {
+    text-align: center;
+}
+
+#buckaroo_magento2_payconiq_container #buckaroo_magento2_mrcash_items {
+    display: inline-block;
+    max-width: 500px;
+}
+
+#buckaroo_magento2_payconiq_container #buckaroo_magento2_mrcash_cancel {
+    min-height: 32px;
+    margin-top: 20px;
+    float: right;
+}
+

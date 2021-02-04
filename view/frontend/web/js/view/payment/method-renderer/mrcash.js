@@ -27,6 +27,7 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
+        'mageUtils',
         'BuckarooClientSideEncryption'
     ],
     function (
@@ -36,7 +37,8 @@ define(
         placeOrderAction,
         ko,
         checkoutData,
-        selectPaymentMethodAction
+        selectPaymentMethodAction,
+        utils
     ) {
         'use strict';
 
@@ -79,6 +81,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 useClientSide : window.checkoutConfig.payment.buckaroo.mrcash.useClientSide,
+                clientSideMode: 'cc',
                 months : [
                     {'value' : '', 'label' : $.mage.__('Select a month') },
                     {'value' : 1, 'label' : '01'},
@@ -138,7 +141,17 @@ define(
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
+                        if (this.isMobileMode()) {
+                            var data =  {};
+                            data['transaction_key'] = response.key;
+
+                            utils.submit({
+                                url: window.checkoutConfig.payment.buckaroo.mrcash.redirecturl,
+                                data: response
+                            });
+                        } else {
+                            window.location.replace(response.RequiredAction.RedirectURL);
+                        }
                     }
                 },
 
@@ -228,7 +241,7 @@ define(
                  * Run validation function
                  */
                 validate: function () {
-                    if (this.useClientSide) {
+                    if (this.isCcMode()) {
                         var elements = $('.' + this.getCode() + ' [data-validate]:not([name*="agreement"])');
                         return elements.valid();
                     } else {
@@ -277,9 +290,23 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_encrypteddata" : this.EncryptedData()
+                            "customer_encrypteddata" : this.EncryptedData(),
+                            "client_side_mode" : this.clientSideMode
                         }
                     };
+                },
+
+                setClientSideMode: function (mode) {
+                    this.clientSideMode = mode;
+                    return true;
+                },
+
+                isCcMode: function () {
+                    return this.useClientSide && (this.clientSideMode == 'cc');
+                },
+
+                isMobileMode: function () {
+                    return this.useClientSide && (this.clientSideMode == 'mobile');
                 }
             }
         );

@@ -1,0 +1,28 @@
+<div id="buckaroo_magento2_payconiq_loader" class="loading-mask"></div>
+
+<div id="buckaroo_magento2_payconiq_container">
+    <div id="buckaroo_magento2_mrcash_items">
+        <p id="buckaroo_magento2_mrcash_title"><?php echo __('Scan onderstaande code binnen 15 minuten met de')?>&nbsp;
+            <a target="_blank" href="https://www.bancontact.com/nl"><?php echo __('Bancontact app')?></a></p>
+        <div id="buckaroo_magento2_mrcash_qr"></div>
+        <button id="buckaroo_magento2_mrcash_url" type="button" style="display: none;"></button>
+
+        <button id="buckaroo_magento2_mrcash_cancel" type="button" title="Cancel" data-bind="click: cancelPayment">
+            <span><?php echo __('Cancel')?></span>
+        </button>
+    </div>
+</div>
+
+<script>
+    require(['buckaroo/mrcash/pay'], function (mrcashPay) {
+        var transactionKey = "<?php echo $this->getTransactionKey(); ?>";
+
+        mrcashPay.setTransactionKey(transactionKey);
+        mrcashPay.showQrCode();
+    });
+    cancelPayment = function() {
+        require(['buckaroo/mrcash/pay'], function (mrcashPay) {
+            mrcashPay.cancelPayment();
+        });
+    }
+</script>

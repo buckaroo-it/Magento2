@@ -104,8 +104,28 @@ class Mrcash extends AbstractMethod
 
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        if ($useClientSide) {
-            $services = $this->getEncyptedPaymentsService($payment);
+        if ($useClientSide &&
+            ($additionalInformation = $payment->getAdditionalInformation()) &&
+            isset($additionalInformation['client_side_mode']) &&
+            ($additionalInformation['client_side_mode']=='cc')
+        ) {
+            $this->logger2->addDebug(__METHOD__ . '|5|');
+
+            if (!isset($additionalInformation['customer_encrypteddata'])) {
+                throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted bancontact data to Buckaroo.'));
+            }
+
+            $services = [
+                'Name' => 'bancontactmrcash',
+                'Action' => 'PayEncrypted',
+                'Version' => 0,
+                'RequestParameter' => [
+                    [
+                        '_' => $additionalInformation['customer_encrypteddata'],
+                        'Name' => 'EncryptedCardData',
+                    ],
+                ],
+            ];
         } else {
             $services = [
                 'Name'             => 'bancontactmrcash',
@@ -188,6 +208,13 @@ class Mrcash extends AbstractMethod
             $this->getInfoInstance()->setAdditionalInformation(
                 'customer_encrypteddata',
                 $data['additional_data']['customer_encrypteddata']
+            );
+        }
+
+        if (isset($data['additional_data']['client_side_mode'])) {
+            $this->getInfoInstance()->setAdditionalInformation(
+                'client_side_mode',
+                $data['additional_data']['client_side_mode']
             );
         }
 
