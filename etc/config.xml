@@ -195,6 +195,7 @@
                 <refund_extra_fields>customeriban,customeraccountname,customerbic</refund_extra_fields>
                 <refund_extra_fields_labels>customer iban,customer account name,customer bic</refund_extra_fields_labels>
                 <available_in_backend>0</available_in_backend>
+                <client_side>0</client_side>
             </buckaroo_magento2_mrcash>
 
             <buckaroo_magento2_sofortbanking>

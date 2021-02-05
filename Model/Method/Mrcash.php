@@ -98,13 +98,41 @@ class Mrcash extends AbstractMethod
      */
     public function getOrderTransactionBuilder($payment)
     {
+        $storeId = $payment->getOrder()->getStoreId();
+        $useClientSide = $this->getConfigData('client_side', $storeId);
+        $this->logger2->addDebug(__METHOD__.'|1|'.var_export($useClientSide, true));
+
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        $services = [
-            'Name'             => 'bancontactmrcash',
-            'Action'           => 'Pay',
-            'Version'          => 1,
-        ];
+        if ($useClientSide &&
+            ($additionalInformation = $payment->getAdditionalInformation()) &&
+            isset($additionalInformation['client_side_mode']) &&
+            ($additionalInformation['client_side_mode']=='cc')
+        ) {
+            $this->logger2->addDebug(__METHOD__ . '|5|');
+
+            if (!isset($additionalInformation['customer_encrypteddata'])) {
+                throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted bancontact data to Buckaroo.'));
+            }
+
+            $services = [
+                'Name' => 'bancontactmrcash',
+                'Action' => 'PayEncrypted',
+                'Version' => 0,
+                'RequestParameter' => [
+                    [
+                        '_' => $additionalInformation['customer_encrypteddata'],
+                        'Name' => 'EncryptedCardData',
+                    ],
+                ],
+            ];
+        } else {
+            $services = [
+                'Name'             => 'bancontactmrcash',
+                'Action'           => 'Pay',
+                'Version'          => 1,
+            ];
+        }
 
         /**
          * @noinspection PhpUndefinedMethodInspection
@@ -168,5 +196,57 @@ class Mrcash extends AbstractMethod
     public function getVoidTransactionBuilder($payment)
     {
         return true;
+    }
+
+    public function assignData(\Magento\Framework\DataObject $data)
+    {
+        parent::assignData($data);
+
+        $data = $this->assignDataConvertToArray($data);
+
+        if (isset($data['additional_data']['customer_encrypteddata'])) {
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_encrypteddata',
+                $data['additional_data']['customer_encrypteddata']
+            );
+        }
+
+        if (isset($data['additional_data']['client_side_mode'])) {
+            $this->getInfoInstance()->setAdditionalInformation(
+                'client_side_mode',
+                $data['additional_data']['client_side_mode']
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return array
+     * @throws \Buckaroo\Magento2\Exception
+     */
+    public function getEncyptedPaymentsService($payment)
+    {
+        $additionalInformation = $payment->getAdditionalInformation();
+
+        if (!isset($additionalInformation['customer_encrypteddata'])) {
+            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted bancontact data to Buckaroo.'));
+        }
+
+        $services = [
+            'Name'             => 'bancontactmrcash',
+            'Action'           => 'PayEncrypted',
+            'Version'          => 0,
+            'RequestParameter' => [
+                [
+                    '_'    => $additionalInformation['customer_encrypteddata'],
+                    'Name' => 'EncryptedCardData',
+                ],
+            ],
+        ];
+
+        return $services;
     }
 }

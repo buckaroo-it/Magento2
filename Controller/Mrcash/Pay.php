@@ -17,29 +17,8 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Block\Checkout\Payconiq;
+namespace Buckaroo\Magento2\Controller\Mrcash;
 
-class Pay extends \Magento\Framework\View\Element\Template
+class Pay extends \Buckaroo\Magento2\Controller\Payconiq\Pay
 {
-    /** @var array */
-    protected $response;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function _construct()
-    {
-        parent::_construct();
-
-        $this->response = $this->getRequest()->getParams();
-    }
-
-    /**
-     * @return string
-     */
-    public function getTransactionKey()
-    {
-        $key = preg_replace('/[^\w]/', '', $this->response['Key']);
-        return $key;
-    }
 }
