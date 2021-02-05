@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Block\Checkout\Payconiq;
 class Pay extends \Magento\Framework\View\Element\Template
 {
     /** @var array */
-    private $response;
+    protected $response;
 
     /**
      * {@inheritdoc}
@@ -32,14 +32,6 @@ class Pay extends \Magento\Framework\View\Element\Template
         parent::_construct();
 
         $this->response = $this->getRequest()->getParams();
-    }
-
-    /**
-     * @return array
-     */
-    public function getResponse()
-    {
-        return $this->response;
     }
 
     /**

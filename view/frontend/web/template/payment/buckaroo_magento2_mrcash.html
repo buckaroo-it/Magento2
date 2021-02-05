@@ -21,10 +21,11 @@
             <input id="buckaroo_magento2_mrcash_clientSideModeCc" class="bank-types-input" type="radio" checked="checked"
                    data-bind="click: setClientSideMode.bind($data, 'cc')" name="payment[buckaroo_magento2_mrcash][clientsidemode]">
             <label for="buckaroo_magento2_mrcash_clientSideModeCc"><span data-bind="i18n: 'Credit card'"></span></label>
+            <br>
 
             <!-- ko if: isCcMode -->
             <form data-bind="mageInit: { 'validation': [] },
-                  attr: {'data-hasrequired': $t('* Required Fields')}">
+                  attr: {'data-hasrequired': $t('* Required Fields')}" id="buckaroo_magento2_mrcash_clientSideModeCc_block">
                 <fieldset class="fieldset payment card styled">
 
                     <div class="fieldset card_front width-100">

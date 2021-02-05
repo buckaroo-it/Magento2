@@ -19,35 +19,7 @@
  */
 namespace Buckaroo\Magento2\Block\Checkout\Mrcash;
 
-class Pay extends \Magento\Framework\View\Element\Template
+class Pay extends \Buckaroo\Magento2\Block\Checkout\Payconiq\Pay
 {
-    /** @var array */
-    private $response;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function _construct()
-    {
-        parent::_construct();
-
-        $this->response = $this->getRequest()->getParams();
-    }
-
-    /**
-     * @return array
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTransactionKey()
-    {
-        $key = preg_replace('/[^\w]/', '', $this->response['Key']);
-        return $key;
-    }
 }

@@ -297,6 +297,11 @@ define(
                 },
 
                 setClientSideMode: function (mode) {
+                    if (mode == 'cc') {
+                        $('#buckaroo_magento2_mrcash_clientSideModeCc_block').show();
+                    } else {
+                        $('#buckaroo_magento2_mrcash_clientSideModeCc_block').hide();
+                    }
                     this.clientSideMode = mode;
                     return true;
                 },
