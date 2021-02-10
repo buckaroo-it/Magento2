@@ -85,6 +85,7 @@ class Data extends AbstractHelper
 
     /** @var CheckoutSession */
     protected $_checkoutSession;
+    protected $_checkoutSessionProxy;
 
     protected $groupTransaction;
 
@@ -115,6 +116,7 @@ class Data extends AbstractHelper
         Factory $configProviderMethodFactory,
         \Magento\Framework\HTTP\Header $httpHeader,
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Checkout\Model\Session\Proxy $checkoutSessionProxy,
         PaymentGroupTransaction $groupTransaction,
         Log $logger,
         CustomerRepositoryInterface $customerRepository,
@@ -129,6 +131,7 @@ class Data extends AbstractHelper
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->httpHeader = $httpHeader;
         $this->_checkoutSession  = $checkoutSession;
+        $this->_checkoutSessionProxy  = $checkoutSessionProxy;
         $this->groupTransaction  = $groupTransaction;
         $this->logger = $logger;
         $this->customerRepository = $customerRepository;
@@ -358,11 +361,11 @@ class Data extends AbstractHelper
     }
 
     public function getRestoreQuoteLastOrder(){
-        return $this->_checkoutSession->getRestoreQuoteLastOrder();
+        return $this->_checkoutSessionProxy->getRestoreQuoteLastOrder();
     }
 
     public function setRestoreQuoteLastOrder($value){
-        return $this->_checkoutSession->setRestoreQuoteLastOrder($value);
+        return $this->_checkoutSessionProxy->setRestoreQuoteLastOrder($value);
     }
 
     public function getQuote(){
