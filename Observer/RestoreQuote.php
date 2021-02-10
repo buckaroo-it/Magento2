@@ -146,9 +146,10 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     //diactivate customer quotes
                     if($order->getCustomerId()>0){
                         if($quote = $this->cart->getForCustomer($order->getCustomerId())){
-                            $quote->setIsActive(false);
+                            $quote->setIsActive(false)->removeAllItems();
                             $this->cart->save($quote);
                         }
+                        $this->cart->truncate()->saveQuote();
                     }
 
                     if ($this->accountConfig->getSecondChance($order->getStore())) {
