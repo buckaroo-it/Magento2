@@ -74,7 +74,5 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
         } catch (\Exception $exception) {
             $this->messageManager->addExceptionMessage($exception, __('We can\'t empty the shopping cart.'));
         }
-
-        echo "<script>window.onload = function(){require(['Magento_Customer/js/customer-data'], function (customerData) {var sections = ['cart']; customerData.reload(sections, true); customerData.invalidate(sections); console.log('Reload shopping cart');});}</script>";
     }
 }

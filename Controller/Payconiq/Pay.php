@@ -27,7 +27,7 @@ use Magento\Framework\View\Result\PageFactory;
 class Pay extends Action
 {
     /** @var  PageFactory */
-    private $resultPageFactory;
+    protected $resultPageFactory;
 
     /**
      * @param Context     $context
@@ -60,7 +60,7 @@ class Pay extends Action
     /**
      * @return bool
      */
-    private function canShowPage()
+    protected function canShowPage()
     {
         $key = $this->getRequest()->getParam('Key');
 
