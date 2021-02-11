@@ -695,6 +695,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
+        $order = $payment->getOrder();
+        $this->helper->setRestoreQuoteLastOrder($order->getId());
+
         $this->afterAuthorize($payment, $response);
 
         return $this;

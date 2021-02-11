@@ -253,7 +253,7 @@ class Push implements PushInterface
         $payment = $this->order->getPayment();
         $skipFirstPush = $payment->getAdditionalInformation('skip_push');
 
-        $this->logging->addDebug(__METHOD__ . '|4|' . var_export($skipFirstPush, true));
+        $this->logging->addDebug(__METHOD__ . '|1_20|' . var_export($skipFirstPush, true));
 
         /**
          * Buckaroo Push is send before Response, for correct flow we skip the first push
@@ -290,6 +290,13 @@ class Push implements PushInterface
                 throw new \Buckaroo\Magento2\Exception(
                     __('Refund failed ! Status : %1 and the order does not contain an invoice', $response['status'])
                 );
+            } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
+                && $this->order->hasInvoices()
+            ) {
+                //don't proceed failed refund push
+                $this->logging->addDebug(__METHOD__ . '|10|');
+                $this->setOrderNotificationNote(__('push notification for refund has no success status, ignoring.'));
+                return true;
             }
             return $this->refundPush->receiveRefundPush($this->postData, $validSignature, $this->order);
         }
@@ -411,7 +418,7 @@ class Push implements PushInterface
      */
     private function isPushNeeded()
     {
-        $this->logging->addDebug(__METHOD__ . '|1_2| isPushNeeded: ' . var_export($this->postData, true));
+        $this->logging->addDebug(__METHOD__ . '|1|');
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
             $this->hasPostData('add_service_action_from_magento',
                 ['capture', 'cancelauthorize', 'cancelreservation', 'refund']) &&
@@ -877,7 +884,6 @@ class Push implements PushInterface
          * Get current state and status of order
          */
         $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
-        $this->logging->addDebug('||| $currentStateAndStatus: ' . var_export($currentStateAndStatus, true));
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($currentStateAndStatus, true));
 
         /**
@@ -1444,7 +1450,7 @@ class Push implements PushInterface
 
     private function isGroupTransactionInfo()
     {
-        $this->logging->addDebug(__METHOD__ . '|1_1| isGroupTransaction: ' . var_export($this->originalPostData, true));
+        $this->logging->addDebug(__METHOD__ . '|1|');
         if ($this->isGroupTransactionInfoType()) {
             if ($this->postData['brq_statuscode'] != 190) {
                 return true;
@@ -1570,3 +1576,5 @@ class Push implements PushInterface
     }
 
 }
+
+//test develop branch

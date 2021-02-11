@@ -123,7 +123,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
             );
         } elseif($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) {
             $method = $dataObject->getOrder()->getPayment()->getMethod();
-            if (!preg_match('/afterpay/', $method)) {
+            if (!preg_match('/afterpay/', $method) || (strpos($method, 'afterpay20') !== false)) {
                 /**
                  * @noinspection PhpUndefinedMethodInspection
                  */

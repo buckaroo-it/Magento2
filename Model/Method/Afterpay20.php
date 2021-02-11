@@ -903,8 +903,8 @@ class Afterpay20 extends AbstractMethod
 
         // hasCreditmemos returns since 2.2.6 true or false.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
-        if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
-            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax, $itemsTotalAmount);
+        $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax, $itemsTotalAmount);
+        if ($serviceLine) {
             $articles = array_merge($articles, $serviceLine);
 
             $refundType = $this->getRefundType($count);
@@ -923,7 +923,7 @@ class Afterpay20 extends AbstractMethod
         }
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if(abs($creditmemo->getBaseGrandTotal() - $itemsTotalAmount) > 0.01){
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);

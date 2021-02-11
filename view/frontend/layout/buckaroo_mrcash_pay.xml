@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <!--
-/**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
@@ -17,14 +16,15 @@
  *
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
- */
- -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Buckaroo_Magento2:etc/buckaroo_module.xsd">
-    <module name="Buckaroo_Magento2" setup_version="1.32.0" build_number="1769" stability="stable">
-        <sequence>
-            <module name="Magento_Payment"/>
-            <module name="Magento_ReleaseNotification"/>
-            <module name="Magento_Sales"/>
-        </sequence>
-    </module>
-</config>
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Buckaroo_Magento2::css/styles.css" />
+    </head>
+
+    <body>
+        <referenceContainer name="content">
+            <block class="Buckaroo\Magento2\Block\Checkout\Mrcash\Pay" name="buckaroo_magento2.checkout.mrcash_pay" template="Buckaroo_Magento2::checkout/mrcash/pay.phtml" cacheable="false" />
+        </referenceContainer>
+    </body>
+</page>

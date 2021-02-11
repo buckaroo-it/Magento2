@@ -36,22 +36,22 @@ use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 class Process extends Action
 {
     /** @var null|Transaction */
-    private $transaction = null;
+    protected $transaction = null;
 
     /** @var SearchCriteriaBuilder */
-    private $searchCriteriaBuilder;
+    protected $searchCriteriaBuilder;
 
     /** @var TransactionRepositoryInterface */
-    private $transactionRepository;
+    protected $transactionRepository;
 
     /** @var Account */
-    private $account;
+    protected $account;
 
     /** @var TransactionCancel */
-    private $transactionCancel;
+    protected $transactionCancel;
 
     /** @var QuoteRecreate */
-    private $quoteRecreate;
+    protected $quoteRecreate;
 
     /**
      * @param Context                         $context
@@ -112,7 +112,7 @@ class Process extends Action
     /**
      * @return bool|mixed
      */
-    private function getTransactionKey()
+    protected function getTransactionKey()
     {
         $transactionKey = $this->getRequest()->getParam('transaction_key');
         $transactionKey = preg_replace('/[^\w]/', '', $transactionKey);
@@ -128,7 +128,7 @@ class Process extends Action
      * @return TransactionInterface|Transaction
      * @throws \Buckaroo\Magento2\Exception
      */
-    private function getTransaction()
+    protected function getTransaction()
     {
         if ($this->transaction != null) {
             return $this->transaction;
@@ -150,7 +150,7 @@ class Process extends Action
      * @return TransactionSearchResultInterface
      * @throws \Buckaroo\Magento2\Exception
      */
-    private function getList()
+    protected function getList()
     {
         $transactionKey = $this->getTransactionKey();
 
