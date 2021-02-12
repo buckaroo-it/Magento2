@@ -158,6 +158,8 @@ class Push implements PushInterface
 
     private $isPayPerEmailB2BModePushInitial = false;
 
+    protected $dirList;
+
     /**
      * @param Order $order
      * @param TransactionInterface $transaction
@@ -187,7 +189,8 @@ class Push implements PushInterface
         OrderStatusFactory $orderStatusFactory,
         PaymentGroupTransaction $groupTransaction,
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        \Magento\Framework\Filesystem\DirectoryList $dirList
     )
     {
         $this->order = $order;
@@ -206,6 +209,7 @@ class Push implements PushInterface
         $this->groupTransaction = $groupTransaction;
         $this->objectManager = $objectManager;
         $this->resourceConnection = $resourceConnection;
+        $this->dirList = $dirList;
     }
 
     /**
@@ -222,6 +226,10 @@ class Push implements PushInterface
 
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature($this->originalPostData);
+
+        $this->logging->addDebug(__METHOD__ . '|1_2|');
+        $lockHandler = $this->lockPushProcessingPpe();
+        $this->logging->addDebug(__METHOD__ . '|1_3|');
 
         if ($this->isGroupTransactionInfo()) {
             return true;
@@ -353,6 +361,9 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|5-1|');
             $this->order->save();
         }
+
+        $this->unlockPushProcessingPpe($lockHandler);
+
         $this->logging->addDebug(__METHOD__ . '|6|');
 
         return true;
@@ -465,15 +476,7 @@ class Push implements PushInterface
      */
     private function loadOrder()
     {
-        $brqOrderId = false;
-
-        if (isset($this->postData['brq_invoicenumber']) && strlen($this->postData['brq_invoicenumber']) > 0) {
-            $brqOrderId = $this->postData['brq_invoicenumber'];
-        }
-
-        if (isset($this->postData['brq_ordernumber']) && strlen($this->postData['brq_ordernumber']) > 0) {
-            $brqOrderId = $this->postData['brq_ordernumber'];
-        }
+        $brqOrderId = $this->getOrderIncrementId();
 
         //Check if the order can receive further status updates
         $this->order->loadByIncrementId((string) $brqOrderId);
@@ -1354,6 +1357,7 @@ class Push implements PushInterface
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+                $this->logging->addDebug(__METHOD__ . '|30|sendinvoiceemail');
                 $this->invoiceSender->send($invoice, true);
             }
         }
@@ -1573,6 +1577,57 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         return $this->isPayPerEmailB2BModePush();
+    }
+
+    private function getOrderIncrementId()
+    {
+        $brqOrderId = false;
+
+        if (isset($this->postData['brq_invoicenumber']) && strlen($this->postData['brq_invoicenumber']) > 0) {
+            $brqOrderId = $this->postData['brq_invoicenumber'];
+        }
+
+        if (isset($this->postData['brq_ordernumber']) && strlen($this->postData['brq_ordernumber']) > 0) {
+            $brqOrderId = $this->postData['brq_ordernumber'];
+        }
+
+        return $brqOrderId;
+    }
+
+    private function getLockPushProcessingPpeFilePath()
+    {
+        if ($brqOrderId = $this->getOrderIncrementId()) {
+            return $this->dirList->getPath('tmp') . DIRECTORY_SEPARATOR . 'bk_push_ppe_' . md5($brqOrderId);
+        } else {
+            return false;
+        }
+
+    }
+
+    private function lockPushProcessingPpe()
+    {
+        if (isset($this->originalPostData['ADD_fromPayPerEmail'])) {
+            $this->logging->addDebug(__METHOD__ . '|1|');
+            if ($path = $this->getLockPushProcessingPpeFilePath()) {
+                if ($fp = fopen($path, "w+")) {
+                    flock($fp, LOCK_EX);
+                    $this->logging->addDebug(__METHOD__ . '|5|');
+                    return $fp;
+                }
+            }
+        }
+    }
+
+    private function unlockPushProcessingPpe($lockHandler)
+    {
+        if (isset($this->originalPostData['ADD_fromPayPerEmail'])) {
+            $this->logging->addDebug(__METHOD__ . '|1|');
+            fclose($lockHandler);
+            if (($path = $this->getLockPushProcessingPpeFilePath()) && file_exists($path)) {
+                unlink($path);
+                $this->logging->addDebug(__METHOD__ . '|5|');
+            }
+        }
     }
 
 }
