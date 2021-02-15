@@ -167,6 +167,5 @@ class Pospayment extends AbstractMethod
         }
 
         return false;
-
     }
 }

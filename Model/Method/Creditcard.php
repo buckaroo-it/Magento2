@@ -169,11 +169,11 @@ class Creditcard extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $serviceAction = 'Pay';
-        if($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())){
+        if ($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())) {
             $serviceAction = 'PayRemainder';
             $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
                         
-            if($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())){
+            if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())) {
                 $transactionBuilder->setAmount($transactionBuilder->getAmount() - $alreadyPaid);
             }
         }
@@ -196,7 +196,8 @@ class Creditcard extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
          $payment->setAdditionalInformation(
-            'skip_push', 1
+             'skip_push',
+             1
          );
 
         return $transactionBuilder;

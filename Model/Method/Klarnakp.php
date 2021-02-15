@@ -487,10 +487,10 @@ class Klarnakp extends AbstractMethod
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $payment->getOrder()->getShippingAddress();
-        if($shippingAddress == null){
+        if ($shippingAddress == null) {
             $shippingAddress = $payment->getOrder()->getBillingAddress();
             $shippingSameAsBilling = "true";
-        }else{
+        } else {
             $shippingSameAsBilling = $this->isAddressDataDifferent($payment);
         }
         
@@ -570,15 +570,15 @@ class Klarnakp extends AbstractMethod
 
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $articles = array();
+        $articles = [];
         //$group = 1;
 
         $invoiceItems = $invoice->getAllItems();
 
         $qtys = [];
         foreach ($invoiceItems as $item) {
-            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()],true));
-            if (empty($item)  || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
+            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()], true));
+            if (empty($item) || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
                 continue;
             }
 
@@ -929,7 +929,7 @@ class Klarnakp extends AbstractMethod
 
         $cartData = $this->cart->getItems();
 
-        $articles = array();
+        $articles = [];
         $group    = 1;
         $max      = 99;
         $i        = 1;
@@ -1310,9 +1310,9 @@ class Klarnakp extends AbstractMethod
         $article = [];
         $taxes = $this->getTaxes($payment);
 
-       if ($taxes > 0) {
+        if ($taxes > 0) {
 
-        $article = [
+            $article = [
             [
                 '_' => 4,
                 'Group' => 'Article',
@@ -1343,7 +1343,7 @@ class Klarnakp extends AbstractMethod
                 'GroupID' => $group,
                 'Name' => 'ArticleVat',
             ],
-        ];
+            ];
         }
 
         return $article;

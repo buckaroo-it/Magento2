@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Model\Method\Billink as BillinkMethod;
 
 use Buckaroo\Magento2\Model\Config\Source\BillinkBusiness;
+
 /**
  * @method getDueDate()
  * @method getSendEmail()

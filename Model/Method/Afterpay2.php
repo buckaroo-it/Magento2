@@ -324,7 +324,8 @@ class Afterpay2 extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -446,7 +447,8 @@ class Afterpay2 extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -761,7 +763,7 @@ class Afterpay2 extends AbstractMethod
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
         // Set loop variables
-        $articles = array();
+        $articles = [];
         $count    = 1;
 
         foreach ($invoice->getAllItems() as $item) {
@@ -867,7 +869,7 @@ class Afterpay2 extends AbstractMethod
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);

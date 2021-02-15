@@ -1130,9 +1130,9 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
                 ['some data']
             ],
             'multiple data, empty registry' => [
-                ['string data', array('array data'), 12345],
+                ['string data', ['array data'], 12345],
                 null,
-                ['string data', array('array data'), 12345]
+                ['string data', ['array data'], 12345]
             ],
             'no data, empty registry' => [
                 [],
@@ -1150,14 +1150,14 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
                 ['existing data', 'some data']
             ],
             'multiple data, filled registry' => [
-                ['string data', array('array data'), 12345],
-                [987258, (Object)array('existing array')],
-                [987258, (Object)array('existing array'), 'string data', array('array data'), 12345]
+                ['string data', ['array data'], 12345],
+                [987258, (Object)['existing array']],
+                [987258, (Object)['existing array'], 'string data', ['array data'], 12345]
             ],
             'no data, filled registry' => [
                 [],
-                [987258, 'existing data', (Object)array('existing array')],
-                [987258, 'existing data', (Object)array('existing array')]
+                [987258, 'existing data', (Object)['existing array']],
+                [987258, 'existing data', (Object)['existing array']]
             ],
             'null data, filled registry' => [
                 [null],

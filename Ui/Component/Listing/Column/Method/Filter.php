@@ -47,8 +47,7 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
         ');
 
         $additionalOptions = [];
-        while($row = $result->fetch())
-        {
+        while ($row = $result->fetch()) {
             if (!isset($additionalOptions[$row['method']. '-' . $row['giftcard_codes']])) {
                 foreach ($this->options as $option) {
                     if ($option['value'] == $row['method']) {
@@ -59,7 +58,7 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
             }
         }
 
-        if  ($additionalOptions) {
+        if ($additionalOptions) {
             foreach ($additionalOptions as $key => $value) {
                 $this->options[] = [
                     "value" => $key,

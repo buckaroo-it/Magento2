@@ -95,7 +95,8 @@ class Order
     }
 
 
-    private function getRequestParameter($shippingAddress) {
+    private function getRequestParameter($shippingAddress)
+    {
 
         $extraInfoRequestParameter = [
             [
@@ -127,8 +128,10 @@ class Order
         $shippingRegion = $shippingAddress->getRegion();
         if (isset($shippingRegion) && !empty($shippingRegion)) {
 
-            $twoCharacterShippingRegion = $this->paypalStateCodes->getCodeFromValue($shippingAddress->getCountryId(),
-                $shippingAddress->getRegion());
+            $twoCharacterShippingRegion = $this->paypalStateCodes->getCodeFromValue(
+                $shippingAddress->getCountryId(),
+                $shippingAddress->getRegion()
+            );
 
             if ($twoCharacterShippingRegion) {
                 $shippingRegionArray = [

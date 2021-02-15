@@ -18,6 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 namespace Buckaroo\Magento2\Model\Plugin;
+
 use Magento\Framework\View\Asset\Minification;
 
 class ExcludeFilesFromMinification

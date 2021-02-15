@@ -62,5 +62,4 @@ class UpdateShippingMethods extends Common
 
         return $this->commonResponse($data, $errorMessage);
     }
-
 }

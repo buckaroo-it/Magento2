@@ -98,5 +98,4 @@ class Trustly extends AbstractConfigProvider
             'NOK',
         ];
     }
-
 }

@@ -157,7 +157,7 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
             $cartTotals = $quote->getTotals();
             $grand_total = $cartTotals['grand_total']->getData();
             if(($grand_total['value'] - $baseAlreadyPaid) < 0.001){
-               $baseGrandTotal = $baseAlreadyPaid  + 0.001; 
+               $baseGrandTotal = $baseAlreadyPaid  + 0.001;
                $grandTotal = $grandTotal + 0.001;
             }
         }*/

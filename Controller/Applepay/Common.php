@@ -85,8 +85,7 @@ class Common extends Action
         \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         CustomerSession $customerSession = null
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
@@ -101,7 +100,6 @@ class Common extends Action
 
     public function execute()
     {
-
     }
 
     /**
@@ -112,12 +110,12 @@ class Common extends Action
      */
     public function gatherTotals($address, $quoteTotals)
     {
-        $totals = array(
+        $totals = [
             'subtotal' => $quoteTotals['subtotal']->getValue(),
             'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
             'shipping' => $address->getData('shipping_incl_tax'),
             'grand_total' => $quoteTotals['grand_total']->getValue()
-        );
+        ];
 
         return $totals;
     }
@@ -130,15 +128,15 @@ class Common extends Action
      */
     public function processAddressFromWallet($wallet, $type = 'shipping')
     {
-        $address = array(
+        $address = [
             'prefix' => '',
             'firstname' => isset($wallet['givenName']) ? $wallet['givenName'] : '',
             'middlename' => '',
             'lastname' => isset($wallet['familyName']) ? $wallet['familyName'] : '',
-            'street' => array(
+            'street' => [
                 '0' => isset($wallet['addressLines'][0]) ? $wallet['addressLines'][0] : '',
                 '1' => isset($wallet['addressLines'][1]) ? $wallet['addressLines'][1] : null
-            ),
+            ],
             'city' => isset($wallet['locality']) ? $wallet['locality'] : '',
             'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
             'region' => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : '',
@@ -147,7 +145,7 @@ class Common extends Action
             'telephone' => isset($wallet['phoneNumber']) ? $wallet['phoneNumber'] : 'N/A',
             'fax' => '',
             'vat_id' => ''
-        );
+        ];
 
         if ($type == 'shipping') {
             $address['email'] = isset($wallet['emailAddress']) ? $wallet['emailAddress'] : '';
@@ -200,7 +198,7 @@ class Common extends Action
         $this->logger->addDebug(__METHOD__ . '|1|');
         $this->logger->addDebug(var_export($errors, true));
 
-        $errorFields = array();
+        $errorFields = [];
         if ($errors && is_array($errors)) {
             foreach ($errors as $error) {
                 if (($arguments = $error->getArguments()) && !empty($arguments['fieldName'])) {
@@ -273,7 +271,6 @@ class Common extends Action
 
             return $data;
         }
-
     }
 
     /**

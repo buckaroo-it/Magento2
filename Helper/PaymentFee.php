@@ -121,7 +121,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 $dataObject->getBaseBuckarooFee() + $dataObject->getBuckarooFeeBaseTaxAmount(),
                 $label . __(' (Incl. Tax)')
             );
-        } elseif($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) {
+        } elseif ($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) {
             $method = $dataObject->getOrder()->getPayment()->getMethod();
             if (!preg_match('/afterpay/', $method) || (strpos($method, 'afterpay20') !== false)) {
                 /**
@@ -171,7 +171,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         $order = $dataObject->getOrder();
-        if($dataObject->getBaseBuckarooAlreadyPaid()){
+        if ($dataObject->getBaseBuckarooAlreadyPaid()) {
             unset($totals['buckaroo_fee']);
             $this->addTotalToTotals(
                 $totals,
@@ -180,13 +180,13 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 $dataObject->getBaseBuckarooAlreadyPaid(),
                 __('Paid with Giftcard')
             );
-        }elseif(isset($order) && $order->getBuckarooAlreadyPaid()){
+        } elseif (isset($order) && $order->getBuckarooAlreadyPaid()) {
             $items = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
             $giftcards = [];
 
             if (isset($requestParams['creditmemo']['buckaroo_already_paid'])) {
                 foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $giftcardKey => $value) {
-                    $transaction = explode('|',$giftcardKey);
+                    $transaction = explode('|', $giftcardKey);
                     $giftcards[$transaction[1]] = $value;
                 }
             }
@@ -483,8 +483,12 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
             return;
         }
         $total = ['code' => $code, 'value' => $value, 'base_value' => $baseValue, 'label' => $label];
-        if($block_name){$total['block_name'] = $block_name;}
-        if($transaction_id){$total['transaction_id'] = $transaction_id;}
+        if ($block_name) {
+            $total['block_name'] = $block_name;
+        }
+        if ($transaction_id) {
+            $total['transaction_id'] = $transaction_id;
+        }
         $totals[] = $total;
     }
 }

@@ -414,5 +414,4 @@ class PayPerEmailTest extends BaseTest
 
         $this->assertFalse($result);
     }
-
 }

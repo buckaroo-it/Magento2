@@ -182,7 +182,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertEquals(0, $result['shipping_amount']);
         $this->assertEquals(0, $result['adjustment_negative']);
-        $this->assertEquals(array(), $result['items']);
+        $this->assertEquals([], $result['items']);
         $this->assertEquals('100', $result['adjustment_positive']);
     }
 
