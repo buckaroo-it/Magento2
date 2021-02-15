@@ -123,7 +123,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         $configAllowSpecific = $this->configProviderMethodFactory->get($paymentMethodCode)->getAllowSpecific();
 
         if ($configAllowSpecific == 1) {
-            $countryId = $billingAddress->getCountryId();
+            $countryId = ($billingAddress != null ) ? $billingAddress->getCountryId() : null;
             $configSpecificCountry = $this->configProviderMethodFactory->get($paymentMethodCode)->getSpecificCountry();
 
             if (!in_array($countryId, $configSpecificCountry))
