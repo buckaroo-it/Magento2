@@ -172,7 +172,8 @@ class Transfer extends AbstractMethod
             $services[] = $cmService;
 
             $payment->setAdditionalInformation(
-                'skip_push', 2
+                'skip_push',
+                2
             );
         }
 

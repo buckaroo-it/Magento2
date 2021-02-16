@@ -105,7 +105,8 @@ class Applepay extends AbstractConfigProvider
                         'currency' => $currency,
                         'cultureCode' => $shortLocale,
                         'country' => $this->scopeConfig->getValue(
-                            'general/country/default', ScopeInterface::SCOPE_WEBSITES
+                            'general/country/default',
+                            ScopeInterface::SCOPE_WEBSITES
                         ),
                         'guid' => $this->configProvicerAccount->getMerchantGuid(),
                         'availableButtons' => $this->getAvailableButtons(),

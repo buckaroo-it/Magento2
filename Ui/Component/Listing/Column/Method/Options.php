@@ -64,7 +64,7 @@ group by '.$this->resourceConnection->getTableName('sales_order').'.increment_id
 
                 $additionalOptions2 = [];
                 while ($row = $result2->fetch()) {
-                    $additionalOptions2[$row['increment_id']] = 'buckaroo_magento2_payperemail-'.str_replace('buckaroo_magento2_','',$row['method']);
+                    $additionalOptions2[$row['increment_id']] = 'buckaroo_magento2_payperemail-'.str_replace('buckaroo_magento2_', '', $row['method']);
                 }
 
                 if ($additionalOptions2) {
@@ -79,5 +79,4 @@ group by '.$this->resourceConnection->getTableName('sales_order').'.increment_id
 
         return $dataSource;
     }
-
 }

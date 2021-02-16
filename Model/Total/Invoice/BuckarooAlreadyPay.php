@@ -31,7 +31,7 @@ class BuckarooAlreadyPay extends \Magento\Sales\Model\Order\Invoice\Total\Abstra
     public function collect(\Magento\Sales\Model\Order\Invoice $invoice)
     {
         $order = $invoice->getOrder();
-        if ($baseAlreadyPaid = $order->getBaseBuckarooAlreadyPaid()){
+        if ($baseAlreadyPaid = $order->getBaseBuckarooAlreadyPaid()) {
             $alreadyPaid = $order->getBuckarooAlreadyPaid();
             $invoice->setBaseGrandTotal($invoice->getBaseGrandTotal() - $baseAlreadyPaid);
             $invoice->setGrandTotal($invoice->getGrandTotal() - $alreadyPaid);

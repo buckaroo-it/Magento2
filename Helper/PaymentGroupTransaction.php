@@ -68,7 +68,8 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         $this->logging                      = $logging;
     }
 
-    public function saveGroupTransaction($response){
+    public function saveGroupTransaction($response)
+    {
         $this->logging->addDebug(__METHOD__.'|1|'.var_export($response, true));
 
         $groupTransaction = $this->groupTransactionFactory->create();
@@ -85,43 +86,50 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return $groupTransaction->save();
     }
 
-    public function updateGroupTransaction($item){
+    public function updateGroupTransaction($item)
+    {
         $groupTransaction = $this->groupTransactionFactory->create();
         $groupTransaction->load($item['entity_id']);
         $groupTransaction->setData($item);
         return $groupTransaction->save();
     }
 
-    public function isGroupTransaction($order_id){
+    public function isGroupTransaction($order_id)
+    {
         return $this->getGroupTransactionItems($order_id);
     }
 
-    public function getGroupTransactionItems($order_id){
+    public function getGroupTransactionItems($order_id)
+    {
         $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('order_id', ['eq' => $order_id]);
         return array_values($collection->getItems());
     }
 
-    public function getGroupTransactionItemsNotRefunded($order_id){
+    public function getGroupTransactionItemsNotRefunded($order_id)
+    {
         $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('order_id', ['eq' => $order_id])->addFieldToFilter('refunded_amount', ['null' => true]);
         return array_values($collection->getItems());
     }
 
-    public function getGroupTransactionAmount($order_id){
+    public function getGroupTransactionAmount($order_id)
+    {
         $total = 0;
         foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
-            if($value['status']=='190'){
+            if ($value['status']=='190') {
                 $total += $value['amount'];
             }
         }
         return $total;
     }
 
-    public function getGroupTransactionById($entity_id){
+    public function getGroupTransactionById($entity_id)
+    {
         $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('entity_id', ['eq' => $entity_id]);
         return $collection->getItems();
     }
 
-    public function getGroupTransactionByTrxId($trx_id){
+    public function getGroupTransactionByTrxId($trx_id)
+    {
         return $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('transaction_id', ['eq' => $trx_id])->getItems();
     }
 }

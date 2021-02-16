@@ -58,7 +58,7 @@ class SaveOrder extends Common
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         CustomerSession $customerSession = null
     ) {
-        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart,$totalsCollector, $converter, $customerSession);
+        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart, $totalsCollector, $converter, $customerSession);
 
         $this->quoteManagement = $quoteManagement;
         $this->customer = $customer;
@@ -77,8 +77,7 @@ class SaveOrder extends Common
         $shippingMethodsResult = [];
 
         if ($isPost) {
-            if (
-                ($payment = $this->getRequest()->getParam('payment'))
+            if (($payment = $this->getRequest()->getParam('payment'))
                 &&
                 ($extra = $this->getRequest()->getParam('extra'))
             ) {
@@ -129,8 +128,7 @@ class SaveOrder extends Common
                     } else {
                         //live mode
                         $this->logger->addDebug(__METHOD__.'|6|');
-                        if (
-                            !empty($data->Status->Code->Code)
+                        if (!empty($data->Status->Code->Code)
                             &&
                             ($data->Status->Code->Code == '190')
                             &&
@@ -163,5 +161,4 @@ class SaveOrder extends Common
 
         return $this->commonResponse($data, $errorMessage);
     }
-
 }

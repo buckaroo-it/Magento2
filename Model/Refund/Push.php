@@ -26,6 +26,7 @@ use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
+
 /**
  * Class Creditmemo
  *

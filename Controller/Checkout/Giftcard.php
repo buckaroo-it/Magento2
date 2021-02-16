@@ -1,22 +1,22 @@
 <?php
  /**
- * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
- */
+  * NOTICE OF LICENSE
+  *
+  * This source file is subject to the MIT License
+  * It is available through the world-wide-web at this URL:
+  * https://tldrlegal.com/license/mit-license
+  * If you are unable to obtain it through the world-wide-web, please send an email
+  * to support@buckaroo.nl so we can send you a copy immediately.
+  *
+  * DISCLAIMER
+  *
+  * Do not edit or add to this file if you wish to upgrade this module to newer
+  * versions in the future. If you wish to customize this module for your
+  * needs please contact support@buckaroo.nl for more information.
+  *
+  * @copyright Copyright (c) Buckaroo B.V.
+  * @license   https://tldrlegal.com/license/mit-license
+  */
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
@@ -108,13 +108,13 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     public $priceCurrency;
 
     /**
-    * @var \Magento\Framework\Json\Helper\Data
-    */
+     * @var \Magento\Framework\Json\Helper\Data
+     */
     protected $jsonHelper;
 
     /**
-    * @var \Magento\Framework\Controller\Result\JsonFactory
-    */
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
     protected $jsonResultFactory;
 
     /** @var \Magento\Framework\Message\ManagerInterface */
@@ -272,7 +272,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
                 $res['error'] = isset($response['Status']['SubCode']['Description']) ? $response['Status']['SubCode']['Description'] : $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
             }
 
-            return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);     
+            return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
         }*/
 
         if (!isset($data['card']) || empty($data['card']) || !isset($data['cardNumber']) || empty($data['cardNumber']) || !isset($data['pin']) || empty($data['pin'])) {
@@ -318,7 +318,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $grand_total = $cartTotals['grand_total']->getData();
         $grandTotal =  $grand_total['value'];
 
-        $postArray = array(
+        $postArray = [
             "Currency" => $currency,
             "AmountDebit" => $grandTotal,
             "Invoice" => $orderId,
@@ -327,26 +327,26 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             "ReturnURLError" => $returnUrl,
             "ReturnURLReject" => $returnUrl,
             "PushURL" => $pushUrl,
-            "Services" => array(
-                "ServiceList" => array(
-                    array(
+            "Services" => [
+                "ServiceList" => [
+                    [
                         "Action" => "Pay",
                         "Name" => $card,
-                        "Parameters" => array(
-                            array(
+                        "Parameters" => [
+                            [
                                 "Name" => $parameters['number'],
                                 "Value" => trim(preg_replace('/([\s-]+)/', '', $data['cardNumber']))
-                            ),array(
+                            ],[
                                 "Name" => $parameters['pin'],
                                 "Value" => trim($data['pin'])
-                            )
-                        )
-                    )
-                )
-            )
-        );
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
 
-        if($originalTransactionKey = $this->getOriginalTransactionKey($orderId)){
+        if ($originalTransactionKey = $this->getOriginalTransactionKey($orderId)) {
             $postArray['Services']['ServiceList'][0]['Action'] = 'PayRemainder';
             $postArray['OriginalTransactionKey'] = $originalTransactionKey;
         }
@@ -359,7 +359,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->logger->addDebug(__METHOD__.'|2|');
         $this->logger->addDebug(var_export($response, true));
 
-        if($response['Status']['Code']['Code']=='190'){
+        if ($response['Status']['Code']['Code']=='190') {
             
             $this->groupTransaction->saveGroupTransaction($response);
 
@@ -367,18 +367,18 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $alreadyPaid = $this->getAlreadyPaid($orderId) + $response['AmountDebit'];
             
             $res['PayRemainingAmountButton'] = '';
-            if($res['RemainderAmount'] > 0){
+            if ($res['RemainderAmount'] > 0) {
                 $this->setOriginalTransactionKey($orderId, $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']);
-                $message = __('A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4', $response['Currency'], $response['AmountDebit'],$res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
-                $res['PayRemainingAmountButton'] = __('Pay remaining amount: %1 %2', $res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
-            }else{
+                $message = __('A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4', $response['Currency'], $response['AmountDebit'], $res['RemainderAmount'], $response['RequiredAction']['PayRemainderDetails']['Currency']);
+                $res['PayRemainingAmountButton'] = __('Pay remaining amount: %1 %2', $res['RemainderAmount'], $response['RequiredAction']['PayRemainderDetails']['Currency']);
+            } else {
                 $message = __("Your paid successfully. Please finish your order");
             }
             $this->setAlreadyPaid($orderId, $alreadyPaid);
             $res['alreadyPaid'] = $alreadyPaid;
             $res['message'] = $message;
 
-        }else{
+        } else {
             $res['error'] = isset($response['Status']['SubCode']['Description']) ?
                 $response['Status']['SubCode']['Description'] :
                 (
@@ -396,14 +396,15 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
     }
 
-    private function sendResponse($data){
+    private function sendResponse($data)
+    {
         $secretKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getSecretKey());
         $websiteKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey());
 
         $url = ($this->scopeConfig->getValue(
-                'payment/buckaroo_magento2_giftcards/active',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            ) == 2) ? 'checkout.buckaroo.nl': 'testcheckout.buckaroo.nl';
+            'payment/buckaroo_magento2_giftcards/active',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ) == 2) ? 'checkout.buckaroo.nl': 'testcheckout.buckaroo.nl';
         $uri        = 'https://'.$url.'/json/Transaction';
         $uri2       = strtolower(rawurlencode($url.'/json/Transaction'));
 
@@ -450,8 +451,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $chars = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
         $str = "";
 
-        for ($i=0; $i < $length; $i++)
-        {
+        for ($i=0; $i < $length; $i++) {
             $key = array_rand($chars);
             $str .= $chars[$key];
         }
@@ -467,7 +467,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
     private function setAlreadyPaid($orderId, $amount)
     {
-        if($orderId){
+        if ($orderId) {
             $this->_checkoutSession->getQuote()->setBaseBuckarooAlreadyPaid($amount);
             $this->_checkoutSession->getQuote()->setBuckarooAlreadyPaid($this->priceCurrency->convert($amount, $this->quote->getStore()));
         }
