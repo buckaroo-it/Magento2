@@ -593,8 +593,8 @@ class Afterpay extends AbstractMethod
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s([0-9]+)([^\w]*)([\w]*)/', $fullStreet, $matches)) {
             $street = $matches[1];
-            $streetHouseNumber = $matches[2];
-            $streetHouseNumberSuffix = @$matches[4];
+            $streetHouseNumber = $matches[2];            
+            $streetHouseNumberSuffix = $matches[4] ?? '';
 
             $mapping = [
                 ['ShippingStreet', $street],
