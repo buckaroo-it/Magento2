@@ -1459,7 +1459,7 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         if ($this->isGroupTransactionInfoType()) {
-            if ($this->postData['brq_statuscode'] != 190) {
+            if ($this->postData['brq_statuscode'] != $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                 return true;
             }
         }
@@ -1477,7 +1477,7 @@ class Push implements PushInterface
     private function isGroupTransactionFailed()
     {
         if ($this->isGroupTransactionInfoType()) {
-            if ($this->postData['brq_statuscode'] == 490) {
+            if ($this->postData['brq_statuscode'] == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')) {
                 return true;
             }
         }
