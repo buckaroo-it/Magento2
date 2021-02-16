@@ -176,6 +176,13 @@ define(
 
                 },
 
+                isCheckedGiftCardPaymentMethod: function (code) {
+                    if( (this.currentGiftcard !== undefined) && this.currentGiftcard == code) {
+                        return true;
+                    }
+                    return false;
+                },
+
                 selectGiftCardPaymentMethod: function (code) {
                     this.setCurrentGiftcard(code);
                     this.getGiftcardType(code);
