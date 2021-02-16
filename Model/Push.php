@@ -232,6 +232,9 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1_3|');
 
         if ($this->isGroupTransactionInfo()) {
+            if ($this->isGroupTransactionFailed()) {
+                $this->savePartGroupTransaction();
+            }
             return true;
         }
 
@@ -1467,6 +1470,16 @@ class Push implements PushInterface
     {
         if (isset($this->originalPostData['brq_transactions'])) {
             return $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
+        }
+        return false;
+    }
+
+    private function isGroupTransactionFailed()
+    {
+        if ($this->isGroupTransactionInfoType()) {
+            if ($this->postData['brq_statuscode'] == 490) {
+                return true;
+            }
         }
         return false;
     }

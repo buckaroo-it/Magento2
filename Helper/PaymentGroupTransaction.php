@@ -116,6 +116,15 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return $total;
     }
 
+    public function getGroupTransactionOriginalTransactionKey($order_id){
+        foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
+            if($value['relatedtransaction']){
+                return $value['relatedtransaction'];
+            }
+        }
+        return false;
+    }
+
     public function getGroupTransactionById($entity_id){
         $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('entity_id', ['eq' => $entity_id]);
         return $collection->getItems();
