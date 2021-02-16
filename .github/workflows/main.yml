@@ -1,9 +1,9 @@
 name: Module checks
 on:
   push:
-    branches: [ dev ]
+    branches: [ refactoring ]
   pull_request:
-    branches: [ dev ]
+    branches: [ refactoring ]
   workflow_dispatch:
 jobs:
   build:
