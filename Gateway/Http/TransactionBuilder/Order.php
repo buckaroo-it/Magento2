@@ -82,7 +82,7 @@ class Order extends AbstractTransactionBuilder
             'Order' => $order->getIncrementId(),
             'ClientIP' => (object)[
                 '_' => $ip,
-                'Type' => strpos($ip, ':') === false ? 'IPv4' : 'IPv6',
+                'Type' => filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ? 'IPv4' : 'IPv6',
             ],
             'ReturnURL' => $this->getReturnUrl(),
             'ReturnURLCancel' => $this->getReturnUrl(),
