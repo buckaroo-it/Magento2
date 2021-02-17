@@ -109,13 +109,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         \Magento\Quote\Model\Quote\Address\Total $total
     ) {
 
-        $orderId = $quote->getReservedOrderId();
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
-
-        if (isset($alreadyPaid[$orderId])) {
-            return $this;
-        }
-
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
@@ -124,6 +117,12 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
          * @noinspection PhpUndefinedMethodInspection
          */
         $total->setBaseBuckarooFee(0);
+
+        $orderId = $quote->getReservedOrderId();
+        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
+        if (isset($alreadyPaid[$orderId])) {
+            return $this;
+        }
 
         if (!$shippingAssignment->getItems()) {
             return $this;
