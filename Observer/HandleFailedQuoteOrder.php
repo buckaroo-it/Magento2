@@ -55,7 +55,7 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                 try {
                     $order->addStatusHistoryComment('Buckaroo: failed to authorize an order', false);
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
-                    $payment->save();  
+                    $payment->save();
                 } catch (\Exception $e) {
                     //ignore
                 }
@@ -68,6 +68,5 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                 //ignore
             }
         }
-
     }
 }

@@ -73,7 +73,8 @@ class Push
         // since we know Buckaroo can provide us with
         // multiple types in a single response.
         $this->handleEligibilityTypes(
-            explode(',', $eligibilityTypes), $push->order
+            explode(',', $eligibilityTypes),
+            $push->order
         );
 
         return $result;
@@ -88,7 +89,7 @@ class Push
      */
     protected function handleEligibilityTypes($eligibilityTypes, $order)
     {
-        if ( ! \is_array($eligibilityTypes)) {
+        if (! \is_array($eligibilityTypes)) {
             $eligibilityTypes = [$eligibilityTypes];
         }
 

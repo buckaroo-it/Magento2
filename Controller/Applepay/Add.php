@@ -66,8 +66,7 @@ class Add extends Common
         $data = [];
         $shippingMethodsResult = [];
         if ($isPost) {
-            if (
-                ($product = $this->getRequest()->getParam('product'))
+            if (($product = $this->getRequest()->getParam('product'))
                 &&
                 !empty($product['id'])
                 &&
@@ -79,11 +78,11 @@ class Add extends Common
                 $this->logger->addDebug(var_export($wallet, true));
 
                 ////products
-                $params = array(
+                $params = [
                     'form_key' => $this->formKey->getFormKey(),
                     'product' => $product['id'],
                     'qty'   => $product['qty']
-                );
+                ];
                 if (!empty($product['selected_options'])) {
                     $params['super_attribute'] = $product['selected_options'];
                 }
@@ -111,5 +110,4 @@ class Add extends Common
 
         return $this->commonResponse($data, $errorMessage);
     }
-
 }

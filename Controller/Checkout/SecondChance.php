@@ -188,7 +188,6 @@ class SecondChance extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\SessionFactory $sessionFactory,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface,
         \Magento\Quote\Api\CartManagementInterface $quoteManagement
-
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -248,7 +247,7 @@ class SecondChance extends \Magento\Framework\App\Action\Action
             $collection   = $secondChance->getCollection()
                 ->addFieldToFilter(
                     'token',
-                    array('eq' => $buckaroo_second_chance)
+                    ['eq' => $buckaroo_second_chance]
                 );
             foreach ($collection as $item) {
                 $order          = $this->_orderFactory->create()->loadByIncrementId($item->getOrderId());
@@ -263,5 +262,4 @@ class SecondChance extends \Magento\Framework\App\Action\Action
         }
         return $this->_redirect('checkout');
     }
-
 }

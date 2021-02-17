@@ -162,8 +162,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         Log $logging,
         $amount = null,
         $currency = null
-    )
-    {
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->softwareData = $softwareData;
         $this->configProviderAccount = $configProviderAccount;
@@ -267,8 +266,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     {
         $order = $this->getOrder();
 
-        if (
-            empty($this->invoiceId)
+        if (empty($this->invoiceId)
             ||
             (!$this->isCustomInvoiceId && ($this->invoiceId != $order->getIncrementId()))
         ) {
@@ -545,8 +543,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         }
 
         //trustly anyway should be w/o private ip
-        if (
-            (isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) && $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly')
+        if ((isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) && $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly')
             &&
             $this->isIpPrivate($ip)
             &&
@@ -567,25 +564,27 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         return $ip;
     }
 
-    private function isIpPrivate ($ip)
+    private function isIpPrivate($ip)
     {
-        if (!$ip) return false;
+        if (!$ip) {
+            return false;
+        }
 
-        $pri_addrs = array (
+        $pri_addrs =  [
             '10.0.0.0|10.255.255.255', // single class A network
             '172.16.0.0|172.31.255.255', // 16 contiguous class B network
             '192.168.0.0|192.168.255.255', // 256 contiguous class C network
             '169.254.0.0|169.254.255.255', // Link-local address also referred to as Automatic Private IP Addressing
             '127.0.0.0|127.255.255.255' // localhost
-        );
+        ];
 
-        $long_ip = ip2long ($ip);
+        $long_ip = ip2long($ip);
         if ($long_ip != -1) {
 
-            foreach ($pri_addrs AS $pri_addr) {
+            foreach ($pri_addrs as $pri_addr) {
                 list ($start, $end) = explode('|', $pri_addr);
 
-                if ($long_ip >= ip2long ($start) && $long_ip <= ip2long ($end)) {
+                if ($long_ip >= ip2long($start) && $long_ip <= ip2long($end)) {
                     return true;
                 }
             }

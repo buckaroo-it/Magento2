@@ -123,7 +123,6 @@ class Data extends AbstractHelper
         StoreManagerInterface $storeManager,
         \Magento\Config\Model\Config\ScopeDefiner $scopeDefiner,
         \Magento\Framework\Serialize\Serializer\Json $json
-
     ) {
         parent::__construct($context);
 
@@ -246,33 +245,38 @@ class Data extends AbstractHelper
         return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
     }
 
-    public function getOriginalTransactionKey($orderId){
+    public function getOriginalTransactionKey($orderId)
+    {
         $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
         return isset($originalTransactionKey[$orderId]) ? $originalTransactionKey[$orderId] : false;
     }
 
-    public function getBuckarooAlreadyPaid($orderId){
+    public function getBuckarooAlreadyPaid($orderId)
+    {
         $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
         return isset($alreadyPaid[$orderId]) ? $alreadyPaid[$orderId] : false;
     }
 
-    public function getOrderId(){
+    public function getOrderId()
+    {
         $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
-        if(!$orderId){
+        if (!$orderId) {
             $orderId = $this->_checkoutSession->getQuote()->reserveOrderId()->getReservedOrderId();
             $this->_checkoutSession->getQuote()->save();
         }
         return $orderId;
     }
 
-    public function isGroupTransaction(){
-        if($this->groupTransaction->isGroupTransaction($orderId = $this->getOrderId())){
+    public function isGroupTransaction()
+    {
+        if ($this->groupTransaction->isGroupTransaction($orderId = $this->getOrderId())) {
             return true;
         }
         return false;
     }
 
-    public function getConfigCardSort() {
+    public function getConfigCardSort()
+    {
         $configValue = $this->scopeConfig->getValue(
             'payment/buckaroo_magento2_creditcard/sorted_creditcards',
             $this->scopeDefiner->getScope(),
@@ -282,7 +286,8 @@ class Data extends AbstractHelper
         return $configValue;
     }
     
-    public function getConfigGiftCardsSort() {
+    public function getConfigGiftCardsSort()
+    {
         $configValue = $this->scopeConfig->getValue(
             'payment/buckaroo_magento2_giftcards/sorted_giftcards',
             $this->scopeDefiner->getScope(),
@@ -299,7 +304,7 @@ class Data extends AbstractHelper
      */
     public function getPPeCustomerDetails()
     {
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(),true));
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(), true));
         if (($customerId = $this->_getRequest()->getParam('customer_id')) && ($customerId > 0)) {
             $this->logger->addDebug(__METHOD__ . '|5|');
             if (!isset($this->staticCache['getPPeCustomerDetails'])) {
@@ -354,25 +359,29 @@ class Data extends AbstractHelper
             return $amount1 == $amount2;
         } else {
             return abs(
-                    (floatval($amount1) - floatval($amount2))
+                (floatval($amount1) - floatval($amount2))
                     / floatval($amount2)
-                ) < 0.00001;
+            ) < 0.00001;
         }
     }
 
-    public function getRestoreQuoteLastOrder(){
+    public function getRestoreQuoteLastOrder()
+    {
         return $this->_checkoutSessionProxy->getRestoreQuoteLastOrder();
     }
 
-    public function setRestoreQuoteLastOrder($value){
+    public function setRestoreQuoteLastOrder($value)
+    {
         return $this->_checkoutSessionProxy->setRestoreQuoteLastOrder($value);
     }
 
-    public function getQuote(){
+    public function getQuote()
+    {
         return $this->_checkoutSession->getQuote();
     }
 
-    public function addDebug($messages){
+    public function addDebug($messages)
+    {
         $this->logger->addDebug($messages);
     }
 

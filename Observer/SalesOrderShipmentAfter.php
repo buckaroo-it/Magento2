@@ -112,7 +112,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        if ( !$this->klarnakpConfig->getEnabled() ||
+        if (!$this->klarnakpConfig->getEnabled() ||
              !$this->klarnakpConfig->getCreateInvoiceAfterShipment()
         ) {
             return;
@@ -135,15 +135,14 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger->addDebug(__METHOD__ . '|1|');
 
         try {
-            if(!$order->canInvoice()) {
+            if (!$order->canInvoice()) {
                 return null;
             }
 
             if ($order->getDiscountAmount() < 0) {
                 $invoice = $this->invoiceService->prepareInvoice($order);
                 $message = 'Automatically invoiced full order with discount. (Klarna can not invoice partials with discount)';
-            }
-            else {
+            } else {
                 $qtys = $this->getQtys($shipment);
                 $invoice = $this->invoiceService->prepareInvoice($order, $qtys);
                 $message = 'Automatically invoiced shipped items.';

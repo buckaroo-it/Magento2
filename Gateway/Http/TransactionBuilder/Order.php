@@ -135,7 +135,7 @@ class Order extends AbstractTransactionBuilder
 
         $parameterLine[] = $this->getParameterLine('initiated_by_magento', 1);
 
-        if($additionalParameters = $this->getAllAdditionalParameters()){
+        if ($additionalParameters = $this->getAllAdditionalParameters()) {
             foreach ($additionalParameters as $key => $value) {
                 $parameterLine[] = $this->getParameterLine($key, $value);
             }
@@ -159,28 +159,28 @@ class Order extends AbstractTransactionBuilder
             if ($value != 'housenumber' && $value != 'houseadditionalnumber') {
                 $customerBillingArray[$key] = '';
             }
-            if (!empty($billingData->getData($value))){
+            if (!empty($billingData->getData($value))) {
                 $customerBillingArray[$key] = $billingData->getData($value);
             }
-            if ($value == 'country'){
+            if ($value == 'country') {
                 $customerBillingArray[$key] = $this->getCountryName($objectManager, $billingData);
             }
         }
-        $this->setStreetData('CustomerBillingStreet',$customerBillingArray);
+        $this->setStreetData('CustomerBillingStreet', $customerBillingArray);
         $customerBillingArray = $this->getNotEmptyCustomData($customerBillingArray);
 
         foreach ($customerShippingArray as $key => $value) {
             if ($value != 'housenumber' && $value != 'houseadditionalnumber') {
                 $customerShippingArray[$key] = '';
             }
-            if (!empty($shippingData->getData($value))){
+            if (!empty($shippingData->getData($value))) {
                 $customerShippingArray[$key] = $shippingData->getData($value);
             }
-            if ($value == 'country'){
+            if ($value == 'country') {
                 $customerShippingArray[$key] = $this->getCountryName($objectManager, $shippingData);
             }
         }
-        $this->setStreetData('CustomerShippingStreet',$customerShippingArray);
+        $this->setStreetData('CustomerShippingStreet', $customerShippingArray);
         $customerShippingArray = $this->getNotEmptyCustomData($customerShippingArray);
 
         $customDataList = array_merge($customerBillingArray, $customerShippingArray);
@@ -227,7 +227,7 @@ class Order extends AbstractTransactionBuilder
 
     private function getNotEmptyCustomData($customData)
     {
-        foreach ($customData as $key => $value){
+        foreach ($customData as $key => $value) {
             if (empty($value)) {
                 unset($customData[$key]);
             }
@@ -408,7 +408,7 @@ class Order extends AbstractTransactionBuilder
 
     public function getCustomParameterLabel($parameterKey)
     {
-        $parameterLabel = str_replace(' ','', ucwords(str_replace('_', ' ', $parameterKey)));
+        $parameterLabel = str_replace(' ', '', ucwords(str_replace('_', ' ', $parameterKey)));
 
         return $parameterLabel;
     }

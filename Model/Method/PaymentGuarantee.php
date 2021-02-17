@@ -274,7 +274,8 @@ class PaymentGuarantee extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -362,7 +363,8 @@ class PaymentGuarantee extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -497,7 +499,7 @@ class PaymentGuarantee extends AbstractMethod
                 'Name' => 'InvoiceDate'
             ],
             [
-                '_'    => date('Y-m-d',strtotime('+14 day', time())),
+                '_'    => date('Y-m-d', strtotime('+14 day', time())),
                 'Name' => 'DateDue'
             ],
             [

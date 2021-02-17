@@ -616,7 +616,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $message = strlen($methodMessage) > 0 ? $methodMessage : $message;
         }
 
-        if(isset($transactionResponse->Status->SubCode->_)){
+        if (isset($transactionResponse->Status->SubCode->_)) {
             $message = $transactionResponse->Status->SubCode->_;
         }
 
@@ -866,7 +866,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->logger2->addDebug(__METHOD__.'|10|'.var_export($amount, true));
 
-        if($amount<=0) {
+        if ($amount<=0) {
             return $this;
         }
 
@@ -1330,18 +1330,20 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
 
         $requestParams = $this->request->getParams();
-        if(isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])){
+        if (isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])) {
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $amount_value) {
 
-                $transaction = explode('|',$transaction);
+                $transaction = explode('|', $transaction);
                 $totalOrder = $totalOrder - $transaction[2];
 
                 $groupTransaction = $paymentGroupTransaction->getGroupTransactionByTrxId($transaction[0]);
 
                 $this->logger2->addDebug(__METHOD__.'|10|'.var_export([$amount_value, $amount], true));
 
-                if($amount_value>0 && $amount>0){
-                    if($amount<$amount_value){$amount_value=$amount;}
+                if ($amount_value>0 && $amount>0) {
+                    if ($amount<$amount_value) {
+                        $amount_value=$amount;
+                    }
                     $amount = $amount - $amount_value;
                     $this->logger2->addDebug(__METHOD__.'|15|'.var_export([$amount], true));
                     $transactionBuilder = $this->transactionBuilderFactory->get('refund');
@@ -1382,13 +1384,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->logger2->addDebug(__METHOD__.'|20|'.var_export([$amount, $totalOrder, $amount>=0.01], true));
 
-        if($amount>=0.01){
+        if ($amount>=0.01) {
             $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
-            if($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0){
+            if ($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0) {
                 return $amount - $groupTransactionAmount;
             }
 
-            if($amount>$totalOrder){
+            if ($amount>$totalOrder) {
                 return $totalOrder;
             }
             return $amount;
@@ -1402,7 +1404,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $myparcelFetched = false;
         if ($myparcelOptions = $payment->getOrder()->getData('myparcel_delivery_options')) {
             if (!empty($myparcelOptions)) {
-                try{
+                try {
                     $myparcelOptions = json_decode($myparcelOptions, true);
                     $isPickup = $myparcelOptions['isPickup'] ?? false;
                     if ($isPickup) {
@@ -1417,8 +1419,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if (!$myparcelFetched) {
             $this->logger2->addDebug(__METHOD__.'|10|');
-            if (
-                (strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
+            if ((strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
                 &&
                 (strpos($payment->getOrder()->getShippingMethod(), 'pickup') !== false)
             ) {
@@ -1465,4 +1466,3 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
     }
 }
-

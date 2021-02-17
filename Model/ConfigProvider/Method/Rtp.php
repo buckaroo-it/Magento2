@@ -84,5 +84,4 @@ class Rtp extends AbstractConfigProvider
             'EUR',
         ];
     }
-
 }

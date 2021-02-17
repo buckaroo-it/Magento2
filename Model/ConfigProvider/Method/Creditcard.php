@@ -126,13 +126,13 @@ class Creditcard extends AbstractConfigProvider
         $issuers = parent::formatIssuers();
         $allowed = explode(',', $this->scopeConfig->getValue(
             self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        );
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
 
         $sorted = explode(',', $this->scopeConfig->getValue(
             self::XPATH_CREDITCARD_SORT,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        );
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
 
         if (!empty($sorted)) {
             $sortedPosition = 1;
@@ -147,7 +147,7 @@ class Creditcard extends AbstractConfigProvider
             }
         }
 
-        usort($issuers, function ($cardA, $cardB){
+        usort($issuers, function ($cardA, $cardB) {
             return $cardA['sort'] - $cardB['sort'];
         });
 

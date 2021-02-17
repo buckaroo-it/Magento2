@@ -1,22 +1,22 @@
 <?php
  /**
- * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
- */
+  * NOTICE OF LICENSE
+  *
+  * This source file is subject to the MIT License
+  * It is available through the world-wide-web at this URL:
+  * https://tldrlegal.com/license/mit-license
+  * If you are unable to obtain it through the world-wide-web, please send an email
+  * to support@buckaroo.nl so we can send you a copy immediately.
+  *
+  * DISCLAIMER
+  *
+  * Do not edit or add to this file if you wish to upgrade this module to newer
+  * versions in the future. If you wish to customize this module for your
+  * needs please contact support@buckaroo.nl for more information.
+  *
+  * @copyright Copyright (c) Buckaroo B.V.
+  * @license   https://tldrlegal.com/license/mit-license
+  */
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
@@ -80,8 +80,8 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $checkoutSession;
 
     /**
-    * @var  \Magento\Customer\Model\Session
-    */
+     * @var  \Magento\Customer\Model\Session
+     */
     public $customerSession;
     protected $customerRepository;
     protected $_sessionFactory;
@@ -175,7 +175,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $payment = $this->order->getPayment();
 
-        if(!method_exists($payment->getMethodInstance(),'canProcessPostData')){
+        if (!method_exists($payment->getMethodInstance(), 'canProcessPostData')) {
             return $this->_redirect('/');
         }
         
@@ -189,9 +189,9 @@ class Process extends \Magento\Framework\App\Action\Action
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
                 $this->logger->addDebug(__METHOD__.'|3|'.var_export([$this->order->getStatus(), $this->orderStatusFactory->get(
-                        $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
-                        $this->order
-                    )], true));
+                    $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
+                    $this->order
+                )], true));
                 if ($this->order->canInvoice()) {
                     $this->logger->addDebug(__METHOD__.'|31|');
                     if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
@@ -242,8 +242,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     }
                 }
 
-                if(
-                    ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'))
+                if (($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'))
                     &&
                     !$this->hasPostData('brq_payment_method', 'sofortueberweisung')
                 ) {
@@ -268,7 +267,8 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->order->getId(),
                         $this->order->getIncrementId()
                     ],
-               true));
+                    true
+                ));
 
                 if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
                     $this->logger->addDebug(__METHOD__.'|52|');
@@ -303,7 +303,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 */
 
                 // StatusCode specified error messages
-                $statusCodeAddErrorMessage = array();
+                $statusCodeAddErrorMessage = [];
                 $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
                     'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                     ' error persists, please choose a different payment method.';
@@ -513,8 +513,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->messageManager->addSuccessMessage(__('Your order has been placed succesfully.'));
 
-        if (
-            !empty($this->response['brq_payment_method'])
+        if (!empty($this->response['brq_payment_method'])
             &&
             ($this->response['brq_payment_method'] == 'applepay')
             &&
@@ -555,11 +554,11 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $store = $this->order->getStore();
         $this->logger->addDebug('start redirectFailure');
-        if($this->accountConfig->getFailureRedirectToCheckout($store)){
+        if ($this->accountConfig->getFailureRedirectToCheckout($store)) {
             $this->logger->addDebug('getFailureRedirectToCheckout');
-            if(!$this->customerSession->isLoggedIn()) {
+            if (!$this->customerSession->isLoggedIn()) {
                  $this->logger->addDebug('not isLoggedIn');
-                if($this->order->getCustomerId()>0){
+                if ($this->order->getCustomerId()>0) {
                     $this->logger->addDebug('getCustomerId > 0');
                     try {
                         $customer = $this->customerRepository->getById($this->order->getCustomerId());

@@ -19,6 +19,7 @@
  */
 
 namespace Buckaroo\Magento2\Model\Total\Creditmemo;
+
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResourceConnection;
 use Buckaroo\Magento2\Logging\Log;

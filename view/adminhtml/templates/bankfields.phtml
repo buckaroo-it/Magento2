@@ -2,7 +2,7 @@
 <?php $extraFields = $block->getExtraFields(); ?>
 
 <div class="refund-fields">
-    <?php foreach ($extraFields as $name => $field) : ?>
+    <?php foreach ($extraFields as $name => $field): ?>
         <div class="admin__field" >
             <label for="buckaroo_magento2_<?php echo $block->escapeHtml($field); ?>" class="label normal admin__field-label">
                 <?php echo $name; ?>

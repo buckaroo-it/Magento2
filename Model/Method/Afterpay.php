@@ -325,7 +325,8 @@ class Afterpay extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -448,7 +449,8 @@ class Afterpay extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -591,8 +593,8 @@ class Afterpay extends AbstractMethod
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s([0-9]+)([^\w]*)([\w]*)/', $fullStreet, $matches)) {
             $street = $matches[1];
-            $streetHouseNumber = $matches[2];
-            $streetHouseNumberSuffix = @$matches[4];
+            $streetHouseNumber = $matches[2];            
+            $streetHouseNumberSuffix = $matches[4] ?? '';
 
             $mapping = [
                 ['ShippingStreet', $street],
@@ -762,7 +764,7 @@ class Afterpay extends AbstractMethod
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
         // Set loop variables
-        $articles = array();
+        $articles = [];
         $count    = 1;
 
         foreach ($invoice->getAllItems() as $item) {
@@ -868,7 +870,7 @@ class Afterpay extends AbstractMethod
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
@@ -1163,8 +1165,7 @@ class Afterpay extends AbstractMethod
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
-        if (
-            $payment->getAdditionalInformation('selectedBusiness')
+        if ($payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
             &&
@@ -1256,8 +1257,7 @@ class Afterpay extends AbstractMethod
 
         $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
 
-        if (
-            $payment->getAdditionalInformation('selectedBusiness')
+        if ($payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
             &&
