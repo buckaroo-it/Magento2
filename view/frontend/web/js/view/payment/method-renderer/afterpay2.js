@@ -385,6 +385,9 @@ define(
                             this.genderValidate();
                             this.dummy();
 
+                            if((this.calculateAge(this.dateValidate()) < 18)){
+                                return false;
+                            }
                             /**
                              * Run If Else function to select the right fields to validate.
                              * Other fields will be ignored.
