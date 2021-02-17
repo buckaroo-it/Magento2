@@ -177,10 +177,7 @@ define(
                 },
 
                 isCheckedGiftCardPaymentMethod: function (code) {
-                    if( (this.currentGiftcard !== undefined) && this.currentGiftcard == code) {
-                        return true;
-                    }
-                    return false;
+                    return ((this.currentGiftcard !== undefined) && this.currentGiftcard == code) ? true : false;
                 },
 
                 selectGiftCardPaymentMethod: function (code) {
