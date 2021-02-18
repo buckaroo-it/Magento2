@@ -427,4 +427,24 @@
     <type name="MyParcelNL\Magento\Model\Checkout\ShippingMethods">
         <plugin name="myParcelNLBuckarooPlugin" type="Buckaroo\Magento2\Model\Plugin\MyParcelNLBuckarooPlugin" />
     </type>
+
+    <!-- Lazy load proxies -->
+    <type name="Buckaroo\Magento2\Observer\SuccessOrder">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+
+    <type name="Buckaroo\Magento2\Observer\RestoreQuote">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+    
+    <type name="Buckaroo\Magento2\Helper\Data">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+
 </config>
