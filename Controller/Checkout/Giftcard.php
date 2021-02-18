@@ -413,7 +413,9 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $nonce      = $this->stringRandom();
 
         $json = json_encode($data, JSON_PRETTY_PRINT);
+        // phpcs:disable
         $md5 = md5($json, true);
+        // phpcs:enable
         $encodedContent = base64_encode($md5);
 
         $rawData = $websiteKey . $httpMethod . $uri2 . $timeStamp . $nonce . $encodedContent;
