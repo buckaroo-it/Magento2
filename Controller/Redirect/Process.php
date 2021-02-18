@@ -287,8 +287,8 @@ class Process extends \Magento\Framework\App\Action\Action
                     $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                 }
                 $this->logger->addDebug(__METHOD__.'|6|');
-                // Redirect to success page
-                return $this->redirectSuccess();
+
+                $this->redirectSuccess();
                 break;
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
