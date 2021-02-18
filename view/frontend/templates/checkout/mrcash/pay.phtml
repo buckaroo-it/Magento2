@@ -15,7 +15,7 @@
 
 <script>
     require(['buckaroo/mrcash/pay'], function (mrcashPay) {
-        var transactionKey = "<?php echo $this->getTransactionKey(); ?>";
+        var transactionKey = "<?php echo $block->getTransactionKey(); ?>";
 
         mrcashPay.setTransactionKey(transactionKey);
         mrcashPay.showQrCode();

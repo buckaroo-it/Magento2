@@ -1,5 +1,5 @@
 <?php
-/** @var \Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab $this */
+/** @var \Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab $block */
 ?>
 <div id="supporttab" class="buckaroo-magento2-supporttab" data-mage-init='{"buckarooConfig": true}'>
 
@@ -33,23 +33,23 @@
                     <li>
                         <span class="text"><?php echo $block->escapeHtml(__('Your PHP version'));?>:</span>
                         <span class="version">
-                            <a href="http://devdocs.magento.com/guides/v<?php echo $this->getMagentoVersionTidyString() ;?>/install-gde/system-requirements-tech.html"
+                            <a href="http://devdocs.magento.com/guides/v<?php echo $block->getMagentoVersionTidyString() ;?>/install-gde/system-requirements-tech.html"
                                target="_blank">
-                                <?php echo $block->escapeHtml(implode('.', $this->getPhpVersionArray())); ?>
+                                <?php echo $block->escapeHtml(implode('.', $block->getPhpVersionArray())); ?>
                                 </a>
-                                <?php switch ($this->phpVersionCheck()) {
+                                <?php switch ($block->phpVersionCheck()) {
                                     case 1:
-                                        echo '<img class="php-check-icon" src="' . $this->getViewFileUrl(
+                                        echo '<img class="php-check-icon" src="' . $block->getViewFileUrl(
                                             'Buckaroo_Magento2::images/green-ok.png'
                                         ) . '" alt="">';
                                               break;
                                     case 0:
-                                        echo '<img class="php-check-icon" src="' . $this->getViewFileUrl(
+                                        echo '<img class="php-check-icon" src="' . $block->getViewFileUrl(
                                             'Buckaroo_Magento2::images/red-nok.png'
                                         ) . '" alt="">';
                                               break;
                                     default:
-                                        echo '<img class="php-check-icon" src="' . $this->getViewFileUrl(
+                                        echo '<img class="php-check-icon" src="' . $block->getViewFileUrl(
                                             'Buckaroo_Magento2::images/orange-unknown.png'
                                         ) . '" alt="">';
                                               break;
@@ -59,7 +59,7 @@
                     </li>
                     <li>
                         <span class="text"><?php echo $block->escapeHtml(__('Buckaroo version'));?>:</span>
-                        <span class="version"><?php echo $block->escapeHtml($this->getVersionNumber()); ?></span>
+                        <span class="version"><?php echo $block->escapeHtml($block->getVersionNumber()); ?></span>
                     </li>
                 </ul>
             </div>
@@ -84,7 +84,7 @@
                 <li class="buckaroo_logo">
                     <a href="<?php echo $block->escapeHtml(__('https://buckaroo.nl/'));?>"
                        target="_blank">
-                        <img style="width:180px;" src="<?php echo $this->getViewFileUrl(
+                        <img style="width:180px;" src="<?php echo $block->getViewFileUrl(
                             'Buckaroo_Magento2::images/buckaroo_config_logo_black.png'
                         ); ?>"
                              alt="" />

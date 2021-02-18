@@ -12,7 +12,7 @@
 
 <script>
     require(['buckaroo/payconiq/pay'], function (payconiqPay) {
-        var transactionKey = "<?php echo $this->getTransactionKey(); ?>";
+        var transactionKey = "<?php echo $block->getTransactionKey(); ?>";
 
         payconiqPay.setTransactionKey(transactionKey);
         payconiqPay.showQrCode();
