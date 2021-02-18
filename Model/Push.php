@@ -1047,7 +1047,6 @@ class Push implements PushInterface
             $description = '';
         }
 
-
         $this->dontSaveOrderUponSuccessPush = false;
         if ($paymentMethod->canPushInvoice($this->postData)) {
             $this->logging->addDebug(__METHOD__ . '|4|');
@@ -1394,7 +1393,6 @@ class Push implements PushInterface
             Transaction::RAW_DETAILS,
             $rawInfo
         );
-
 
         /**
          * Save the payment's transaction key.

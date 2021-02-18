@@ -139,7 +139,6 @@ class Index extends \Magento\Backend\App\Action
             $this->_messageManager->addErrorMessage($e->getMessage());
         }
 
-
         if (empty($payLink)) {
             $this->_messageManager->addErrorMessage('Error creating PayLink');
         } else {

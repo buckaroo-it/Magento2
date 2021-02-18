@@ -96,7 +96,6 @@ class Applepay extends AbstractMethod
         return $this;
     }
 
-
     /**
      * {@inheritdoc}
      */

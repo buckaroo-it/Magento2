@@ -103,7 +103,6 @@ class PaymentGuarantee extends AbstractConfigProvider
 
         $paymentMethodConfigured = explode(',', $paymentMethod);
 
-
         return $paymentMethodConfigured;
     }
 

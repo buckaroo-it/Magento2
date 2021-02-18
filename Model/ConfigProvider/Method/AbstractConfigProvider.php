@@ -169,7 +169,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         return $configuredAllowedCurrencies;
     }
 
-
     /**
      * @return array
      */
