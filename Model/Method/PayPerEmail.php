@@ -145,7 +145,6 @@ class PayPerEmail extends AbstractMethod
         $this->serviceParameters = $serviceParameters;
     }
 
-
     /**
      * {@inheritdoc}
      */

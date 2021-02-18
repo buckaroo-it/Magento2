@@ -47,7 +47,6 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
         parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
-
     /**
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return string

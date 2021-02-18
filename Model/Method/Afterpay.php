@@ -397,7 +397,6 @@ class Afterpay extends AbstractMethod
 
         $services['RequestParameter'] = $articles;
 
-
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
@@ -411,7 +410,6 @@ class Afterpay extends AbstractMethod
                     self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
                 )
             );
-
 
         // Partial Capture Settings
         if ($capturePartial) {

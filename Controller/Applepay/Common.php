@@ -325,7 +325,6 @@ class Common extends Action
         }
         $shippingAddress->addData($extractedAddressData);
 
-
         $shippingAddress->setCollectShippingRates(true);
 
         $this->totalsCollector->collectAddressTotals($quote, $shippingAddress);

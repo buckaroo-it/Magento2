@@ -48,7 +48,6 @@ class Klarnakp extends AbstractMethod
     const KLARNAKP_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
     const KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
 
-
     /**
      * Business methods that will be used in klarna.
      */
@@ -538,7 +537,6 @@ class Klarnakp extends AbstractMethod
             ],
         ];
 
-
         if (!empty($streetFormat['house_number'])) {
             $shippingData[] = [
                 '_'    => $streetFormat['house_number'],
@@ -768,7 +766,6 @@ class Klarnakp extends AbstractMethod
 
         return $requestData;
     }
-
 
     /**
      * Method to compare two addresses from the payment.
@@ -1295,7 +1292,6 @@ class Klarnakp extends AbstractMethod
 
         return $taxes;
     }
-
 
     /**
      * Get the tax line

@@ -1074,7 +1074,6 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         ];
     }
 
-
     /**
      * @param $params
      * @param $extraFields

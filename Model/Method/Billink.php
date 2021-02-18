@@ -959,7 +959,6 @@ class Billink extends AbstractMethod
         $taxClassId = $this->configProviderBuckarooFee->getTaxClass($store);
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
-
         if (false !== $buckarooFeeLine && (double)$buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
                 $latestKey,
