@@ -132,7 +132,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->accountConfig = $configProviderFactory->get('account');
 
-        if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
+        if (interface_exists(\Magento\Framework\App\CsrfAwareActionInterface::class)) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
                 $request->setParam('isAjax', true);
@@ -188,10 +188,15 @@ class Process extends \Magento\Framework\App\Action\Action
         switch ($statusCode) {
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
-                $this->logger->addDebug(__METHOD__.'|3|'.var_export([$this->order->getStatus(), $this->orderStatusFactory->get(
-                    $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
-                    $this->order
-                )], true));
+                $this->logger->addDebug(__METHOD__.'|3|'.var_export(
+                    [
+                        $this->order->getStatus(), $this->orderStatusFactory->get(
+                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
+                            $this->order
+                        )
+                    ],
+                    true
+                ));
                 if ($this->order->canInvoice()) {
                     $this->logger->addDebug(__METHOD__.'|31|');
                     if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
@@ -233,7 +238,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->hasPostData('add_service_action_from_magento', 'reserve') &&
                         !empty($this->response['brq_service_klarnakp_reservationnumber'])
                     ) {
-
+                        $this->logger->addDebug(__METHOD__.'|35|');
                     } else {
                         if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                             $this->logger->addDebug(__METHOD__ . '|sendemail|');
@@ -254,7 +259,6 @@ class Process extends \Magento\Framework\App\Action\Action
                     );
                     $this->logger->addDebug(__METHOD__.'|5|');
                     return $this->_redirect('/');
-                    // $this->redirectFailure();
                 }
 
                 $this->logger->addDebug(__METHOD__.'|51|'.var_export(
@@ -313,7 +317,9 @@ class Process extends \Magento\Framework\App\Action\Action
                 $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')] =
                     'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                     ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')] =
+                $statusCodeAddErrorMessage[
+                    $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
+                ] =
                     'According to our system, you have canceled the payment. If this' .
                     ' is not the case, please contact us.';
 
