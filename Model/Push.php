@@ -1365,6 +1365,8 @@ class Push implements PushInterface
             }
         }
 
+        $this->dontSaveOrderUponSuccessPush = true;
+
         return true;
     }
 
