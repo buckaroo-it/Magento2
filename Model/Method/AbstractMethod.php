@@ -156,6 +156,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     public static $requestOnVoid = true;
 
+    protected $cookieManager;
+
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
@@ -193,6 +195,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -232,6 +235,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->configProviderMethodFactory  = $configProviderMethodFactory; //Load interface, inject childs via di?
         $this->priceHelper                  = $priceHelper;
         $this->developmentHelper            = $developmentHelper;
+        $this->cookieManager = $cookieManager;
 
         $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
 
@@ -1463,6 +1467,79 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     ];
                 }
             }
+        }
+    }
+
+    protected function updateShippingAddressByDpdParcel($quote, &$requestData)
+    {
+        $this->logger2->addDebug(__METHOD__.'|1|');
+
+        $fullStreet = $quote->getDpdStreet();
+        $postalCode = $quote->getDpdZipcode();
+        $city = $quote->getDpdCity();
+        $country = $quote->getDpdCountry();
+
+        if (!$fullStreet && $quote->getDpdParcelshopId()) {
+            $this->logger2->addDebug(__METHOD__.'|2|');
+            $this->logger2->addDebug(var_export([
+                $this->cookieManager->getCookie('dpd-selected-parcelshop-street'),
+                $this->cookieManager->getCookie('dpd-selected-parcelshop-zipcode'),
+                $this->cookieManager->getCookie('dpd-selected-parcelshop-city'),
+                $this->cookieManager->getCookie('dpd-selected-parcelshop-country'),
+            ], true));
+            $fullStreet = $this->cookieManager->getCookie('dpd-selected-parcelshop-street') ?? '';
+            $postalCode = $this->cookieManager->getCookie('dpd-selected-parcelshop-zipcode') ?? '';
+            $city = $this->cookieManager->getCookie('dpd-selected-parcelshop-city') ?? '';
+            $country = $this->cookieManager->getCookie('dpd-selected-parcelshop-country') ?? '';
+        }
+
+        $matches = false;
+        if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
+            $this->logger2->addDebug(__METHOD__.'|3|');
+
+            $street = $matches[1];
+            $streetHouseNumber = $matches[2];
+
+            $mapping = [
+                ['Street', $street],
+                ['PostalCode', $postalCode],
+                ['City', $city],
+                ['Country', $country],
+                ['StreetNumber', $streetHouseNumber],
+            ];
+
+            $this->logger2->addDebug(var_export($mapping, true));
+
+            foreach ($mapping as $mappingItem) {
+                if (!empty($mappingItem[1])) {
+                    $found = false;
+                    foreach ($requestData as $key => $value) {
+                        if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                            if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                                $requestData[$key]['_'] = $mappingItem[1];
+                                $found = true;
+                            }
+                        }
+                    }
+                    if (!$found) {
+                        $requestData[] = [
+                            '_'    => $mappingItem[1],
+                            'Name' => $mappingItem[0],
+                            'Group' => 'ShippingCustomer',
+                            'GroupID' =>  '',
+                        ];
+                    }
+                }
+            }
+
+            foreach ($requestData as $key => $value) {
+                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
+                        unset($requestData[$key]);
+                    }
+                }
+            }
+
         }
     }
 }

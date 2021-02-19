@@ -172,6 +172,7 @@ class Afterpay extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         SoftwareData $softwareData,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -197,6 +198,7 @@ class Afterpay extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -585,7 +587,7 @@ class Afterpay extends AbstractMethod
         return $requestData;
     }
 
-    public function updateShippingAddressByDpdParcel($quote, &$requestData)
+    protected function updateShippingAddressByDpdParcel($quote, &$requestData)
     {
         $fullStreet = $quote->getDpdStreet();
         $matches = false;
