@@ -238,8 +238,8 @@ class Data extends AbstractHelper
      */
     public function isMobile()
     {
-        $userAgent = $this->httpHeader->getHttpUserAgent();
-        return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
+        $userAgent = new \Zend_Http_UserAgent;
+        return \Zend_Http_UserAgent_Mobile::match($this->httpHeader->getHttpUserAgent(), $userAgent->getServer());
     }
 
     public function getOriginalTransactionKey($orderId)

@@ -189,6 +189,7 @@ class Afterpay20 extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         AddressFactory $addressFactory,
         SoftwareData $softwareData,
@@ -215,6 +216,7 @@ class Afterpay20 extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -578,77 +580,6 @@ class Afterpay20 extends AbstractMethod
                     }
                 }
             }
-        }
-    }
-
-    public function updateShippingAddressByDpdParcel($quote, &$requestData)
-    {
-        $this->logger2->addDebug(__METHOD__.'|1|');
-
-        $fullStreet = $quote->getDpdStreet();
-        $postalCode = $quote->getDpdZipcode();
-        $city = $quote->getDpdCity();
-        $country = $quote->getDpdCountry();
-
-        if (!$fullStreet && $quote->getDpdParcelshopId()) {
-            $this->logger2->addDebug(__METHOD__.'|2|');
-            $this->logger2->addDebug(var_export($_COOKIE, true));
-            //$DPDClient = $this->objectManager->create('DpdConnect\Shipping\Helper\DPDClient');
-            //$DPDClient2 = $DPDClient->authenticate();
-            //$dpdShop = $DPDClient2->getParcelshop()->get(787611561);
-            $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
-            $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
-            $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
-            $country = $_COOKIE['dpd-selected-parcelshop-country'] ?? '';
-        }
-
-        $matches = false;
-        if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
-            $this->logger2->addDebug(__METHOD__.'|3|');
-
-            $street = $matches[1];
-            $streetHouseNumber = $matches[2];
-
-            $mapping = [
-                ['Street', $street],
-                ['PostalCode', $postalCode],
-                ['City', $city],
-                ['Country', $country],
-                ['StreetNumber', $streetHouseNumber],
-            ];
-
-            $this->logger2->addDebug(var_export($mapping, true));
-
-            foreach ($mapping as $mappingItem) {
-                if (!empty($mappingItem[1])) {
-                    $found = false;
-                    foreach ($requestData as $key => $value) {
-                        if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                            if ($requestData[$key]['Name'] == $mappingItem[0]) {
-                                $requestData[$key]['_'] = $mappingItem[1];
-                                $found = true;
-                            }
-                        }
-                    }
-                    if (!$found) {
-                        $requestData[] = [
-                            '_'    => $mappingItem[1],
-                            'Name' => $mappingItem[0],
-                            'Group' => 'ShippingCustomer',
-                            'GroupID' =>  '',
-                        ];
-                    }
-                }
-            }
-
-            foreach ($requestData as $key => $value) {
-                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
-                        unset($requestData[$key]);
-                    }
-                }
-            }
-
         }
     }
 
