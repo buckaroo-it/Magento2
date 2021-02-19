@@ -166,7 +166,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
-        \Magento\Framework\HTTP\Client\Curl $curl,
+        \Magento\Framework\HTTP\Client\Curl $curlClient,
         Account $configProviderAccount,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -195,7 +195,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         $this->accountConfig = $configProviderFactory->get('account');
 
-        $this->_curlClient            = $curl;
+        $this->curlClient             = $curlClient;
         $this->_configProviderAccount = $configProviderAccount;
         $this->_storeManager          = $storeManager;
         $this->_checkoutSession       = $checkoutSession;
@@ -424,27 +424,20 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         $hmac_full = $websiteKey . ':' . $hmac . ':' . $nonce . ':' . $timeStamp;
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
-        curl_setopt($curl, CURLOPT_USERAGENT, 'Magento2');
-        curl_setopt($curl, CURLOPT_URL, $uri);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $httpMethod);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
-        //ZAK
-        //curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-        //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        $this->curlClient->setOption(CURLOPT_RETURNTRANSFER, true);
+        $this->curlClient->setOption(CURLOPT_FOLLOWLOCATION, false);
+        $this->curlClient->setOption(CURLOPT_USERAGENT, 'Magento2');
+        $this->curlClient->setOption(CURLOPT_CUSTOMREQUEST, $httpMethod);
 
         $headers = [
-            'Content-Type: application/json; charset=utf-8',
-            'Accept: application/json',
-            'Authorization: hmac ' . $hmac_full,
+          "Content-Type" => "application/json; charset=utf-8",
+          "Accept" => "application/json",
+          "Authorization" => "hmac " . $hmac_full
         ];
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        $this->curlClient->setHeaders($headers);
+        $this->curlClient->post($uri,$json);
+        $result = $this->curlClient->getBody();
 
-        $result = curl_exec($curl);
-
-        $curlInfo = curl_getinfo($curl);
         return json_decode($result, true);
     }
 
