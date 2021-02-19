@@ -109,7 +109,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger = $logger;
     }
 
-
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         if (!$this->klarnakpConfig->getEnabled() ||
@@ -147,7 +146,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 $invoice = $this->invoiceService->prepareInvoice($order, $qtys);
                 $message = 'Automatically invoiced shipped items.';
             }
-
 
             $invoice->setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE);
             $invoice->register();

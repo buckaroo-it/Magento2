@@ -106,7 +106,6 @@ class Refund extends AbstractTransactionBuilder
         return $body;
     }
 
-
     /**
      * @return array
      */

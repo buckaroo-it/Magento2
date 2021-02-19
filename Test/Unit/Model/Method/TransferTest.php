@@ -53,7 +53,6 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $billingAddress->expects($this->once())->method('getLastname')->willReturn($fixture['lastname']);
         $billingAddress->expects($this->once())->method('getCountryId')->willReturn($fixture['country']);
 
-
         $orderMock = $this->getFakeMock(TransactionOrder::class)
             ->setMethods(['getCustomerEmail', 'setOrder', 'setMethod', 'getBillingAddress', 'setServices'])
             ->getMock();

@@ -49,7 +49,6 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         $form->setHtmlIdPrefix('giftcard_');
         $form->setFieldNameSuffix('giftcard');
 
-
         $fieldset = $form->addFieldset(
             'base_fieldset',
             ['legend' => __('Giftcard')]

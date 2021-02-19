@@ -4,13 +4,13 @@
 <div class="refund-fields">
     <?php foreach ($extraFields as $name => $field): ?>
         <div class="admin__field" >
-            <label for="buckaroo_magento2_<?php echo $block->escapeHtml($field); ?>" class="label normal admin__field-label">
-                <?php echo $name; ?>
+            <label for="buckaroo_magento2_<?= $block->escapeHtml($field); ?>" class="label normal admin__field-label">
+                <?= $name; ?>
             </label>
             <input type="text"
-                   name="creditmemo[<?php echo $block->escapeHtml($field); ?>]"
+                   name="creditmemo[<?= $block->escapeHtml($field); ?>]"
                    class="input-text input-text admin__control-text"
-                   id="buckaroo_magento2_<?php echo $block->escapeHtml($field); ?>"
+                   id="buckaroo_magento2_<?= $block->escapeHtml($field); ?>"
                 />
         </div>
     <?php endforeach; ?>

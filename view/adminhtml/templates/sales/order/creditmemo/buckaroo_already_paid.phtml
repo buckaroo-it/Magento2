@@ -25,11 +25,11 @@ $post = $block->getRequest()->getPost('creditmemo');
 <?php foreach ($block->getTotals() as $_code => $_total): ?>
     <?php if (isset($_total['block_name']) && $_total['block_name'] == 'buckaroo_already_paid'): ?>
         <tr>
-            <td class="label"><?= $_total['label'] ?><div id="buckaroo_already_paid_adv"></div></td>
+            <td class="label"><?php echo $_total['label'] ?><div id="buckaroo_already_paid_adv"></div></td>
             <td>
                 <input type="text"
-                       name="creditmemo[buckaroo_already_paid][<?= $_total['transaction_id'] ?>]"
-                       value="<?= abs(isset($post['buckaroo_already_paid'][$_total['transaction_id']])?$post['buckaroo_already_paid'][$_total['transaction_id']]:$_total['value']) ?>"
+                       name="creditmemo[buckaroo_already_paid][<?php echo $_total['transaction_id'] ?>]"
+                       value="<?php echo abs(isset($post['buckaroo_already_paid'][$_total['transaction_id']])?$post['buckaroo_already_paid'][$_total['transaction_id']]:$_total['value']) ?>"
                        class="input-text admin__control-text not-negative-amount"
                        id="buckaroo_already_paid" />
             </td>

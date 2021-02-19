@@ -492,7 +492,6 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $this->installPaymentFeeInclTaxColumns($setup);
         }
 
-
         if (version_compare($context->getVersion(), '1.9.2', '<')) {
             $this->installReservationNrColumn($setup);
             $this->installPushDataColumn($setup);
@@ -1288,7 +1287,6 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 
         return $this;
     }
-
 
     /**
      * Empty Secret_key so it will be set with correct value

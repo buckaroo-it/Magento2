@@ -30,7 +30,6 @@ class SepaDirectDebit extends AbstractConfigProvider
     const XPATH_SEPADIRECTDEBIT_ORDER_STATUS_FAILED     = 'payment/buckaroo_magento2_sepadirectdebit/order_status_failed';
     const XPATH_SEPADIRECTDEBIT_AVAILABLE_IN_BACKEND    = 'payment/buckaroo_magento2_sepadirectdebit/available_in_backend';
 
-
     const XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_sepadirectdebit/active_status_cm3';
     const XPATH_SEPADIRECTDEBIT_SCHEME_KEY                  = 'payment/buckaroo_magento2_sepadirectdebit/scheme_key';
     const XPATH_SEPADIRECTDEBIT_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_sepadirectdebit/max_step_index';

@@ -243,7 +243,6 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
         return $totals;
     }
 
-
     /**
      * @return mixed
      */

@@ -175,7 +175,6 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             ->method('addDebug')
             ->with('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
 
-
         $transactionMock = $this->getFakeMock(TransactionInterface::class)
             ->setMethods(['load', 'getOrder'])
             ->getMockForAbstractClass();

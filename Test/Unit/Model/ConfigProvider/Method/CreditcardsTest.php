@@ -83,7 +83,6 @@ class CreditcardsTest extends BaseTest
             'creditcardConfigProvider' => $creditcardMock
         ]);
 
-
         $result = $instance->getConfig();
 
         $this->assertEquals($expected, $result);

@@ -30,7 +30,6 @@ class Order
      */
     protected $configProviderPaypal;
 
-
     /**
      * @var PaypalStateCodes
      */
@@ -93,7 +92,6 @@ class Order
 
         return $result;
     }
-
 
     private function getRequestParameter($shippingAddress)
     {
