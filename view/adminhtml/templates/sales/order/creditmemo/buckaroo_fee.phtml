@@ -25,12 +25,12 @@
 <?php foreach ($block->getTotals() as $_code => $_total): ?>
     <?php if (isset($_total['block_name']) && $_total['block_name'] == 'buckaroo_fee'): ?>
         <tr>
-            <td class="label"><?php echo $_total['label'] ?>
+            <td class="label"><?= $_total['label'] ?>
                 <div id="buckaroo_fee_adv">
                 </div>
             </td>
             <td>
-                <span class="price"><?php echo $block->getCurrentCurrencySymbol() . abs($_total['value']) ?></span>
+                <span class="price"><?= $block->getCurrentCurrencySymbol() . abs($_total['value']) ?></span>
             </td>
         </tr>
     <?php endif?>
