@@ -29,7 +29,7 @@
 
 <script>
     if ('undefined' === typeof window.checkoutConfig) {
-        window.checkoutConfig = <?php echo $block->getCheckoutConfig(); ?>;
+        window.checkoutConfig = <?= $block->getCheckoutConfig(); ?>;
         window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
     }
     showPayButton = function() {

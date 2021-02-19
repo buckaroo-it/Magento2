@@ -3,7 +3,7 @@
 <?php foreach ($block->getTotals() as $_code => $_total): ?>
     <?php if (isset($_total['block_name']) && $_total['block_name'] == 'buckaroo_fee'): ?>
         <tr>
-            <td class="label">Refund <?php echo $_total['label'] ?>
+            <td class="label">Refund <?= $_total['label'] ?>
                 <input type="checkbox" name="creditmemo[buckaroo_fee_refundable]" id="isRefund" checked>
                 <div id="buckaroo_fee_adv">
                 </div>
@@ -11,7 +11,7 @@
             <td>
                 <input type="text"
                        name="creditmemo[buckaroo_fee]"
-                       value="<?php echo abs($_total['value']) ?>"
+                       value="<?= abs($_total['value']) ?>"
                        disabled
                        class="input-text admin__control-text not-negative-amount"
                        id="buckaroo_fee" />
