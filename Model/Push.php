@@ -435,7 +435,14 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1|');
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
             $this->hasPostData('add_service_action_from_magento',
-                ['capture', 'cancelauthorize', 'cancelreservation', 'refund']) &&
+                ['refund'])
+        ) {
+            return false;
+        }
+
+        if ($this->hasPostData('add_initiated_by_magento', 1) &&
+            $this->hasPostData('add_service_action_from_magento',
+                ['capture', 'cancelauthorize', 'cancelreservation']) &&
             empty($this->postData['brq_relatedtransaction_refund'])
         ) {
             return false;
