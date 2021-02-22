@@ -427,6 +427,7 @@ class PayPerEmail extends AbstractMethod
     {
        if ($methods = $config->getPaymentMethod($storeId)) {
            $methods = explode(',', $methods);
+           $activeCards = '';
            foreach ($methods as $key=>$value) {
                 if ($value === 'giftcard') {
                     $giftcardsConfig = $this->configProviderMethodFactory->get('giftcards');
