@@ -556,9 +556,15 @@ class Afterpay20 extends AbstractMethod
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
             $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/'.$matches[2].'/' . $servicePointId);
-            if (($response = $curl->getBody())
+            try {
+                $response = $curl->getBody();
+                $parsedResponse = json_decode($response);
+            } catch (\Exception $e) {
+                $this->logger2->addDebug(__METHOD__ . '|dhlparcel response failed|' . $e->getMessage());          
+            }
+            if (($response != null)
                 &&
-                ($parsedResponse = @json_decode($response))
+                ($parsedResponse != null)
                 &&
                 !empty($parsedResponse->address)
             ) {
