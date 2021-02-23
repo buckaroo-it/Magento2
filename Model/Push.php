@@ -225,7 +225,7 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->originalPostData, true));
 
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
-        $validSignature = $this->validator->validateSignature($this->originalPostData);
+        $validSignature = $this->validator->validateSignature($this->originalPostData, $this->postData);
 
         $this->logging->addDebug(__METHOD__ . '|1_2|');
         $lockHandler = $this->lockPushProcessingPpe();
@@ -248,8 +248,6 @@ class Push implements PushInterface
         //Validate status code and return response
         $postDataStatusCode = $this->getStatusCode();
         $this->logging->addDebug(__METHOD__ . '|1_5|' . var_export($postDataStatusCode, true));
-
-        //$serviceAction = $this->originalPostData['ADD_service_action_from_magento'] ?? null;
 
         $this->logging->addDebug(__METHOD__ . '|1_10|' . var_export($transactionType, true));
 
@@ -335,8 +333,8 @@ class Push implements PushInterface
             $this->setTransactionKey();
         }
 
-        if (isset($this->originalPostData['brq_statusmessage'])) {
-            $this->order->addStatusHistoryComment($this->originalPostData['brq_statusmessage']);
+        if (isset($this->postData['brq_statusmessage'])) {
+            $this->order->addStatusHistoryComment($this->postData['brq_statusmessage']);
         }
 
         if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
@@ -955,8 +953,8 @@ class Push implements PushInterface
 
         $description = 'Payment status : ' . $message;
 
-        if (isset($this->originalPostData['brq_SERVICE_antifraud_Action'])) {
-            $description .= $this->originalPostData['brq_SERVICE_antifraud_Action'] . ' ' . $this->originalPostData['brq_SERVICE_antifraud_Check'] . ' ' . $this->originalPostData['brq_SERVICE_antifraud_Details'];
+        if (isset($this->postData['brq_service_antifraud_action'])) {
+            $description .= $this->postData['brq_service_antifraud_action'] . ' ' . $this->postData['brq_service_antifraud_check'] . ' ' . $this->postData['brq_service_antifraud_details'];
         }
 
         $store = $this->order->getStore();
@@ -1007,13 +1005,13 @@ class Push implements PushInterface
 
         $amount = $this->order->getTotalDue();
 
-        if (isset($this->originalPostData['brq_amount']) && !empty($this->originalPostData['brq_amount'])) {
+        if (isset($this->postData['brq_amount']) && !empty($this->postData['brq_amount'])) {
             $this->logging->addDebug(__METHOD__ . '|11|');
-            $amount = floatval($this->originalPostData['brq_amount']);
+            $amount = floatval($this->postData['brq_amount']);
         }
 
-        if (isset($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']) && !empty($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber'])) {
-            $this->order->setBuckarooReservationNumber($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']);
+        if (isset($this->postData['brq_service_klarnakp_reservationnumber']) && !empty($this->postData['brq_service_klarnakp_reservationnumber'])) {
+            $this->order->setBuckarooReservationNumber($this->postData['brq_service_klarnakp_reservationnumber']);
             $this->order->save();
         }
 
@@ -1092,7 +1090,7 @@ class Push implements PushInterface
             if ($this->hasPostData('add_initiated_by_magento', 1) &&
                 $this->hasPostData('brq_transaction_method', 'KlarnaKp') &&
                 $this->hasPostData('add_service_action_from_magento', 'pay') &&
-                empty($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']) &&
+                empty($this->postData['brq_service_klarnakp_reservationnumber']) &&
                 $klarnakpConfig->getCreateInvoiceAfterShipment()
             ) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
@@ -1174,7 +1172,7 @@ class Push implements PushInterface
             }
         }
 
-        if (!empty($this->originalPostData['brq_SERVICE_klarnakp_AutoPayTransactionKey']) && ($this->originalPostData['brq_statuscode'] == 190)) {
+        if (!empty($this->postData['brq_service_klarnakp_autopaytransactionkey']) && ($this->postData['brq_statuscode'] == 190)) {
             $this->saveInvoice();
         }
 
@@ -1477,8 +1475,8 @@ class Push implements PushInterface
 
     private function isGroupTransactionPart()
     {
-        if (isset($this->originalPostData['brq_transactions'])) {
-            return $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
+        if (isset($this->postData['brq_transactions'])) {
+            return $this->groupTransaction->getGroupTransactionByTrxId($this->postData['brq_transactions']);
         }
         return false;
     }
@@ -1495,10 +1493,10 @@ class Push implements PushInterface
 
     private function savePartGroupTransaction()
     {
-        $items = $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
+        $items = $this->groupTransaction->getGroupTransactionByTrxId($this->postData['brq_transactions']);
         if (is_array($items) && count($items) > 0) {
             foreach ($items as $key => $item) {
-                $item2['status'] = $this->originalPostData['brq_statuscode'];
+                $item2['status'] = $this->postData['brq_statuscode'];
                 $item2['entity_id'] = $item['entity_id'];
                 $this->groupTransaction->updateGroupTransaction($item2);
             }
@@ -1508,7 +1506,7 @@ class Push implements PushInterface
     public function saveGroupTransactionInvoice($payment)
     {
         $payment = $this->order->getPayment();
-        $items = $this->groupTransaction->getGroupTransactionItems($this->originalPostData['brq_ordernumber']);
+        $items = $this->groupTransaction->getGroupTransactionItems($this->postData['brq_ordernumber']);
 
         foreach ($items as $key => $item) {
             $this->addTransactionData($item['transaction_id'], (array)$item);
@@ -1534,7 +1532,7 @@ class Push implements PushInterface
 
     private function receivePushCheckPayLink($response, $validSignature)
     {
-        if (isset($this->originalPostData['ADD_fromPayLink']) && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && $validSignature) {
+        if (isset($this->postData['add_frompaylink']) && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && $validSignature) {
             $payment = $this->order->getPayment();
             $payment->setMethod('buckaroo_magento2_payperemail');
             $payment->save();
@@ -1546,9 +1544,9 @@ class Push implements PushInterface
 
     private function receivePushCheckPayPerEmail($response, $validSignature)
     {
-        if (isset($this->originalPostData['ADD_fromPayPerEmail']) && isset($this->originalPostData['brq_transaction_method']) && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && $validSignature) {
-            if ($this->originalPostData['brq_transaction_method'] != 'payperemail') {
-                $brq_transaction_method = strtolower($this->originalPostData['brq_transaction_method']);
+        if (isset($this->postData['add_frompayperemail']) && isset($this->postData['brq_transaction_method']) && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && $validSignature) {
+            if ($this->postData['brq_transaction_method'] != 'payperemail') {
+                $brq_transaction_method = strtolower($this->postData['brq_transaction_method']);
                 $payment = $this->order->getPayment();
                 $payment->setAdditionalInformation('isPayPerEmail', $brq_transaction_method);
 
@@ -1575,9 +1573,9 @@ class Push implements PushInterface
     public function isPayPerEmailB2BModePush()
     {
         if (
-            isset($this->originalPostData['ADD_fromPayPerEmail']) &&
-            isset($this->originalPostData['brq_transaction_method']) &&
-            ($this->originalPostData['brq_transaction_method'] == 'payperemail')
+            isset($this->postData['add_frompayperemail']) &&
+            isset($this->postData['brq_transaction_method']) &&
+            ($this->postData['brq_transaction_method'] == 'payperemail')
         ) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             $config = $this->configProviderMethodFactory->get(\Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE);
@@ -1628,7 +1626,7 @@ class Push implements PushInterface
 
     private function lockPushProcessingPpe()
     {
-        if (isset($this->originalPostData['ADD_fromPayPerEmail'])) {
+        if (isset($this->postData['add_frompayperemail'])) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             if ($path = $this->getLockPushProcessingPpeFilePath()) {
                 if ($fp = fopen($path, "w+")) {
@@ -1642,7 +1640,7 @@ class Push implements PushInterface
 
     private function unlockPushProcessingPpe($lockHandler)
     {
-        if (isset($this->originalPostData['ADD_fromPayPerEmail'])) {
+        if (isset($this->postData['add_frompayperemail'])) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             fclose($lockHandler);
             if (($path = $this->getLockPushProcessingPpeFilePath()) && file_exists($path)) {
