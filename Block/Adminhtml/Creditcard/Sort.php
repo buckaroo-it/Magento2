@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Block\Adminhtml\Creditcard;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Buckaroo\Magento2\Helper\Data as HelperData;
 
 class Sort extends Field
 {
@@ -35,14 +36,18 @@ class Sort extends Field
      */
     protected $_template = 'Buckaroo_Magento2::creditcard_sort_widget.phtml';
 
+    private $helperData;
+
     /**
      * @param Context $context
      * @param array $data
      */
     public function __construct(
         Context $context,
-        array $data = []
+        array $data = [],
+        HelperData $helperData
     ) {
+        $this->helperData = $helperData;
         parent::__construct($context, $data);
     }
 
@@ -71,5 +76,10 @@ class Sort extends Field
 
     public function getConfig()
     {
+    }
+
+    public function getConfigGiftCardsSort()
+    {
+        return $this->helperData->getConfigGiftCardsSort();
     }
 }
