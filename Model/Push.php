@@ -1356,9 +1356,6 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|20|');
 
-        $this->order->setIsInProcess(true);
-        $this->order->save();
-
         $transactionKey = $this->getTransactionKey();
 
         if (strlen($transactionKey) <= 0) {
@@ -1373,6 +1370,9 @@ class Push implements PushInterface
 
             if (!empty($this->postData['brq_invoicenumber'])) {
                 if ($this->groupTransaction->isGroupTransaction($this->postData['brq_invoicenumber'])) {
+
+                    $this->logging->addDebug(__METHOD__ . '|27|');
+
                     $invoice->setGrandTotal($invoice->getGrandTotal() + $this->order->getBuckarooAlreadyPaid());
                     $invoice->setBaseGrandTotal($invoice->getBaseGrandTotal() + $this->order->getBaseBuckarooAlreadyPaid());
                     $invoice->setState(2);
@@ -1386,6 +1386,11 @@ class Push implements PushInterface
                 $this->invoiceSender->send($invoice, true);
             }
         }
+
+        $this->logging->addDebug(__METHOD__ . '|35|');
+
+        $this->order->setIsInProcess(true);
+        $this->order->save();
 
         $this->dontSaveOrderUponSuccessPush = true;
 
