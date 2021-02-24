@@ -1260,11 +1260,26 @@ class Push implements PushInterface
         if ($this->order->getState() == $orderState || $force == true) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             $this->logging->addDebug('||| $orderState: ' . '|1|' . $orderState);
-            $this->order->addStatusHistoryComment($description, $newStatus);
+            if ($this->dontSaveOrderUponSuccessPush) {
+                $this->order->addStatusHistoryComment($description)
+                    ->setIsCustomerNotified(false)
+                    ->setEntityName('invoice')
+                    ->setStatus($newStatus)
+                    ->save();
+            } else {
+                $this->order->addStatusHistoryComment($description, $newStatus);
+            }
         } else {
             $this->logging->addDebug(__METHOD__ . '|2|');
             $this->logging->addDebug('||| $orderState: ' . '|2|' . $orderState);
-            $this->order->addStatusHistoryComment($description);
+            if ($this->dontSaveOrderUponSuccessPush) {
+                $this->order->addStatusHistoryComment($description)
+                    ->setIsCustomerNotified(false)
+                    ->setEntityName('invoice')
+                    ->save();
+            } else {
+                $this->order->addStatusHistoryComment($description);
+            }
         }
     }
 
