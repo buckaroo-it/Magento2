@@ -21,11 +21,6 @@ namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Magento\Payment\Gateway\Http\ConverterInterface;
 
-/**
- * Class EmptyConverter
- *
- * @package Buckaroo\Magento2\Gateway\Http\Client
- */
 class EmptyConverter implements ConverterInterface
 {
 

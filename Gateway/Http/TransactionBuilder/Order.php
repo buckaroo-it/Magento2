@@ -100,13 +100,12 @@ class Order extends AbstractTransactionBuilder
         ];
 
         if (!empty($customParametersKey)) {
-            $body['CustomParameters']['CustomParameter'] = $this->getCustomInfo($customParametersKey, $billingData, $shippingData);
-
+            $body['CustomParameters']['CustomParameter'] = $this->getCustomInfo(
+                $customParametersKey,
+                $billingData,
+                $shippingData
+            );
         }
-//        $customData = 'CustomParameters' => (object)[
-//        'CustomParameter' => $this->getCustomInfo($customParametersKey, $billingData, $shippingData)
-//        ];
-
         if (!$this->emptyDescriptionFlag) {
             $body['Description'] = $this->configProviderAccount->getTransactionLabel($store);
         }
@@ -130,7 +129,10 @@ class Order extends AbstractTransactionBuilder
     {
         $parameterLine = [];
         if (isset($this->getServices()['Action'])) {
-            $parameterLine[] = $this->getParameterLine('service_action_from_magento', strtolower($this->getServices()['Action']));
+            $parameterLine[] = $this->getParameterLine(
+                'service_action_from_magento',
+                strtolower($this->getServices()['Action'])
+            );
         }
 
         $parameterLine[] = $this->getParameterLine('initiated_by_magento', 1);
@@ -220,7 +222,8 @@ class Order extends AbstractTransactionBuilder
 
     private function getCountryName($objectManager, $data)
     {
-        $countryName = $objectManager->create('\Magento\Directory\Model\Country')->load($data->getData('country_id'))->getName();
+        $countryName = $objectManager->create(\Magento\Directory\Model\Country::class)
+            ->load($data->getData('country_id'))->getName();
 
         return $countryName;
     }
@@ -393,7 +396,7 @@ class Order extends AbstractTransactionBuilder
         $customBillingData = [];
         $customShippingData = [];
         foreach ($customParametersArray as $customParameter) {
-            if (strpos($customParameter, 'billing')) {
+            if (strpos($customParameter, 'billing') !== false) {
                 $customBillingData[] = $customParameter;
             } else {
                 $customShippingData[] = $customParameter;

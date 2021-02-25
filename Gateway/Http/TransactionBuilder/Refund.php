@@ -113,7 +113,10 @@ class Refund extends AbstractTransactionBuilder
     {
         $parameterLine = [];
         if (isset($this->getServices()['Action'])) {
-            $parameterLine[] = $this->getParameterLine('service_action_from_magento', strtolower($this->getServices()['Action']));
+            $parameterLine[] = $this->getParameterLine(
+                'service_action_from_magento',
+                strtolower($this->getServices()['Action'])
+            );
         }
 
         $parameterLine[] = $this->getParameterLine('initiated_by_magento', 1);
