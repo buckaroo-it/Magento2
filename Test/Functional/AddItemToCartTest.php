@@ -1,4 +1,8 @@
 <?php
+// phpcs:ignoreFile
+/**
+ * functional tests are moved to a separate repo
+ */
 // An example of using php-webdriver.
 
 namespace Buckaroo\Magento2\Test\Functional;
