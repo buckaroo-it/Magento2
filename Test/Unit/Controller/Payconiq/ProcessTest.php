@@ -69,7 +69,9 @@ class ProcessTest extends BaseTest
 
         $responseMock = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
-        $redirectMock = $this->getFakeMock(RedirectInterface::class)->setMethods(['redirect'])->getMockForAbstractClass();
+        $redirectMock = $this->getFakeMock(RedirectInterface::class)
+            ->setMethods(['redirect'])
+            ->getMockForAbstractClass();
         $redirectMock->expects($this->once())->method('redirect')->with($responseMock, 'redirect.com');
 
         $contextMock = $this->getFakeMock(Context::class)
@@ -272,7 +274,9 @@ class ProcessTest extends BaseTest
         $searchCriteriaBuildMock->expects($this->exactly($expectedCallCount))
             ->method('create')->willReturn($searchCriteriaMock);
 
-        $trxRepoMock = $this->getFakeMock(TransactionRepositoryInterface::class)->setMethods(['getList'])->getMockForAbstractClass();
+        $trxRepoMock = $this->getFakeMock(TransactionRepositoryInterface::class)
+            ->setMethods(['getList'])
+            ->getMockForAbstractClass();
         $trxRepoMock->expects($this->exactly($expectedCallCount))
             ->method('getList')->with($searchCriteriaMock)->willReturn('list of items');
 
