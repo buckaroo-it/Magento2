@@ -44,16 +44,17 @@ class Payconiq extends AbstractConfigProvider
     const XPATH_PAYCONIQ_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_payconiq/order_status_failed';
     const XPATH_PAYCONIQ_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_payconiq/available_in_backend';
     const XPATH_PAYCONIQ_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_payconiq/sellers_protection';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      = 'payment/buckaroo_magento2_payconiq/sellers_protection_eligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    = 'payment/buckaroo_magento2_payconiq/sellers_protection_ineligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/buckaroo_magento2_payconiq/sellers_protection_itemnotreceived_eligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/buckaroo_magento2_payconiq/sellers_protection_unauthorizedpayment_eligible';
-
+    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      = 'payment/'.
+        'buckaroo_magento2_payconiq/sellers_protection_eligible';
+    const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    = 'payment/'.
+        'buckaroo_magento2_payconiq/sellers_protection_ineligible';
+    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
+        'buckaroo_magento2_payconiq/sellers_protection_itemnotreceived_eligible';
+    const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
+        'buckaroo_magento2_payconiq/sellers_protection_unauthorizedpayment_eligible';
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_payconiq/allowed_currencies';
-
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_payconiq/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_payconiq/specificcountry';
-
     const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
 
     /** @var FormKey */
@@ -88,7 +89,9 @@ class Payconiq extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Payconiq::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Payconiq::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [

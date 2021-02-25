@@ -32,9 +32,7 @@ class Giftcards extends AbstractConfigProvider
     const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS     = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
     const XPATH_GIFTCARDS_GROUP_GIFTCARDS       = 'payment/buckaroo_magento2_giftcards/group_giftcards';
     const XPATH_GIFTCARDS_SORT                  = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
-
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
-
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_giftcards/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_giftcards/specificcountry';
 
@@ -69,15 +67,18 @@ class Giftcards extends AbstractConfigProvider
             }
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE
+        );
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $resource = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);
         $connection = $resource->getConnection();
         $tableName = $resource->getTableName('buckaroo_magento2_giftcard');
         $result = $connection->fetchAll("SELECT * FROM " . $tableName);
         foreach ($result as $item) {
-            $item['sort'] = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99';
+            $item['sort'] = isset($sorted_array[$item['label']]) ?
+                $sorted_array[$item['label']] : '99';
             $allGiftCards[$item['servicecode']] = $item;
         }
 

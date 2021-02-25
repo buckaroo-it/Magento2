@@ -153,7 +153,7 @@ class Certificate extends \Magento\Framework\App\Config\Value
     {
         $allowedExtensions = ['pem'];
 
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        $extension = \Magento\Framework\Filesystem\Io\File::getPathInfo($filename, PATHINFO_EXTENSION);
 
         return in_array(strtolower($extension), $allowedExtensions);
     }
