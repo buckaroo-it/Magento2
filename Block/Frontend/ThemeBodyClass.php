@@ -21,19 +21,27 @@ namespace Buckaroo\Magento2\Block\Frontend;
 
 class ThemeBodyClass extends \Magento\Framework\View\Element\Template
 {
+    private $contextCopy;
+
     /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param array                                   $data
      */
     public function __construct(\Magento\Backend\Block\Template\Context $context, array $data = [])
     {
+        $this->contextCopy = $context;
         parent::__construct($context, $data);
+    }
 
-        $this->_design = $context->getDesignPackage();
+    protected function _prepareLayout()
+    {
+        $this->_design = $this->contextCopy->getDesignPackage();
 
         $themeCode = $this->_design->getDesignTheme()->getCode();
         $cssClass = preg_replace('/\W+/', '-', strtolower(strip_tags($themeCode)));
 
         $this->pageConfig->addBodyClass($cssClass);
+
+        return parent::_prepareLayout();
     }
 }
