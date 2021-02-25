@@ -78,7 +78,9 @@ class CommandInterface
 
         if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
             if (($methodInstance->getCode() == 'buckaroo_magento2_payperemail') && ($paymentAction == 'order')) {
-                $config = $this->configProviderMethodFactory->get(\Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE);
+                $config = $this->configProviderMethodFactory->get(
+                    \Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE
+                );
                 if ($config->getEnabledB2B()) {
                     $this->logging->addDebug(__METHOD__ . '|5|');
                     return $message;
