@@ -684,8 +684,7 @@ class Afterpay2 extends AbstractMethod
 
         // Set loop variables
         $articles = $requestData;
-        $count    = 1;
-
+        $count = 1;
         foreach ($cartData as $item) {
             // Child objects of configurable products should not be requested because afterpay will fail on unit prices.
             if (empty($item)
@@ -708,7 +707,7 @@ class Afterpay2 extends AbstractMethod
              * @todo: Find better way to make taxClassId available by invoice and creditmemo creating for Afterpay
              */
             $payment->setAdditionalInformation('tax_pid_' . $item->getProductId(), $item->getTaxClassId());
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -782,7 +781,7 @@ class Afterpay2 extends AbstractMethod
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($itemTaxClassId, $invoice->getOrder()->getStore())
             );
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             // Capture calculates discount per order line
@@ -796,6 +795,7 @@ class Afterpay2 extends AbstractMethod
                     number_format(($item->getDiscountAmount()*-1), 2),
                     $this->getTaxCategory($item->getTaxClassId(), $invoice->getOrder()->getStore())
                 );
+                //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
                 $articles = array_merge($articles, $article);
             }
 
@@ -845,7 +845,7 @@ class Afterpay2 extends AbstractMethod
             );
 
             $itemsTotalAmount += $item->getQty() * $this->calculateProductPrice($item, $includesTax);
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {

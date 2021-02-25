@@ -216,6 +216,7 @@ class Giropay extends AbstractMethod
         $customerBicNumber = $paymentInfo->getAdditionalInformation('customer_bic');
 
         if (!preg_match(static::BIC_NUMBER_REGEX, $customerBicNumber)) {
+            //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new Exception(__('Please enter a valid BIC number'));
         }
 

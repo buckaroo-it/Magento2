@@ -428,6 +428,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function processCustomPostData($payment, $postData)
     {
+        //phpcs:ignore:Squiz.PHP.NonExecutableCode
         return;
     }
 
@@ -604,7 +605,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $billingCountry = $this->payment->getOrder()->getBillingAddress()->getCountryId();
 
         $method = null;
-        if ($this->payment->getMethodInstance() && !empty($this->payment->getMethodInstance()->buckarooPaymentMethodCode)) {
+        if ($this->payment->getMethodInstance() &&
+            !empty($this->payment->getMethodInstance()->buckarooPaymentMethodCode)
+        ) {
             $method = $this->payment->getMethodInstance()->buckarooPaymentMethodCode;
         }
         if ($method == 'trustly') {
@@ -846,6 +849,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (empty($amount)) {
+            //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new \Exception('Giftcard cannot be refunded without order items');
         }
 
@@ -1416,7 +1420,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                         $myparcelFetched = true;
                     }
                 } catch (\JsonException $je) {
-                    $this->logger2->addDebug(__METHOD__.'|2|'.' Error related to json_decode (MyParcel plugin compatibility)');
+                    $this->logger2->addDebug(
+                        __METHOD__.'|2|'.' Error related to json_decode (MyParcel plugin compatibility)'
+                    );
                 }
             }
         }
@@ -1429,7 +1435,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             ) {
                 $this->logger2->addDebug(__METHOD__.'|15|');
                 if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()) {
-                    if ($myParcelNLData = $this->helper->getJson()->unserialize($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData())) {
+                    if ($myParcelNLData = $this->helper->getJson()->unserialize(
+                        $this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
+                    )) {
                         $this->logger2->addDebug(__METHOD__ . '|20|');
                         $this->updateShippingAddressByMyParcel($myParcelNLData, $requestData);
                     }
@@ -1469,7 +1477,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             }
         }
     }
-
+    //phpcs:ignore:Generic.Metrics.NestingLevel
     protected function updateShippingAddressByDpdParcel($quote, &$requestData)
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
