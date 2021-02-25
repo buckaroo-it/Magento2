@@ -25,17 +25,11 @@ use \Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class Data
- *
- * @package Buckaroo\Magento2\Helper
- */
 class Data extends AbstractHelper
 {
     const MODE_INACTIVE = 0;
@@ -299,6 +293,7 @@ class Data extends AbstractHelper
      *
      * @return array
      */
+    //phpcs:ignore:Generic.Metrics.NestingLevel
     public function getPPeCustomerDetails()
     {
         $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(), true));
@@ -331,14 +326,17 @@ class Data extends AbstractHelper
             if (isset($order['billing_address'])) {
                 $this->logger->addDebug(__METHOD__ . '|30|');
                 $this->staticCache['getPPeCustomerDetails'] = [
-                    'email' => !empty($this->staticCache['getPPeCustomerDetails']['email']) ? $this->staticCache['getPPeCustomerDetails']['email'] : '',
+                    'email' => !empty($this->staticCache['getPPeCustomerDetails']['email']) ?
+                        $this->staticCache['getPPeCustomerDetails']['email'] : '',
                     'firstName' => $order['billing_address']['firstname'],
                     'lastName' => $order['billing_address']['lastname'],
                 ];
             }
         }
 
-        if (($payment = $this->_getRequest()->getParam('payment')) && ($payment['method'] == 'buckaroo_magento2_payperemail')) {
+        if (($payment = $this->_getRequest()->getParam('payment')) &&
+            ($payment['method'] == 'buckaroo_magento2_payperemail')
+        ) {
             $this->logger->addDebug(__METHOD__ . '|40|');
             $this->staticCache['getPPeCustomerDetails'] = [
                 'email' => $payment['customer_email'],

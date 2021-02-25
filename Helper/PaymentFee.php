@@ -20,8 +20,7 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
-
+use Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
@@ -191,7 +190,10 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 }
             }
             foreach ($items as $key => $giftcard) {
-                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode']);
+                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+                    'servicecode',
+                    $giftcard['servicecode']
+                );
                 $label = __('Paid with ' . $foundGiftcard['label']);
 
                 $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0;
@@ -200,7 +202,9 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
 
                 if (!empty($foundGiftcard['is_partial_refundable'])) {
                     $residual = floatval($giftcard['amount']) - floatval($refundedAlreadyPaidSaved);
-                    if (array_key_exists($foundGiftcard['servicecode'], $giftcards) && floatval($giftcards[$foundGiftcard['servicecode']]) <= $residual) {
+                    if (array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
+                        floatval($giftcards[$foundGiftcard['servicecode']]) <= $residual
+                    ) {
                         $amountValue = floatval($giftcards[$foundGiftcard['servicecode']]);
                         $amountBaseValue = floatval($giftcards[$foundGiftcard['servicecode']]);
                     } else {
@@ -208,7 +212,9 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                         $amountValue = $residual;
                     }
                 } else {
-                    if ((!empty(floatval($refundedAlreadyPaidSaved)) && floatval($refundedAlreadyPaidSaved) === floatval($amountValue))) {
+                    if ((!empty(floatval($refundedAlreadyPaidSaved)) &&
+                        floatval($refundedAlreadyPaidSaved) === floatval($amountValue))
+                    ) {
                         $amountBaseValue = 0;
                         $amountValue = 0;
                     } elseif (array_key_exists($foundGiftcard['servicecode'], $giftcards)) {
@@ -476,8 +482,15 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
      * @param  string $label
      * @return void
      */
-    protected function addTotalToTotals(&$totals, $code, $value, $baseValue, $label, $block_name = false, $transaction_id = false)
-    {
+    protected function addTotalToTotals(
+        &$totals,
+        $code,
+        $value,
+        $baseValue,
+        $label,
+        $block_name = false,
+        $transaction_id = false
+    ) {
         if ($value == 0 && $baseValue == 0) {
             return;
         }
