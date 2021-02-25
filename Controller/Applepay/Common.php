@@ -98,10 +98,6 @@ class Common extends Action
         $this->customerSession = $customerSession ?? ObjectManager::getInstance()->get(CustomerSession::class);
     }
 
-    public function execute()
-    {
-    }
-
     /**
      * @param $address
      * @param $quoteTotals
@@ -226,7 +222,7 @@ class Common extends Action
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
 
-        $quoteRepository = $objectManager->get('Magento\Quote\Model\QuoteRepository');
+        $quoteRepository = $objectManager->get(\Magento\Quote\Model\QuoteRepository::class);
 
         $quote->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
         $quote->getShippingAddress()->setCollectShippingRates(true);
@@ -236,7 +232,8 @@ class Common extends Action
 
         if (count($shippingMethods) == 0) {
             $errorMessage = __(
-                'Apple Pay payment failed, because no shipping methods were found for the selected address. Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
+                'Apple Pay payment failed, because no shipping methods were found for the selected address. '.
+                'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
             );
             $this->messageManager->addErrorMessage($errorMessage);
 

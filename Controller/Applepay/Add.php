@@ -48,7 +48,17 @@ class Add extends Common
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         CustomerSession $customerSession = null
     ) {
-        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart, $totalsCollector, $converter, $customerSession);
+        parent::__construct(
+            $context,
+            $resultPageFactory,
+            $inlineParser,
+            $resultJsonFactory,
+            $logger,
+            $cart,
+            $totalsCollector,
+            $converter,
+            $customerSession
+        );
 
         $this->formKey = $formKey;
         $this->product = $product;
@@ -88,7 +98,7 @@ class Add extends Common
                 }
 
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                $checkoutSession = $objectManager->get('Magento\Checkout\Model\Session');
+                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
                 $quote = $checkoutSession->getQuote();
 
                 $quote->removeAllItems();

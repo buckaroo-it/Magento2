@@ -35,8 +35,8 @@ class UpdateShippingMethods extends Common
         if ($isPost) {
             if ($wallet = $this->getRequest()->getParam('wallet')) {
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                $checkoutSession = $objectManager->get('Magento\Checkout\Model\Session');
-                $quoteRepository = $objectManager->get('Magento\Quote\Model\QuoteRepository');
+                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
+                $quoteRepository = $objectManager->get(\Magento\Quote\Model\QuoteRepository::class);
                 $quote = $checkoutSession->getQuote();
 
                 ////shipping

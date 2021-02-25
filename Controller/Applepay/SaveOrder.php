@@ -58,7 +58,17 @@ class SaveOrder extends Common
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         CustomerSession $customerSession = null
     ) {
-        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart, $totalsCollector, $converter, $customerSession);
+        parent::__construct(
+            $context,
+            $resultPageFactory,
+            $inlineParser,
+            $resultJsonFactory,
+            $logger,
+            $cart,
+            $totalsCollector,
+            $converter,
+            $customerSession
+        );
 
         $this->quoteManagement = $quoteManagement;
         $this->customer = $customer;
@@ -68,7 +78,7 @@ class SaveOrder extends Common
         $this->checkoutSession    = $checkoutSession;
         $this->accountConfig = $configProviderFactory->get('account');
     }
-
+    //phpcs:ignore:Generic.Metrics.NestingLevel
     public function execute()
     {
         $isPost = $this->getRequest()->getPostValue();
@@ -86,7 +96,7 @@ class SaveOrder extends Common
                 $this->logger->addDebug(var_export($extra, true));
 
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                $checkoutSession = $objectManager->get('Magento\Checkout\Model\Session');
+                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
                 $quote = $checkoutSession->getQuote();
 
                 if (!$this->setShippingAddress($quote, $payment['shippingContact'])) {
@@ -98,8 +108,7 @@ class SaveOrder extends Common
 
                 $this->logger->addDebug(__METHOD__.'|2|');
 
-                if ($this->customer->getCustomer() && $this->customer->getCustomer()->getId()) {
-                } else {
+                if (!($this->customer->getCustomer() && $this->customer->getCustomer()->getId())) {
                     $quote->setCheckoutMethod('guest')
                         ->setCustomerId(null)
                         ->setCustomerEmail($quote->getShippingAddress()->getEmail())

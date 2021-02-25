@@ -223,65 +223,25 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $this->logger->addDebug(__METHOD__.'|1|');
-        // $this->response = $this->getRequest()->getParams();
         $data = $this->getRequest()->getParams();
         $this->logger->addDebug(var_export($data, true));
 
         $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
         $orderId = $this->helper->getOrderId();
 
-        /*if(isset($data['refund'])){
-            $transactionKey = $data['refund'];
-            $amount_value = preg_replace("/([^0-9\\.,])/i", "", $data['amount']);
-            $postArray = array(
-                "Currency" => $currency,
-                "AmountCredit" => $amount_value,
-                "Invoice" => $orderId,
-                "OriginalTransactionKey" => $transactionKey,
-                "Services" => array(
-                    "ServiceList" => array(
-                        array(
-                            "Action" => "Refund",
-                            "Name" => $data['card'],
-                            "Version" => 1,
-                        )
-                    )
-                )
-            );
-
-            $response = $this->sendResponse($postArray);
-
-            $res['status'] = $response['Status']['Code']['Code'];
-
-            if($response['Status']['Code']['Code']=='190'){
-                $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($transactionKey);
-                foreach ($groupTransaction as $item) {
-                    if (!empty(floatval($item['refunded_amount']))) {
-                        $item['refunded_amount'] += $amount_value;
-                    } else {
-                        $item['refunded_amount'] = $amount_value;
-                    }
-                   $this->groupTransaction->updateGroupTransaction($item->_data);
-                }
-
-                $alreadyPaid = $this->getAlreadyPaid($orderId) - $amount_value;
-                $this->setAlreadyPaid($orderId, $alreadyPaid);
-
-                $res['message'] = __("Your refund successfully.");
-            }else{
-                $res['error'] = isset($response['Status']['SubCode']['Description']) ? $response['Status']['SubCode']['Description'] : $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
-            }
-
-            return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
-        }*/
-
-        if (!isset($data['card']) || empty($data['card']) || !isset($data['cardNumber']) || empty($data['cardNumber']) || !isset($data['pin']) || empty($data['pin'])) {
+        if (!isset($data['card']) ||
+            empty($data['card']) ||
+            !isset($data['cardNumber']) ||
+            empty($data['cardNumber']) ||
+            !isset($data['pin']) ||
+            empty($data['pin'])
+        ) {
             $res['error'] = 'Card number or pin not valid';
             return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
         }
 
         $card = $data['card'];
-        // $returnUrl = $this->_storeManager->getStore()->getUrl($this->_configProviderAccount->getSuccessRedirect());
+
         $returnUrl = $this->urlBuilder->setScope($this->_storeManager->getStore()->getStoreId());
         $returnUrl = $returnUrl->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->formKey->getFormKey();
 
@@ -368,9 +328,23 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             
             $res['PayRemainingAmountButton'] = '';
             if ($res['RemainderAmount'] > 0) {
-                $this->setOriginalTransactionKey($orderId, $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']);
-                $message = __('A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4', $response['Currency'], $response['AmountDebit'], $res['RemainderAmount'], $response['RequiredAction']['PayRemainderDetails']['Currency']);
-                $res['PayRemainingAmountButton'] = __('Pay remaining amount: %1 %2', $res['RemainderAmount'], $response['RequiredAction']['PayRemainderDetails']['Currency']);
+                $this->setOriginalTransactionKey(
+                    $orderId,
+                    $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']
+                );
+                $message = __(
+                    'A partial payment of %1 %2 was successfully performed on a requested amount.'.
+                    ' Remainder amount %3 %4',
+                    $response['Currency'],
+                    $response['AmountDebit'],
+                    $res['RemainderAmount'],
+                    $response['RequiredAction']['PayRemainderDetails']['Currency']
+                );
+                $res['PayRemainingAmountButton'] = __(
+                    'Pay remaining amount: %1 %2',
+                    $res['RemainderAmount'],
+                    $response['RequiredAction']['PayRemainderDetails']['Currency']
+                );
             } else {
                 $message = __("Your paid successfully. Please finish your order");
             }
@@ -435,7 +409,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
           "Authorization" => "hmac " . $hmac_full
         ];
         $this->curlClient->setHeaders($headers);
-        $this->curlClient->post($uri,$json);
+        $this->curlClient->post($uri, $json);
         $result = $this->curlClient->getBody();
 
         return json_decode($result, true);
@@ -464,7 +438,9 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     {
         if ($orderId) {
             $this->_checkoutSession->getQuote()->setBaseBuckarooAlreadyPaid($amount);
-            $this->_checkoutSession->getQuote()->setBuckarooAlreadyPaid($this->priceCurrency->convert($amount, $this->quote->getStore()));
+            $this->_checkoutSession->getQuote()->setBuckarooAlreadyPaid(
+                $this->priceCurrency->convert($amount, $this->quote->getStore())
+            );
         }
 
         $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();

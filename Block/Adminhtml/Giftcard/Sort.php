@@ -44,8 +44,8 @@ class Sort extends Field
      */
     public function __construct(
         Context $context,
-        array $data = [],
-        HelperData $helperData
+        HelperData $helperData,
+        array $data = []
     ) {
         $this->helperData = $helperData;
         parent::__construct($context, $data);
@@ -72,10 +72,6 @@ class Sort extends Field
     protected function _getElementHtml(AbstractElement $element)
     {
         return $this->_toHtml();
-    }
-
-    public function getConfig()
-    {
     }
 
     public function getConfigGiftCardsSort()
