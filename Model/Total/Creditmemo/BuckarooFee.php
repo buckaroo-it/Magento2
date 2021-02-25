@@ -70,7 +70,9 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
                 $buckarooFee = 0;
                 if (strpos($method, 'afterpay20') !== false) {
                     $creditmemo->setTaxAmount($creditmemo->getTaxAmount() - $creditmemo->getBuckarooFeeTaxAmount());
-                    $creditmemo->setBaseTaxAmount($creditmemo->getBaseTaxAmount() - $creditmemo->getBuckarooFeeBaseTaxAmount());
+                    $creditmemo->setBaseTaxAmount(
+                        $creditmemo->getBaseTaxAmount() - $creditmemo->getBuckarooFeeBaseTaxAmount()
+                    );
 
                     $creditmemo->setBaseGrandTotal(
                         $creditmemo->getBaseGrandTotal() -
