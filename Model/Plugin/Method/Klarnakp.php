@@ -65,6 +65,6 @@ class Klarnakp
 
         $this->klarnakpMethod->cancel($payment);
 
-        return $this;
+        return $subject;
     }
 }
