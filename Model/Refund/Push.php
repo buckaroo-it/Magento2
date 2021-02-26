@@ -344,7 +344,17 @@ class Push
             - $baseTotalToBeRefunded
             - $this->order->getBaseTotalRefunded();
 
+        $this->logging->addDebug(__METHOD__.'|5|'.var_export([
+                $this->totalAmountToRefund(),  $this->order->getBaseGrandTotal(), $remainderToRefund
+            ], true));
+
         if ($this->totalAmountToRefund() == $this->order->getBaseGrandTotal()) {
+            $this->logging->addDebug(__METHOD__.'|10|');
+            $remainderToRefund = 0;
+        }
+
+        if ($remainderToRefund < 0.01) {
+            $this->logging->addDebug(__METHOD__.'|15|');
             $remainderToRefund = 0;
         }
 
