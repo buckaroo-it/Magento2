@@ -188,7 +188,7 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
 
         $customTitle = [];
-        if ($orderId && !empty($alreadyPaid[$orderId]) && ($alreadyPaid[$orderId] > 0)) {
+        if ($orderId) {
             $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
             foreach ($items as $key => $giftcard) {
                 if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode'])) {

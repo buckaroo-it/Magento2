@@ -24,6 +24,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Logging\Log;
 
 class SendInvoiceMail implements ObserverInterface
 {
@@ -34,15 +35,22 @@ class SendInvoiceMail implements ObserverInterface
     private $invoiceSender;
 
     /**
+     * @var Log $logging
+     */
+    public $logging;
+
+    /**
      * @param Account       $accountConfig
      * @param InvoiceSender $invoiceSender
      */
     public function __construct(
         Account $accountConfig,
-        InvoiceSender $invoiceSender
+        InvoiceSender $invoiceSender,
+        Log $logging
     ) {
         $this->accountConfig = $accountConfig;
         $this->invoiceSender = $invoiceSender;
+        $this->logging = $logging;
     }
 
     /**
@@ -50,6 +58,8 @@ class SendInvoiceMail implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
+        $this->logging->addDebug(__METHOD__ . '|1|');
+
         /** @var Invoice $invoice */
         $invoice = $observer->getEvent()->getInvoice();
         $payment = $invoice->getOrder()->getPayment();
@@ -63,6 +73,7 @@ class SendInvoiceMail implements ObserverInterface
 
         if (!$invoice->getEmailSent() && $invoice->getIsPaid() && $canCapture && $sendInvoiceEmail) {
             $invoice->save();
+            $this->logging->addDebug(__METHOD__ . '|10|sendinvoiceemail');
             $this->invoiceSender->send($invoice, true);
         }
     }

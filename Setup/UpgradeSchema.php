@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Setup;
 
+use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 
@@ -90,6 +91,8 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
         if (!$installer->tableExists('buckaroo_magento2_second_chance')) {
             $this->createSecondChanceTable($installer);
         }
+
+        $this->createOptimizationIndexes($installer);
 
         $installer->endSetup();
     }
@@ -374,5 +377,19 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
         $table->setComment('Buckaroo Second Chance');
 
         $installer->getConnection()->createTable($table);
+    }
+
+    /**
+     * @param SchemaSetupInterface $installer
+     *
+     * @throws \Zend_Db_Exception
+     */
+    protected function createOptimizationIndexes(SchemaSetupInterface $installer)
+    {
+        $installer->getConnection()->addIndex(
+            $installer->getTable('sales_payment_transaction'),
+            $installer->getIdxName('sales_payment_transaction', ['txn_id']),
+            ['txn_id']
+        );
     }
 }
