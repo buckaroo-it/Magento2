@@ -1591,7 +1591,7 @@ class Afterpay20 extends AbstractMethod
      */
     protected function getFailureMessageFromMethod($transactionResponse)
     {
-        $transactionType = $transactionResponse->TransactionType;
+        $transactionType = $transactionResponse->TransactionType ?? '';
         $methodMessage = '';
 
         if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038') {
