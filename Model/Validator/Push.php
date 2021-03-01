@@ -27,11 +27,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use \Buckaroo\Magento2\Model\ValidatorInterface;
 use \Magento\Framework\Encryption\Encryptor;
 
-/**
- * Class Push
- *
- * @package Buckaroo\Magento2\Model\Validator
- */
 class Push implements ValidatorInterface
 {
     /** @var Account $configProviderAccount */

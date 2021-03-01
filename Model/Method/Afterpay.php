@@ -570,7 +570,7 @@ class Afterpay extends AbstractMethod
         );
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+            $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
             $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
@@ -593,7 +593,7 @@ class Afterpay extends AbstractMethod
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s([0-9]+)([^\w]*)([\w]*)/', $fullStreet, $matches)) {
             $street = $matches[1];
-            $streetHouseNumber = $matches[2];            
+            $streetHouseNumber = $matches[2];
             $streetHouseNumberSuffix = $matches[4] ?? '';
 
             $mapping = [
@@ -680,7 +680,7 @@ class Afterpay extends AbstractMethod
     {
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+        $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
         $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
         // Set loop variables
@@ -700,7 +700,7 @@ class Afterpay extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                intval($item->getQty()),
+                (int) ($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($item->getTaxClassId(), $payment->getOrder()->getStore())
             );
@@ -709,7 +709,7 @@ class Afterpay extends AbstractMethod
              * @todo: Find better way to make taxClassId available by invoice and creditmemo creating for Afterpay
              */
             $payment->setAdditionalInformation('tax_pid_' . $item->getProductId(), $item->getTaxClassId());
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -779,11 +779,11 @@ class Afterpay extends AbstractMethod
                 $count,
                 (int) $item->getName(),
                 $item->getProductId(),
-                intval($item->getQty()),
+                (int) ($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($itemTaxClassId, $invoice->getOrder()->getStore())
             );
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             // Capture calculates discount per order line
@@ -797,6 +797,7 @@ class Afterpay extends AbstractMethod
                     number_format(($item->getDiscountAmount()*-1), 2),
                     $this->getTaxCategory($item->getTaxClassId(), $invoice->getOrder()->getStore())
                 );
+                //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
                 $articles = array_merge($articles, $article);
             }
 
@@ -840,13 +841,13 @@ class Afterpay extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                intval($item->getQty()),
+                (int) ($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($itemTaxClassId, $payment->getOrder()->getStore())
             );
 
             $itemsTotalAmount += $item->getQty() * $this->calculateProductPrice($item, $includesTax);
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -888,7 +889,9 @@ class Afterpay extends AbstractMethod
     public function calculateProductPrice($productItem, $includesTax)
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
-        $this->logger2->addDebug(var_export([$includesTax, $productItem->getPrice(), $productItem->getPriceInclTax()], true));
+        $this->logger2->addDebug(
+            var_export([$includesTax, $productItem->getPrice(), $productItem->getPriceInclTax()], true)
+        );
 
         $productPrice = $productItem->getPriceInclTax();
 

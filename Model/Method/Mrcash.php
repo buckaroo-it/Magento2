@@ -112,7 +112,9 @@ class Mrcash extends AbstractMethod
             $this->logger2->addDebug(__METHOD__ . '|5|');
 
             if (!isset($additionalInformation['customer_encrypteddata'])) {
-                throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted bancontact data to Buckaroo.'));
+                throw new \Buckaroo\Magento2\Exception(
+                    __('An error occured trying to send the encrypted bancontact data to Buckaroo.')
+                );
             }
 
             $services = [
@@ -232,7 +234,9 @@ class Mrcash extends AbstractMethod
         $additionalInformation = $payment->getAdditionalInformation();
 
         if (!isset($additionalInformation['customer_encrypteddata'])) {
-            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted bancontact data to Buckaroo.'));
+            throw new \Buckaroo\Magento2\Exception(
+                __('An error occured trying to send the encrypted bancontact data to Buckaroo.')
+            );
         }
 
         $services = [

@@ -21,11 +21,6 @@ namespace Buckaroo\Magento2\Model\Plugin\Method;
 
 use \Magento\Sales\Model\Order;
 
-/**
- * Class Klarnakp
- *
- * @package Buckaroo\Magento2\Model\Plugin\Method
- */
 class Emandate
 {
     const EMANDATE_METHOD_NAME = 'buckaroo_magento2_emandate';

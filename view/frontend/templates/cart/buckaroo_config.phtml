@@ -21,6 +21,6 @@
 <div id="buckaroo-fee-cart" data-bind="scope:'buckarooFeeCart'">
     <!-- ko template: getTemplate() --><!-- /ko -->
     <script>
-        window.buckarooConfig = <?= $block->getBuckarooConfigJson(); ?>;
+        window.buckarooConfig = <?= /* @noEscape */ $block->getBuckarooConfigJson(); ?>;
     </script>
 </div>

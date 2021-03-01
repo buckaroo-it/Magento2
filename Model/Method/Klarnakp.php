@@ -343,7 +343,6 @@ class Klarnakp extends AbstractMethod
         if (isset($currentInvoice)) {
             $articledata = $this->getPayRequestData($currentInvoice, $payment);
             $articles = array_merge($articles, $articledata);
-            //$group++;
         }
 
         // For the first invoice possible add payment fee
@@ -355,7 +354,6 @@ class Klarnakp extends AbstractMethod
                 unset($serviceLine[3]);
                 unset($serviceLine[4]);
                 $articles = array_merge($articles, $serviceLine);
-                //$group++;
             }
         }
 
@@ -577,16 +575,19 @@ class Klarnakp extends AbstractMethod
 
         $qtys = [];
         foreach ($invoiceItems as $item) {
-            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()], true));
-            if (empty($item) || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
+            $this->logger2->addDebug(
+                __METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()], true)
+            );
+            if (empty($item) ||
+                $item->getOrderItem()->getParentItemId() ||
+                $this->calculateProductPrice($item, $includesTax) == 0
+            ) {
                 continue;
             }
 
             $qtys[$item->getSku()] = [
-                'qty' => intval($item->getQty()),
-                //'name' => $item->getName(),
+                'qty' => (int) ($item->getQty()),
                 'price' => $this->calculateProductPrice($item, $includesTax),
-                //'tax' => $item->getTaxPercent()
             ];
         }
 
@@ -976,7 +977,7 @@ class Klarnakp extends AbstractMethod
                     'Name' => 'ArticleVat',
                 ]
             ];
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
             $group++;
 

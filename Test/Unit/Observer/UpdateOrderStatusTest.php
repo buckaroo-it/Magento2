@@ -58,7 +58,10 @@ class UpdateOrderStatusTest extends BaseTest
         $accountMock = $this->getFakeMock(Account::class)
             ->setMethods(['getOrderStatusNew', 'getCreateOrderBeforeTransaction'])
             ->getMock();
-        $accountMock->expects($this->once())->method('getOrderStatusNew')->willReturn('buckaroo_magento2_pending_paymen');
+        $accountMock
+            ->expects($this->once())
+            ->method('getOrderStatusNew')
+            ->willReturn('buckaroo_magento2_pending_paymen');
         $accountMock->expects($this->once())->method('getCreateOrderBeforeTransaction')->willReturn(0);
 
         $instance = $this->getInstance(['account' => $accountMock]);

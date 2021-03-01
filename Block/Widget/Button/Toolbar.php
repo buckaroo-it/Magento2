@@ -25,10 +25,6 @@ use Magento\Backend\Block\Widget\Button\Toolbar as ToolbarContext;
 use Magento\Framework\View\Element\AbstractBlock;
 use Magento\Backend\Block\Widget\Button\ButtonList;
 
-/**
- * Class Toolbar
- * @package Buckaroo\Magento2\Block\Widget\Button
- */
 class Toolbar
 {
     /**

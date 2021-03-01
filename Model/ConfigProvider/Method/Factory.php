@@ -80,7 +80,8 @@ class Factory
         $configProvider = $this->objectManager->get($configProviderClass);
         if (!$configProvider instanceof ConfigProviderInterface) {
             throw new \LogicException(
-                'The ConfigProvider must implement "Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface".'
+                'The ConfigProvider must implement '.
+                '"Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface".'
             );
         }
         return $configProvider;

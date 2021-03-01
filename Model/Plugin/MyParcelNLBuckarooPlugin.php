@@ -58,7 +58,7 @@ class MyParcelNLBuckarooPlugin
     public function beforeGetFromDeliveryOptions()
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
-
+        // @codingStandardsIgnoreLine
         if ($result = file_get_contents('php://input')) {
             if ($jsonDecoded = $this->json->unserialize($result)) {
 

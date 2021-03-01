@@ -1083,7 +1083,9 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testAddExtraFields($params, $extraFields, $expected)
     {
-        $requestMock = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
+        $requestMock = $this->getFakeMock(RequestInterface::class)
+            ->setMethods(['getParams'])
+            ->getMockForAbstractClass();
         $requestMock->expects($this->once())->method('getParams')->willReturn($params);
 
         $refundFactoryMock = $this->getFakeMock(RefundFieldsFactory::class)->setMethods(['get'])->getMock();

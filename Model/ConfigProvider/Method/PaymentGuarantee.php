@@ -21,20 +21,18 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class PaymentGuarantee extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES                    = 'buckaroo/buckaroo_magento2_paymentguarantee/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_paymentguarantee/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_paymentguarantee/specificcountry';
-
-    const XPATH_PAYMENTGUARANTEE_PAYMENT_FEE          = 'payment/buckaroo_magento2_paymentguarantee/payment_fee';
-    const XPATH_PAYMENTGUARANTEE_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_paymentguarantee/payment_fee_label';
-    const XPATH_PAYMENTGUARANTEE_ACTIVE               = 'payment/buckaroo_magento2_paymentguarantee/active';
-    const XPATH_PAYMENTGUARANTEE_ACTIVE_STATUS        = 'payment/buckaroo_magento2_paymentguarantee/active_status';
-    const XPATH_PAYMENTGUARANTEE_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_paymentguarantee/order_status_success';
-    const XPATH_PAYMENTGUARANTEE_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_paymentguarantee/order_status_failed';
-    const XPATH_PAYMENTGUARANTEE_SEND_EMAIL           = 'payment/buckaroo_magento2_paymentguarantee/send_email';
-    const XPATH_PAYMENTGUARANTEE_PAYMENT_METHOD       = 'payment/buckaroo_magento2_paymentguarantee/payment_method';
-
+    const XPATH_ALLOWED_CURRENCIES = 'buckaroo/buckaroo_magento2_paymentguarantee/allowed_currencies';
+    const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_paymentguarantee/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_paymentguarantee/specificcountry';
+    const XPATH_PAYMENTGUARANTEE_PAYMENT_FEE = 'payment/buckaroo_magento2_paymentguarantee/payment_fee';
+    const XPATH_PAYMENTGUARANTEE_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_paymentguarantee/payment_fee_label';
+    const XPATH_PAYMENTGUARANTEE_ACTIVE = 'payment/buckaroo_magento2_paymentguarantee/active';
+    const XPATH_PAYMENTGUARANTEE_ACTIVE_STATUS = 'payment/buckaroo_magento2_paymentguarantee/active_status';
+    const XPATH_PAYMENTGUARANTEE_ORDER_STATUS_SUCCESS = 'payment/'.
+        'buckaroo_magento2_paymentguarantee/order_status_success';
+    const XPATH_PAYMENTGUARANTEE_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_paymentguarantee/order_status_failed';
+    const XPATH_PAYMENTGUARANTEE_SEND_EMAIL = 'payment/buckaroo_magento2_paymentguarantee/send_email';
+    const XPATH_PAYMENTGUARANTEE_PAYMENT_METHOD = 'payment/buckaroo_magento2_paymentguarantee/payment_method';
     /**
      * @var array
      */
@@ -59,7 +57,9 @@ class PaymentGuarantee extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\PaymentGuarantee::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\PaymentGuarantee::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
@@ -80,7 +80,10 @@ class PaymentGuarantee extends AbstractConfigProvider
      */
     public function getPaymentMethodToUse()
     {
-        $paymentMethodConfiguredKeys =  array_combine($this->getPaymentMethod(), $this->getPaymentMethod()); //set value as key
+        $paymentMethodConfiguredKeys =  array_combine(
+            $this->getPaymentMethod(),
+            $this->getPaymentMethod()
+        ); //set value as key
         $paymentMethodConfigured = array_intersect_key($this->paymentNames, $paymentMethodConfiguredKeys);
 
         $paymentMethodString = implode(',', $paymentMethodConfigured);

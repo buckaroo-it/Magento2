@@ -256,7 +256,10 @@ class Billink extends AbstractMethod
         $additionalData = $data['additional_data'];
 
         if (isset($additionalData['customer_billingName'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_billingName',
+                $additionalData['customer_billingName']
+            );
         }
 
         if (isset($additionalData['customer_gender'])) {
@@ -264,11 +267,17 @@ class Billink extends AbstractMethod
         }
 
         if (isset($additionalData['customer_chamberOfCommerce'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_chamberOfCommerce', $additionalData['customer_chamberOfCommerce']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_chamberOfCommerce',
+                $additionalData['customer_chamberOfCommerce']
+            );
         }
 
         if (isset($additionalData['customer_VATNumber'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_VATNumber', $additionalData['customer_VATNumber']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_VATNumber',
+                $additionalData['customer_VATNumber']
+            );
         }
 
         if (isset($additionalData['customer_DoB'])) {
@@ -489,16 +498,9 @@ class Billink extends AbstractMethod
         $creditmemo = $payment->getCreditmemo();
         $articles = [];
 
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            //AddCreditMemoArticles
-            // $articles = $this->getCreditmemoArticleData($payment);
-        }
-
         if (isset($services['RequestParameter'])) {
             $articles = array_merge($services['RequestParameter'], $articles);
         }
-
-        // $services['RequestParameter'] = $articles;
 
         /** @noinspection PhpUndefinedMethodInspection */
         $transactionBuilder->setOrder($payment->getOrder())
@@ -512,8 +514,9 @@ class Billink extends AbstractMethod
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             $invoice = $creditmemo->getInvoice();
 
-            $transactionBuilder->setInvoiceId($this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment))
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
+            $transactionBuilder->setInvoiceId(
+                $this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment)
+            )->setOriginalTransactionKey($payment->getParentTransactionId());
         }
 
         return $transactionBuilder;
@@ -539,7 +542,7 @@ class Billink extends AbstractMethod
         $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+            $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
             $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
@@ -567,19 +570,20 @@ class Billink extends AbstractMethod
         return $requestData;
     }
 
+    //phpcs:ignore:Generic.Metrics.NestingLevel
     public function updateShippingAddressByDhlParcel($servicePointId, &$requestData)
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
-            $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
+            $curl = $this->objectManager->get(\Magento\Framework\HTTP\Client\Curl::class);
             $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/'.$matches[2].'/' . $servicePointId);
             try {
                 $response = $curl->getBody();
                 $parsedResponse = json_decode($response);
             } catch (\Exception $e) {
-                $this->logger2->addDebug(__METHOD__ . '|dhlparcel response failed|' . $e->getMessage());          
+                $this->logger2->addDebug(__METHOD__ . '|dhlparcel response failed|' . $e->getMessage());
             }
             if (($response != null)
                 &&
@@ -597,7 +601,9 @@ class Billink extends AbstractMethod
                             ['StreetNumber', 'number'],
                         ];
                         foreach ($mapping as $mappingItem) {
-                            if (($requestData[$key]['Name'] == $mappingItem[0]) && (!empty($parsedResponse->address->{$mappingItem[1]}))) {
+                            if (($requestData[$key]['Name'] == $mappingItem[0]) &&
+                                (!empty($parsedResponse->address->{$mappingItem[1]}))
+                            ) {
                                 $requestData[$key]['_'] = $parsedResponse->address->{$mappingItem[1]};
                             }
                         }
@@ -620,7 +626,7 @@ class Billink extends AbstractMethod
 
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+        $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
         $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         /**
          * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
@@ -638,8 +644,10 @@ class Billink extends AbstractMethod
             ) {
                 continue;
             }
-
-            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no), because the underlying simples are also in the quote
+            /**
+             * Skip bundles which have dynamic pricing on (0 = yes, 1 = no),
+             * because the underlying simples are also in the quote
+             */
             if ($item->getProductType() == Type::TYPE_BUNDLE
                 && $item->getProduct()->getCustomAttribute('price_type')
                 && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
@@ -655,7 +663,7 @@ class Billink extends AbstractMethod
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getTaxPercent()
             );
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
@@ -726,7 +734,7 @@ class Billink extends AbstractMethod
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getOrderItem()->getTaxPercent()
             );
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             // Capture calculates discount per order line
@@ -740,6 +748,7 @@ class Billink extends AbstractMethod
                     number_format(($item->getDiscountAmount()*-1), 2),
                     0
                 );
+                //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
                 $articles = array_merge($articles, $article);
             }
 
@@ -786,6 +795,7 @@ class Billink extends AbstractMethod
             }
 
             $refundType = $this->getRefundType($count);
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $refundType);
 
             $article = $this->getArticleArrayLine(
@@ -793,12 +803,15 @@ class Billink extends AbstractMethod
                 $item->getQty() . ' x ' . $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
-                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
+                $this->calculateProductPrice(
+                    $item,
+                    $includesTax
+                ) - round($item->getDiscountAmount() / $item->getQty(), 2),
                 $item->getOrderItem()->getTaxPercent()
             );
 
             $itemsTotalAmount += $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount();
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
@@ -1159,7 +1172,10 @@ class Billink extends AbstractMethod
         $billingAddress = $order->getBillingAddress();
         $streetFormat   = $this->formatStreet($billingAddress->getStreet());
 
-        $birthDayStamp = date("d-m-Y", strtotime(str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'))));
+        $birthDayStamp = date(
+            "d-m-Y",
+            strtotime(str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB')))
+        );
         $chamberOfCommerce = $payment->getAdditionalInformation('customer_chamberOfCommerce');
         $VATNumber = $payment->getAdditionalInformation('customer_VATNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');
@@ -1520,7 +1536,11 @@ class Billink extends AbstractMethod
         $transactionType = $transactionResponse->TransactionType;
         $methodMessage = '';
 
-        if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038') {
+        if ($transactionType != 'C011' &&
+            $transactionType != 'C016' &&
+            $transactionType != 'C039' &&
+            $transactionType != 'I038'
+        ) {
             return $methodMessage;
         }
 

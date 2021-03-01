@@ -811,7 +811,7 @@ class PaymentGuarantee extends AbstractMethod
         $incrementNumber = $numberOfInvoices + $numberOfCreditmemos;
 
         if (null !== $payment->getCreditmemo()) {
-            $incrementNumber += 1;
+            ++$incrementNumber;
         }
 
         $partialId = $order->getIncrementId() . '-' . $incrementNumber;

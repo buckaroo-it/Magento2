@@ -5,7 +5,7 @@
     <?php foreach ($extraFields as $name => $field): ?>
         <div class="admin__field" >
             <label for="buckaroo_magento2_<?= $block->escapeHtml($field); ?>" class="label normal admin__field-label">
-                <?= $name; ?>
+                <?= $block->escapeHtml($name); ?>
             </label>
             <input type="text"
                    name="creditmemo[<?= $block->escapeHtml($field); ?>]"

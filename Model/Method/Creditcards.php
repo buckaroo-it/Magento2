@@ -222,11 +222,15 @@ class Creditcards extends AbstractMethod
         $additionalInformation = $payment->getAdditionalInformation();
 
         if (!isset($additionalInformation['customer_encrypteddata'])) {
-            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted creditcard data to Buckaroo.'));
+            throw new \Buckaroo\Magento2\Exception(
+                __('An error occured trying to send the encrypted creditcard data to Buckaroo.')
+            );
         }
 
         if (!isset($additionalInformation['customer_creditcardcompany'])) {
-            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the creditcard company data to Buckaroo.'));
+            throw new \Buckaroo\Magento2\Exception(
+                __('An error occured trying to send the creditcard company data to Buckaroo.')
+            );
         }
 
         $services = [

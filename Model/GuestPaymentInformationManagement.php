@@ -101,6 +101,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         $this->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
 
         $this->logger->debug('-[RESULT]----------------------------------------');
+        //phpcs:ignore:Magento2.Functions.DiscouragedFunction
         $this->logger->debug(print_r($this->registry->registry('buckaroo_response'), true));
         $this->logger->debug('-------------------------------------------------');
 

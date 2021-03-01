@@ -48,6 +48,9 @@ class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractC
      */
     protected function _construct()
     {
-        $this->_init('Buckaroo\Magento2\Model\GroupTransaction', 'Buckaroo\Magento2\Model\ResourceModel\GroupTransaction');
+        $this->_init(
+            'Buckaroo\Magento2\Model\GroupTransaction',
+            'Buckaroo\Magento2\Model\ResourceModel\GroupTransaction'
+        );
     }
 }

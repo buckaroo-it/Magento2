@@ -192,11 +192,17 @@ class Tinka extends AbstractMethod
         $data = $this->assignDataConvertToArray($data);
 
         if (isset($data['additional_data']['customer_billingName'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $data['additional_data']['customer_billingName']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_billingName',
+                $data['additional_data']['customer_billingName']
+            );
         }
 
         if (isset($data['additional_data']['customer_gender'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_gender', $data['additional_data']['customer_gender']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_gender',
+                $data['additional_data']['customer_gender']
+            );
         }
 
         if (isset($data['additional_data']['customer_DoB'])) {
@@ -238,12 +244,6 @@ class Tinka extends AbstractMethod
                 "GroupID" => "",
                 "_" => $billingAddress->getEmail()
             ],
-//                [
-//                    "Name"=> "PrefixLastName",
-//                    "Group"=> "BillingCustomer",
-//                    "GroupID"=> "",
-//                    "_"=> $billingAddress->getPrefix()
-//                ],
             [
                 "Name"=> "City",
                 "Group"=> "BillingCustomer",
@@ -483,19 +483,20 @@ class Tinka extends AbstractMethod
         return $shippingData;
     }
 
+    //phpcs:ignore:Generic.Metrics.NestingLevel
     public function updateShippingAddressByDhlParcel($servicePointId, &$requestData)
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
-            $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
+            $curl = $this->objectManager->get(\Magento\Framework\HTTP\Client\Curl::class);
             $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/'.$matches[2].'/' . $servicePointId);
             try {
                 $response = $curl->getBody();
                 $parsedResponse = json_decode($response);
             } catch (\Exception $e) {
-                $this->logger2->addDebug(__METHOD__ . '|dhlparcel response failed|' . $e->getMessage());          
+                $this->logger2->addDebug(__METHOD__ . '|dhlparcel response failed|' . $e->getMessage());
             }
             if (($response != null)
                 &&
@@ -513,7 +514,9 @@ class Tinka extends AbstractMethod
                             ['StreetNumber', 'number'],
                         ];
                         foreach ($mapping as $mappingItem) {
-                            if (($requestData[$key]['Name'] == $mappingItem[0]) && (!empty($parsedResponse->address->{$mappingItem[1]}))) {
+                            if (($requestData[$key]['Name'] == $mappingItem[0]) &&
+                                (!empty($parsedResponse->address->{$mappingItem[1]}))
+                            ) {
                                 $requestData[$key]['_'] = $parsedResponse->address->{$mappingItem[1]};
                             }
                         }
@@ -561,7 +564,7 @@ class Tinka extends AbstractMethod
         $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+            $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
             $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
@@ -602,12 +605,6 @@ class Tinka extends AbstractMethod
                     "GroupID" => "",
                     "_" => $dateOfBirth
                 ],
-//                [
-//                    "Name"=> "Initials",
-//                    "GroupType"=> "",
-//                    "GroupID"=> "",
-//                    "_"=> $billingAddress->get
-//                ],
                 [
                     "Name"=> "Gender",
                     "GroupType"=> "",
@@ -618,7 +615,10 @@ class Tinka extends AbstractMethod
         ];
 
         $services['RequestParameter'] = array_merge($services['RequestParameter'], $requestData);
-        $services['RequestParameter'] = array_merge($services['RequestParameter'], $this->getRequestArticlesData($payment));
+        $services['RequestParameter'] = array_merge(
+            $services['RequestParameter'],
+            $this->getRequestArticlesData($payment)
+        );
 
         /**
          * @noinspection PhpUndefinedMethodInspection
@@ -648,7 +648,7 @@ class Tinka extends AbstractMethod
         /**
          * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
          */
-        $cartData = $this->objectManager->create('Magento\Checkout\Model\Cart')->getItems();
+        $cartData = $this->objectManager->create(\Magento\Checkout\Model\Cart::class)->getItems();
 
         /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
         foreach ($cartData as $item) {
@@ -659,7 +659,8 @@ class Tinka extends AbstractMethod
                 continue;
             }
 
-            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no), because the underlying simples are also in the quote
+            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no),
+            //because the underlying simples are also in the quote
             if ($item->getProductType() == Type::TYPE_BUNDLE
                 && $item->getProduct()->getCustomAttribute('price_type')
                 && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
@@ -681,7 +682,7 @@ class Tinka extends AbstractMethod
             );
 
             $countOrderPrice += $itemPrice * $item->getQty();
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
             $count++;
         }
@@ -690,7 +691,8 @@ class Tinka extends AbstractMethod
 
         if (!empty($serviceLine)) {
             $articles = array_merge($articles, $serviceLine);
-            $countOrderPrice += $payment->getOrder()->getBaseBuckarooFee() + $payment->getOrder()->getBuckarooFeeTaxAmount();
+            $countOrderPrice += $payment->getOrder()->getBaseBuckarooFee() +
+                $payment->getOrder()->getBuckarooFeeTaxAmount();
             $count++;
         }
 
@@ -699,7 +701,8 @@ class Tinka extends AbstractMethod
 
         if (!empty($shippingCosts)) {
             $articles = array_merge($articles, $shippingCosts);
-            $countOrderPrice += $payment->getOrder()->getShippingAmount() + $payment->getOrder()->getShippingTaxAmount();
+            $countOrderPrice += $payment->getOrder()->getShippingAmount() +
+                $payment->getOrder()->getShippingTaxAmount();
             $count++;
         }
 

@@ -65,7 +65,8 @@ class Push
             return $result;
         }
 
-        $eligibilityTypes = static::ELIGIBILITY_INELIGIBLE !== $push->postData['brq_service_paypal_protectioneligibility']
+        $eligibilityTypes =
+            static::ELIGIBILITY_INELIGIBLE !== $push->postData['brq_service_paypal_protectioneligibility']
             ? $push->postData['brq_service_paypal_protectioneligibilitytype']
             : static::ELIGIBILITY_TYPE_NONE;
 
@@ -136,6 +137,7 @@ class Push
                 break;
             default:
                 throw new \InvalidArgumentException('Invalid eligibility type(s): ' . $eligibilityType);
+                //phpcs:ignore:Squiz.PHP.NonExecutableCode
                 break;
         }
         $order->addStatusHistoryComment($comment, $status ?: false);

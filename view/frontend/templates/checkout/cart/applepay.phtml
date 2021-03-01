@@ -29,7 +29,7 @@
 
 <script>
     if ('undefined' === typeof window.checkoutConfig) {
-        window.checkoutConfig = <?= $block->getCheckoutConfig(); ?>;
+        window.checkoutConfig = <?= /* @noEscape */ $block->getCheckoutConfig(); ?>;
         window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
     }
     showPayButton = function() {

@@ -29,6 +29,7 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Service\Sales\Transaction\Cancel as TransactionCancel;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
@@ -67,7 +68,8 @@ class Process extends Action
         TransactionRepositoryInterface $transactionRepository,
         Account $account,
         TransactionCancel $transactionCancel,
-        QuoteRecreate $quoteRecreate
+        QuoteRecreate $quoteRecreate,
+        Log $logger
     ) {
         parent::__construct($context);
 
@@ -76,6 +78,7 @@ class Process extends Action
         $this->account                = $account;
         $this->transactionCancel      = $transactionCancel;
         $this->quoteRecreate          = $quoteRecreate;
+        $this->logger                 = $logger;
     }
 
     /**
@@ -96,6 +99,7 @@ class Process extends Action
             $this->transactionCancel->cancel($transaction);
             $this->quoteRecreate->recreate($order);
         } catch (\Exception $exception) {
+            $this->logger->addDebug($exception->getMessage());
         }
 
         $cancelledErrorMessage = __(

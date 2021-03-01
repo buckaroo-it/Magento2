@@ -68,11 +68,4 @@ class NotificationDataProvider extends \Magento\Ui\DataProvider\AbstractDataProv
     {
         return $this->modifier->modifyMeta($this->meta);
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addFilter(\Magento\Framework\Api\Filter $filter)
-    {
-    }
 }

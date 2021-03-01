@@ -151,27 +151,6 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
          */
         $total->setBaseBuckarooAlreadyPaid($baseAlreadyPaid);
 
-/*        $baseGrandTotal = $total->getBaseGrandTotal() - $baseAlreadyPaid;
-        $grandTotal = $total->getGrandTotal() - $alreadyPaid;
-        if($paymentMethod == 'buckaroo_magento2_giftcards'){
-            $cartTotals = $quote->getTotals();
-            $grand_total = $cartTotals['grand_total']->getData();
-            if(($grand_total['value'] - $baseAlreadyPaid) < 0.001){
-               $baseGrandTotal = $baseAlreadyPaid  + 0.001;
-               $grandTotal = $grandTotal + 0.001;
-            }
-        }*/
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        // $total->setBaseGrandTotal($baseGrandTotal);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        // $total->setGrandTotal($grandTotal);
-
         return $this;
     }
 
@@ -191,7 +170,10 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         if ($orderId && !empty($alreadyPaid[$orderId]) && ($alreadyPaid[$orderId] > 0)) {
             $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
             foreach ($items as $key => $giftcard) {
-                if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode'])) {
+                if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+                    'servicecode',
+                    $giftcard['servicecode']
+                )) {
                     $customTitle[] = [
                         'label' => __('Paid with') . ' ' . $foundGiftcard['label'],
                         'amount' => -$giftcard['amount'],

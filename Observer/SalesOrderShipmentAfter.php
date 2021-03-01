@@ -140,7 +140,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             if ($order->getDiscountAmount() < 0) {
                 $invoice = $this->invoiceService->prepareInvoice($order);
-                $message = 'Automatically invoiced full order with discount. (Klarna can not invoice partials with discount)';
+                $message = 'Automatically invoiced full order with discount. '.
+                    '(Klarna can not invoice partials with discount)';
             } else {
                 $qtys = $this->getQtys($shipment);
                 $invoice = $this->invoiceService->prepareInvoice($order, $qtys);
@@ -152,13 +153,18 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);
             $order->addStatusHistoryComment($message, false);
-            $transactionSave = $this->transactionFactory->create()->addObject($invoice)->addObject($invoice->getOrder());
+            $transactionSave = $this->transactionFactory
+                ->create()
+                ->addObject($invoice)
+                ->addObject($invoice->getOrder());
             $transactionSave->save();
 
             $this->logger->addDebug(__METHOD__ . '|3|' . var_export($order->getStatus(), true));
 
             if ($order->getStatus() == 'complete') {
-                $description = 'Total amount of ' . $order->getBaseCurrency()->formatTxt($order->getTotalInvoiced()) . ' has been paid';
+                $description = 'Total amount of ' .
+                    $order->getBaseCurrency()->formatTxt($order->getTotalInvoiced()) .
+                    ' has been paid';
                 $order->addStatusHistoryComment($description, false);
                 $order->save();
             }

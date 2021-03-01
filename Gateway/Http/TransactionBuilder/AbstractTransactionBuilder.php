@@ -543,7 +543,9 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         }
 
         //trustly anyway should be w/o private ip
-        if ((isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) && $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly')
+        if ((isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) &&
+                $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly'
+            )
             &&
             $this->isIpPrivate($ip)
             &&
