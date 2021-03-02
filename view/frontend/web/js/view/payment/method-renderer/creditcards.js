@@ -304,6 +304,7 @@ define(
                 },
 
                 processCard: function () {
+                    this.CardNumber(this.CardNumber().replace(/\s/g, ''));
                     var cardIssuerObject = this.getCardIssuer();
                     if (cardIssuerObject && cardIssuerObject.active) {
                         this.CardIssuer(cardIssuerObject.code);
