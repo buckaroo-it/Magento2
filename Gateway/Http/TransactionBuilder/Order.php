@@ -318,7 +318,7 @@ class Order extends AbstractTransactionBuilder
         }
 
         if (($services['Name'] == 'paymentguarantee' && $services['Action'] == 'PartialInvoice') ||
-            ($services['Name'] == 'klarnakp' && $services['Action'] == 'Pay')
+            (in_array($services['Name'],['klarna', 'klarnakp', 'klarnain']) && $services['Action'] == 'Pay')
         ) {
             unset($body['OriginalTransactionKey']);
         }
