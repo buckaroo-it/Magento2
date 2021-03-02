@@ -121,7 +121,6 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return $total;
     }
 
-
     public function getGroupTransactionOriginalTransactionKey($order_id)
     {
         foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
@@ -131,7 +130,6 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         }
         return false;
     }
-
 
     public function getGroupTransactionById($entity_id)
     {
