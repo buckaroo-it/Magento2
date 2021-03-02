@@ -152,6 +152,8 @@ class Push implements PushInterface
 
     private $isPayPerEmailB2BModePushInitial = false;
 
+    protected $dirList;
+
     /**
      * @param Order $order
      * @param TransactionInterface $transaction
@@ -181,7 +183,8 @@ class Push implements PushInterface
         OrderStatusFactory $orderStatusFactory,
         PaymentGroupTransaction $groupTransaction,
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        \Magento\Framework\Filesystem\DirectoryList $dirList
     ) {
         $this->order = $order;
         $this->transaction = $transaction;
@@ -199,6 +202,7 @@ class Push implements PushInterface
         $this->groupTransaction = $groupTransaction;
         $this->objectManager = $objectManager;
         $this->resourceConnection = $resourceConnection;
+        $this->dirList = $dirList;
     }
 
     /**
@@ -214,9 +218,16 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->originalPostData, true));
 
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
-        $validSignature = $this->validator->validateSignature($this->originalPostData);
+        $validSignature = $this->validator->validateSignature($this->originalPostData, $this->postData);
+
+        $this->logging->addDebug(__METHOD__ . '|1_2|');
+        $lockHandler = $this->lockPushProcessingPpe();
+        $this->logging->addDebug(__METHOD__ . '|1_3|');
 
         if ($this->isGroupTransactionInfo()) {
+            if ($this->isGroupTransactionFailed()) {
+                $this->savePartGroupTransaction();
+            }
             return true;
         }
 
@@ -230,8 +241,6 @@ class Push implements PushInterface
         //Validate status code and return response
         $postDataStatusCode = $this->getStatusCode();
         $this->logging->addDebug(__METHOD__ . '|1_5|' . var_export($postDataStatusCode, true));
-
-        //$serviceAction = $this->originalPostData['ADD_service_action_from_magento'] ?? null;
 
         $this->logging->addDebug(__METHOD__ . '|1_10|' . var_export($transactionType, true));
 
@@ -321,8 +330,8 @@ class Push implements PushInterface
             $this->setTransactionKey();
         }
 
-        if (isset($this->originalPostData['brq_statusmessage'])) {
-            $this->order->addStatusHistoryComment($this->originalPostData['brq_statusmessage']);
+        if (isset($this->postData['brq_statusmessage'])) {
+            $this->order->addStatusHistoryComment($this->postData['brq_statusmessage']);
         }
 
         if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
@@ -351,6 +360,9 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|5-1|');
             $this->order->save();
         }
+
+        $this->unlockPushProcessingPpe($lockHandler);
+
         $this->logging->addDebug(__METHOD__ . '|6|');
 
         return true;
@@ -416,9 +428,15 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
+            $this->hasPostData('add_service_action_from_magento', ['refund'])
+        ) {
+            return false;
+        }
+
+        if ($this->hasPostData('add_initiated_by_magento', 1) &&
             $this->hasPostData(
                 'add_service_action_from_magento',
-                ['capture', 'cancelauthorize', 'cancelreservation', 'refund']
+                ['capture', 'cancelauthorize', 'cancelreservation']
             ) &&
             empty($this->postData['brq_relatedtransaction_refund'])
         ) {
@@ -463,15 +481,7 @@ class Push implements PushInterface
      */
     private function loadOrder()
     {
-        $brqOrderId = false;
-
-        if (isset($this->postData['brq_invoicenumber']) && strlen($this->postData['brq_invoicenumber']) > 0) {
-            $brqOrderId = $this->postData['brq_invoicenumber'];
-        }
-
-        if (isset($this->postData['brq_ordernumber']) && strlen($this->postData['brq_ordernumber']) > 0) {
-            $brqOrderId = $this->postData['brq_ordernumber'];
-        }
+        $brqOrderId = $this->getOrderIncrementId();
 
         //Check if the order can receive further status updates
         $this->order->loadByIncrementId((string) $brqOrderId);
@@ -949,11 +959,10 @@ class Push implements PushInterface
 
         $description = 'Payment status : ' . $message;
 
-        if (isset($this->originalPostData['brq_SERVICE_antifraud_Action'])) {
-            $description .=
-                $this->originalPostData['brq_SERVICE_antifraud_Action'] . ' ' .
-                $this->originalPostData['brq_SERVICE_antifraud_Check'] . ' ' .
-                $this->originalPostData['brq_SERVICE_antifraud_Details'];
+        if (isset($this->postData['brq_service_antifraud_action'])) {
+            $description .= $this->postData['brq_service_antifraud_action'] . ' ' .
+            $this->postData['brq_service_antifraud_check'] . ' ' .
+            $this->postData['brq_service_antifraud_details'];
         }
 
         $store = $this->order->getStore();
@@ -1004,17 +1013,15 @@ class Push implements PushInterface
 
         $amount = $this->order->getTotalDue();
 
-        if (isset($this->originalPostData['brq_amount']) && !empty($this->originalPostData['brq_amount'])) {
+        if (isset($this->postData['brq_amount']) && !empty($this->postData['brq_amount'])) {
             $this->logging->addDebug(__METHOD__ . '|11|');
-            $amount = floatval($this->originalPostData['brq_amount']);
+            $amount = floatval($this->postData['brq_amount']);
         }
 
-        if (isset($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']) &&
-            !empty($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber'])
+        if (isset($this->postData['brq_service_klarnakp_reservationnumber']) &&
+            !empty($this->postData['brq_service_klarnakp_reservationnumber'])
         ) {
-            $this->order->setBuckarooReservationNumber(
-                $this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']
-            );
+            $this->order->setBuckarooReservationNumber($this->postData['brq_service_klarnakp_reservationnumber']);
             $this->order->save();
         }
 
@@ -1095,7 +1102,7 @@ class Push implements PushInterface
             if ($this->hasPostData('add_initiated_by_magento', 1) &&
                 $this->hasPostData('brq_transaction_method', 'KlarnaKp') &&
                 $this->hasPostData('add_service_action_from_magento', 'pay') &&
-                empty($this->originalPostData['brq_SERVICE_klarnakp_ReservationNumber']) &&
+                empty($this->postData['brq_service_klarnakp_reservationnumber']) &&
                 $klarnakpConfig->getCreateInvoiceAfterShipment()
             ) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
@@ -1186,8 +1193,8 @@ class Push implements PushInterface
             }
         }
 
-        if (!empty($this->originalPostData['brq_SERVICE_klarnakp_AutoPayTransactionKey']) &&
-            ($this->originalPostData['brq_statuscode'] == 190)
+        if (!empty($this->postData['brq_service_klarnakp_autopaytransactionkey']) &&
+            ($this->postData['brq_statuscode'] == 190)
         ) {
             $this->saveInvoice();
         }
@@ -1274,11 +1281,26 @@ class Push implements PushInterface
         if ($this->order->getState() == $orderState || $force == true) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             $this->logging->addDebug('||| $orderState: ' . '|1|' . $orderState);
-            $this->order->addStatusHistoryComment($description, $newStatus);
+            if ($this->dontSaveOrderUponSuccessPush) {
+                $this->order->addStatusHistoryComment($description)
+                    ->setIsCustomerNotified(false)
+                    ->setEntityName('invoice')
+                    ->setStatus($newStatus)
+                    ->save();
+            } else {
+                $this->order->addStatusHistoryComment($description, $newStatus);
+            }
         } else {
             $this->logging->addDebug(__METHOD__ . '|2|');
             $this->logging->addDebug('||| $orderState: ' . '|2|' . $orderState);
-            $this->order->addStatusHistoryComment($description);
+            if ($this->dontSaveOrderUponSuccessPush) {
+                $this->order->addStatusHistoryComment($description)
+                    ->setIsCustomerNotified(false)
+                    ->setEntityName('invoice')
+                    ->save();
+            } else {
+                $this->order->addStatusHistoryComment($description);
+            }
         }
     }
 
@@ -1350,9 +1372,6 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|20|');
 
-        $this->order->setIsInProcess(true);
-        $this->order->save();
-
         $transactionKey = $this->getTransactionKey();
 
         if (strlen($transactionKey) <= 0) {
@@ -1367,6 +1386,9 @@ class Push implements PushInterface
 
             if (!empty($this->postData['brq_invoicenumber'])) {
                 if ($this->groupTransaction->isGroupTransaction($this->postData['brq_invoicenumber'])) {
+
+                    $this->logging->addDebug(__METHOD__ . '|27|');
+
                     $invoice->setGrandTotal($invoice->getGrandTotal() + $this->order->getBuckarooAlreadyPaid());
                     $invoice->setBaseGrandTotal(
                         $invoice->getBaseGrandTotal() + $this->order->getBaseBuckarooAlreadyPaid()
@@ -1378,9 +1400,17 @@ class Push implements PushInterface
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+                $this->logging->addDebug(__METHOD__ . '|30|sendinvoiceemail');
                 $this->invoiceSender->send($invoice, true);
             }
         }
+
+        $this->logging->addDebug(__METHOD__ . '|35|');
+
+        $this->order->setIsInProcess(true);
+        $this->order->save();
+
+        $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
     }
@@ -1474,7 +1504,9 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         if ($this->isGroupTransactionInfoType()) {
-            if ($this->postData['brq_statuscode'] != 190) {
+            if ($this->postData['brq_statuscode'] !=
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            ) {
                 return true;
             }
         }
@@ -1483,18 +1515,30 @@ class Push implements PushInterface
 
     private function isGroupTransactionPart()
     {
-        if (isset($this->originalPostData['brq_transactions'])) {
-            return $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
+        if (isset($this->postData['brq_transactions'])) {
+            return $this->groupTransaction->getGroupTransactionByTrxId($this->postData['brq_transactions']);
+        }
+        return false;
+    }
+
+    private function isGroupTransactionFailed()
+    {
+        if ($this->isGroupTransactionInfoType()) {
+            if ($this->postData['brq_statuscode'] ==
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
+            ) {
+                return true;
+            }
         }
         return false;
     }
 
     private function savePartGroupTransaction()
     {
-        $items = $this->groupTransaction->getGroupTransactionByTrxId($this->originalPostData['brq_transactions']);
+        $items = $this->groupTransaction->getGroupTransactionByTrxId($this->postData['brq_transactions']);
         if (is_array($items) && count($items) > 0) {
             foreach ($items as $key => $item) {
-                $item2['status'] = $this->originalPostData['brq_statuscode'];
+                $item2['status'] = $this->postData['brq_statuscode'];
                 $item2['entity_id'] = $item['entity_id'];
                 $this->groupTransaction->updateGroupTransaction($item2);
             }
@@ -1504,7 +1548,7 @@ class Push implements PushInterface
     public function saveGroupTransactionInvoice($payment)
     {
         $payment = $this->order->getPayment();
-        $items = $this->groupTransaction->getGroupTransactionItems($this->originalPostData['brq_ordernumber']);
+        $items = $this->groupTransaction->getGroupTransactionItems($this->postData['brq_ordernumber']);
 
         foreach ($items as $key => $item) {
             $this->addTransactionData($item['transaction_id'], (array)$item);
@@ -1531,7 +1575,7 @@ class Push implements PushInterface
 
     private function receivePushCheckPayLink($response, $validSignature)
     {
-        if (isset($this->originalPostData['ADD_fromPayLink']) &&
+        if (isset($this->originalPostData['add_frompaylink']) &&
             $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' &&
             $validSignature
         ) {
@@ -1547,13 +1591,13 @@ class Push implements PushInterface
     //phpcs:ignore:Generic.Metrics.NestingLevel
     private function receivePushCheckPayPerEmail($response, $validSignature)
     {
-        if (isset($this->originalPostData['ADD_fromPayPerEmail']) &&
-            isset($this->originalPostData['brq_transaction_method']) &&
+        if (isset($this->postData['add_frompayperemail']) &&
+            isset($this->postData['brq_transaction_method']) &&
             $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' &&
             $validSignature
         ) {
-            if ($this->originalPostData['brq_transaction_method'] != 'payperemail') {
-                $brq_transaction_method = strtolower($this->originalPostData['brq_transaction_method']);
+            if ($this->postData['brq_transaction_method'] != 'payperemail') {
+                $brq_transaction_method = strtolower($this->postData['brq_transaction_method']);
                 $payment = $this->order->getPayment();
                 $payment->setAdditionalInformation('isPayPerEmail', $brq_transaction_method);
 
@@ -1585,9 +1629,9 @@ class Push implements PushInterface
 
     public function isPayPerEmailB2BModePush()
     {
-        if (isset($this->originalPostData['ADD_fromPayPerEmail']) &&
-            isset($this->originalPostData['brq_transaction_method']) &&
-            ($this->originalPostData['brq_transaction_method'] == 'payperemail')
+        if (isset($this->postData['add_frompayperemail']) &&
+            isset($this->postData['brq_transaction_method']) &&
+            ($this->postData['brq_transaction_method'] == 'payperemail')
         ) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             $config = $this->configProviderMethodFactory->get(
@@ -1612,5 +1656,60 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         return $this->isPayPerEmailB2BModePush();
+    }
+
+    private function getOrderIncrementId()
+    {
+        $brqOrderId = false;
+
+        if (isset($this->postData['brq_invoicenumber']) && strlen($this->postData['brq_invoicenumber']) > 0) {
+            $brqOrderId = $this->postData['brq_invoicenumber'];
+        }
+
+        if (isset($this->postData['brq_ordernumber']) && strlen($this->postData['brq_ordernumber']) > 0) {
+            $brqOrderId = $this->postData['brq_ordernumber'];
+        }
+
+        return $brqOrderId;
+    }
+
+    private function getLockPushProcessingPpeFilePath()
+    {
+        if ($brqOrderId = $this->getOrderIncrementId()) {
+            //@codingStandardsIgnoreLine
+            return $this->dirList->getPath('tmp') . DIRECTORY_SEPARATOR . 'bk_push_ppe_' . md5($brqOrderId);
+        } else {
+            return false;
+        }
+    }
+
+    private function lockPushProcessingPpe()
+    {
+        if (isset($this->postData['add_frompayperemail'])) {
+            $this->logging->addDebug(__METHOD__ . '|1|');
+            if ($path = $this->getLockPushProcessingPpeFilePath()) {
+                //@codingStandardsIgnoreLine
+                if ($fp = fopen($path, "w+")) {
+                    flock($fp, LOCK_EX);
+                    $this->logging->addDebug(__METHOD__ . '|5|');
+                    return $fp;
+                }
+            }
+        }
+    }
+
+    private function unlockPushProcessingPpe($lockHandler)
+    {
+        if (isset($this->postData['add_frompayperemail'])) {
+            $this->logging->addDebug(__METHOD__ . '|1|');
+            //@codingStandardsIgnoreLine
+            fclose($lockHandler);
+            //@codingStandardsIgnoreLine
+            if (($path = $this->getLockPushProcessingPpeFilePath()) && file_exists($path)) {
+                //@codingStandardsIgnoreLine
+                unlink($path);
+                $this->logging->addDebug(__METHOD__ . '|5|');
+            }
+        }
     }
 }

@@ -130,4 +130,13 @@ class Giftcards extends AbstractConfigProvider
 
         return $paymentFee ? $paymentFee : false;
     }
+
+    public function getAllowedCards($storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
 }

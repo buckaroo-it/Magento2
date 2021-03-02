@@ -1349,3 +1349,10 @@
     float: right;
 }
 
+#buckaroo_magento2_afterpay_DoB-error,
+#buckaroo_magento2_afterpay2_DoB-error{
+    color: #e02b27;
+    font-size: 1.2rem;
+    margin-top: 7px
+}
+

@@ -22,14 +22,9 @@ namespace Buckaroo\Magento2\Helper;
 
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\GroupTransactionFactory;
-
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
-use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Api\Data\TransactionInterface;
-
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment\Transaction;
 
 class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -39,7 +34,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     protected $dateTime;
 
     protected $groupTransactionFactory;
-    
+
     /**
      * @var Order $order
      */
@@ -61,27 +56,26 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         parent::__construct($context);
 
         $this->groupTransactionFactory = $groupTransactionFactory;
-        $this->dateTime = $dateTime;
+        $this->dateTime                = $dateTime;
 
-        $this->order                        = $order;
-        $this->transaction                  = $transaction;
-        $this->logging                      = $logging;
+        $this->order       = $order;
+        $this->transaction = $transaction;
+        $this->logging     = $logging;
     }
 
     public function saveGroupTransaction($response)
     {
-        $this->logging->addDebug(__METHOD__.'|1|'.var_export($response, true));
-
-        $groupTransaction = $this->groupTransactionFactory->create();
-        $data['order_id'] = $response['Invoice'];
-        $data['transaction_id'] = $response['Key'];
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($response, true));
+        $groupTransaction           = $this->groupTransactionFactory->create();
+        $data['order_id']           = $response['Invoice'];
+        $data['transaction_id']     = $response['Key'];
         $data['relatedtransaction'] = $response['RequiredAction']['PayRemainderDetails']['GroupTransaction'] ?? null;
-        $data['servicecode'] = $response['ServiceCode'];
-        $data['currency'] = $response['Currency'];
-        $data['amount'] = $response['AmountDebit'];
-        $data['type'] = $response['RelatedTransactions'][0]['RelationType'] ?? null;
-        $data['status'] = $response['Status']['Code']['Code'];
-        $data['created_at'] = $this->dateTime->gmtDate();
+        $data['servicecode']        = $response['ServiceCode'];
+        $data['currency']           = $response['Currency'];
+        $data['amount']             = $response['AmountDebit'];
+        $data['type']               = $response['RelatedTransactions'][0]['RelationType'] ?? null;
+        $data['status']             = $response['Status']['Code']['Code'];
+        $data['created_at']         = $this->dateTime->gmtDate();
         $groupTransaction->setData($data);
         return $groupTransaction->save();
     }
@@ -120,11 +114,21 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     {
         $total = 0;
         foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
-            if ($value['status']=='190') {
+            if ($value['status'] == '190') {
                 $total += $value['amount'];
             }
         }
         return $total;
+    }
+
+    public function getGroupTransactionOriginalTransactionKey($order_id)
+    {
+        foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
+            if ($value['relatedtransaction']) {
+                return $value['relatedtransaction'];
+            }
+        }
+        return false;
     }
 
     public function getGroupTransactionById($entity_id)

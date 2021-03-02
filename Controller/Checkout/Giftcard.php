@@ -306,7 +306,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             ]
         ];
 
-        if ($originalTransactionKey = $this->getOriginalTransactionKey($orderId)) {
+        if ($originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId)) {
             $postArray['Services']['ServiceList'][0]['Action'] = 'PayRemainder';
             $postArray['OriginalTransactionKey'] = $originalTransactionKey;
         }
@@ -324,7 +324,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $this->groupTransaction->saveGroupTransaction($response);
 
             $res['RemainderAmount'] = $response['RequiredAction']['PayRemainderDetails']['RemainderAmount'] ?? null;
-            $alreadyPaid = $this->getAlreadyPaid($orderId) + $response['AmountDebit'];
+            $alreadyPaid = $this->groupTransaction->getGroupTransactionAmount($orderId);
             
             $res['PayRemainingAmountButton'] = '';
             if ($res['RemainderAmount'] > 0) {

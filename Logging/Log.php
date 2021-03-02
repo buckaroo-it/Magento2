@@ -79,7 +79,7 @@ class Log extends Logger
             self::$processUid = uniqid();
         }
 
-        $message = self::$processUid . '|' . $message;
+        $message = self::$processUid . '|' . microtime(true). '|' . $message;
 
         // Prepare the message to be send to the debug email
         $this->mail->addToMessage($message);

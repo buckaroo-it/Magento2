@@ -102,5 +102,24 @@
         ) {
             document.getElementById(item[1]).value = document.getElementById(item[0]).value;
         }
-    })
+    });
+
+    [
+        ['order-billing_address_prefix', 'buckaroo_magento2_payperemail_genderSelect']
+    ].forEach(function (item) {
+        if (
+            document.getElementById(item[1]) &&
+            document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)
+        ) {
+            document.getElementById(item[1]).value = 1;
+            if(['mrs.','mrs','ms.','ms','mevr.','mevr','mw.','mw'].includes(document.getElementById(item[0]).value.toLowerCase())){
+              document.getElementById(item[1]).value = 2;
+            }
+        }
+    });
+
+  document.getElementById("email").addEventListener("change", function(){
+    document.getElementById("buckaroo_magento2_payperemail_Email").value = document.getElementById("email").value;
+  });
+
 </script>
