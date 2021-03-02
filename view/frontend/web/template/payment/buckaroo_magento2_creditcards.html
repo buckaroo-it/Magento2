@@ -76,7 +76,7 @@
                             value: CardNumber,
                             textInput: CardNumber(),
                             attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }) },
-                            event: { blur: encryptCardDetails }">
+                            event: { blur: encryptCardDetails, change: processCard }">
                             </div>
                         </div>
 

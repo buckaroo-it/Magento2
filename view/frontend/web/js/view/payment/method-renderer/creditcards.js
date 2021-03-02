@@ -303,13 +303,11 @@ define(
                     }
                 },
 
-                /** This and getCardIssuer are currently unused. As mentioned in BUCKM2-391, this should be included in the future. **/
                 processCard: function () {
                     var cardIssuerObject = this.getCardIssuer();
                     if (cardIssuerObject && cardIssuerObject.active) {
-                        this.issuerImage(cardIssuerObject.img);
+                        this.CardIssuer(cardIssuerObject.code);
                     }
-                    this.CardIssuerObject = cardIssuerObject;
                 },
 
                 /** Get the card issuer based on the creditcard number **/
@@ -320,11 +318,11 @@ define(
 
                     var issuerIdentificationNumbers = {
                         'amex': {
-                            'regex': '^(34|37)[0-9]{13}$',
+                            'regex': '^3[47][0-9]{13}$',
                             'name': 'American Express'
                         },
                         'maestro': {
-                            'regex': '^(6759[0-9]{2}|676770|676774)[0-9]{6,13}$',
+                            'regex': '^(5018|5020|5038|6304|6759|6761|6763)[0-9]{8,15}$',
                             'name': 'Maestro'
                         },
                         'dankort': {
@@ -332,7 +330,7 @@ define(
                             'name': 'Dankort'
                         },
                         'mastercard': {
-                            'regex': '^(222[1-9]|2[3-6][0-9]{2}|27[0-1][0-9]|2720|5[1-5][0-9]{2})[0-9]{12}$',
+                            'regex': '^(5[1-5]|2[2-7])[0-9]{14}$',
                             'name': 'Mastercard'
                         },
                         'visaelectron': {
@@ -340,7 +338,7 @@ define(
                             'name': 'Visa Electron'
                         },
                         'visa': {
-                            'regex': '^4[0-9]{15,18}$',
+                            'regex': '^4[0-9]{12}(?:[0-9]{3})?$',
                             'name': 'Visa'
                         }
                     };
