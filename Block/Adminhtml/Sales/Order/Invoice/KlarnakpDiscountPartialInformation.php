@@ -19,48 +19,8 @@
  */
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice;
 
-class KlarnakpDiscountPartialInformation extends \Magento\Framework\View\Element\Template
+class KlarnakpDiscountPartialInformation extends KlarnaDiscountPartialInformation
 {
-    /**
-     * @var \Magento\Framework\Registry
-     */
-    protected $registry;
-
-    /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
-     */
-    protected $configProviderFactory;
-
-    /**
-     * RoundingWarning constructor.
-     *
-     * @param \Magento\Framework\Registry                       $registry
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory
-     * @param \Magento\Backend\Block\Template\Context           $context
-     * @param array                                             $data
-     */
-    public function __construct(
-        \Magento\Framework\Registry $registry,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory,
-        \Magento\Backend\Block\Template\Context $context,
-        array $data = []
-    ) {
-        parent::__construct($context, $data);
-
-        $this->registry = $registry;
-        $this->configProviderFactory = $configProviderFactory;
-    }
-
-    /**
-     * Retrieve creditmemo model instance
-     *
-     * @return \Magento\Sales\Model\Order\Invoice
-     */
-    public function getInvoice()
-    {
-        return $this->registry->registry('current_invoice');
-    }
-
     /**
      * @return bool
      * @throws \LogicException
@@ -91,18 +51,4 @@ class KlarnakpDiscountPartialInformation extends \Magento\Framework\View\Element
 
         return true;
     }
-
-    //@codingStandardsIgnoreStart
-    /**
-     * {@inheritdoc}
-     */
-    protected function _toHtml()
-    {
-        if (!$this->shouldShowWarning()) {
-            return '';
-        }
-
-        return parent::_toHtml();
-    }
-    //@codingStandardsIgnoreEnd
 }
