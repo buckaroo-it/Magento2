@@ -109,10 +109,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger = $logger;
     }
 
-
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        if ( !$this->klarnakpConfig->getEnabled() ||
+        if (!$this->klarnakpConfig->getEnabled() ||
              !$this->klarnakpConfig->getCreateInvoiceAfterShipment()
         ) {
             return;
@@ -135,33 +134,37 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger->addDebug(__METHOD__ . '|1|');
 
         try {
-            if(!$order->canInvoice()) {
+            if (!$order->canInvoice()) {
                 return null;
             }
 
             if ($order->getDiscountAmount() < 0) {
                 $invoice = $this->invoiceService->prepareInvoice($order);
-                $message = 'Automatically invoiced full order with discount. (Klarna can not invoice partials with discount)';
-            }
-            else {
+                $message = 'Automatically invoiced full order with discount. '.
+                    '(Klarna can not invoice partials with discount)';
+            } else {
                 $qtys = $this->getQtys($shipment);
                 $invoice = $this->invoiceService->prepareInvoice($order, $qtys);
                 $message = 'Automatically invoiced shipped items.';
             }
-
 
             $invoice->setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE);
             $invoice->register();
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);
             $order->addStatusHistoryComment($message, false);
-            $transactionSave = $this->transactionFactory->create()->addObject($invoice)->addObject($invoice->getOrder());
+            $transactionSave = $this->transactionFactory
+                ->create()
+                ->addObject($invoice)
+                ->addObject($invoice->getOrder());
             $transactionSave->save();
 
             $this->logger->addDebug(__METHOD__ . '|3|' . var_export($order->getStatus(), true));
 
             if ($order->getStatus() == 'complete') {
-                $description = 'Total amount of ' . $order->getBaseCurrency()->formatTxt($order->getTotalInvoiced()) . ' has been paid';
+                $description = 'Total amount of ' .
+                    $order->getBaseCurrency()->formatTxt($order->getTotalInvoiced()) .
+                    ' has been paid';
                 $order->addStatusHistoryComment($description, false);
                 $order->save();
             }

@@ -22,11 +22,6 @@ namespace Buckaroo\Magento2\Model\Plugin\Method;
 
 use \Magento\Sales\Model\Order;
 
-/**
- * Class Klarnakp
- *
- * @package Buckaroo\Magento2\Model\Plugin\Method
- */
 class Klarnakp
 {
     const KLARNAKP_METHOD_NAME = 'buckaroo_magento2_klarnakp';
@@ -59,7 +54,10 @@ class Klarnakp
         $orderIsCanceled = $payment->getOrder()->getOrigData('state');
         $orderIsVoided = ($payment->getAdditionalInformation('voided_by_buckaroo') === true);
 
-        if ($payment->getMethod() !== self::KLARNAKP_METHOD_NAME || $orderIsVoided || $orderIsCanceled == Order::STATE_CANCELED) {
+        if ($payment->getMethod() !== self::KLARNAKP_METHOD_NAME ||
+            $orderIsVoided ||
+            $orderIsCanceled == Order::STATE_CANCELED
+        ) {
             return $subject;
         }
 

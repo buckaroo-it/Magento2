@@ -156,6 +156,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     public static $requestOnVoid = true;
 
+    protected $cookieManager;
+
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
@@ -193,6 +195,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -232,6 +235,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->configProviderMethodFactory  = $configProviderMethodFactory; //Load interface, inject childs via di?
         $this->priceHelper                  = $priceHelper;
         $this->developmentHelper            = $developmentHelper;
+        $this->cookieManager = $cookieManager;
 
         $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
 
@@ -424,6 +428,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function processCustomPostData($payment, $postData)
     {
+        //phpcs:ignore:Squiz.PHP.NonExecutableCode
         return;
     }
 
@@ -600,7 +605,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $billingCountry = $this->payment->getOrder()->getBillingAddress()->getCountryId();
 
         $method = null;
-        if ($this->payment->getMethodInstance() && !empty($this->payment->getMethodInstance()->buckarooPaymentMethodCode)) {
+        if ($this->payment->getMethodInstance() &&
+            !empty($this->payment->getMethodInstance()->buckarooPaymentMethodCode)
+        ) {
             $method = $this->payment->getMethodInstance()->buckarooPaymentMethodCode;
         }
         if ($method == 'trustly') {
@@ -616,7 +623,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $message = strlen($methodMessage) > 0 ? $methodMessage : $message;
         }
 
-        if(isset($transactionResponse->Status->SubCode->_)){
+        if (isset($transactionResponse->Status->SubCode->_)) {
             $message = $transactionResponse->Status->SubCode->_;
         }
 
@@ -842,6 +849,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (empty($amount)) {
+            //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new \Exception('Giftcard cannot be refunded without order items');
         }
 
@@ -866,7 +874,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->logger2->addDebug(__METHOD__.'|10|'.var_export($amount, true));
 
-        if($amount<=0) {
+        if ($amount<=0) {
             return $this;
         }
 
@@ -1330,18 +1338,20 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
 
         $requestParams = $this->request->getParams();
-        if(isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])){
+        if (isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])) {
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $amount_value) {
 
-                $transaction = explode('|',$transaction);
+                $transaction = explode('|', $transaction);
                 $totalOrder = $totalOrder - $transaction[2];
 
                 $groupTransaction = $paymentGroupTransaction->getGroupTransactionByTrxId($transaction[0]);
 
                 $this->logger2->addDebug(__METHOD__.'|10|'.var_export([$amount_value, $amount], true));
 
-                if($amount_value>0 && $amount>0){
-                    if($amount<$amount_value){$amount_value=$amount;}
+                if ($amount_value>0 && $amount>0) {
+                    if ($amount<$amount_value) {
+                        $amount_value=$amount;
+                    }
                     $amount = $amount - $amount_value;
                     $this->logger2->addDebug(__METHOD__.'|15|'.var_export([$amount], true));
                     $transactionBuilder = $this->transactionBuilderFactory->get('refund');
@@ -1382,13 +1392,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->logger2->addDebug(__METHOD__.'|20|'.var_export([$amount, $totalOrder, $amount>=0.01], true));
 
-        if($amount>=0.01){
+        if ($amount>=0.01) {
             $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
-            if($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0){
+            if ($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0) {
                 return $amount - $groupTransactionAmount;
             }
 
-            if($amount>$totalOrder){
+            if ($amount>$totalOrder) {
                 return $totalOrder;
             }
             return $amount;
@@ -1402,7 +1412,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $myparcelFetched = false;
         if ($myparcelOptions = $payment->getOrder()->getData('myparcel_delivery_options')) {
             if (!empty($myparcelOptions)) {
-                try{
+                try {
                     $myparcelOptions = json_decode($myparcelOptions, true);
                     $isPickup = $myparcelOptions['isPickup'] ?? false;
                     if ($isPickup) {
@@ -1410,21 +1420,24 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                         $myparcelFetched = true;
                     }
                 } catch (\JsonException $je) {
-                    $this->logger2->addDebug(__METHOD__.'|2|'.' Error related to json_decode (MyParcel plugin compatibility)');
+                    $this->logger2->addDebug(
+                        __METHOD__.'|2|'.' Error related to json_decode (MyParcel plugin compatibility)'
+                    );
                 }
             }
         }
 
         if (!$myparcelFetched) {
             $this->logger2->addDebug(__METHOD__.'|10|');
-            if (
-                (strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
+            if ((strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
                 &&
                 (strpos($payment->getOrder()->getShippingMethod(), 'pickup') !== false)
             ) {
                 $this->logger2->addDebug(__METHOD__.'|15|');
                 if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()) {
-                    if ($myParcelNLData = $this->helper->getJson()->unserialize($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData())) {
+                    if ($myParcelNLData = $this->helper->getJson()->unserialize(
+                        $this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
+                    )) {
                         $this->logger2->addDebug(__METHOD__ . '|20|');
                         $this->updateShippingAddressByMyParcel($myParcelNLData, $requestData);
                     }
@@ -1464,5 +1477,77 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             }
         }
     }
-}
+    //phpcs:ignore:Generic.Metrics.NestingLevel
+    protected function updateShippingAddressByDpdParcel($quote, &$requestData)
+    {
+        $this->logger2->addDebug(__METHOD__.'|1|');
 
+        $fullStreet = $quote->getDpdStreet();
+        $postalCode = $quote->getDpdZipcode();
+        $city = $quote->getDpdCity();
+        $country = $quote->getDpdCountry();
+
+        if (!$fullStreet && $quote->getDpdParcelshopId()) {
+            $this->logger2->addDebug(__METHOD__.'|2|');
+            $this->logger2->addDebug(var_export([
+                $this->cookieManager->getCookie('dpd-selected-parcelshop-street'),
+                $this->cookieManager->getCookie('dpd-selected-parcelshop-zipcode'),
+                $this->cookieManager->getCookie('dpd-selected-parcelshop-city'),
+                $this->cookieManager->getCookie('dpd-selected-parcelshop-country'),
+            ], true));
+            $fullStreet = $this->cookieManager->getCookie('dpd-selected-parcelshop-street') ?? '';
+            $postalCode = $this->cookieManager->getCookie('dpd-selected-parcelshop-zipcode') ?? '';
+            $city = $this->cookieManager->getCookie('dpd-selected-parcelshop-city') ?? '';
+            $country = $this->cookieManager->getCookie('dpd-selected-parcelshop-country') ?? '';
+        }
+
+        $matches = false;
+        if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
+            $this->logger2->addDebug(__METHOD__.'|3|');
+
+            $street = $matches[1];
+            $streetHouseNumber = $matches[2];
+
+            $mapping = [
+                ['Street', $street],
+                ['PostalCode', $postalCode],
+                ['City', $city],
+                ['Country', $country],
+                ['StreetNumber', $streetHouseNumber],
+            ];
+
+            $this->logger2->addDebug(var_export($mapping, true));
+
+            foreach ($mapping as $mappingItem) {
+                if (!empty($mappingItem[1])) {
+                    $found = false;
+                    foreach ($requestData as $key => $value) {
+                        if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                            if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                                $requestData[$key]['_'] = $mappingItem[1];
+                                $found = true;
+                            }
+                        }
+                    }
+                    if (!$found) {
+                        $requestData[] = [
+                            '_'    => $mappingItem[1],
+                            'Name' => $mappingItem[0],
+                            'Group' => 'ShippingCustomer',
+                            'GroupID' =>  '',
+                        ];
+                    }
+                }
+            }
+
+            foreach ($requestData as $key => $value) {
+                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
+                        unset($requestData[$key]);
+                    }
+                }
+            }
+
+        }
+    }
+}

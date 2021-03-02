@@ -121,11 +121,9 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
 
             if (in_array($phpPatch, $currentVersion)) {
                 return true;
-            }
-            elseif(in_array('+', $currentVersion) && $phpPatch >= max($currentVersion)){
+            } elseif (in_array('+', $currentVersion) && $phpPatch >= max($currentVersion)) {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -138,8 +136,7 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
         $version = false;
         if (defined('PHP_VERSION')) {
             $version = explode('.', PHP_VERSION);
-        }
-        elseif (function_exists('phpversion')){
+        } elseif (function_exists('phpversion')) {
             $version = explode('.', phpversion());
         }
 

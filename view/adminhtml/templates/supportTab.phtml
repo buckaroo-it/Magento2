@@ -1,65 +1,66 @@
 <?php
-/** @var \Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab $this */
+/** @var \Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab $block */
+// @codingStandardsIgnoreFile
 ?>
 <div id="supporttab" class="buckaroo-magento2-supporttab" data-mage-init='{"buckarooConfig": true}'>
 
     <div class="message-system-inner">
         <div class="message-system-short-wrapper">
             <div class="message">
-                <?php echo $block->escapeHtml(__("The payment methods of the Buckaroo Extension can be found under"))?> <br/>
-                <span class='italic'><?php echo $block->escapeHtml(__("Configuration > Sales > Payment Methods > Buckaroo"))?></span>
+                <?= $block->escapeHtml(__("The payment methods of the Buckaroo Extension can be found under"))?> <br/>
+                <span class='italic'><?= $block->escapeHtml(__("Configuration > Sales > Payment Methods > Buckaroo"))?></span>
             </div>
         </div>
     </div>
 
     <div id="block">
         <div class="block-version">
-            <h3 ><?php echo $block->escapeHtml(__('Magento version compatibility'));?></h3>
+            <h3 ><?= $block->escapeHtml(__('Magento version compatibility'));?></h3>
             <div>
                 <ul class="version-compatibility">
                     <li>
                         <span class="text">
-                            <?php echo $block->escapeHtml(__('Magento Commerce'));?>:
+                            <?= $block->escapeHtml(__('Magento Commerce'));?>:
                         </span>
                         <span class="version"> 2.2.11, 2.3.6, 2.4.1 </span>
                     </li>
                     <li>
                         <span class="text">
-                            <?php echo $block->escapeHtml(__('Magento Open Source'));?>:
+                            <?= $block->escapeHtml(__('Magento Open Source'));?>:
                         </span>
                         <span class="version"> 2.2.11, 2.3.6, 2.4.1 </span>
                     </li>
 
                     <li>
-                        <span class="text"><?php echo $block->escapeHtml(__('Your PHP version'));?>:</span>
+                        <span class="text"><?= $block->escapeHtml(__('Your PHP version'));?>:</span>
                         <span class="version">
-                            <a href="http://devdocs.magento.com/guides/v<?php echo $this->getMagentoVersionTidyString() ;?>/install-gde/system-requirements-tech.html"
+                            <a href="http://devdocs.magento.com/guides/v<?= $block->getMagentoVersionTidyString() ;?>/install-gde/system-requirements-tech.html"
                                target="_blank">
-                                <?php echo $block->escapeHtml(implode('.', $this->getPhpVersionArray())); ?>
+                                <?= $block->escapeHtml(implode('.', $block->getPhpVersionArray())); ?>
                                 </a>
-                                <?php switch ($this->phpVersionCheck()) {
+                                <?php switch ($block->phpVersionCheck()) {
                                     case 1:
-                                        echo '<img class="php-check-icon" src="' . $this->getViewFileUrl(
-                                                'Buckaroo_Magento2::images/green-ok.png'
-                                            ) . '" alt="">';
-                                        break;
+                                        echo '<img class="php-check-icon" src="' . $block->getViewFileUrl(
+                                            'Buckaroo_Magento2::images/green-ok.png'
+                                        ) . '" alt="">';
+                                              break;
                                     case 0:
-                                        echo '<img class="php-check-icon" src="' . $this->getViewFileUrl(
-                                                'Buckaroo_Magento2::images/red-nok.png'
-                                            ) . '" alt="">';
-                                        break;
+                                        echo '<img class="php-check-icon" src="' . $block->getViewFileUrl(
+                                            'Buckaroo_Magento2::images/red-nok.png'
+                                        ) . '" alt="">';
+                                              break;
                                     default:
-                                        echo '<img class="php-check-icon" src="' . $this->getViewFileUrl(
-                                                'Buckaroo_Magento2::images/orange-unknown.png'
-                                            ) . '" alt="">';
-                                        break;
+                                        echo '<img class="php-check-icon" src="' . $block->getViewFileUrl(
+                                            'Buckaroo_Magento2::images/orange-unknown.png'
+                                        ) . '" alt="">';
+                                              break;
                                 }
                                 ?>
                         </span>
                     </li>
                     <li>
-                        <span class="text"><?php echo $block->escapeHtml(__('Buckaroo version'));?>:</span>
-                        <span class="version"><?php echo $block->escapeHtml($this->getVersionNumber()); ?></span>
+                        <span class="text"><?= $block->escapeHtml(__('Buckaroo version'));?>:</span>
+                        <span class="version"><?= $block->escapeHtml($block->getVersionNumber()); ?></span>
                     </li>
                 </ul>
             </div>
@@ -68,13 +69,13 @@
 
     <div id="section">
         <div class="collapse-title" data-role="title">
-            <h3 data-role="trigger"><?php echo $block->escapeHtml(__('Support'));?></h3>
+            <h3 data-role="trigger"><?= $block->escapeHtml(__('Support'));?></h3>
         </div>
         <div class="collapse-content support-buck-magento2" data-role="content" style="display:none;">
             <ul>
-                <h4 style="margin-top:5px"><?php echo $block->escapeHtml(__('Extension basic configuration and account information'));?></h4>
+                <h4 style="margin-top:5px"><?= $block->escapeHtml(__('Extension basic configuration and account information'));?></h4>
                 <p>
-                    <?php echo $block->escapeHtml(__(
+                    <?= $block->escapeHtml(__(
                         'Before contacting Buckaroo technical support, please retrieve your (Merchant) key, ' .
                         'Secret key, certificate and certificate thumbprint.'
                     ));?>
@@ -82,31 +83,31 @@
             </ul>
             <ul>
                 <li class="buckaroo_logo">
-                    <a href="<?php echo $block->escapeHtml(__('https://buckaroo.nl/'));?>"
+                    <a href="<?= $block->escapeHtml(__('https://buckaroo.nl/'));?>"
                        target="_blank">
-                        <img style="width:180px;" src="<?php echo $this->getViewFileUrl(
+                        <img style="width:180px;" src="<?= $block->getViewFileUrl(
                             'Buckaroo_Magento2::images/buckaroo_config_logo_black.png'
                         ); ?>"
                              alt="" />
                     </a>
                 </li>
-                <li class="first"><?php echo $block->escapeHtml(__('Buckaroo Payment Plaza:'));?></li>
+                <li class="first"><?= $block->escapeHtml(__('Buckaroo Payment Plaza:'));?></li>
                 <li class="last"><a target="_blank" href="https://plaza.buckaroo.nl/">plaza.buckaroo.nl</a></li>
             </ul>
             <ul>
-                <li class="first"><?php echo $block->escapeHtml(__('Phone:'));?></li>
+                <li class="first"><?= $block->escapeHtml(__('Phone:'));?></li>
                 <li class="last">+31(0)30-711 50 50</li>
             </ul>
             <ul>
-                <li class="first"><?php echo $block->escapeHtml(__('E-mail:'));?></li>
+                <li class="first"><?= $block->escapeHtml(__('E-mail:'));?></li>
                 <li class="last"><a href="mailto:support@buckaroo.nl">support@buckaroo.nl</a></li>
             </ul>
             <ul>
-                <li class="first"><?php echo $block->escapeHtml(__('Website:'));?></li>
+                <li class="first"><?= $block->escapeHtml(__('Website:'));?></li>
                 <li class="last">
-                    <a href="<?php echo $block->escapeHtml(__('https://buckaroo.nl/'));?>"
+                    <a href="<?= $block->escapeHtml(__('https://buckaroo.nl/'));?>"
                        target="_blank">
-                        <?php echo $block->escapeHtml(__('buckaroo.nl'));?>
+                        <?= $block->escapeHtml(__('buckaroo.nl'));?>
                     </a>
                 </li>
             </ul>

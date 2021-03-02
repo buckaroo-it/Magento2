@@ -64,7 +64,9 @@ class Afterpay2 extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Afterpay2::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Afterpay2::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [

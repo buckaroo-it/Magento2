@@ -111,6 +111,7 @@ class Transfer extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -135,6 +136,7 @@ class Transfer extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -172,7 +174,8 @@ class Transfer extends AbstractMethod
             $services[] = $cmService;
 
             $payment->setAdditionalInformation(
-                'skip_push', 2
+                'skip_push',
+                2
             );
         }
 

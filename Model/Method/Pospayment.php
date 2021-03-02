@@ -133,7 +133,7 @@ class Pospayment extends AbstractMethod
      */
     private function getPosPaymentTerminalId()
     {
-        $cookieManager = $this->objectManager->get('Magento\Framework\Stdlib\CookieManagerInterface');
+        $cookieManager = $this->objectManager->get(\Magento\Framework\Stdlib\CookieManagerInterface::class);
         $terminalId = $cookieManager->getCookie('Pos-Terminal-Id');
         $this->logger2->addDebug(__METHOD__.'|1|');
         $this->logger2->addDebug(var_export($terminalId, true));
@@ -153,7 +153,7 @@ class Pospayment extends AbstractMethod
                 return false;
             }
 
-            $header = $this->objectManager->get('Magento\Framework\HTTP\Header');
+            $header = $this->objectManager->get(\Magento\Framework\HTTP\Header::class);
             $userAgent = $header->getHttpUserAgent();
             $userAgentConfiguration = trim($this->getConfigData('user_agent'));
 
@@ -167,6 +167,5 @@ class Pospayment extends AbstractMethod
         }
 
         return false;
-
     }
 }

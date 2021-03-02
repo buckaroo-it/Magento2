@@ -104,6 +104,7 @@ class Giftcards extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -128,6 +129,7 @@ class Giftcards extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -152,7 +154,6 @@ class Giftcards extends AbstractMethod
 
         $this->_canRefund = isset($groupGiftcards) && $groupGiftcards == '1' ? false : true;
         $this->_canRefundInvoicePartial = isset($groupGiftcards) && $groupGiftcards == '1' ? false : true;
-
     }
 
     /**
@@ -204,13 +205,14 @@ class Giftcards extends AbstractMethod
             $payment->getOrder()->getStore()
         );
 
-        $availableCards = $payment->getAdditionalInformation('giftcard_method') ? $payment->getAdditionalInformation('giftcard_method') : $availableCards.',ideal';
+        $availableCards = $payment->getAdditionalInformation('giftcard_method') ?
+            $payment->getAdditionalInformation('giftcard_method') : $availableCards.',ideal';
         $customVars = [
             'ServicesSelectableByClient' => $availableCards,
             'ContinueOnIncomplete' => 'RedirectToHTML',
         ];
 
-        if($this->groupTransaction->isGroupTransaction($payment->getOrder()->getIncrementId())){
+        if ($this->groupTransaction->isGroupTransaction($payment->getOrder()->getIncrementId())) {
             return true;
         }
 

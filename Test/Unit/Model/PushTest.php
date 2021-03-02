@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -174,7 +175,6 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $debuggerMock->expects($this->once())
             ->method('addDebug')
             ->with('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
-
 
         $transactionMock = $this->getFakeMock(TransactionInterface::class)
             ->setMethods(['load', 'getOrder'])

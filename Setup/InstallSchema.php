@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -27,7 +28,8 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
 {
     protected $registry;
 
-    public function __construct(\Magento\Framework\Registry $registry) {
+    public function __construct(\Magento\Framework\Registry $registry)
+    {
         $this->registry = $registry;
     }
 
@@ -231,7 +233,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
         if (!$installer->tableExists('buckaroo_magento2_second_chance')) {
             $table = $installer->getConnection()
                 ->newTable($installer->getTable('buckaroo_magento2_second_chance'));
-           $table->addColumn(
+            $table->addColumn(
                 'entity_id',
                 \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 null,

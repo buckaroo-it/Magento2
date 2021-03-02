@@ -109,6 +109,7 @@ class Creditcards extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -133,6 +134,7 @@ class Creditcards extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -220,11 +222,15 @@ class Creditcards extends AbstractMethod
         $additionalInformation = $payment->getAdditionalInformation();
 
         if (!isset($additionalInformation['customer_encrypteddata'])) {
-            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted creditcard data to Buckaroo.'));
+            throw new \Buckaroo\Magento2\Exception(
+                __('An error occured trying to send the encrypted creditcard data to Buckaroo.')
+            );
         }
 
         if (!isset($additionalInformation['customer_creditcardcompany'])) {
-            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the creditcard company data to Buckaroo.'));
+            throw new \Buckaroo\Magento2\Exception(
+                __('An error occured trying to send the creditcard company data to Buckaroo.')
+            );
         }
 
         $services = [

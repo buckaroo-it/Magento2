@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -414,5 +415,4 @@ class PayPerEmailTest extends BaseTest
 
         $this->assertFalse($result);
     }
-
 }

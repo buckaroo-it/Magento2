@@ -172,6 +172,7 @@ class Afterpay extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         SoftwareData $softwareData,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -197,6 +198,7 @@ class Afterpay extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -325,7 +327,8 @@ class Afterpay extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -396,7 +399,6 @@ class Afterpay extends AbstractMethod
 
         $services['RequestParameter'] = $articles;
 
-
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
@@ -410,7 +412,6 @@ class Afterpay extends AbstractMethod
                     self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
                 )
             );
-
 
         // Partial Capture Settings
         if ($capturePartial) {
@@ -448,7 +449,8 @@ class Afterpay extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -568,7 +570,7 @@ class Afterpay extends AbstractMethod
         );
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+            $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
             $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
@@ -585,14 +587,14 @@ class Afterpay extends AbstractMethod
         return $requestData;
     }
 
-    public function updateShippingAddressByDpdParcel($quote, &$requestData)
+    protected function updateShippingAddressByDpdParcel($quote, &$requestData)
     {
         $fullStreet = $quote->getDpdStreet();
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s([0-9]+)([^\w]*)([\w]*)/', $fullStreet, $matches)) {
             $street = $matches[1];
             $streetHouseNumber = $matches[2];
-            $streetHouseNumberSuffix = @$matches[4];
+            $streetHouseNumberSuffix = $matches[4] ?? '';
 
             $mapping = [
                 ['ShippingStreet', $street],
@@ -678,7 +680,7 @@ class Afterpay extends AbstractMethod
     {
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+        $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
         $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
         // Set loop variables
@@ -698,7 +700,7 @@ class Afterpay extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                intval($item->getQty()),
+                (int) ($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($item->getTaxClassId(), $payment->getOrder()->getStore())
             );
@@ -707,7 +709,7 @@ class Afterpay extends AbstractMethod
              * @todo: Find better way to make taxClassId available by invoice and creditmemo creating for Afterpay
              */
             $payment->setAdditionalInformation('tax_pid_' . $item->getProductId(), $item->getTaxClassId());
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -762,7 +764,7 @@ class Afterpay extends AbstractMethod
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
         // Set loop variables
-        $articles = array();
+        $articles = [];
         $count    = 1;
 
         foreach ($invoice->getAllItems() as $item) {
@@ -777,11 +779,11 @@ class Afterpay extends AbstractMethod
                 $count,
                 (int) $item->getName(),
                 $item->getProductId(),
-                intval($item->getQty()),
+                (int) ($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($itemTaxClassId, $invoice->getOrder()->getStore())
             );
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             // Capture calculates discount per order line
@@ -795,6 +797,7 @@ class Afterpay extends AbstractMethod
                     number_format(($item->getDiscountAmount()*-1), 2),
                     $this->getTaxCategory($item->getTaxClassId(), $invoice->getOrder()->getStore())
                 );
+                //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
                 $articles = array_merge($articles, $article);
             }
 
@@ -838,13 +841,13 @@ class Afterpay extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                intval($item->getQty()),
+                (int) ($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($itemTaxClassId, $payment->getOrder()->getStore())
             );
 
             $itemsTotalAmount += $item->getQty() * $this->calculateProductPrice($item, $includesTax);
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -868,7 +871,7 @@ class Afterpay extends AbstractMethod
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
@@ -886,7 +889,9 @@ class Afterpay extends AbstractMethod
     public function calculateProductPrice($productItem, $includesTax)
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
-        $this->logger2->addDebug(var_export([$includesTax, $productItem->getPrice(), $productItem->getPriceInclTax()], true));
+        $this->logger2->addDebug(
+            var_export([$includesTax, $productItem->getPrice(), $productItem->getPriceInclTax()], true)
+        );
 
         $productPrice = $productItem->getPriceInclTax();
 
@@ -1163,8 +1168,7 @@ class Afterpay extends AbstractMethod
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
-        if (
-            $payment->getAdditionalInformation('selectedBusiness')
+        if ($payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
             &&
@@ -1256,8 +1260,7 @@ class Afterpay extends AbstractMethod
 
         $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
 
-        if (
-            $payment->getAdditionalInformation('selectedBusiness')
+        if ($payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
             &&

@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -32,6 +33,6 @@ class AbstractTransactionBuilderMock extends \Buckaroo\Magento2\Gateway\Http\Tra
      */
     public function getBody()
     {
-        return array('body item');
+        return ['body item'];
     }
 }

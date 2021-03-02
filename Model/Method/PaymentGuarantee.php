@@ -160,6 +160,7 @@ class PaymentGuarantee extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Model\InvoiceFactory $invoiceFactory,
         \Buckaroo\Magento2\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
@@ -187,6 +188,7 @@ class PaymentGuarantee extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -274,7 +276,8 @@ class PaymentGuarantee extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -362,7 +365,8 @@ class PaymentGuarantee extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;
@@ -497,7 +501,7 @@ class PaymentGuarantee extends AbstractMethod
                 'Name' => 'InvoiceDate'
             ],
             [
-                '_'    => date('Y-m-d',strtotime('+14 day', time())),
+                '_'    => date('Y-m-d', strtotime('+14 day', time())),
                 'Name' => 'DateDue'
             ],
             [
@@ -807,7 +811,7 @@ class PaymentGuarantee extends AbstractMethod
         $incrementNumber = $numberOfInvoices + $numberOfCreditmemos;
 
         if (null !== $payment->getCreditmemo()) {
-            $incrementNumber += 1;
+            ++$incrementNumber;
         }
 
         $partialId = $order->getIncrementId() . '-' . $incrementNumber;

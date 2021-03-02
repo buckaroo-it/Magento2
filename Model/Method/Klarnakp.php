@@ -48,7 +48,6 @@ class Klarnakp extends AbstractMethod
     const KLARNAKP_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
     const KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
 
-
     /**
      * Business methods that will be used in klarna.
      */
@@ -182,6 +181,7 @@ class Klarnakp extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         SoftwareData $softwareData,
         Config $taxConfig,
         Calculation $taxCalculation,
@@ -210,6 +210,7 @@ class Klarnakp extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -342,7 +343,6 @@ class Klarnakp extends AbstractMethod
         if (isset($currentInvoice)) {
             $articledata = $this->getPayRequestData($currentInvoice, $payment);
             $articles = array_merge($articles, $articledata);
-            //$group++;
         }
 
         // For the first invoice possible add payment fee
@@ -354,7 +354,6 @@ class Klarnakp extends AbstractMethod
                 unset($serviceLine[3]);
                 unset($serviceLine[4]);
                 $articles = array_merge($articles, $serviceLine);
-                //$group++;
             }
         }
 
@@ -487,10 +486,10 @@ class Klarnakp extends AbstractMethod
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $payment->getOrder()->getShippingAddress();
-        if($shippingAddress == null){
+        if ($shippingAddress == null) {
             $shippingAddress = $payment->getOrder()->getBillingAddress();
             $shippingSameAsBilling = "true";
-        }else{
+        } else {
             $shippingSameAsBilling = $this->isAddressDataDifferent($payment);
         }
         
@@ -538,7 +537,6 @@ class Klarnakp extends AbstractMethod
             ],
         ];
 
-
         if (!empty($streetFormat['house_number'])) {
             $shippingData[] = [
                 '_'    => $streetFormat['house_number'],
@@ -570,23 +568,26 @@ class Klarnakp extends AbstractMethod
 
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $articles = array();
+        $articles = [];
         //$group = 1;
 
         $invoiceItems = $invoice->getAllItems();
 
         $qtys = [];
         foreach ($invoiceItems as $item) {
-            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()],true));
-            if (empty($item)  || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
+            $this->logger2->addDebug(
+                __METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()], true)
+            );
+            if (empty($item) ||
+                $item->getOrderItem()->getParentItemId() ||
+                $this->calculateProductPrice($item, $includesTax) == 0
+            ) {
                 continue;
             }
 
             $qtys[$item->getSku()] = [
-                'qty' => intval($item->getQty()),
-                //'name' => $item->getName(),
+                'qty' => (int) ($item->getQty()),
                 'price' => $this->calculateProductPrice($item, $includesTax),
-                //'tax' => $item->getTaxPercent()
             ];
         }
 
@@ -769,7 +770,6 @@ class Klarnakp extends AbstractMethod
         return $requestData;
     }
 
-
     /**
      * Method to compare two addresses from the payment.
      * Returns true if they are the same.
@@ -929,7 +929,7 @@ class Klarnakp extends AbstractMethod
 
         $cartData = $this->cart->getItems();
 
-        $articles = array();
+        $articles = [];
         $group    = 1;
         $max      = 99;
         $i        = 1;
@@ -977,7 +977,7 @@ class Klarnakp extends AbstractMethod
                     'Name' => 'ArticleVat',
                 ]
             ];
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
             $group++;
 
@@ -1296,7 +1296,6 @@ class Klarnakp extends AbstractMethod
         return $taxes;
     }
 
-
     /**
      * Get the tax line
      *
@@ -1310,9 +1309,9 @@ class Klarnakp extends AbstractMethod
         $article = [];
         $taxes = $this->getTaxes($payment);
 
-       if ($taxes > 0) {
+        if ($taxes > 0) {
 
-        $article = [
+            $article = [
             [
                 '_' => 4,
                 'Group' => 'Article',
@@ -1343,7 +1342,7 @@ class Klarnakp extends AbstractMethod
                 'GroupID' => $group,
                 'Name' => 'ArticleVat',
             ],
-        ];
+            ];
         }
 
         return $article;

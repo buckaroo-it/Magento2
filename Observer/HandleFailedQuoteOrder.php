@@ -22,6 +22,14 @@ namespace Buckaroo\Magento2\Observer;
 
 class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterface
 {
+    protected $messageManager;
+
+    public function __construct(
+        \Magento\Framework\Message\ManagerInterface $messageManager
+    ) {
+        $this->messageManager = $messageManager;
+    }
+
     /**
      * @param \Magento\Framework\Event\Observer $observer
      * @return void
@@ -55,9 +63,9 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                 try {
                     $order->addStatusHistoryComment('Buckaroo: failed to authorize an order', false);
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
-                    $payment->save();  
+                    $payment->save();
                 } catch (\Exception $e) {
-                    //ignore
+                    $this->messageManager->addErrorMessage($e->getMessage());
                 }
             }
 
@@ -65,9 +73,8 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                 $order->cancel();
                 $order->save();
             } catch (\Exception $e) {
-                //ignore
+                $this->messageManager->addErrorMessage($e->getMessage());
             }
         }
-
     }
 }

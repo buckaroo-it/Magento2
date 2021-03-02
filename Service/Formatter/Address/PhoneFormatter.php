@@ -44,8 +44,7 @@ class PhoneFormatter
 
     public function __construct(
         Log $logger
-    )
-    {
+    ) {
         $this->logger = $logger;
     }
 
@@ -94,11 +93,10 @@ class PhoneFormatter
             $phoneNumber = $this->isValidNotation($phoneNumber, $country);
         }
 
-        if (
-            (in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
+        if ((in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
             ||
             (in_array($country, ['AT', 'DE']))
-        )  {
+        ) {
             if (isset($this->startingNotation[$country])) {
                 $notationStart = implode($this->startingNotation[$country]);
                 $phoneNumber = $notationStart . substr($phoneNumber, 1);

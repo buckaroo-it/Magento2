@@ -114,6 +114,7 @@ class SepaDirectDebit extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -139,6 +140,7 @@ class SepaDirectDebit extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -210,7 +212,6 @@ class SepaDirectDebit extends AbstractMethod
             ['Name' => 'AllowedServices'],
             ['Name' => 'Gender', 'Group' => 'Person']
         ];
-
 
         /**
          * Buckaroo Push is send before Response, for correct flow we skip the first push

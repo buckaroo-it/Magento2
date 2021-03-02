@@ -79,13 +79,13 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     protected $_messageManager;
 
     /**
-     * @param \Magento\Checkout\Model\Session\Proxy                $checkoutSession
+     * @param \Magento\Checkout\Model\Session                $checkoutSession
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
      * @param \Buckaroo\Magento2\Model\SecondChanceFactory         $secondChanceFactory
      * @param \Magento\Framework\Stdlib\DateTime\DateTime          $dateTime
      */
     public function __construct(
-        \Magento\Checkout\Model\Session\Proxy $checkoutSession,
+        \Magento\Checkout\Model\Session $checkoutSession,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
         \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
         \Magento\Framework\App\Request\Http $request,
@@ -141,11 +141,13 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|cartKeepAlive enabled|');
-                if ($this->helper->getRestoreQuoteLastOrder() && ($lastRealOrder->getData('state') === 'new' && $lastRealOrder->getData('status') === 'pending') && $payment->getMethodInstance()->usesRedirect) {
-
+                if ($this->helper->getRestoreQuoteLastOrder() &&
+                    ($lastRealOrder->getData('state') === 'new' && $lastRealOrder->getData('status') === 'pending') &&
+                    $payment->getMethodInstance()->usesRedirect
+                ) {
                     //diactivate customer quotes
-                    if($order->getCustomerId()>0){
-                        if($quote = $this->cart->getForCustomer($order->getCustomerId())){
+                    if ($order->getCustomerId()>0) {
+                        if ($quote = $this->cart->getForCustomer($order->getCustomerId())) {
                             $quote->setIsActive(false)->removeAllItems();
                             $this->cart->save($quote);
                         }
@@ -164,7 +166,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                         $secondChance->save();
 
                         $this->duplicateQuote($order);
-                    }else{
+                    } else {
                         $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
                         $this->checkoutSession->restoreQuote();
                     }
@@ -178,7 +180,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         return true;
     }
 
-    public function duplicateQuote($order){
+    public function duplicateQuote($order)
+    {
         $quote = $this->quoteFactory->create()->load($order->getQuoteId());
         $items = $quote->getAllVisibleItems();
         foreach ($items as $item) {

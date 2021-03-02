@@ -32,9 +32,7 @@ class Giftcards extends AbstractConfigProvider
     const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS     = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
     const XPATH_GIFTCARDS_GROUP_GIFTCARDS       = 'payment/buckaroo_magento2_giftcards/group_giftcards';
     const XPATH_GIFTCARDS_SORT                  = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
-
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
-
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_giftcards/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_giftcards/specificcountry';
 
@@ -59,8 +57,8 @@ class Giftcards extends AbstractConfigProvider
 
         $sorted = explode(',', $this->scopeConfig->getValue(
             self::XPATH_GIFTCARDS_SORT,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        );
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
 
         if (!empty($sorted)) {
             $sortedPosition = 1;
@@ -69,15 +67,18 @@ class Giftcards extends AbstractConfigProvider
             }
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE
+        );
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); 
-        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $resource = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);
         $connection = $resource->getConnection();
         $tableName = $resource->getTableName('buckaroo_magento2_giftcard');
         $result = $connection->fetchAll("SELECT * FROM " . $tableName);
         foreach ($result as $item) {
-            $item['sort'] = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99'; 
+            $item['sort'] = isset($sorted_array[$item['label']]) ?
+                $sorted_array[$item['label']] : '99';
             $allGiftCards[$item['servicecode']] = $item;
         }
 
@@ -85,7 +86,7 @@ class Giftcards extends AbstractConfigProvider
             static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        foreach (explode(',',$availableCards) as $key => $value) {
+        foreach (explode(',', $availableCards) as $key => $value) {
             $cards[] = [
                 'code' => $value,
                 'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',
@@ -93,7 +94,7 @@ class Giftcards extends AbstractConfigProvider
             ];
         }
 
-        usort($cards, function ($cardA, $cardB){
+        usort($cards, function ($cardA, $cardB) {
             return $cardA['sort'] - $cardB['sort'];
         });
 
@@ -101,7 +102,9 @@ class Giftcards extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'groupGiftcards' => $this->scopeConfig->getValue(
-                        static::XPATH_GIFTCARDS_GROUP_GIFTCARDS, \Magento\Store\Model\ScopeInterface::SCOPE_STORE),
+                        static::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
+                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                    ),
                     'avaibleGiftcards' => $cards,
                     'giftcards' => [
                         'paymentFeeLabel' => $paymentFeeLabel,

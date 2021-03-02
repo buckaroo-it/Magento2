@@ -196,6 +196,7 @@ class Billink extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         AddressFactory $addressFactory,
         SoftwareData $softwareData,
@@ -222,6 +223,7 @@ class Billink extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $cookieManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -254,7 +256,10 @@ class Billink extends AbstractMethod
         $additionalData = $data['additional_data'];
 
         if (isset($additionalData['customer_billingName'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_billingName',
+                $additionalData['customer_billingName']
+            );
         }
 
         if (isset($additionalData['customer_gender'])) {
@@ -262,11 +267,17 @@ class Billink extends AbstractMethod
         }
 
         if (isset($additionalData['customer_chamberOfCommerce'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_chamberOfCommerce', $additionalData['customer_chamberOfCommerce']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_chamberOfCommerce',
+                $additionalData['customer_chamberOfCommerce']
+            );
         }
 
         if (isset($additionalData['customer_VATNumber'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_VATNumber', $additionalData['customer_VATNumber']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_VATNumber',
+                $additionalData['customer_VATNumber']
+            );
         }
 
         if (isset($additionalData['customer_DoB'])) {
@@ -487,16 +498,9 @@ class Billink extends AbstractMethod
         $creditmemo = $payment->getCreditmemo();
         $articles = [];
 
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            //AddCreditMemoArticles
-            // $articles = $this->getCreditmemoArticleData($payment);
-        }
-
         if (isset($services['RequestParameter'])) {
             $articles = array_merge($services['RequestParameter'], $articles);
         }
-
-        // $services['RequestParameter'] = $articles;
 
         /** @noinspection PhpUndefinedMethodInspection */
         $transactionBuilder->setOrder($payment->getOrder())
@@ -510,8 +514,9 @@ class Billink extends AbstractMethod
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             $invoice = $creditmemo->getInvoice();
 
-            $transactionBuilder->setInvoiceId($this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment))
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
+            $transactionBuilder->setInvoiceId(
+                $this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment)
+            )->setOriginalTransactionKey($payment->getParentTransactionId());
         }
 
         return $transactionBuilder;
@@ -537,23 +542,22 @@ class Billink extends AbstractMethod
         $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+            $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
             $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
+        if (($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
             &&
             $payment->getOrder()->getDhlparcelShippingServicepointId()
         ) {
             $this->updateShippingAddressByDhlParcel(
-                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
+                $payment->getOrder()->getDhlparcelShippingServicepointId(),
+                $requestData
             );
         }
 
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
+        if (($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
             &&
             $payment->getOrder()->getSendcloudServicePointId()
         ) {
@@ -566,18 +570,24 @@ class Billink extends AbstractMethod
         return $requestData;
     }
 
+    //phpcs:ignore:Generic.Metrics.NestingLevel
     public function updateShippingAddressByDhlParcel($servicePointId, &$requestData)
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
-            $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
+            $curl = $this->objectManager->get(\Magento\Framework\HTTP\Client\Curl::class);
             $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/'.$matches[2].'/' . $servicePointId);
-            if (
-                ($response = $curl->getBody())
+            try {
+                $response = $curl->getBody();
+                $parsedResponse = json_decode($response);
+            } catch (\Exception $e) {
+                $this->logger2->addDebug(__METHOD__ . '|dhlparcel response failed|' . $e->getMessage());
+            }
+            if (($response != null)
                 &&
-                ($parsedResponse = @json_decode($response))
+                ($parsedResponse != null)
                 &&
                 !empty($parsedResponse->address)
             ) {
@@ -591,7 +601,9 @@ class Billink extends AbstractMethod
                             ['StreetNumber', 'number'],
                         ];
                         foreach ($mapping as $mappingItem) {
-                            if (($requestData[$key]['Name'] == $mappingItem[0]) && (!empty($parsedResponse->address->{$mappingItem[1]}))) {
+                            if (($requestData[$key]['Name'] == $mappingItem[0]) &&
+                                (!empty($parsedResponse->address->{$mappingItem[1]}))
+                            ) {
                                 $requestData[$key]['_'] = $parsedResponse->address->{$mappingItem[1]};
                             }
                         }
@@ -599,74 +611,6 @@ class Billink extends AbstractMethod
                     }
                 }
             }
-        }
-    }
-
-    public function updateShippingAddressByDpdParcel($quote, &$requestData)
-    {
-        $this->logger2->addDebug(__METHOD__.'|1|');
-
-        $fullStreet = $quote->getDpdStreet();
-        $postalCode = $quote->getDpdZipcode();
-        $city = $quote->getDpdCity();
-        $country = $quote->getDpdCountry();
-        
-        if (!$fullStreet && $quote->getDpdParcelshopId()) {
-            $this->logger2->addDebug(__METHOD__.'|2|');
-            $this->logger2->addDebug(var_export($_COOKIE, true));
-            $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
-            $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
-            $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
-            $country = $_COOKIE['dpd-selected-parcelshop-country'] ?? '';
-        }
-
-        $matches = false;
-        if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
-            $this->logger2->addDebug(__METHOD__.'|3|');
-
-            $street = $matches[1];
-            $streetHouseNumber = $matches[2];
-
-            $mapping = [
-                ['Street', $street],
-                ['PostalCode', $postalCode],
-                ['City', $city],
-                ['Country', $country],
-                ['StreetNumber', $streetHouseNumber],
-            ];
-
-            $this->logger2->addDebug(var_export($mapping, true));
-
-            foreach ($mapping as $mappingItem) {
-                if (!empty($mappingItem[1])) {
-                    $found = false;
-                    foreach ($requestData as $key => $value) {
-                        if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                            if ($requestData[$key]['Name'] == $mappingItem[0]) {
-                                $requestData[$key]['_'] = $mappingItem[1];
-                                $found = true;
-                            }
-                        }
-                    }
-                    if (!$found) {
-                        $requestData[] = [
-                            '_'    => $mappingItem[1],
-                            'Name' => $mappingItem[0],
-                            'Group' => 'ShippingCustomer',
-                            'GroupID' =>  '',
-                        ];
-                    }
-                }
-            }
-
-            foreach ($requestData as $key => $value) {
-                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
-                        unset($requestData[$key]);
-                    }
-                }
-            }
-
         }
     }
 
@@ -682,7 +626,7 @@ class Billink extends AbstractMethod
 
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
+        $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
         $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         /**
          * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
@@ -700,8 +644,10 @@ class Billink extends AbstractMethod
             ) {
                 continue;
             }
-
-            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no), because the underlying simples are also in the quote
+            /**
+             * Skip bundles which have dynamic pricing on (0 = yes, 1 = no),
+             * because the underlying simples are also in the quote
+             */
             if ($item->getProductType() == Type::TYPE_BUNDLE
                 && $item->getProduct()->getCustomAttribute('price_type')
                 && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
@@ -717,7 +663,7 @@ class Billink extends AbstractMethod
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getTaxPercent()
             );
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
@@ -788,7 +734,7 @@ class Billink extends AbstractMethod
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getOrderItem()->getTaxPercent()
             );
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             // Capture calculates discount per order line
@@ -802,6 +748,7 @@ class Billink extends AbstractMethod
                     number_format(($item->getDiscountAmount()*-1), 2),
                     0
                 );
+                //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
                 $articles = array_merge($articles, $article);
             }
 
@@ -848,6 +795,7 @@ class Billink extends AbstractMethod
             }
 
             $refundType = $this->getRefundType($count);
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $refundType);
 
             $article = $this->getArticleArrayLine(
@@ -855,12 +803,15 @@ class Billink extends AbstractMethod
                 $item->getQty() . ' x ' . $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
-                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
+                $this->calculateProductPrice(
+                    $item,
+                    $includesTax
+                ) - round($item->getDiscountAmount() / $item->getQty(), 2),
                 $item->getOrderItem()->getTaxPercent()
             );
 
             $itemsTotalAmount += $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount();
-
+            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
             $articles = array_merge($articles, $article);
 
             if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
@@ -902,7 +853,7 @@ class Billink extends AbstractMethod
         }
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
@@ -960,7 +911,6 @@ class Billink extends AbstractMethod
         $request = $this->taxCalculation->getRateRequest(null, null, null, $store);
         $taxClassId = $this->configProviderBuckarooFee->getTaxClass($store);
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
-
 
         if (false !== $buckarooFeeLine && (double)$buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
@@ -1222,7 +1172,10 @@ class Billink extends AbstractMethod
         $billingAddress = $order->getBillingAddress();
         $streetFormat   = $this->formatStreet($billingAddress->getStreet());
 
-        $birthDayStamp = date("d-m-Y", strtotime(str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'))));
+        $birthDayStamp = date(
+            "d-m-Y",
+            strtotime(str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB')))
+        );
         $chamberOfCommerce = $payment->getAdditionalInformation('customer_chamberOfCommerce');
         $VATNumber = $payment->getAdditionalInformation('customer_VATNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');
@@ -1583,19 +1536,23 @@ class Billink extends AbstractMethod
         $transactionType = $transactionResponse->TransactionType;
         $methodMessage = '';
 
-        if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038') {
+        if ($transactionType != 'C011' &&
+            $transactionType != 'C016' &&
+            $transactionType != 'C039' &&
+            $transactionType != 'I038'
+        ) {
             return $methodMessage;
         }
 
         if ($transactionType == 'I038') {
-            if (
-                isset($transactionResponse->Services->Service->ResponseParameter->Name)
+            if (isset($transactionResponse->Services->Service->ResponseParameter->Name)
                 &&
                 ($transactionResponse->Services->Service->ResponseParameter->Name === 'ErrorResponseMessage')
                 &&
                 isset($transactionResponse->Services->Service->ResponseParameter->_)
-            )
-            return $transactionResponse->Services->Service->ResponseParameter->_;
+            ) {
+                return $transactionResponse->Services->Service->ResponseParameter->_;
+            }
         }
 
         $subcodeMessage = $transactionResponse->Status->SubCode->_;
@@ -1637,8 +1594,9 @@ class Billink extends AbstractMethod
         }
     }
 
-    private function getRefundTransactionBuilderInvoceId($invoiceIncrementId, $payment) {
-        if(!$refundIncrementInvoceId = $payment->getAdditionalInformation('refundIncrementInvoceId')){
+    private function getRefundTransactionBuilderInvoceId($invoiceIncrementId, $payment)
+    {
+        if (!$refundIncrementInvoceId = $payment->getAdditionalInformation('refundIncrementInvoceId')) {
             $refundIncrementInvoceId = 0;
         }
         $refundIncrementInvoceId++;
