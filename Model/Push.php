@@ -185,8 +185,7 @@ class Push implements PushInterface
         \Magento\Framework\ObjectManagerInterface $objectManager,
         ResourceConnection $resourceConnection,
         \Magento\Framework\Filesystem\DirectoryList $dirList
-    )
-    {
+    ) {
         $this->order = $order;
         $this->transaction = $transaction;
         $this->request = $request;
@@ -429,15 +428,16 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
-            $this->hasPostData('add_service_action_from_magento',
-                ['refund'])
+            $this->hasPostData('add_service_action_from_magento', ['refund'])
         ) {
             return false;
         }
 
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
-            $this->hasPostData('add_service_action_from_magento',
-                ['capture', 'cancelauthorize', 'cancelreservation']) &&
+            $this->hasPostData(
+                'add_service_action_from_magento',
+                ['capture', 'cancelauthorize', 'cancelreservation']
+            ) &&
             empty($this->postData['brq_relatedtransaction_refund'])
         ) {
             return false;
@@ -960,7 +960,9 @@ class Push implements PushInterface
         $description = 'Payment status : ' . $message;
 
         if (isset($this->postData['brq_service_antifraud_action'])) {
-            $description .= $this->postData['brq_service_antifraud_action'] . ' ' . $this->postData['brq_service_antifraud_check'] . ' ' . $this->postData['brq_service_antifraud_details'];
+            $description .= $this->postData['brq_service_antifraud_action'] . ' ' .
+            $this->postData['brq_service_antifraud_check'] . ' ' .
+            $this->postData['brq_service_antifraud_details'];
         }
 
         $store = $this->order->getStore();
@@ -1016,8 +1018,9 @@ class Push implements PushInterface
             $amount = floatval($this->postData['brq_amount']);
         }
 
-
-        if (isset($this->postData['brq_service_klarnakp_reservationnumber']) && !empty($this->postData['brq_service_klarnakp_reservationnumber'])) {
+        if (isset($this->postData['brq_service_klarnakp_reservationnumber']) &&
+            !empty($this->postData['brq_service_klarnakp_reservationnumber'])
+        ) {
             $this->order->setBuckarooReservationNumber($this->postData['brq_service_klarnakp_reservationnumber']);
             $this->order->save();
         }
@@ -1190,7 +1193,9 @@ class Push implements PushInterface
             }
         }
 
-        if (!empty($this->postData['brq_service_klarnakp_autopaytransactionkey']) && ($this->postData['brq_statuscode'] == 190)) {
+        if (!empty($this->postData['brq_service_klarnakp_autopaytransactionkey']) &&
+            ($this->postData['brq_statuscode'] == 190)
+        ) {
             $this->saveInvoice();
         }
 
@@ -1499,7 +1504,9 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         if ($this->isGroupTransactionInfoType()) {
-            if ($this->postData['brq_statuscode'] != $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
+            if ($this->postData['brq_statuscode'] !=
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            ) {
                 return true;
             }
         }
@@ -1517,7 +1524,9 @@ class Push implements PushInterface
     private function isGroupTransactionFailed()
     {
         if ($this->isGroupTransactionInfoType()) {
-            if ($this->postData['brq_statuscode'] == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')) {
+            if ($this->postData['brq_statuscode'] ==
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
+            ) {
                 return true;
             }
         }
@@ -1582,9 +1591,9 @@ class Push implements PushInterface
     //phpcs:ignore:Generic.Metrics.NestingLevel
     private function receivePushCheckPayPerEmail($response, $validSignature)
     {
-        if (isset($this->postData['add_frompayperemail']) && 
-            isset($this->postData['brq_transaction_method']) && 
-            $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && 
+        if (isset($this->postData['add_frompayperemail']) &&
+            isset($this->postData['brq_transaction_method']) &&
+            $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' &&
             $validSignature
         ) {
             if ($this->postData['brq_transaction_method'] != 'payperemail') {
@@ -1620,8 +1629,7 @@ class Push implements PushInterface
 
     public function isPayPerEmailB2BModePush()
     {
-        if (
-            isset($this->postData['add_frompayperemail']) &&
+        if (isset($this->postData['add_frompayperemail']) &&
             isset($this->postData['brq_transaction_method']) &&
             ($this->postData['brq_transaction_method'] == 'payperemail')
         ) {
@@ -1668,11 +1676,11 @@ class Push implements PushInterface
     private function getLockPushProcessingPpeFilePath()
     {
         if ($brqOrderId = $this->getOrderIncrementId()) {
+            //@codingStandardsIgnoreLine
             return $this->dirList->getPath('tmp') . DIRECTORY_SEPARATOR . 'bk_push_ppe_' . md5($brqOrderId);
         } else {
             return false;
         }
-
     }
 
     private function lockPushProcessingPpe()
@@ -1680,6 +1688,7 @@ class Push implements PushInterface
         if (isset($this->postData['add_frompayperemail'])) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             if ($path = $this->getLockPushProcessingPpeFilePath()) {
+                //@codingStandardsIgnoreLine
                 if ($fp = fopen($path, "w+")) {
                     flock($fp, LOCK_EX);
                     $this->logging->addDebug(__METHOD__ . '|5|');
@@ -1693,8 +1702,11 @@ class Push implements PushInterface
     {
         if (isset($this->postData['add_frompayperemail'])) {
             $this->logging->addDebug(__METHOD__ . '|1|');
+            //@codingStandardsIgnoreLine
             fclose($lockHandler);
+            //@codingStandardsIgnoreLine
             if (($path = $this->getLockPushProcessingPpeFilePath()) && file_exists($path)) {
+                //@codingStandardsIgnoreLine
                 unlink($path);
                 $this->logging->addDebug(__METHOD__ . '|5|');
             }

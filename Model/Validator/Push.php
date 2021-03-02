@@ -142,7 +142,8 @@ class Push implements ValidatorInterface
     protected function calculateSignature($postData)
     {
         $copyData = $postData;
-        unset($copyData['brq_signature']); unset($copyData['BRQ_SIGNATURE']);
+        unset($copyData['brq_signature']);
+        unset($copyData['BRQ_SIGNATURE']);
 
         $sortableArray = $this->buckarooArraySort($copyData);
 

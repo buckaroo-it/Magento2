@@ -306,7 +306,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             ]
         ];
 
-        if($originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId)){
+        if ($originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId)) {
             $postArray['Services']['ServiceList'][0]['Action'] = 'PayRemainder';
             $postArray['OriginalTransactionKey'] = $originalTransactionKey;
         }
