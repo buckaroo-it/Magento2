@@ -21,10 +21,8 @@ namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice;
 
 class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\Template
 {
-    /**
-     * @var \Magento\Framework\Registry
-     */
-    protected $registry;
+
+    protected $order;
 
     /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
@@ -34,31 +32,21 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
     /**
      * RoundingWarning constructor.
      *
-     * @param \Magento\Framework\Registry                       $registry
+     * @param \Magento\Sales\Api\Data\OrderInterface            $order
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory
      * @param \Magento\Backend\Block\Template\Context           $context
      * @param array                                             $data
      */
     public function __construct(
-        \Magento\Framework\Registry $registry,
+        \Magento\Sales\Api\Data\OrderInterface $order,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory,
         \Magento\Backend\Block\Template\Context $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
 
-        $this->registry = $registry;
+        $this->order                 = $order;
         $this->configProviderFactory = $configProviderFactory;
-    }
-
-    /**
-     * Retrieve creditmemo model instance
-     *
-     * @return \Magento\Sales\Model\Order\Invoice
-     */
-    public function getInvoice()
-    {
-        return $this->registry->registry('current_invoice');
     }
 
     /**
@@ -68,25 +56,24 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
      */
     protected function shouldShowWarning()
     {
-        $invoice = $this->getInvoice();
+        if ($order_id = $this->getRequest()->getParam('order_id')) {
+            $order   = $this->order->load($order_id);
+            $payment = $order->getPayment();
 
-        $order = $invoice->getOrder();
+            /**
+             * The warning should only be shown for partial invoices
+             */
+            if ($payment->canCapturePartial()) {
+                return false;
+            }
 
-        $payment = $order->getPayment();
-
-        /**
-         * The warning should only be shown for partial invoices
-         */
-        if ($payment->canCapturePartial()) {
-            return false;
-        }
-
-        /**
-         * The warning should only be shown for Klarna Buckaroo payment methods.
-         */
-        $paymentMethod = $payment->getMethod();
-        if (strpos($paymentMethod, 'buckaroo_magento2_klarna') === false) {
-            return false;
+            /**
+             * The warning should only be shown for Klarna Buckaroo payment methods.
+             */
+            $paymentMethod = $payment->getMethod();
+            if (strpos($paymentMethod, 'buckaroo_magento2_klarna') === false) {
+                return false;
+            }
         }
 
         return true;
