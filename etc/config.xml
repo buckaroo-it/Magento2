@@ -314,11 +314,24 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_kbc>
 
+            <buckaroo_magento2_klarna>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Klarna\PayLater</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Klarna: Pay later</title>
+                <sort_oder>220</sort_oder>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_klarna>
+
             <buckaroo_magento2_klarnakp>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Klarnakp</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Klarna</title>
+                <title>Buckaroo Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -326,6 +339,19 @@
                 <payment_action>authorize</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_klarnakp>
+            
+            <buckaroo_magento2_klarnain>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Klarna\Klarnain</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Klarna: Slice it</title>
+                <sort_oder>220</sort_oder>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_klarnain>
 
             <buckaroo_magento2_emandate>
                 <active>0</active>

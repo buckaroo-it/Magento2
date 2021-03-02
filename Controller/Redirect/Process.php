@@ -464,14 +464,14 @@ class Process extends \Magento\Framework\App\Action\Action
         if ($this->order->canCancel()) {
             $this->logger->addDebug(__METHOD__.'|20|');
 
-            if ($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'klarnakp') {
+            if (in_array($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode,['klarnakp','klarnain','klarna'])) {
                 $methodInstanceClass = get_class($this->order->getPayment()->getMethodInstance());
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
             $this->order->cancel();
 
-            if ($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'klarnakp') {
+            if (in_array($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode,['klarnakp','klarnain','klarna'])) {
                 $this->logger->addDebug(__METHOD__.'|25|');
                 return true;
             }

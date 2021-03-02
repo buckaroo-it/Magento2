@@ -17,47 +17,54 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Plugin\Method;
 
 use \Magento\Sales\Model\Order;
 
 /**
- * Class Emandate
+ * Class Klarna
  *
  * @package Buckaroo\Magento2\Model\Plugin\Method
  */
-class Emandate
+class Klarna
 {
-    const EMANDATE_METHOD_NAME = 'buckaroo_magento2_emandate';
+    const KLARNA_METHOD_NAME = 'buckaroo_magento2_klarna';
 
     /**
-     * \Buckaroo\Magento2\Model\Method\Emandate
+     * \Buckaroo\Magento2\Model\Method\Klarna
      *
      * @var bool
      */
-    public $emandateMethod = false;
+    public $klarnaMethod = false;
 
     /**
-     * @param \Buckaroo\Magento2\Model\Method\Emandate $emandate
+     * @param \Buckaroo\Magento2\Model\Method\Klarna\PayLater $klarna
      */
-    public function __construct(\Buckaroo\Magento2\Model\Method\Emandate $emandate)
+    public function __construct(\Buckaroo\Magento2\Model\Method\Klarna\PayLater $klarna)
     {
-        $this->emandateMethod = $emandate;
+        $this->klarnaMethod = $klarna;
     }
 
     /**
      * @param Order $subject
      *
-     * @return Order
+     * @return Klarna|Order
+     * @throws \Buckaroo\Magento2\Exception
      */
-    public function beforeCanCreditmemo(Order $subject)
-    {
+    public function afterCancel(
+        Order $subject
+    ) {
         $payment = $subject->getPayment();
+        $orderIsCanceled = $payment->getOrder()->getOrigData('state');
+        $orderIsVoided = ($payment->getAdditionalInformation('voided_by_buckaroo') === true);
 
-        if ($payment->getMethod() === self::EMANDATE_METHOD_NAME) {
-            $subject->setForcedCanCreditmemo($this->emandateMethod->canRefund());
+        if ($payment->getMethod() !== self::KLARNA_METHOD_NAME || $orderIsVoided || $orderIsCanceled == Order::STATE_CANCELED) {
+            return $subject;
         }
 
-        return $subject;
+        $this->klarnaMethod->cancel($payment);
+
+        return $this;
     }
 }

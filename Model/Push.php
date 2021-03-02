@@ -447,7 +447,7 @@ class Push implements PushInterface
         }
 
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
-            $this->hasPostData('brq_transaction_method', 'klarnakp') &&
+            $this->hasPostData('brq_transaction_method', ['klarna','klarnakp','klarnain']) &&
             $this->hasPostData('add_service_action_from_magento', 'pay')
         ) {
             return false;
@@ -845,8 +845,12 @@ class Push implements PushInterface
             $trxId = $this->postData['brq_datarequest'];
         }
 
-        if (isset($this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey']) && !empty($this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey'])) {
-            $trxId = $this->postData['brq_SERVICE_klarnakp_AutoPayTransactionKey'];
+        if (isset($this->postData['brq_service_klarna_autopaytransactionkey']) && !empty($this->postData['brq_service_klarna_autopaytransactionkey'])) {
+            $trxId = $this->postData['brq_service_klarna_autopaytransactionkey'];
+        }
+
+        if (isset($this->postData['brq_service_klarnakp_autopaytransactionkey']) && !empty($this->postData['brq_service_klarnakp_autopaytransactionkey'])) {
+            $trxId = $this->postData['brq_service_klarnakp_autopaytransactionkey'];
         }
 
         if (!empty($this->postData['brq_relatedtransaction_refund']) && isset($this->postData['brq_relatedtransaction_refund'])) {
@@ -968,9 +972,7 @@ class Push implements PushInterface
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/AbstractMethod.php:880
             $payment = $this->order->getPayment();
-            if ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay'
-                || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay2'
-                || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp'
+            if (in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_afterpay','buckaroo_magento2_afterpay2','buckaroo_magento2_klarna','buckaroo_magento2_klarnakp'])
             ) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                 $payment->save();
@@ -1008,6 +1010,11 @@ class Push implements PushInterface
         if (isset($this->postData['brq_amount']) && !empty($this->postData['brq_amount'])) {
             $this->logging->addDebug(__METHOD__ . '|11|');
             $amount = floatval($this->postData['brq_amount']);
+        }
+
+        if (isset($this->postData['brq_service_klarna_reservationnumber']) && !empty($this->postData['brq_service_klarna_reservationnumber'])) {
+            $this->order->setBuckarooReservationNumber($this->postData['brq_service_klarna_reservationnumber']);
+            $this->order->save();
         }
 
         if (isset($this->postData['brq_service_klarnakp_reservationnumber']) && !empty($this->postData['brq_service_klarnakp_reservationnumber'])) {
@@ -1085,15 +1092,25 @@ class Push implements PushInterface
                 return true;
             }
 
+            $klarnaConfig = $this->objectManager->create('\Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna');
             $klarnakpConfig = $this->objectManager->create('\Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp');
 
             if ($this->hasPostData('add_initiated_by_magento', 1) &&
+                $this->hasPostData('brq_transaction_method', 'Klarna') &&
+                $this->hasPostData('add_service_action_from_magento', 'pay') &&
+                empty($this->postData['brq_service_klarna_reservationnumber']) &&
+                $klarnaConfig->getCreateInvoiceAfterShipment()
+            ) {
+                $this->logging->addDebug(__METHOD__ . '|5|');
+                $this->dontSaveOrderUponSuccessPush = true;
+                return true;
+            }elseif ($this->hasPostData('add_initiated_by_magento', 1) &&
                 $this->hasPostData('brq_transaction_method', 'KlarnaKp') &&
                 $this->hasPostData('add_service_action_from_magento', 'pay') &&
                 empty($this->postData['brq_service_klarnakp_reservationnumber']) &&
                 $klarnakpConfig->getCreateInvoiceAfterShipment()
             ) {
-                $this->logging->addDebug(__METHOD__ . '|5|');
+                $this->logging->addDebug(__METHOD__ . '|5.1|');
                 $this->dontSaveOrderUponSuccessPush = true;
                 return true;
             } else {
@@ -1170,6 +1187,10 @@ class Push implements PushInterface
                 }
 
             }
+        }
+
+        if (!empty($this->postData['brq_service_klarna_autopaytransactionkey']) && ($this->postData['brq_statuscode'] == 190)) {
+            $this->saveInvoice();
         }
 
         if (!empty($this->postData['brq_service_klarnakp_autopaytransactionkey']) && ($this->postData['brq_statuscode'] == 190)) {
