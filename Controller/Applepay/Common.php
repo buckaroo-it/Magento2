@@ -98,6 +98,16 @@ class Common extends Action
         $this->customerSession = $customerSession ?? ObjectManager::getInstance()->get(CustomerSession::class);
     }
 
+    // @codingStandardsIgnoreStart
+    public function execute()
+    {
+        /**
+         * call the parent, method required part of the interface
+         */
+        parent::execute();
+    }
+    // @codingStandardsIgnoreEnd
+
     /**
      * @param $address
      * @param $quoteTotals

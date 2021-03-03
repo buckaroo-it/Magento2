@@ -28,6 +28,7 @@ use Magento\Framework\Filesystem\File\ReadFactory;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
+use Magento\Framework\Filesystem\Io\File;
 use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
 use Buckaroo\Magento2\Model\CertificateFactory;
 
@@ -46,7 +47,7 @@ class Certificate extends \Magento\Framework\App\Config\Value
 
     /** @var CertificateRepositoryInterface */
     protected $certificateRepository;
-
+    protected $file;
     /**
      * @param Context                                   $context
      * @param Registry                                  $registry
@@ -71,6 +72,7 @@ class Certificate extends \Magento\Framework\App\Config\Value
         CertificateRepositoryInterface $certificateRepository,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
+        File $file,
         array $data = []
     ) {
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
@@ -79,6 +81,7 @@ class Certificate extends \Magento\Framework\App\Config\Value
         $this->writer = $writer;
         $this->certificateFactory = $certificateFactory;
         $this->certificateRepository = $certificateRepository;
+        $this->file = $file;
     }
 
     /**
@@ -153,8 +156,8 @@ class Certificate extends \Magento\Framework\App\Config\Value
     {
         $allowedExtensions = ['pem'];
 
-        $extension = \Magento\Framework\Filesystem\Io\File::getPathInfo($filename, PATHINFO_EXTENSION);
-
+        $extensionData = $this->file->getPathInfo($filename, PATHINFO_EXTENSION);
+        $extension = $extensionData['extension'];
         return in_array(strtolower($extension), $allowedExtensions);
     }
 }
