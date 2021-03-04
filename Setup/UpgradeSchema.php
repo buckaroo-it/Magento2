@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Setup;
 
-use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 
@@ -72,9 +71,9 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 $installer->getTable('buckaroo_magento2_group_transaction'),
                 'refunded_amount',
                 [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                     'nullable' => true,
-                    'comment' => 'RefundedAmount'
+                    'comment'  => 'RefundedAmount',
                 ]
             );
 
@@ -82,15 +81,19 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 $installer->getTable('buckaroo_magento2_giftcard'),
                 'is_partial_refundable',
                 [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+                    'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
                     'nullable' => true,
-                    'comment' => 'Giftcard partial refund'
+                    'comment'  => 'Giftcard partial refund',
                 ]
             );
         }
 
         if (!$installer->tableExists('buckaroo_magento2_second_chance')) {
             $this->createSecondChanceTable($installer);
+        }
+
+        if (!$installer->tableExists('buckaroo_magento2_log')) {
+            $this->createBuckarooLogTable($installer);
         }
 
         $this->createOptimizationIndexes($installer);
@@ -115,7 +118,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary' => true,
+                'primary'  => true,
             ],
             'Entity ID'
         );
@@ -162,7 +165,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary' => true,
+                'primary'  => true,
             ],
             'Entity ID'
         );
@@ -209,7 +212,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary' => true,
+                'primary'  => true,
             ],
             'Entity ID'
         );
@@ -323,7 +326,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary' => true,
+                'primary'  => true,
             ],
             'Entity ID'
         );
@@ -347,7 +350,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             ],
             'storeId'
         );
-        
+
         $table->addColumn(
             'token',
             \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -376,6 +379,111 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             'Created At'
         );
         $table->setComment('Buckaroo Second Chance');
+
+        $installer->getConnection()->createTable($table);
+    }
+
+    /**
+     * @param SchemaSetupInterface $installer
+     *
+     * @throws \Zend_Db_Exception
+     */
+    protected function createBuckarooLogTable(SchemaSetupInterface $installer)
+    {
+        $table = $installer->getConnection()->newTable($installer->getTable('buckaroo_magento2_log'));
+
+        $table->addColumn(
+            'log_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+            null,
+            [
+                'identity' => true,
+                'unsigned' => true,
+                'nullable' => false,
+                'primary'  => true,
+            ],
+            'Log ID'
+        );
+
+        $table->addColumn(
+            'channel',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'Channel'
+        );
+
+        $table->addColumn(
+            'level',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'Level'
+        );
+
+        $table->addColumn(
+            'message',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'Message'
+        );
+
+        $table->addColumn(
+            'time',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+            null,
+            [],
+            'Time'
+        );
+
+        $table->addColumn(
+            'session_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'Session id'
+        );
+
+        $table->addColumn(
+            'customer_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'Customer id'
+        );
+
+        $table->addColumn(
+            'quote_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'quote_id'
+        );
+
+        $table->addColumn(
+            'order_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'orderId'
+        );
+
+        $table->setComment('Buckaroo Log');
 
         $installer->getConnection()->createTable($table);
     }
