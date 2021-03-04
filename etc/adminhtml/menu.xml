@@ -30,7 +30,7 @@
              action="buckaroo/giftcard"
         />
         <add id="Buckaroo_Magento2::buckaroo_magento2_log"
-                title="Log"
+                title="Buckaroo Log"
                 module="Buckaroo_Magento2"
                 sortOrder="9999"
                 resource="Magento_Backend::content"
