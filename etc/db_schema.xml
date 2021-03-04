@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="buckaroo_magento2_log" resource="default" engine="innodb" comment="Buckaroo Log">
+        <column name="log_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Log id"/>
+        <column name="channel" xsi:type="varchar" length="255" nullable="true" comment="Channel"/>
+        <column name="level" xsi:type="varchar" length="255" nullable="true" comment="Level"/>
+        <column name="message" xsi:type="text" nullable="true" comment="Message"/>
+        <column xsi:type="timestamp" name="time" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Time"/>
+        <column name="session_id" xsi:type="varchar" length="255" nullable="true" comment="Session Id"/>
+        <column name="customer_id" xsi:type="varchar" length="255" nullable="true" comment="Customer id"/>
+        <column name="quote_id" xsi:type="varchar" length="255" nullable="true" comment="Quote id"/>
+        <column name="order_id" xsi:type="varchar" length="255" nullable="true" comment="Order id"/>
+        <index referenceId="BUCKAROO_MAGENTO2_LOG_LOG_ID" indexType="btree">
+            <column name="log_id"/>
+        </index>
+        <index referenceId="BUCKAROO_MAGENTO2_LOG_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+    </table>
+</schema>
