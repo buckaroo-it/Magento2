@@ -530,6 +530,7 @@
                 <active>0</active>
                 <transaction_label>Magento Buckaroo</transaction_label>
                 <order_confirmation_email>1</order_confirmation_email>
+                <order_confirmation_email_sync>0</order_confirmation_email_sync>
                 <invoice_email>1</invoice_email>
                 <success_redirect>checkout/onepage/success</success_redirect>
                 <failure_redirect>checkout/cart</failure_redirect>
