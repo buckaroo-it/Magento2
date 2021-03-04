@@ -92,10 +92,6 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             $this->createSecondChanceTable($installer);
         }
 
-        if (!$installer->tableExists('buckaroo_magento2_log')) {
-            $this->createBuckarooLogTable($installer);
-        }
-
         $this->createOptimizationIndexes($installer);
 
         $installer->endSetup();
@@ -379,111 +375,6 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             'Created At'
         );
         $table->setComment('Buckaroo Second Chance');
-
-        $installer->getConnection()->createTable($table);
-    }
-
-    /**
-     * @param SchemaSetupInterface $installer
-     *
-     * @throws \Zend_Db_Exception
-     */
-    protected function createBuckarooLogTable(SchemaSetupInterface $installer)
-    {
-        $table = $installer->getConnection()->newTable($installer->getTable('buckaroo_magento2_log'));
-
-        $table->addColumn(
-            'log_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-            null,
-            [
-                'identity' => true,
-                'unsigned' => true,
-                'nullable' => false,
-                'primary'  => true,
-            ],
-            'Log ID'
-        );
-
-        $table->addColumn(
-            'channel',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Channel'
-        );
-
-        $table->addColumn(
-            'level',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Level'
-        );
-
-        $table->addColumn(
-            'message',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Message'
-        );
-
-        $table->addColumn(
-            'time',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
-            null,
-            [],
-            'Time'
-        );
-
-        $table->addColumn(
-            'session_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Session id'
-        );
-
-        $table->addColumn(
-            'customer_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Customer id'
-        );
-
-        $table->addColumn(
-            'quote_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'quote_id'
-        );
-
-        $table->addColumn(
-            'order_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'orderId'
-        );
-
-        $table->setComment('Buckaroo Log');
 
         $installer->getConnection()->createTable($table);
     }
