@@ -29,5 +29,14 @@
              parent="Magento_Backend::other_settings"
              action="buckaroo/giftcard"
         />
+        <add id="Buckaroo_Magento2::buckaroo_magento2_log"
+                title="Log"
+                module="Buckaroo_Magento2"
+                sortOrder="9999"
+                resource="Magento_Backend::content"
+                parent="Magento_Backend::other_settings"
+                action="buckaroo_magento2/log/index"
+        />
+
     </menu>
 </config>
