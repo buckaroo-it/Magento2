@@ -1078,19 +1078,9 @@ class Push implements PushInterface
                 return true;
             }
 
-            $klarnaConfig   = $this->objectManager->create('\Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna');
             $klarnakpConfig = $this->objectManager->create('\Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp');
 
             if ($this->hasPostData('add_initiated_by_magento', 1) &&
-                $this->hasPostData('brq_transaction_method', 'Klarna') &&
-                $this->hasPostData('add_service_action_from_magento', 'pay') &&
-                empty($this->postData['brq_service_klarna_reservationnumber']) &&
-                $klarnaConfig->getCreateInvoiceAfterShipment()
-            ) {
-                $this->logging->addDebug(__METHOD__ . '|5|');
-                $this->dontSaveOrderUponSuccessPush = true;
-                return true;
-            } elseif ($this->hasPostData('add_initiated_by_magento', 1) &&
                 $this->hasPostData('brq_transaction_method', 'KlarnaKp') &&
                 $this->hasPostData('add_service_action_from_magento', 'pay') &&
                 empty($this->postData['brq_service_klarnakp_reservationnumber']) &&

@@ -48,7 +48,6 @@ class Klarna extends AbstractConfigProvider
     const XPATH_KLARNA_ZERO_TAX               = 'payment/buckaroo_magento2_klarna/zero_tax';
     const XPATH_KLARNA_NO_TAX                 = 'payment/buckaroo_magento2_klarna/no_tax';
     const XPATH_KLARNA_GET_INVOICE            = 'payment/buckaroo_magento2_klarna/send_invoice';
-    const XPATH_KLARNA_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarna/create_invoice_after_shipment';
 
     public function getConfig()
     {
@@ -112,21 +111,5 @@ class Klarna extends AbstractConfigProvider
             $storeId
         );
         return $enabled ? $enabled : false;
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return bool
-     */
-    public function getCreateInvoiceAfterShipment($storeId = null)
-    {
-        $createInvoiceAfterShipment = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_CREATE_INVOICE_BY_SHIP,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
     }
 }

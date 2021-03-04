@@ -146,12 +146,6 @@
                 <config_path>payment/buckaroo_magento2_klarna/limit_by_ip</config_path>
             </field>
 
-            <field id="create_invoice_after_shipment" translate="label comment" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Create invoice after shipment</label>
-                <comment><![CDATA[If set to 'No' the order is not invoiced after creating a shipment.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_klarna/create_invoice_after_shipment</config_path>
-            </field>
         </group>
     </group>
 </include>

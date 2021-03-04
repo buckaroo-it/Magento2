@@ -48,7 +48,6 @@ class Klarnain extends AbstractConfigProvider
     const XPATH_KLARNAIN_ZERO_TAX               = 'payment/buckaroo_magento2_klarnain/zero_tax';
     const XPATH_KLARNAIN_NO_TAX                 = 'payment/buckaroo_magento2_klarnain/no_tax';
     const XPATH_KLARNAIN_GET_INVOICE            = 'payment/buckaroo_magento2_klarnain/send_invoice';
-    const XPATH_KLARNAIN_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarnain/create_invoice_after_shipment';
 
     public function getConfig()
     {
@@ -115,19 +114,4 @@ class Klarnain extends AbstractConfigProvider
         return $enabled ? $enabled : false;
     }
 
-    /**
-     * @param null|int $storeId
-     *
-     * @return bool
-     */
-    public function getCreateInvoiceAfterShipment($storeId = null)
-    {
-        $createInvoiceAfterShipment = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_CREATE_INVOICE_BY_SHIP,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
-    }
 }
