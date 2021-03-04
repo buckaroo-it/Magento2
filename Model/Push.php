@@ -1023,8 +1023,11 @@ class Push implements PushInterface
                 || $paymentMethod->getConfigData('order_email', $store)
             )
         ) {
-            $this->logging->addDebug(__METHOD__ . '|sendemail|');
-            $this->orderSender->send($this->order);
+            $this->logging->addDebug(__METHOD__ . '|sendemail|' . var_export(
+                $this->configAccount->getOrderConfirmationEmailSync($store),
+                true)
+            );
+            $this->orderSender->send($this->order, $this->configAccount->getOrderConfirmationEmailSync($store));
         }
 
         /** force state eventhough this can lead to a transition of the order
