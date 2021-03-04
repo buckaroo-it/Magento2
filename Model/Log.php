@@ -61,4 +61,3 @@ class Log extends \Magento\Framework\Model\AbstractModel
         return $logDataObject;
     }
 }
-

@@ -20,4 +20,3 @@ class Log extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $this->_init('buckaroo_magento2_log', 'log_id');
     }
 }
-

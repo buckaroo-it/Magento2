@@ -203,4 +203,3 @@ class Log extends \Magento\Framework\Api\AbstractExtensibleObject implements Log
         return $this->setData(self::ORDER_ID, $orderId);
     }
 }
-

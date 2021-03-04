@@ -152,4 +152,3 @@ interface LogInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      */
     public function setOrderId($orderId);
 }
-

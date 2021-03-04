@@ -30,6 +30,7 @@ class LogRepository implements LogRepositoryInterface
     protected $dataObjectHelper;
 
     protected $extensibleDataObjectConverter;
+
     protected $dataObjectProcessor;
 
     protected $searchResultsFactory;
@@ -45,7 +46,6 @@ class LogRepository implements LogRepositoryInterface
     protected $resource;
 
     protected $extensionAttributesJoinProcessor;
-
 
     /**
      * @param ResourceLog $resource
@@ -184,4 +184,3 @@ class LogRepository implements LogRepositoryInterface
         return $this->delete($this->get($logId));
     }
 }
-
