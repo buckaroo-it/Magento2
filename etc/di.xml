@@ -342,6 +342,7 @@
             <argument name="handlers"  xsi:type="array">
                 <item name="exception" xsi:type="object">Buckaroo\Magento2\Logging\CriticalHandler</item>
                 <item name="debug" xsi:type="object">Buckaroo\Magento2\Logging\DebugHandler</item>
+                <item name="debug" xsi:type="object">Buckaroo\Magento2\Logging\DbHandler</item>
             </argument>
         </arguments>
     </type>
