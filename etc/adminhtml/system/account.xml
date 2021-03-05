@@ -248,11 +248,11 @@
             <label>Logging</label>
             <fieldset_css>buckaroo_magento2-section</fieldset_css>
 
-            <field id="log_level" translate="label" type="select" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
+            <field id="log_level" translate="label" type="multiselect" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
               <label>Log level</label>
               <source_model>Buckaroo\Magento2\Model\Config\Source\LogLevel</source_model>
               <comment><![CDATA[Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.]]></comment>
-              <config_path>buckaroo_magento2/account/log_level</config_path>
+              <config_path>buckaroo_magento2/account/debug_types</config_path>
             </field>
 
             <field id="log_handler" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="0" showInStore="0">
