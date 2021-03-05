@@ -515,7 +515,7 @@
                 <order_status_success>processing</order_status_success>
                 <order_status_failed>canceled</order_status_failed>
                 <create_order_before_transaction>1</create_order_before_transaction>
-                <debug_types>300,400,500,550,600</debug_types>
+                <log_level>300,400,500,550,600</log_level>
                 <log_handler>1</log_handler>
                 <log_retention>month</log_retention>
                 <cart_keep_alive>1</cart_keep_alive>

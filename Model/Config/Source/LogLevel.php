@@ -19,6 +19,8 @@
  */
 namespace Buckaroo\Magento2\Model\Config\Source;
 
+use Monolog\Logger;
+
 class LogLevel implements \Magento\Framework\Option\ArrayInterface
 {
     /**
@@ -28,8 +30,15 @@ class LogLevel implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
-        return [
-            ['value' => 1, 'label' => __('Nothing')],
-        ];
+        $options = [];
+
+        foreach (Logger::getLevels() as $value => $key) {
+            $options[] = [
+                'value' => $key,
+                'label' => $value
+            ];
+        }
+
+        return $options;
     }
 }

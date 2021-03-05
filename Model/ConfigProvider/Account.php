@@ -65,7 +65,6 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_CANCEL_ON_FAILED                = 'buckaroo_magento2/account/cancel_on_failed';
     const XPATH_ACCOUNT_DIGITAL_SIGNATURE               = 'buckaroo_magento2/account/digital_signature';
     const XPATH_ACCOUNT_LOG_LEVEL                       = 'buckaroo_magento2/account/log_level';
-    const XPATH_ACCOUNT_DEBUG_TYPES                     = 'buckaroo_magento2/account/debug_types';
     const XPATH_ACCOUNT_LOG_HANDLER                     = 'buckaroo_magento2/account/log_handler';
     const XPATH_ACCOUNT_LOG_RETENTION                   = 'buckaroo_magento2/account/log_retention';
     const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
@@ -128,7 +127,6 @@ class Account extends AbstractConfigProvider
             'cancel_on_failed'                  => $this->getCancelOnFailed($store),
             'digital_signature'                 => $this->getDigitalSignature($store),
             'log_level'                         => $this->getLoglevel($store),
-            'debug_types'                       => $this->getDebugTypes($store),
             'debug_email'                       => $this->getDebugEmail($store),
             'log_handler'                       => $this->getLogHandler($store),
             'log_retention'                     => $this->getLogRetention($store),
