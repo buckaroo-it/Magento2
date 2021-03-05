@@ -29,10 +29,10 @@ class LogRetention implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
         return [
-            ['value' => 'day', 'label' => __('Day')],
-            ['value' => 'week', 'label' => __('Week')],
-            ['value' => 'month', 'label' => __('Month')],
-            ['value' => 'year', 'label' => __('Year')],
+            ['value' => (60*60*24), 'label' => __('Day')],
+            ['value' => (60*60*24*7), 'label' => __('Week')],
+            ['value' => (60*60*24*31), 'label' => __('Month')],
+            ['value' => (60*60*24*31*12), 'label' => __('Year')],
         ];
     }
 }
