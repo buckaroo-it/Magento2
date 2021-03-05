@@ -29,16 +29,24 @@ class DbHandler extends Base
     // @codingStandardsIgnoreLine
     protected $loggerType = Logger::DEBUG;
 
+    protected $_checkoutSession;
+
+    protected $_session;
+
+    protected $customerSession;
+
     /**
-     * @param DriverInterface $filesystem
-     * @param string $filePath
-     * @param string $fileName
-     * @throws \Exception
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\LogFactory $logFactory
+        \Buckaroo\Magento2\Model\LogFactory $logFactory,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\Session\SessionManager $sessionManager,
+        \Magento\Customer\Model\Session $customerSession
     ) {
         $this->logFactory = $logFactory;
+        $this->_checkoutSession  = $checkoutSession;
+        $this->_session = $sessionManager;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -53,10 +61,10 @@ class DbHandler extends Base
             'level'       => $record['level'],
             'message'     => $record['message'],
             'time'        => $now->format('Y-m-d H:i:s'),
-            'session_id'  => isset($record['extra']['session_id']) ? $record['extra']['session_id'] : '',
-            'customer_id' => isset($record['extra']['customer_id']) ? $record['extra']['customer_id'] : '',
-            'quote_id'    => isset($record['extra']['quote_id']) ? $record['extra']['quote_id'] : '',
-            'order_id'    => isset($record['extra']['order_id']) ? $record['extra']['order_id'] : '',
+            'session_id'  => $this->_session->getSessionId(),
+            'customer_id' => $this->customerSession->getCustomer()->getId(),
+            'quote_id'    => $this->_checkoutSession->getQuote()->getId(),
+            'order_id'    => $this->_checkoutSession->getQuote()->getReservedOrderId(),
         ]);
         $logFactory->save();
     }

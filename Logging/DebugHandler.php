@@ -30,19 +30,4 @@ class DebugHandler extends Base
     // @codingStandardsIgnoreLine
     protected $fileName = '/var/log/Buckaroo/debug.log';
 
-    /**
-     * @inheritDoc
-     */
-    public function write(array $record)
-    {
-        $extra = [
-            'session_id' => '',
-            'customer_id' => '',
-            'quote_id' => '',
-            'order_id' => '',
-        ];
-
-        $record['extra'] = array_merge($extra, $record['extra']);
-        parent::write($record);
-    }
 }

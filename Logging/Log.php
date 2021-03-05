@@ -36,6 +36,12 @@ class Log extends Logger
 
     private static $processUid = 0;
 
+    protected $_checkoutSession;
+
+    protected $_session;
+
+    protected $customerSession;
+
     /**
      * Log constructor.
      *
@@ -50,10 +56,16 @@ class Log extends Logger
         DebugConfiguration $debugConfiguration,
         Mail $mail,
         array $handlers = [],
-        array $processors = []
+        array $processors = [],
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\Session\SessionManager $sessionManager,
+        \Magento\Customer\Model\Session $customerSession
     ) {
         $this->debugConfiguration = $debugConfiguration;
         $this->mail = $mail;
+        $this->_checkoutSession  = $checkoutSession;
+        $this->_session = $sessionManager;
+        $this->customerSession = $customerSession;
 
         parent::__construct($name, $handlers, $processors);
     }
@@ -79,7 +91,7 @@ class Log extends Logger
             self::$processUid = uniqid();
         }
 
-        $message = self::$processUid . '|' . microtime(true). '|' . $message;
+        $message = self::$processUid . '|' . microtime(true). '|' . $this->_session->getSessionId() . '|' . $this->customerSession->getCustomer()->getId() . '|' . $this->_checkoutSession->getQuote()->getId() . '|' . $this->_checkoutSession->getQuote()->getReservedOrderId() . '|' . $message;
 
         // Prepare the message to be send to the debug email
         $this->mail->addToMessage($message);
