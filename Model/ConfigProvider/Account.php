@@ -126,7 +126,7 @@ class Account extends AbstractConfigProvider
             'failure_redirect_to_checkout'      => $this->getFailureRedirectToCheckout($store),
             'cancel_on_failed'                  => $this->getCancelOnFailed($store),
             'digital_signature'                 => $this->getDigitalSignature($store),
-            'debug_types'                       => $this->getLoglevel($store),
+            'debug_types'                       => $this->getLogLevel($store),
             'debug_email'                       => $this->getDebugEmail($store),
             'log_handler'                       => $this->getLogHandler($store),
             'log_retention'                     => $this->getLogRetention($store),
