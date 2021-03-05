@@ -244,7 +244,7 @@
             </field>
 
         <!-- Logging section -->
-        <group id="buckaroo_magento2_дogging_section" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
+        <group id="buckaroo_magento2_logging_section" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Logging</label>
             <fieldset_css>buckaroo_magento2-section</fieldset_css>
 
