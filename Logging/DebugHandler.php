@@ -19,8 +19,8 @@
  */
 namespace Buckaroo\Magento2\Logging;
 
-use Monolog\Logger;
 use Magento\Framework\Logger\Handler\Base;
+use Monolog\Logger;
 
 class DebugHandler extends Base
 {
@@ -29,5 +29,4 @@ class DebugHandler extends Base
 
     // @codingStandardsIgnoreLine
     protected $fileName = '/var/log/Buckaroo/debug.log';
-
 }

@@ -19,9 +19,9 @@
  */
 namespace Buckaroo\Magento2\Logging;
 
+use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
-use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 
 class Log extends Logger
 {
@@ -62,10 +62,10 @@ class Log extends Logger
         \Magento\Customer\Model\Session $customerSession
     ) {
         $this->debugConfiguration = $debugConfiguration;
-        $this->mail = $mail;
-        $this->_checkoutSession  = $checkoutSession;
-        $this->_session = $sessionManager;
-        $this->customerSession = $customerSession;
+        $this->mail               = $mail;
+        $this->_checkoutSession   = $checkoutSession;
+        $this->_session           = $sessionManager;
+        $this->customerSession    = $customerSession;
 
         parent::__construct($name, $handlers, $processors);
     }
@@ -91,7 +91,7 @@ class Log extends Logger
             self::$processUid = uniqid();
         }
 
-        $message = self::$processUid . '|' . microtime(true). '|' . $this->_session->getSessionId() . '|' . $this->customerSession->getCustomer()->getId() . '|' . $this->_checkoutSession->getQuote()->getId() . '|' . $this->_checkoutSession->getQuote()->getReservedOrderId() . '|' . $message;
+        $message = self::$processUid . '|' . microtime(true) . '|' . $this->_session->getSessionId() . '|' . $this->customerSession->getCustomer()->getId() . '|' . $this->_checkoutSession->getQuote()->getId() . '|' . $this->_checkoutSession->getQuote()->getReservedOrderId() . '|' . $message;
 
         // Prepare the message to be send to the debug email
         $this->mail->addToMessage($message);
