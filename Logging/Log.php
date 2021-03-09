@@ -91,8 +91,9 @@ class Log extends Logger
             self::$processUid = uniqid();
         }
 
-        $message = self::$processUid . '|' . microtime(true) . '|' . $this->_session->getSessionId() . '|' . $this->customerSession->getCustomer()->getId() . '|' . 
-        $this->_checkoutSession->getQuote()->getId() . '|' . $this->_checkoutSession->getQuote()->getReservedOrderId() . '|' . $message;
+        // @codingStandardsIgnoreStart
+        $message = self::$processUid . '|' . microtime(true) . '|' . $this->_session->getSessionId() . '|' . $this->customerSession->getCustomer()->getId() . '|' . $this->_checkoutSession->getQuote()->getId() . '|' . $this->_checkoutSession->getQuote()->getReservedOrderId() . '|' . $message;
+        // @codingStandardsIgnoreEnd
 
         // Prepare the message to be send to the debug email
         $this->mail->addToMessage($message);
