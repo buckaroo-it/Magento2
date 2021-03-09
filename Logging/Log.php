@@ -55,11 +55,11 @@ class Log extends Logger
         $name,
         DebugConfiguration $debugConfiguration,
         Mail $mail,
-        array $handlers = [],
-        array $processors = [],
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Session\SessionManager $sessionManager,
-        \Magento\Customer\Model\Session $customerSession
+        \Magento\Customer\Model\Session $customerSession,
+        array $handlers = [],
+        array $processors = []
     ) {
         $this->debugConfiguration = $debugConfiguration;
         $this->mail               = $mail;
@@ -91,7 +91,8 @@ class Log extends Logger
             self::$processUid = uniqid();
         }
 
-        $message = self::$processUid . '|' . microtime(true) . '|' . $this->_session->getSessionId() . '|' . $this->customerSession->getCustomer()->getId() . '|' . $this->_checkoutSession->getQuote()->getId() . '|' . $this->_checkoutSession->getQuote()->getReservedOrderId() . '|' . $message;
+        $message = self::$processUid . '|' . microtime(true) . '|' . $this->_session->getSessionId() . '|' . $this->customerSession->getCustomer()->getId() . '|' . 
+        $this->_checkoutSession->getQuote()->getId() . '|' . $this->_checkoutSession->getQuote()->getReservedOrderId() . '|' . $message;
 
         // Prepare the message to be send to the debug email
         $this->mail->addToMessage($message);
