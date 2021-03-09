@@ -4,5 +4,8 @@
         <job instance="Buckaroo\Magento2\Cron\SecondChance" method="execute" name="buckaroo_magento2_cron">
             <schedule>* * * * *</schedule>
         </job>
+        <job instance="Buckaroo\Magento2\Cron\LogCleaner" method="execute" name="buckaroo_magento2_log_cleaner">
+            <schedule>17 * * * *</schedule>
+        </job>
     </group>
 </config>

@@ -21,6 +21,9 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 
 class LogHandler implements \Magento\Framework\Option\ArrayInterface
 {
+    const TYPE_FILES = 1;
+    const TYPE_DB = 2;
+
     /**
      * Options getter
      *
