@@ -758,7 +758,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!$activeMode) {
             $activeMode = 2;
         }
-        $this->gateway->setMode($activeMode);
 
         parent::capture($payment, $amount);
 
@@ -775,6 +774,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $transaction = $transactionBuilder->build();
+
+        $this->gateway->setMode($activeMode);
 
         $response = $this->captureTransaction($transaction);
 
