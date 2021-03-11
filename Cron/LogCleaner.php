@@ -74,17 +74,18 @@ class LogCleaner
 
     private function proceedDb(int $retentionPeriod)
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($retentionPeriod, true));
-
-        $this->resourceConnection->getConnection()->delete(
-            $this->resource->getMainTable(),
-            ['time <= date_sub(now(),interval ' . $retentionPeriod . ' second)']
-        );
+        try {
+            $this->resourceConnection->getConnection()->delete(
+                $this->resource->getMainTable(),
+                ['time <= date_sub(now(),interval ' . $retentionPeriod . ' second)']
+            );
+        } catch (\Exception $e) {
+            $this->logging->addDebug(__METHOD__ . '|5|' . var_export($e->getMessage(), true));
+        }
     }
 
     private function proceedFiles(int $retentionPeriod)
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($retentionPeriod, true));
         if ($files = $this->getAllFiles(DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'Buckaroo')) {
             $retentionTime = strtotime(gmdate('Y-m-d', time() - $retentionPeriod));
             foreach ($files as $file) {
@@ -93,7 +94,6 @@ class LogCleaner
                 $matches = null;
                 if (preg_match('/[\d]{4}\-\d{2}\-\d{2}/', $fileName, $matches)) {
                     if (strtotime($fileName) <= $retentionTime) {
-                        $this->logging->addDebug(__METHOD__ . '|5|' . var_export($file, true));
                         $this->driverFile->deleteFile($file);
                     }
                 }
