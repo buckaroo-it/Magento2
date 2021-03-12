@@ -388,7 +388,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Billink</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Billink</title>
+                <title>Billink - achteraf betalen</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
