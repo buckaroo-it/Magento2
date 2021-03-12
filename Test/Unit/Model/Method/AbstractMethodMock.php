@@ -24,7 +24,6 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Method;
 /**
  * Class AbstractMethodMock
  *
- * @package Buckaroo\Magento2\Test\Unit\Model\Method
  */
 class AbstractMethodMock extends \Buckaroo\Magento2\Model\Method\AbstractMethod
 {
