@@ -25,11 +25,11 @@ use Monolog\Logger;
 
 class Log extends Logger
 {
+
+    public const BUCKAROO_LOG_TRACE_DEPTH = 10;
+
     /** @var DebugConfiguration */
     private $debugConfiguration;
-
-    /** @var Mail */
-    private $mail;
 
     /** @var array */
     protected $message = [];
@@ -38,7 +38,7 @@ class Log extends Logger
 
     protected $checkoutSession;
 
-    protected $_session;
+    protected $session;
 
     protected $customerSession;
 
@@ -54,7 +54,6 @@ class Log extends Logger
     public function __construct(
         $name,
         DebugConfiguration $debugConfiguration,
-        Mail $mail,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Session\SessionManager $sessionManager,
         \Magento\Customer\Model\Session $customerSession,
@@ -62,20 +61,11 @@ class Log extends Logger
         array $processors = []
     ) {
         $this->debugConfiguration = $debugConfiguration;
-        $this->mail               = $mail;
         $this->checkoutSession   = $checkoutSession;
-        $this->_session           = $sessionManager;
+        $this->session           = $sessionManager;
         $this->customerSession    = $customerSession;
 
         parent::__construct($name, $handlers, $processors);
-    }
-
-    /**
-     * Make sure the debug information is always send to the debug email
-     */
-    public function __destruct()
-    {
-        $this->mail->mailMessage();
     }
 
     /**
@@ -91,19 +81,29 @@ class Log extends Logger
             self::$processUid = uniqid();
         }
 
-        // @codingStandardsIgnoreStart
+        $trace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS);
+        $logTrace = [];
+        for ($cnt=1; $cnt<self::BUCKAROO_LOG_TRACE_DEPTH; $cnt++) {
+            if (isset($trace[$cnt])) {
+                $logTrace[] = str_replace(BP, '', $trace[$cnt]['file']) . " " .
+                    $trace[$cnt]['class'] . '->' .
+                    $trace[$cnt]['function'] . '():' .
+                    $trace[$cnt]['line'];
+            }
+        }
+
+        $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+
         $message = json_encode([
             'uid'  => self::$processUid,
             'time' => microtime(true),
-            'sid'  => $this->_session->getSessionId(),
+            'sid'  => $this->session->getSessionId(),
             'cid'  => $this->customerSession->getCustomer()->getId(),
             'qid'  => $this->checkoutSession->getQuote()->getId(),
             'id'   => $this->checkoutSession->getQuote()->getReservedOrderId(),
-        ]) . $message;
-        // @codingStandardsIgnoreEnd
-
-        // Prepare the message to be send to the debug email
-        $this->mail->addToMessage($message);
+            'msg' => $message,
+            'trace' => $logTrace
+        ], $flags);
 
         return parent::addRecord($level, $message, $context);
     }

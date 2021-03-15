@@ -56,15 +56,21 @@ class DbHandler extends Base
     {
         $now = new \DateTime();
         $logFactory = $this->logFactory->create();
+        try {
+            $logData = json_decode($record['message'],true);
+        } catch(\Exception $e) {
+            $logData=[];
+        }
+
         $logFactory->setData([
             'channel'     => $record['channel'],
             'level'       => $record['level'],
             'message'     => $record['message'],
             'time'        => $now->format('Y-m-d H:i:s'),
-            'session_id'  => $this->session->getSessionId(),
-            'customer_id' => $this->customerSession->getCustomer()->getId(),
-            'quote_id'    => $this->checkoutSession->getQuote()->getId(),
-            'order_id'    => $this->checkoutSession->getQuote()->getReservedOrderId(),
+            'session_id'  => ($logData['sid']) ?? '',
+            'customer_id' => ($logData['cid']) ?? '',
+            'quote_id'    => ($logData['qid']) ?? '',
+            'order_id'    => ($logData['id']) ?? ''
         ]);
         $logFactory->save();
     }
