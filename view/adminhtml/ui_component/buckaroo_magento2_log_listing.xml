@@ -66,16 +66,23 @@
 				<label translate="true">level</label>
 			</settings>
 		</column>
-		<column name="message">
+		<column name="message" class="Buckaroo\Magento2\Ui\Component\Listing\Columns\Nicelog">
+		 	<argument name="data" xsi:type="array">
+				<item name="config" xsi:type="array">
+					<item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+					<item name="label" xsi:type="string" translate="true">Message</item>
+				</item>
+        	</argument>
 			<settings>
 				<filter>text</filter>
-				<label translate="true">message</label>
+				<label translate="true">Message</label>
 			</settings>
+			<item name="nl2br" xsi:type="boolean">true</item>
 		</column>
-		<column name="timestamp">
+		<column name="time">
 			<settings>
 				<filter>text</filter>
-				<label translate="true">timestamp</label>
+				<label translate="true">time</label>
 			</settings>
 		</column>
 		<column name="session_id">

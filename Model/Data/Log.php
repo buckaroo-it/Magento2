@@ -109,22 +109,22 @@ class Log extends \Magento\Framework\Api\AbstractExtensibleObject implements Log
     }
 
     /**
-     * Get timestamp
+     * Get time
      * @return string|null
      */
-    public function getTimestamp()
+    public function getTime()
     {
-        return $this->_get(self::TIMESTAMP);
+        return $this->_get(self::TIME);
     }
 
     /**
-     * Set timestamp
-     * @param string $timestamp
+     * Set time
+     * @param string $time
      * @return \Buckaroo\Magento2\Api\Data\LogInterface
      */
-    public function setTimestamp($timestamp)
+    public function setTime($time)
     {
-        return $this->setData(self::TIMESTAMP, $timestamp);
+        return $this->setData(self::TIME, $time);
     }
 
     /**

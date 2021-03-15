@@ -29,16 +29,24 @@ class DbHandler extends Base
     // @codingStandardsIgnoreLine
     protected $loggerType = Logger::DEBUG;
 
+    protected $checkoutSession;
+
+    protected $session;
+
+    protected $customerSession;
+
     /**
-     * @param DriverInterface $filesystem
-     * @param string $filePath
-     * @param string $fileName
-     * @throws \Exception
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\LogFactory $logFactory
+        \Buckaroo\Magento2\Model\LogFactory $logFactory,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\Session\SessionManager $sessionManager,
+        \Magento\Customer\Model\Session $customerSession
     ) {
         $this->logFactory = $logFactory;
+        $this->checkoutSession  = $checkoutSession;
+        $this->session = $sessionManager;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -48,15 +56,21 @@ class DbHandler extends Base
     {
         $now = new \DateTime();
         $logFactory = $this->logFactory->create();
+        try {
+            $logData = json_decode($record['message'], true);
+        } catch (\Exception $e) {
+            $logData=[];
+        }
+
         $logFactory->setData([
             'channel'     => $record['channel'],
             'level'       => $record['level'],
             'message'     => $record['message'],
             'time'        => $now->format('Y-m-d H:i:s'),
-            'session_id'  => isset($record['extra']['session_id']) ? $record['extra']['session_id'] : '',
-            'customer_id' => isset($record['extra']['customer_id']) ? $record['extra']['customer_id'] : '',
-            'quote_id'    => isset($record['extra']['quote_id']) ? $record['extra']['quote_id'] : '',
-            'order_id'    => isset($record['extra']['order_id']) ? $record['extra']['order_id'] : '',
+            'session_id'  => ($logData['sid']) ?? '',
+            'customer_id' => ($logData['cid']) ?? '',
+            'quote_id'    => ($logData['qid']) ?? '',
+            'order_id'    => ($logData['id']) ?? ''
         ]);
         $logFactory->save();
     }

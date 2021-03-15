@@ -10,7 +10,7 @@ namespace Buckaroo\Magento2\Api\Data;
 interface LogInterface extends \Magento\Framework\Api\ExtensibleDataInterface
 {
 
-    const TIMESTAMP = 'timestamp';
+    const TIME = 'time';
     const SESSION_ID = 'session_id';
     const CHANNEL = 'channel';
     const QUOTE_ID = 'quote_id';
@@ -88,17 +88,17 @@ interface LogInterface extends \Magento\Framework\Api\ExtensibleDataInterface
     public function setMessage($message);
 
     /**
-     * Get timestamp
+     * Get time
      * @return string|null
      */
-    public function getTimestamp();
+    public function getTime();
 
     /**
-     * Set timestamp
-     * @param string $timestamp
+     * Set time
+     * @param string $time
      * @return \Buckaroo\Magento2\Api\Data\LogInterface
      */
-    public function setTimestamp($timestamp);
+    public function setTime($time);
 
     /**
      * Get session_id
