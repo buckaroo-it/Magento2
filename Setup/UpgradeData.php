@@ -441,12 +441,14 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $setup->getConnection()->query(
                 "SET FOREIGN_KEY_CHECKS=0"
             );
+            // phpcs:disable
             $setup->getConnection()->query(
                 "UPDATE ".$setup->getTable('sales_order_status')." SET status = replace(status, 'tig_buckaroo','buckaroo_magento2') WHERE status LIKE '%tig_buckaroo%'"
             );
             $setup->getConnection()->query(
                 "UPDATE ".$setup->getTable('sales_order_status_state')." SET status = replace(status, 'tig_buckaroo','buckaroo_magento2') WHERE status LIKE '%tig_buckaroo%'"
             );
+            // phpcs:enable
             $setup->getConnection()->query(
                 "SET FOREIGN_KEY_CHECKS=1"
             );
@@ -508,6 +510,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         }
 
         if (version_compare($context->getVersion(), '1.18.0', '<')) {
+            // phpcs:disable
             $setup->getConnection()->query(
                 "UPDATE ".$setup->getTable('sales_order_payment')." SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
             );
@@ -520,6 +523,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $setup->getConnection()->query(
                 "UPDATE ".$setup->getTable('quote_payment')." SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
             );
+            // phpcs:enable
         }
 
         if (version_compare($context->getVersion(), '1.19.1', '<')) {
@@ -918,6 +922,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
      */
     protected function fixLanguageCodes(ModuleDataSetupInterface $setup)
     {
+        // phpcs:disable
         $setup->getConnection()->query(
             "UPDATE ".$setup->getTable('core_config_data')." SET value='nl' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='nl_NL'"
         );
@@ -925,6 +930,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         $setup->getConnection()->query(
             "UPDATE ".$setup->getTable('core_config_data')." SET value='en' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='en_US'"
         );
+        // phpcs:enable
 
         return $this;
     }

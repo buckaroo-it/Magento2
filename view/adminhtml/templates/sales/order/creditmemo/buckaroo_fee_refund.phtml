@@ -59,6 +59,7 @@
                 let currentGrandTotalPrice = grandTotalElement.innerHTML.match(regExp);
                 let priceWithoutFee = currentGrandTotalPrice - feeElementValue;
 
+                <? // phpcs:ignore --> ?>
                 let grandTotalPrice = grandTotalElement.innerHTML.replace(regExp, priceWithoutFee.toFixed(2).toString());
                 grandTotalElement.innerHTML = grandTotalPrice;
 

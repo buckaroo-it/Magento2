@@ -24,9 +24,8 @@ use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaym
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
-// @codingStandardsIgnoreStart
+// phpcs:ignore
 class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
-// @codingStandardsIgnoreEnd
 {
 
     protected $registry = null;

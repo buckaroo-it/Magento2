@@ -112,6 +112,7 @@
             document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)
         ) {
             document.getElementById(item[1]).value = 1;
+            <? // phpcs:ignore --> ?>
             if(['mrs.','mrs','ms.','ms','mevr.','mevr','mw.','mw'].includes(document.getElementById(item[0]).value.toLowerCase())){
               document.getElementById(item[1]).value = 2;
             }

@@ -8,7 +8,9 @@
         <div class="message-system-short-wrapper">
             <div class="message">
                 <?= $block->escapeHtml(__("The payment methods of the Buckaroo Extension can be found under"))?> <br/>
-                <span class='italic'><?= $block->escapeHtml(__("Configuration > Sales > Payment Methods > Buckaroo"))?></span>
+                <span class='italic'>
+                    <?= $block->escapeHtml(__("Configuration > Sales > Payment Methods > Buckaroo"))?>
+                </span>
             </div>
         </div>
     </div>
@@ -34,6 +36,7 @@
                     <li>
                         <span class="text"><?= $block->escapeHtml(__('Your PHP version'));?>:</span>
                         <span class="version">
+                            <? // phpcs:ignore --> ?>
                             <a href="http://devdocs.magento.com/guides/v<?= $block->getMagentoVersionTidyString() ;?>/install-gde/system-requirements-tech.html"
                                target="_blank">
                                 <?= $block->escapeHtml(implode('.', $block->getPhpVersionArray())); ?>
@@ -73,7 +76,9 @@
         </div>
         <div class="collapse-content support-buck-magento2" data-role="content" style="display:none;">
             <ul>
-                <h4 style="margin-top:5px"><?= $block->escapeHtml(__('Extension basic configuration and account information'));?></h4>
+                <h4 style="margin-top:5px">
+                    <?= $block->escapeHtml(__('Extension basic configuration and account information'));?>
+                </h4>
                 <p>
                     <?= $block->escapeHtml(__(
                         'Before contacting Buckaroo technical support, please retrieve your (Merchant) key, ' .

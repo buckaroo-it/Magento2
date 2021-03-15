@@ -24,9 +24,8 @@ use Magento\Checkout\Model\PaymentInformationManagement as MagentoPaymentInforma
 use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
-// @codingStandardsIgnoreStart
+// phpcs:ignore
 class PaymentInformationManagement extends MagentoPaymentInformationManagement implements PaymentInformationManagementInterface
-// @codingStandardsIgnoreEnd
 {
 
     protected $registry = null;

@@ -86,6 +86,7 @@ class TransactionBuilderFactoryTest extends BaseTest
         try {
             $instance->get('model1');
         } catch (\LogicException $e) {
+            // phpcs:ignore
             $msg = 'The transaction builder must implement "Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface".';
             $this->assertEquals($msg, $e->getMessage());
         }

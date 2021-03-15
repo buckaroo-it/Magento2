@@ -129,6 +129,7 @@ class PayPerEmailTest extends BaseTest
         $this->assertEquals(1, $services[0]['Version']);
         $this->assertCount(6, $services[0]['RequestParameter']);
 
+        // phpcs:ignore
         $possibleParameters = ['customergender', 'CustomerEmail', 'CustomerFirstName', 'CustomerLastName', 'MerchantSendsEmail', 'PaymentMethodsAllowed'];
 
         foreach ($services[0]['RequestParameter'] as $array) {
@@ -161,6 +162,7 @@ class PayPerEmailTest extends BaseTest
         $this->assertEquals(1, $result['Version']);
         $this->assertCount(6, $result['RequestParameter']);
 
+        // phpcs:ignore
         $possibleParameters = ['customergender', 'CustomerEmail', 'CustomerFirstName', 'CustomerLastName', 'MerchantSendsEmail', 'PaymentMethodsAllowed'];
 
         foreach ($result['RequestParameter'] as $array) {

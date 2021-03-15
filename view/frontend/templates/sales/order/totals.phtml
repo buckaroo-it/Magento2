@@ -23,7 +23,8 @@
             <?php echo $block->escapeHtml($_total->getLabel());?>
             <?php endif?>
         </th>
-        <td <?php /* @escapeNotVerified */ echo $block->getValueProperties()?> data-th="<?php echo $block->escapeHtml($_total->getLabel());?>">
+        <td <?php /* @escapeNotVerified */ echo $block->getValueProperties()?> 
+            data-th="<?php echo $block->escapeHtml($_total->getLabel());?>">
             <?php if ($_total->getStrong()):?>
             <strong><?php /* @escapeNotVerified */ echo $block->formatValue($_total) ?></strong>
             <?php else:?>

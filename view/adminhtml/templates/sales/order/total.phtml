@@ -13,6 +13,7 @@
     <tr>
         <td class="label"><?php /* @escapeNotVerified */ echo __('Payment fee') ?></td>
         <td>
+            <? // phpcs:ignore --> ?>
             <?php /* @escapeNotVerified */ echo $block->displayPrices($block->getSource()->getBaseBuckarooFee(), $block->getSource()->getBuckarooFee()); ?>
         </td>
     </tr>

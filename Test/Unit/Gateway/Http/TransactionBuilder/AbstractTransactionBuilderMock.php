@@ -26,6 +26,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Http\TransactionBuilder;
  *
  * @package Buckaroo\Magento2\Test\Unit\Gateway\Http\TransactionBuilder
  */
+// phpcs:ignore
 class AbstractTransactionBuilderMock extends \Buckaroo\Magento2\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder
 {
     /**

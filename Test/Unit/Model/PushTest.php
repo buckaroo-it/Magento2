@@ -400,6 +400,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->expects($this->once())->method('getEmailSent')->willReturn($emailSent);
 
         $configAccountMock = $this->getFakeMock(Account::class)->setMethods(['getOrderConfirmationEmail'])->getMock();
+        // phpcs:ignore
         $configAccountMock->expects($this->once())->method('getOrderConfirmationEmail')->with(1)->willReturn($accountConfig);
 
         $orderSenderMock = $this->getFakeMock(OrderSender::class)->setMethods(['send'])->getMock();
@@ -486,6 +487,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $configAccountMock->expects($this->once())->method('getCancelOnFailed')->willReturn($cancelOnFailed);
 
         $orderMock = $this->getFakeMock(Order::class)
+            // phpcs:ignore
             ->setMethods(['getState', 'getStore', 'addStatusHistoryComment', 'canCancel', 'getPayment', 'cancel', 'save'])
             ->getMock();
         $orderMock->expects($this->atLeastOnce())->method('getState')->willReturn($state);
@@ -618,12 +620,15 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $currencyMock = $this->getFakeMock(Currency::class)->setMethods(['formatTxt'])->getMock();
         $currencyMock->expects($this->once())->method('formatTxt')->willReturn($textAmount);
 
+        // phpcs:disable
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods([
                 'getEmailSent', 'getGrandTotal', 'getBaseGrandTotal', 'getTotalDue', 'getStore', 'getState',
+                // phpcs:ignore
                 'getPayment', 'getBaseCurrency', 'addStatusHistoryComment', 'canInvoice', 'hasInvoices', 'save', 'getInvoiceCollection'
             ])
             ->getMock();
+        // phpcs:enable
         $orderMock->expects($this->once())->method('getEmailSent')->willReturn($orderEmailSent);
         $orderMock->method('getGrandTotal')->willReturn($amount);
         $orderMock->method('getBaseGrandTotal')->willReturn($amount);

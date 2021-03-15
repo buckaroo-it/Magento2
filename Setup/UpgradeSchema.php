@@ -40,9 +40,11 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                     $installer->getTable('tig_buckaroo_giftcard'),
                     $installer->getTable('buckaroo_magento2_giftcard')
                 );
+                // phpcs:disable
                 $installer->getConnection()->query(
                     "ALTER TABLE " . $installer->getTable('buckaroo_magento2_giftcard') . " COMMENT = 'Buckaroo Giftcard'"
                 );
+                // phpcs:enable
             } else {
                 $this->createGiftcardTable($installer);
             }

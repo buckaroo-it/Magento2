@@ -273,9 +273,11 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $totalMock->expects($this->once())->method('getBuckarooFee')->willReturn($expectedBuckarooFee);
         $totalMock->expects($this->once())->method('getBaseBuckarooFee')->willReturn($expectedBaseBuckarooFee);
         $totalMock->expects($this->once())->method('getBuckarooFeeInclTax')->willReturn($expectedBuckarooFeeInclTax);
+        // phpcs:disable
         $totalMock->expects($this->once())->method('getBaseBuckarooFeeInclTax')->willReturn($expectedBaseBuckarooFeeInclTax);
         $totalMock->expects($this->once())->method('getBuckarooFeeTaxAmount')->willReturn($expectedBuckarooFeeTaxAmount);
         $totalMock->expects($this->once())->method('getBuckarooFeeBaseTaxAmount')->willReturn($expectedBaseBuckarooFeeTaxAmount);
+        // phpcs:enable
 
         $instance = $this->getInstance();
         $result = $instance->fetch($quoteMock, $totalMock);
