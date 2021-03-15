@@ -57,8 +57,8 @@ class DbHandler extends Base
         $now = new \DateTime();
         $logFactory = $this->logFactory->create();
         try {
-            $logData = json_decode($record['message'],true);
-        } catch(\Exception $e) {
+            $logData = json_decode($record['message'], true);
+        } catch (\Exception $e) {
             $logData=[];
         }
 
