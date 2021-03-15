@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Logging;
 
+use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Logger\Handler\Base;
 use Monolog\Logger;
@@ -31,10 +32,16 @@ class DebugHandler extends Base
     // @codingStandardsIgnoreLine
     protected $fileName = '';
 
+    protected $filesystem;
+
+    protected $dir;
+
     public function __construct(
-        DriverInterface $filesystem
+        DriverInterface $filesystem,
+        DirectoryList $dir
     ) {
-        $this->fileName = '/var/log/Buckaroo/' . date('Y-m-d') . '.log';
+        $this->dir      = $dir;
+        $this->fileName = $this->dir->getPath('log') . '/Buckaroo/' . date('Y-m-d') . '.log';
 
         parent::__construct($filesystem);
     }

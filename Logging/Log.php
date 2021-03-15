@@ -36,7 +36,7 @@ class Log extends Logger
 
     private static $processUid = 0;
 
-    protected $_checkoutSession;
+    protected $checkoutSession;
 
     protected $_session;
 
@@ -63,7 +63,7 @@ class Log extends Logger
     ) {
         $this->debugConfiguration = $debugConfiguration;
         $this->mail               = $mail;
-        $this->_checkoutSession   = $checkoutSession;
+        $this->checkoutSession   = $checkoutSession;
         $this->_session           = $sessionManager;
         $this->customerSession    = $customerSession;
 
@@ -92,7 +92,14 @@ class Log extends Logger
         }
 
         // @codingStandardsIgnoreStart
-        $message = self::$processUid . '|' . microtime(true) . '|' . $this->_session->getSessionId() . '|' . $this->customerSession->getCustomer()->getId() . '|' . $this->_checkoutSession->getQuote()->getId() . '|' . $this->_checkoutSession->getQuote()->getReservedOrderId() . '|' . $message;
+        $message = json_encode([
+            'uid'  => self::$processUid,
+            'time' => microtime(true),
+            'sid'  => $this->_session->getSessionId(),
+            'cid'  => $this->customerSession->getCustomer()->getId(),
+            'qid'  => $this->checkoutSession->getQuote()->getId(),
+            'id'   => $this->checkoutSession->getQuote()->getReservedOrderId(),
+        ]) . $message;
         // @codingStandardsIgnoreEnd
 
         // Prepare the message to be send to the debug email

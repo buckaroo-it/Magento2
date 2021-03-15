@@ -29,9 +29,9 @@ class DbHandler extends Base
     // @codingStandardsIgnoreLine
     protected $loggerType = Logger::DEBUG;
 
-    protected $_checkoutSession;
+    protected $checkoutSession;
 
-    protected $_session;
+    protected $session;
 
     protected $customerSession;
 
@@ -44,8 +44,8 @@ class DbHandler extends Base
         \Magento\Customer\Model\Session $customerSession
     ) {
         $this->logFactory = $logFactory;
-        $this->_checkoutSession  = $checkoutSession;
-        $this->_session = $sessionManager;
+        $this->checkoutSession  = $checkoutSession;
+        $this->session = $sessionManager;
         $this->customerSession = $customerSession;
     }
 
@@ -61,10 +61,10 @@ class DbHandler extends Base
             'level'       => $record['level'],
             'message'     => $record['message'],
             'time'        => $now->format('Y-m-d H:i:s'),
-            'session_id'  => $this->_session->getSessionId(),
+            'session_id'  => $this->session->getSessionId(),
             'customer_id' => $this->customerSession->getCustomer()->getId(),
-            'quote_id'    => $this->_checkoutSession->getQuote()->getId(),
-            'order_id'    => $this->_checkoutSession->getQuote()->getReservedOrderId(),
+            'quote_id'    => $this->checkoutSession->getQuote()->getId(),
+            'order_id'    => $this->checkoutSession->getQuote()->getReservedOrderId(),
         ]);
         $logFactory->save();
     }
