@@ -25,7 +25,7 @@ use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class PaymentInformationManagement extends MagentoPaymentInformationManagement implements
- PaymentInformationManagementInterface
+    PaymentInformationManagementInterface
 {
 
     protected $registry = null;

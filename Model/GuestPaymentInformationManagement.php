@@ -25,7 +25,7 @@ use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements
- GuestPaymentInformationManagementInterface
+    GuestPaymentInformationManagementInterface
 {
 
     protected $registry = null;
