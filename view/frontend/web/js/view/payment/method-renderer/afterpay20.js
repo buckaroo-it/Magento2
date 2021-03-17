@@ -28,9 +28,8 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
+        'Magento_Customer/js/model/customer',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
-        /*,
-         'jquery/validate'*/
     ],
     function (
         $,
@@ -41,6 +40,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
+        customer
+
     ) {
         'use strict';
 
@@ -111,11 +112,13 @@ define(
                     showFrenchTosValue: null,
                     showPhoneValue: null,
                 },
-                redirectAfterPlaceOrder: true,
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
-                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-                currentCustomerAddressId: null,
+                redirectAfterPlaceOrder : true,
+                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
+                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                currentCustomerAddressId : null,
+                isCustomerLoggedIn: customer.isLoggedIn,
+
 
                 /**
                  * @override
@@ -189,7 +192,7 @@ define(
                     );
 
                     this.updateShowFields = function () {
-                        if (this.country === null) {
+                        if (this.isCustomerLoggedIn() && !this.isOsc() && (this.country === null)) {
                             return;
                         }
 
@@ -197,7 +200,7 @@ define(
                         this.showIdentificationValue(false);
                         this.showPhoneValue(false);
 
-                        if (this.country === 'NL' || this.country === 'BE') {
+                        if ((!this.isCustomerLoggedIn() && this.isOsc()) || ((this.country === 'NL' || this.country === 'BE'))) {
                             this.showNLBEFieldsValue(true);
                         }
 
@@ -206,6 +209,8 @@ define(
                         }
 
                         if (
+                            (!this.isCustomerLoggedIn() && this.isOsc())
+                            ||
                             (this.country === 'NL' || this.country === 'BE')
                             ||
                             this.phoneValidate()
@@ -218,13 +223,17 @@ define(
                      * Observe customer first & lastname
                      * bind them together, so they could appear in the frontend
                      */
-                    this.updateBillingName = function (firstname, lastname) {
+                    this.updateBillingName = function(firstname, lastname) {
+                        if (!firstname && !lastname) {
+                            return false;
+                        }
+
                         this.firstName = firstname;
                         this.lastName = lastname;
 
                         this.CustomerName = ko.computed(
                             function () {
-                                return this.firstName + " " + this.lastName;
+                                return (this.firstName ? this.firstName : "") + (this.lastName ? " " + this.lastName : "");
                             },
                             this
                         );
@@ -238,6 +247,17 @@ define(
                         this.phoneValidate(quote.billingAddress().telephone);
                         this.updateShowFields();
                     }
+
+                    quote.shippingAddress.subscribe(
+                        function(newAddress) {
+                            if (!this.isCustomerLoggedIn() && this.isOsc()) {
+                                if (newAddress.telephone) {
+                                    this.phoneValidate(newAddress.telephone);
+                                }
+                                this.updateBillingName(newAddress.firstname, newAddress.lastname);
+                            }
+                        }.bind(this)
+                    );
 
                     quote.billingAddress.subscribe(
                         function (newAddress) {
@@ -285,7 +305,6 @@ define(
                             elements = elements.filter(':not([name*="customer_gender"])');
                         }
                         elements.valid();
-                        this.selectPaymentMethod();
 
                         if (this.calculateAge(this.dateValidate()) >= 18) {
                             $('#' + this.getCode() + '_DoB-error').hide();
@@ -509,6 +528,10 @@ define(
                     tosText = tosText.replace('%s', tosUrl);
 
                     return tosText;
+                },
+
+                isOsc: function () {
+                    return document.querySelector('.action.primary.checkout.iosc-place-order-button');
                 }
             }
         );

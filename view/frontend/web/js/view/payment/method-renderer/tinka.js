@@ -220,7 +220,6 @@ define(
                             elements = elements.filter(':not([name*="customer_gender"])');
                         }
                         elements.valid();
-                        this.selectPaymentMethod();
 
                         if (this.calculateAge(this.dateValidate()) >= 18) {
                             $('#' + this.getCode() + '_DoB-error').hide();
