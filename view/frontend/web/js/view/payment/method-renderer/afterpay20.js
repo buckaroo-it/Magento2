@@ -60,14 +60,7 @@ define(
                         min: 11,
                         max: 14
                     }
-                    /*,
-                                'FI': {
-                                    min: 5,
-                                    max: 12
-                                },*/
                 };
-
-
                 if (!value) {
                     return false;
                 }
@@ -350,7 +343,7 @@ define(
                                 (!this.showIdentification() || this.identificationValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
-                                (!this.showPhone() || ((this.phoneValidate() !== null))) && //&& (this.validatePhone())
+                                (!this.showPhone() || ((this.phoneValidate() !== null))) &&
                                 this.termsValidate() !== false &&
                                 this.validate() &&
                                 (
