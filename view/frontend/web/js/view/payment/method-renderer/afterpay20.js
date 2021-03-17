@@ -41,13 +41,52 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         customer
+
     ) {
         'use strict';
 
+        $.validator.addMethod('phoneValidation', function (value) {
+                var countryId = quote.billingAddress().countryId;
+                var lengths = {
+                    'NL': {
+                        min: 10,
+                        max: 12
+                    },
+                    'BE': {
+                        min: 10,
+                        max: 10
+                    },
+                    'DE': {
+                        min: 11,
+                        max: 14
+                    }
+                };
+                if (!value) {
+                    return false;
+                }
+
+                if (value.match(/\+/g)) {
+                    return false;
+                }
+
+                if (lengths.hasOwnProperty(countryId)) {
+                    if (lengths[countryId].min && (value.length < lengths[countryId].min)) {
+                        return false;
+                    }
+                    if (lengths[countryId].max && (value.length > lengths[countryId].max)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            },
+            $.mage.__('Phone number should be correct.')
+        );
+
         return Component.extend(
             {
-                defaults                : {
-                    template : 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay20',
+                defaults: {
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay20',
                     selectedGender: null,
                     identificationNumber: null,
                     firstName: '',
@@ -73,10 +112,12 @@ define(
                 currentCustomerAddressId : null,
                 isCustomerLoggedIn: customer.isLoggedIn,
 
+
                 /**
                  * @override
                  */
-                initialize : function (options) {
+                initialize: function (options) {
+                    var self = this;
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
                     }
@@ -212,7 +253,7 @@ define(
                     );
 
                     quote.billingAddress.subscribe(
-                        function(newAddress) {
+                        function (newAddress) {
                             if (this.getCode() !== this.isChecked() ||
                                 !newAddress ||
                                 !newAddress.getKey()
@@ -247,64 +288,6 @@ define(
                         return true;
                     };
 
-                    this.validatePhone = function() {
-
-                        function returnSuccess() {
-                            $('#' + self.getCode() + '_Telephone-error').hide();
-                            $('#' + self.getCode() + '_Telephone').removeClass('mage-error');
-                            return true;
-                        }
-
-                        function returnError() {
-                            setTimeout(function () {
-                                $('#' + self.getCode() + '_Telephone-error').show();
-                                $('#' + self.getCode() + '_Telephone').addClass('mage-error');
-                            }, 200);
-                            return false;
-                        }
-
-                        if ((this.country == 'NL' || this.country == 'BE') || this.phoneValidate()) {
-                            var lengths = {
-                                'NL': {
-                                    min: 10,
-                                    max: 12
-                                },
-                                'BE': {
-                                    min: 10,
-                                    max: 10
-                                },
-                                'DE': {
-                                    min: 11,
-                                    max: 14
-                                }/*,
-                                'FI': {
-                                    min: 5,
-                                    max: 12
-                                },*/
-                            };
-
-
-                            if (!this.phoneValidate()) {
-                                return returnError();
-                            }
-
-                            if (this.phoneValidate().match(/\+/g)) {
-                                return returnError();
-                            }
-
-                            if (lengths.hasOwnProperty(this.country)) {
-                                if (lengths[this.country].min && (this.phoneValidate().length < lengths[this.country].min)) {
-                                    return returnError();
-                                }
-                                if (lengths[this.country].max && (this.phoneValidate().length > lengths[this.country].max)) {
-                                    return returnError();
-                                }
-                            }
-
-                        }
-                        return returnSuccess();
-                    };
-
                     /**
                      * Validation on the input fields
                      */
@@ -320,19 +303,19 @@ define(
                             $('#' + this.getCode() + '_DoB-error').hide();
                             $('#' + this.getCode() + '_DoB').removeClass('mage-error');
                         } else {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 $('#' + self.getCode() + '_DoB-error').show();
                                 $('#' + self.getCode() + '_DoB').addClass('mage-error');
-                            },200);
+                            }, 200);
                         }
                     };
 
-                    this.dateValidate.subscribe(runValidation,this);
-                    this.termsValidate.subscribe(runValidation,this);
-                    this.genderValidate.subscribe(runValidation,this);
-                    this.identificationValidate.subscribe(runValidation,this);
-                    this.phoneValidate.subscribe(runValidation,this);
-                    this.dummy.subscribe(runValidation,this);
+                    this.dateValidate.subscribe(runValidation, this);
+                    this.termsValidate.subscribe(runValidation, this);
+                    this.genderValidate.subscribe(runValidation, this);
+                    this.identificationValidate.subscribe(runValidation, this);
+                    this.phoneValidate.subscribe(runValidation, this);
+                    this.dummy.subscribe(runValidation, this);
 
                     this.calculateAge = function (specifiedDate) {
                         if (specifiedDate && (specifiedDate.length > 0)) {
@@ -360,7 +343,7 @@ define(
                                 (!this.showIdentification() || this.identificationValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
-                                (!this.showPhone() || ((this.phoneValidate() !== null) && (this.validatePhone()))) &&
+                                (!this.showPhone() || ((this.phoneValidate() !== null))) &&
                                 this.termsValidate() !== false &&
                                 this.validate() &&
                                 (
@@ -407,7 +390,7 @@ define(
                     return false;
                 },
 
-                magentoTerms: function() {
+                magentoTerms: function () {
                     /**
                      * The agreement checkbox won't force an update of our bindings. So check for changes manually and notify
                      * the bindings if something happend. Use $.proxy() to access the local this object. The dummy property is
@@ -458,7 +441,7 @@ define(
                         &&
                         !$('.action.primary.checkout').is(':visible')
                     ) {
-                       return true;
+                        return true;
                     }
                     var elements = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
                     if (this.country != 'NL' && this.country != 'BE') {
@@ -472,12 +455,12 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_telephone" : this.phoneValidate(),
-                            "customer_gender" : this.genderValidate(),
-                            "customer_identificationNumber" : this.identificationValidate(),
-                            "customer_billingName" : this.BillingName(),
-                            "customer_DoB" : this.dateValidate(),
-                            "termsCondition" : this.termsValidate(),
+                            "customer_telephone": this.phoneValidate(),
+                            "customer_gender": this.genderValidate(),
+                            "customer_identificationNumber": this.identificationValidate(),
+                            "customer_billingName": this.BillingName(),
+                            "customer_DoB": this.dateValidate(),
+                            "termsCondition": this.termsValidate(),
                         }
                     };
                 },
