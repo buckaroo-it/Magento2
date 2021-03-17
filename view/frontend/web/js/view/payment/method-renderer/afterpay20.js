@@ -45,7 +45,6 @@ define(
         'use strict';
 
         $.validator.addMethod('phoneValidation', function (value) {
-                console.log('[phone]');
                 var countryId = quote.billingAddress().countryId;
                 var lengths = {
                     'NL': {
@@ -206,7 +205,6 @@ define(
                             this.showIdentificationValue(true);
                         }
 
-                        //console.log("=========updateShowFields1", this.country, this.phoneValidate());
                         if (
                             (this.country === 'NL' || this.country === 'BE')
                             ||
@@ -235,7 +233,6 @@ define(
                     };
 
                     if (quote.billingAddress()) {
-                        //console.log("=========quote.billingAddress1");
                         this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
                         this.updateTermsUrl(quote.billingAddress().countryId);
                         this.phoneValidate(quote.billingAddress().telephone);
@@ -252,7 +249,6 @@ define(
                             }
 
                             if (this.currentCustomerAddressId != newAddress.getKey()) {
-                                //console.log("=========billingAddress.subscribe2", newAddress.getKey());
                                 this.currentCustomerAddressId = newAddress.getKey();
                                 this.phoneValidate(newAddress.telephone);
                             }
@@ -360,7 +356,7 @@ define(
                  *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
                  *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
                  */
-                placeOrder: function (data, event) {console.log('[p]', this.isPlaceOrderActionAllowed);
+                placeOrder: function (data, event) {
                     var self = this,
                         placeOrder;
 
