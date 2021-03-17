@@ -96,14 +96,14 @@
                                    type="text"
                                    class="input-text field"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                   checked: phoneValidate
+                                   attr: { 'data-validate': JSON.stringify({ 'phoneValidation': true, 'required': true }) },
+                                   checked: phoneValidate,
                                    valueUpdate: 'blur',
                                    value: phoneValidate"
                                    name="payment[buckaroo_magento2_afterpay20][customer_telephone]">
-                            <div for="buckaroo_magento2_afterpay20_Telephone" generated="true" class="mage-error" id="buckaroo_magento2_afterpay20_Telephone-error" style="display: none;">
-                                <span data-bind="i18n: 'Phone number should be correct.' "></span>
-                            </div>
+<!--                            <div for="buckaroo_magento2_afterpay20_Telephone" generated="true" class="mage-error" id="buckaroo_magento2_afterpay20_Telephone-error" style="display: none;">-->
+<!--                                <span data-bind="i18n: 'Phone number should be correct.' "></span>-->
+<!--                            </div>-->
                         </div>
                     </div>
                     <!-- /ko -->
