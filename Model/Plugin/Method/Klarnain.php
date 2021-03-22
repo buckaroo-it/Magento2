@@ -65,6 +65,6 @@ class Klarnain
 
         $this->klarnainMethod->cancel($payment);
 
-        return $this;
+        return $subject;
     }
 }

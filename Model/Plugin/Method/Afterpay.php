@@ -62,6 +62,6 @@ class Afterpay
 
         $this->afterpayMethod->cancel($payment);
 
-        return $this;
+        return $subject;
     }
 }
