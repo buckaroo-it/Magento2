@@ -434,7 +434,7 @@ class Push implements PushInterface
         }
 
         if ($this->hasPostData('add_initiated_by_magento', 1) &&
-            $this->hasPostData('brq_transaction_method', ['klarna', 'klarnakp', 'klarnain']) &&
+            $this->hasPostData('brq_transaction_method', ['klarnakp']) &&
             $this->hasPostData('add_service_action_from_magento', 'pay')
         ) {
             return false;
