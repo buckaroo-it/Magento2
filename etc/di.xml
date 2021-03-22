@@ -44,6 +44,7 @@
             <argument name="configProviderFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Factory</argument>
             <argument name="configProviderMethodFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Factory</argument>
             <argument name="priceHelper" xsi:type="object">Magento\Framework\Pricing\Helper\Data</argument>
+            <argument name="quoteFactory" xsi:type="object">Magento\Quote\Model\QuoteFactory</argument>
         </arguments>
     </type>
 

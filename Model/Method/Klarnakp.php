@@ -165,6 +165,7 @@ class Klarnakp extends AbstractMethod
      * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
      * @param \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory
      * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param \Magento\Quote\Model\QuoteFactory $quoteFactory
      * @param \Magento\Framework\App\RequestInterface $request
      * @param \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
@@ -187,6 +188,7 @@ class Klarnakp extends AbstractMethod
         Calculation $taxCalculation,
         Cart $cart,
         AddressFormatter $addressFormatter,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -210,6 +212,7 @@ class Klarnakp extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $quoteFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -923,11 +926,8 @@ class Klarnakp extends AbstractMethod
 
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        /**
-         * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
-         */
-
-        $cartData = $this->cart->getItems();
+        $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+        $cartData = $quote->getAllItems();
 
         $articles = array();
         $group    = 1;

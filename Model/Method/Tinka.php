@@ -113,6 +113,7 @@ class Tinka extends AbstractMethod
      * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee          $configProviderBuckarooFee
      * @param AddressFactory                                          $addressFactory
      * @param SoftwareData                                            $softwareData
+     * @param \Magento\Quote\Model\QuoteFactory                       $quoteFactory
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
      * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
@@ -140,6 +141,7 @@ class Tinka extends AbstractMethod
         \Magento\Developer\Helper\Data $developmentHelper,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         AddressFactory $addressFactory,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -163,6 +165,7 @@ class Tinka extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $quoteFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -622,8 +625,7 @@ class Tinka extends AbstractMethod
         $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
-            $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+            $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
@@ -706,10 +708,8 @@ class Tinka extends AbstractMethod
 
         $orderTotal = $payment->getData('amount_ordered');
 
-        /**
-         * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
-         */
-        $cartData = $this->objectManager->create('Magento\Checkout\Model\Cart')->getItems();
+        $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+        $cartData = $quote->getAllItems();
 
         /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
         foreach ($cartData as $item) {
