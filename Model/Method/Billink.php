@@ -169,6 +169,7 @@ class Billink extends AbstractMethod
      * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee          $configProviderBuckarooFee
      * @param AddressFactory                                          $addressFactory
      * @param SoftwareData                                            $softwareData
+     * @param \Magento\Quote\Model\QuoteFactory                       $quoteFactory
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
      * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
@@ -199,6 +200,7 @@ class Billink extends AbstractMethod
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         AddressFactory $addressFactory,
         SoftwareData $softwareData,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -222,6 +224,7 @@ class Billink extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $quoteFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -537,8 +540,7 @@ class Billink extends AbstractMethod
         $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
-            $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+            $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
@@ -682,12 +684,9 @@ class Billink extends AbstractMethod
 
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
-        $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
-        /**
-         * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
-         */
+        $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
+
         // Set loop variables
         $articles = [];
         $count    = 1;

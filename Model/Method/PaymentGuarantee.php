@@ -143,6 +143,7 @@ class PaymentGuarantee extends AbstractMethod
      * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
      * @param \Buckaroo\Magento2\Model\ValidatorFactory                    $validatorFactory
      * @param \Buckaroo\Magento2\Helper\Data                               $helper
+     * @param \Magento\Quote\Model\QuoteFactory                            $quoteFactory
      * @param \Magento\Framework\App\RequestInterface                 $request
      * @param \Buckaroo\Magento2\Model\RefundFieldsFactory                 $refundFieldsFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory              $configProviderFactory
@@ -164,6 +165,7 @@ class PaymentGuarantee extends AbstractMethod
         \Buckaroo\Magento2\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Buckaroo\Magento2\Service\Formatter\AddressFormatter $addressFormatter,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -187,6 +189,7 @@ class PaymentGuarantee extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $quoteFactory,
             $resource,
             $resourceCollection,
             $gateway,

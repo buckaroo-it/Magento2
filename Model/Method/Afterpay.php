@@ -149,6 +149,7 @@ class Afterpay extends AbstractMethod
      * @param \Magento\Developer\Helper\Data                          $developmentHelper
      * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee          $configProviderBuckarooFee
      * @param SoftwareData                                            $softwareData
+     * @param \Magento\Quote\Model\QuoteFactory                       $quoteFactory
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
      * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
@@ -174,6 +175,7 @@ class Afterpay extends AbstractMethod
         \Magento\Developer\Helper\Data $developmentHelper,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         SoftwareData $softwareData,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -197,6 +199,7 @@ class Afterpay extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $quoteFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -568,8 +571,7 @@ class Afterpay extends AbstractMethod
         );
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
-            $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+            $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
@@ -678,9 +680,9 @@ class Afterpay extends AbstractMethod
     {
         $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
 
-        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
-        $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+        $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
+
         // Set loop variables
         $articles = $requestData;
         $count    = 1;
