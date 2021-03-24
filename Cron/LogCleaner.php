@@ -80,7 +80,7 @@ class LogCleaner
                 ['time <= date_sub(now(),interval ' . $retentionPeriod . ' second)']
             );
         } catch (\Exception $e) {
-            $this->logging->addDebug(__METHOD__ . '|5|' . var_export($e->getMessage(), true));
+            $this->logging->error('Proceed Db error:'. var_export($e->getMessage(), true));
         }
     }
 
@@ -108,7 +108,7 @@ class LogCleaner
             $path  = $this->directoryList->getPath('var') . $path;
             $paths = $this->driverFile->readDirectory($path);
         } catch (FileSystemException $e) {
-            $this->logging->addDebug(__METHOD__ . '|5|' . var_export($e->getMessage(), true));
+            $this->logging->error('Get All Files error:' . var_export($e->getMessage(), true));
         }
 
         return $paths;
