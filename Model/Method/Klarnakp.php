@@ -29,6 +29,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Checkout\Model\Cart;
 use Zend_Locale;
+use Magento\Store\Model\ScopeInterface;
 
 class Klarnakp extends AbstractMethod
 {
@@ -350,7 +351,10 @@ class Klarnakp extends AbstractMethod
 
         // For the first invoice possible add payment fee
         if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+            $includesTax = $this->_scopeConfig->getValue(
+                static::TAX_CALCULATION_INCLUDES_TAX,
+                ScopeInterface::SCOPE_STORE
+            );
             $serviceLine = $this->getServiceCostLine($currentInvoice, $includesTax, $this->groupId++);
             if (!empty($serviceLine)) {
                 unset($serviceLine[1]);
@@ -571,7 +575,10 @@ class Klarnakp extends AbstractMethod
         $order = $payment->getOrder();
         $invoiceCollection = $order->getInvoiceCollection();
 
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $articles = array();
         //$group = 1;
@@ -924,7 +931,10 @@ class Klarnakp extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
@@ -1136,7 +1146,10 @@ class Klarnakp extends AbstractMethod
         $taxClassId = $this->taxConfig->getShippingTaxClass();
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
+        $shippingIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
         $shippingAmount = $order->getShippingAmount();
 
         if ($shippingIncludesTax) {
@@ -1280,8 +1293,14 @@ class Klarnakp extends AbstractMethod
      */
     private function getTaxes($order)
     {
-        $catalogIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
+        $catalogIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+        $shippingIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $taxes = 0;
 

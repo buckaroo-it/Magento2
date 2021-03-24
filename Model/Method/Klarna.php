@@ -26,6 +26,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Store\Model\ScopeInterface;
 
 class Klarna extends AbstractMethod
 {
@@ -557,7 +558,10 @@ class Klarna extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
@@ -642,7 +646,10 @@ class Klarna extends AbstractMethod
      */
     public function getInvoiceArticleData($invoice)
     {
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         // Set loop variables
         $articles = [];
@@ -780,7 +787,10 @@ class Klarna extends AbstractMethod
         $taxClassId = $this->taxConfig->getShippingTaxClass();
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
+        $shippingIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
         $shippingAmount = $order->getShippingAmount();
 
         if ($shippingIncludesTax) {
@@ -915,8 +925,14 @@ class Klarna extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
-        $catalogIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
+        $catalogIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+        $shippingIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $taxes = 0;
 
