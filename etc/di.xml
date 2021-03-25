@@ -30,6 +30,7 @@
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
     <preference for="Magento\Quote\Model\Cart\CartTotalRepository" type="Buckaroo\Magento2\Model\Cart\CartTotalRepository" />
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
+    <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Model\Plugin\GuestSaveManager" />
 
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>
@@ -43,6 +44,7 @@
             <argument name="configProviderFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Factory</argument>
             <argument name="configProviderMethodFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Factory</argument>
             <argument name="priceHelper" xsi:type="object">Magento\Framework\Pricing\Helper\Data</argument>
+            <argument name="quoteFactory" xsi:type="object">Magento\Quote\Model\QuoteFactory</argument>
         </arguments>
     </type>
 
@@ -437,4 +439,5 @@
     <type name="MyParcelNL\Magento\Model\Checkout\ShippingMethods">
         <plugin name="myParcelNLBuckarooPlugin" type="Buckaroo\Magento2\Model\Plugin\MyParcelNLBuckarooPlugin" />
     </type>
+
 </config>

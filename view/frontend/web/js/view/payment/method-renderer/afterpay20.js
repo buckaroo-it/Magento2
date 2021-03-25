@@ -59,14 +59,7 @@ define(
                         min: 11,
                         max: 14
                     }
-                    /*,
-                                'FI': {
-                                    min: 5,
-                                    max: 12
-                                },*/
                 };
-
-
                 if (!value) {
                     return false;
                 }
@@ -117,6 +110,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,
                 isCustomerLoggedIn: customer.isLoggedIn,
+
 
                 /**
                  * @override
@@ -348,7 +342,7 @@ define(
                                 (!this.showIdentification() || this.identificationValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
-                                (!this.showPhone() || ((this.phoneValidate() !== null))) && //&& (this.validatePhone())
+                                (!this.showPhone() || ((this.phoneValidate() !== null))) &&
                                 this.termsValidate() !== false &&
                                 this.validate() &&
                                 (
@@ -373,7 +367,7 @@ define(
                  *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
                  *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
                  */
-                placeOrder: function (data, event) {
+                placeOrder: function(data, event) {
                     var self = this,
                         placeOrder;
 

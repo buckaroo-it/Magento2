@@ -26,6 +26,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Store\Model\ScopeInterface;
 
 class Klarna extends AbstractMethod
 {
@@ -160,6 +161,7 @@ class Klarna extends AbstractMethod
      * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee          $configProviderBuckarooFee
      * @param AddressFactory                                          $addressFactory
      * @param SoftwareData                                            $softwareData
+     * @param \Magento\Quote\Model\QuoteFactory                       $quoteFactory
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
      * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
@@ -190,6 +192,7 @@ class Klarna extends AbstractMethod
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         AddressFactory $addressFactory,
         SoftwareData $softwareData,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -213,6 +216,7 @@ class Klarna extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $quoteFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -302,93 +306,6 @@ class Klarna extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getCaptureTransactionBuilder2($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $capturePartial = true;
-
-        $order = $payment->getOrder();
-
-        $totalOrder = $order->getBaseGrandTotal();
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($totalOrder == $currentInvoiceTotal && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        }
-
-        $services = [
-            'Name'   => $this->getPaymentMethodName(),
-            'Action' => 'Capture',
-        ];
-
-        // always get articles from invoice
-        $articles = '';
-        if (isset($currentInvoice)) {
-            $articles = $this->getInvoiceArticleData($currentInvoice);
-        }
-
-        // For the first invoice possible add payment fee
-        if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice, $includesTax);
-            $articles = array_merge($articles, $serviceLine);
-        }
-
-        // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($currentInvoice, (count($articles) + 1));
-        $articles = array_merge($articles, $shippingCosts);
-
-        $services['RequestParameter'] = $articles;
-
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setAmount($currentInvoiceTotal)
-            ->setMethod('TransactionRequest')
-            ->setCurrency($this->payment->getOrder()->getOrderCurrencyCode())
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(
-                    self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
-                )
-            );
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId() . '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
-        }
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAuthorizeTransactionBuilder3($payment)
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getVoidTransactionBuilder($payment)
     {
         return true;
@@ -413,11 +330,6 @@ class Klarna extends AbstractMethod
         $creditmemo = $payment->getCreditmemo();
         $articles = [];
 
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            //AddCreditMemoArticles
-            $articles = $this->getCreditmemoArticleData($payment);
-        }
-
         if (isset($services['RequestParameter'])) {
             $articles = array_merge($services['RequestParameter'], $articles);
         }
@@ -431,7 +343,7 @@ class Klarna extends AbstractMethod
             ->setOriginalTransactionKey(
                 $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
             )
-            ->setChannel('CallCenter');
+            ->setChannel('Web');
 
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             $invoice = $creditmemo->getInvoice();
@@ -455,7 +367,7 @@ class Klarna extends AbstractMethod
         $requestData = $this->getRequestBillingData($payment);
 
         // If the shipping address is not the same as the billing it will be merged inside the data array.
-        if ($this->isAddressDataDifferent($payment)) {
+        if ($this->isAddressDataDifferent($payment) || is_null($payment->getOrder()->getShippingAddress())) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
@@ -463,8 +375,7 @@ class Klarna extends AbstractMethod
         $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
-            $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+            $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
@@ -647,14 +558,14 @@ class Klarna extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
-        $quoteFactory = $this->objectManager->create('\Magento\Quote\Model\QuoteFactory');
-        $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
-        /**
-         * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
-         */
+        $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
+
         // Set loop variables
         $articles = [];
         $count    = 1;
@@ -735,7 +646,10 @@ class Klarna extends AbstractMethod
      */
     public function getInvoiceArticleData($invoice)
     {
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         // Set loop variables
         $articles = [];
@@ -790,95 +704,6 @@ class Klarna extends AbstractMethod
         $requestData = $articles;
 
         return $requestData;
-    }
-
-    /**
-     * @param $payment
-     *
-     * @return array
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function getCreditmemoArticleData($payment)
-    {
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
-        $creditmemo = $payment->getCreditmemo();
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-
-        $articles = [];
-        $count = 1;
-        $itemsTotalAmount = 0;
-
-        /** @var \Magento\Sales\Model\Order\Creditmemo\Item $item */
-        foreach ($creditmemo->getAllItems() as $item) {
-            if (empty($item) || $item->getRowTotalInclTax() == 0) {
-                continue;
-            }
-
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-
-            $article = $this->getArticleArrayLine(
-                $count,
-                $item->getQty() . ' x ' . $item->getName(),
-                $item->getSku(),
-                $item->getQty(),
-                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
-                $item->getOrderItem()->getTaxPercent()
-            );
-
-            $itemsTotalAmount += $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount();
-
-            $articles = array_merge($articles, $article);
-
-            if ($count < self::KLARNA_MAX_ARTICLE_COUNT) {
-                $count++;
-                continue;
-            }
-
-            break;
-        }
-
-        $taxLine = $this->getTaxLine($count, $payment->getCreditmemo(), $itemsTotalAmount);
-
-        if (!empty($taxLine)) {
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-            $articles = array_merge($articles, $taxLine);
-            $count++;
-        }
-
-        // hasCreditmemos returns since 2.2.6 true or false.
-        // The current creditmemo is still "in progress" and thus has yet to be saved.
-        $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax, $itemsTotalAmount);
-        if ($serviceLine) {
-            $articles = array_merge($articles, $serviceLine);
-
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-            $count++;
-        }
-
-        // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($creditmemo, $count, $itemsTotalAmount);
-        if (!empty($shippingCosts)) {
-            $articles = array_merge($articles, $shippingCosts);
-
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-            $count++;
-        }
-
-        //Add diff line
-        if(abs($creditmemo->getBaseGrandTotal() - $itemsTotalAmount) > 0.01){
-            $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
-            $diffLine = $this->getDiffLine($count, $diff);
-            $articles = array_merge($articles, $diffLine);
-
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-        }
-
-        return $articles;
     }
 
     /**
@@ -962,7 +787,10 @@ class Klarna extends AbstractMethod
         $taxClassId = $this->taxConfig->getShippingTaxClass();
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
+        $shippingIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
         $shippingAmount = $order->getShippingAmount();
 
         if ($shippingIncludesTax) {
@@ -1097,8 +925,14 @@ class Klarna extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
-        $catalogIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
+        $catalogIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+        $shippingIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $taxes = 0;
 
@@ -1329,6 +1163,10 @@ class Klarna extends AbstractMethod
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $order->getShippingAddress();
+        if($shippingAddress == null) {
+            $shippingAddress = $order->getBillingAddress();
+        }
+
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 
         if (!empty($postNLPakjeGemakAddress) && !empty($postNLPakjeGemakAddress->getData())) {
