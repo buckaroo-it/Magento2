@@ -26,6 +26,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Store\Model\ScopeInterface;
 
 class Billink extends AbstractMethod
 {
@@ -385,7 +386,10 @@ class Billink extends AbstractMethod
 
         // For the first invoice possible add payment fee
         if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+            $includesTax = $this->_scopeConfig->getValue(
+                static::TAX_CALCULATION_INCLUDES_TAX,
+                ScopeInterface::SCOPE_STORE
+            );
             $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice, $includesTax);
             $articles = array_merge($articles, $serviceLine);
         }
@@ -682,7 +686,10 @@ class Billink extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
@@ -767,7 +774,10 @@ class Billink extends AbstractMethod
      */
     public function getInvoiceArticleData($invoice)
     {
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         // Set loop variables
         $articles = [];
@@ -834,7 +844,10 @@ class Billink extends AbstractMethod
     {
         /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $articles = [];
         $count = 1;
@@ -994,7 +1007,10 @@ class Billink extends AbstractMethod
         $taxClassId = $this->taxConfig->getShippingTaxClass();
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
+        $shippingIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
         $shippingAmount = $order->getShippingAmount();
 
         if ($shippingIncludesTax) {
@@ -1123,8 +1139,14 @@ class Billink extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
-        $catalogIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
+        $catalogIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+        $shippingIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $taxes = 0;
 
@@ -1226,7 +1248,10 @@ class Billink extends AbstractMethod
         $VATNumber = $payment->getAdditionalInformation('customer_VATNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
-        $category = $this->_scopeConfig->getValue(static::BUSINESS_METHOD);
+        $category = $this->_scopeConfig->getValue(
+            static::BUSINESS_METHOD,
+            ScopeInterface::SCOPE_STORE
+        );
         $category = ($category == static::BUSINESS_METHOD_B2B) ? 'B2B' : 'B2C';
 
         $gender = 'Female';
@@ -1384,7 +1409,10 @@ class Billink extends AbstractMethod
         }
 
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
-        $category = $this->_scopeConfig->getValue(static::BUSINESS_METHOD);
+        $category = $this->_scopeConfig->getValue(
+            static::BUSINESS_METHOD,
+            ScopeInterface::SCOPE_STORE
+        );
         $category = ($category == static::BUSINESS_METHOD_B2B) ? 'B2B' : 'B2C';
 
         $gender = 'Female';

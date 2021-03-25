@@ -27,6 +27,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Store\Model\ScopeInterface;
 
 class Afterpay extends AbstractMethod
 {
@@ -388,7 +389,10 @@ class Afterpay extends AbstractMethod
 
         // For the first invoice possible add payment fee
         if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+            $includesTax = $this->_scopeConfig->getValue(
+                static::TAX_CALCULATION_INCLUDES_TAX,
+                ScopeInterface::SCOPE_STORE
+            );
             $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
             $articles = array_merge($articles, $serviceLine);
         }
@@ -678,7 +682,10 @@ class Afterpay extends AbstractMethod
      */
     public function getRequestArticlesData($requestData, $payment)
     {
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
@@ -761,7 +768,10 @@ class Afterpay extends AbstractMethod
      */
     public function getInvoiceArticleData($invoice)
     {
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         // Set loop variables
         $articles = array();
@@ -822,7 +832,10 @@ class Afterpay extends AbstractMethod
     {
         /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $articles = [];
         $count = 1;
