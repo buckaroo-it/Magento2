@@ -570,26 +570,19 @@ class Klarna extends AbstractMethod
         foreach ($cartData as $item) {
 
             if (empty($item)
+                || $item->hasParentItemId()
                 || $item->getRowTotalInclTax() == 0
-            ) {
-                continue;
-            }
-
-            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no), because the underlying simples are also in the quote
-            if ($item->getProductType() == Type::TYPE_BUNDLE
-                && $item->getProduct()->getCustomAttribute('price_type')
-                && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
             ) {
                 continue;
             }
 
             $article = $this->getArticleArrayLine(
                 $count,
-                $item->getQty() . ' x ' . $item->getName(),
+                $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
-                $item->getTaxPercent()
+                $item->getTaxPercent() ?? 0
             );
 
             $articles = array_merge($articles, $article);
