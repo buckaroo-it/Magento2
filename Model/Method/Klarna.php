@@ -366,7 +366,7 @@ class Klarna extends AbstractMethod
         $requestData = $this->getRequestBillingData($payment);
 
         // If the shipping address is not the same as the billing it will be merged inside the data array.
-        if ($this->isAddressDataDifferent($payment)) {
+        if ($this->isAddressDataDifferent($payment) || is_null($payment->getOrder()->getShippingAddress())) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
@@ -1140,6 +1140,9 @@ class Klarna extends AbstractMethod
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $order->getShippingAddress();
+        if($shippingAddress == null) {
+            $shippingAddress = $order->getBillingAddress();
+        }
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 
         if (!empty($postNLPakjeGemakAddress) && !empty($postNLPakjeGemakAddress->getData())) {
