@@ -43,7 +43,6 @@ define(
         selectPaymentMethodAction,
         customer,
         selectBillingAddress
-
     ) {
         'use strict';
 
@@ -67,7 +66,14 @@ define(
                     return false;
                 }
 
-                if (value.match(/\+/g)) {
+                value = value.replace(/^\+|(00)/, '');
+                value = value.replace(/\(0\)|\s|-/g, '');
+
+                if (value.match(/\+/)) {
+                    return false;
+                }
+
+                if (value.match(/[^0-9]/)) {
                     return false;
                 }
 
@@ -113,7 +119,6 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,
                 isCustomerLoggedIn: customer.isLoggedIn,
-
 
                 /**
                  * @override
@@ -255,7 +260,7 @@ define(
                     );
 
                     quote.billingAddress.subscribe(
-                        function (newAddress) {
+                        function(newAddress) {
                             if (this.getCode() !== this.isChecked() ||
                                 !newAddress ||
                                 !newAddress.getKey()
