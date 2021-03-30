@@ -244,7 +244,7 @@ define(
                     if (quote.billingAddress()) {
                         this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
                         this.updateTermsUrl(quote.billingAddress().countryId);
-                        this.phoneValidate();
+                        this.phoneValidate(quote.billingAddress().telephone);
                         this.updateShowFields();
                     }
 
@@ -301,7 +301,7 @@ define(
 
                     var runValidation = function () {
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
-                        
+
                         if(elements !== undefined){
                             if (this.country != 'NL' && this.country != 'BE') {
                                 elements = elements.filter(':not([name*="customer_gender"])');
@@ -309,6 +309,8 @@ define(
                             elements.valid();
                         }
 
+                        // this.phoneValidate = '12345678901234';
+                        // console.log('[t]', this.phoneValidate());
                         if (this.calculateAge(this.dateValidate()) >= 18) {
                             $('#' + this.getCode() + '_DoB-error').hide();
                             $('#' + this.getCode() + '_DoB').removeClass('mage-error');
@@ -440,6 +442,7 @@ define(
                     if (quote.billingAddress()) {
                         this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
                         this.updateTermsUrl(quote.billingAddress().countryId);
+                        this.showPhone();
                     }
 
                     return true;
