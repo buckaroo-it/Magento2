@@ -20,6 +20,11 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Quote\Model\Quote\AddressFactory;
+
 class PayLink extends AbstractMethod
 {
     /**
@@ -106,6 +111,11 @@ class PayLink extends AbstractMethod
         \Magento\Developer\Helper\Data $developmentHelper,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
+        AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -130,6 +140,11 @@ class PayLink extends AbstractMethod
             $logger,
             $developmentHelper,
             $quoteFactory,
+            $taxConfig,
+            $taxCalculation,
+            $configProviderBuckarooFee,
+            $softwareData,
+            $addressFactory,
             $resource,
             $resourceCollection,
             $gateway,

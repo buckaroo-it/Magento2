@@ -44,6 +44,10 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate as EmandateConfig;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
 use Buckaroo\Magento2\Model\RefundFieldsFactory;
 use Buckaroo\Magento2\Model\ValidatorFactory;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Quote\Model\Quote\AddressFactory;
 
 class Emandate extends AbstractMethod
 {
@@ -107,6 +111,11 @@ class Emandate extends AbstractMethod
         DevelopmentHelper $developmentHelper,
         EmandateConfig $emandateConfig,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
+        AddressFactory $addressFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         GatewayInterface $gateway = null,
@@ -131,6 +140,11 @@ class Emandate extends AbstractMethod
             $logger,
             $developmentHelper,
             $quoteFactory,
+            $taxConfig,
+            $taxCalculation,
+            $configProviderBuckarooFee,
+            $softwareData,
+            $addressFactory,
             $resource,
             $resourceCollection,
             $gateway,
