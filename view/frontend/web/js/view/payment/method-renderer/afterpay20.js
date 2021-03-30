@@ -29,7 +29,8 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'Magento_Customer/js/model/customer',
-        'Magento_Ui/js/lib/knockout/bindings/datepicker'
+        'Magento_Ui/js/lib/knockout/bindings/datepicker',
+        'Magento_Checkout/js/action/select-billing-address'
     ],
     function (
         $,
@@ -40,7 +41,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        customer
+        customer,
+        selectBillingAddress
     ) {
         'use strict';
 
@@ -242,7 +244,7 @@ define(
                     if (quote.billingAddress()) {
                         this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
                         this.updateTermsUrl(quote.billingAddress().countryId);
-                        this.phoneValidate(quote.billingAddress().telephone);
+                        this.phoneValidate();
                         this.updateShowFields();
                     }
 
@@ -250,7 +252,7 @@ define(
                         function(newAddress) {
                             if (!this.isCustomerLoggedIn() && this.isOsc()) {
                                 if (newAddress.telephone) {
-                                    this.phoneValidate(newAddress.telephone);
+                                    this.phoneValidate();
                                 }
                                 this.updateBillingName(newAddress.firstname, newAddress.lastname);
                             }
@@ -268,7 +270,7 @@ define(
 
                             if (this.currentCustomerAddressId != newAddress.getKey()) {
                                 this.currentCustomerAddressId = newAddress.getKey();
-                                this.phoneValidate(newAddress.telephone);
+                                this.phoneValidate();
                             }
 
                             if (newAddress.firstname !== this.firstName || newAddress.lastname !== this.lastName) {
@@ -299,10 +301,13 @@ define(
 
                     var runValidation = function () {
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
-                        if (this.country != 'NL' && this.country != 'BE') {
-                            elements = elements.filter(':not([name*="customer_gender"])');
+                        
+                        if(elements !== undefined){
+                            if (this.country != 'NL' && this.country != 'BE') {
+                                elements = elements.filter(':not([name*="customer_gender"])');
+                            }
+                            elements.valid();
                         }
-                        elements.valid();
 
                         if (this.calculateAge(this.dateValidate()) >= 18) {
                             $('#' + this.getCode() + '_DoB-error').hide();
@@ -379,6 +384,10 @@ define(
 
                     if (event) {
                         event.preventDefault();
+                    }
+
+                    if (!quote.billingAddress()) {
+                        selectBillingAddress(quote.shippingAddress());
                     }
 
                     if (this.validate() && additionalValidators.validate()) {
