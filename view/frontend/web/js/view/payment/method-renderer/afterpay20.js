@@ -73,11 +73,9 @@ define(
 
                 if (lengths.hasOwnProperty(countryId)) {
                     if (lengths[countryId].min && (value.length < lengths[countryId].min)) {
-                        console.log('[min]');
                         return false;
                     }
                     if (lengths[countryId].max && (value.length > lengths[countryId].max)) {
-                        console.log('[max]');
                         return false;
                     }
                 }
@@ -433,16 +431,6 @@ define(
 
                     return true;
                 },
-
-                // phoneTransform: function(data, event) {
-                //     var self = this;
-                //
-                //     if (event) {
-                //         event.preventDefault();
-                //     }
-                //     console.log('[phoneTransform]', data);
-                // }
-                // ,
 
                 /**
                  * Run validation function
