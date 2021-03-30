@@ -49,11 +49,11 @@ define(
                 var lengths = {
                     'NL': {
                         min: 10,
-                        max: 13
+                        max: 12
                     },
                     'BE': {
                         min: 10,
-                        max: 12
+                        max: 10
                     },
                     'DE': {
                         min: 11,
@@ -64,7 +64,7 @@ define(
                     return false;
                 }
 
-                value = value.replace(/^\+/, '00');
+                value = value.replace(/^\+|(00)/, '');
                 value = value.replace(/\(0\)|\s|-/g, '');
 
                 if (value.match(/\+/)) {
