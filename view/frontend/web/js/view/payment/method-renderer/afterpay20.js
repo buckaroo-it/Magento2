@@ -65,9 +65,13 @@ define(
                 }
 
                 value = value.replace(/^\+/, '00');
-                value = value.replace(/\(0\)/, '');
-
+                value = value.replace(/\(0\)|\s|-/g, '');
+                console.log('[vvv]',value);
                 if (value.match(/\+/)) {
+                    return false;
+                }
+
+                if (value.match(/[^0-9]/)) {
                     return false;
                 }
 
