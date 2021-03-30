@@ -150,6 +150,14 @@ define(
                     }
 
                     if (this.validate() && additionalValidators.validate()) {
+
+                        //mageplaza only check
+                        if (document.querySelector('#checkoutSteps.opc.one-step-checkout-container .place-order-primary button.checkout')) {
+                            if (data || event) {
+                                return false;
+                            }
+                        }
+
                         this.isPlaceOrderActionAllowed(false);
                         placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
 
