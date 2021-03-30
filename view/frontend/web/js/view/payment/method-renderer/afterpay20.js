@@ -66,7 +66,7 @@ define(
 
                 value = value.replace(/^\+/, '00');
                 value = value.replace(/\(0\)|\s|-/g, '');
-                console.log('[vvv]',value);
+
                 if (value.match(/\+/)) {
                     return false;
                 }
