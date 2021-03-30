@@ -18,6 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 namespace Buckaroo\Magento2\Model\Plugin;
+use Buckaroo\Magento2\Logging\Log;
 
 if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
@@ -27,6 +28,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
         protected $cartRepository;
 
+        protected $logger;
+
         public function __construct(
             \Onestepcheckout\Iosc\Model\DataManager $dataManager,
             \Magento\Framework\App\Request\Http $request,
@@ -34,7 +37,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             \Onestepcheckout\Iosc\Helper\Data $helper,
             \Magento\Checkout\Model\Session $checkoutSession,
             \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
-            \Magento\Quote\Api\CartRepositoryInterface $cartRepository
+            \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
+            Log $logger
         ) {
             $this->dataManager        = $dataManager;
             $this->request            = $request;
@@ -43,6 +47,7 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             $this->checkoutSession    = $checkoutSession;
             $this->quoteIdMaskFactory = $quoteIdMaskFactory;
             $this->cartRepository     = $cartRepository;
+            $this->logger             = $logger;
             parent::__construct($dataManager, $request, $mockManager, $helper, $checkoutSession);
         }
 
@@ -55,8 +60,9 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         ) {
             if ($billingAddress == null) {
                 $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-                $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
+                $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
             }
+            
             parent::beforeSavePaymentInformationAndPlaceOrder($parent, $cartId, $email, $paymentMethod, $billingAddress);
         }
 
@@ -69,8 +75,9 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         ) {
             if ($billingAddress == null) {
                 $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-                $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
+                $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
             }
+
             parent::beforeSavePaymentInformation($parent, $cartId, $email, $paymentMethod, $billingAddress);
         }
 
