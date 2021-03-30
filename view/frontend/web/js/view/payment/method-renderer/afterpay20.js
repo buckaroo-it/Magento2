@@ -49,11 +49,11 @@ define(
                 var lengths = {
                     'NL': {
                         min: 10,
-                        max: 12
+                        max: 13
                     },
                     'BE': {
                         min: 10,
-                        max: 10
+                        max: 12
                     },
                     'DE': {
                         min: 11,
@@ -64,15 +64,20 @@ define(
                     return false;
                 }
 
-                if (value.match(/\+/g)) {
+                value = value.replace(/^\+/, '00');
+                value = value.replace(/\(0\)/, '');
+
+                if (value.match(/\+/)) {
                     return false;
                 }
 
                 if (lengths.hasOwnProperty(countryId)) {
                     if (lengths[countryId].min && (value.length < lengths[countryId].min)) {
+                        console.log('[min]');
                         return false;
                     }
                     if (lengths[countryId].max && (value.length > lengths[countryId].max)) {
+                        console.log('[max]');
                         return false;
                     }
                 }
@@ -110,7 +115,6 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,
                 isCustomerLoggedIn: customer.isLoggedIn,
-
 
                 /**
                  * @override
@@ -367,7 +371,7 @@ define(
                  *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
                  *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
                  */
-                placeOrder: function(data, event) {
+                placeOrder: function (data, event) {
                     var self = this,
                         placeOrder;
 
@@ -429,6 +433,16 @@ define(
 
                     return true;
                 },
+
+                // phoneTransform: function(data, event) {
+                //     var self = this;
+                //
+                //     if (event) {
+                //         event.preventDefault();
+                //     }
+                //     console.log('[phoneTransform]', data);
+                // }
+                // ,
 
                 /**
                  * Run validation function
