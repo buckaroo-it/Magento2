@@ -1551,7 +1551,18 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function getShippingAmount($order)
     {
-        return $order->getShippingInclTax();
+        $shippingIncludesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        $shippingAmount = $order->getShippingAmount();
+
+        if ($shippingIncludesTax) {
+            $shippingAmount = $order->getShippingInclTax();
+        }
+
+        return $shippingAmount;
     }
 
     /**
