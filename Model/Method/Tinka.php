@@ -347,8 +347,6 @@ class Tinka extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        $serviceAction = 'Pay';
-
         $requestData = $this->getRequestBillingData($payment);
 
         if ($this->isAddressDataDifferent($payment)) {
@@ -379,7 +377,7 @@ class Tinka extends AbstractMethod
 
         $services = [
             'Name'             => 'Tinka',
-            'Action'           => $serviceAction,
+            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
             'RequestParameter' => [
                 [
                     '_'    => 'Credit',

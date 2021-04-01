@@ -102,7 +102,7 @@ class P24 extends AbstractMethod
 
         $services = [
             'Name'             => 'Przelewy24',
-            'Action'           => 'Pay',
+            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [
                 [
