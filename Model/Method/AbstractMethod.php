@@ -1877,5 +1877,18 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $format;
     }
 
+    public function getPayRemainder($payment, &$transactionBuilder){
+        $serviceAction = 'Pay';
+        if($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())){
+            $serviceAction = 'PayRemainder';
+            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
+            
+            if($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())){
+                $transactionBuilder->setAmount($transactionBuilder->getAmount() - $alreadyPaid);
+            }
+        }
+        return $serviceAction;
+    }
+
 }
 
