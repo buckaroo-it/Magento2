@@ -1434,6 +1434,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if ($amount >= 0.01) {
             $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
             if ($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0) {
+                $this->logger2->addDebug(__METHOD__ . '|25|' . var_export($groupTransactionAmount, true));
+                $this->payRemainder = $amount - $groupTransactionAmount;
                 return $amount - $groupTransactionAmount;
             }
 
