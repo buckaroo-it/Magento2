@@ -217,24 +217,19 @@ class Afterpay extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getOrderTransactionBuilder($payment)
+    public function getOrderTransactionBuilder($payment, $serviceAction = 'Pay')
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
+        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, $serviceAction);
+
         $services = [
             'Name'             => $this->getPaymentMethodName($payment),
-            'Action'           => 'Pay',
+            'Action'           => $serviceAction,
             'Version'          => 1,
-            'RequestParameter' =>
-                $this->getAfterPayRequestParameters($payment),
+            'RequestParameter' => $this->getAfterPayRequestParameters($payment),
         ];
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
@@ -243,9 +238,9 @@ class Afterpay extends AbstractMethod
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * @todo when buckaroo changes the push / response order this can be removed
          */
-        $payment->setAdditionalInformation(
-            'skip_push', 1
-        );
+        if ($serviceAction != 'PayRemainder') {
+            $payment->setAdditionalInformation('skip_push', 1);
+        }
 
         return $transactionBuilder;
     }
@@ -348,32 +343,7 @@ class Afterpay extends AbstractMethod
      */
     public function getAuthorizeTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $services = [
-            'Name'             => $this->getPaymentMethodName($payment),
-            'Action'           => 'Authorize',
-            'Version'          => 1,
-            'RequestParameter' =>
-                $this->getAfterPayRequestParameters($payment),
-        ];
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest');
-
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        $payment->setAdditionalInformation(
-            'skip_push', 1
-        );
-
-        return $transactionBuilder;
+        return $this->getOrderTransactionBuilder($payment, 'Authorize');
     }
 
     /**
@@ -453,8 +423,10 @@ class Afterpay extends AbstractMethod
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             $invoice = $creditmemo->getInvoice();
 
-            $transactionBuilder->setInvoiceId($invoice->getOrder()->getIncrementId())
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
+            $transactionBuilder->setInvoiceId($invoice->getOrder()->getIncrementId());
+            if ($payment->getParentTransactionId()) {
+                $transactionBuilder->setOriginalTransactionKey($payment->getParentTransactionId());
+            }
         }
 
         return $transactionBuilder;
@@ -597,6 +569,10 @@ class Afterpay extends AbstractMethod
      */
     public function getRequestArticlesData($requestData, $payment)
     {
+        if ($this->payRemainder) {
+            return array_merge($requestData, $this->getRequestArticlesDataPayRemainder($payment));
+        }
+
         $includesTax = $this->_scopeConfig->getValue(
             static::TAX_CALCULATION_INCLUDES_TAX,
             ScopeInterface::SCOPE_STORE
@@ -745,6 +721,10 @@ class Afterpay extends AbstractMethod
      */
     public function getCreditmemoArticleData($payment)
     {
+        if ($this->payRemainder) {
+            return $this->getCreditmemoArticleDataPayRemainder($payment, false);
+        }
+
         /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
         $includesTax = $this->_scopeConfig->getValue(

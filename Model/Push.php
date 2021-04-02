@@ -1396,14 +1396,6 @@ class Push implements PushInterface
     }
 
     /**
-     * Get Transactions
-     */
-    public function getTransactionsByOrder()
-    {
-        $this->order->getPayment();
-    }
-
-    /**
      * @return Order\Payment
      * @throws \Magento\Framework\Exception\LocalizedException
      */
@@ -1451,22 +1443,6 @@ class Push implements PushInterface
         );
 
         return $payment;
-    }
-
-    /**
-     * Get Correct order amount
-     *
-     * @return int $orderAmount
-     */
-    protected function getCorrectOrderAmount()
-    {
-        if ($this->postData['brq_currency'] == $this->order->getBaseCurrencyCode()) {
-            $orderAmount = $this->order->getBaseGrandTotal();
-        } else {
-            $orderAmount = $this->order->getGrandTotal();
-        }
-
-        return $orderAmount;
     }
 
     private function isGroupTransactionInfoType()
@@ -1519,33 +1495,6 @@ class Push implements PushInterface
                 $item2['entity_id'] = $item['entity_id'];
                 $this->groupTransaction->updateGroupTransaction($item2);
             }
-        }
-    }
-
-    public function saveGroupTransactionInvoice($payment)
-    {
-        $payment = $this->order->getPayment();
-        $items   = $this->groupTransaction->getGroupTransactionItems($this->postData['brq_ordernumber']);
-
-        foreach ($items as $key => $item) {
-            $this->addTransactionData($item['transaction_id'], (array) $item);
-            if (!$payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS)) {
-                $payment->setAdditionalInformation(
-                    self::BUCKAROO_RECEIVED_TRANSACTIONS,
-                    array($item['transaction_id'] => floatval($item['amount']))
-                );
-            } else {
-                $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
-
-                $buckarooTransactionKeysArray[$item['transaction_id']] = floatval($item['amount']);
-
-                $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS, $buckarooTransactionKeysArray);
-            }
-
-            $invoiceAmount = floatval($item['amount']);
-            $payment->registerCaptureNotification($invoiceAmount, true);
-            $payment->save();
-
         }
     }
 
@@ -1671,4 +1620,3 @@ class Push implements PushInterface
 
 }
 
-//test develop branch

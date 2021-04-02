@@ -104,7 +104,21 @@ class CommandInterface
             $orderStatus = $order->getConfig()->getStateDefaultStatus($orderState);
         }
 
-        $this->logging->addDebug(__METHOD__ . '|5|' . var_export([$orderState, $orderStatus], true));
+        $this->logging->addDebug(__METHOD__ . '|5|' . var_export([
+            $orderState, $orderStatus, $order->getState(), $order->getStatus()
+        ], true));
+
+        if (
+            ($orderState == Order::STATE_NEW)
+            &&
+            ($orderStatus == 'pending')
+            &&
+            ($order->getState() === Order::STATE_PROCESSING)
+            &&
+            ($order->getStatus() === Order::STATE_PROCESSING)
+        ) {
+            return false;
+        }
 
         $order->setState($orderState);
         $order->setStatus($orderStatus);
