@@ -182,13 +182,15 @@ class Afterpay20 extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getOrderTransactionBuilder($payment)
+    public function getOrderTransactionBuilder($payment, $serviceAction = 'Pay')
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
+        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, $serviceAction);
+
         $services = [
-            'Name'             => 'afterpay',
-            'Action'           => 'Pay',
+            'Name'             => $this->getPaymentMethodName(),
+            'Action'           => $serviceAction,
             'RequestParameter' => $this->getAfterPayRequestParameters($payment),
         ];
 
@@ -200,7 +202,9 @@ class Afterpay20 extends AbstractMethod
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * @todo when buckaroo changes the push / response order this can be removed
          */
-        $payment->setAdditionalInformation('skip_push', 1);
+        if ($serviceAction != 'PayRemainder') {
+            $payment->setAdditionalInformation('skip_push', 1);
+        }
 
         return $transactionBuilder;
     }
@@ -292,23 +296,7 @@ class Afterpay20 extends AbstractMethod
      */
     public function getAuthorizeTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $services = [
-            'Name'             => $this->getPaymentMethodName(),
-            'Action'           => 'Authorize',
-            'RequestParameter' => $this->getAfterPayRequestParameters($payment),
-        ];
-
-        $transactionBuilder->setOrder($payment->getOrder())->setServices($services)->setMethod('TransactionRequest');
-
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        $payment->setAdditionalInformation('skip_push', 1);
-
-        return $transactionBuilder;
+        return $this->getOrderTransactionBuilder($payment, 'Authorize');
     }
 
     /**
@@ -383,8 +371,10 @@ class Afterpay20 extends AbstractMethod
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             $invoice = $creditmemo->getInvoice();
 
-            $transactionBuilder->setInvoiceId($this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment))
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
+            $transactionBuilder->setInvoiceId($this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment));
+            if ($payment->getParentTransactionId()) {
+                $transactionBuilder->setOriginalTransactionKey($payment->getParentTransactionId());
+            }
         }
 
         return $transactionBuilder;
@@ -485,6 +475,10 @@ class Afterpay20 extends AbstractMethod
     public function getRequestArticlesData($payment)
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
+
+        if ($this->payRemainder) {
+            return $this->getRequestArticlesDataPayRemainder($payment);
+        }
 
         $includesTax = $this->_scopeConfig->getValue(
             static::TAX_CALCULATION_INCLUDES_TAX,
@@ -629,6 +623,10 @@ class Afterpay20 extends AbstractMethod
      */
     public function getCreditmemoArticleData($payment)
     {
+        if ($this->payRemainder) {
+            return $this->getCreditmemoArticleDataPayRemainder($payment);
+        }
+
         /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
         $includesTax = $this->_scopeConfig->getValue(
@@ -1118,4 +1116,8 @@ class Afterpay20 extends AbstractMethod
         return $methodMessage;
     }
 
+    protected function getPayRemainderAmount($payment, $alreadyPaid)
+    {
+        return $payment->getOrder()->getGrandTotal();
+    }
 }
