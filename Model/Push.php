@@ -952,13 +952,14 @@ class Push implements PushInterface
 
         $buckarooCancelOnFailed = $this->configAccount->getCancelOnFailed($store);
 
+        $payment = $this->order->getPayment();
+
         if ($buckarooCancelOnFailed && $this->order->canCancel()) {
             $this->logging->addDebug(__METHOD__ . '|' . 'Buckaroo push failed : ' . $message . ' : Cancel order.');
 
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/AbstractMethod.php:880
-            $payment = $this->order->getPayment();
             if (in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2', 'buckaroo_magento2_klarna', 'buckaroo_magento2_klarnakp'])
             ) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
@@ -977,7 +978,17 @@ class Push implements PushInterface
         }
 
         $this->logging->addDebug(__METHOD__ . '|4|');
-        $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
+        $force = false;
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_mrcash')
+            &&
+            ($this->order->getState() === Order::STATE_NEW)
+            &&
+            ($this->order->getStatus() === 'pending')
+        ) {
+            $force = true;
+        }
+        $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description, $force);
 
         return true;
     }
