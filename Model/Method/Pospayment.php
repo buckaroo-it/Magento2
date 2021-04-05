@@ -169,4 +169,9 @@ class Pospayment extends AbstractMethod
         return false;
 
     }
+
+    public function getOtherPaymentMethods()
+    {
+        return $this->getConfigData('other_payment_methods');
+    }
 }

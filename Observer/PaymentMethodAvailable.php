@@ -37,8 +37,10 @@ class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterfa
             $pospaymentMethodInstance = $paymentHelper->getMethodInstance('buckaroo_magento2_pospayment');
 
             if ($pospaymentMethodInstance->isAvailable($observer->getEvent()->getQuote())) {
-                $checkResult = $observer->getEvent()->getResult();
-                $checkResult->setData('is_available', false);
+                if (!$pospaymentMethodInstance->getOtherPaymentMethods()) {
+                    $checkResult = $observer->getEvent()->getResult();
+                    $checkResult->setData('is_available', false);
+                }
             }
         }
     }

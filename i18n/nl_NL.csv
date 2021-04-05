@@ -358,6 +358,7 @@
 "Credit Management Due date","Credit Management termijnverloop"
 "The amount of days after the order date, after which the Credit Management scheme will start.","Het aantal dagen na de orderdatum, waarna het Credit Management schema in werking treedt."
 "PayPerEmail payment methods", "PayPerEmail betaalmethoden"
+"Show other active payment methods", "Toon andere actieve betaalmethoden "
 "Select which paymethod can be used at PayPerEmail.","Selecteer welke betaalwijze bij PayPerEmail gebruikt kan worden."
 "Select which payment methods can be used after the payment due date.","Selecteer welke betaalwijze na de termijnverloop gebruikt kan worden."
 "Billing First Name:","Factuur voornaam:"
