@@ -66,6 +66,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_DIGITAL_SIGNATURE               = 'buckaroo_magento2/account/digital_signature';
     const XPATH_ACCOUNT_LOG_LEVEL                       = 'buckaroo_magento2/account/debug_types';
     const XPATH_ACCOUNT_LOG_HANDLER                     = 'buckaroo_magento2/account/log_handler';
+    const XPATH_ACCOUNT_LOG_DBTRACE_DEPTH               = 'buckaroo_magento2/account/log_handler_db_depth';
     const XPATH_ACCOUNT_LOG_RETENTION                   = 'buckaroo_magento2/account/log_retention';
     const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
     const XPATH_ACCOUNT_LIMIT_BY_IP                     = 'buckaroo_magento2/account/limit_by_ip';

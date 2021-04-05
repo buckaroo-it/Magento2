@@ -64,4 +64,9 @@ class DebugConfiguration extends AbstractConfigProvider
         $logTypes = explode(',', $this->getLoglevel());
         return in_array($level, $logTypes);
     }
+
+    public function getDebugBacktraceDepth()
+    {
+        return $this->accountConfig->getLogDbtraceDepth();
+    }
 }
