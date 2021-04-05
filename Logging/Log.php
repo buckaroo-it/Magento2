@@ -26,7 +26,7 @@ use Monolog\Logger;
 class Log extends Logger
 {
 
-    public const BUCKAROO_LOG_TRACE_DEPTH = 10;
+    public const BUCKAROO_LOG_TRACE_DEPTH = 90;
 
     /** @var DebugConfiguration */
     private $debugConfiguration;
@@ -85,10 +85,13 @@ class Log extends Logger
         $logTrace = [];
         for ($cnt=1; $cnt<self::BUCKAROO_LOG_TRACE_DEPTH; $cnt++) {
             if (isset($trace[$cnt])) {
-                $logTrace[] = str_replace(BP, '', $trace[$cnt]['file']) . " " .
+                try {
+                $logTrace[] = str_replace(BP, '', $trace[$cnt]['file']) . ": " .$trace[$cnt]['line']. " ".
                     $trace[$cnt]['class'] . '->' .
-                    $trace[$cnt]['function'] . '():' .
-                    $trace[$cnt]['line'];
+                    $trace[$cnt]['function'] . '()';
+                } catch(\Exception $e) {
+                    $logTrace[] = json_encode($trace[$cnt]);
+                }
             }
         }
 
