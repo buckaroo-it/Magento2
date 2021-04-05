@@ -262,6 +262,12 @@
               <config_path>buckaroo_magento2/account/log_handler</config_path>
             </field>
 
+            <field id="log_handler_db_depth" translate="label" type="text" sortOrder="255" showInDefault="1" showInWebsite="0" showInStore="0">
+              <label>Debug backtrace logging depth</label>
+              <comment><![CDATA[Depth for debug backtrace. Default 10]]></comment>
+              <config_path>buckaroo_magento2/account/log_handler_db_depth</config_path>
+            </field>
+
             <field id="log_retention" translate="label" type="multiselect" sortOrder="260" showInDefault="1" showInWebsite="0" showInStore="0">
               <label>Log retention period</label>
               <source_model>Buckaroo\Magento2\Model\Config\Source\LogRetention</source_model>
