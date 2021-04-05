@@ -307,6 +307,11 @@ class Push implements PushInterface
             if ($receivePushCheckPayPerEmailResult) {
                 $config = $this->configProviderMethodFactory->get(\Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE);
                 if ($config->getEnabledB2B()) {
+                    $this->logging->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
+                    if($this->order->getState() === Order::STATE_COMPLETE){
+                        $this->order->setState(Order::STATE_PROCESSING);
+                        $this->order->save();
+                    }
                     return true;
                 }
             }
