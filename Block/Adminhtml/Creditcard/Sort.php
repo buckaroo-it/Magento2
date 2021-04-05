@@ -78,4 +78,9 @@ class Sort extends Field
     {
         return $this->helperData->getConfigGiftCardsSort();
     }
+
+    public function getConfigCardSort()
+    {
+        return $this->helperData->getConfigCardSort();
+    }
 }

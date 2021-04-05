@@ -51,20 +51,27 @@
 		<column name="log_id">
 			<settings>
 				<filter>text</filter>
-				<label translate="true">log_id</label>
+				<label translate="true">Log ID</label>
 			</settings>
 		</column>
 		<column name="channel">
 			<settings>
 				<filter>text</filter>
-				<label translate="true">channel</label>
+				<label translate="true">Channel</label>
 			</settings>
 		</column>
 		<column name="level">
-			<settings>
-				<filter>text</filter>
-				<label translate="true">level</label>
-			</settings>
+ 			<argument name="data" xsi:type="array">
+				<item name="options" xsi:type="object">Buckaroo\Magento2\Model\Config\Source\LogLevel</item>
+				<item name="config" xsi:type="array">
+					<item name="filter" xsi:type="string">select</item>
+					<item name="component" xsi:type="string">Magento_Ui/js/grid/columns/select</item>
+					<item name="dataType" xsi:type="string">select</item>
+					<item name="sorting" xsi:type="string">asc</item>
+					<item name="sortOrder" xsi:type="number">1</item>
+					<item name="label" translate="true" xsi:type="string">Level</item>
+				</item>
+        	</argument>
 		</column>
 		<column name="message" class="Buckaroo\Magento2\Ui\Component\Listing\Columns\Nicelog">
 		 	<argument name="data" xsi:type="array">
@@ -80,33 +87,37 @@
 			<item name="nl2br" xsi:type="boolean">true</item>
 		</column>
 		<column name="time">
-			<settings>
-				<filter>text</filter>
-				<label translate="true">time</label>
-			</settings>
+			<argument name="data" xsi:type="array">
+				<item name="config" xsi:type="array">
+					<item name="filter" xsi:type="string">dateRange</item>
+					<item name="editor" xsi:type="string">text</item>
+					<item name="label" xsi:type="string" translate="true">Time</item>
+					<item name="sortOrder" xsi:type="number">20</item>
+				</item>
+			</argument>
 		</column>
 		<column name="session_id">
 			<settings>
 				<filter>text</filter>
-				<label translate="true">session_id</label>
+				<label translate="true">Session ID</label>
 			</settings>
 		</column>
 		<column name="customer_id">
 			<settings>
 				<filter>text</filter>
-				<label translate="true">customer_id</label>
+				<label translate="true">Customer ID</label>
 			</settings>
 		</column>
 		<column name="quote_id">
 			<settings>
 				<filter>text</filter>
-				<label translate="true">quote_id</label>
+				<label translate="true">Quote ID</label>
 			</settings>
 		</column>
 		<column name="order_id">
 			<settings>
 				<filter>text</filter>
-				<label translate="true">order_id</label>
+				<label translate="true">Order ID</label>
 			</settings>
 		</column>
 	</columns>
