@@ -40,15 +40,22 @@ class CommandInterface
     public $configProviderMethodFactory;
 
     /**
+     * @var \Buckaroo\Magento2\Helper\Data
+     */
+    public $helper;
+
+    /**
      * @param Log $logging
      * @param Factory $configProviderMethodFactory
      */
     public function __construct(
         Factory $configProviderMethodFactory,
-        Log $logging
+        Log $logging,
+        \Buckaroo\Magento2\Helper\Data $helper
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->logging = $logging;
+        $this->helper = $helper;
     }
 
     /**
@@ -104,12 +111,12 @@ class CommandInterface
             $orderStatus = $order->getConfig()->getStateDefaultStatus($orderState);
         }
 
-        $this->logging->addDebug(__METHOD__ . '|5|' . var_export([
-            $orderState, $orderStatus, $order->getState(), $order->getStatus()
-        ], true));
+        $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
 
         if (
-            ($orderState == Order::STATE_NEW)
+            preg_match('/afterpay/', $methodInstance->getCode())
+            &&
+            $this->helper->getOriginalTransactionKey($order->getIncrementId())
             &&
             ($orderStatus == 'pending')
             &&
