@@ -105,6 +105,7 @@ class PayPerEmail extends AbstractMethod
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -128,6 +129,7 @@ class PayPerEmail extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
+            $quoteFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -261,6 +263,7 @@ class PayPerEmail extends AbstractMethod
     {
         /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $config */
         $config = $this->configProviderMethodFactory->get('payperemail');
+        $storeId = $payment->getOrder()->getStoreId();
 
         $params = [
             [
@@ -284,7 +287,7 @@ class PayPerEmail extends AbstractMethod
                 'Name' => 'MerchantSendsEmail',
             ],
             [
-                '_'    => $config->getPaymentMethod(),
+                '_'    => $this->getPaymentMethodsAllowed($config, $storeId),
                 'Name' => 'PaymentMethodsAllowed',
             ],
         ];
@@ -420,5 +423,26 @@ class PayPerEmail extends AbstractMethod
             );
 
         return $transactionBuilder;
+    }
+
+    private function getPaymentMethodsAllowed($config, $storeId)
+    {
+       if ($methods = $config->getPaymentMethod($storeId)) {
+           $methods = explode(',', $methods);
+           $activeCards = '';
+           foreach ($methods as $key=>$value) {
+                if ($value === 'giftcard') {
+                    $giftcardsConfig = $this->configProviderMethodFactory->get('giftcards');
+                    if ($activeCards = $giftcardsConfig->getAllowedCards($storeId)) {
+                        unset($methods[$key]);
+                    }
+                }
+           }
+           if ($activeCards) {
+               $methods = array_merge($methods, explode(',', $activeCards));
+           }
+           $methods = join(',', $methods);
+       }
+       return $methods;
     }
 }

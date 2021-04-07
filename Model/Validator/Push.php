@@ -122,13 +122,13 @@ class Push implements ValidatorInterface
      *
      * @return bool
      */
-    public function validateSignature($postData)
+    public function validateSignature($originalPostData, $postData)
     {
         if (!isset($postData['brq_signature'])) {
             return false;
         }
 
-        $signature = $this->calculateSignature($postData);
+        $signature = $this->calculateSignature($originalPostData);
 
         if ($signature !== $postData['brq_signature']) {
             return false;
@@ -147,7 +147,7 @@ class Push implements ValidatorInterface
     protected function calculateSignature($postData)
     {
         $copyData = $postData;
-        unset($copyData['brq_signature']);
+        unset($copyData['brq_signature']); unset($copyData['BRQ_SIGNATURE']);
 
         $sortableArray = $this->buckarooArraySort($copyData);
 
@@ -178,24 +178,24 @@ class Push implements ValidatorInterface
      */
     private function decodePushValue($brq_key, $brq_value)
     {
-        switch ($brq_key) {
+        switch (strtolower($brq_key)) {
             case 'brq_customer_name':
-            case 'brq_SERVICE_ideal_consumerName':
-            case 'brq_SERVICE_transfer_consumerName':
-            case 'brq_SERVICE_payconiq_PayconiqAndroidUrl':
-            case 'brq_SERVICE_paypal_payerEmail':
-            case 'brq_SERVICE_paypal_payerFirstname':
-            case 'brq_SERVICE_paypal_payerLastname':
-            case 'brq_SERVICE_payconiq_PayconiqIosUrl':
-            case 'brq_SERVICE_payconiq_PayconiqUrl':
-            case 'brq_SERVICE_payconiq_QrUrl':
-            case 'brq_SERVICE_masterpass_CustomerPhoneNumber':
-            case 'brq_SERVICE_masterpass_ShippingRecipientPhoneNumber':
-            case 'brq_InvoiceDate':
-            case 'brq_DueDate':
-            case 'brq_PreviousStepDateTime':
-            case 'brq_EventDateTime':
-            case 'brq_SERVICE_transfer_AccountHolderName':
+            case 'brq_service_ideal_consumername':
+            case 'brq_service_transfer_consumername':
+            case 'brq_service_payconiq_payconiqandroidurl':
+            case 'brq_service_paypal_payeremail':
+            case 'brq_service_paypal_payerfirstname':
+            case 'brq_service_paypal_payerlastname':
+            case 'brq_service_payconiq_payconiqiosurl':
+            case 'brq_service_payconiq_payconiqurl':
+            case 'brq_service_payconiq_qrurl':
+            case 'brq_service_masterpass_customerphonenumber':
+            case 'brq_service_masterpass_shippingrecipientphonenumber':
+            case 'brq_invoicedate':
+            case 'brq_duedate':
+            case 'brq_previousstepdatetime':
+            case 'brq_eventdatetime':
+            case 'brq_service_transfer_accountholdername':
                 $decodedValue = $brq_value;
                 break;
             default:

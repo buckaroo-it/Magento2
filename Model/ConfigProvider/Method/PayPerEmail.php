@@ -112,6 +112,17 @@ class PayPerEmail extends AbstractConfigProvider
         return $sendMail ? true : false;
     }
 
+    public function getPaymentMethod($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_PAYPEREMAIL_PAYMENT_METHOD,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ? $paymentFee : false;
+    }
+
     /**
      * @return bool
      */

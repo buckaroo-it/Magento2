@@ -20,47 +20,50 @@
 
 namespace Buckaroo\Magento2\Model\Plugin\Method;
 
+use \Magento\Sales\Model\Order;
+
 /**
- * Class Afterpay2
+ * Class Klarnain
  *
  * @package Buckaroo\Magento2\Model\Plugin\Method
  */
-class Afterpay2
+class Klarnain
 {
-    const AFTERPAY_METHOD_NAME = 'buckaroo_magento2_afterpay2';
+    const KLARNAIN_METHOD_NAME = 'buckaroo_magento2_klarnain';
 
     /**
-     * \Buckaroo\Magento2\Model\Method\Afterpay2
+     * \Buckaroo\Magento2\Model\Method\Klarnain
      *
      * @var bool
      */
-    public $afterpayMethod = false;
+    public $klarnainMethod = false;
 
     /**
-     * @param \Buckaroo\Magento2\Model\Method\Afterpay2 $afterpay
+     * @param \Buckaroo\Magento2\Model\Method\Klarna\Klarnain $klarnain
      */
-    public function __construct(\Buckaroo\Magento2\Model\Method\Afterpay2 $afterpay)
+    public function __construct(\Buckaroo\Magento2\Model\Method\Klarna\Klarnain $klarnain)
     {
-        $this->afterpayMethod = $afterpay;
+        $this->klarnainMethod = $klarnain;
     }
 
     /**
-     * @param \Magento\Sales\Model\Order $subject
+     * @param Order $subject
      *
-     * @return \Magento\Sales\Model\Order
+     * @return Klarnain|Order
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function afterCancel(
-        \Magento\Sales\Model\Order $subject
+        Order $subject
     ) {
         $payment = $subject->getPayment();
-        $orderIsCanceled = $payment->getOrder()->isCanceled();
+        $orderIsCanceled = $payment->getOrder()->getOrigData('state');
         $orderIsVoided = ($payment->getAdditionalInformation('voided_by_buckaroo') === true);
 
-        if ($payment->getMethod() !== self::AFTERPAY_METHOD_NAME || $orderIsCanceled || $orderIsVoided) {
+        if ($payment->getMethod() !== self::KLARNAIN_METHOD_NAME || $orderIsVoided || $orderIsCanceled == Order::STATE_CANCELED) {
             return $subject;
         }
 
-        $this->afterpayMethod->cancel($payment);
+        $this->klarnainMethod->cancel($payment);
 
         return $subject;
     }

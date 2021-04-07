@@ -148,6 +148,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $developmentHelper;
 
     /**
+     * @var \Magento\Quote\Model\QuoteFactory
+     */
+    protected $quoteFactory;
+
+    /**
      * @var null
      */
     public $remoteAddress = null;
@@ -166,6 +171,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Payment\Model\Method\Logger $logger
      * @param \Magento\Developer\Helper\Data $developmentHelper
+     * @param \Magento\Quote\Model\QuoteFactory $quoteFactory
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param \Buckaroo\Magento2\Gateway\GatewayInterface $gateway
@@ -193,6 +199,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -232,6 +239,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->configProviderMethodFactory  = $configProviderMethodFactory; //Load interface, inject childs via di?
         $this->priceHelper                  = $priceHelper;
         $this->developmentHelper            = $developmentHelper;
+        $this->quoteFactory                 = $quoteFactory;
 
         $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
 
@@ -758,7 +766,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!$activeMode) {
             $activeMode = 2;
         }
-        $this->gateway->setMode($activeMode);
 
         parent::capture($payment, $amount);
 
@@ -775,6 +782,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $transaction = $transactionBuilder->build();
+
+        $this->gateway->setMode($activeMode);
 
         $response = $this->captureTransaction($transaction);
 

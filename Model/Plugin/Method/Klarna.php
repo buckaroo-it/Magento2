@@ -20,47 +20,50 @@
 
 namespace Buckaroo\Magento2\Model\Plugin\Method;
 
+use \Magento\Sales\Model\Order;
+
 /**
- * Class Afterpay2
+ * Class Klarna
  *
  * @package Buckaroo\Magento2\Model\Plugin\Method
  */
-class Afterpay2
+class Klarna
 {
-    const AFTERPAY_METHOD_NAME = 'buckaroo_magento2_afterpay2';
+    const KLARNA_METHOD_NAME = 'buckaroo_magento2_klarna';
 
     /**
-     * \Buckaroo\Magento2\Model\Method\Afterpay2
+     * \Buckaroo\Magento2\Model\Method\Klarna
      *
      * @var bool
      */
-    public $afterpayMethod = false;
+    public $klarnaMethod = false;
 
     /**
-     * @param \Buckaroo\Magento2\Model\Method\Afterpay2 $afterpay
+     * @param \Buckaroo\Magento2\Model\Method\Klarna\PayLater $klarna
      */
-    public function __construct(\Buckaroo\Magento2\Model\Method\Afterpay2 $afterpay)
+    public function __construct(\Buckaroo\Magento2\Model\Method\Klarna\PayLater $klarna)
     {
-        $this->afterpayMethod = $afterpay;
+        $this->klarnaMethod = $klarna;
     }
 
     /**
-     * @param \Magento\Sales\Model\Order $subject
+     * @param Order $subject
      *
-     * @return \Magento\Sales\Model\Order
+     * @return Klarna|Order
+     * @throws \Buckaroo\Magento2\Exception
      */
     public function afterCancel(
-        \Magento\Sales\Model\Order $subject
+        Order $subject
     ) {
         $payment = $subject->getPayment();
-        $orderIsCanceled = $payment->getOrder()->isCanceled();
+        $orderIsCanceled = $payment->getOrder()->getOrigData('state');
         $orderIsVoided = ($payment->getAdditionalInformation('voided_by_buckaroo') === true);
 
-        if ($payment->getMethod() !== self::AFTERPAY_METHOD_NAME || $orderIsCanceled || $orderIsVoided) {
+        if ($payment->getMethod() !== self::KLARNA_METHOD_NAME || $orderIsVoided || $orderIsCanceled == Order::STATE_CANCELED) {
             return $subject;
         }
 
-        $this->afterpayMethod->cancel($payment);
+        $this->klarnaMethod->cancel($payment);
 
         return $subject;
     }

@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  * NOTICE OF LICENSE
  *
@@ -18,13 +17,21 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
- -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Buckaroo_Magento2:etc/buckaroo_module.xsd">
-    <module name="Buckaroo_Magento2" setup_version="1.34.0" build_number="1769" stability="stable">
-        <sequence>
-            <module name="Magento_Payment"/>
-            <module name="Magento_ReleaseNotification"/>
-            <module name="Magento_Sales"/>
-        </sequence>
-    </module>
-</config>
+namespace Buckaroo\Magento2\Model\Method\Klarna;
+
+use Buckaroo\Magento2\Model\Method\Klarna;
+
+class Klarnain extends Klarna
+{
+    /** Payment Code */
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarnain';
+
+    const KLARNA_ORDER_SERVICE_ACTION = 'PayInInstallments';
+
+    /** @var string */
+    public $buckarooPaymentMethodCode = 'klarnain';
+
+    /** @var string */
+    // @codingStandardsIgnoreLine
+    protected $_code = 'buckaroo_magento2_klarnain';
+}

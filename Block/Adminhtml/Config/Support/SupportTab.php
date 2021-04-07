@@ -31,10 +31,7 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     // @codingStandardsIgnoreEnd
 
     /** @var array  */
-    private $phpVersionSupport = ['2.0' => ['5.5' => ['22','+'],'5.6' => ['+'],'7.0' => ['2', '6', '+']],
-                                    '2.1' => ['5.6' => ['5', '+'],'7.0' => ['2', '4', '6', '+']],
-                                    '2.2' => ['7.0' => ['2', '4', '6', '+'],'7.1' => ['+']],
-                                    '2.3' => ['7.1' => ['3','+'], '7.2' => ['+'], '7.3' => ['+']],
+    private $phpVersionSupport = ['2.3' => ['7.3' => ['+']],
                                     '2.4' => ['7.4' => ['+']]
                                 ];
 

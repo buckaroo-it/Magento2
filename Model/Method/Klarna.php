@@ -27,24 +27,19 @@ use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
-class Billink extends AbstractMethod
+class Klarna extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_billink';
+    const PAYMENT_METHOD_CODE = '';
+
+    const KLARNA_ORDER_SERVICE_ACTION = '';
 
     /**
-     * Max articles that can be handled by billink
+     * Max articles that can be handled by klarna
      */
-    const BILLINK_MAX_ARTICLE_COUNT = 99;
-
-    /**
-     * Business methods that will be used in afterpay.
-     */
-    const BUSINESS_METHOD_B2C = 1;
-    const BUSINESS_METHOD_B2B = 2;
-    const BUSINESS_METHOD = 'payment/buckaroo_magento2_billink/business';
+    const KLARNA_MAX_ARTICLE_COUNT = 99;
 
     /**
      * Check if the tax calculation includes tax.
@@ -52,12 +47,18 @@ class Billink extends AbstractMethod
     const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
     const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
-    const BILLINK_PAYMENT_METHOD_NAME = 'Billink';
+    /**
+     * Business methods that will be used in klarna.
+     */
+    const BUSINESS_METHOD_B2C = 1;
+    const BUSINESS_METHOD_B2B = 2;
+
+    const KLARNA_PAYMENT_METHOD_NAME = 'klarna';
 
     /**
      * @var string
      */
-    public $buckarooPaymentMethodCode = 'billink';
+    public $buckarooPaymentMethodCode = 'klarna';
 
     // @codingStandardsIgnoreStart
     /**
@@ -80,17 +81,17 @@ class Billink extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_canAuthorize            = true;
+    protected $_canAuthorize            = false;
 
     /**
      * @var bool
      */
-    protected $_canCapture              = true;
+    protected $_canCapture              = false;
 
     /**
      * @var bool
      */
-    protected $_canCapturePartial       = true;
+    protected $_canCapturePartial       = false;
 
     /**
      * @var bool
@@ -129,19 +130,9 @@ class Billink extends AbstractMethod
     private $taxConfig;
 
     /**
-     * @var bool
-     */
-    public $usesRedirect                = false;
-
-    /**
      * @var null
      */
     public $remoteAddress               = null;
-
-    /**
-     * @var bool
-     */
-    public $closeAuthorizeTransaction   = false;
 
     /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
     protected $configProviderBuckarooFee;
@@ -254,52 +245,26 @@ class Billink extends AbstractMethod
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
 
-        $additionalData = $data['additional_data'];
-
-        if (isset($additionalData['customer_billingName'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
-        }
-
-        if (isset($additionalData['customer_gender'])) {
+        if (isset($data['additional_data']['termsCondition'])) {
+            $additionalData = $data['additional_data'];
+            $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
             $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
-        }
+            $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
+            $this->getInfoInstance()->setAdditionalInformation('customer_identificationNumber', $additionalData['customer_identificationNumber']);
 
-        if (isset($additionalData['customer_chamberOfCommerce'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_chamberOfCommerce', $additionalData['customer_chamberOfCommerce']);
-        }
-
-        if (isset($additionalData['customer_VATNumber'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_VATNumber', $additionalData['customer_VATNumber']);
-        }
-
-        if (isset($additionalData['customer_DoB'])) {
             $dobDate = \DateTime::createFromFormat('d/m/Y', $additionalData['customer_DoB']);
-            $dobDate = (!$dobDate ? $additionalData['customer_DoB'] : $dobDate->format('d-m-Y'));
+            $dobDate = (!$dobDate ? $additionalData['customer_DoB'] : $dobDate->format('Y-m-d'));
             $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $dobDate);
-        }
 
-        if (isset($additionalData['customer_telephone'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'customer_telephone',
-                $additionalData['customer_telephone']
-            );
+            if (isset($additionalData['customer_telephone'])) {
+                $this->getInfoInstance()->setAdditionalInformation(
+                    'customer_telephone',
+                    $additionalData['customer_telephone']
+                );
+            }
         }
 
         return $this;
-    }
-
-    /**
-     * Check capture availability
-     *
-     * @return bool
-     * @api
-     */
-    public function canCapture()
-    {
-        if ($this->getConfigData('payment_action') == 'order') {
-            return false;
-        }
-        return $this->_canCapture;
     }
 
     /**
@@ -307,7 +272,7 @@ class Billink extends AbstractMethod
      */
     public function getPaymentMethodName()
     {
-        return static::BILLINK_PAYMENT_METHOD_NAME;
+        return static::KLARNA_PAYMENT_METHOD_NAME;
     }
 
     /**
@@ -318,10 +283,10 @@ class Billink extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'             => 'Billink',
-            'Action'           => 'Pay',
-            'Version'          => 1,
-            'RequestParameter' => $this->getAfterPayRequestParameters($payment),
+            'Name'             => 'klarna',
+            'Action'           => static::KLARNA_ORDER_SERVICE_ACTION,
+            'RequestParameter' => $this->getKlarnaRequestParameters($payment),
+            'Version'          => 0,
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())
@@ -340,134 +305,9 @@ class Billink extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getCaptureTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $capturePartial = true;
-
-        $order = $payment->getOrder();
-
-        $totalOrder = $order->getBaseGrandTotal();
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($totalOrder == $currentInvoiceTotal && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        }
-
-        $services = [
-            'Name'   => $this->getPaymentMethodName(),
-            'Action' => 'Capture',
-        ];
-
-        // always get articles from invoice
-        $articles = '';
-        if (isset($currentInvoice)) {
-            $articles = $this->getInvoiceArticleData($currentInvoice);
-        }
-
-        // For the first invoice possible add payment fee
-        if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice, $includesTax);
-            $articles = array_merge($articles, $serviceLine);
-        }
-
-        // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($currentInvoice, (count($articles) + 1));
-        $articles = array_merge($articles, $shippingCosts);
-
-        $services['RequestParameter'] = $articles;
-
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setAmount($currentInvoiceTotal)
-            ->setMethod('TransactionRequest')
-            ->setCurrency($this->payment->getOrder()->getOrderCurrencyCode())
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(
-                    self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
-                )
-            );
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId() . '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
-        }
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAuthorizeTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $services = [
-            'Name'             => $this->getPaymentMethodName(),
-            'Action'           => 'Authorize',
-            'RequestParameter' => $this->getAfterPayRequestParameters($payment),
-        ];
-
-        $transactionBuilder->setOrder($payment->getOrder())->setServices($services)->setMethod('TransactionRequest');
-
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        $payment->setAdditionalInformation('skip_push', 1);
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getVoidTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $services = [
-            'Name'   => $this->getPaymentMethodName(),
-            'Action' => 'CancelAuthorize',
-        ];
-
-        $originalTrxKey = $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
-
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setAmount(0)
-            ->setType('void')
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey($originalTrxKey);
-
-        $parentTrxKey = $payment->getParentTransactionId();
-
-        if ($parentTrxKey && strlen($parentTrxKey) > 0 && $parentTrxKey != $originalTrxKey) {
-            $transactionBuilder->setOriginalTransactionKey($parentTrxKey);
-        }
-
-        return $transactionBuilder;
+        return true;
     }
 
     /**
@@ -480,7 +320,6 @@ class Billink extends AbstractMethod
         $services = [
             'Name'   => $this->getPaymentMethodName(),
             'Action' => 'Refund',
-            'Version' => 1,
         ];
 
         $requestParams = $this->addExtraFields($this->_code);
@@ -490,16 +329,11 @@ class Billink extends AbstractMethod
         $creditmemo = $payment->getCreditmemo();
         $articles = [];
 
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            //AddCreditMemoArticles
-            // $articles = $this->getCreditmemoArticleData($payment);
-        }
-
         if (isset($services['RequestParameter'])) {
             $articles = array_merge($services['RequestParameter'], $articles);
         }
 
-        // $services['RequestParameter'] = $articles;
+        $services['RequestParameter'] = $articles;
 
         /** @noinspection PhpUndefinedMethodInspection */
         $transactionBuilder->setOrder($payment->getOrder())
@@ -508,7 +342,7 @@ class Billink extends AbstractMethod
             ->setOriginalTransactionKey(
                 $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
             )
-            ->setChannel('CallCenter');
+            ->setChannel('Web');
 
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             $invoice = $creditmemo->getInvoice();
@@ -526,13 +360,13 @@ class Billink extends AbstractMethod
      * @return array
      * @throws \Buckaroo\Magento2\Exception
      */
-    public function getAfterPayRequestParameters($payment)
+    public function getKlarnaRequestParameters($payment)
     {
         // First data to set is the billing address data.
         $requestData = $this->getRequestBillingData($payment);
 
         // If the shipping address is not the same as the billing it will be merged inside the data array.
-        if ($this->isAddressDataDifferent($payment)) {
+        if ($this->isAddressDataDifferent($payment) || is_null($payment->getOrder()->getShippingAddress())) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
@@ -561,6 +395,8 @@ class Billink extends AbstractMethod
         ) {
             $this->updateShippingAddressBySendcloud($payment->getOrder(), $requestData);
         }
+
+        $this->handleShippingAddressByMyParcel($payment, $requestData);
 
         // Merge the article data; products and fee's
         $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
@@ -612,10 +448,13 @@ class Billink extends AbstractMethod
         $postalCode = $quote->getDpdZipcode();
         $city = $quote->getDpdCity();
         $country = $quote->getDpdCountry();
-        
+
         if (!$fullStreet && $quote->getDpdParcelshopId()) {
             $this->logger2->addDebug(__METHOD__.'|2|');
             $this->logger2->addDebug(var_export($_COOKIE, true));
+            //$DPDClient = $this->objectManager->create('DpdConnect\Shipping\Helper\DPDClient');
+            //$DPDClient2 = $DPDClient->authenticate();
+            //$dpdShop = $DPDClient2->getParcelshop()->get(787611561);
             $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
             $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
             $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
@@ -672,6 +511,42 @@ class Billink extends AbstractMethod
         }
     }
 
+    protected function updateShippingAddressByMyParcel($myParcelLocation, &$requestData)
+    {
+        $mapping = [
+            ['Street', $myParcelLocation['street']],
+            ['PostalCode', $myParcelLocation['postal_code']],
+            ['City', $myParcelLocation['city']],
+            ['Country', $myParcelLocation['cc']],
+            ['StreetNumber', $myParcelLocation['number']],
+            ['StreetNumberAdditional', $myParcelLocation['number_suffix']],
+        ];
+
+        $this->logger2->addDebug(__METHOD__ . '|1|' . var_export($mapping, true));
+
+        foreach ($mapping as $mappingItem) {
+            if (!empty($mappingItem[1])) {
+                $found = false;
+                foreach ($requestData as $key => $value) {
+                    if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                        if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                            $requestData[$key]['_'] = $mappingItem[1];
+                            $found = true;
+                        }
+                    }
+                }
+                if (!$found) {
+                    $requestData[] = [
+                        '_'    => $mappingItem[1],
+                        'Name' => $mappingItem[0],
+                        'Group' => 'ShippingCustomer',
+                        'GroupID' =>  '',
+                    ];
+                }
+            }
+        }
+    }
+
     /**
      * @param $payment
      *
@@ -695,31 +570,24 @@ class Billink extends AbstractMethod
         foreach ($cartData as $item) {
 
             if (empty($item)
+                || $item->hasParentItemId()
                 || $item->getRowTotalInclTax() == 0
-            ) {
-                continue;
-            }
-
-            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no), because the underlying simples are also in the quote
-            if ($item->getProductType() == Type::TYPE_BUNDLE
-                && $item->getProduct()->getCustomAttribute('price_type')
-                && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
             ) {
                 continue;
             }
 
             $article = $this->getArticleArrayLine(
                 $count,
-                $item->getQty() . ' x ' . $item->getName(),
+                $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
-                $item->getTaxPercent()
+                $item->getTaxPercent() ?? 0
             );
 
             $articles = array_merge($articles, $article);
 
-            if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
+            if ($count < self::KLARNA_MAX_ARTICLE_COUNT) {
                 $count++;
                 continue;
             }
@@ -804,7 +672,7 @@ class Billink extends AbstractMethod
                 $articles = array_merge($articles, $article);
             }
 
-            if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
+            if ($count < self::KLARNA_MAX_ARTICLE_COUNT) {
                 $count++;
                 continue;
             }
@@ -822,95 +690,6 @@ class Billink extends AbstractMethod
         $requestData = $articles;
 
         return $requestData;
-    }
-
-    /**
-     * @param $payment
-     *
-     * @return array
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function getCreditmemoArticleData($payment)
-    {
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
-        $creditmemo = $payment->getCreditmemo();
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-
-        $articles = [];
-        $count = 1;
-        $itemsTotalAmount = 0;
-
-        /** @var \Magento\Sales\Model\Order\Creditmemo\Item $item */
-        foreach ($creditmemo->getAllItems() as $item) {
-            if (empty($item) || $item->getRowTotalInclTax() == 0) {
-                continue;
-            }
-
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-
-            $article = $this->getArticleArrayLine(
-                $count,
-                $item->getQty() . ' x ' . $item->getName(),
-                $item->getSku(),
-                $item->getQty(),
-                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
-                $item->getOrderItem()->getTaxPercent()
-            );
-
-            $itemsTotalAmount += $this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount();
-
-            $articles = array_merge($articles, $article);
-
-            if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
-                $count++;
-                continue;
-            }
-
-            break;
-        }
-
-        $taxLine = $this->getTaxLine($count, $payment->getCreditmemo(), $itemsTotalAmount);
-
-        if (!empty($taxLine)) {
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-            $articles = array_merge($articles, $taxLine);
-            $count++;
-        }
-
-        // hasCreditmemos returns since 2.2.6 true or false.
-        // The current creditmemo is still "in progress" and thus has yet to be saved.
-        if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
-            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $includesTax, $itemsTotalAmount);
-            $articles = array_merge($articles, $serviceLine);
-
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-            $count++;
-        }
-
-        // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($creditmemo, $count, $itemsTotalAmount);
-        if (!empty($shippingCosts)) {
-            $articles = array_merge($articles, $shippingCosts);
-
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-            $count++;
-        }
-
-        //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
-            $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
-            $diffLine = $this->getDiffLine($count, $diff);
-            $articles = array_merge($articles, $diffLine);
-
-            $refundType = $this->getRefundType($count);
-            $articles = array_merge($articles, $refundType);
-        }
-
-        return $articles;
     }
 
     /**
@@ -1003,13 +782,19 @@ class Billink extends AbstractMethod
 
         $shippingCostsArticle = [
             [
-                '_'       => number_format($shippingAmount, 4, '.', ''),
-                'Name'    => 'GrossUnitPriceIncl',
+                '_'       => 'Shipping fee',
+                'Name'    => 'Description',
                 'Group'   => 'Article',
                 'GroupID' =>  $count,
             ],
             [
-                '_'       => (int)$percent,
+                '_'       => $shippingAmount,
+                'Name'    => 'GrossUnitPrice',
+                'Group'   => 'Article',
+                'GroupID' =>  $count,
+            ],
+            [
+                '_'       => $percent,
                 'Name'    => 'VatPercentage',
                 'Group'   => 'Article',
                 'GroupID' =>  $count,
@@ -1165,6 +950,12 @@ class Billink extends AbstractMethod
     ) {
         $article = [
             [
+                '_'       => $articleDescription,
+                'Name'    => 'Description',
+                'GroupID' => $latestKey,
+                'Group' => 'Article',
+            ],
+            [
                 '_'       => $articleId,
                 'Name'    => 'Identifier',
                 'Group' => 'Article',
@@ -1177,13 +968,13 @@ class Billink extends AbstractMethod
                 'Group' => 'Article',
             ],
             [
-                '_'       => number_format($articleUnitPrice, 4, '.', ''),
-                'Name'    => 'GrossUnitPriceIncl',
+                '_'       => $articleUnitPrice,
+                'Name'    => 'GrossUnitPrice',
                 'GroupID' => $latestKey,
                 'Group' => 'Article',
             ],
             [
-                '_'       => (int)$articleVat,
+                '_'       => $articleVat,
                 'Name'    => 'VatPercentage',
                 'GroupID' => $latestKey,
                 'Group' => 'Article',
@@ -1221,90 +1012,80 @@ class Billink extends AbstractMethod
         $billingAddress = $order->getBillingAddress();
         $streetFormat   = $this->formatStreet($billingAddress->getStreet());
 
-        $birthDayStamp = date("d-m-Y", strtotime(str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'))));
-        $chamberOfCommerce = $payment->getAdditionalInformation('customer_chamberOfCommerce');
-        $VATNumber = $payment->getAdditionalInformation('customer_VATNumber');
+        $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
+        $identificationNumber = $payment->getAdditionalInformation('customer_identificationNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
-        $category = $this->_scopeConfig->getValue(static::BUSINESS_METHOD);
-        $category = ($category == static::BUSINESS_METHOD_B2B) ? 'B2B' : 'B2C';
+        $category = 'B2C';
 
-        $gender = 'Female';
-
+        $gender = 'female';
         if ($payment->getAdditionalInformation('customer_gender') === '1') {
-            $gender = 'Male';
+            $gender = 'male';
         }
 
-        $GroupID = 1;
         $billingData = [
             [
                 '_'    => $category,
                 'Name' => 'Category',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $billingAddress->getFirstname(),
                 'Name' => 'FirstName',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
-            ],
-            [
-                '_'    => strtoupper(substr($billingAddress->getFirstname(), 0, 1)),
-                'Name' => 'Initials',
-                'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $billingAddress->getLastName(),
                 'Name' => 'LastName',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
-                '_'    => $billingAddress->getFirstname() . ' ' .$billingAddress->getLastName(),
-                'Name' => 'CareOf',
+                '_'    => $gender,
+                'Name' => 'Gender',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $streetFormat['street'],
                 'Name' => 'Street',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $billingAddress->getPostcode(),
                 'Name' => 'PostalCode',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $billingAddress->getCity(),
                 'Name' => 'City',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $billingAddress->getCountryId(),
                 'Name' => 'Country',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $billingAddress->getEmail(),
                 'Name' => 'Email',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
         ];
 
         if (!empty($telephone)) {
             $billingData[] = [
                 '_'    => $telephone,
-                'Name' => 'MobilePhone',
+                'Name' => 'Phone',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ];
         }
 
@@ -1313,7 +1094,7 @@ class Billink extends AbstractMethod
                 '_'    => $streetFormat['house_number'],
                 'Name' => 'StreetNumber',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ];
         }
 
@@ -1322,43 +1103,25 @@ class Billink extends AbstractMethod
                 '_'    => $streetFormat['number_addition'],
                 'Name' => 'StreetNumberAdditional',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ];
         }
 
-        if (!empty($chamberOfCommerce)) {
+        if ($billingAddress->getCountryId() == 'FI') {
             $billingData[] = [
-                '_'    => $chamberOfCommerce,
-                'Name' => 'ChamberOfCommerce',
+                '_'    => $identificationNumber,
+                'Name' => 'IdentificationNumber',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ];
         }
 
-        if (!empty($VATNumber)) {
-            $billingData[] = [
-                '_'    => $VATNumber,
-                'Name' => 'VATNumber',
-                'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
-            ];
-        }
-
-        if (!empty($gender)) {
-            $billingData[] = [
-                '_'    => $gender,
-                'Name' => 'Salutation',
-                'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
-            ];
-        }
-
-        if (!empty($birthDayStamp)) {
+        if($birthDayStamp){
             $billingData[] = [
                 '_'    => $birthDayStamp,
                 'Name' => 'BirthDate',
                 'Group' => 'BillingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ];
         }
 
@@ -1377,79 +1140,97 @@ class Billink extends AbstractMethod
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $order->getShippingAddress();
+        if($shippingAddress == null) {
+            $shippingAddress = $order->getBillingAddress();
+        }
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 
         if (!empty($postNLPakjeGemakAddress) && !empty($postNLPakjeGemakAddress->getData())) {
             $shippingAddress = $postNLPakjeGemakAddress;
         }
 
+        $telephone = $payment->getAdditionalInformation('customer_telephone');
+        $telephone = (empty($telephone) ? $shippingAddress->getTelephone() : $telephone);
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
-        $category = $this->_scopeConfig->getValue(static::BUSINESS_METHOD);
-        $category = ($category == static::BUSINESS_METHOD_B2B) ? 'B2B' : 'B2C';
+        $category = 'B2C';
 
-        $gender = 'Female';
+        $gender = 'female';
         if ($payment->getAdditionalInformation('customer_gender') == '1') {
-            $gender = 'Male';
+            $gender = 'male';
         }
 
-        $GroupID = 2;
         $shippingData = [
+            [
+                '_'    => $category,
+                'Name' => 'Category',
+                'Group' => 'ShippingCustomer',
+                'GroupID' => '',
+            ],
             [
                 '_'    => $shippingAddress->getFirstname(),
                 'Name' => 'FirstName',
                 'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
-            ],
-            [
-                '_'    => strtoupper(substr($shippingAddress->getFirstname(), 0, 1)),
-                'Name' => 'Initials',
-                'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $shippingAddress->getLastName(),
                 'Name' => 'LastName',
                 'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
-                '_'    => $shippingAddress->getFirstname() . ' ' .$shippingAddress->getLastName(),
-                'Name' => 'CareOf',
+                '_'    => $gender,
+                'Name' => 'Gender',
                 'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $streetFormat['street'],
                 'Name' => 'Street',
                 'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $shippingAddress->getPostcode(),
                 'Name' => 'PostalCode',
                 'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $shippingAddress->getCity(),
                 'Name' => 'City',
                 'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ],
             [
                 '_'    => $shippingAddress->getCountryId(),
                 'Name' => 'Country',
                 'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
+            ],
+            [
+                '_'    => $shippingAddress->getEmail(),
+                'Name' => 'Email',
+                'Group' => 'ShippingCustomer',
+                'GroupID' => '',
             ],
         ];
+
+        if (!empty($telephone)) {
+            $shippingData[] = [
+                '_'    => $telephone,
+                'Name' => 'Phone',
+                'Group' => 'ShippingCustomer',
+                'GroupID' => '',
+            ];
+        }
 
         if (!empty($streetFormat['house_number'])) {
             $shippingData[] = [
                 '_'    => $streetFormat['house_number'],
                 'Name' => 'StreetNumber',
                 'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ];
         }
 
@@ -1458,7 +1239,7 @@ class Billink extends AbstractMethod
                 '_'    => $streetFormat['number_addition'],
                 'Name' => 'StreetNumberAdditional',
                 'Group' => 'ShippingCustomer',
-                'GroupID' => $GroupID,
+                'GroupID' => '',
             ];
         }
 
@@ -1467,7 +1248,7 @@ class Billink extends AbstractMethod
 
     /**
      * Check if there is a "pakjegemak" address stored in the quote by this order.
-     * Afterpay wants to receive the "pakjegemak" address instead of the customer shipping address.
+     * Klarna wants to receive the "pakjegemak" address instead of the customer shipping address.
      *
      * @param int $quoteId
      *
@@ -1648,7 +1429,7 @@ class Billink extends AbstractMethod
     public function getDiffLine($latestKey, $diff)
     {
         $article = [];
-        
+
         $article = $this->getArticleArrayLine(
             $latestKey,
             'Discount/Fee',
@@ -1659,5 +1440,21 @@ class Billink extends AbstractMethod
         );
 
         return $article;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCaptureTransactionBuilder($payment)
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAuthorizeTransactionBuilder($payment)
+    {
+        return false;
     }
 }
