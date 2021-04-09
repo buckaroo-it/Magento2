@@ -55,7 +55,7 @@ define(
                     },
                     'BE': {
                         min: 10,
-                        max: 10
+                        max: 12
                     },
                     'DE': {
                         min: 11,
@@ -309,8 +309,6 @@ define(
                             elements.valid();
                         }
 
-                        // this.phoneValidate = '12345678901234';
-                        // console.log('[t]', this.phoneValidate());
                         if (this.calculateAge(this.dateValidate()) >= 18) {
                             $('#' + this.getCode() + '_DoB-error').hide();
                             $('#' + this.getCode() + '_DoB').removeClass('mage-error');
