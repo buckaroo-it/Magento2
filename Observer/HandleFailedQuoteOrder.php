@@ -76,6 +76,7 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             } catch (\Exception $e) {
                 //ignore
             }
+            $this->buckarooSession->setData('flagHandleFailedQuote', 0);
         }
 
     }
