@@ -393,7 +393,7 @@ class Data extends AbstractHelper
             ['value' => 'afterpay2',       'label' => __('Afterpay 2 (old)')],
             ['value' => 'afterpay20',       'label' => __('Afterpay')],
             ['value' => 'alipay',       'label' => __('Alipay')],
-            ['value' => 'applepay',       'label' => __('Apple Pay)')],
+            ['value' => 'applepay',       'label' => __('Apple Pay')],
             ['value' => 'billink',       'label' => __('Billink')],
             ['value' => 'capayablein3',       'label' => __('In3')],
             ['value' => 'creditcard',       'label' => __('Creditcards')],
