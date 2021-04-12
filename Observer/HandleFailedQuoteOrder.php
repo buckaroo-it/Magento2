@@ -20,8 +20,18 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Model\Session as BuckarooSession;
+
 class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterface
 {
+    protected $buckarooSession;
+
+    public function __construct(
+        BuckarooSession $buckarooSession
+    ) {
+        $this->buckarooSession = $buckarooSession;
+    }
+
     /**
      * @param \Magento\Framework\Event\Observer $observer
      * @return void
@@ -60,11 +70,13 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             }
 
             try {
+                $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 $order->cancel();
                 $order->save();
             } catch (\Exception $e) {
                 //ignore
             }
+            $this->buckarooSession->setData('flagHandleFailedQuote', 0);
         }
 
     }
