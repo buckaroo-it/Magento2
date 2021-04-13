@@ -30,7 +30,8 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'Magento_Customer/js/model/customer',
         'Magento_Ui/js/lib/knockout/bindings/datepicker',
-        'Magento_Checkout/js/action/select-billing-address'
+        'Magento_Checkout/js/action/select-billing-address',
+        "mage/cookies"
     ],
     function (
         $,
@@ -393,6 +394,21 @@ define(
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
                         placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
+
+                        //resave dpd cookies with '/' path , otherwise in some cases they won't be available at backend side
+                        var dpdCookies = [
+                            'dpd-selected-parcelshop-street',
+                            'dpd-selected-parcelshop-zipcode',
+                            'dpd-selected-parcelshop-city',
+                            'dpd-selected-parcelshop-country'
+                        ];
+                        dpdCookies.forEach(function(item) {
+                            var value = $.mage.cookies.get(item);
+                            if (value) {
+                                $.mage.cookies.clear(item);
+                                $.mage.cookies.set(item, value, { path: '/' });
+                            }
+                        });
 
                         $.when(placeOrder).fail(
                             function () {
