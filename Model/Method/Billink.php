@@ -480,6 +480,7 @@ class Billink extends AbstractMethod
         // Set loop variables
         $articles = [];
         $count    = 1;
+        $bundleProductQty = 0;
 
         /** @var \Magento\Sales\Model\Order\Item $item */
         foreach ($cartData as $item) {
@@ -495,14 +496,19 @@ class Billink extends AbstractMethod
                 && $item->getProduct()->getCustomAttribute('price_type')
                 && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
             ) {
+                $bundleProductQty = $item->getQty();
                 continue;
+            }
+
+            if (!$item->getParentItemId()) {
+                $bundleProductQty = 0;
             }
 
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
                 $item->getSku(),
-                $item->getQty(),
+                $bundleProductQty ? $bundleProductQty : $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getTaxPercent()
             );

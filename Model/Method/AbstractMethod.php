@@ -1596,7 +1596,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $productPrice = $productItem->getPriceInclTax();
 
         if (!$includesTax) {
-            if ($productItem->getDiscountAmount()) {
+            if ($productItem->getDiscountAmount() >= 0.01) {
                 $productPrice = $productItem->getPrice()
                     + $productItem->getTaxAmount() / $productItem->getQty();
             }
