@@ -22,6 +22,18 @@ namespace Buckaroo\Magento2\Observer;
 
 class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterface
 {
+    private $paymentHelper;
+
+    /**
+     * @param Log $logging
+     * @param Factory $configProviderMethodFactory
+     */
+    public function __construct(
+        \Magento\Payment\Helper\Data $paymentHelper
+    ) {
+        $this->paymentHelper = $paymentHelper;
+    }
+
     /**
      * @param \Magento\Framework\Event\Observer $observer
      * @return void
@@ -30,15 +42,25 @@ class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterfa
     {
         $method = $observer->getMethodInstance();
         if ($method->getCode() !== 'buckaroo_magento2_pospayment') {
-            //in case if POS is available : hide all other
-
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $paymentHelper = $objectManager->get(\Magento\Payment\Helper\Data::class);
-            $pospaymentMethodInstance = $paymentHelper->getMethodInstance('buckaroo_magento2_pospayment');
-
+            $pospaymentMethodInstance = $this->paymentHelper->getMethodInstance('buckaroo_magento2_pospayment');
             if ($pospaymentMethodInstance->isAvailable($observer->getEvent()->getQuote())) {
-                $checkResult = $observer->getEvent()->getResult();
-                $checkResult->setData('is_available', false);
+                $showMethod = false;
+                //check custom set payment methods what should be visible in addition to POS
+                if ($otherPaymentMethods = $pospaymentMethodInstance->getOtherPaymentMethods()) {
+                    if (strpos($method->getCode(), 'buckaroo_magento2') !== false) {
+                        if (in_array(
+                            str_replace('buckaroo_magento2_', '', $method->getCode()),
+                            explode(',', $otherPaymentMethods)
+                        )) {
+                            $showMethod = true;
+                        }
+                    }
+                }
+
+                if (!$showMethod) {
+                    $checkResult = $observer->getEvent()->getResult();
+                    $checkResult->setData('is_available', false);
+                }
             }
         }
     }

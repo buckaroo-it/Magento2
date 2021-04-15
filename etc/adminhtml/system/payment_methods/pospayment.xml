@@ -48,6 +48,13 @@
             <config_path>payment/buckaroo_magento2_pospayment/user_agent</config_path>
         </field>
 
+        <field id="other_payment_methods" translate="label comment tooltip" type="multiselect" sortOrder="37" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Show other active payment methods</label>
+            <comment><![CDATA[By default in case of active Point of Sale all other payment methods will be explicitly hidden.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\Pos</source_model>
+            <config_path>payment/buckaroo_magento2_pospayment/other_payment_methods</config_path>
+        </field>
+
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 

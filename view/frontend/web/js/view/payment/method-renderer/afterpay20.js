@@ -28,9 +28,10 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'Magento_Ui/js/lib/knockout/bindings/datepicker'
-        /*,
-         'jquery/validate'*/
+        'Magento_Customer/js/model/customer',
+        'Magento_Ui/js/lib/knockout/bindings/datepicker',
+        'Magento_Checkout/js/action/select-billing-address',
+        "mage/cookies"
     ],
     function (
         $,
@@ -40,14 +41,61 @@ define(
         quote,
         ko,
         checkoutData,
-        selectPaymentMethodAction
+        selectPaymentMethodAction,
+        customer,
+        selectBillingAddress
     ) {
         'use strict';
 
+        $.validator.addMethod('phoneValidation', function (value) {
+                var countryId = quote.billingAddress().countryId;
+                var lengths = {
+                    'NL': {
+                        min: 10,
+                        max: 12
+                    },
+                    'BE': {
+                        min: 10,
+                        max: 12
+                    },
+                    'DE': {
+                        min: 11,
+                        max: 14
+                    }
+                };
+                if (!value) {
+                    return false;
+                }
+
+                value = value.replace(/^\+|(00)/, '');
+                value = value.replace(/\(0\)|\s|-/g, '');
+
+                if (value.match(/\+/)) {
+                    return false;
+                }
+
+                if (value.match(/[^0-9]/)) {
+                    return false;
+                }
+
+                if (lengths.hasOwnProperty(countryId)) {
+                    if (lengths[countryId].min && (value.length < lengths[countryId].min)) {
+                        return false;
+                    }
+                    if (lengths[countryId].max && (value.length > lengths[countryId].max)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            },
+            $.mage.__('Phone number should be correct.')
+        );
+
         return Component.extend(
             {
-                defaults                : {
-                    template : 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay20',
+                defaults: {
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay20',
                     selectedGender: null,
                     identificationNumber: null,
                     firstName: '',
@@ -71,11 +119,13 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,
+                isCustomerLoggedIn: customer.isLoggedIn,
 
                 /**
                  * @override
                  */
-                initialize : function (options) {
+                initialize: function (options) {
+                    var self = this;
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
                     }
@@ -143,7 +193,7 @@ define(
                     );
 
                     this.updateShowFields = function () {
-                        if (this.country === null) {
+                        if (this.isCustomerLoggedIn() && !this.isOsc() && (this.country === null)) {
                             return;
                         }
 
@@ -151,7 +201,7 @@ define(
                         this.showIdentificationValue(false);
                         this.showPhoneValue(false);
 
-                        if (this.country === 'NL' || this.country === 'BE') {
+                        if ((!this.isCustomerLoggedIn() && this.isOsc()) || ((this.country === 'NL' || this.country === 'BE'))) {
                             this.showNLBEFieldsValue(true);
                         }
 
@@ -159,8 +209,9 @@ define(
                             this.showIdentificationValue(true);
                         }
 
-                        //console.log("=========updateShowFields1", this.country, this.phoneValidate());
                         if (
+                            (!this.isCustomerLoggedIn() && this.isOsc())
+                            ||
                             (this.country === 'NL' || this.country === 'BE')
                             ||
                             this.phoneValidate()
@@ -174,12 +225,16 @@ define(
                      * bind them together, so they could appear in the frontend
                      */
                     this.updateBillingName = function(firstname, lastname) {
+                        if (!firstname && !lastname) {
+                            return false;
+                        }
+
                         this.firstName = firstname;
                         this.lastName = lastname;
 
                         this.CustomerName = ko.computed(
                             function () {
-                                return this.firstName + " " + this.lastName;
+                                return (this.firstName ? this.firstName : "") + (this.lastName ? " " + this.lastName : "");
                             },
                             this
                         );
@@ -188,12 +243,22 @@ define(
                     };
 
                     if (quote.billingAddress()) {
-                        //console.log("=========quote.billingAddress1");
                         this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
                         this.updateTermsUrl(quote.billingAddress().countryId);
                         this.phoneValidate(quote.billingAddress().telephone);
                         this.updateShowFields();
                     }
+
+                    quote.shippingAddress.subscribe(
+                        function(newAddress) {
+                            if (!this.isCustomerLoggedIn() && this.isOsc()) {
+                                if (newAddress.telephone) {
+                                    this.phoneValidate();
+                                }
+                                this.updateBillingName(newAddress.firstname, newAddress.lastname);
+                            }
+                        }.bind(this)
+                    );
 
                     quote.billingAddress.subscribe(
                         function(newAddress) {
@@ -205,9 +270,8 @@ define(
                             }
 
                             if (this.currentCustomerAddressId != newAddress.getKey()) {
-                                //console.log("=========billingAddress.subscribe2", newAddress.getKey());
                                 this.currentCustomerAddressId = newAddress.getKey();
-                                this.phoneValidate(newAddress.telephone);
+                                this.phoneValidate();
                             }
 
                             if (newAddress.firstname !== this.firstName || newAddress.lastname !== this.lastName) {
@@ -232,95 +296,37 @@ define(
                         return true;
                     };
 
-                    this.validatePhone = function() {
-
-                        //console.log('====validatePhone1', this.country, this.phoneValidate());
-
-                        function returnSuccess() {
-                            $('#' + self.getCode() + '_Telephone-error').hide();
-                            $('#' + self.getCode() + '_Telephone').removeClass('mage-error');
-                            return true;
-                        }
-
-                        function returnError() {
-                            setTimeout(function () {
-                                $('#' + self.getCode() + '_Telephone-error').show();
-                                $('#' + self.getCode() + '_Telephone').addClass('mage-error');
-                            }, 200);
-                            return false;
-                        }
-
-                        if ((this.country == 'NL' || this.country == 'BE') || this.phoneValidate()) {
-                            var lengths = {
-                                'NL': {
-                                    min: 10,
-                                    max: 12
-                                },
-                                'BE': {
-                                    min: 10,
-                                    max: 10
-                                },
-                                'DE': {
-                                    min: 11,
-                                    max: 14
-                                }/*,
-                                'FI': {
-                                    min: 5,
-                                    max: 12
-                                },*/
-                            };
-
-
-                            if (!this.phoneValidate()) {
-                                return returnError();
-                            }
-
-                            if (this.phoneValidate().match(/\+/g)) {
-                                return returnError();
-                            }
-
-                            if (lengths.hasOwnProperty(this.country)) {
-                                if (lengths[this.country].min && (this.phoneValidate().length < lengths[this.country].min)) {
-                                    return returnError();
-                                }
-                                if (lengths[this.country].max && (this.phoneValidate().length > lengths[this.country].max)) {
-                                    return returnError();
-                                }
-                            }
-
-                        }
-                        return returnSuccess();
-                    };
-
                     /**
                      * Validation on the input fields
                      */
 
                     var runValidation = function () {
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
-                        if (this.country != 'NL' && this.country != 'BE') {
-                            elements = elements.filter(':not([name*="customer_gender"])');
+
+                        if(elements !== undefined){
+                            if (this.country != 'NL' && this.country != 'BE') {
+                                elements = elements.filter(':not([name*="customer_gender"])');
+                            }
+                            elements.valid();
                         }
-                        elements.valid();
-                        this.selectPaymentMethod();
 
                         if (this.calculateAge(this.dateValidate()) >= 18) {
                             $('#' + this.getCode() + '_DoB-error').hide();
                             $('#' + this.getCode() + '_DoB').removeClass('mage-error');
                         } else {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 $('#' + self.getCode() + '_DoB-error').show();
                                 $('#' + self.getCode() + '_DoB').addClass('mage-error');
-                            },200);
+                            }, 200);
                         }
                     };
 
-                    this.dateValidate.subscribe(runValidation,this);
-                    this.termsValidate.subscribe(runValidation,this);
-                    this.genderValidate.subscribe(runValidation,this);
-                    this.identificationValidate.subscribe(runValidation,this);
-                    this.phoneValidate.subscribe(runValidation,this);
-                    this.dummy.subscribe(runValidation,this);
+                    this.dateValidate.subscribe(runValidation, this);
+                    this.termsValidate.subscribe(runValidation, this);
+                    this.genderValidate.subscribe(runValidation, this);
+                    this.identificationValidate.subscribe(runValidation, this);
+                    this.phoneValidate.subscribe(runValidation, this);
+                    this.dummy.subscribe(runValidation, this);
 
                     this.calculateAge = function (specifiedDate) {
                         if (specifiedDate && (specifiedDate.length > 0)) {
@@ -348,7 +354,7 @@ define(
                                 (!this.showIdentification() || this.identificationValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
-                                (!this.showPhone() || ((this.phoneValidate() !== null) && (this.validatePhone()))) &&
+                                (!this.showPhone() || ((this.phoneValidate() !== null))) &&
                                 this.termsValidate() !== false &&
                                 this.validate() &&
                                 (
@@ -381,9 +387,28 @@ define(
                         event.preventDefault();
                     }
 
+                    if (!quote.billingAddress()) {
+                        selectBillingAddress(quote.shippingAddress());
+                    }
+
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
                         placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
+
+                        //resave dpd cookies with '/' path , otherwise in some cases they won't be available at backend side
+                        var dpdCookies = [
+                            'dpd-selected-parcelshop-street',
+                            'dpd-selected-parcelshop-zipcode',
+                            'dpd-selected-parcelshop-city',
+                            'dpd-selected-parcelshop-country'
+                        ];
+                        dpdCookies.forEach(function(item) {
+                            var value = $.mage.cookies.get(item);
+                            if (value) {
+                                $.mage.cookies.clear(item);
+                                $.mage.cookies.set(item, value, { path: '/' });
+                            }
+                        });
 
                         $.when(placeOrder).fail(
                             function () {
@@ -395,7 +420,7 @@ define(
                     return false;
                 },
 
-                magentoTerms: function() {
+                magentoTerms: function () {
                     /**
                      * The agreement checkbox won't force an update of our bindings. So check for changes manually and notify
                      * the bindings if something happend. Use $.proxy() to access the local this object. The dummy property is
@@ -431,6 +456,7 @@ define(
                     if (quote.billingAddress()) {
                         this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
                         this.updateTermsUrl(quote.billingAddress().countryId);
+                        this.showPhone();
                     }
 
                     return true;
@@ -446,7 +472,7 @@ define(
                         &&
                         !$('.action.primary.checkout').is(':visible')
                     ) {
-                       return true;
+                        return true;
                     }
                     var elements = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
                     if (this.country != 'NL' && this.country != 'BE') {
@@ -460,12 +486,12 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_telephone" : this.phoneValidate(),
-                            "customer_gender" : this.genderValidate(),
-                            "customer_identificationNumber" : this.identificationValidate(),
-                            "customer_billingName" : this.BillingName(),
-                            "customer_DoB" : this.dateValidate(),
-                            "termsCondition" : this.termsValidate(),
+                            "customer_telephone": this.phoneValidate(),
+                            "customer_gender": this.genderValidate(),
+                            "customer_identificationNumber": this.identificationValidate(),
+                            "customer_billingName": this.BillingName(),
+                            "customer_DoB": this.dateValidate(),
+                            "termsCondition": this.termsValidate(),
                         }
                     };
                 },
@@ -526,6 +552,10 @@ define(
                     tosText = tosText.replace('%s', tosUrl);
 
                     return tosText;
+                },
+
+                isOsc: function () {
+                    return document.querySelector('.action.primary.checkout.iosc-place-order-button');
                 }
             }
         );

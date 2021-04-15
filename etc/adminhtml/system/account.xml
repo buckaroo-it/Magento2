@@ -121,6 +121,13 @@
                 <config_path>buckaroo_magento2/account/order_confirmation_email</config_path>
             </field>
 
+            <field id="order_confirmation_email_sync" translate="label comment" type="select" sortOrder="55" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Send order confirmation email in sync mode</label>
+                <comment><![CDATA[Helps to prevent order status conflicts between cron based (async) processing of emails and order status handling. Redefines "General Settings / Asynchronous sending" setting.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>buckaroo_magento2/account/order_confirmation_email_sync</config_path>
+            </field>
+
             <field id="invoice_email" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Send transactional invoice email</label>
                 <comment><![CDATA[Send a mail after successful payment.]]></comment>

@@ -21,6 +21,10 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Buckaroo\Magento2\Model\Invoice;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Quote\Model\Quote\AddressFactory;
 
 class PaymentGuarantee extends AbstractMethod
 {
@@ -143,6 +147,7 @@ class PaymentGuarantee extends AbstractMethod
      * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
      * @param \Buckaroo\Magento2\Model\ValidatorFactory                    $validatorFactory
      * @param \Buckaroo\Magento2\Helper\Data                               $helper
+     * @param \Magento\Quote\Model\QuoteFactory                            $quoteFactory
      * @param \Magento\Framework\App\RequestInterface                 $request
      * @param \Buckaroo\Magento2\Model\RefundFieldsFactory                 $refundFieldsFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory              $configProviderFactory
@@ -160,11 +165,16 @@ class PaymentGuarantee extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Model\InvoiceFactory $invoiceFactory,
         \Buckaroo\Magento2\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Buckaroo\Magento2\Service\Formatter\AddressFormatter $addressFormatter,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
+        AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -188,7 +198,12 @@ class PaymentGuarantee extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
-            $cookieManager,
+            $quoteFactory,
+            $taxConfig,
+            $taxCalculation,
+            $configProviderBuckarooFee,
+            $softwareData,
+            $addressFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -276,8 +291,7 @@ class PaymentGuarantee extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push',
-            1
+            'skip_push', 1
         );
 
         return $transactionBuilder;
@@ -365,8 +379,7 @@ class PaymentGuarantee extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push',
-            1
+            'skip_push', 1
         );
 
         return $transactionBuilder;
@@ -501,7 +514,7 @@ class PaymentGuarantee extends AbstractMethod
                 'Name' => 'InvoiceDate'
             ],
             [
-                '_'    => date('Y-m-d', strtotime('+14 day', time())),
+                '_'    => date('Y-m-d',strtotime('+14 day', time())),
                 'Name' => 'DateDue'
             ],
             [
@@ -564,7 +577,7 @@ class PaymentGuarantee extends AbstractMethod
             $defaultValues = array_merge($defaultValues, $invoiceId);
         }
 
-        if ($this->isAddressDataDifferent($billingAddress, $shippingAddress)) {
+        if ($this->isTwoAddressesDataDifferent($billingAddress, $shippingAddress)) {
             $returnValues = array_merge($defaultValues, $this->singleAddress($billingAddress, 'INVOICE'));
             return array_merge($returnValues, $this->singleAddress($shippingAddress, 'SHIPPING', 2));
         }
@@ -629,7 +642,7 @@ class PaymentGuarantee extends AbstractMethod
      *
      * @return bool
      */
-    private function isAddressDataDifferent($addressOne, $addressTwo)
+    private function isTwoAddressesDataDifferent($addressOne, $addressTwo)
     {
         if ($addressOne === null || $addressTwo === null) {
             return false;
@@ -646,38 +659,6 @@ class PaymentGuarantee extends AbstractMethod
         $arrayDifferences = $this->calculateAddressDataDifference($addressOne, $addressTwo);
 
         return !empty($arrayDifferences);
-    }
-
-    /**
-     * @param array $addressOne
-     * @param array $addressTwo
-     *
-     * @return array
-     */
-    private function calculateAddressDataDifference($addressOne, $addressTwo)
-    {
-        $keysToExclude = array_flip([
-            'prefix',
-            'telephone',
-            'fax',
-            'created_at',
-            'email',
-            'customer_address_id',
-            'vat_request_success',
-            'vat_request_date',
-            'vat_request_id',
-            'vat_is_valid',
-            'vat_id',
-            'address_type',
-            'extension_attributes',
-        ]);
-
-        $arrayDifferences = array_diff(
-            array_diff_key($addressOne, $keysToExclude),
-            array_diff_key($addressTwo, $keysToExclude)
-        );
-
-        return $arrayDifferences;
     }
 
     /**
@@ -811,7 +792,7 @@ class PaymentGuarantee extends AbstractMethod
         $incrementNumber = $numberOfInvoices + $numberOfCreditmemos;
 
         if (null !== $payment->getCreditmemo()) {
-            ++$incrementNumber;
+            $incrementNumber += 1;
         }
 
         $partialId = $order->getIncrementId() . '-' . $incrementNumber;

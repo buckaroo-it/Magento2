@@ -30,6 +30,7 @@
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
     <preference for="Magento\Quote\Model\Cart\CartTotalRepository" type="Buckaroo\Magento2\Model\Cart\CartTotalRepository" />
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
+    <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Model\Plugin\GuestSaveManager" />
 
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>
@@ -43,6 +44,7 @@
             <argument name="configProviderFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Factory</argument>
             <argument name="configProviderMethodFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Factory</argument>
             <argument name="priceHelper" xsi:type="object">Magento\Framework\Pricing\Helper\Data</argument>
+            <argument name="quoteFactory" xsi:type="object">Magento\Quote\Model\QuoteFactory</argument>
         </arguments>
     </type>
 
@@ -66,7 +68,9 @@
         <plugin name="buckaroo_magento2_plugin_afterpay" type="Buckaroo\Magento2\Model\Plugin\Method\Afterpay"/>
         <plugin name="buckaroo_magento2_plugin_afterpay2" type="Buckaroo\Magento2\Model\Plugin\Method\Afterpay2"/>
         <plugin name="buckaroo_magento2_plugin_emandate" type="Buckaroo\Magento2\Model\Plugin\Method\Emandate"/>
+        <plugin name="buckaroo_magento2_plugin_klarna" type="Buckaroo\Magento2\Model\Plugin\Method\Klarna"/>
         <plugin name="buckaroo_magento2_plugin_klarnakp" type="Buckaroo\Magento2\Model\Plugin\Method\Klarnakp"/>
+        <plugin name="buckaroo_magento2_plugin_klarnain" type="Buckaroo\Magento2\Model\Plugin\Method\Klarnain"/>
     </type>
 
     <type name="Buckaroo\Magento2\Model\Push">
@@ -245,9 +249,17 @@
                     <item name="type" xsi:type="string">kbc</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Kbc</item>
                 </item>
+                <item name="klarna" xsi:type="array">
+                    <item name="type" xsi:type="string">klarna</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna</item>
+                </item>
                 <item name="klarnakp" xsi:type="array">
                     <item name="type" xsi:type="string">klarnakp</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp</item>
+                </item>
+                <item name="klarnain" xsi:type="array">
+                    <item name="type" xsi:type="string">klarnain</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain</item>
                 </item>
                 <item name="emandate" xsi:type="array">
                     <item name="type" xsi:type="string">emandate</item>
@@ -342,7 +354,6 @@
             <argument name="handlers"  xsi:type="array">
                 <item name="exception" xsi:type="object">Buckaroo\Magento2\Logging\CriticalHandler</item>
                 <item name="debug" xsi:type="object">Buckaroo\Magento2\Logging\DebugHandler</item>
-                <item name="info" xsi:type="object">Buckaroo\Magento2\Logging\DbHandler</item>
             </argument>
         </arguments>
     </type>
@@ -429,39 +440,7 @@
         <plugin name="myParcelNLBuckarooPlugin" type="Buckaroo\Magento2\Model\Plugin\MyParcelNLBuckarooPlugin" />
     </type>
 
-    <!-- Lazy load proxies -->
-    <type name="Buckaroo\Magento2\Observer\SuccessOrder">
-        <arguments>
-            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
-        </arguments>
+    <type name="Magento\CatalogInventory\Model\Configuration">
+        <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
     </type>
-
-    <type name="Buckaroo\Magento2\Observer\RestoreQuote">
-        <arguments>
-            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
-        </arguments>
-    </type>
-    
-    <type name="Buckaroo\Magento2\Helper\Data">
-        <arguments>
-            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
-        </arguments>
-    </type>
-
-    <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
-	<preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
-	<preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
-	<virtualType name="Buckaroo\Magento2\Model\ResourceModel\Log\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
-		<arguments>
-			<argument name="mainTable" xsi:type="string">buckaroo_magento2_log</argument>
-			<argument name="resourceModel" xsi:type="string">Buckaroo\Magento2\Model\ResourceModel\Log\Collection</argument>
-		</arguments>
-	</virtualType>
-	<type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
-		<arguments>
-			<argument name="collections" xsi:type="array">
-				<item name="buckaroo_magento2_log_listing_data_source" xsi:type="string">Buckaroo\Magento2\Model\ResourceModel\Log\Grid\Collection</item>
-			</argument>
-		</arguments>
-	</type>
 </config>

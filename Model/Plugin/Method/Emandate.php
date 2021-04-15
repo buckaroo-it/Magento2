@@ -21,6 +21,11 @@ namespace Buckaroo\Magento2\Model\Plugin\Method;
 
 use \Magento\Sales\Model\Order;
 
+/**
+ * Class Emandate
+ *
+ * @package Buckaroo\Magento2\Model\Plugin\Method
+ */
 class Emandate
 {
     const EMANDATE_METHOD_NAME = 'buckaroo_magento2_emandate';
@@ -33,7 +38,7 @@ class Emandate
     public $emandateMethod = false;
 
     /**
-     * @param \Buckaroo\Magento2\Model\Method\Klarnakp $klarnakp
+     * @param \Buckaroo\Magento2\Model\Method\Emandate $emandate
      */
     public function __construct(\Buckaroo\Magento2\Model\Method\Emandate $emandate)
     {

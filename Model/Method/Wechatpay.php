@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Model\Method;
 
 class Wechatpay extends AbstractMethod
 {
-/**
+    /**
      * Payment Code
      */
     const PAYMENT_METHOD_CODE = 'buckaroo_magento2_wechatpay';
@@ -31,6 +31,8 @@ class Wechatpay extends AbstractMethod
      * @var string
      */
     public $buckarooPaymentMethodCode = 'wechatpay';
+
+    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -41,52 +43,53 @@ class Wechatpay extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway = true;
+    protected $_isGateway               = true;
 
     /**
      * @var bool
      */
-    protected $_canOrder = true;
+    protected $_canOrder                = true;
 
     /**
      * @var bool
      */
-    protected $_canAuthorize = false;
+    protected $_canAuthorize            = false;
 
     /**
      * @var bool
      */
-    protected $_canCapture = false;
+    protected $_canCapture              = false;
 
     /**
      * @var bool
      */
-    protected $_canCapturePartial = false;
+    protected $_canCapturePartial       = false;
 
     /**
      * @var bool
      */
-    protected $_canRefund = true;
+    protected $_canRefund               = true;
 
     /**
      * @var bool
      */
-    protected $_canVoid = true;
+    protected $_canVoid                 = true;
 
     /**
      * @var bool
      */
-    protected $_canUseInternal = true;
+    protected $_canUseInternal          = true;
 
     /**
      * @var bool
      */
-    protected $_canUseCheckout = true;
+    protected $_canUseCheckout          = true;
 
     /**
      * @var bool
      */
     protected $_canRefundInvoicePartial = true;
+    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
@@ -95,21 +98,9 @@ class Wechatpay extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        $serviceAction = 'Pay';
-        if ($originalTransactionKey = $this->helper->getOriginalTransactionKey(
-            $payment->getOrder()->getIncrementId()
-        )) {
-            $serviceAction = 'PayRemainder';
-            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
-                        
-            if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())) {
-                $transactionBuilder->setAmount($transactionBuilder->getAmount() - $alreadyPaid);
-            }
-        }
-
         $services = [
             'Name'             => 'WeChatPay',
-            'Action'           => $serviceAction,
+            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [
                 [
@@ -131,8 +122,7 @@ class Wechatpay extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push',
-            1
+            'skip_push', 1
         );
 
         return $transactionBuilder;
@@ -198,11 +188,12 @@ class Wechatpay extends AbstractMethod
 
         if ($country == 'CN') {
             $localeCode = 'zh-CN';
-        } elseif ($country == 'TW') {
+        } else if ($country == 'TW') {
             $localeCode = 'zh-TW';
         } else {
             $localeCode = 'en-US';
         }
         return $localeCode;
     }
+
 }

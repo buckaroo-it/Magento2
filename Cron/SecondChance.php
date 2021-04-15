@@ -101,47 +101,41 @@ class SecondChance
         $this->stockItemRepository = $stockItemRepository;
         $this->logging             = $logging;
     }
-    
-    //phpcs:ignore:Generic.Metrics.NestingLevel
+
     public function execute()
     {
         $stores = $this->storeRepository->getList();
         foreach ($stores as $store) {
             if ($this->accountConfig->getSecondChance($store)) {
                 $now          = new \DateTime();
-                $secondChanceTiming = $this->accountConfig->getSecondChanceTiming($store)>0 ?
-                ('-' . $this->accountConfig->getSecondChanceTiming($store) . ' hour') : 'now';
+                $secondChanceTiming = $this->accountConfig->getSecondChanceTiming($store)>0 ? ('-' . $this->accountConfig->getSecondChanceTiming($store) . ' hour') : 'now';
                 $this->logging->addDebug(__METHOD__ . '|secondChanceTiming|' . $secondChanceTiming);
                 $secondChance = $this->secondChanceFactory->create();
                 $collection   = $secondChance->getCollection()
                     ->addFieldToFilter(
                         'status',
-                        ['eq' => '']
+                        array('eq' => '')
                     )
                     ->addFieldToFilter(
                         'store_id',
-                        ['eq' => $store->getId()]
+                        array('eq' => $store->getId())
                     )
-                    ->addFieldToFilter(
-                        'created_at',
-                        ['lteq' => date(
-                            'Y-m-d H:i:s',
-                            strtotime($secondChanceTiming, strtotime($now->format('Y-m-d H:i:s')))
-                        )
-                        ]
-                    );
+                    ->addFieldToFilter('created_at', ['lteq' => date('Y-m-d H:i:s', strtotime($secondChanceTiming, strtotime($now->format('Y-m-d H:i:s'))))]);
                 foreach ($collection as $item) {
                     $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
+                    $this->logging->addDebug(__METHOD__ . '|secondChance order State|' . $order->getState());
                     if (in_array($order->getState(), ['canceled', 'processing', 'new'])) {
                         if ($this->accountConfig->getNoSendSecondChance($store)) {
+                            $this->logging->addDebug(__METHOD__ . '|getNoSendSecondChance|');
                             if ($this->checkOrderProductsIsInStock($order)) {
+                                $this->logging->addDebug(__METHOD__ . '|checkOrderProductsIsInStock|');
                                 $this->sendMail($order, $item);
                             }
                         } else {
+                            $this->logging->addDebug(__METHOD__ . '|else getNoSendSecondChance|');
                             $this->sendMail($order, $item);
                         }
-                    }
-                    $item->setStatus('1');
+                    }                    
                 }
                 $collection->save();
             }
@@ -169,8 +163,8 @@ class SecondChance
                     'store' => $order->getStore()->getId(),
                 ]
             )->setTemplateVars(
-                $vars
-            )->setFrom([
+            $vars
+        )->setFrom([
             'email' => $this->scopeConfig->getValue('trans_email/ident_sales/email', ScopeInterface::SCOPE_STORE),
             'name'  => $this->scopeConfig->getValue('trans_email/ident_sales/name', ScopeInterface::SCOPE_STORE),
         ])->addTo($order->getCustomerEmail());
@@ -182,6 +176,8 @@ class SecondChance
         try {
             $transport->sendMessage();
             $this->inlineTranslation->resume();
+            $secondChance->setStatus('1');
+            $this->logging->addDebug(__METHOD__ . '|secondChanceEmail is sensed to|' . $order->getCustomerEmail());
         } catch (\Exception $exception) {
             $this->logging->addDebug(__METHOD__ . '|log failed email send|' . $exception->getMessage());
         }
@@ -230,10 +226,9 @@ class SecondChance
     public function checkOrderProductsIsInStock($order)
     {
         foreach ($order->getAllItems() as $orderItem) {
-            if (!$this->stockItemRepository->get($orderItem->getProductId())->getIsInStock()) {
-                return false;
-            }
-            if ($this->stockItemRepository->get($orderItem->getProductId())->getQty() < $orderItem->getQtyOrdered()) {
+            $productStock = $this->stockItemRepository->get($orderItem->getProductId());
+            if (!$productStock->getIsInStock()) {
+                $this->logging->addDebug(__METHOD__ . '|not getIsInStock|' . $orderItem->getProductId());
                 return false;
             }
         }

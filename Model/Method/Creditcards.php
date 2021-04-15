@@ -20,6 +20,11 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Quote\Model\Quote\AddressFactory;
+
 class Creditcards extends AbstractMethod
 {
     /**
@@ -109,8 +114,13 @@ class Creditcards extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
+        AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -134,7 +144,12 @@ class Creditcards extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
-            $cookieManager,
+            $quoteFactory,
+            $taxConfig,
+            $taxCalculation,
+            $configProviderBuckarooFee,
+            $softwareData,
+            $addressFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -222,15 +237,11 @@ class Creditcards extends AbstractMethod
         $additionalInformation = $payment->getAdditionalInformation();
 
         if (!isset($additionalInformation['customer_encrypteddata'])) {
-            throw new \Buckaroo\Magento2\Exception(
-                __('An error occured trying to send the encrypted creditcard data to Buckaroo.')
-            );
+            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted creditcard data to Buckaroo.'));
         }
 
         if (!isset($additionalInformation['customer_creditcardcompany'])) {
-            throw new \Buckaroo\Magento2\Exception(
-                __('An error occured trying to send the creditcard company data to Buckaroo.')
-            );
+            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the creditcard company data to Buckaroo.'));
         }
 
         $services = [

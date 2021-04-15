@@ -29,7 +29,7 @@
             <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_fee_totals"/>
         </referenceBlock>
         <referenceBlock name="content">
-            <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice\KlarnakpDiscountPartialInformation" before="-" name="buckaroo_invoice_new_info" template="Buckaroo_Magento2::sales/order/invoice/klarnakp_discount_info.phtml"/>
+            <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice\KlarnaDiscountPartialInformation" before="-" name="buckaroo_invoice_new_info" template="Buckaroo_Magento2::sales/order/invoice/klarna_discount_info.phtml"/>
         </referenceBlock>
     </body>
 </page>

@@ -99,7 +99,7 @@ class Paypal extends AbstractMethod
 
         $services = [
             'Name'             => 'paypal',
-            'Action'           => 'Pay',
+            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [],
         ];

@@ -58,6 +58,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'buckaroo_magento2/account/transaction_label';
     const XPATH_ACCOUNT_CERTIFICATE_FILE                = 'buckaroo_magento2/account/certificate_file';
     const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL        = 'buckaroo_magento2/account/order_confirmation_email';
+    const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL_SYNC   = 'buckaroo_magento2/account/order_confirmation_email_sync';
     const XPATH_ACCOUNT_INVOICE_EMAIL                   = 'buckaroo_magento2/account/invoice_email';
     const XPATH_ACCOUNT_SUCCESS_REDIRECT                = 'buckaroo_magento2/account/success_redirect';
     const XPATH_ACCOUNT_FAILURE_REDIRECT                = 'buckaroo_magento2/account/failure_redirect';
@@ -121,6 +122,7 @@ class Account extends AbstractConfigProvider
             'transaction_label'                 => $this->getTransactionLabel($store),
             'certificate_file'                  => $this->getCertificateFile($store),
             'order_confirmation_email'          => $this->getOrderConfirmationEmail($store),
+            'order_confirmation_email_sync'     => $this->getOrderConfirmationEmailSync($store),
             'invoice_email'                     => $this->getInvoiceEmail($store),
             'success_redirect'                  => $this->getSuccessRedirect($store),
             'failure_redirect'                  => $this->getFailureRedirect($store),

@@ -55,6 +55,7 @@ define(
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditcard.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                paymentFlow : window.checkoutConfig.payment.buckaroo.creditcard.paymentFlow,
 
                 /**
                  * @override
@@ -63,7 +64,6 @@ define(
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
                     }
-
                     return this._super(options);
                 },
 

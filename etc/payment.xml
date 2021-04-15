@@ -93,7 +93,13 @@
         <method name="buckaroo_magento2_kbc">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="buckaroo_magento2_klarna">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
         <method name="buckaroo_magento2_klarnakp">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="buckaroo_magento2_klarnain">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
         <method name="buckaroo_magento2_emandate">

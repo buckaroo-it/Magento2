@@ -102,7 +102,7 @@ class Trustly extends AbstractMethod
 
         $services = [
             'Name'             => 'Trustly',
-            'Action'           => 'Pay',
+            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [
                 [
