@@ -126,7 +126,7 @@ class IdealProcessing extends AbstractMethod
 
         $services = [
             'Name'             => 'idealprocessing',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 2,
             'RequestParameter' => [
                 [

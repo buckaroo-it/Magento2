@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
  /**
   * NOTICE OF LICENSE
   *

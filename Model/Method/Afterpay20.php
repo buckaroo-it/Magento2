@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -404,18 +405,17 @@ class Afterpay20 extends AbstractMethod
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
+        if (($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
             &&
             $payment->getOrder()->getDhlparcelShippingServicepointId()
         ) {
             $this->updateShippingAddressByDhlParcel(
-                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
+                $payment->getOrder()->getDhlparcelShippingServicepointId(),
+                $requestData
             );
         }
 
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
+        if (($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
             &&
             $payment->getOrder()->getSendcloudServicePointId()
         ) {
@@ -587,7 +587,7 @@ class Afterpay20 extends AbstractMethod
                 $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
-//                $item->getRowTotalInclTax(),
+                //                $item->getRowTotalInclTax(),
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getOrderItem()->getTaxPercent()
             );
@@ -696,7 +696,7 @@ class Afterpay20 extends AbstractMethod
         }
 
         //Add diff line
-        if(abs($creditmemo->getBaseGrandTotal() - $itemsTotalAmount) > 0.01){
+        if (abs($creditmemo->getBaseGrandTotal() - $itemsTotalAmount) > 0.01) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
@@ -1100,14 +1100,14 @@ class Afterpay20 extends AbstractMethod
         }
 
         if ($transactionType == 'I038') {
-            if (
-                isset($transactionResponse->Services->Service->ResponseParameter->Name)
+            if (isset($transactionResponse->Services->Service->ResponseParameter->Name)
                 &&
                 ($transactionResponse->Services->Service->ResponseParameter->Name === 'ErrorResponseMessage')
                 &&
                 isset($transactionResponse->Services->Service->ResponseParameter->_)
-            )
-            return $transactionResponse->Services->Service->ResponseParameter->_;
+            ) {
+                return $transactionResponse->Services->Service->ResponseParameter->_;
+            }
         }
 
         $subcodeMessage = $transactionResponse->Status->SubCode->_;

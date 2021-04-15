@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -266,18 +267,17 @@ class Klarna extends AbstractMethod
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
+        if (($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
             &&
             $payment->getOrder()->getDhlparcelShippingServicepointId()
         ) {
             $this->updateShippingAddressByDhlParcel(
-                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
+                $payment->getOrder()->getDhlparcelShippingServicepointId(),
+                $requestData
             );
         }
 
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
+        if (($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
             &&
             $payment->getOrder()->getSendcloudServicePointId()
         ) {
@@ -662,7 +662,7 @@ class Klarna extends AbstractMethod
             ];
         }
 
-        if($birthDayStamp){
+        if ($birthDayStamp) {
             $billingData[] = [
                 '_'    => $birthDayStamp,
                 'Name' => 'BirthDate',
@@ -686,7 +686,7 @@ class Klarna extends AbstractMethod
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $order->getShippingAddress();
-        if($shippingAddress == null) {
+        if ($shippingAddress == null) {
             $shippingAddress = $order->getBillingAddress();
         }
 
@@ -808,14 +808,14 @@ class Klarna extends AbstractMethod
         }
 
         if ($transactionType == 'I038') {
-            if (
-                isset($transactionResponse->Services->Service->ResponseParameter->Name)
+            if (isset($transactionResponse->Services->Service->ResponseParameter->Name)
                 &&
                 ($transactionResponse->Services->Service->ResponseParameter->Name === 'ErrorResponseMessage')
                 &&
                 isset($transactionResponse->Services->Service->ResponseParameter->_)
-            )
-            return $transactionResponse->Services->Service->ResponseParameter->_;
+            ) {
+                return $transactionResponse->Services->Service->ResponseParameter->_;
+            }
         }
 
         $subcodeMessage = $transactionResponse->Status->SubCode->_;

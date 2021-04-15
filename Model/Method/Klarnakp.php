@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -486,10 +487,10 @@ class Klarnakp extends AbstractMethod
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $payment->getOrder()->getShippingAddress();
-        if($shippingAddress == null){
+        if ($shippingAddress == null) {
             $shippingAddress = $payment->getOrder()->getBillingAddress();
             $shippingSameAsBilling = "true";
-        }else{
+        } else {
             $shippingSameAsBilling = $this->isAddressDataDifferent($payment) ? "true" : "false";
         }
         
@@ -572,15 +573,15 @@ class Klarnakp extends AbstractMethod
             ScopeInterface::SCOPE_STORE
         );
 
-        $articles = array();
+        $articles = [];
         //$group = 1;
 
         $invoiceItems = $invoice->getAllItems();
 
         $qtys = [];
         foreach ($invoiceItems as $item) {
-            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()],true));
-            if (empty($item)  || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
+            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()], true));
+            if (empty($item) || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
                 continue;
             }
 
@@ -863,7 +864,7 @@ class Klarnakp extends AbstractMethod
         $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
 
-        $articles = array();
+        $articles = [];
         $group    = 1;
         $max      = 99;
         $i        = 1;
@@ -1139,5 +1140,4 @@ class Klarnakp extends AbstractMethod
 
         return $taxPercent;
     }
-
 }

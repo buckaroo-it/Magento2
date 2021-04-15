@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -435,18 +436,17 @@ class Billink extends AbstractMethod
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
+        if (($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
             &&
             $payment->getOrder()->getDhlparcelShippingServicepointId()
         ) {
             $this->updateShippingAddressByDhlParcel(
-                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
+                $payment->getOrder()->getDhlparcelShippingServicepointId(),
+                $requestData
             );
         }
 
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
+        if (($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
             &&
             $payment->getOrder()->getSendcloudServicePointId()
         ) {
@@ -680,7 +680,7 @@ class Billink extends AbstractMethod
         }
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
@@ -1099,14 +1099,14 @@ class Billink extends AbstractMethod
         }
 
         if ($transactionType == 'I038') {
-            if (
-                isset($transactionResponse->Services->Service->ResponseParameter->Name)
+            if (isset($transactionResponse->Services->Service->ResponseParameter->Name)
                 &&
                 ($transactionResponse->Services->Service->ResponseParameter->Name === 'ErrorResponseMessage')
                 &&
                 isset($transactionResponse->Services->Service->ResponseParameter->_)
-            )
-            return $transactionResponse->Services->Service->ResponseParameter->_;
+            ) {
+                return $transactionResponse->Services->Service->ResponseParameter->_;
+            }
         }
 
         $subcodeMessage = $transactionResponse->Status->SubCode->_;
@@ -1120,5 +1120,4 @@ class Billink extends AbstractMethod
 
         return $methodMessage;
     }
-
 }

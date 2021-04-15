@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -114,11 +115,11 @@ class SecondChance
                 $collection   = $secondChance->getCollection()
                     ->addFieldToFilter(
                         'status',
-                        array('eq' => '')
+                        ['eq' => '']
                     )
                     ->addFieldToFilter(
                         'store_id',
-                        array('eq' => $store->getId())
+                        ['eq' => $store->getId()]
                     )
                     ->addFieldToFilter('created_at', ['lteq' => date('Y-m-d H:i:s', strtotime($secondChanceTiming, strtotime($now->format('Y-m-d H:i:s'))))]);
                 foreach ($collection as $item) {
@@ -135,7 +136,7 @@ class SecondChance
                             $this->logging->addDebug(__METHOD__ . '|else getNoSendSecondChance|');
                             $this->sendMail($order, $item);
                         }
-                    }                    
+                    }
                 }
                 $collection->save();
             }
@@ -163,11 +164,11 @@ class SecondChance
                     'store' => $order->getStore()->getId(),
                 ]
             )->setTemplateVars(
-            $vars
-        )->setFrom([
+                $vars
+            )->setFrom([
             'email' => $this->scopeConfig->getValue('trans_email/ident_sales/email', ScopeInterface::SCOPE_STORE),
             'name'  => $this->scopeConfig->getValue('trans_email/ident_sales/name', ScopeInterface::SCOPE_STORE),
-        ])->addTo($order->getCustomerEmail());
+            ])->addTo($order->getCustomerEmail());
 
         if (!isset($transport)) {
             $transport = $this->transportBuilder->getTransport();

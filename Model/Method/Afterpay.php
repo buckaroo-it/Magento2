@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -665,7 +666,7 @@ class Afterpay extends AbstractMethod
         );
 
         // Set loop variables
-        $articles = array();
+        $articles = [];
         $count    = 1;
 
         foreach ($invoice->getAllItems() as $item) {
@@ -778,7 +779,7 @@ class Afterpay extends AbstractMethod
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
@@ -988,8 +989,7 @@ class Afterpay extends AbstractMethod
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
-        if (
-            $payment->getAdditionalInformation('selectedBusiness')
+        if ($payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
             &&
@@ -1081,8 +1081,7 @@ class Afterpay extends AbstractMethod
 
         $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
 
-        if (
-            $payment->getAdditionalInformation('selectedBusiness')
+        if ($payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
             &&
@@ -1264,5 +1263,4 @@ class Afterpay extends AbstractMethod
 
         return $methodMessage;
     }
-
 }

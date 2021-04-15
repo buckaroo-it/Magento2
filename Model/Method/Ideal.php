@@ -124,7 +124,7 @@ class Ideal extends AbstractMethod
 
         $services = [
             'Name'             => 'ideal',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 2,
             'RequestParameter' => [
                 [

@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -19,7 +20,6 @@
  */
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
-
 
 /**
  * @method getDueDate()
@@ -113,5 +113,4 @@ class Klarnain extends AbstractConfigProvider
 
         return $enabled ? $enabled : false;
     }
-
 }

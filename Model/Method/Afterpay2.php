@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -664,7 +665,7 @@ class Afterpay2 extends AbstractMethod
         );
 
         // Set loop variables
-        $articles = array();
+        $articles = [];
         $count    = 1;
 
         foreach ($invoice->getAllItems() as $item) {
@@ -777,7 +778,7 @@ class Afterpay2 extends AbstractMethod
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
@@ -1237,5 +1238,4 @@ class Afterpay2 extends AbstractMethod
 
         return $methodMessage;
     }
-
 }

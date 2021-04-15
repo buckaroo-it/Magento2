@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -213,7 +214,8 @@ class PayPerEmail extends AbstractMethod
             $services[] = $cmService;
 
             $payment->setAdditionalInformation(
-                'skip_push', 2
+                'skip_push',
+                2
             );
         }
 
@@ -442,22 +444,22 @@ class PayPerEmail extends AbstractMethod
 
     private function getPaymentMethodsAllowed($config, $storeId)
     {
-       if ($methods = $config->getPaymentMethod($storeId)) {
-           $methods = explode(',', $methods);
-           $activeCards = '';
-           foreach ($methods as $key=>$value) {
+        if ($methods = $config->getPaymentMethod($storeId)) {
+            $methods = explode(',', $methods);
+            $activeCards = '';
+            foreach ($methods as $key => $value) {
                 if ($value === 'giftcard') {
                     $giftcardsConfig = $this->configProviderMethodFactory->get('giftcards');
                     if ($activeCards = $giftcardsConfig->getAllowedCards($storeId)) {
                         unset($methods[$key]);
                     }
                 }
-           }
-           if ($activeCards) {
-               $methods = array_merge($methods, explode(',', $activeCards));
-           }
-           $methods = join(',', $methods);
-       }
-       return $methods;
+            }
+            if ($activeCards) {
+                $methods = array_merge($methods, explode(',', $activeCards));
+            }
+            $methods = join(',', $methods);
+        }
+        return $methods;
     }
 }

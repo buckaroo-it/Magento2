@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -242,8 +243,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     }
                 }
 
-                if (
-                    ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'))
+                if (($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'))
                     &&
                     !$this->hasPostData('brq_payment_method', 'sofortueberweisung')
                 ) {
@@ -268,7 +268,8 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->order->getId(),
                         $this->order->getIncrementId(),
                     ],
-                    true));
+                    true
+                ));
 
                 if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
                     $this->logger->addDebug(__METHOD__ . '|52|');
@@ -303,7 +304,7 @@ class Process extends \Magento\Framework\App\Action\Action
                  */
 
                 // StatusCode specified error messages
-                $statusCodeAddErrorMessage                                                                 = array();
+                $statusCodeAddErrorMessage                                                                 = [];
                 $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
                     'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                     ' error persists, please choose a different payment method.';
@@ -513,8 +514,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->messageManager->addSuccessMessage(__('Your order has been placed succesfully.'));
 
-        if (
-            !empty($this->response['brq_payment_method'])
+        if (!empty($this->response['brq_payment_method'])
             &&
             ($this->response['brq_payment_method'] == 'applepay')
             &&
