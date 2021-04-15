@@ -314,11 +314,24 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_kbc>
 
+            <buckaroo_magento2_klarna>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Klarna\PayLater</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Klarna: Pay later</title>
+                <sort_oder>220</sort_oder>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_klarna>
+
             <buckaroo_magento2_klarnakp>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Klarnakp</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Klarna</title>
+                <title>Buckaroo Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -326,6 +339,19 @@
                 <payment_action>authorize</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_klarnakp>
+            
+            <buckaroo_magento2_klarnain>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Klarna\Klarnain</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Klarna: Slice it</title>
+                <sort_oder>220</sort_oder>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_klarnain>
 
             <buckaroo_magento2_emandate>
                 <active>0</active>
@@ -362,7 +388,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Billink</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Billink</title>
+                <title>Billink - achteraf betalen</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -504,6 +530,7 @@
                 <active>0</active>
                 <transaction_label>Magento Buckaroo</transaction_label>
                 <order_confirmation_email>1</order_confirmation_email>
+                <order_confirmation_email_sync>0</order_confirmation_email_sync>
                 <invoice_email>1</invoice_email>
                 <success_redirect>checkout/onepage/success</success_redirect>
                 <failure_redirect>checkout/cart</failure_redirect>

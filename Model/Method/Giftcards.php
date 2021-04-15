@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -22,6 +23,10 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Quote\Model\Quote\AddressFactory;
 
 class Giftcards extends AbstractMethod
 {
@@ -104,8 +109,13 @@ class Giftcards extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
+        AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -129,7 +139,12 @@ class Giftcards extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
-            $cookieManager,
+            $quoteFactory,
+            $taxConfig,
+            $taxCalculation,
+            $configProviderBuckarooFee,
+            $softwareData,
+            $addressFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -205,8 +220,7 @@ class Giftcards extends AbstractMethod
             $payment->getOrder()->getStore()
         );
 
-        $availableCards = $payment->getAdditionalInformation('giftcard_method') ?
-            $payment->getAdditionalInformation('giftcard_method') : $availableCards.',ideal';
+        $availableCards = $payment->getAdditionalInformation('giftcard_method') ? $payment->getAdditionalInformation('giftcard_method') : $availableCards.',ideal';
         $customVars = [
             'ServicesSelectableByClient' => $availableCards,
             'ContinueOnIncomplete' => 'RedirectToHTML',

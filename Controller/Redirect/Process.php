@@ -1,28 +1,29 @@
 <?php
- /**
-  * NOTICE OF LICENSE
-  *
-  * This source file is subject to the MIT License
-  * It is available through the world-wide-web at this URL:
-  * https://tldrlegal.com/license/mit-license
-  * If you are unable to obtain it through the world-wide-web, please send an email
-  * to support@buckaroo.nl so we can send you a copy immediately.
-  *
-  * DISCLAIMER
-  *
-  * Do not edit or add to this file if you wish to upgrade this module to newer
-  * versions in the future. If you wish to customize this module for your
-  * needs please contact support@buckaroo.nl for more information.
-  *
-  * @copyright Copyright (c) Buckaroo B.V.
-  * @license   https://tldrlegal.com/license/mit-license
-  */
+// @codingStandardsIgnoreFile
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
-use Magento\Sales\Api\Data\TransactionInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Request\Http as Http;
+use Magento\Sales\Api\Data\TransactionInterface;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -132,7 +133,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->accountConfig = $configProviderFactory->get('account');
 
-        if (interface_exists(\Magento\Framework\App\CsrfAwareActionInterface::class)) {
+        if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
                 $request->setParam('isAjax', true);
@@ -149,7 +150,7 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__.'|'.var_export($this->getRequest()->getParams(), true));
+        $this->logger->addDebug(__METHOD__ . '|' . var_export($this->getRequest()->getParams(), true));
 
         $this->response = $this->getRequest()->getParams();
         $this->response = array_change_key_case($this->response, CASE_LOWER);
@@ -161,10 +162,10 @@ class Process extends \Magento\Framework\App\Action\Action
             return $this->_redirect('/');
         }
 
-        $statusCode = (int)$this->response['brq_statuscode'];
+        $statusCode = (int) $this->response['brq_statuscode'];
 
         $this->loadOrder();
-        
+
         $this->helper->setRestoreQuoteLastOrder(false);
 
         if (!$this->order->getId()) {
@@ -178,32 +179,27 @@ class Process extends \Magento\Framework\App\Action\Action
         if (!method_exists($payment->getMethodInstance(), 'canProcessPostData')) {
             return $this->_redirect('/');
         }
-        
+
         if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->response)) {
             return $this->_redirect('/');
         }
 
-        $this->logger->addDebug(__METHOD__.'|2|'.var_export($statusCode, true));
+        $this->logger->addDebug(__METHOD__ . '|2|' . var_export($statusCode, true));
 
         switch ($statusCode) {
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
-                $this->logger->addDebug(__METHOD__.'|3|'.var_export(
-                    [
-                        $this->order->getStatus(), $this->orderStatusFactory->get(
-                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
-                            $this->order
-                        )
-                    ],
-                    true
-                ));
+                $this->logger->addDebug(__METHOD__ . '|3|' . var_export([$this->order->getStatus(), $this->orderStatusFactory->get(
+                    $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
+                    $this->order
+                )], true));
                 if ($this->order->canInvoice()) {
-                    $this->logger->addDebug(__METHOD__.'|31|');
+                    $this->logger->addDebug(__METHOD__ . '|31|');
                     if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                         //do nothing - push will change a status
-                        $this->logger->addDebug(__METHOD__.'|32|');
+                        $this->logger->addDebug(__METHOD__ . '|32|');
                     } else {
-                        $this->logger->addDebug(__METHOD__.'|33|');
+                        $this->logger->addDebug(__METHOD__ . '|33|');
                         // Set the 'Pending payment status' here
                         $pendingStatus = $this->orderStatusFactory->get(
                             $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'),
@@ -222,7 +218,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
                 /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
                 $paymentMethod = $this->order->getPayment()->getMethodInstance();
-                $store = $this->order->getStore();
+                $store         = $this->order->getStore();
 
                 // Send order confirmation mail if we're supposed to
                 /**
@@ -238,7 +234,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->hasPostData('add_service_action_from_magento', 'reserve') &&
                         !empty($this->response['brq_service_klarnakp_reservationnumber'])
                     ) {
-                        $this->logger->addDebug(__METHOD__.'|35|');
+
                     } else {
                         if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                             $this->logger->addDebug(__METHOD__ . '|sendemail|');
@@ -257,11 +253,12 @@ class Process extends \Magento\Framework\App\Action\Action
                             ' error persists, please choose a different payment method.'
                         )
                     );
-                    $this->logger->addDebug(__METHOD__.'|5|');
+                    $this->logger->addDebug(__METHOD__ . '|5|');
                     return $this->_redirect('/');
+                    // $this->redirectFailure();
                 }
 
-                $this->logger->addDebug(__METHOD__.'|51|'.var_export(
+                $this->logger->addDebug(__METHOD__ . '|51|' . var_export(
                     [
                         $this->checkoutSession->getLastSuccessQuoteId(),
                         $this->checkoutSession->getLastQuoteId(),
@@ -269,45 +266,45 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->checkoutSession->getLastRealOrderId(),
                         $this->order->getQuoteId(),
                         $this->order->getId(),
-                        $this->order->getIncrementId()
+                        $this->order->getIncrementId(),
                     ],
                     true
                 ));
 
                 if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__.'|52|');
+                    $this->logger->addDebug(__METHOD__ . '|52|');
                     $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
                 }
                 if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__.'|53|');
+                    $this->logger->addDebug(__METHOD__ . '|53|');
                     $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
                 }
                 if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
-                    $this->logger->addDebug(__METHOD__.'|54|');
+                    $this->logger->addDebug(__METHOD__ . '|54|');
                     $this->checkoutSession->setLastOrderId($this->order->getId());
                 }
                 if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                    $this->logger->addDebug(__METHOD__.'|55|');
+                    $this->logger->addDebug(__METHOD__ . '|55|');
                     $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                 }
-                $this->logger->addDebug(__METHOD__.'|6|');
-
-                $this->redirectSuccess();
+                $this->logger->addDebug(__METHOD__ . '|6|');
+                // Redirect to success page
+                return $this->redirectSuccess();
                 break;
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-                $this->logger->addDebug(__METHOD__.'|7|');
+                $this->logger->addDebug(__METHOD__ . '|7|');
                 /*
-                * Something went wrong, so we're going to have to
-                * 1) recreate the quote for the user
-                * 2) cancel the order we had to create to even get here
-                * 3) redirect back to the checkout page to offer the user feedback & the option to try again
-                */
+                 * Something went wrong, so we're going to have to
+                 * 1) recreate the quote for the user
+                 * 2) cancel the order we had to create to even get here
+                 * 3) redirect back to the checkout page to offer the user feedback & the option to try again
+                 */
 
                 // StatusCode specified error messages
-                $statusCodeAddErrorMessage = [];
+                $statusCodeAddErrorMessage                                                                 = [];
                 $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
                     'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                     ' error persists, please choose a different payment method.';
@@ -317,9 +314,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')] =
                     'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                     ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[
-                    $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
-                ] =
+                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')] =
                     'According to our system, you have canceled the payment. If this' .
                     ' is not the case, please contact us.';
 
@@ -336,13 +331,13 @@ class Process extends \Magento\Framework\App\Action\Action
                 if (!$this->cancelOrder($statusCode)) {
                     $this->logger->addError('Could not cancel the order.');
                 }
-                $this->logger->addDebug(__METHOD__.'|8|');
+                $this->logger->addDebug(__METHOD__ . '|8|');
                 $this->redirectFailure();
                 break;
-            //no default
+                //no default
         }
 
-        $this->logger->addDebug(__METHOD__.'|9|');
+        $this->logger->addDebug(__METHOD__ . '|9|');
         return $this->_response;
     }
 
@@ -447,11 +442,11 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function cancelOrder($statusCode)
     {
-        $this->logger->addDebug(__METHOD__.'|1|');
+        $this->logger->addDebug(__METHOD__ . '|1|');
 
         // Mostly the push api already canceled the order, so first check in wich state the order is.
         if ($this->order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
-            $this->logger->addDebug(__METHOD__.'|5|');
+            $this->logger->addDebug(__METHOD__ . '|5|');
             return true;
         }
 
@@ -461,28 +456,28 @@ class Process extends \Magento\Framework\App\Action\Action
          * @noinspection PhpUndefinedMethodInspection
          */
         if (!$this->accountConfig->getCancelOnFailed($store)) {
-            $this->logger->addDebug(__METHOD__.'|10|');
+            $this->logger->addDebug(__METHOD__ . '|10|');
             return true;
         }
 
-        $this->logger->addDebug(__METHOD__.'|15|');
+        $this->logger->addDebug(__METHOD__ . '|15|');
 
         if ($this->order->canCancel()) {
-            $this->logger->addDebug(__METHOD__.'|20|');
+            $this->logger->addDebug(__METHOD__ . '|20|');
 
-            if ($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'klarnakp') {
-                $methodInstanceClass = get_class($this->order->getPayment()->getMethodInstance());
+            if (in_array($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
+                $methodInstanceClass                 = get_class($this->order->getPayment()->getMethodInstance());
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
             $this->order->cancel();
 
-            if ($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'klarnakp') {
-                $this->logger->addDebug(__METHOD__.'|25|');
+            if (in_array($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
+                $this->logger->addDebug(__METHOD__ . '|25|');
                 return true;
             }
 
-            $this->logger->addDebug(__METHOD__.'|30|');
+            $this->logger->addDebug(__METHOD__ . '|30|');
 
             $failedStatus = $this->orderStatusFactory->get(
                 $statusCode,
@@ -496,7 +491,7 @@ class Process extends \Magento\Framework\App\Action\Action
             return true;
         }
 
-        $this->logger->addDebug(__METHOD__.'|40|');
+        $this->logger->addDebug(__METHOD__ . '|40|');
 
         return false;
     }
@@ -508,7 +503,7 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function redirectSuccess()
     {
-        $this->logger->addDebug(__METHOD__.'|1|');
+        $this->logger->addDebug(__METHOD__ . '|1|');
 
         $store = $this->order->getStore();
 
@@ -534,7 +529,7 @@ class Process extends \Magento\Framework\App\Action\Action
             $this->redirectSuccessApplePay();
         }
 
-        $this->logger->addDebug(__METHOD__.'|2|'.var_export($url, true));
+        $this->logger->addDebug(__METHOD__ . '|2|' . var_export($url, true));
 
         return $this->_redirect($url);
     }
@@ -563,8 +558,8 @@ class Process extends \Magento\Framework\App\Action\Action
         if ($this->accountConfig->getFailureRedirectToCheckout($store)) {
             $this->logger->addDebug('getFailureRedirectToCheckout');
             if (!$this->customerSession->isLoggedIn()) {
-                 $this->logger->addDebug('not isLoggedIn');
-                if ($this->order->getCustomerId()>0) {
+                $this->logger->addDebug('not isLoggedIn');
+                if ($this->order->getCustomerId() > 0) {
                     $this->logger->addDebug('getCustomerId > 0');
                     try {
                         $customer = $this->customerRepository->getById($this->order->getCustomerId());
@@ -572,9 +567,9 @@ class Process extends \Magento\Framework\App\Action\Action
 
                         if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
                             $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-                            $this->logger->addDebug(__METHOD__.'|setLastRealOrderId|');
+                            $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
                             $this->checkoutSession->restoreQuote();
-                            $this->logger->addDebug(__METHOD__.'|restoreQuote|');
+                            $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
                         }
 
                     } catch (\Exception $e) {
@@ -585,7 +580,7 @@ class Process extends \Magento\Framework\App\Action\Action
             $this->logger->addDebug('ready for redirect');
             return $this->_redirect('checkout', ['_fragment' => 'payment']);
         }
-        
+
         /**
          * @noinspection PhpUndefinedMethodInspection
          */

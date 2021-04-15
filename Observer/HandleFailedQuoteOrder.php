@@ -20,14 +20,16 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Model\Session as BuckarooSession;
+
 class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterface
 {
-    protected $messageManager;
+    protected $buckarooSession;
 
     public function __construct(
-        \Magento\Framework\Message\ManagerInterface $messageManager
+        BuckarooSession $buckarooSession
     ) {
-        $this->messageManager = $messageManager;
+        $this->buckarooSession = $buckarooSession;
     }
 
     /**
@@ -56,25 +58,29 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/AbstractMethod.php:880
             $payment = $order->getPayment();
-            if ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay'
-                || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay2'
-                || $payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp'
-            ) {
+            if (in_array(
+                $payment->getMethodInstance()->getCode(),
+                ['buckaroo_magento2_afterpay','buckaroo_magento2_afterpay2','buckaroo_magento2_klarnakp']
+            )) {
                 try {
                     $order->addStatusHistoryComment('Buckaroo: failed to authorize an order', false);
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                     $payment->save();
+                    //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
                 } catch (\Exception $e) {
-                    $this->messageManager->addErrorMessage($e->getMessage());
+
                 }
             }
 
             try {
+                $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 $order->cancel();
                 $order->save();
+                //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
+
             }
+            $this->buckarooSession->setData('flagHandleFailedQuote', 0);
         }
     }
 }

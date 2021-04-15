@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -21,12 +22,15 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Magento\Quote\Model\Quote\AddressFactory;
 
 class Afterpay extends AbstractMethod
 {
@@ -131,92 +135,6 @@ class Afterpay extends AbstractMethod
      */
     public $closeAuthorizeTransaction   = false;
 
-    /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
-    protected $configProviderBuckarooFee;
-
-    /** @var SoftwareData */
-    private $softwareData;
-
-    /**
-     * @param \Magento\Framework\ObjectManagerInterface               $objectManager
-     * @param \Magento\Framework\Model\Context                        $context
-     * @param \Magento\Framework\Registry                             $registry
-     * @param \Magento\Framework\Api\ExtensionAttributesFactory       $extensionFactory
-     * @param \Magento\Framework\Api\AttributeValueFactory            $customAttributeFactory
-     * @param \Magento\Payment\Helper\Data                            $paymentData
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface      $scopeConfig
-     * @param \Magento\Payment\Model\Method\Logger                    $logger
-     * @param \Magento\Developer\Helper\Data                          $developmentHelper
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee          $configProviderBuckarooFee
-     * @param SoftwareData                                            $softwareData
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
-     * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Model\ValidatorFactory                    $validatorFactory
-     * @param \Buckaroo\Magento2\Helper\Data                               $helper
-     * @param \Magento\Framework\App\RequestInterface                 $request
-     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory                 $refundFieldsFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory              $configProviderFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
-     * @param \Magento\Framework\Pricing\Helper\Data                  $priceHelper
-     * @param array                                                   $data
-     */
-    public function __construct(
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Developer\Helper\Data $developmentHelper,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
-        SoftwareData $softwareData,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
-        \Buckaroo\Magento2\Helper\Data $helper = null,
-        \Magento\Framework\App\RequestInterface $request = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
-        array $data = []
-    ) {
-        parent::__construct(
-            $objectManager,
-            $context,
-            $registry,
-            $extensionFactory,
-            $customAttributeFactory,
-            $paymentData,
-            $scopeConfig,
-            $logger,
-            $developmentHelper,
-            $cookieManager,
-            $resource,
-            $resourceCollection,
-            $gateway,
-            $transactionBuilderFactory,
-            $validatorFactory,
-            $helper,
-            $request,
-            $refundFieldsFactory,
-            $configProviderFactory,
-            $configProviderMethodFactory,
-            $priceHelper,
-            $data
-        );
-
-        $this->configProviderBuckarooFee = $configProviderBuckarooFee;
-        $this->softwareData = $softwareData;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -300,24 +218,19 @@ class Afterpay extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getOrderTransactionBuilder($payment)
+    public function getOrderTransactionBuilder($payment, $serviceAction = 'Pay')
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
+        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, $serviceAction);
+
         $services = [
             'Name'             => $this->getPaymentMethodName($payment),
-            'Action'           => 'Pay',
+            'Action'           => $serviceAction,
             'Version'          => 1,
-            'RequestParameter' =>
-                $this->getAfterPayRequestParameters($payment),
+            'RequestParameter' => $this->getAfterPayRequestParameters($payment),
         ];
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
@@ -326,10 +239,9 @@ class Afterpay extends AbstractMethod
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * @todo when buckaroo changes the push / response order this can be removed
          */
-        $payment->setAdditionalInformation(
-            'skip_push',
-            1
-        );
+        if ($serviceAction != 'PayRemainder') {
+            $payment->setAdditionalInformation('skip_push', 1);
+        }
 
         return $transactionBuilder;
     }
@@ -388,7 +300,10 @@ class Afterpay extends AbstractMethod
 
         // For the first invoice possible add payment fee
         if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+            $includesTax = $this->_scopeConfig->getValue(
+                static::TAX_CALCULATION_INCLUDES_TAX,
+                ScopeInterface::SCOPE_STORE
+            );
             $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
             $articles = array_merge($articles, $serviceLine);
         }
@@ -398,6 +313,7 @@ class Afterpay extends AbstractMethod
         $articles = array_merge($articles, $shippingCosts);
 
         $services['RequestParameter'] = $articles;
+
 
         /**
          * @noinspection PhpUndefinedMethodInspection
@@ -413,6 +329,7 @@ class Afterpay extends AbstractMethod
                 )
             );
 
+
         // Partial Capture Settings
         if ($capturePartial) {
             $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId(). '-' . $numberOfInvoices)
@@ -427,33 +344,7 @@ class Afterpay extends AbstractMethod
      */
     public function getAuthorizeTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $services = [
-            'Name'             => $this->getPaymentMethodName($payment),
-            'Action'           => 'Authorize',
-            'Version'          => 1,
-            'RequestParameter' =>
-                $this->getAfterPayRequestParameters($payment),
-        ];
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest');
-
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        $payment->setAdditionalInformation(
-            'skip_push',
-            1
-        );
-
-        return $transactionBuilder;
+        return $this->getOrderTransactionBuilder($payment, 'Authorize');
     }
 
     /**
@@ -533,8 +424,10 @@ class Afterpay extends AbstractMethod
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             $invoice = $creditmemo->getInvoice();
 
-            $transactionBuilder->setInvoiceId($invoice->getOrder()->getIncrementId())
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
+            $transactionBuilder->setInvoiceId($invoice->getOrder()->getIncrementId());
+            if ($payment->getParentTransactionId()) {
+                $transactionBuilder->setOriginalTransactionKey($payment->getParentTransactionId());
+            }
         }
 
         return $transactionBuilder;
@@ -570,8 +463,7 @@ class Afterpay extends AbstractMethod
         );
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
-            $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+            $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
@@ -587,14 +479,14 @@ class Afterpay extends AbstractMethod
         return $requestData;
     }
 
-    protected function updateShippingAddressByDpdParcel($quote, &$requestData)
+    public function updateShippingAddressByDpdParcel($quote, &$requestData)
     {
         $fullStreet = $quote->getDpdStreet();
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s([0-9]+)([^\w]*)([\w]*)/', $fullStreet, $matches)) {
             $street = $matches[1];
             $streetHouseNumber = $matches[2];
-            $streetHouseNumberSuffix = $matches[4] ?? '';
+            $streetHouseNumberSuffix = @$matches[4];
 
             $mapping = [
                 ['ShippingStreet', $street],
@@ -678,11 +570,18 @@ class Afterpay extends AbstractMethod
      */
     public function getRequestArticlesData($requestData, $payment)
     {
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        if ($this->payRemainder) {
+            return array_merge($requestData, $this->getRequestArticlesDataPayRemainder($payment));
+        }
 
-        $quoteFactory = $this->objectManager->create(\Magento\Quote\Model\QuoteFactory::class);
-        $quote = $quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
+
         // Set loop variables
         $articles = $requestData;
         $count    = 1;
@@ -700,16 +599,16 @@ class Afterpay extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                (int) ($item->getQty()),
+                intval($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
-                $this->getTaxCategory($item->getTaxClassId(), $payment->getOrder()->getStore())
+                $this->getTaxCategory($payment->getOrder())
             );
 
             /*
              * @todo: Find better way to make taxClassId available by invoice and creditmemo creating for Afterpay
              */
             $payment->setAdditionalInformation('tax_pid_' . $item->getProductId(), $item->getTaxClassId());
-            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
+
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -761,7 +660,10 @@ class Afterpay extends AbstractMethod
      */
     public function getInvoiceArticleData($invoice)
     {
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         // Set loop variables
         $articles = [];
@@ -777,13 +679,13 @@ class Afterpay extends AbstractMethod
 
             $article = $this->getArticleArrayLine(
                 $count,
-                (int) $item->getName(),
+                $item->getName(),
                 $item->getProductId(),
-                (int) ($item->getQty()),
+                intval($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
-                $this->getTaxCategory($itemTaxClassId, $invoice->getOrder()->getStore())
+                $this->getTaxCategory($invoice->getOrder())
             );
-            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
+
             $articles = array_merge($articles, $article);
 
             // Capture calculates discount per order line
@@ -795,9 +697,8 @@ class Afterpay extends AbstractMethod
                     $item->getProductId(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
-                    $this->getTaxCategory($item->getTaxClassId(), $invoice->getOrder()->getStore())
+                    $this->getTaxCategory($invoice->getOrder())
                 );
-                //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
                 $articles = array_merge($articles, $article);
             }
 
@@ -821,9 +722,16 @@ class Afterpay extends AbstractMethod
      */
     public function getCreditmemoArticleData($payment)
     {
+        if ($this->payRemainder) {
+            return $this->getCreditmemoArticleDataPayRemainder($payment, false);
+        }
+
         /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $articles = [];
         $count = 1;
@@ -841,13 +749,13 @@ class Afterpay extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                (int) ($item->getQty()),
+                intval($item->getQty()),
                 $this->calculateProductPrice($item, $includesTax),
-                $this->getTaxCategory($itemTaxClassId, $payment->getOrder()->getStore())
+                $this->getTaxCategory($payment->getOrder())
             );
 
             $itemsTotalAmount += $item->getQty() * $this->calculateProductPrice($item, $includesTax);
-            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
+
             $articles = array_merge($articles, $article);
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -881,65 +789,6 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Quote\Model\Quote\Item $productItem
-     * @param                                 $includesTax
-     *
-     * @return mixed
-     */
-    public function calculateProductPrice($productItem, $includesTax)
-    {
-        $this->logger2->addDebug(__METHOD__.'|1|');
-        $this->logger2->addDebug(
-            var_export([$includesTax, $productItem->getPrice(), $productItem->getPriceInclTax()], true)
-        );
-
-        $productPrice = $productItem->getPriceInclTax();
-
-        if (!$includesTax) {
-            if ($productItem->getDiscountAmount()) {
-                $productPrice = $productItem->getPrice()
-                    + $productItem->getTaxAmount() / $productItem->getQty()
-                ;
-            }
-        }
-
-        return $productPrice;
-    }
-
-    /**
-     * Get the service cost lines (buckfee)
-     *
-     * @param (int)                                                                              $latestKey
-     * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
-     * @param $includesTax
-     *
-     * @return   array
-     * @internal param $ (int) $latestKey
-     */
-    public function getServiceCostLine($latestKey, $order, &$itemsTotalAmount = 0)
-    {
-        $buckarooFeeLine = $order->getBuckarooFeeInclTax();
-
-        $article = [];
-
-        if (false !== $buckarooFeeLine && (double)$buckarooFeeLine > 0) {
-            $storeId = (int) $order->getStoreId();
-
-            $article = $this->getArticleArrayLine(
-                $latestKey,
-                'Servicekosten',
-                1,
-                1,
-                round($buckarooFeeLine, 2),
-                $this->getTaxCategory($this->configProviderBuckarooFee->getTaxClass($storeId), $storeId)
-            );
-            $itemsTotalAmount += round($buckarooFeeLine, 2);
-        }
-
-        return $article;
-    }
-
-    /**
      * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
      *
      * @return array
@@ -948,11 +797,10 @@ class Afterpay extends AbstractMethod
     {
         $shippingCostsArticle = [];
 
-        if ($order->getShippingAmount() <= 0) {
+        $shippingAmount = $this->getShippingAmount($order);
+        if ($shippingAmount <= 0) {
             return $shippingCostsArticle;
         }
-
-        $shippingAmount = $order->getShippingInclTax();
 
         $shippingCostsArticle = [
             [
@@ -1039,30 +887,6 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return float|int
-     */
-    private function getDiscountAmount($payment)
-    {
-        /** @var \Magento\Sales\Model\Order $order */
-        $order = $payment->getOrder();
-
-        $discount = 0;
-        $edition = $this->softwareData->getProductMetaData()->getEdition();
-
-        if ($order->getDiscountAmount() < 0) {
-            $discount -= abs((double)$order->getDiscountAmount());
-        }
-
-        if ($edition == 'Enterprise' && $order->getCustomerBalanceAmount() > 0) {
-            $discount -= abs((double)$order->getCustomerBalanceAmount());
-        }
-
-        return $discount;
-    }
-
-    /**
      * @param $latestKey
      * @param $articleDescription
      * @param $articleId
@@ -1078,7 +902,7 @@ class Afterpay extends AbstractMethod
         $articleId,
         $articleQuantity,
         $articleUnitPrice,
-        $articleVatCategory
+        $articleVatCategory = ''
     ) {
         $article = [
             [
@@ -1111,14 +935,11 @@ class Afterpay extends AbstractMethod
         return $article;
     }
 
-    /**
-     * @param           $taxClassId
-     * @param null|int  $storeId
-     *
-     * @return int
-     */
-    public function getTaxCategory($taxClassId, $storeId = null)
+    protected function getTaxCategory($order)
     {
+        $storeId = (int) $order->getStoreId();
+        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($storeId);
+
         $taxCategory = 4;
 
         if (!$taxClassId) {
@@ -1388,62 +1209,6 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * Method to compare two addresses from the payment.
-     * Returns true if they are the same.
-     *
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return boolean
-     */
-    public function isAddressDataDifferent($payment)
-    {
-        $billingAddress = $payment->getOrder()->getBillingAddress();
-        $shippingAddress = $payment->getOrder()->getShippingAddress();
-
-        if ($billingAddress === null || $shippingAddress === null) {
-            return false;
-        }
-
-        $billingAddressData = $billingAddress->getData();
-        $shippingAddressData = $shippingAddress->getData();
-
-        $arrayDifferences = $this->calculateAddressDataDifference($billingAddressData, $shippingAddressData);
-
-        return !empty($arrayDifferences);
-    }
-
-    /**
-     * @param array $addressOne
-     * @param array $addressTwo
-     *
-     * @return array
-     */
-    private function calculateAddressDataDifference($addressOne, $addressTwo)
-    {
-        $keysToExclude = array_flip([
-            'prefix',
-            'telephone',
-            'fax',
-            'created_at',
-            'email',
-            'customer_address_id',
-            'vat_request_success',
-            'vat_request_date',
-            'vat_request_id',
-            'vat_is_valid',
-            'vat_id',
-            'address_type',
-            'extension_attributes',
-        ]);
-
-        $filteredAddressOne = array_diff_key($addressOne, $keysToExclude);
-        $filteredAddressTwo = array_diff_key($addressTwo, $keysToExclude);
-        $arrayDiff = array_diff($filteredAddressOne, $filteredAddressTwo);
-
-        return $arrayDiff;
-    }
-
-    /**
      * @param $street
      *
      * @return array
@@ -1497,21 +1262,5 @@ class Afterpay extends AbstractMethod
         $methodMessage = trim(implode(':', $subcodeMessage));
 
         return $methodMessage;
-    }
-
-    public function getDiffLine($latestKey, $diff)
-    {
-        $article = [];
-
-        $article = $this->getArticleArrayLine(
-            $latestKey,
-            'Discount/Fee',
-            1,
-            1,
-            round($diff, 2),
-            4
-        );
-
-        return $article;
     }
 }

@@ -29,6 +29,7 @@ class Pospayment extends AbstractConfigProvider
     const XPATH_POSPAYMENT_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_pospayment/order_status_failed';
     const XPATH_POSPAYMENT_ORDER_EMAIL           = 'payment/buckaroo_magento2_pospayment/order_email';
     const XPATH_POSPAYMENT_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_pospayment/available_in_backend';
+    const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'payment/buckaroo_magento2_pospayment/other_payment_methods';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_pospayment/allowed_currencies';
 

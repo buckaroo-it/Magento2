@@ -86,8 +86,6 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/kbc.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/klarnakp.xml"/>
-
         <include path="Buckaroo_Magento2::system/payment_methods/emandate.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/afterpay20.xml"/>
@@ -97,8 +95,6 @@
         <include path="Buckaroo_Magento2::system/payment_methods/applepay.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/capayable_in3.xml"/>
-
-        <!-- <include path="Buckaroo_Magento2::system/payment_methods/capayable_postpay.xml"/> -->
 
         <include path="Buckaroo_Magento2::system/payment_methods/alipay.xml"/>
 
@@ -113,5 +109,7 @@
         <include path="Buckaroo_Magento2::system/payment_methods/pospayment.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/tinka.xml"/>
+        
+        <include path="Buckaroo_Magento2::system/payment_methods/klarnas.xml"/>
     </group>
 </include>

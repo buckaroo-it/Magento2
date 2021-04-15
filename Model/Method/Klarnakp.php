@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -29,6 +30,8 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Checkout\Model\Cart;
 use Zend_Locale;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Quote\Model\Quote\AddressFactory;
 
 class Klarnakp extends AbstractMethod
 {
@@ -47,6 +50,7 @@ class Klarnakp extends AbstractMethod
     const KLARNAKP_ARTICLE_TYPE_GENERAL = 'General';
     const KLARNAKP_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
     const KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
+
 
     /**
      * Business methods that will be used in klarna.
@@ -123,15 +127,6 @@ class Klarnakp extends AbstractMethod
     protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
 
-    /** @var SoftwareData */
-    private $softwareData;
-
-    /** @var Calculation */
-    private $taxCalculation;
-
-    /** @var Config */
-    private $taxConfig;
-
     /** @var Cart */
     private $cart;
 
@@ -164,6 +159,7 @@ class Klarnakp extends AbstractMethod
      * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
      * @param \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory
      * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param \Magento\Quote\Model\QuoteFactory $quoteFactory
      * @param \Magento\Framework\App\RequestInterface $request
      * @param \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
@@ -181,12 +177,14 @@ class Klarnakp extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
-        SoftwareData $softwareData,
-        Config $taxConfig,
-        Calculation $taxCalculation,
         Cart $cart,
         AddressFormatter $addressFormatter,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
+        AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -210,7 +208,12 @@ class Klarnakp extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
-            $cookieManager,
+            $quoteFactory,
+            $taxConfig,
+            $taxCalculation,
+            $configProviderBuckarooFee,
+            $softwareData,
+            $addressFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -226,9 +229,6 @@ class Klarnakp extends AbstractMethod
         );
 
         $this->context = $context;
-        $this->softwareData = $softwareData;
-        $this->taxConfig = $taxConfig;
-        $this->taxCalculation = $taxCalculation;
         $this->cart = $cart;
         $this->addressFormatter = $addressFormatter;
     }
@@ -343,17 +343,18 @@ class Klarnakp extends AbstractMethod
         if (isset($currentInvoice)) {
             $articledata = $this->getPayRequestData($currentInvoice, $payment);
             $articles = array_merge($articles, $articledata);
+            //$group++;
         }
 
         // For the first invoice possible add payment fee
         if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-            $serviceLine = $this->getServiceCostLine($currentInvoice, $includesTax, $this->groupId++);
+            $serviceLine = $this->getServiceCostLine($this->groupId++, $currentInvoice);
             if (!empty($serviceLine)) {
-                unset($serviceLine[1]);
+                unset($serviceLine[0]);
                 unset($serviceLine[3]);
                 unset($serviceLine[4]);
                 $articles = array_merge($articles, $serviceLine);
+                //$group++;
             }
         }
 
@@ -490,7 +491,7 @@ class Klarnakp extends AbstractMethod
             $shippingAddress = $payment->getOrder()->getBillingAddress();
             $shippingSameAsBilling = "true";
         } else {
-            $shippingSameAsBilling = $this->isAddressDataDifferent($payment);
+            $shippingSameAsBilling = $this->isAddressDataDifferent($payment) ? "true" : "false";
         }
         
         $streetFormat = $this->addressFormatter->formatStreet($shippingAddress->getStreet());
@@ -537,6 +538,7 @@ class Klarnakp extends AbstractMethod
             ],
         ];
 
+
         if (!empty($streetFormat['house_number'])) {
             $shippingData[] = [
                 '_'    => $streetFormat['house_number'],
@@ -566,7 +568,10 @@ class Klarnakp extends AbstractMethod
         $order = $payment->getOrder();
         $invoiceCollection = $order->getInvoiceCollection();
 
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         $articles = [];
         //$group = 1;
@@ -575,19 +580,16 @@ class Klarnakp extends AbstractMethod
 
         $qtys = [];
         foreach ($invoiceItems as $item) {
-            $this->logger2->addDebug(
-                __METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()], true)
-            );
-            if (empty($item) ||
-                $item->getOrderItem()->getParentItemId() ||
-                $this->calculateProductPrice($item, $includesTax) == 0
-            ) {
+            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()], true));
+            if (empty($item) || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
                 continue;
             }
 
             $qtys[$item->getSku()] = [
-                'qty' => (int) ($item->getQty()),
+                'qty' => intval($item->getQty()),
+                //'name' => $item->getName(),
                 'price' => $this->calculateProductPrice($item, $includesTax),
+                //'tax' => $item->getTaxPercent()
             ];
         }
 
@@ -610,13 +612,6 @@ class Klarnakp extends AbstractMethod
 
             $this->groupId++;
 
-        }
-
-        $taxLine = $this->getTaxLine($payment->getOrder(), $this->groupId);
-
-        if (!empty($taxLine)) {
-            $articles = array_merge($articles, $taxLine);
-            $this->groupId++;
         }
 
         $discountline = $this->getDiscountLine($payment, $this->groupId);
@@ -771,35 +766,6 @@ class Klarnakp extends AbstractMethod
     }
 
     /**
-     * Method to compare two addresses from the payment.
-     * Returns true if they are the same.
-     *
-     * @param OrderPaymentInterface|InfoInterface $payment
-     *
-     * @return boolean
-     */
-    public function isAddressDataDifferent($payment)
-    {
-        $billingAddress = $payment->getOrder()->getBillingAddress();
-        $shippingAddress = $payment->getOrder()->getShippingAddress();
-
-        if ($billingAddress === null || $shippingAddress === null) {
-            return false;
-        }
-
-        $billingAddressData = $billingAddress->getData();
-        $shippingAddressData = $shippingAddress->getData();
-
-        $arrayDifferences = $this->calculateAddressDataDifference($billingAddressData, $shippingAddressData);
-
-        if (empty($arrayDifferences)) {
-            return "true";
-        }
-
-        return "false";
-    }
-
-    /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
@@ -882,37 +848,6 @@ class Klarnakp extends AbstractMethod
     }
 
     /**
-     * @param array $addressOne
-     * @param array $addressTwo
-     *
-     * @return boolean
-     */
-    private function calculateAddressDataDifference($addressOne, $addressTwo)
-    {
-        $keysToExclude = array_flip([
-            'prefix',
-            'telephone',
-            'fax',
-            'created_at',
-            'email',
-            'customer_address_id',
-            'vat_request_success',
-            'vat_request_date',
-            'vat_request_id',
-            'vat_is_valid',
-            'vat_id',
-            'address_type',
-            'extension_attributes',
-        ]);
-
-        $filteredAddressOne = array_diff_key($addressOne, $keysToExclude);
-        $filteredAddressTwo = array_diff_key($addressTwo, $keysToExclude);
-        $arrayDiff = array_diff($filteredAddressOne, $filteredAddressTwo);
-
-        return $arrayDiff;
-    }
-
-    /**
      * @param $payment
      *
      * @return array
@@ -921,13 +856,13 @@ class Klarnakp extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
-        $includesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
+        $includesTax = $this->_scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
-        /**
-         * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection|array $cartData
-         */
-
-        $cartData = $this->cart->getItems();
+        $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+        $cartData = $quote->getAllItems();
 
         $articles = [];
         $group    = 1;
@@ -977,7 +912,7 @@ class Klarnakp extends AbstractMethod
                     'Name' => 'ArticleVat',
                 ]
             ];
-            //phpcs:ignore:Magento2.Performance.ForeachArrayMerge
+
             $articles = array_merge($articles, $article);
             $group++;
 
@@ -988,7 +923,7 @@ class Klarnakp extends AbstractMethod
 
         $requestData = $articles;
 
-        $serviceLine = $this->getServiceCostLine($payment->getOrder(), $includesTax, $group);
+        $serviceLine = $this->getServiceCostLine($group, $payment->getOrder());
 
         if (!empty($serviceLine)) {
             $requestData = array_merge($articles, $serviceLine);
@@ -1010,59 +945,7 @@ class Klarnakp extends AbstractMethod
             $group++;
         }
 
-        $taxLine = $this->getTaxLine($payment->getOrder(), $group);
-
-        if (!empty($taxLine)) {
-            $requestData = array_merge($requestData, $taxLine);
-            $group++;
-        }
-
         return $requestData;
-    }
-
-    /**
-     * @param \Magento\Quote\Model\Quote\Item $productItem
-     * @param                                 $includesTax
-     *
-     * @return mixed
-     */
-    public function calculateProductPrice($productItem, $includesTax)
-    {
-        $productPrice = $productItem->getPrice() ?? 0;
-
-        if ($includesTax) {
-            $productPrice = $productItem->getPriceInclTax() ?? 0;
-        }
-
-        if ($productItem->getWeeeTaxAppliedAmount() > 0) {
-            $productPrice += $productItem->getWeeeTaxAppliedAmount();
-        }
-
-        return $productPrice;
-    }
-
-    /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     *
-     * @return float|int
-     */
-    private function getDiscountAmount($payment)
-    {
-        /** @var \Magento\Sales\Model\Order $order */
-        $order = $payment->getOrder();
-
-        $discount = 0;
-        $edition = $this->softwareData->getProductMetaData()->getEdition();
-
-        if ($order->getDiscountAmount() < 0) {
-            $discount -= abs((double)$order->getDiscountAmount());
-        }
-
-        if ($edition == 'Enterprise' && $order->getCustomerBalanceAmount() > 0) {
-            $discount -= abs((double)$order->getCustomerBalanceAmount());
-        }
-
-        return $discount;
     }
 
     /**
@@ -1128,20 +1011,14 @@ class Klarnakp extends AbstractMethod
     {
         $shippingCostsArticle = [];
 
-        if ($order->getShippingAmount() <= 0) {
+        $shippingAmount = $this->getShippingAmount($order);
+        if ($shippingAmount <= 0) {
             return $shippingCostsArticle;
         }
 
         $request = $this->taxCalculation->getRateRequest(null, null, null);
         $taxClassId = $this->taxConfig->getShippingTaxClass();
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
-
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
-        $shippingAmount = $order->getShippingAmount();
-
-        if ($shippingIncludesTax) {
-            $shippingAmount += $order->getShippingTaxAmount();
-        }
 
         $shippingCostsArticle = [
             [
@@ -1185,71 +1062,62 @@ class Klarnakp extends AbstractMethod
         return $shippingCostsArticle;
     }
 
-    /**
-     * Get the service cost lines (buckfee)
-     *
-     * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
-     * @param $includesTax
-     *
-     * @param $group
-     * @return   array
-     * @internal param $ (int) $latestKey
-     */
-    public function getServiceCostLine($order, $includesTax, $group)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $buckarooFee = $order->getBuckarooFee();
-        $buckarooTax = $order->getBuckarooFeeTaxAmount();
+    public function getArticleArrayLine(
+        $latestKey,
+        $articleDescription,
+        $articleId,
+        $articleQuantity,
+        $articleUnitPrice,
+        $articleVat = ''
+    ) {
+        $article = [
+            [
+                '_'       => $articleDescription,
+                'Name'    => 'ArticleTitle',
+                'GroupID' => $latestKey,
+                'Group' => 'Article',
+            ],
+            [
+                '_'       => $articleId,
+                'Name'    => 'ArticleNumber',
+                'Group' => 'Article',
+                'GroupID' => $latestKey,
+            ],
+            [
+                '_'       => $articleQuantity,
+                'Name'    => 'ArticleQuantity',
+                'GroupID' => $latestKey,
+                'Group' => 'Article',
+            ],
+            [
+                '_'       => $articleUnitPrice,
+                'Name'    => 'ArticlePrice',
+                'GroupID' => $latestKey,
+                'Group' => 'Article',
+            ],
+            [
+                '_'       => $articleVat,
+                'Name'    => 'ArticleVat',
+                'GroupID' => $latestKey,
+                'Group' => 'Article',
+            ],
+            [
+                '_' => self::KLARNAKP_ARTICLE_TYPE_HANDLINGFEE,
+                'Group' => 'Article',
+                'GroupID' => $latestKey,
+                'Name' => 'ArticleType',
+            ]
+        ];
 
+        return $article;
+    }
+
+    protected function getTaxCategory($order)
+    {
         $items = $order->getItems();
 
         foreach ($items as $data) {
-            $article = [];
-
-            if (false !== $buckarooFee && (double)$buckarooFee > 0) {
-                $article = [
-                    [
-                        '_' => 1,
-                        'Group' => 'Article',
-                        'GroupID' => $group,
-                        'Name' => 'ArticleNumber',
-                    ],
-                    [
-                        '_' => round($buckarooFee + $buckarooTax, 2),
-                        'Group' => 'Article',
-                        'GroupID' => $group,
-                        'Name' => 'ArticlePrice',
-                    ],
-                    [
-                        '_' => 1,
-                        'Group' => 'Article',
-                        'GroupID' => $group,
-                        'Name' => 'ArticleQuantity',
-                    ],
-                    [
-                        '_' => 'Servicekosten',
-                        'Group' => 'Article',
-                        'GroupID' => $group,
-                        'Name' => 'ArticleTitle',
-                    ],
-                    [
-                        '_' => $this->getTaxPercent($data),
-                        'Group' => 'Article',
-                        'GroupID' => $group,
-                        'Name' => 'ArticleVat',
-                    ],
-                    [
-                        '_' => self::KLARNAKP_ARTICLE_TYPE_HANDLINGFEE,
-                        'Group' => 'Article',
-                        'GroupID' => $group,
-                        'Name' => 'ArticleType',
-                    ]
-                ];
-            }
-
-            return $article;
+            return $this->getTaxPercent($data);
         }
     }
 
@@ -1271,80 +1139,5 @@ class Klarnakp extends AbstractMethod
         }
 
         return $taxPercent;
-    }
-
-    /**
-     * @param InvoiceInterface|OrderInterface|CreditmemoInterface $order
-     *
-     * @return float|int|null
-     */
-    private function getTaxes($order)
-    {
-        $catalogIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_INCLUDES_TAX);
-        $shippingIncludesTax = $this->_scopeConfig->getValue(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
-
-        $taxes = 0;
-
-        if (!$catalogIncludesTax) {
-            $taxes += $order->getTaxAmount() - $order->getShippingTaxAmount();
-        }
-
-        if (!$shippingIncludesTax) {
-            $taxes += $order->getShippingTaxAmount();
-        }
-
-        return $taxes;
-    }
-
-    /**
-     * Get the tax line
-     *
-     * @param (int)                                               $latestKey
-     * @param InvoiceInterface|OrderInterface|CreditmemoInterface $payment
-     *
-     * @return array
-     */
-    public function getTaxLine($payment, $group)
-    {
-        $article = [];
-        $taxes = $this->getTaxes($payment);
-
-        if ($taxes > 0) {
-
-            $article = [
-            [
-                '_' => 4,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleNumber',
-            ],
-            [
-                '_' => $taxes,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticlePrice',
-            ],
-            [
-                '_' => 1,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleQuantity',
-            ],
-            [
-                '_' => 'Tax',
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleTitle',
-            ],
-            [
-                '_' => 0,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleVat',
-            ],
-            ];
-        }
-
-        return $article;
     }
 }

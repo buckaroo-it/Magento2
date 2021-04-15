@@ -428,12 +428,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         return $str;
     }
 
-    private function getAlreadyPaid($orderId = false)
-    {
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
-        return isset($alreadyPaid[$orderId]) ? $alreadyPaid[$orderId] : false;
-    }
-
     private function setAlreadyPaid($orderId, $amount)
     {
         if ($orderId) {
@@ -448,25 +442,10 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->_checkoutSession->setBuckarooAlreadyPaid($alreadyPaid);
     }
 
-    private function getOriginalTransactionKey($orderId)
-    {
-        $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
-        return isset($originalTransactionKey[$orderId]) ? $originalTransactionKey[$orderId] : false;
-    }
-
     private function setOriginalTransactionKey($orderId, $transactionKey)
     {
         $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
         $originalTransactionKey[$orderId] = $transactionKey;
         $this->_checkoutSession->setOriginalTransactionKey($originalTransactionKey);
-    }
-
-    private function getOrder()
-    {
-        if ($this->_checkoutSession->getLastRealOrderId()) {
-            $order = $this->_orderFactory->create()->loadByIncrementId($this->_checkoutSession->getLastRealOrderId());
-            return $order;
-        }
-        return false;
     }
 }

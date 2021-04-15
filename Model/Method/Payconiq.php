@@ -99,7 +99,7 @@ class Payconiq extends AbstractMethod
 
         $services = [
             'Name'             => 'payconiq',
-            'Action'           => 'Pay',
+            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [],
         ];

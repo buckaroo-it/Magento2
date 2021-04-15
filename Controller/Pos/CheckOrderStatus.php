@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
  /**
   * NOTICE OF LICENSE
   *
@@ -49,6 +50,11 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
      */
     protected $accountConfig;
 
+    private $storeManager;
+    private $urlBuilder;
+    private $formKey;
+    private $helper;
+
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param Log                                                 $logger
@@ -61,13 +67,21 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
         Log $logger,
         \Magento\Sales\Model\Order $order,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \Magento\Framework\Data\Form\FormKey $formKey,
+        \Buckaroo\Magento2\Helper\Data $helper
     ) {
         parent::__construct($context);
         $this->logger             = $logger;
         $this->order              = $order;
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->accountConfig = $configProviderFactory->get('account');
+        $this->resultJsonFactory  = $resultJsonFactory;
+        $this->accountConfig      = $configProviderFactory->get('account');
+        $this->storeManager       = $storeManager;
+        $this->urlBuilder         = $urlBuilder;
+        $this->formKey            = $formKey;
+        $this->helper             = $helper;
     }
 
     /**
@@ -92,12 +106,15 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
                 }
 
                 if (in_array($this->order->getState(), ['canceled', 'closed'])) {
-                    $url = $store->getBaseUrl() . '/' . $this->accountConfig->getFailureRedirect($store);
-                    $this->messageManager->addErrorMessage(
-                        __(
-                            'The transaction has not been completed, please try again'
-                        )
-                    );
+                    $returnUrl = $this->urlBuilder->setScope($this->storeManager->getStore()->getStoreId());
+                    $url = $returnUrl->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->formKey->getFormKey();
+                    $extraData = [
+                        'brq_invoicenumber' => $params['orderId'],
+                        'brq_ordernumber' => $params['orderId'],
+                        'brq_statuscode' => $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'),
+                    ];
+
+                    $url = $url . '&'. http_build_query($extraData);
                 }
 
                 $response = ['success' => 'true', 'redirect' => $url];

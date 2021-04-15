@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -21,6 +22,10 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Sales\Model\Order\Payment;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Quote\Model\Quote\AddressFactory;
 
 class SepaDirectDebit extends AbstractMethod
 {
@@ -114,8 +119,13 @@ class SepaDirectDebit extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
+        AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -140,7 +150,12 @@ class SepaDirectDebit extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
-            $cookieManager,
+            $quoteFactory,
+            $taxConfig,
+            $taxCalculation,
+            $configProviderBuckarooFee,
+            $softwareData,
+            $addressFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -212,6 +227,7 @@ class SepaDirectDebit extends AbstractMethod
             ['Name' => 'AllowedServices'],
             ['Name' => 'Gender', 'Group' => 'Person']
         ];
+
 
         /**
          * Buckaroo Push is send before Response, for correct flow we skip the first push

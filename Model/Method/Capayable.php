@@ -48,6 +48,9 @@ use Buckaroo\Magento2\Model\RefundFieldsFactory;
 use Buckaroo\Magento2\Model\ValidatorFactory;
 use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Magento\Quote\Model\Quote\AddressFactory;
 
 class Capayable extends AbstractMethod
 {
@@ -101,9 +104,13 @@ class Capayable extends AbstractMethod
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
         DeveloperHelperData $developmentHelper,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         AddressFormatter $addressFormatter,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         SoftwareData $softwareData,
+        AddressFactory $addressFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         GatewayInterface $gateway = null,
@@ -127,7 +134,12 @@ class Capayable extends AbstractMethod
             $scopeConfig,
             $logger,
             $developmentHelper,
-            $cookieManager,
+            $quoteFactory,
+            $taxConfig,
+            $taxCalculation,
+            $configProviderBuckarooFee,
+            $softwareData,
+            $addressFactory,
             $resource,
             $resourceCollection,
             $gateway,
@@ -143,7 +155,6 @@ class Capayable extends AbstractMethod
         );
 
         $this->addressFormatter = $addressFormatter;
-        $this->softwareData = $softwareData;
     }
 
     /**
@@ -492,17 +503,17 @@ class Capayable extends AbstractMethod
      */
     private function getShippingCostsLine($order, $groupId)
     {
-        $shippingCostsLine = [];
-        $shippingAmount = $order->getShippingInclTax();
+        $shippingCostsArticle = [];
 
+        $shippingAmount = $this->getShippingAmount($order);
         if ($shippingAmount <= 0) {
-            return $shippingCostsLine;
+            return $shippingCostsArticle;
         }
 
-        $shippingCostsLine[] = $this->getRequestParameterRow('Verzendkosten', 'Name', 'SubtotalLine', $groupId);
-        $shippingCostsLine[] = $this->getRequestParameterRow($shippingAmount, 'Value', 'SubtotalLine', $groupId);
+        $shippingCostsArticle[] = $this->getRequestParameterRow('Verzendkosten', 'Name', 'SubtotalLine', $groupId);
+        $shippingCostsArticle[] = $this->getRequestParameterRow($shippingAmount, 'Value', 'SubtotalLine', $groupId);
 
-        return $shippingCostsLine;
+        return $shippingCostsArticle;
     }
 
     /**

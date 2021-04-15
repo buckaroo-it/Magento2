@@ -31,6 +31,10 @@ php bin/magento setup:static-content:deploy
 php bin/magento setup:di:compile
 ```
 
+### Contribute
+
+See [Contribution Guidelines](CONTRIBUTING.md)
+
 ### Additional information
 
 Release notes:
