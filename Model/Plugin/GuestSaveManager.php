@@ -18,10 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 namespace Buckaroo\Magento2\Model\Plugin;
+
 use Buckaroo\Magento2\Logging\Log;
 
 if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
-
+    //phpcs:ignore Generic.Classes.DuplicateClassName.Found
     class GuestSaveManager extends \Onestepcheckout\Iosc\Plugin\GuestSaveManager
     {
         protected $quoteIdMaskFactory;
@@ -80,10 +81,10 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
             parent::beforeSavePaymentInformation($parent, $cartId, $email, $paymentMethod, $billingAddress);
         }
-
     }
 
 } else {
+    //phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses
     class GuestSaveManager
     {
 

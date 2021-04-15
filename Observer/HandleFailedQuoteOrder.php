@@ -58,14 +58,17 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/AbstractMethod.php:880
             $payment = $order->getPayment();
-            if (in_array($payment->getMethodInstance()->getCode(),['buckaroo_magento2_afterpay','buckaroo_magento2_afterpay2','buckaroo_magento2_klarnakp'])               
-            ) {
+            if (in_array(
+                $payment->getMethodInstance()->getCode(),
+                ['buckaroo_magento2_afterpay','buckaroo_magento2_afterpay2','buckaroo_magento2_klarnakp']
+            )) {
                 try {
                     $order->addStatusHistoryComment('Buckaroo: failed to authorize an order', false);
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
-                    $payment->save();  
+                    $payment->save();
+                    //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
                 } catch (\Exception $e) {
-                    //ignore
+
                 }
             }
 
@@ -73,11 +76,11 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                 $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 $order->cancel();
                 $order->save();
+                //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-                //ignore
+
             }
             $this->buckarooSession->setData('flagHandleFailedQuote', 0);
         }
-
     }
 }

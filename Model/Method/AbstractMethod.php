@@ -1826,6 +1826,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             if (
                 ($response = $curl->getBody())
                 &&
+                //phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
                 ($parsedResponse = @json_decode($response))
                 &&
                 !empty($parsedResponse->address)

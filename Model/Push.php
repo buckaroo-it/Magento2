@@ -1601,6 +1601,7 @@ class Push implements PushInterface
     private function getLockPushProcessingPpeFilePath()
     {
         if ($brqOrderId = $this->getOrderIncrementId()) {
+            //phpcs:ignore Magento2.Security.InsecureFunction.FoundWithAlternative
             return $this->dirList->getPath('tmp') . DIRECTORY_SEPARATOR . 'bk_push_ppe_' . md5($brqOrderId);
         } else {
             return false;
