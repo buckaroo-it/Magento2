@@ -84,7 +84,6 @@
 				<filter>text</filter>
 				<label translate="true">Message</label>
 			</settings>
-			<item name="nl2br" xsi:type="boolean">true</item>
 		</column>
 		<column name="time">
 			<argument name="data" xsi:type="array">
