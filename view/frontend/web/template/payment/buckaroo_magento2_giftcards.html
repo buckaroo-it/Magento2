@@ -100,7 +100,7 @@
                             value: $parent.CardNumber,
                             textInput: $parent.CardNumber(),
                             attr: { 'data-card': code, 'id': 'buckaroo_magento2_giftcards_cardnumber_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validateCardNumber': true }) },
-                            event: { blur: $parent.encryptCardDetails }">
+                            event: { blur: $parent.checkValidness }">
                             </div>
                         </div>
 
@@ -119,7 +119,7 @@
                             value: $parent.Pin,
                             textInput: $parent.Pin(),
                             attr: { 'id': 'buckaroo_magento2_giftcards_pin_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validatePin': true }) },
-                            event: { blur: $parent.encryptCardDetails }">
+                            event: { blur: $parent.checkValidness }">
                             </div>
                             <div class="card_info width-10">
                                   <div class="popup">
@@ -130,7 +130,12 @@
 
                     <div class="field width-100">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' "></span>
-                        <span class="apply-gift-card action primary" data-bind="click: $parent.applyGiftcard.bind($parent), i18n: 'Apply Gift Card', css: {disabled: $parent.buttoncheck()}"></span>
+                        <span class="apply-gift-card action primary" data-bind="
+                            click: $parent.applyGiftcard.bind($parent),
+                            i18n: 'Apply Gift Card',
+                            attr: { 'id': 'buckaroo_magento2_giftcards_submit_' + code }
+                            css: {disabled: $parent.buttoncheck()}">
+                        </span>
                     </div>
 
                     </div>
