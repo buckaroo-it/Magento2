@@ -713,6 +713,12 @@ class Billink extends AbstractMethod
 
         $shippingCostsArticle = [
             [
+                '_'       => 'Shipping fee',
+                'Name'    => 'Description',
+                'Group'   => 'Article',
+                'GroupID' =>  $count,
+            ],
+            [
                 '_'       => number_format($shippingAmount, 4, '.', ''),
                 'Name'    => 'GrossUnitPriceIncl',
                 'Group'   => 'Article',
@@ -791,6 +797,12 @@ class Billink extends AbstractMethod
         $articleVat = ''
     ) {
         $article = [
+            [
+                '_'       => $articleDescription,
+                'Name'    => 'Description',
+                'GroupID' => $latestKey,
+                'Group' => 'Article',
+            ],
             [
                 '_'       => $articleId,
                 'Name'    => 'Identifier',

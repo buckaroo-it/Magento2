@@ -1434,6 +1434,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if ($amount >= 0.01) {
             $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
+            if (
+                ($groupTransactionAmount > 0.01)
+                &&
+                empty($requestParams['creditmemo']['buckaroo_already_paid'])
+                &&
+                !empty($requestParams['creditmemo']['adjustment_negative'])
+            ) {
+                $this->logger2->addDebug(__METHOD__ . '|22|');
+                $payment->getOrder()->setAdjustmentNegative(0);
+            }
             if ($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0) {
                 $this->logger2->addDebug(__METHOD__ . '|25|' . var_export($groupTransactionAmount, true));
                 $this->payRemainder = $amount - $groupTransactionAmount;

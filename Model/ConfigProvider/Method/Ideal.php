@@ -62,10 +62,6 @@ class Ideal extends AbstractConfigProvider
             'code' => 'KNABNL2H',
         ],
         [
-            'name' => 'Moneyou',
-            'code' => 'MOYONL21',
-        ],
-        [
             'name' => 'Rabobank',
             'code' => 'RABONL2U',
         ],
