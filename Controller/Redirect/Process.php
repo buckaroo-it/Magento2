@@ -578,7 +578,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 }
             }
             $this->logger->addDebug('ready for redirect');
-            return $this->_redirect('checkout', ['_fragment' => 'payment']);
+            return $this->_redirect('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
         }
 
         /**
