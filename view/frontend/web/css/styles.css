@@ -59,7 +59,6 @@
     .buckaroo_magento2_sepadirectdebit .payment-method-second-col,
     .buckaroo_magento2_giropay .payment-method-second-col,
     .buckaroo_magento2_payperemail .payment-method-second-col,
-    .buckaroo_magento2_paymentguarantee .payment-method-second-col,
     .buckaroo_magento2_klarna .payment-method-second-col,
     .buckaroo_magento2_klarnakp .payment-method-second-col,
     .buckaroo_magento2_klarnain .payment-method-second-col,
@@ -88,7 +87,6 @@
     .buckaroo_magento2_sepadirectdebit .payment-method-billing-address,
     .buckaroo_magento2_giropay .payment-method-billing-address,
     .buckaroo_magento2_payperemail .payment-method-billing-address,
-    .buckaroo_magento2_paymentguarantee .payment-method-billing-address,
     .buckaroo_magento2_klarna .payment-method-billing-address,
     .buckaroo_magento2_klarnakp .payment-method-billing-address,
     .buckaroo_magento2_klarnain .payment-method-billing-address,
@@ -120,7 +118,6 @@
     .magento-blank .buckaroo_magento2_sepadirectdebit .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_giropay .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_payperemail .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_paymentguarantee .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field:not(.choice) > .label,
@@ -149,7 +146,6 @@
     .magento-blank .buckaroo_magento2_sepadirectdebit .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_giropay .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_payperemail .fieldset > .field:not(.choice) > .control,
-    .magento-blank .buckaroo_magento2_paymentguarantee .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field:not(.choice) > .control,
@@ -176,7 +172,6 @@
     .magento-blank .buckaroo_magento2_sepadirectdebit .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_giropay .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_payperemail .fieldset > .field.choice:before,
-    .magento-blank .buckaroo_magento2_paymentguarantee .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field.choice:before,
@@ -557,25 +552,6 @@
     content: ' ';
 }
 
-/* ======================= PaymentGuarantee ======================== */
-.buckaroo_magento2_paymentguarantee .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_paymentguarantee_title.png) no-repeat;
-    float             : right;
-    margin-right      : 10px;
-    margin-top        : -2px;
-    width             : 68px;
-    height            : 26px;
-    background-size   : auto 23px;
-    content           : ' ';
-}
-
-.buckaroo_magento2_paymentguarantee .payment-method-second-col input:disabled {
-    color: #999;
-    background: #f2f2f2;
-    border: 1px solid #b6b6b6;
-    opacity: 1;
-}
-
 /* ======================= EPS ======================== */
 .buckaroo_magento2_eps .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_eps_title.png) no-repeat;
@@ -940,18 +916,6 @@
         background-size: auto 24px;
         width: 40px;
         height: 30px;
-        content: ' ';
-    }
-
-    /* PaymentGuarantee */
-    .buckaroo_magento2_paymentguarantee .buckaroo_magento2_image_title:before {
-        margin-top: -4px;
-        float: left;
-        margin-right: 10px;
-        width: 40px;
-        height: 31px;
-        background :url(../images/buckaroo_magento2_paymentguarantee_title_small.png) no-repeat 5px 0;
-        background-size: auto 27px;
         content: ' ';
     }
 

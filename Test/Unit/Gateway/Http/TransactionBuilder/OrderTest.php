@@ -149,51 +149,6 @@ class OrderTest extends BaseTest
                     'OriginalTransactionKey' => 'def5678',
                 ]
             ],
-            'no service action' => [
-                [
-                    'Name' => 'paymentguarantee'
-                ],
-                [
-                    'Invoice' => '#9012',
-                    'AmountCredit' => '15.00',
-                    'OriginalTransactionKey' => 'ghi9012',
-                ],
-                [
-                    'Invoice' => '#9012',
-                    'AmountCredit' => '15.00',
-                    'OriginalTransactionKey' => 'ghi9012',
-                ]
-            ],
-            'filtered paymentguarantee order' => [
-                [
-                    'Name' => 'paymentguarantee',
-                    'Action' => 'Order'
-                ],
-                [
-                    'Invoice' => '#3456',
-                    'AmountCredit' => '20.00',
-                    'OriginalTransactionKey' => 'jkl3456',
-                ],
-                [
-                    'AmountCredit' => '20.00',
-                    'OriginalTransactionKey' => 'jkl3456',
-                ]
-            ],
-            'filtered paymentguarantee partialinvoice' => [
-                [
-                    'Name' => 'paymentguarantee',
-                    'Action' => 'PartialInvoice'
-                ],
-                [
-                    'Invoice' => '#7890',
-                    'AmountCredit' => '25.00',
-                    'OriginalTransactionKey' => 'mno7890',
-                ],
-                [
-                    'Invoice' => '#7890',
-                    'AmountCredit' => '25.00',
-                ]
-            ],
             'filtered creditmanagement3 createcreditnote' => [
                 [
                     'Name' => 'CreditManagement3',

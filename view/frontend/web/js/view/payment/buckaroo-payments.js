@@ -114,10 +114,6 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/giftcards'
             },
             {
-                type: 'buckaroo_magento2_paymentguarantee',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/paymentguarantee'
-            },
-            {
                 type: 'buckaroo_magento2_kbc',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/kbc'
             },
