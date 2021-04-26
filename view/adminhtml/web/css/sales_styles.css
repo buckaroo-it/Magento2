@@ -54,7 +54,6 @@
 .buckaroo_magento2_payment_afterpay,
 .buckaroo_magento2_payment_afterpay2,
 .buckaroo_magento2_payment_payperemail,
-.buckaroo_magento2_payment_paymentguarantee,
 .buckaroo_magento2_payment_giftcards,
 .buckaroo_magento2_payment_eps,
 .buckaroo_magento2_payment_kbc,
@@ -263,18 +262,6 @@
     width             :35px;
     height            :30px;
     content           :' ';
-}
-
-/* PaymentGuarantee */
-.buckaroo_magento2_payment_paymentguarantee:before {
-    background: url(../images/buckaroo_magento2_paymentguarantee_title.png) no-repeat;
-    float             : left;
-    margin-right      : 10px;
-    margin-top        : -2px;
-    width             : 68px;
-    height            : 26px;
-    background-size   : auto 23px;
-    content            : ' ';
 }
 
 /* Payconiq */

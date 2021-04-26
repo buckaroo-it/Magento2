@@ -80,8 +80,6 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/giftcards.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/paymentguarantee.xml"/>
-
         <include path="Buckaroo_Magento2::system/payment_methods/payconiq.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/kbc.xml"/>

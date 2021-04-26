@@ -287,19 +287,6 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_giftcards>
 
-            <buckaroo_magento2_paymentguarantee>
-                <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\PaymentGuarantee</model>
-                <order_status>pending</order_status>
-                <title>Buckaroo Payment Guarantee</title>
-                <sort_order>200</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </buckaroo_magento2_paymentguarantee>
-
             <buckaroo_magento2_kbc>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Kbc</model>

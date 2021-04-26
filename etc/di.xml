@@ -241,10 +241,6 @@
                     <item name="type" xsi:type="string">giftcards</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards</item>
                 </item>
-                <item name="paymentguarantee" xsi:type="array">
-                    <item name="type" xsi:type="string">paymentguarantee</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PaymentGuarantee</item>
-                </item>
                 <item name="kbc" xsi:type="array">
                     <item name="type" xsi:type="string">kbc</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Kbc</item>

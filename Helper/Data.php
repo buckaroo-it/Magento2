@@ -412,7 +412,6 @@ class Data extends AbstractHelper
             ['value' => 'p24',       'label' => __('Przelewy24')],
             ['value' => 'payconiq',       'label' => __('Payconiq')],
             ['value' => 'paylink',       'label' => __('PayLink')],
-            ['value' => 'paymentguarantee',       'label' => __('Payment Guarantee')],
             ['value' => 'paypal',       'label' => __('Paypal')],
             ['value' => 'payperemail',       'label' => __('PayPerEmail')],
             ['value' => 'pospayment',       'label' => __('Point of Sale')],
