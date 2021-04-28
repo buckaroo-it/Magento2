@@ -67,26 +67,9 @@ class Capayable extends AbstractMethod
     protected $_code = '';
 
     /** @var bool */
-    protected $_isGateway               = true;
-
-    /** @var bool */
-    protected $_canOrder                = true;
-
-    /** @var bool */
-    protected $_canRefund               = true;
-
-    /** @var bool */
-    protected $_canVoid                 = true;
-
-    /** @var bool */
     protected $_canUseInternal          = false;
 
-    /** @var bool */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
-
-    /** @var bool */
-    public $usesRedirect                = true;
 
     /** @var AddressFormatter */
     public $addressFormatter;
