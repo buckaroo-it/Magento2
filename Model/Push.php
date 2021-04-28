@@ -43,6 +43,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Buckaroo\Magento2\Model\Session as BuckarooSession;
 
 /**
  * Class Push
@@ -148,6 +149,8 @@ class Push implements PushInterface
 
     protected $dirList;
 
+    protected $buckarooSession;
+
     /**
      * @param Order $order
      * @param TransactionInterface $transaction
@@ -178,7 +181,8 @@ class Push implements PushInterface
         PaymentGroupTransaction $groupTransaction,
         \Magento\Framework\ObjectManagerInterface $objectManager,
         ResourceConnection $resourceConnection,
-        \Magento\Framework\Filesystem\DirectoryList $dirList
+        \Magento\Framework\Filesystem\DirectoryList $dirList,
+        BuckarooSession $buckarooSession
     ) {
         $this->order                       = $order;
         $this->transaction                 = $transaction;
@@ -197,6 +201,7 @@ class Push implements PushInterface
         $this->objectManager      = $objectManager;
         $this->resourceConnection = $resourceConnection;
         $this->dirList            = $dirList;
+        $this->buckarooSession   = $buckarooSession;
     }
 
     /**
@@ -973,11 +978,13 @@ class Push implements PushInterface
             $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
 
             try {
+                $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 $this->order->cancel()->save();
             } catch (\Throwable $t) {
                 $this->logging->addDebug(__METHOD__ . '|3|');
                 //  SignifydGateway/Gateway error on line 208"
             }
+            $this->buckarooSession->setData('flagHandleFailedQuote', 0);
             return true;
         }
 

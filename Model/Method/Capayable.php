@@ -247,12 +247,6 @@ class Capayable extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
         $services = $this->getCapayableService($payment);
 
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        $payment->setAdditionalInformation('skip_push', 1);
-
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
