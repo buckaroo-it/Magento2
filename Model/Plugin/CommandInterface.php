@@ -113,17 +113,20 @@ class CommandInterface
             $orderStatus = $order->getConfig()->getStateDefaultStatus($orderState);
         }
 
-        $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
+        $this->logging->addDebug(
+            __METHOD__ . '|5|' . var_export([$order->getState(), $order->getStatus(), $orderStatus], true)
+        );
 
-        if (preg_match('/afterpay/', $methodInstance->getCode())
+        if (($order->getState() === Order::STATE_PROCESSING)
             &&
-            $this->helper->getOriginalTransactionKey($order->getIncrementId())
-            &&
-            ($orderStatus == 'pending')
-            &&
-            ($order->getState() === Order::STATE_PROCESSING)
-            &&
-            ($order->getStatus() === Order::STATE_PROCESSING)
+            (preg_match('/afterpay/', $methodInstance->getCode())
+                ||
+                preg_match('/pospayment/', $methodInstance->getCode())
+                ||
+                preg_match('/eps/', $methodInstance->getCode())
+                ||
+                preg_match('/billink/', $methodInstance->getCode())
+            )
         ) {
             return false;
         }
