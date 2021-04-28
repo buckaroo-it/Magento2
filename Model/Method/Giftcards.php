@@ -49,16 +49,6 @@ class Giftcards extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
     protected $_canAuthorize            = true;
 
     /**
@@ -79,17 +69,7 @@ class Giftcards extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
     protected $_canUseInternal          = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
 
     /**
      * @var bool

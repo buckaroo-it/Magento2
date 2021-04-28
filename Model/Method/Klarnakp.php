@@ -73,16 +73,6 @@ class Klarnakp extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder = true;
-
-    /**
-     * @var bool
-     */
     protected $_canAuthorize = true;
 
     /**
@@ -103,27 +93,8 @@ class Klarnakp extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_canVoid = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout = true;
-
-    /**
-     * @var bool
-     */
     public $closeAuthorizeTransaction   = false;
 
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
 
     /** @var Cart */
