@@ -67,6 +67,7 @@ class SepaDirectDebitTest extends BaseTest
             ->willReturnOnConsecutiveCalls('EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
+        // phpcs:ignore
         $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(SepaDirectDebitMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);

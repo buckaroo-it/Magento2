@@ -22,6 +22,7 @@
 <div class="creditcard_sort_wrapper">
     <input
         type="hidden"
+        <? // phpcs:ignore --> ?>
         name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][sort_creditcards][value]"
         id="sort_cards"
         value="<?php echo $block->getConfigCardSort()?>">
@@ -56,6 +57,7 @@
                 $('#sort_creditcard_list').append(p);
             });
         } else {
+            <? // phpcs:ignore --> ?>
             $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"] option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();
@@ -63,10 +65,11 @@
                 $('#sort_creditcard_list').append(p);
             });
         }
-
+        
+        <? // phpcs:ignore --> ?>
         $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"]').change(function () {
             $('#sort_creditcard_list p').remove();
-
+            <? // phpcs:ignore --> ?>
             $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"] option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();

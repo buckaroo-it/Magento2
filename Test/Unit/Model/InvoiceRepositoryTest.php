@@ -91,6 +91,7 @@ class InvoiceRepositoryTest extends BaseTest
     public function testGetById($id)
     {
         if (!$id) {
+            // phpcs:ignore
             $this->setExpectedException(NoSuchEntityException::class, __('Invoice with id "%1" does not exist.', $id)->render());
         }
 

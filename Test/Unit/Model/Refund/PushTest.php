@@ -243,6 +243,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testGetCreditmemoDataItems()
     {
+        // phpcs:ignore
         $orderItemMock = $this->getFakeMock(OrderItem::class)->setMethods(['getId', 'getQtyInvoiced', 'getQtyRefunded'])->getMock();
         $orderItemMock->expects($this->exactly(2))->method('getId')->willReturn(1);
         $orderItemMock->expects($this->once())->method('getQtyInvoiced')->willReturn(10);

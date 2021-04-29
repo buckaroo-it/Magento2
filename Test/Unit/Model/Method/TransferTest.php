@@ -115,6 +115,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testGetTransferService()
     {
+        // phpcs:ignore
         $TransferConfigMock = $this->getFakeMock(Transfer::class)->setMethods(['getDueDate', 'getSendEmail'])->getMock();
         $TransferConfigMock->expects($this->once())->method('getDueDate');
         $TransferConfigMock->expects($this->once())->method('getSendEmail');
@@ -139,6 +140,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertEquals(2, $result['Version']);
         $this->assertCount(6, $result['RequestParameter']);
 
+        // phpcs:ignore
         $possibleParameters = ['CustomerEmail', 'CustomerFirstName', 'CustomerLastName', 'CustomerCountry', 'DateDue', 'SendMail'];
 
         foreach ($result['RequestParameter'] as $array) {

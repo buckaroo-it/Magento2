@@ -20,6 +20,7 @@
 // @codingStandardsIgnoreFile
 ?>
 <div class="giftcards_sort_wrapper">
+    <? // phpcs:ignore --> ?>
     <input type="hidden" name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][sort_giftcards][value]" id="sort_giftcards"
            value="<?= $block->getConfigGiftCardsSort() ?>">
     <div id="sort_giftcards_list"></div>
@@ -50,6 +51,7 @@
                 $('#sort_giftcards_list').append(p);
             });
         } else {
+            <? // phpcs:ignore --> ?>
             $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"] option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();
@@ -58,9 +60,11 @@
             });
         }
 
+        <? // phpcs:ignore --> ?>
         $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"]').change(function () {
             $('#sort_giftcards_list p').remove();
 
+            <? // phpcs:ignore --> ?>
             $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"] option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();

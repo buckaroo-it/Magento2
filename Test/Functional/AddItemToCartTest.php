@@ -38,6 +38,7 @@ class AddItemToCartTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testAddToCart()
     {
+        // phpcs:ignore
         $this->markTestSkipped('This test fails, probably there are some elements change in the v2.0.0 -> 2.0.8 upgrade');
 
         $this->driver->get('http://buckaroo.jenkins/test-product.html');

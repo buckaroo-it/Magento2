@@ -566,6 +566,7 @@ class PaymentGuaranteeTest extends BaseTest
         $invoiceCollection = $this->objectManagerHelper->getCollectionMock(InvoiceCollection::class, []);
         $invoiceCollection->expects($this->once())->method('count')->willReturn($invoicesCount);
 
+        // phpcs:ignore
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['getBaseGrandTotal', 'getInvoiceCollection'])->getMock();
         $orderMock->expects($this->once())->method('getBaseGrandTotal')->willReturn($orderAmount);
         $orderMock->expects($this->once())->method('getInvoiceCollection')->willReturn($invoiceCollection);

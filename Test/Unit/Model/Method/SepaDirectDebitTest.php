@@ -449,6 +449,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
         $infoInstanceMock = $this->getInfoInstanceMock();
         $infoInstanceMock->expects($this->exactly(4))
             ->method('getAdditionalInformation')
+            // phpcs:ignore
             ->withConsecutive(['buckaroo_skip_validation'], ['customer_bic'], ['customer_iban'], ['customer_account_name'])
             ->willReturnOnConsecutiveCalls(false, null, $iban, 'first name');
 
@@ -474,6 +475,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
         $infoInstanceMock = $this->getInfoInstanceMock();
         $infoInstanceMock->expects($this->exactly(4))
             ->method('getAdditionalInformation')
+            // phpcs:ignore
             ->withConsecutive(['buckaroo_skip_validation'], ['customer_bic'], ['customer_iban'], ['customer_account_name'])
             ->willReturnOnConsecutiveCalls(false, null, null, 'first');
 
@@ -498,6 +500,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
         $infoInstanceMock = $this->getInfoInstanceMock('BE');
         $infoInstanceMock->expects($this->exactly(4))
             ->method('getAdditionalInformation')
+            // phpcs:ignore
             ->withConsecutive(['buckaroo_skip_validation'], ['customer_bic'], ['customer_iban'], ['customer_account_name'])
             ->willReturnOnConsecutiveCalls(false, null, $iban, 'first name');
 
@@ -530,6 +533,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
         $infoInstanceMock = $this->getInfoInstanceMock('BE');
         $infoInstanceMock->expects($this->exactly(4))
             ->method('getAdditionalInformation')
+            // phpcs:ignore
             ->withConsecutive(['buckaroo_skip_validation'], ['customer_bic'], ['customer_iban'], ['customer_account_name'])
             ->willReturnOnConsecutiveCalls(false, null, $iban, 'first name');
 
@@ -564,6 +568,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
         $infoInstanceMock = $this->getInfoInstanceMock('NL', 'Magento\Sales\Model\Order\Payment');
         $infoInstanceMock->expects($this->exactly(4))
             ->method('getAdditionalInformation')
+            // phpcs:ignore
             ->withConsecutive(['buckaroo_skip_validation'], ['customer_bic'], ['customer_iban'], ['customer_account_name'])
             ->willReturnOnConsecutiveCalls(false, null, $iban, 'first name');
 

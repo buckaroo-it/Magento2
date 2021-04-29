@@ -124,6 +124,7 @@ class GiftcardsTest extends BaseTest
         $searchResult->setItems($modelsResult);
         $searchResult->setTotalCount(count($modelsResult));
 
+        // phpcs:ignore
         $giftcardRepositoryMock = $this->getFakeMock(\Buckaroo\Magento2\Api\GiftcardRepositoryInterface::class)->getMock();
         $giftcardRepositoryMock->expects($this->once())
             ->method('getList')

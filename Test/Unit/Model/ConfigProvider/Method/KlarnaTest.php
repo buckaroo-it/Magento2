@@ -80,6 +80,7 @@ class KlarnakpTest extends BaseTest
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
+        // phpcs:ignore
         $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(KlarnakpMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);

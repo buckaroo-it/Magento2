@@ -40,6 +40,7 @@ class FactoryTest extends BaseTest
 
         $configProviderMock = $this->getFakeMock(ConfigProviderInterface::class)->getMockForAbstractClass();
 
+        // phpcs:ignore
         $objectManagerMock = $this->getFakeMock(ObjectManagerInterface::class)->setMethods(['get'])->getMockForAbstractClass();
         $objectManagerMock->expects($this->once())->method('get')->with($model)->willReturn($configProviderMock);
 

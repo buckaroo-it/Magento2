@@ -29,6 +29,7 @@ $post = $block->getRequest()->getPost('creditmemo');
             <td>
                 <input type="text"
                        name="creditmemo[buckaroo_already_paid][<?php echo $_total['transaction_id'] ?>]"
+                       <? // phpcs:ignore --> ?>
                        value="<?php echo abs(isset($post['buckaroo_already_paid'][$_total['transaction_id']])?$post['buckaroo_already_paid'][$_total['transaction_id']]:$_total['value']) ?>"
                        class="input-text admin__control-text not-negative-amount"
                        id="buckaroo_already_paid" />

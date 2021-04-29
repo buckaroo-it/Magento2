@@ -53,6 +53,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                     $installer->getTable('tig_buckaroo_certificate'),
                     $installer->getTable('buckaroo_magento2_certificate')
                 );
+                // phpcs:disable
                 $installer->getConnection()->query(
                     "ALTER TABLE " . $installer->getTable('buckaroo_magento2_certificate') . " COMMENT = 'Buckaroo Certificate'"
                 );
@@ -71,6 +72,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                 $installer->getConnection()->query(
                     "UPDATE " . $setup->getTable('quote_payment') . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
                 );
+                // phpcs:enable
             } else {
                 $table = $installer->getConnection()
                     ->newTable($installer->getTable('buckaroo_magento2_certificate'));

@@ -23,6 +23,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Checkout\Model\ConfigProviderInterface as CheckoutConfigProvider;
 use Buckaroo\Magento2\Helper\PaymentFee;
+// phpcs:ignore
 use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 

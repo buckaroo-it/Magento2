@@ -73,6 +73,7 @@ class CreditcardsTest extends BaseTest
             ->willReturnOnConsecutiveCalls('', '1', 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
+        // phpcs:ignore
         $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(CreditcardsMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
 
         $creditcardMock = $this->getFakeMock(Creditcard::class)->setMethods(['getIssuers'])->getMock();

@@ -77,6 +77,7 @@ class Afterpay20Test extends BaseTest
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
+        // phpcs:ignore
         $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Afterpay20Method::PAYMENT_METHOD_CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
