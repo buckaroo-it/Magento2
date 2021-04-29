@@ -169,7 +169,7 @@ class Afterpay extends AbstractMethod
         /**
          * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay $afterpayConfig
          */
-        $afterpayConfig = $this->configProviderMethodFactory->get('afterpay');
+        $afterpayConfig = $this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode);
 
         $methodName = $afterpayConfig->getPaymentMethodName();
 
@@ -914,7 +914,7 @@ class Afterpay extends AbstractMethod
          * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay $afterPayConfig
          */
         $afterPayConfig = $this->configProviderMethodFactory
-            ->get(\Buckaroo\Magento2\Model\Method\Afterpay::PAYMENT_METHOD_CODE);
+            ->get($this->_code);
 
         $highClasses   = explode(',', $afterPayConfig->getHighTaxClasses($storeId));
         $middleClasses = explode(',', $afterPayConfig->getMiddleTaxClasses($storeId));
@@ -955,6 +955,8 @@ class Afterpay extends AbstractMethod
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
         if (
+            ($this->buckarooPaymentMethodCode  === 'afterpay')
+            &&
             $payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
@@ -1029,7 +1031,13 @@ class Afterpay extends AbstractMethod
             ];
         }
 
+        $this->getRequestBillingDataExtra($billingAddress, $billingData);
+
         return $billingData;
+    }
+
+    protected function getRequestBillingDataExtra(\Magento\Sales\Api\Data\OrderAddressInterface $billingAddress, array &$billingData)
+    {
     }
 
     /**
@@ -1048,6 +1056,8 @@ class Afterpay extends AbstractMethod
         $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
 
         if (
+            ($this->buckarooPaymentMethodCode  === 'afterpay')
+            &&
             $payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
