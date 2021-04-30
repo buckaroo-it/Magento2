@@ -368,23 +368,7 @@ class Afterpay extends AbstractMethod
                 ['ShippingHouseNumberSuffix', $streetHouseNumberSuffix],
             ];
 
-            foreach ($mapping as $mappingItem) {
-                if (!empty($mappingItem[1])) {
-                    $found = false;
-                    foreach ($requestData as $key => $value) {
-                        if ($requestData[$key]['Name'] == $mappingItem[0]) {
-                            $requestData[$key]['_'] = $mappingItem[1];
-                            $found = true;
-                        }
-                    }
-                    if (!$found) {
-                        $requestData[] = [
-                            '_'    => $mappingItem[1],
-                            'Name' => $mappingItem[0]
-                        ];
-                    }
-                }
-            }
+            $this->updateShippingAddressCommonMappingV2($mapping, $requestData);
 
             if (!$streetHouseNumberSuffix) {
                 foreach ($requestData as $key => $value) {

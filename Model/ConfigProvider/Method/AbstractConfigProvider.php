@@ -59,7 +59,56 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @var array
      */
-    protected $issuers = [];
+    protected $issuers = [
+        [
+            'name' => 'ABN AMRO',
+            'code' => 'ABNANL2A',
+        ],
+        [
+            'name' => 'ASN Bank',
+            'code' => 'ASNBNL21',
+        ],
+        [
+            'name' => 'Bunq Bank',
+            'code' => 'BUNQNL2A',
+        ],
+        [
+            'name' => 'ING',
+            'code' => 'INGBNL2A',
+        ],
+        [
+            'name' => 'Knab Bank',
+            'code' => 'KNABNL2H',
+        ],
+        [
+            'name' => 'Rabobank',
+            'code' => 'RABONL2U',
+        ],
+        [
+            'name' => 'RegioBank',
+            'code' => 'RBRBNL21',
+        ],
+        [
+            'name' => 'SNS Bank',
+            'code' => 'SNSBNL2A',
+        ],
+        [
+            'name' => 'Triodos Bank',
+            'code' => 'TRIONL2U',
+        ],
+        [
+            'name' => 'Van Lanschot',
+            'code' => 'FVLBNL22',
+        ],
+        [
+            'name' => 'Handelsbanken',
+            'code' => 'HANDNL2A',
+        ],
+        [
+            'name' => 'Revolut',
+            'code' => 'REVOLT21',
+        ],
+    ];
 
     /**
      * @var ScopeConfigInterface

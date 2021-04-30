@@ -367,6 +367,57 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $data;
     }
 
+    protected function assignDataCommon(array $data)
+    {
+        if (isset($data['additional_data']['termsCondition'])) {
+            $additionalData = $data['additional_data'];
+            $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
+            $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
+            $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
+            $this->getInfoInstance()->setAdditionalInformation('customer_identificationNumber', $additionalData['customer_identificationNumber']);
+
+            $dobDate = \DateTime::createFromFormat('d/m/Y', $additionalData['customer_DoB']);
+            $dobDate = (!$dobDate ? $additionalData['customer_DoB'] : $dobDate->format('Y-m-d'));
+            $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $dobDate);
+
+            if (isset($additionalData['customer_telephone'])) {
+                $this->getInfoInstance()->setAdditionalInformation(
+                    'customer_telephone',
+                    $additionalData['customer_telephone']
+                );
+            }
+        }
+    }
+
+    protected function assignDataCommonV2(array $data)
+    {
+        if (isset($data['additional_data']['customer_gender'])) {
+            $this->getInfoInstance()
+                ->setAdditionalInformation('customer_gender', $data['additional_data']['customer_gender']);
+        }
+
+        if (isset($data['additional_data']['customer_billingFirstName'])) {
+            $this->getInfoInstance()
+                ->setAdditionalInformation(
+                    'customer_billingFirstName',
+                    $data['additional_data']['customer_billingFirstName']
+                );
+        }
+
+        if (isset($data['additional_data']['customer_billingLastName'])) {
+            $this->getInfoInstance()
+                ->setAdditionalInformation(
+                    'customer_billingLastName',
+                    $data['additional_data']['customer_billingLastName']
+                );
+        }
+
+        if (isset($data['additional_data']['customer_email'])) {
+            $this->getInfoInstance()
+                ->setAdditionalInformation('customer_email', $data['additional_data']['customer_email']);
+        }
+    }
+
     /**
      * Check whether payment method can be used
      *
@@ -651,6 +702,38 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected function getFailureMessageFromMethod($transactionResponse)
     {
         return '';
+    }
+
+    protected function getFailureMessageFromMethodCommon($transactionResponse)
+    {
+        $transactionType = $transactionResponse->TransactionType ?? '';
+        $methodMessage = '';
+
+        if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038') {
+            return $methodMessage;
+        }
+
+        if ($transactionType == 'I038') {
+            if (
+                isset($transactionResponse->Services->Service->ResponseParameter->Name)
+                &&
+                ($transactionResponse->Services->Service->ResponseParameter->Name === 'ErrorResponseMessage')
+                &&
+                isset($transactionResponse->Services->Service->ResponseParameter->_)
+            )
+                return $transactionResponse->Services->Service->ResponseParameter->_;
+        }
+
+        $subcodeMessage = $transactionResponse->Status->SubCode->_;
+        $subcodeMessage = explode(':', $subcodeMessage);
+
+        if (count($subcodeMessage) > 1) {
+            array_shift($subcodeMessage);
+        }
+
+        $methodMessage = trim(implode(':', $subcodeMessage));
+
+        return $methodMessage;
     }
 
     /**
@@ -1166,6 +1249,35 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function afterOrderCommon($payment, $response)
+    {
+        if (empty($response[0]->Services->Service)) {
+            return self::afterOrder($payment, $response);
+        }
+
+        $invoiceKey = '';
+        $services = $response[0]->Services->Service;
+
+        if (!is_array($services)) {
+            $services = [$services];
+        }
+
+        foreach ($services as $service) {
+            if ($service->Name == 'CreditManagement3') {
+                $invoiceKey = $this->getCM3InvoiceKey($service->ResponseParameter);
+            }
+        }
+
+        if (strlen($invoiceKey) > 0) {
+            $payment->setAdditionalInformation('buckaroo_cm3_invoice_key', $invoiceKey);
+        }
+
+        return self::afterOrder($payment, $response);
+    }
+
+    /**
      * @param OrderPaymentInterface|InfoInterface $payment
      * @param array|\StdCLass                                             $response
      *
@@ -1622,23 +1734,23 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->logger2->addDebug(__METHOD__ . '|1|' . var_export($mapping, true));
 
-        foreach ($mapping as $mappingItem) {
-            if (!empty($mappingItem[1])) {
-                $found = false;
-                foreach ($requestData as $key => $value) {
-                    if ($requestData[$key]['Name'] == $mappingItem[0]) {
-                        $requestData[$key]['_'] = $mappingItem[1];
-                        $found = true;
-                    }
-                }
-                if (!$found) {
-                    $requestData[] = [
-                        '_' => $mappingItem[1],
-                        'Name' => $mappingItem[0]
-                    ];
-                }
-            }
-        }
+        $this->updateShippingAddressCommonMappingV2($mapping, $requestData);
+    }
+
+    protected function updateShippingAddressByMyParcelV2($myParcelLocation, &$requestData)
+    {
+        $mapping = [
+            ['Street', $myParcelLocation['street']],
+            ['PostalCode', $myParcelLocation['postal_code']],
+            ['City', $myParcelLocation['city']],
+            ['Country', $myParcelLocation['cc']],
+            ['StreetNumber', $myParcelLocation['number']],
+            ['StreetNumberAdditional', $myParcelLocation['number_suffix']],
+        ];
+
+        $this->logger2->addDebug(__METHOD__ . '|1|' . var_export($mapping, true));
+
+        $this->updateShippingAddressCommonMapping($mapping, $requestData);
     }
 
     public function getServiceCostLine($latestKey, $order, &$itemsTotalAmount = 0)
@@ -1874,6 +1986,52 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $collection->setPageSize(1)->getFirstItem();
     }
 
+    protected function updateShippingAddressCommonMapping(array $mapping, array &$requestData)
+    {
+        foreach ($mapping as $mappingItem) {
+            if (!empty($mappingItem[1])) {
+                $found = false;
+                foreach ($requestData as $key => $value) {
+                    if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                        if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                            $requestData[$key]['_'] = $mappingItem[1];
+                            $found = true;
+                        }
+                    }
+                }
+                if (!$found) {
+                    $requestData[] = [
+                        '_'    => $mappingItem[1],
+                        'Name' => $mappingItem[0],
+                        'Group' => 'ShippingCustomer',
+                        'GroupID' =>  '',
+                    ];
+                }
+            }
+        }
+    }
+
+    protected function updateShippingAddressCommonMappingV2(array $mapping, array &$requestData)
+    {
+        foreach ($mapping as $mappingItem) {
+            if (!empty($mappingItem[1])) {
+                $found = false;
+                foreach ($requestData as $key => $value) {
+                    if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                        $requestData[$key]['_'] = $mappingItem[1];
+                        $found = true;
+                    }
+                }
+                if (!$found) {
+                    $requestData[] = [
+                        '_' => $mappingItem[1],
+                        'Name' => $mappingItem[0]
+                    ];
+                }
+            }
+        }
+    }
+
     public function updateShippingAddressByDpdParcel($quote, &$requestData)
     {
         $fullStreet = $quote->getDpdStreet();
@@ -1907,27 +2065,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
             $this->logger2->addDebug(var_export($mapping, true));
 
-            foreach ($mapping as $mappingItem) {
-                if (!empty($mappingItem[1])) {
-                    $found = false;
-                    foreach ($requestData as $key => $value) {
-                        if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                            if ($requestData[$key]['Name'] == $mappingItem[0]) {
-                                $requestData[$key]['_'] = $mappingItem[1];
-                                $found = true;
-                            }
-                        }
-                    }
-                    if (!$found) {
-                        $requestData[] = [
-                            '_'    => $mappingItem[1],
-                            'Name' => $mappingItem[0],
-                            'Group' => 'ShippingCustomer',
-                            'GroupID' =>  '',
-                        ];
-                    }
-                }
-            }
+            $this->updateShippingAddressCommonMapping($mapping, $requestData);
 
             foreach ($requestData as $key => $value) {
                 if ($requestData[$key]['Group'] == 'ShippingCustomer') {
@@ -2069,5 +2207,128 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         return '';
     }
+
+    /**
+     * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
+     *
+     * @param $count
+     * @return array
+     */
+    protected function getShippingCostsLine($order, $count, &$itemsTotalAmount = 0)
+    {
+        $shippingCostsArticle = [];
+
+        $shippingAmount = $this->getShippingAmount($order);
+        if ($shippingAmount <= 0) {
+            return $shippingCostsArticle;
+        }
+
+        $request = $this->taxCalculation->getRateRequest(null, null, null);
+        $taxClassId = $this->taxConfig->getShippingTaxClass();
+        $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+
+        $shippingCostsArticle = [
+            [
+                '_'       => 'Shipping fee',
+                'Name'    => 'Description',
+                'Group'   => 'Article',
+                'GroupID' =>  $count,
+            ],
+            [
+                '_'       => $this->formatPrice($shippingAmount),
+                'Name'    => $this->getPriceFieldName(),
+                'Group'   => 'Article',
+                'GroupID' =>  $count,
+            ],
+            [
+                '_'       => $this->formatShippingCostsLineVatPercentage($percent),
+                'Name'    => 'VatPercentage',
+                'Group'   => 'Article',
+                'GroupID' =>  $count,
+            ],
+            [
+                '_'       => '1',
+                'Name'    => 'Quantity',
+                'Group'   => 'Article',
+                'GroupID' =>  $count,
+            ],
+            [
+                '_'       => '1',
+                'Name'    => 'Identifier',
+                'Group'   => 'Article',
+                'GroupID' => $count,
+            ]
+        ];
+
+        $itemsTotalAmount += $shippingAmount;
+
+        return $shippingCostsArticle;
+    }
+
+    protected function getPriceFieldName()
+    {
+        return 'GrossUnitPrice';
+    }
+
+    protected function formatPrice($price)
+    {
+        return $price;
+    }
+
+    protected function formatShippingCostsLineVatPercentage($percent)
+    {
+        return $percent;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return array
+     * @throws \Buckaroo\Magento2\Exception
+     */
+    public function getPaymentRequestParameters($payment)
+    {
+        // First data to set is the billing address data.
+        $requestData = $this->getRequestBillingData($payment);
+
+        // If the shipping address is not the same as the billing it will be merged inside the data array.
+        if ($this->isAddressDataDifferent($payment) || is_null($payment->getOrder()->getShippingAddress())) {
+            $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
+        }
+
+        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
+
+        if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
+            $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+            $this->updateShippingAddressByDpdParcel($quote, $requestData);
+        }
+
+        if (
+            ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
+            &&
+            $payment->getOrder()->getDhlparcelShippingServicepointId()
+        ) {
+            $this->updateShippingAddressByDhlParcel(
+                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
+            );
+        }
+
+        if (
+            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
+            &&
+            $payment->getOrder()->getSendcloudServicePointId()
+        ) {
+            $this->updateShippingAddressBySendcloud($payment->getOrder(), $requestData);
+        }
+
+        $this->handleShippingAddressByMyParcel($payment, $requestData);
+
+        // Merge the article data; products and fee's
+        $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
+
+        return $requestData;
+    }
+
 }
 

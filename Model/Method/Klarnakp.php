@@ -920,7 +920,7 @@ class Klarnakp extends AbstractMethod
      *
      * @return array
      */
-    protected function getShippingCostsLine($order, $group)
+    protected function getShippingCostsLine($order, $group, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 
