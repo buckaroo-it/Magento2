@@ -138,9 +138,11 @@ class Afterpay20 extends AbstractMethod
     }
 
     /**
-     * @return string
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
      */
-    public function getPaymentMethodName()
+    public function getPaymentMethodName($payment)
     {
         return static::AFTERPAY_PAYMENT_METHOD_NAME;
     }
@@ -155,7 +157,7 @@ class Afterpay20 extends AbstractMethod
         $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, $serviceAction);
 
         $services = [
-            'Name'             => $this->getPaymentMethodName(),
+            'Name'             => $this->getPaymentMethodName($payment),
             'Action'           => $serviceAction,
             'RequestParameter' => $this->getAfterPayRequestParameters($payment),
         ];
@@ -178,88 +180,6 @@ class Afterpay20 extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getCaptureTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $capturePartial = true;
-
-        $order = $payment->getOrder();
-
-        $totalOrder = $order->getBaseGrandTotal();
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($totalOrder == $currentInvoiceTotal && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        }
-
-        $services = [
-            'Name'   => $this->getPaymentMethodName(),
-            'Action' => 'Capture',
-        ];
-
-        // always get articles from invoice
-        $articles = '';
-        if (isset($currentInvoice)) {
-            $articles = $this->getInvoiceArticleData($currentInvoice);
-        }
-
-        // For the first invoice possible add payment fee
-        if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(
-                static::TAX_CALCULATION_INCLUDES_TAX,
-                ScopeInterface::SCOPE_STORE
-            );
-            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
-            $articles = array_merge($articles, $serviceLine);
-        }
-
-        // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($currentInvoice, (count($articles) + 1));
-        $articles = array_merge($articles, $shippingCosts);
-
-        $services['RequestParameter'] = $articles;
-
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setAmount($currentInvoiceTotal)
-            ->setMethod('TransactionRequest')
-            ->setCurrency($this->payment->getOrder()->getOrderCurrencyCode())
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(
-                    self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
-                )
-            );
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId() . '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
-        }
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getAuthorizeTransactionBuilder($payment)
     {
         return $this->getOrderTransactionBuilder($payment, 'Authorize');
@@ -273,7 +193,7 @@ class Afterpay20 extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'   => $this->getPaymentMethodName(),
+            'Name'   => $this->getPaymentMethodName($payment),
             'Action' => 'CancelAuthorize',
         ];
 
@@ -303,7 +223,7 @@ class Afterpay20 extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('refund');
 
         $services = [
-            'Name'   => $this->getPaymentMethodName(),
+            'Name'   => $this->getPaymentMethodName($payment),
             'Action' => 'Refund',
         ];
 
@@ -680,7 +600,7 @@ class Afterpay20 extends AbstractMethod
      * @param $count
      * @return array
      */
-    private function getShippingCostsLine($order, $count, &$itemsTotalAmount = 0)
+    protected function getShippingCostsLine($order, $count, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 

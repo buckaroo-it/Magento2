@@ -162,7 +162,6 @@ class Afterpay extends AbstractMethod
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return bool|string
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function getPaymentMethodName($payment)
     {
@@ -206,99 +205,6 @@ class Afterpay extends AbstractMethod
          */
         if ($serviceAction != 'PayRemainder') {
             $payment->setAdditionalInformation('skip_push', 1);
-        }
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCaptureTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $capturePartial = false;
-
-        $order = $payment->getOrder();
-        $order_id = $order->getId();
-
-        $totalOrder = $order->getBaseGrandTotal();
-
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($totalOrder == $currentInvoiceTotal && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        } else {
-            //partial capture
-            $capturePartial = true;
-        }
-
-        $services = [
-            'Name'             => $this->getPaymentMethodName($payment),
-            'Action'           => 'Capture',
-            'Version'          => 1
-        ];
-
-        // always get articles from invoice
-        $articles = '';
-        if (isset($currentInvoice)) {
-            $articles = $this->getInvoiceArticleData($currentInvoice);
-        }
-
-        // For the first invoice possible add payment fee
-        if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(
-                static::TAX_CALCULATION_INCLUDES_TAX,
-                ScopeInterface::SCOPE_STORE
-            );
-            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
-            $articles = array_merge($articles, $serviceLine);
-        }
-
-        // Add additional shipping costs.
-        $shippingCosts = $this->getShippingCostsLine($currentInvoice);
-        $articles = array_merge($articles, $shippingCosts);
-
-        $services['RequestParameter'] = $articles;
-
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setAmount($currentInvoiceTotal)
-            ->setMethod('TransactionRequest')
-            ->setCurrency($this->payment->getOrder()->getOrderCurrencyCode())
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(
-                    self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
-                )
-            );
-
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId(). '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
         }
 
         return $transactionBuilder;
@@ -740,7 +646,7 @@ class Afterpay extends AbstractMethod
         }
 
         // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($creditmemo, $itemsTotalAmount);
+        $shippingCosts = $this->getShippingCostsLine($creditmemo, $count, $itemsTotalAmount);
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
@@ -758,7 +664,7 @@ class Afterpay extends AbstractMethod
      *
      * @return array
      */
-    private function getShippingCostsLine($order, &$itemsTotalAmount = 0)
+    protected function getShippingCostsLine($order, $count = 0, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 
@@ -1241,4 +1147,8 @@ class Afterpay extends AbstractMethod
         return $methodMessage;
     }
 
+    protected function getCaptureTransactionBuilderVersion()
+    {
+        return 1;
+    }
 }

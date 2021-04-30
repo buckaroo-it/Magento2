@@ -107,9 +107,11 @@ class Klarna extends AbstractMethod
     }
 
     /**
-     * @return string
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
      */
-    public function getPaymentMethodName()
+    public function getPaymentMethodName($payment)
     {
         return static::KLARNA_PAYMENT_METHOD_NAME;
     }
@@ -157,7 +159,7 @@ class Klarna extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('refund');
 
         $services = [
-            'Name'   => $this->getPaymentMethodName(),
+            'Name'   => $this->getPaymentMethodName($payment),
             'Action' => 'Refund',
         ];
 
@@ -361,7 +363,7 @@ class Klarna extends AbstractMethod
      * @param $count
      * @return array
      */
-    private function getShippingCostsLine($order, $count, &$itemsTotalAmount = 0)
+    protected function getShippingCostsLine($order, $count, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 
