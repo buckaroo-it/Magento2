@@ -125,33 +125,7 @@ class PayPerEmail extends AbstractMethod
     {
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
-
-        if (isset($data['additional_data']['customer_gender'])) {
-            $this->getInfoInstance()
-                ->setAdditionalInformation('customer_gender', $data['additional_data']['customer_gender']);
-        }
-
-        if (isset($data['additional_data']['customer_billingFirstName'])) {
-            $this->getInfoInstance()
-                ->setAdditionalInformation(
-                    'customer_billingFirstName',
-                    $data['additional_data']['customer_billingFirstName']
-                );
-        }
-
-        if (isset($data['additional_data']['customer_billingLastName'])) {
-            $this->getInfoInstance()
-                ->setAdditionalInformation(
-                    'customer_billingLastName',
-                    $data['additional_data']['customer_billingLastName']
-                );
-        }
-
-        if (isset($data['additional_data']['customer_email'])) {
-            $this->getInfoInstance()
-                ->setAdditionalInformation('customer_email', $data['additional_data']['customer_email']);
-        }
-
+        $this->assignDataCommonV2($data);
         return $this;
     }
 
@@ -279,33 +253,9 @@ class PayPerEmail extends AbstractMethod
         return $services;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function afterOrder($payment, $response)
     {
-        if (empty($response[0]->Services->Service)) {
-            return parent::afterOrder($payment, $response);
-        }
-
-        $invoiceKey = '';
-        $services = $response[0]->Services->Service;
-
-        if (!is_array($services)) {
-            $services = [$services];
-        }
-
-        foreach ($services as $service) {
-            if ($service->Name == 'CreditManagement3') {
-                $invoiceKey = $this->getCM3InvoiceKey($service->ResponseParameter);
-            }
-        }
-
-        if (strlen($invoiceKey) > 0) {
-            $payment->setAdditionalInformation('buckaroo_cm3_invoice_key', $invoiceKey);
-        }
-
-        return parent::afterOrder($payment, $response);
+        return $this->afterOrderCommon($payment, $response);
     }
 
     /**

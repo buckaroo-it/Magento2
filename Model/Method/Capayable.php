@@ -484,7 +484,7 @@ class Capayable extends AbstractMethod
      *
      * @return array
      */
-    protected function getShippingCostsLine($order, $groupId)
+    protected function getShippingCostsLine($order, $groupId, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 

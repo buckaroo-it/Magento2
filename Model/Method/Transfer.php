@@ -217,33 +217,9 @@ class Transfer extends AbstractMethod
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function afterOrder($payment, $response)
     {
-        if (empty($response[0]->Services->Service)) {
-            return parent::afterOrder($payment, $response);
-        }
-
-        $invoiceKey = '';
-        $services = $response[0]->Services->Service;
-
-        if (!is_array($services)) {
-            $services = [$services];
-        }
-
-        foreach ($services as $service) {
-            if ($service->Name == 'CreditManagement3') {
-                $invoiceKey = $this->getCM3InvoiceKey($service->ResponseParameter);
-            }
-        }
-
-        if (strlen($invoiceKey) > 0) {
-            $payment->setAdditionalInformation('buckaroo_cm3_invoice_key', $invoiceKey);
-        }
-
-        return parent::afterOrder($payment, $response);
+        return $this->afterOrderCommon($payment, $response);
     }
 
     /**
