@@ -214,6 +214,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected $payRemainder = 0;
 
+    protected $_code;
+
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
@@ -1585,7 +1587,93 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
-    abstract public function getRefundTransactionBuilder($payment);
+    public function getRefundTransactionBuilder($payment)
+    {
+        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
+
+        $services = [
+            'Name'    => $this->getPaymentMethodName($payment),
+            'Action'  => 'Refund'
+        ];
+
+        if (!is_null($this->getRefundTransactionBuilderVersion())) {
+            $services['Version'] = $this->getRefundTransactionBuilderVersion();
+        }
+
+        $requestParams = $this->addExtraFields($this->_code);
+        $services = array_merge($services, $requestParams);
+
+        $this->getRefundTransactionBuilderServices($payment, $services);
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $transactionBuilder->setOrder($payment->getOrder())
+            ->setServices($services)
+            ->setMethod('TransactionRequest')
+            ->setOriginalTransactionKey(
+                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
+            );
+
+        if ($this->getRefundTransactionBuilderChannel()) {
+            $transactionBuilder->setChannel($this->getRefundTransactionBuilderChannel());
+        }
+
+        return $transactionBuilder;
+    }
+
+    protected function getRefundTransactionBuilderServices($payment, &$services)
+    {
+    }
+
+    protected function getRefundTransactionBuilderServicesAdd($payment, &$services)
+    {
+        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
+        $creditmemo = $payment->getCreditmemo();
+        $articles = [];
+
+        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
+            //AddCreditMemoArticles
+            $articles = $this->getCreditmemoArticleData($payment);
+        }
+
+        if (isset($services['RequestParameter'])) {
+            $articles = array_merge($services['RequestParameter'], $articles);
+        }
+
+        $services['RequestParameter'] = $articles;
+    }
+
+    protected function getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder)
+    {
+        $creditmemo = $payment->getCreditmemo();
+        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
+            $invoice = $creditmemo->getInvoice();
+
+            $transactionBuilder->setInvoiceId($this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment))
+                ->setOriginalTransactionKey($payment->getParentTransactionId());
+        }
+    }
+
+    protected function getRefundTransactionBuilderInvoceId($invoiceIncrementId, $payment)
+    {
+        if (!$refundIncrementInvoceId = $payment->getAdditionalInformation('refundIncrementInvoceId')) {
+            $refundIncrementInvoceId = 0;
+        }
+        $refundIncrementInvoceId++;
+        $payment->setAdditionalInformation('refundIncrementInvoceId', $refundIncrementInvoceId);
+        return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
+    }
+
+    protected function getRefundTransactionBuilderVersion()
+    {
+        return 1;
+    }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return 'CallCenter';
+    }
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
@@ -1928,16 +2016,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         );
 
         return $article;
-    }
-
-    protected function getRefundTransactionBuilderInvoceId($invoiceIncrementId, $payment)
-    {
-        if (!$refundIncrementInvoceId = $payment->getAdditionalInformation('refundIncrementInvoceId')) {
-            $refundIncrementInvoceId = 0;
-        }
-        $refundIncrementInvoceId++;
-        $payment->setAdditionalInformation('refundIncrementInvoceId', $refundIncrementInvoceId);
-        return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
     }
 
     protected function updateShippingAddressBySendcloud($order, &$requestData)

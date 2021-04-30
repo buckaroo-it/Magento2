@@ -257,51 +257,14 @@ class Afterpay extends AbstractMethod
      */
     public function getRefundTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'    => $this->getPaymentMethodName($payment),
-            'Action'  => 'Refund',
-            'Version' => 1,
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
-        $creditmemo = $payment->getCreditmemo();
-        $articles = [];
-
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            //AddCreditMemoArticles
-            $articles = $this->getCreditmemoArticleData($payment);
-        }
-
-        if (isset($services['RequestParameter'])) {
-            $articles = array_merge($services['RequestParameter'], $articles);
-        }
-
-        $services['RequestParameter'] = $articles;
-
-        /** @noinspection PhpUndefinedMethodInspection */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            )
-            ->setChannel('CallCenter');
-
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            $invoice = $creditmemo->getInvoice();
-
-            $transactionBuilder->setInvoiceId($invoice->getOrder()->getIncrementId());
-            if ($payment->getParentTransactionId()) {
-                $transactionBuilder->setOriginalTransactionKey($payment->getParentTransactionId());
-            }
-        }
-
+        $transactionBuilder = parent::getRefundTransactionBuilder($payment);
+        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
         return $transactionBuilder;
+    }
+
+    protected function getRefundTransactionBuilderServices($payment, &$services)
+    {
+        $this->getRefundTransactionBuilderServicesAdd($payment, $services);
     }
 
     /**

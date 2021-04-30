@@ -302,64 +302,23 @@ class Klarnakp extends AbstractMethod
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     *
-     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
-     * @throws \Buckaroo\Magento2\Exception
+     * {@inheritdoc}
      */
     public function getRefundTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $capturePartial = true;
-
-        $order = $payment->getOrder();
-
-        $totalOrder = $order->getBaseGrandTotal();
-
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($this->helper->areEqualAmounts($totalOrder, $currentInvoiceTotal) && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        }
-
-        $services = [
-            'Name'    => 'klarnakp',
-            'Action'  => 'Refund',
-            'Version' => 1,
-        ];
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey($payment->getRefundTransactionId());
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId(). '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getRefundTransactionId());
-        }
-
+        $transactionBuilder = parent::getRefundTransactionBuilder($payment);
+        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
         return $transactionBuilder;
+    }
+
+    protected function getRefundTransactionBuilderServices($payment, &$services)
+    {
+        $this->getRefundTransactionBuilderServicesAdd($payment, $services);
+    }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return '';
     }
 
     /**

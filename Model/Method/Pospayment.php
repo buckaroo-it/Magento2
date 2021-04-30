@@ -153,4 +153,14 @@ class Pospayment extends AbstractMethod
     {
         return $this->getConfigData('other_payment_methods');
     }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return $this->buckarooPaymentMethodCode;
+    }
 }
