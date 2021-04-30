@@ -130,33 +130,9 @@ class Applepay extends AbstractMethod
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRefundTransactionBuilder($payment)
+    protected function getRefundTransactionBuilderVersion()
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'    => 'applepay',
-            'Action'  => 'Refund'
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            )
-            ->setChannel('CallCenter');
-
-        return $transactionBuilder;
+        return null;
     }
 
     /**
@@ -165,5 +141,15 @@ class Applepay extends AbstractMethod
     public function getVoidTransactionBuilder($payment)
     {
         return true;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return $this->buckarooPaymentMethodCode;
     }
 }
