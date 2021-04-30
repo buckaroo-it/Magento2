@@ -518,7 +518,7 @@ class Tinka extends AbstractMethod
      * @param $count
      * @return array
      */
-    private function getShippingCostsLine($order, $count)
+    protected function getShippingCostsLine($order, $count)
     {
         $shippingCostsArticle = [];
 

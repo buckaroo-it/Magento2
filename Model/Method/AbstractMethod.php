@@ -28,6 +28,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Store\Model\ScopeInterface;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -1376,7 +1377,96 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
-    abstract public function getCaptureTransactionBuilder($payment);
+    public function getCaptureTransactionBuilder($payment)
+    {
+        $transactionBuilder = $this->transactionBuilderFactory->get('order');
+
+        $capturePartial = true;
+
+        $order = $payment->getOrder();
+
+        $totalOrder = $order->getBaseGrandTotal();
+        $numberOfInvoices = $order->getInvoiceCollection()->count();
+        $currentInvoiceTotal = 0;
+
+        // loop through invoices to get the last one (=current invoice)
+        if ($numberOfInvoices) {
+            $oInvoiceCollection = $order->getInvoiceCollection();
+
+            $i = 0;
+            foreach ($oInvoiceCollection as $oInvoice) {
+                if (++$i !== $numberOfInvoices) {
+                    continue;
+                }
+                $this->logger2->addDebug(__METHOD__ . '|10|' . var_export($oInvoice->getBaseGrandTotal(), true));
+                $currentInvoice = $oInvoice;
+                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
+            }
+        }
+
+        if ($this->helper->areEqualAmounts($totalOrder, $currentInvoiceTotal) && $numberOfInvoices == 1) {
+            //full capture
+            $capturePartial = false;
+        }
+
+        $services = [
+            'Name'   => $this->getPaymentMethodName($payment),
+            'Action' => $this->getCaptureTransactionBuilderAction(),
+        ];
+        if (!is_null($this->getCaptureTransactionBuilderVersion())) {
+            $services['Version'] = $this->getCaptureTransactionBuilderVersion();
+        }
+
+        $services['RequestParameter'] = $this->getCaptureTransactionBuilderArticles($payment, $currentInvoice, $numberOfInvoices);
+
+        $transactionBuilder->setOrder($payment->getOrder())
+            ->setServices($services)
+            ->setAmount($currentInvoiceTotal)
+            ->setMethod('TransactionRequest')
+            ->setCurrency($this->payment->getOrder()->getOrderCurrencyCode())
+            ->setOriginalTransactionKey(
+                $payment->getAdditionalInformation(
+                    self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+                )
+            );
+
+        // Partial Capture Settings
+        if ($capturePartial) {
+            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId() . '-' . $numberOfInvoices)
+                ->setOriginalTransactionKey($payment->getParentTransactionId());
+        }
+
+        return $transactionBuilder;
+    }
+
+    protected function getCaptureTransactionBuilderAction()
+    {
+        return 'Capture';
+    }
+
+    protected function getCaptureTransactionBuilderVersion()
+    {
+        return null;
+    }
+
+    protected function getCaptureTransactionBuilderArticles($payment, $currentInvoice, $numberOfInvoices)
+    {
+        if (isset($currentInvoice)) {
+            $articles = $this->getInvoiceArticleData($currentInvoice);
+        }
+
+        // For the first invoice possible add payment fee
+        if (is_array($articles) && $numberOfInvoices == 1) {
+            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
+            $articles = array_merge($articles, $serviceLine);
+        }
+
+        // Add aditional shippin costs.
+        $shippingCosts = $this->getShippingCostsLine($currentInvoice, (count($articles) + 1));
+        $articles = array_merge($articles, $shippingCosts);
+
+        return $articles;
+    }
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
@@ -1968,6 +2058,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             ];
         }
         return $article;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return '';
     }
 }
 
