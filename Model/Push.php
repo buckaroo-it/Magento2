@@ -307,6 +307,11 @@ class Push implements PushInterface
             if ($receivePushCheckPayPerEmailResult) {
                 $config = $this->configProviderMethodFactory->get(\Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE);
                 if ($config->getEnabledB2B()) {
+                    $this->logging->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
+                    if($this->order->getState() === Order::STATE_COMPLETE){
+                        $this->order->setState(Order::STATE_PROCESSING);
+                        $this->order->save();
+                    }
                     return true;
                 }
             }
@@ -952,13 +957,14 @@ class Push implements PushInterface
 
         $buckarooCancelOnFailed = $this->configAccount->getCancelOnFailed($store);
 
+        $payment = $this->order->getPayment();
+
         if ($buckarooCancelOnFailed && $this->order->canCancel()) {
             $this->logging->addDebug(__METHOD__ . '|' . 'Buckaroo push failed : ' . $message . ' : Cancel order.');
 
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/AbstractMethod.php:880
-            $payment = $this->order->getPayment();
             if (in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2', 'buckaroo_magento2_klarna', 'buckaroo_magento2_klarnakp'])
             ) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
@@ -977,7 +983,17 @@ class Push implements PushInterface
         }
 
         $this->logging->addDebug(__METHOD__ . '|4|');
-        $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
+        $force = false;
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_mrcash')
+            &&
+            ($this->order->getState() === Order::STATE_NEW)
+            &&
+            ($this->order->getStatus() === 'pending')
+        ) {
+            $force = true;
+        }
+        $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description, $force);
 
         return true;
     }
@@ -1396,14 +1412,6 @@ class Push implements PushInterface
     }
 
     /**
-     * Get Transactions
-     */
-    public function getTransactionsByOrder()
-    {
-        $this->order->getPayment();
-    }
-
-    /**
      * @return Order\Payment
      * @throws \Magento\Framework\Exception\LocalizedException
      */
@@ -1451,22 +1459,6 @@ class Push implements PushInterface
         );
 
         return $payment;
-    }
-
-    /**
-     * Get Correct order amount
-     *
-     * @return int $orderAmount
-     */
-    protected function getCorrectOrderAmount()
-    {
-        if ($this->postData['brq_currency'] == $this->order->getBaseCurrencyCode()) {
-            $orderAmount = $this->order->getBaseGrandTotal();
-        } else {
-            $orderAmount = $this->order->getGrandTotal();
-        }
-
-        return $orderAmount;
     }
 
     private function isGroupTransactionInfoType()
@@ -1519,33 +1511,6 @@ class Push implements PushInterface
                 $item2['entity_id'] = $item['entity_id'];
                 $this->groupTransaction->updateGroupTransaction($item2);
             }
-        }
-    }
-
-    public function saveGroupTransactionInvoice($payment)
-    {
-        $payment = $this->order->getPayment();
-        $items   = $this->groupTransaction->getGroupTransactionItems($this->postData['brq_ordernumber']);
-
-        foreach ($items as $key => $item) {
-            $this->addTransactionData($item['transaction_id'], (array) $item);
-            if (!$payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS)) {
-                $payment->setAdditionalInformation(
-                    self::BUCKAROO_RECEIVED_TRANSACTIONS,
-                    array($item['transaction_id'] => floatval($item['amount']))
-                );
-            } else {
-                $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
-
-                $buckarooTransactionKeysArray[$item['transaction_id']] = floatval($item['amount']);
-
-                $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS, $buckarooTransactionKeysArray);
-            }
-
-            $invoiceAmount = floatval($item['amount']);
-            $payment->registerCaptureNotification($invoiceAmount, true);
-            $payment->save();
-
         }
     }
 
@@ -1671,4 +1636,3 @@ class Push implements PushInterface
 
 }
 
-//test develop branch

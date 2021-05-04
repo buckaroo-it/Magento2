@@ -22,6 +22,9 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Catalog\Model\Product\Type;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Tinka extends AbstractMethod
 {
@@ -92,96 +95,6 @@ class Tinka extends AbstractMethod
      * @var bool
      */
     protected $_canRefundInvoicePartial = true;
-
-    /**
-     * @var AddressFactory
-     */
-    private $addressFactory;
-
-    /**
-     * @param Calculation                                             $taxCalculation
-     * @param Config                                                  $taxConfig
-     * @param \Magento\Framework\ObjectManagerInterface               $objectManager
-     * @param \Magento\Framework\Model\Context                        $context
-     * @param \Magento\Framework\Registry                             $registry
-     * @param \Magento\Framework\Api\ExtensionAttributesFactory       $extensionFactory
-     * @param \Magento\Framework\Api\AttributeValueFactory            $customAttributeFactory
-     * @param \Magento\Payment\Helper\Data                            $paymentData
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface      $scopeConfig
-     * @param \Magento\Payment\Model\Method\Logger                    $logger
-     * @param \Magento\Developer\Helper\Data                          $developmentHelper
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee          $configProviderBuckarooFee
-     * @param AddressFactory                                          $addressFactory
-     * @param SoftwareData                                            $softwareData
-     * @param \Magento\Quote\Model\QuoteFactory                       $quoteFactory
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
-     * @param \Buckaroo\Magento2\Gateway\GatewayInterface                  $gateway
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory    $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Model\ValidatorFactory                    $validatorFactory
-     * @param \Buckaroo\Magento2\Helper\Data                               $helper
-     * @param \Magento\Framework\App\RequestInterface                 $request
-     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory                 $refundFieldsFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory              $configProviderFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory       $configProviderMethodFactory
-     * @param \Magento\Framework\Pricing\Helper\Data                  $priceHelper
-     * @param array                                                   $data
-     *
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function __construct(
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Developer\Helper\Data $developmentHelper,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
-        AddressFactory $addressFactory,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
-        \Buckaroo\Magento2\Helper\Data $helper = null,
-        \Magento\Framework\App\RequestInterface $request = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
-        array $data = []
-    ) {
-        parent::__construct(
-            $objectManager,
-            $context,
-            $registry,
-            $extensionFactory,
-            $customAttributeFactory,
-            $paymentData,
-            $scopeConfig,
-            $logger,
-            $developmentHelper,
-            $quoteFactory,
-            $resource,
-            $resourceCollection,
-            $gateway,
-            $transactionBuilderFactory,
-            $validatorFactory,
-            $helper,
-            $request,
-            $refundFieldsFactory,
-            $configProviderFactory,
-            $configProviderMethodFactory,
-            $priceHelper,
-            $data
-        );
-
-        $this->addressFactory  = $addressFactory;
-    }
 
     // @codingStandardsIgnoreEnd
     /**
@@ -351,62 +264,6 @@ class Tinka extends AbstractMethod
     }
 
     /**
-     * Method to compare two addresses from the payment.
-     * Returns true if they are the same.
-     *
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return boolean
-     */
-    public function isAddressDataDifferent($payment)
-    {
-        $billingAddress = $payment->getOrder()->getBillingAddress();
-        $shippingAddress  = $payment->getOrder()->getShippingAddress();
-
-        if ($billingAddress === null || $shippingAddress === null) {
-            return false;
-        }
-
-        $billingAddressData = $billingAddress->getData();
-        $shippingAddressData = $shippingAddress->getData();
-
-        $arrayDifferences = $this->calculateAddressDataDifference($billingAddressData, $shippingAddressData);
-
-        return !empty($arrayDifferences);
-    }
-
-    /**
-     * @param array $addressOne
-     * @param array $addressTwo
-     *
-     * @return array
-     */
-    private function calculateAddressDataDifference($addressOne, $addressTwo)
-    {
-        $keysToExclude = array_flip([
-            'prefix',
-            'telephone',
-            'fax',
-            'created_at',
-            'email',
-            'customer_address_id',
-            'vat_request_success',
-            'vat_request_date',
-            'vat_request_id',
-            'vat_is_valid',
-            'vat_id',
-            'address_type',
-            'extension_attributes',
-        ]);
-
-        $filteredAddressOne = array_diff_key($addressOne, $keysToExclude);
-        $filteredAddressTwo = array_diff_key($addressTwo, $keysToExclude);
-        $arrayDiff = array_diff($filteredAddressOne, $filteredAddressTwo);
-
-        return $arrayDiff;
-    }
-
-    /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return array
@@ -483,137 +340,12 @@ class Tinka extends AbstractMethod
         return $shippingData;
     }
 
-    public function updateShippingAddressByDpdParcel($quote, &$requestData)
-    {
-        $this->logger2->addDebug(__METHOD__.'|1|');
-
-        $fullStreet = $quote->getDpdStreet();
-        $postalCode = $quote->getDpdZipcode();
-        $city = $quote->getDpdCity();
-        $country = $quote->getDpdCountry();
-
-        if (!$fullStreet && $quote->getDpdParcelshopId()) {
-            $this->logger2->addDebug(__METHOD__.'|2|');
-            $this->logger2->addDebug(var_export($_COOKIE, true));
-
-            $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
-            $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
-            $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
-            $country = $_COOKIE['dpd-selected-parcelshop-country'] ?? '';
-        }
-
-        $matches = false;
-        if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
-            $this->logger2->addDebug(__METHOD__.'|3|');
-
-            $street = $matches[1];
-            $streetHouseNumber = $matches[2];
-
-            $mapping = [
-                ['Street', $street],
-                ['PostalCode', $postalCode],
-                ['City', $city],
-                ['Country', $country],
-                ['StreetNumber', $streetHouseNumber],
-            ];
-
-            $this->logger2->addDebug(var_export($mapping, true));
-
-            foreach ($mapping as $mappingItem) {
-                if (!empty($mappingItem[1])) {
-                    $found = false;
-                    foreach ($requestData as $key => $value) {
-                        if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                            if ($requestData[$key]['Name'] == $mappingItem[0]) {
-                                $requestData[$key]['_'] = $mappingItem[1];
-                                $found = true;
-                            }
-                        }
-                    }
-                    if (!$found) {
-                        $requestData[] = [
-                            '_'    => $mappingItem[1],
-                            'Name' => $mappingItem[0],
-                            'Group' => 'ShippingCustomer',
-                            'GroupID' =>  '',
-                        ];
-                    }
-                }
-            }
-
-            foreach ($requestData as $key => $value) {
-                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
-                        unset($requestData[$key]);
-                    }
-                }
-            }
-
-        }
-    }
-
-    public function updateShippingAddressByDhlParcel($servicePointId, &$requestData)
-    {
-        $this->logger2->addDebug(__METHOD__.'|1|');
-
-        $matches = [];
-        if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
-            $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
-            $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/'.$matches[2].'/' . $servicePointId);
-            if (
-                ($response = $curl->getBody())
-                &&
-                ($parsedResponse = @json_decode($response))
-                &&
-                !empty($parsedResponse->address)
-            ) {
-                foreach ($requestData as $key => $value) {
-                    if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                        $mapping = [
-                            ['Street', 'street'],
-                            ['PostalCode', 'postalCode'],
-                            ['City', 'city'],
-                            ['Country', 'countryCode'],
-                            ['StreetNumber', 'number'],
-                        ];
-                        foreach ($mapping as $mappingItem) {
-                            if (($requestData[$key]['Name'] == $mappingItem[0]) && (!empty($parsedResponse->address->{$mappingItem[1]}))) {
-                                $requestData[$key]['_'] = $parsedResponse->address->{$mappingItem[1]};
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Check if there is a "pakjegemak" address stored in the quote by this order.
-     *
-     * @param int $quoteId
-     *
-     * @return array|\Magento\Quote\Model\Quote\Address
-     */
-    public function getPostNLPakjeGemakAddressInQuote($quoteId)
-    {
-        $quoteAddress = $this->addressFactory->create();
-
-        $collection = $quoteAddress->getCollection();
-        $collection->addFieldToFilter('quote_id', $quoteId);
-        $collection->addFieldToFilter('address_type', 'pakjegemak');
-        // @codingStandardsIgnoreLine
-        return $collection->setPageSize(1)->getFirstItem();
-    }
-
     /**
      * {@inheritdoc}
      */
     public function getOrderTransactionBuilder($payment)
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $serviceAction = 'Pay';
 
         $requestData = $this->getRequestBillingData($payment);
 
@@ -645,7 +377,7 @@ class Tinka extends AbstractMethod
 
         $services = [
             'Name'             => 'Tinka',
-            'Action'           => $serviceAction,
+            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
             'RequestParameter' => [
                 [
                     '_'    => 'Credit',
@@ -735,7 +467,7 @@ class Tinka extends AbstractMethod
 
             $article = $this->getArticleArrayLine(
                 $count,
-                (int) $item->getQty() . ' x ' . $item->getName(),
+                $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
                 $itemPrice
@@ -782,38 +514,6 @@ class Tinka extends AbstractMethod
     }
 
     /**
-     * @param $street
-     *
-     * @return array
-     */
-    public function formatStreet($street)
-    {
-        $street = implode(' ', $street);
-
-        $format = [
-            'house_number'    => '',
-            'number_addition' => '',
-            'street'          => $street
-        ];
-
-        if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
-            // Check if the number is at the beginning of streetname
-            if ('' == $matches[1]) {
-                $format['house_number'] = trim($matches[2]);
-                $format['street']       = trim($matches[3]);
-            } else {
-                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
-                    $format['street']          = trim($matches[1]);
-                    $format['house_number']    = trim($matches[2]);
-                    $format['number_addition'] = trim($matches[3]);
-                }
-            }
-        }
-
-        return $format;
-    }
-
-    /**
      * @param $latestKey
      * @param $articleDescription
      * @param $articleId
@@ -828,7 +528,8 @@ class Tinka extends AbstractMethod
         $articleDescription,
         $articleId,
         $articleQuantity,
-        $articleUnitPrice
+        $articleUnitPrice,
+        $articleVat = ''
     )
     {
         $article = [
@@ -871,11 +572,10 @@ class Tinka extends AbstractMethod
     {
         $shippingCostsArticle = [];
 
-        if ($order->getShippingAmount() <= 0) {
+        $shippingAmount = $this->getShippingAmount($order);
+        if ($shippingAmount <= 0) {
             return $shippingCostsArticle;
         }
-
-        $shippingAmount = $order->getShippingAmount() + $order->getShippingTaxAmount();
 
         $shippingCostsArticle = $this->getArticleArrayLine(
             $count,
@@ -888,35 +588,9 @@ class Tinka extends AbstractMethod
         return $shippingCostsArticle;
     }
 
-    /**
-     * Get the service cost lines (buckfee)
-     *
-     * @param (int)                                                                              $latestKey
-     * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
-     * @param $includesTax
-     *
-     * @return   array
-     * @internal param $ (int) $latestKey
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function getServiceCostLine($latestKey, $order)
+    protected function getTaxCategory($order)
     {
-        $store = $order->getStore();
-        $buckarooFeeLine = $order->getBaseBuckarooFee() + $order->getBuckarooFeeTaxAmount();
-
-        $article = [];
-
-        if (false !== $buckarooFeeLine && (double)$buckarooFeeLine > 0) {
-            $article = $this->getArticleArrayLine(
-                $latestKey,
-                'Servicekosten',
-                1,
-                1,
-                round($buckarooFeeLine, 2)
-            );
-        }
-
-        return $article;
+        return '';
     }
 
     /**

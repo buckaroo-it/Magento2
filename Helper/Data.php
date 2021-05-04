@@ -385,4 +385,44 @@ class Data extends AbstractHelper
     {
         return $this->json;
     }
+
+    public function getPaymentMethodsList()
+    {
+        return [
+            ['value' => 'afterpay',               'label' => __('Afterpay (old)')],
+            ['value' => 'afterpay2',       'label' => __('Afterpay 2 (old)')],
+            ['value' => 'afterpay20',       'label' => __('Afterpay')],
+            ['value' => 'alipay',       'label' => __('Alipay')],
+            ['value' => 'applepay',       'label' => __('Apple Pay')],
+            ['value' => 'billink',       'label' => __('Billink')],
+            ['value' => 'capayablein3',       'label' => __('In3')],
+            ['value' => 'creditcard',       'label' => __('Creditcards')],
+            ['value' => 'creditcards',       'label' => __('Creditcards (Client sided)')],
+            ['value' => 'emandate',       'label' => __('Digital Debit Authorization')],
+            ['value' => 'eps',       'label' => __('EPS')],
+            ['value' => 'giftcards',       'label' => __('Giftcards')],
+            ['value' => 'giropay',       'label' => __('Giropay')],
+            ['value' => 'ideal',       'label' => __('iDEAL')],
+            ['value' => 'idealprocessing',       'label' => __('iDEAL Processing')],
+            ['value' => 'kbc',       'label' => __('KBC')],
+            ['value' => 'klarna',       'label' => __('Klarna Pay later (pay)')],
+            ['value' => 'klarnain',       'label' => __('Klarna Slice it')],
+            ['value' => 'klarnakp',       'label' => __('Klarna Pay later (authorize/capture)')],
+            ['value' => 'mrcash',       'label' => __('Bancontact / Mister Cash')],
+            ['value' => 'p24',       'label' => __('Przelewy24')],
+            ['value' => 'payconiq',       'label' => __('Payconiq')],
+            ['value' => 'paylink',       'label' => __('PayLink')],
+            ['value' => 'paymentguarantee',       'label' => __('Payment Guarantee')],
+            ['value' => 'paypal',       'label' => __('Paypal')],
+            ['value' => 'payperemail',       'label' => __('PayPerEmail')],
+            ['value' => 'pospayment',       'label' => __('Point of Sale')],
+            ['value' => 'rtp',       'label' => __('Request To Pay')],
+            ['value' => 'sepadirectdebit',       'label' => __('SEPA direct debit')],
+            ['value' => 'sofortbanking',       'label' => __('SOFORT')],
+            ['value' => 'tinka',       'label' => __('Tinka')],
+            ['value' => 'transfer',       'label' => __('Bank Transfer')],
+            ['value' => 'trustly',       'label' => __('Trustly')],
+            ['value' => 'wechatpay',       'label' => __('WeChatPay')],
+        ];
+    }
 }

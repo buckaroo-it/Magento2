@@ -440,4 +440,7 @@
         <plugin name="myParcelNLBuckarooPlugin" type="Buckaroo\Magento2\Model\Plugin\MyParcelNLBuckarooPlugin" />
     </type>
 
+    <type name="Magento\CatalogInventory\Model\Configuration">
+        <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
+    </type>
 </config>

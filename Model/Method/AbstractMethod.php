@@ -24,6 +24,10 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Logging\Log;
 use mysql_xdevapi\Exception;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Quote\Model\Quote\AddressFactory;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -162,6 +166,29 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public static $requestOnVoid = true;
 
     /**
+     * @var Calculation
+     */
+    protected $taxCalculation;
+
+    /**
+     * @var Config
+     */
+    protected $taxConfig;
+
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
+    protected $configProviderBuckarooFee;
+
+    /** @var SoftwareData */
+    protected $softwareData;
+
+    /**
+     * @var AddressFactory
+     */
+    protected $addressFactory;
+
+    protected $payRemainder = 0;
+
+    /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
@@ -200,6 +227,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
+        AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -240,6 +272,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->priceHelper                  = $priceHelper;
         $this->developmentHelper            = $developmentHelper;
         $this->quoteFactory                 = $quoteFactory;
+        $this->taxConfig = $taxConfig;
+        $this->taxCalculation = $taxCalculation;
+        $this->configProviderBuckarooFee = $configProviderBuckarooFee;
+        $this->softwareData = $softwareData;
+        $this->addressFactory  = $addressFactory;
 
         $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
 
@@ -624,7 +661,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $message = strlen($methodMessage) > 0 ? $methodMessage : $message;
         }
 
-        if(isset($transactionResponse->Status->SubCode->_)){
+        if (isset($transactionResponse->Status->SubCode->_)) {
             $message = $transactionResponse->Status->SubCode->_;
         }
 
@@ -750,7 +787,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function capture(InfoInterface $payment, $amount)
     {
-        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(__METHOD__ . '|1|');
 
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
@@ -806,7 +843,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function captureTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
     {
-        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(__METHOD__ . '|1|');
 
         $response = $this->gateway->capture($transaction);
 
@@ -839,7 +876,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function refund(InfoInterface $payment, $amount)
     {
-        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(__METHOD__ . '|1|');
 
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
@@ -862,7 +899,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         parent::refund($payment, $amount);
 
-        $this->logger2->addDebug(__METHOD__.'|5|');
+        $this->logger2->addDebug(__METHOD__ . '|5|');
 
         $this->payment = $payment;
         $paymentCm3InvoiceKey = $payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
@@ -873,21 +910,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $amount = $this->refundGroupTransactions($payment, $amount);
 
-        $this->logger2->addDebug(__METHOD__.'|10|'.var_export($amount, true));
+        $this->logger2->addDebug(__METHOD__ . '|10|' . var_export($amount, true));
 
-        if($amount<=0) {
+        if ($amount <= 0) {
             return $this;
         }
 
         $transactionBuilder = $this->getRefundTransactionBuilder($payment);
 
         if (!$transactionBuilder) {
-            $this->logger2->addDebug(__METHOD__.'|20|');
+            $this->logger2->addDebug(__METHOD__ . '|20|');
             throw new \LogicException(
                 'Refund action is not implemented for this payment method.'
             );
         } elseif ($transactionBuilder === true) {
-            $this->logger2->addDebug(__METHOD__.'|25|');
+            $this->logger2->addDebug(__METHOD__ . '|25|');
             return $this;
         }
         $transactionBuilder->setAmount($amount);
@@ -979,7 +1016,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function void(InfoInterface $payment)
     {
-        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(__METHOD__ . '|1|');
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
         ) {
@@ -1003,29 +1040,29 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // Do not cancel authorize when accept authorize is failed.
         // buckaroo_failed_authorize is set in Push.php
         if ($this->payment->getAdditionalInformation('buckaroo_failed_authorize') == 1) {
-            $this->logger2->addDebug(__METHOD__.'|5|');
+            $this->logger2->addDebug(__METHOD__ . '|5|');
             return $this;
         }
 
         if (self::$requestOnVoid) {
-            $this->logger2->addDebug(__METHOD__.'|10|');
+            $this->logger2->addDebug(__METHOD__ . '|10|');
             $transactionBuilder = $this->getVoidTransactionBuilder($payment);
         } else {
-            $this->logger2->addDebug(__METHOD__.'|15|');
+            $this->logger2->addDebug(__METHOD__ . '|15|');
             $transactionBuilder = true;
         }
 
         if (!$transactionBuilder) {
-            $this->logger2->addDebug(__METHOD__.'|20|');
+            $this->logger2->addDebug(__METHOD__ . '|20|');
             throw new \LogicException(
                 'Void action is not implemented for this payment method.'
             );
         } elseif ($transactionBuilder === true) {
-            $this->logger2->addDebug(__METHOD__.'|25|');
+            $this->logger2->addDebug(__METHOD__ . '|25|');
             return $this;
         }
 
-        $this->logger2->addDebug(__METHOD__.'|30|');
+        $this->logger2->addDebug(__METHOD__ . '|30|');
 
         $transaction = $transactionBuilder->build();
 
@@ -1332,32 +1369,34 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     public function refundGroupTransactions(InfoInterface $payment, $amount)
     {
-        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(__METHOD__ . '|1|');
 
         $order = $payment->getOrder();
         $totalOrder = $order->getBaseGrandTotal();
         $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
 
         $requestParams = $this->request->getParams();
-        if(isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])){
+        if (isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])) {
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $amount_value) {
 
-                $transaction = explode('|',$transaction);
+                $transaction = explode('|', $transaction);
                 $totalOrder = $totalOrder - $transaction[2];
 
                 $groupTransaction = $paymentGroupTransaction->getGroupTransactionByTrxId($transaction[0]);
 
-                $this->logger2->addDebug(__METHOD__.'|10|'.var_export([$amount_value, $amount], true));
+                $this->logger2->addDebug(__METHOD__ . '|10|' . var_export([$amount_value, $amount], true));
 
-                if($amount_value>0 && $amount>0){
-                    if($amount<$amount_value){$amount_value=$amount;}
+                if ($amount_value > 0 && $amount > 0) {
+                    if ($amount < $amount_value) {
+                        $amount_value = $amount;
+                    }
                     $amount = $amount - $amount_value;
-                    $this->logger2->addDebug(__METHOD__.'|15|'.var_export([$amount], true));
+                    $this->logger2->addDebug(__METHOD__ . '|15|' . var_export([$amount], true));
                     $transactionBuilder = $this->transactionBuilderFactory->get('refund');
 
                     $services = [
-                        'Name'    => $transaction[1],
-                        'Action'  => 'Refund',
+                        'Name' => $transaction[1],
+                        'Action' => 'Refund',
                         'Version' => 1,
                     ];
 
@@ -1370,7 +1409,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     $transaction = $transactionBuilder->build();
                     $response = $this->refundTransaction($transaction);
 
-                    $this->logger2->addDebug(__METHOD__.'|16| '.var_export($response, true));
+                    $this->logger2->addDebug(__METHOD__ . '|16| ' . var_export($response, true));
                     $arrayResponse = json_decode(json_encode($response), true);
 
                     $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
@@ -1385,19 +1424,22 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     }
 //                    $refundedAmount = $this->groupTransaction->getRefundedAmount();
 
+                    $this->payRemainder = $amount;
                 }
             }
         }
 
-        $this->logger2->addDebug(__METHOD__.'|20|'.var_export([$amount, $totalOrder, $amount>=0.01], true));
+        $this->logger2->addDebug(__METHOD__ . '|20|' . var_export([$amount, $totalOrder, $amount >= 0.01], true));
 
-        if($amount>=0.01){
+        if ($amount >= 0.01) {
             $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
-            if($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0){
+            if ($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0) {
+                $this->logger2->addDebug(__METHOD__ . '|25|' . var_export($groupTransactionAmount, true));
+                $this->payRemainder = $amount - $groupTransactionAmount;
                 return $amount - $groupTransactionAmount;
             }
 
-            if($amount>$totalOrder){
+            if ($amount > $totalOrder) {
                 return $totalOrder;
             }
             return $amount;
@@ -1407,11 +1449,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function handleShippingAddressByMyParcel($payment, &$requestData)
     {
-        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(__METHOD__ . '|1|');
         $myparcelFetched = false;
         if ($myparcelOptions = $payment->getOrder()->getData('myparcel_delivery_options')) {
             if (!empty($myparcelOptions)) {
-                try{
+                try {
                     $myparcelOptions = json_decode($myparcelOptions, true);
                     $isPickup = $myparcelOptions['isPickup'] ?? false;
                     if ($isPickup) {
@@ -1419,19 +1461,19 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                         $myparcelFetched = true;
                     }
                 } catch (\JsonException $je) {
-                    $this->logger2->addDebug(__METHOD__.'|2|'.' Error related to json_decode (MyParcel plugin compatibility)');
+                    $this->logger2->addDebug(__METHOD__ . '|2|' . ' Error related to json_decode (MyParcel plugin compatibility)');
                 }
             }
         }
 
         if (!$myparcelFetched) {
-            $this->logger2->addDebug(__METHOD__.'|10|');
+            $this->logger2->addDebug(__METHOD__ . '|10|');
             if (
                 (strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
                 &&
                 (strpos($payment->getOrder()->getShippingMethod(), 'pickup') !== false)
             ) {
-                $this->logger2->addDebug(__METHOD__.'|15|');
+                $this->logger2->addDebug(__METHOD__ . '|15|');
                 if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()) {
                     if ($myParcelNLData = $this->helper->getJson()->unserialize($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData())) {
                         $this->logger2->addDebug(__METHOD__ . '|20|');
@@ -1466,12 +1508,431 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 }
                 if (!$found) {
                     $requestData[] = [
-                        '_'    => $mappingItem[1],
+                        '_' => $mappingItem[1],
                         'Name' => $mappingItem[0]
                     ];
                 }
             }
         }
+    }
+
+    public function getServiceCostLine($latestKey, $order, &$itemsTotalAmount = 0)
+    {
+        $buckarooFeeLine = $order->getBuckarooFeeInclTax();
+
+        $article = [];
+
+        if (false !== $buckarooFeeLine && (double)$buckarooFeeLine > 0) {
+            $article = $this->getArticleArrayLine(
+                $latestKey,
+                'Servicekosten',
+                1,
+                1,
+                round($buckarooFeeLine, 2),
+                $this->getTaxCategory($order)
+            );
+            $itemsTotalAmount += round($buckarooFeeLine, 2);
+        }
+
+        return $article;
+    }
+
+    public function getArticleArrayLine(
+        $latestKey,
+        $articleDescription,
+        $articleId,
+        $articleQuantity,
+        $articleUnitPrice,
+        $articleVat = ''
+    ) {
+
+    }
+
+    protected function getTaxCategory($order)
+    {
+        $request = $this->taxCalculation->getRateRequest(null, null, null, $order->getStore());
+        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($order->getStore());
+        $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        return $percent;
+    }
+
+    protected function getShippingAmount($order)
+    {
+        return $order->getShippingInclTax();
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return float|int
+     */
+    protected function getDiscountAmount($payment)
+    {
+        /** @var \Magento\Sales\Model\Order $order */
+        $order = $payment->getOrder();
+
+        $discount = 0;
+        $edition = $this->softwareData->getProductMetaData()->getEdition();
+
+        if ($order->getDiscountAmount() < 0) {
+            $discount -= abs((double)$order->getDiscountAmount());
+        }
+
+        if ($edition == 'Enterprise' && $order->getCustomerBalanceAmount() > 0) {
+            $discount -= abs((double)$order->getCustomerBalanceAmount());
+        }
+
+        return $discount;
+    }
+
+    /**
+     * @param \Magento\Quote\Model\Quote\Item $productItem
+     * @param                                 $includesTax
+     *
+     * @return mixed
+     */
+    public function calculateProductPrice($productItem, $includesTax)
+    {
+        $productPrice = $productItem->getPriceInclTax();
+
+        if (!$includesTax) {
+            if ($productItem->getDiscountAmount() >= 0.01) {
+                $productPrice = $productItem->getPrice()
+                    + $productItem->getTaxAmount() / $productItem->getQty();
+            }
+        }
+
+        if ($productItem->getWeeeTaxAppliedAmount() > 0) {
+            $productPrice += $productItem->getWeeeTaxAppliedAmount();
+        }
+
+        return $productPrice;
+    }
+
+    public function getRefundType($count)
+    {
+        $article = [
+            [
+                '_'       => 'Refund',
+                'Name'    => 'RefundType',
+                'GroupID' => $count,
+                'Group' => 'Article',
+            ]
+        ];
+
+        return $article;
+    }
+
+    /**
+     * Method to compare two addresses from the payment.
+     * Returns true if they are the same.
+     *
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return boolean
+     */
+    public function isAddressDataDifferent($payment)
+    {
+        $billingAddress = $payment->getOrder()->getBillingAddress();
+        $shippingAddress = $payment->getOrder()->getShippingAddress();
+
+        if ($billingAddress === null || $shippingAddress === null) {
+            return false;
+        }
+
+        $billingAddressData = $billingAddress->getData();
+        $shippingAddressData = $shippingAddress->getData();
+
+        $arrayDifferences = $this->calculateAddressDataDifference($billingAddressData, $shippingAddressData);
+
+        return !empty($arrayDifferences);
+    }
+
+    /**
+     * @param array $addressOne
+     * @param array $addressTwo
+     *
+     * @return boolean
+     */
+    private function calculateAddressDataDifference($addressOne, $addressTwo)
+    {
+        $keysToExclude = array_flip([
+            'prefix',
+            'telephone',
+            'fax',
+            'created_at',
+            'email',
+            'customer_address_id',
+            'vat_request_success',
+            'vat_request_date',
+            'vat_request_id',
+            'vat_is_valid',
+            'vat_id',
+            'address_type',
+            'extension_attributes',
+        ]);
+
+        $filteredAddressOne = array_diff_key($addressOne, $keysToExclude);
+        $filteredAddressTwo = array_diff_key($addressTwo, $keysToExclude);
+        $arrayDiff = array_diff($filteredAddressOne, $filteredAddressTwo);
+
+        return $arrayDiff;
+    }
+
+    protected function getDiffLine($latestKey, $diff)
+    {
+        $article = $this->getArticleArrayLine(
+            $latestKey,
+            'Discount/Fee',
+            1,
+            1,
+            round($diff, 2),
+            4
+        );
+
+        return $article;
+    }
+
+    protected function getRefundTransactionBuilderInvoceId($invoiceIncrementId, $payment)
+    {
+        if (!$refundIncrementInvoceId = $payment->getAdditionalInformation('refundIncrementInvoceId')) {
+            $refundIncrementInvoceId = 0;
+        }
+        $refundIncrementInvoceId++;
+        $payment->setAdditionalInformation('refundIncrementInvoceId', $refundIncrementInvoceId);
+        return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
+    }
+
+    protected function updateShippingAddressBySendcloud($order, &$requestData)
+    {
+        if ($order->getSendcloudServicePointId() > 0) {
+            foreach ($requestData as $key => $value) {
+                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                    $mapping = [
+                        ['Street', $order->getSendcloudServicePointStreet()],
+                        ['PostalCode', $order->getSendcloudServicePointZipCode()],
+                        ['City', $order->getSendcloudServicePointCity()],
+                        ['Country', $order->getSendcloudServicePointCountry()],
+                        ['StreetNumber', $order->getSendcloudServicePointHouseNumber()],
+                    ];
+                    foreach ($mapping as $mappingItem) {
+                        if (($requestData[$key]['Name'] == $mappingItem[0]) && !empty($mappingItem[1])) {
+                            $requestData[$key]['_'] = $mappingItem[1];
+                        }
+                    }
+
+                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
+                        unset($requestData[$key]);
+                    }
+
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if there is a "pakjegemak" address stored in the quote by this order.
+     * Afterpay wants to receive the "pakjegemak" address instead of the customer shipping address.
+     *
+     * @param int $quoteId
+     *
+     * @return array|\Magento\Quote\Model\Quote\Address
+     */
+    protected function getPostNLPakjeGemakAddressInQuote($quoteId)
+    {
+        $quoteAddress = $this->addressFactory->create();
+
+        $collection = $quoteAddress->getCollection();
+        $collection->addFieldToFilter('quote_id', $quoteId);
+        $collection->addFieldToFilter('address_type', 'pakjegemak');
+        // @codingStandardsIgnoreLine
+        return $collection->setPageSize(1)->getFirstItem();
+    }
+
+    public function updateShippingAddressByDpdParcel($quote, &$requestData)
+    {
+        $fullStreet = $quote->getDpdStreet();
+        $postalCode = $quote->getDpdZipcode();
+        $city = $quote->getDpdCity();
+        $country = $quote->getDpdCountry();
+
+        if (!$fullStreet && $quote->getDpdParcelshopId()) {
+            $this->logger2->addDebug(__METHOD__ . '|2|');
+            $this->logger2->addDebug(var_export($_COOKIE, true));
+            $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
+            $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
+            $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
+            $country = $_COOKIE['dpd-selected-parcelshop-country'] ?? '';
+        }
+
+        $matches = false;
+        if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
+            $this->logger2->addDebug(__METHOD__ . '|3|');
+
+            $street = $matches[1];
+            $streetHouseNumber = $matches[2];
+
+            $mapping = [
+                ['Street', $street],
+                ['PostalCode', $postalCode],
+                ['City', $city],
+                ['Country', $country],
+                ['StreetNumber', $streetHouseNumber],
+            ];
+
+            $this->logger2->addDebug(var_export($mapping, true));
+
+            foreach ($mapping as $mappingItem) {
+                if (!empty($mappingItem[1])) {
+                    $found = false;
+                    foreach ($requestData as $key => $value) {
+                        if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                            if ($requestData[$key]['Name'] == $mappingItem[0]) {
+                                $requestData[$key]['_'] = $mappingItem[1];
+                                $found = true;
+                            }
+                        }
+                    }
+                    if (!$found) {
+                        $requestData[] = [
+                            '_'    => $mappingItem[1],
+                            'Name' => $mappingItem[0],
+                            'Group' => 'ShippingCustomer',
+                            'GroupID' =>  '',
+                        ];
+                    }
+                }
+            }
+
+            foreach ($requestData as $key => $value) {
+                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
+                        unset($requestData[$key]);
+                    }
+                }
+            }
+
+        }
+    }
+
+    public function updateShippingAddressByDhlParcel($servicePointId, &$requestData)
+    {
+        $this->logger2->addDebug(__METHOD__ . '|1|');
+
+        $matches = [];
+        if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
+            $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
+            $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/' . $matches[2] . '/' . $servicePointId);
+            if (
+                ($response = $curl->getBody())
+                &&
+                ($parsedResponse = @json_decode($response))
+                &&
+                !empty($parsedResponse->address)
+            ) {
+                foreach ($requestData as $key => $value) {
+                    if ($requestData[$key]['Group'] == 'ShippingCustomer') {
+                        $mapping = [
+                            ['Street', 'street'],
+                            ['PostalCode', 'postalCode'],
+                            ['City', 'city'],
+                            ['Country', 'countryCode'],
+                            ['StreetNumber', 'number'],
+                        ];
+                        foreach ($mapping as $mappingItem) {
+                            if (($requestData[$key]['Name'] == $mappingItem[0]) && (!empty($parsedResponse->address->{$mappingItem[1]}))) {
+                                $requestData[$key]['_'] = $parsedResponse->address->{$mappingItem[1]};
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $street
+     *
+     * @return array
+     */
+    public function formatStreet($street)
+    {
+        $street = implode(' ', $street);
+
+        $format = [
+            'house_number'    => '',
+            'number_addition' => '',
+            'street'          => $street
+        ];
+
+        if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
+            // Check if the number is at the beginning of streetname
+            if ('' == $matches[1]) {
+                $format['house_number'] = trim($matches[2]);
+                $format['street']       = trim($matches[3]);
+            } else {
+                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+                    $format['street']          = trim($matches[1]);
+                    $format['house_number']    = trim($matches[2]);
+                    $format['number_addition'] = trim($matches[3]);
+                }
+            }
+        }
+
+        return $format;
+    }
+
+    protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay')
+    {
+        if ($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())) {
+            $serviceAction = 'PayRemainder';
+            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
+
+            if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())) {
+                $transactionBuilder->setAmount($transactionBuilder->getAmount() - $alreadyPaid);
+                $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
+            }
+        }
+        return $serviceAction;
+    }
+
+    protected function getPayRemainderAmount($payment, $alreadyPaid)
+    {
+        return $payment->getOrder()->getGrandTotal() - $alreadyPaid;
+    }
+
+    protected function getRequestArticlesDataPayRemainder($payment)
+    {
+        return $this->getArticleArrayLine(
+            1,
+            'PayRemainder',
+            1,
+            1,
+            round($this->payRemainder, 2),
+            $this->getTaxCategory($payment->getOrder())
+        );
+    }
+
+    protected function getCreditmemoArticleDataPayRemainder($payment, $addRefundType = true)
+    {
+        $article = $this->getArticleArrayLine(
+            1,
+            'PayRemainder',
+            1,
+            1,
+            round($this->payRemainder, 2),
+            $this->getTaxCategory($payment->getOrder())
+        );
+        if ($addRefundType) {
+            $article[] = [
+                '_' => 'Refund',
+                'Name' => 'RefundType',
+                'GroupID' => 1,
+                'Group' => 'Article',
+            ];
+        }
+        return $article;
     }
 }
 

@@ -64,10 +64,11 @@ define(
         }
 
         function checkPayments(){
-            var p = ["billink","afterpay","afterpay2","afterpay20","klarna","klarnakp","klarnain","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3"];
+            var p = ["billink","klarna","klarnakp","klarnain","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcards","bancontactmrcash"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
+            $('.buckaroo_magento2_flow_authorize').remove();
             checkLabels();
         }
 
@@ -150,6 +151,14 @@ define(
                     }
 
                     if (this.validate() && additionalValidators.validate()) {
+
+                        //mageplaza only check
+                        if (document.querySelector('#checkoutSteps.opc.one-step-checkout-container .place-order-primary button.checkout')) {
+                            if (data || event) {
+                                return false;
+                            }
+                        }
+
                         this.isPlaceOrderActionAllowed(false);
                         placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
 
