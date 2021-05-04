@@ -245,7 +245,7 @@ define(
                     if (quote.billingAddress()) {
                         this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
                         this.updateTermsUrl(quote.billingAddress().countryId);
-                        this.phoneValidate(quote.billingAddress().telephone);
+                        this.phoneValidate();
                         this.updateShowFields();
                     }
 
@@ -302,7 +302,7 @@ define(
 
                     var runValidation = function () {
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
-
+                        
                         if(elements !== undefined){
                             if (this.country != 'NL' && this.country != 'BE') {
                                 elements = elements.filter(':not([name*="customer_gender"])');
