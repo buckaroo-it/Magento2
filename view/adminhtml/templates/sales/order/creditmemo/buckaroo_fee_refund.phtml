@@ -21,9 +21,13 @@
 <?php endforeach?>
 <script>
     require(['prototype'], function() {
-        let inclTax = <?php echo empty($_total['incl_tax']) ? 0 : 1;  ?>;
+        let inclTax = <?php echo empty($_total['extra_info']['incl_tax']) ? 0 : 1;  ?>;
         let feeElement = document.getElementById('buckaroo_fee');
         let feeElementValue = feeElement.value;
+        let feeElementValue2 = feeElementValue;
+        <?php if (!empty($_total['extra_info']['fee_with_tax'])) { ?>
+            feeElementValue2 = <?php echo $_total['extra_info']['fee_with_tax'];  ?>;
+        <?php } ?>
 
         let isFeeRefund = document.getElementById('isRefund');
         let grandTotalElement = document.querySelector(
@@ -36,7 +40,7 @@
                 feeElement.value = 0;
                 let regExp = /[0-9\.,]{3,}/;
                 let currentGrandTotalPrice = grandTotalElement.innerHTML.match(regExp);
-                let priceWithoutFee = currentGrandTotalPrice - feeElementValue;
+                let priceWithoutFee = currentGrandTotalPrice - feeElementValue2;
 
                 let grandTotalPrice = grandTotalElement.innerHTML.replace(regExp, priceWithoutFee.toFixed(2).toString());
                 grandTotalElement.innerHTML = grandTotalPrice;
