@@ -25,8 +25,9 @@ jobs:
           composer create-project magento/magento-coding-standard --stability=stable magento-coding-standard
           ./magento-coding-standard/vendor/bin/phpcs --standard=Magento2 . --ignore=magento-coding-standard/*
   unit-tests:
-    - name: PHPUnit tests
-      uses: php-actions/phpunit@v2
-      with:
-        configuration:  dev/tests/unit/phpunit.xml.dist
-        memory_limit: 768M
+    steps:
+      - name: PHPUnit tests
+        uses: php-actions/phpunit@v2
+        with:
+          configuration:  dev/tests/unit/phpunit.xml.dist
+          memory_limit: 768M
