@@ -1,0 +1,32 @@
+name: Module checks
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup php
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.3
+      - uses: actions/checkout@v2
+      - name: validate composer json
+        run: composer validate
+      - name: get phpcs
+        run: |
+          curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
+          php phpcs.phar --version
+      - name: magento coding standard
+        run: |
+          composer create-project magento/magento-coding-standard --stability=stable magento-coding-standard
+          ./magento-coding-standard/vendor/bin/phpcs --standard=Magento2 . --ignore=magento-coding-standard/*
+  unit-tests:
+    - name: PHPUnit tests
+      uses: php-actions/phpunit@v2
+      with:
+        configuration:  dev/tests/unit/phpunit.xml.dist
+        memory_limit: 768M
