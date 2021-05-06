@@ -27,5 +27,6 @@ jobs:
       - name: PHPUnit tests
         uses: php-actions/phpunit@v2
         with:
-          configuration:  dev/tests/unit/phpunit.xml.dist
+          configuration: dev/tests/unit/phpunit.xml.dist
           memory_limit: 768M
+          args: --coverage-text
