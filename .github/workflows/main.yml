@@ -13,13 +13,17 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 7.3
+          tools: composer:v1
       - uses: actions/checkout@v2
       - name: validate composer json
         run: composer validate
       - name: PHPUnit
         run: |
-          composer require phpunit/phpunit
-          ./vendor/bin/phpunit --version
+          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.3.6 m23
+          mkdir -p m23/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m23' ./ m23/app/code/Buckaroo/Magento2/
+          cd m23
+          vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2
       - name: get phpcs
         run: |
           curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
