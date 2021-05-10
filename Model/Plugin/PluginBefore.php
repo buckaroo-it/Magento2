@@ -38,7 +38,7 @@ class PluginBefore
     }
 
     public function beforePushButtons(
-        \Magento\Backend\Block\Widget\Button\Toolbar\Interceptor $subject,
+        \Magento\Backend\Block\Widget\Button\Toolbar $subject,
         \Magento\Framework\View\Element\AbstractBlock $context,
         \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
     ) {
