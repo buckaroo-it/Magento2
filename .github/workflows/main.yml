@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: b0daf22bbe19
+    container: shivammathur/node:latest-amd64
     steps:
       - name: setup php
         uses: shivammathur/setup-php@v2
