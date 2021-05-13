@@ -33,4 +33,4 @@ jobs:
       - name: magento coding standard
         run: |
           cd m23
-          ./vendor/bin/phpcs --standard=Magento2  app/code/Buckaroo/Magento2/
+          ./vendor/bin/phpcs --standard=Magento2  app/code/Buckaroo/Magento2/etc
