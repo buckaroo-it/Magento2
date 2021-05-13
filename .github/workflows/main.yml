@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: b0daf22bbe19
     steps:
       - name: setup php
         uses: shivammathur/setup-php@v2
@@ -33,4 +34,4 @@ jobs:
       - name: magento coding standard
         run: |
           cd m23
-          ./vendor/bin/phpcs --standard=Magento2  app/code/Buckaroo/Magento2/etc
+          ./vendor/bin/phpcs --standard=Magento2  app/code/Buckaroo/Magento2/
