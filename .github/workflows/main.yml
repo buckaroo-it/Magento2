@@ -29,4 +29,6 @@ jobs:
           mkdir -p m23/app/code/Buckaroo/Magento2/
           rsync -r --exclude='m23' ./ m23/app/code/Buckaroo/Magento2/
           cd m23
+          bin/magento module:enable --all
+          bin/magento setup:di:compile
           vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2
