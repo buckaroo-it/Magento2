@@ -45,6 +45,7 @@ class AfterExpiry implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'nexi',                   'label' => __('Nexi')],
             ['value' => 'paypal',                 'label' => __('PayPal')],
             ['value' => 'sofortueberweisung',     'label' => __('Sofort Banking')],
+            ['value' => 'belfius',                'label' => __('Belfius')],
             ['value' => 'visa',                   'label' => __('Visa')],
             ['value' => 'visaelectron',           'label' => __('Visa Electron')],
             ['value' => 'vpay',                   'label' => __('V PAY')],

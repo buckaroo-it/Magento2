@@ -34,6 +34,7 @@
                 <item name="buckaroo_config_provider_sepadirectdebit" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</item>
                 <item name="buckaroo_config_provider_mrcash" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Mrcash</item>
                 <item name="buckaroo_config_provider_sofort" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking</item>
+                <item name="buckaroo_config_provider_belfius" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
                 <item name="buckaroo_config_provider_giropay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</item>
                 <item name="buckaroo_config_provider_afterpay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</item>
                 <item name="buckaroo_config_provider_afterpay2" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2</item>

@@ -46,6 +46,7 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'paypal',                 'label' => __('PayPal'), 'code' => 'buckaroo_magento2_paypal'],
             ['value' => 'sepadirectdebit',        'label' => __('SEPA Direct Debit'), 'code' => 'buckaroo_magento2_sepadirectdebit'],
             ['value' => 'sofortueberweisung',     'label' => __('Sofort Banking'), 'code' => 'buckaroo_magento2_sofortbanking'],
+            ['value' => 'belfius',                'label' => __('Belfius'), 'code' => 'buckaroo_magento2_belfius'],
             ['value' => 'visa',                   'label' => __('Visa'), 'code' => 'buckaroo_magento2_creditcards'],
             ['value' => 'visaelectron',           'label' => __('Visa Electron'), 'code' => 'buckaroo_magento2_creditcards'],
             ['value' => 'vpay',                   'label' => __('V PAY'), 'code' => 'buckaroo_magento2_creditcards'],

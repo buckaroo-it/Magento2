@@ -20,17 +20,17 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-class Sofortbanking extends AbstractMethod
+class Belfius extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_sofortbanking';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_belfius';
 
     /**
      * @var string
      */
-    public $buckarooPaymentMethodCode = 'sofortbanking';
+    public $buckarooPaymentMethodCode = 'belfius';
 
     // @codingStandardsIgnoreStart
     /**
@@ -50,9 +50,9 @@ class Sofortbanking extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'             => 'Sofortueberweisung',
+            'Name'             => 'belfius',
             'Action'           => 'Pay',
-            'Version'          => 0,
+            'Version'          => 1,
         ];
 
         /**
@@ -104,6 +104,6 @@ class Sofortbanking extends AbstractMethod
      */
     public function getPaymentMethodName($payment)
     {
-        return 'sofortueberweisung';
+        return 'belfius';
     }
 }

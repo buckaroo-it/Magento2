@@ -109,5 +109,7 @@
         <include path="Buckaroo_Magento2::system/payment_methods/tinka.xml"/>
         
         <include path="Buckaroo_Magento2::system/payment_methods/klarnas.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/belfius.xml"/>
     </group>
 </include>
