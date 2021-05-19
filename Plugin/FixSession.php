@@ -50,8 +50,7 @@ class FixSession
         $value,
         PublicCookieMetadata $metadata = null
     ) {
-        if ($metadata && method_exists($metadata, 'getSameSite') && ($name == 'PHPSESSID')) {
-            //$this->logger->addDebug(__METHOD__ . '|1|' . var_export([$name, $value, $metadata->getSameSite()], true));
+        if ($metadata && method_exists($metadata, 'getSameSite') && ($name == session_name())) {
             if ($metadata->getSameSite() != 'None') {
                 $metadata->setSecure(true);
                 $metadata->setSameSite('None');
