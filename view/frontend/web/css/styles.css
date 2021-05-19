@@ -314,6 +314,18 @@
     content: ' ';
 }
 
+/* ===================== Belfius ======================= */
+.buckaroo_magento2_belfius .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_belfius_title.png) no-repeat;
+    margin-top: -7px;
+    float: right;
+    margin-right: -2px;
+    background-size: auto 37px;
+    width: 62px;
+    height: 37px;
+    content: ' ';
+}
+
 /* ===================== Alipay ======================= */
 .buckaroo_magento2_alipay .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_alipay_title.jpg) no-repeat;
@@ -803,6 +815,18 @@
         margin-top: -1px;
         float:left;
         margin-right: 10px;
+        background-size: auto 24px;
+        width: 40px;
+        height: 30px;
+        content: ' ';
+    }
+
+    /* Belfius */
+    .buckaroo_magento2_belfius .buckaroo_magento2_image_title:before {
+        background: url(../images/buckaroo_magento2_belfius_title.png) no-repeat;
+        margin-top: -1px;
+        float:left;
+        margin-right: -2px;
         background-size: auto 24px;
         width: 40px;
         height: 30px;

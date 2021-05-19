@@ -46,6 +46,7 @@
 .buckaroo_magento2_payment_transfer,
 .buckaroo_magento2_payment_mrcash,
 .buckaroo_magento2_payment_sofortbanking,
+.buckaroo_magento2_payment_belfius,
 .buckaroo_magento2_payment_alipay,
 .buckaroo_magento2_payment_wechatpay,
 .buckaroo_magento2_payment_p24,
@@ -171,6 +172,18 @@
 /* Sofort */
 .buckaroo_magento2_payment_sofortbanking:before {
     background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
+    margin-top: -7px;
+    float: left;
+    margin-right: 10px;
+    background-size: auto 37px;
+    width: 55px;
+    height: 37px;
+    content: ' ';
+}
+
+/* Belfius */
+.buckaroo_magento2_payment_belfius:before {
+    background: url(../images/buckaroo_magento2_belfius_title.png) no-repeat;
     margin-top: -7px;
     float: left;
     margin-right: 10px;

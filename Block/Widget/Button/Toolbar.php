@@ -50,6 +50,7 @@ class Toolbar
         'buckaroo_magento2_payconiq',
         'buckaroo_magento2_sepadirectdebit',
         'buckaroo_magento2_sofortbanking',
+        'buckaroo_magento2_belfius',
         'buckaroo_magento2_transfer',
         'buckaroo_magento2_eps',
         'buckaroo_magento2_giropay',

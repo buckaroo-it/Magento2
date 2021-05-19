@@ -106,6 +106,10 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/sofortbanking'
             },
             {
+                type: 'buckaroo_magento2_belfius',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/belfius'
+            },
+            {
                 type: 'buckaroo_magento2_eps',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/eps'
             },
