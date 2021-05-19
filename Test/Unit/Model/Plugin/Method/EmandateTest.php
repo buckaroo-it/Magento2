@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Plugin\Method;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Model\Method\Emandate as EmandateMethod;
-use Buckaroo\Magento2\Model\Plugin\Method\Emandate;
+use Buckaroo\Magento2\Plugin\Method\Emandate;
 use Buckaroo\Magento2\Test\BaseTest;
 
 class EmandateTest extends BaseTest

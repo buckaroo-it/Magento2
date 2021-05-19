@@ -17,14 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Model\Plugin;
+namespace Buckaroo\Magento2\Plugin;
 
-use Magento\Sales\Api\CreditmemoRepositoryInterface;
-use Magento\Sales\Api\Data\CreditmemoExtensionFactory;
-use Magento\Sales\Api\Data\CreditmemoInterface;
-use Magento\Sales\Api\Data\CreditmemoSearchResultInterface;
+use Magento\Sales\Api\Data\OrderExtensionFactory;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderSearchResultInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
-class CreditmemoExtensionAttribute
+class OrderExtensionAttribute
 {
     private $buckarooFieldNames = [
         'buckaroo_fee',
@@ -34,48 +34,48 @@ class CreditmemoExtensionAttribute
         'buckaroo_fee_incl_tax',
         'base_buckaroo_fee_incl_tax',
         'buckaroo_push_data',
-        'buckaroo_already_paid',
+        'buckaroo_already_paid'
     ];
 
-    /** @var CreditmemoExtensionFactory */
+    /** @var OrderExtensionFactory */
     private $extensionFactory;
 
-    public function __construct(CreditmemoExtensionFactory $extensionFactory)
+    public function __construct(OrderExtensionFactory $extensionFactory)
     {
         $this->extensionFactory = $extensionFactory;
     }
 
     /**
-     * @param CreditmemoRepositoryInterface $subject
-     * @param CreditmemoInterface           $creditmemo
+     * @param OrderRepositoryInterface $subject
+     * @param OrderInterface           $order
      *
-     * @return CreditmemoInterface
+     * @return OrderInterface
      */
-    public function afterGet(CreditmemoRepositoryInterface $subject, CreditmemoInterface $creditmemo)
+    public function afterGet(OrderRepositoryInterface $subject, OrderInterface $order)
     {
-        $extensionAttributes = $creditmemo->getExtensionAttributes();
+        $extensionAttributes = $order->getExtensionAttributes();
 
         if (!$extensionAttributes) {
             $extensionAttributes = $this->extensionFactory->create();
         }
 
         foreach ($this->buckarooFieldNames as $fieldName) {
-            $fieldValue = $creditmemo->getData($fieldName);
+            $fieldValue = $order->getData($fieldName);
             $extensionAttributes->setData($fieldName, $fieldValue);
         }
 
-        $creditmemo->setExtensionAttributes($extensionAttributes);
+        $order->setExtensionAttributes($extensionAttributes);
 
-        return $creditmemo;
+        return $order;
     }
 
     /**
-     * @param CreditmemoRepositoryInterface   $subject
-     * @param CreditmemoSearchResultInterface $searchResult
+     * @param OrderRepositoryInterface   $subject
+     * @param OrderSearchResultInterface $searchResult
      *
-     * @return CreditmemoSearchResultInterface
+     * @return OrderSearchResultInterface
      */
-    public function afterGetList(CreditmemoRepositoryInterface $subject, CreditmemoSearchResultInterface $searchResult)
+    public function afterGetList(OrderRepositoryInterface $subject, OrderSearchResultInterface $searchResult)
     {
         $orders = $searchResult->getItems();
 

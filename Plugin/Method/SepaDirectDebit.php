@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\Plugin\Method;
+namespace Buckaroo\Magento2\Plugin\Method;
 
 class SepaDirectDebit
 {

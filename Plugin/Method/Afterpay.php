@@ -18,52 +18,49 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\Plugin\Method;
-
-use \Magento\Sales\Model\Order;
+namespace Buckaroo\Magento2\Plugin\Method;
 
 /**
- * Class Klarnakp
+ * Class Afterpay
  *
- * @package Buckaroo\Magento2\Model\Plugin\Method
+ *
  */
-class Klarnakp
+class Afterpay
 {
-    const KLARNAKP_METHOD_NAME = 'buckaroo_magento2_klarnakp';
+    const AFTERPAY_METHOD_NAME = 'buckaroo_magento2_afterpay';
 
     /**
-     * \Buckaroo\Magento2\Model\Method\Klarnakp
+     * \Buckaroo\Magento2\Model\Method\Afterpay
      *
      * @var bool
      */
-    public $klarnakpMethod = false;
+    public $afterpayMethod = false;
 
     /**
-     * @param \Buckaroo\Magento2\Model\Method\Klarnakp $klarnakp
+     * @param \Buckaroo\Magento2\Model\Method\Afterpay $afterpay
      */
-    public function __construct(\Buckaroo\Magento2\Model\Method\Klarnakp $klarnakp)
+    public function __construct(\Buckaroo\Magento2\Model\Method\Afterpay $afterpay)
     {
-        $this->klarnakpMethod = $klarnakp;
+        $this->afterpayMethod = $afterpay;
     }
 
     /**
-     * @param Order $subject
+     * @param \Magento\Sales\Model\Order $subject
      *
-     * @return Klarnakp|Order
-     * @throws \Buckaroo\Magento2\Exception
+     * @return \Magento\Sales\Model\Order
      */
     public function afterCancel(
-        Order $subject
+        \Magento\Sales\Model\Order $subject
     ) {
         $payment = $subject->getPayment();
-        $orderIsCanceled = $payment->getOrder()->getOrigData('state');
+        $orderIsCanceled = $payment->getOrder()->isCanceled();
         $orderIsVoided = ($payment->getAdditionalInformation('voided_by_buckaroo') === true);
 
-        if ($payment->getMethod() !== self::KLARNAKP_METHOD_NAME || $orderIsVoided || $orderIsCanceled == Order::STATE_CANCELED) {
+        if ($payment->getMethod() !== self::AFTERPAY_METHOD_NAME || $orderIsCanceled || $orderIsVoided) {
             return $subject;
         }
 
-        $this->klarnakpMethod->cancel($payment);
+        $this->afterpayMethod->cancel($payment);
 
         return $subject;
     }

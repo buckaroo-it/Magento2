@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Model\Plugin;
+namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Framework\HTTP\Header;
 use Buckaroo\Magento2\Logging\Log;
@@ -50,8 +50,7 @@ class FixSession
         $value,
         PublicCookieMetadata $metadata = null
     ) {
-        if ($metadata && method_exists($metadata, 'getSameSite') && ($name == 'PHPSESSID')) {
-            //$this->logger->addDebug(__METHOD__ . '|1|' . var_export([$name, $value, $metadata->getSameSite()], true));
+        if ($metadata && method_exists($metadata, 'getSameSite') && ($name == session_name())) {
             if ($metadata->getSameSite() != 'None') {
                 $metadata->setSecure(true);
                 $metadata->setSameSite('None');
