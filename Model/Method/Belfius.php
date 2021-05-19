@@ -50,9 +50,9 @@ class Belfius extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'             => 'belfius',
-            'Action'           => 'Pay',
-            'Version'          => 1,
+            'Name'    => 'belfius',
+            'Action'  => 'Pay',
+            'Version' => 0,
         ];
 
         /**
@@ -67,7 +67,8 @@ class Belfius extends AbstractMethod
          * @todo when buckaroo changes the push / response order this can be removed
          */
         $payment->setAdditionalInformation(
-            'skip_push', 1
+            'skip_push',
+            1
         );
 
         return $transactionBuilder;

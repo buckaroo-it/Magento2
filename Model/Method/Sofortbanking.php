@@ -52,7 +52,7 @@ class Sofortbanking extends AbstractMethod
         $services = [
             'Name'             => 'Sofortueberweisung',
             'Action'           => 'Pay',
-            'Version'          => 0,
+            'Version'          => 1,
         ];
 
         /**
