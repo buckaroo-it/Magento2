@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Model\Plugin;
+namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Framework\HTTP\Header;
 use Buckaroo\Magento2\Logging\Log;

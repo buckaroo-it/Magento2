@@ -18,14 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\Plugin\Method;
+namespace Buckaroo\Magento2\Plugin\Method;
 
 use \Magento\Sales\Model\Order;
 
 /**
  * Class Klarnain
  *
- * @package Buckaroo\Magento2\Model\Plugin\Method
+ *
  */
 class Klarnain
 {
