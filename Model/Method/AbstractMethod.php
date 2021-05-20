@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Buckaroo\Magento2\Logging\Log as BuckarooLogging;
 use mysql_xdevapi\Exception;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
