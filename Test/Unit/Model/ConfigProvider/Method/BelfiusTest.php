@@ -55,7 +55,7 @@ class BelfiusTest extends BaseTest
      * @covers ::getConfig
      * @dataProvider getConfigProvider
      */
-    public function testGetConfig($active,$expected)
+    public function testGetConfig($active, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->setMethods(['getValue'])
@@ -70,16 +70,12 @@ class BelfiusTest extends BaseTest
             ->willReturnOnConsecutiveCalls('EUR', 'Belfius Fee');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(BelfiusMethod::PAYMENT_METHOD_CODE)->willReturn('Belfius Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')
+            ->with(BelfiusMethod::PAYMENT_METHOD_CODE)->willReturn('Belfius Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
 
         $result = $instance->getConfig();
-        $fh = fopen('/Users/florinel/buckaroo/m23/result.txt','w+');
-        fwrite($fh,print_r($result,true));
-        fwrite($fh,print_r($expected,true));
-        fclose($fh);
-
         $this->assertEquals($expected, $result);
     }
 
