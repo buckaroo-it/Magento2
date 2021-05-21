@@ -24,6 +24,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class PayLink extends AbstractMethod
 {
@@ -74,6 +75,7 @@ class PayLink extends AbstractMethod
         Config $taxConfig,
         Calculation $taxCalculation,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -103,6 +105,7 @@ class PayLink extends AbstractMethod
             $taxConfig,
             $taxCalculation,
             $configProviderBuckarooFee,
+            $buckarooLog,
             $softwareData,
             $addressFactory,
             $resource,
