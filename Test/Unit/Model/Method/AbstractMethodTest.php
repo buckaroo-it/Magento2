@@ -533,8 +533,13 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
      *
      * @dataProvider transactionBuilderFalseTrueDataProvider
      */
-    public function testTransactionBuilderFalse($method, $setCanMethod, $methodTransactionBuilder, $canMethod = false, $amount=0)
-    {
+    public function testTransactionBuilderFalse(
+        $method,
+        $setCanMethod,
+        $methodTransactionBuilder,
+        $canMethod = false,
+        $amount = 0
+    ) {
         $exceptionMessage = ucfirst($method) . ' action is not implemented for this payment method.';
         $this->setExpectedException(\LogicException::class, $exceptionMessage);
 
@@ -552,10 +557,10 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
             $configProviderMock->expects($this->once())->method('get')->with('refund')->willReturnSelf();
             $configProviderMock->expects($this->once())->method('getEnabled')->willReturn(true);
         }
-        if($method=='refund') {
+        if ($method=='refund') {
             $this->markTestIncomplete(
                 'This (::refundGroupTransactions()) needs to be refactored.'
-              );
+            );
         }
         $partialMock->$method($payment, $amount);
 
@@ -608,8 +613,13 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
      *
      * @dataProvider transactionBuilderFalseTrueDataProvider
      */
-    public function testTransactionBuilderTrue($method, $setCanMethod, $methodTransactionBuilder, $amount=0, $canMethod = false)
-    {
+    public function testTransactionBuilderTrue(
+        $method,
+        $setCanMethod,
+        $methodTransactionBuilder,
+        $amount = 0,
+        $canMethod = false
+    ) {
         $payment = $this->getFakeMock(Payment::class, true);
 
         $stubbedMethods = [$methodTransactionBuilder];
@@ -623,7 +633,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $partialMockReflection = new \ReflectionClass($partialMock);
         $reflectionLogger2 = $partialMockReflection->getProperty('logger2');
         $reflectionLogger2->setAccessible(true);
-        $reflectionLogger2->setValue($partialMock,$loggerMock);
+        $reflectionLogger2->setValue($partialMock, $loggerMock);
 
         $helperMock = $this->getFakeMock(HelperData::class)->setMethods(['getMode'])->getMock();
         $helperMock->method('getMode')->willReturn($helperMock);
@@ -634,7 +644,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMockForAbstractClass();
         $reflectionLogger2 = $partialMockReflection->getProperty('gateway');
         $reflectionLogger2->setAccessible(true);
-        $reflectionLogger2->setValue($partialMock,$gatewayMock);
+        $reflectionLogger2->setValue($partialMock, $gatewayMock);
 
         #$partialMock->gateway = $gatewayMock;
 
@@ -647,10 +657,10 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
                 ->withAnyParameters()
                 ->willReturn(true);
         }
-        if($method == 'refund') {
+        if ($method == 'refund') {
             $this->markTestIncomplete(
                 'Skip, ::refundGroupTransactions() needs to be refactored'
-              );
+            );
         }
         $orderModelMock = $this->getFakeMock(Order::class)->setMethods(['getStore','getBaseGrandTotal'])->getMock();
         $payment->method('getOrder')->willReturn($orderModelMock);
@@ -678,7 +688,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $canMethod = false
     ) {
         $amount = 0;
-        if($method == 'refund') {
+        if ($method == 'refund') {
             $amount = 1;
             $this->markTestIncomplete(
                 'Skip, ::refundGroupTransactions() needs to be refactored'
@@ -686,8 +696,10 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         }
         $responseObject = new \stdClass();
         $response = [$responseObject];
-        $orderModelMock = $this->getFakeMock(Order::class)->setMethods(['getStore','getId','getBaseGrandTotal'])->getMock();
-        $payment = $this->getFakeMock(Payment::class)->setMethods(['getCurrencyCode', 'setIsFraudDetected','getOrder'])->getMock();
+        $orderModelMock = $this->getFakeMock(Order::class)
+            ->setMethods(['getStore','getId','getBaseGrandTotal'])->getMock();
+        $payment = $this->getFakeMock(Payment::class)
+            ->setMethods(['getCurrencyCode', 'setIsFraudDetected','getOrder'])->getMock();
         $payment->method('getOrder')->willReturn($orderModelMock);
         $transaction = $this->getFakeMock(Transaction::class, true);
         $registryMock = $this->getFakeMock(Registry::class)->setMethods(['register'])->getMock();
@@ -735,16 +747,16 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $partialMockReflection = new \ReflectionClass($partialMock);
         $reflectionLogger2 = $partialMockReflection->getProperty('logger2');
         $reflectionLogger2->setAccessible(true);
-        $reflectionLogger2->setValue($partialMock,$loggerMock);
+        $reflectionLogger2->setValue($partialMock, $loggerMock);
         $gatewayMock = $this->getFakeMock(GatewayInterface::class)
             ->setMethods(['setMode'])
             ->getMockForAbstractClass();
         $reflectionLogger2 = $partialMockReflection->getProperty('gateway');
         $reflectionLogger2->setAccessible(true);
-        $reflectionLogger2->setValue($partialMock,$gatewayMock);
+        $reflectionLogger2->setValue($partialMock, $gatewayMock);
 
-
-        $helperMock = $this->getFakeMock(HelperData::class)->setMethods(['getMode','setRestoreQuoteLastOrder'])->getMock();
+        $helperMock = $this->getFakeMock(HelperData::class)
+            ->setMethods(['getMode','setRestoreQuoteLastOrder'])->getMock();
         $helperMock->method('getMode')->willReturn($helperMock);
         $partialMock->helper = $helperMock;
 
@@ -960,13 +972,13 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $partialMockReflection = new \ReflectionClass($partialMock);
         $reflectionLogger2 = $partialMockReflection->getProperty('logger2');
         $reflectionLogger2->setAccessible(true);
-        $reflectionLogger2->setValue($partialMock,$loggerMock);
+        $reflectionLogger2->setValue($partialMock, $loggerMock);
         $gatewayMock = $this->getFakeMock(GatewayInterface::class)
             ->setMethods(['setMode'])
             ->getMockForAbstractClass();
         $reflectionLogger2 = $partialMockReflection->getProperty('gateway');
         $reflectionLogger2->setAccessible(true);
-        $reflectionLogger2->setValue($partialMock,$gatewayMock);
+        $reflectionLogger2->setValue($partialMock, $gatewayMock);
 
         $helperMock = $this->getFakeMock(HelperData::class)->setMethods(['getMode'])->getMock();
         $helperMock->method('getMode')->willReturn($helperMock);
@@ -974,7 +986,6 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $orderModelMock = $this->getFakeMock(Order::class)->setMethods(['getStore'])->getMock();
         $payment->method('getOrder')->willReturn($orderModelMock);
-
 
         $this->assertSame($partialMock, $partialMock->cancel($payment));
     }
@@ -1157,7 +1168,6 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         ];
     }
 
-
     /**
      * @param $params
      * @param $extraFields
@@ -1167,7 +1177,8 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testAddExtraFields($params, $extraFields, $expected)
     {
-        $requestMock = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
+        $requestMock = $this->getFakeMock(RequestInterface::class)
+            ->setMethods(['getParams'])->getMockForAbstractClass();
         $requestMock->expects($this->once())->method('getParams')->willReturn($params);
 
         $refundFactoryMock = $this->getFakeMock(RefundFieldsFactory::class)->setMethods(['get'])->getMock();
@@ -1219,9 +1230,9 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
                 ['some data']
             ],
             'multiple data, empty registry' => [
-                ['string data', array('array data'), 12345],
+                ['string data', ['array data'], 12345],
                 null,
-                ['string data', array('array data'), 12345]
+                ['string data', ['array data'], 12345]
             ],
             'no data, empty registry' => [
                 [],
@@ -1239,14 +1250,14 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
                 ['existing data', 'some data']
             ],
             'multiple data, filled registry' => [
-                ['string data', array('array data'), 12345],
-                [987258, (Object)array('existing array')],
-                [987258, (Object)array('existing array'), 'string data', array('array data'), 12345]
+                ['string data', ['array data'], 12345],
+                [987258, (Object)['existing array']],
+                [987258, (Object)['existing array'], 'string data', ['array data'], 12345]
             ],
             'no data, filled registry' => [
                 [],
-                [987258, 'existing data', (Object)array('existing array')],
-                [987258, 'existing data', (Object)array('existing array')]
+                [987258, 'existing data', (Object)['existing array']],
+                [987258, 'existing data', (Object)['existing array']]
             ],
             'null data, filled registry' => [
                 [null],
