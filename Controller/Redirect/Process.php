@@ -164,7 +164,6 @@ class Process extends \Magento\Framework\App\Action\Action
         $statusCode = (int) $this->response['brq_statuscode'];
 
         $this->loadOrder();
-
         $this->helper->setRestoreQuoteLastOrder(false);
 
         if (!$this->order->getId()) {
