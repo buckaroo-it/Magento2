@@ -22,11 +22,11 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Buckaroo\Magento2\Logging\Log;
 use mysql_xdevapi\Exception;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Store\Model\ScopeInterface;
 
@@ -258,6 +258,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         Config $taxConfig,
         Calculation $taxCalculation,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -305,9 +306,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->configProviderBuckarooFee = $configProviderBuckarooFee;
         $this->softwareData = $softwareData;
         $this->addressFactory  = $addressFactory;
-
-        $this->logger2 = $objectManager->create('Buckaroo\Magento2\Logging\Log');
-
+        $this->logger2 = $buckarooLog;
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );

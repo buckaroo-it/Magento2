@@ -25,6 +25,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Checkout\Model\Cart;
@@ -153,6 +154,7 @@ class Klarnakp extends AbstractMethod
         Config $taxConfig,
         Calculation $taxCalculation,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -182,6 +184,7 @@ class Klarnakp extends AbstractMethod
             $taxConfig,
             $taxCalculation,
             $configProviderBuckarooFee,
+            $buckarooLog,
             $softwareData,
             $addressFactory,
             $resource,

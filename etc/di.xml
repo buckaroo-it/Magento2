@@ -46,9 +46,9 @@
             <argument name="configProviderMethodFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Factory</argument>
             <argument name="priceHelper" xsi:type="object">Magento\Framework\Pricing\Helper\Data</argument>
             <argument name="quoteFactory" xsi:type="object">Magento\Quote\Model\QuoteFactory</argument>
+            <argument name="logger2" xsi:type="object">Buckaroo\Magento2\Logging\Log</argument>
         </arguments>
     </type>
-
     <type name="Buckaroo\Magento2\Model\Method\Paypal">
         <plugin name="buckaroo_magento2_paypal_sellersprotection_order" type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\Order" />
     </type>
