@@ -23,6 +23,9 @@
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay" name="buckaroo_magento2.product.info.applepay"
                    before="product.info.extrahint" template="Buckaroo_Magento2::catalog/product/view/applepay.phtml">
             </block>
+            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Idin" name="buckaroo_magento2.product.info.idin"
+                   before="product.info.extrahint" template="Buckaroo_Magento2::catalog/product/view/idin.phtml">
+            </block>
         </referenceContainer>
     </body>
 </page>

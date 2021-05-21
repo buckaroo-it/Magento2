@@ -1,0 +1,31 @@
+<!--The 'step_idin' value from the .js file should be used-->
+<li id="step_idin" data-bind="fadeVisible: isVisible">
+    <div class="step-title" data-bind="i18n: 'Age verification'" data-role="title" />
+    <div id="checkout-step-idin"
+         class="buckaroo_magento2_idin"
+         data-role="content">
+
+         <div class="buckaroo_idin_left">
+            <img width="50px" data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/idin.svg') }" />
+            <span data-bind="i18n: 'To continue you must verify your age using iDIN'"></span>
+         </div>
+         <div class="buckaroo_idin_right">
+            <form data-bind="submit: verificateIDIN" >
+                <select id="buckaroo_magento2_idin_issuer" class="field" 
+                        data-bind="value: idinIssuer,
+                                    event: { change: setSelectedBankDropDown },
+                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                    name="bank">
+                    <option data-bind="i18n: 'Select a bank', 'value': ''"></option>
+                    <!-- ko foreach: banktypes -->
+                        <option data-bind="i18n: name, 'value': code"></option>
+                    <!--/ko-->
+                </select>
+
+                <button data-role="idin-verification" type="submit" class="button action continue primary" id="idin-verification">
+                    <span><!-- ko i18n: 'Verify your age via iDIN'--><!-- /ko --></span>
+                </button>
+            </form>
+         </div>
+    </div>
+</li>

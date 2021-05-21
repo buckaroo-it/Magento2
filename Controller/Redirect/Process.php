@@ -86,6 +86,9 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $customerRepository;
     protected $_sessionFactory;
 
+    protected $customerModel;
+    protected $customerResourceFactory;
+
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
@@ -114,7 +117,9 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Customer\Model\SessionFactory $sessionFactory
+        \Magento\Customer\Model\SessionFactory $sessionFactory,
+        \Magento\Customer\Model\Customer $customerModel,
+        \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -130,6 +135,9 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->customerRepository = $customerRepository;
         $this->_sessionFactory    = $sessionFactory;
 
+        $this->customerModel      = $customerModel;
+        $this->customerResourceFactory    = $customerFactory;
+        
         $this->accountConfig = $configProviderFactory->get('account');
 
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
@@ -159,6 +167,17 @@ class Process extends \Magento\Framework\App\Action\Action
          */
         if (count($this->response) === 0 || !array_key_exists('brq_statuscode', $this->response)) {
             return $this->_redirect('/');
+        }
+
+        if($this->hasPostData('brq_primary_service', 'IDIN')){
+            if(!$this->setCustomerIDIN()){
+                $this->messageManager->addErrorMessage(
+                    __(
+                        'Unfortunately iDIN not verified!'
+                    )
+                );
+            }
+            return $this->redirectFailure();
         }
 
         $statusCode = (int) $this->response['brq_statuscode'];
@@ -609,6 +628,19 @@ class Process extends \Magento\Framework\App\Action\Action
             return true;
         }
 
+        return false;
+    }
+
+    private function setCustomerIDIN(){
+        if (isset($this->response['brq_service_idin_consumerbin']) && !empty($this->response['brq_service_idin_consumerbin']) && isset($this->response['add_idin_cid']) && !empty($this->response['add_idin_cid'])) {
+                $customerNew = $this->customerModel->load((int) $this->response['add_idin_cid']);
+                $customerData = $customerNew->getDataModel();
+                $customerData->setCustomAttribute('buckaroo_idin',$this->response['brq_service_idin_consumerbin']);
+                $customerNew->updateData($customerData);
+                $customerResource = $this->customerResourceFactory->create();
+                $customerResource->saveAttribute($customerNew, 'buckaroo_idin');  
+            return true;
+        }
         return false;
     }
 }

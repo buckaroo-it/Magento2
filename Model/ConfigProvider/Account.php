@@ -79,9 +79,12 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
     const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
     const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
-    const XPATH_ACCOUNT_SECOND_CHANCE                 = 'buckaroo_magento2/account/second_chance';
-    const XPATH_ACCOUNT_SECOND_CHANCE_TIMING                 = 'buckaroo_magento2/account/second_chance_timing';
-    const XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE                 = 'buckaroo_magento2/account/no_send_second_chance';
+    const XPATH_ACCOUNT_SECOND_CHANCE                   = 'buckaroo_magento2/account/second_chance';
+    const XPATH_ACCOUNT_SECOND_CHANCE_TIMING            = 'buckaroo_magento2/account/second_chance_timing';
+    const XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE           = 'buckaroo_magento2/account/no_send_second_chance';
+    const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
+    const XPATH_ACCOUNT_IDIN_MODE                            = 'buckaroo_magento2/account/idin_mode';
+    const XPATH_ACCOUNT_IDIN_CATEGORY                            = 'buckaroo_magento2/account/idin_category';
 
     /**
      * @var MethodFactory
@@ -143,6 +146,9 @@ class Account extends AbstractConfigProvider
             'no_send_second_chance'             => $this->getNoSendSecondChance($store),
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
+            'idin'                              => $this->getIdin($store),
+            'idin_mode'                         => $this->getIdinMode($store),
+            'idin_category'                     => $this->getIdinCategory($store),
         ];
         return $config;
     }
