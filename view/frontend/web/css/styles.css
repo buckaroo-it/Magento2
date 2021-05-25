@@ -1355,10 +1355,9 @@
 
 .buckaroo_idin_left span{
     height: 50px;
-    display: inline-block;
-    float: left;
-    line-height: 50px;
+    vertical-align: middle;
     padding-left: 5px;
+    display: table-cell;
 }
 
 .buckaroo_idin_right{
@@ -1373,6 +1372,5 @@
 
 .opc-wrapper #step_idin{
     clear: both;
-    width: 100%;
     display: inline-block!important;
 }

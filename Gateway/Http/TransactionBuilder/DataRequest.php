@@ -23,10 +23,6 @@ namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\UrlInterface;
-use Magento\Framework\Encryption\Encryptor;
-use Buckaroo\Magento2\Gateway\Http\Transaction;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 

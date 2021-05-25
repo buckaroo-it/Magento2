@@ -21,6 +21,10 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 
 class Idinmode implements \Magento\Framework\Option\ArrayInterface
 {
+    const IDINMODE_GLOBAL = 0;
+    const IDINMODE_PRODUCT = 1;
+    const IDINMODE_CATEGORY = 2;
+
     /**
      * Options getter
      *
@@ -29,9 +33,9 @@ class Idinmode implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
         return [
-            ['value' => 0, 'label' => __('Global')],
-            ['value' => 1, 'label' => __('Per Product')],
-            ['value' => 2, 'label' => __('Per Category')],
+            ['value' => self::IDINMODE_GLOBAL, 'label' => __('Global')],
+            ['value' => self::IDINMODE_PRODUCT, 'label' => __('Per Product')],
+            ['value' => self::IDINMODE_CATEGORY, 'label' => __('Per Category')],
         ];
     }
 
@@ -43,9 +47,9 @@ class Idinmode implements \Magento\Framework\Option\ArrayInterface
     public function toArray()
     {
         return [
-            0 => __('Global'),
-            1 => __('Per Product'),
-            2 => __('Per Category'),
+            self::IDINMODE_GLOBAL => __('Global'),
+            self::IDINMODE_PRODUCT => __('Per Product'),
+            self::IDINMODE_CATEGORY => __('Per Category'),
         ];
     }
 }

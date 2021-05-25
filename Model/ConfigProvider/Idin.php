@@ -75,13 +75,16 @@ class Idin extends AbstractConfigProvider
 
     private $productFactory;
 
+    protected $checkoutSession;
+
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface,
         \Magento\Checkout\Model\Session $session,
-        \Magento\Catalog\Model\ProductFactory $productFactory
+        \Magento\Catalog\Model\ProductFactory $productFactory,
+        \Magento\Checkout\Model\Session $checkoutSession
     ) {
         $this->storeManager                = $storeManager;
         $this->configProviderAccount       = $configProviderAccount;
@@ -89,6 +92,7 @@ class Idin extends AbstractConfigProvider
         $this->customerRepositoryInterface = $customerRepositoryInterface;
         $this->session                     = $session;
         $this->productFactory              = $productFactory;
+        $this->checkoutSession             = $checkoutSession;
     }
     /**
      * Retrieve associated array of checkout configuration
@@ -138,6 +142,10 @@ class Idin extends AbstractConfigProvider
                 $customer              = $this->customerRepositoryInterface->getById($customerId);
                 $customerAttributeData = $customer->__toArray();
                 $active                = (isset($customerAttributeData['custom_attributes']) && isset($customerAttributeData['custom_attributes']['buckaroo_idin']) && $customerAttributeData['custom_attributes']['buckaroo_idin']['value']) ? false : 1;
+            }elseif($active === true){
+                if($this->checkoutSession->getCustomerIDIN()){
+                    $active = false;
+                }
             }
         }
 

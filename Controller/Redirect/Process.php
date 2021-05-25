@@ -170,14 +170,17 @@ class Process extends \Magento\Framework\App\Action\Action
         }
 
         if($this->hasPostData('brq_primary_service', 'IDIN')){
-            if(!$this->setCustomerIDIN()){
+            if($this->setCustomerIDIN()){
+                $this->messageManager->addSuccessMessage(__('Your iDIN verified succesfully!'));
+            }else{
                 $this->messageManager->addErrorMessage(
                     __(
                         'Unfortunately iDIN not verified!'
                     )
                 );
             }
-            return $this->redirectFailure();
+
+            return $this->redirectToCheckout();
         }
 
         $statusCode = (int) $this->response['brq_statuscode'];
@@ -608,6 +611,35 @@ class Process extends \Magento\Framework\App\Action\Action
         return $this->_redirect($url);
     }
 
+    protected function redirectToCheckout()
+    {
+        $store = $this->order->getStore();
+        $this->logger->addDebug('start redirectToCheckout');
+        if (!$this->customerSession->isLoggedIn()) {
+            $this->logger->addDebug('not isLoggedIn');
+            if ($this->order->getCustomerId() > 0) {
+                $this->logger->addDebug('getCustomerId > 0');
+                try {
+                    $customer = $this->customerRepository->getById($this->order->getCustomerId());
+                    $this->customerSession->setCustomerDataAsLoggedIn($customer);
+
+                    if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
+                        $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
+                        $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
+                        $this->checkoutSession->restoreQuote();
+                        $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
+                    }
+
+                } catch (\Exception $e) {
+                    $this->logger->addError('Could not load customer');
+                }
+            }
+        }
+        $this->logger->addDebug('ready for redirect');
+        return $this->_redirect('checkout', ['_query' => ['bk_e' => 1]]);
+
+    }
+
     /**
      * @param $name
      * @param $value
@@ -632,13 +664,16 @@ class Process extends \Magento\Framework\App\Action\Action
     }
 
     private function setCustomerIDIN(){
-        if (isset($this->response['brq_service_idin_consumerbin']) && !empty($this->response['brq_service_idin_consumerbin']) && isset($this->response['add_idin_cid']) && !empty($this->response['add_idin_cid'])) {
-                $customerNew = $this->customerModel->load((int) $this->response['add_idin_cid']);
-                $customerData = $customerNew->getDataModel();
-                $customerData->setCustomAttribute('buckaroo_idin',$this->response['brq_service_idin_consumerbin']);
-                $customerNew->updateData($customerData);
-                $customerResource = $this->customerResourceFactory->create();
-                $customerResource->saveAttribute($customerNew, 'buckaroo_idin');  
+        if (isset($this->response['brq_service_idin_consumerbin']) && !empty($this->response['brq_service_idin_consumerbin'])){
+            $this->checkoutSession->setCustomerIDIN($this->response['brq_service_idin_consumerbin']);
+            if(isset($this->response['add_idin_cid']) && !empty($this->response['add_idin_cid'])) {
+                    $customerNew = $this->customerModel->load((int) $this->response['add_idin_cid']);
+                    $customerData = $customerNew->getDataModel();
+                    $customerData->setCustomAttribute('buckaroo_idin',$this->response['brq_service_idin_consumerbin']);
+                    $customerNew->updateData($customerData);
+                    $customerResource = $this->customerResourceFactory->create();
+                    $customerResource->saveAttribute($customerNew, 'buckaroo_idin');
+            } 
             return true;
         }
         return false;

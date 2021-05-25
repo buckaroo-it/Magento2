@@ -24,7 +24,6 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\Controller\ResultFactory;
-use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -80,11 +79,6 @@ class Idin extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
-     * @var \Magento\Framework\HTTP\Client\Curl
-     */
-    protected $curlClient;
-
-    /**
      * @var Account
      */
     protected $configProviderAccount;
@@ -96,9 +90,6 @@ class Idin extends \Magento\Framework\App\Action\Action
 
     /** @var CheckoutSession */
     protected $_checkoutSession;
-
-    /** @var Encryptor $encryptor */
-    private $encryptor;
 
     /**
      * @var PriceCurrencyInterface
@@ -152,7 +143,6 @@ class Idin extends \Magento\Framework\App\Action\Action
      * @param Account       $configProviderAccount
      * @param  \Magento\Store\Model\StoreManagerInterface       $storeManager
      * @param  CheckoutSession $checkoutSession
-     * @param Encryptor     $encryptor
      * @param PriceCurrencyInterface    $priceCurrency
      *
      * @throws \Buckaroo\Magento2\Exception
@@ -174,7 +164,6 @@ class Idin extends \Magento\Framework\App\Action\Action
         \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Checkout\Model\Session $checkoutSession,
-        Encryptor $encryptor,
         PriceCurrencyInterface $priceCurrency,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory,
@@ -204,10 +193,8 @@ class Idin extends \Magento\Framework\App\Action\Action
 
         $this->accountConfig = $configProviderFactory->get('account');
 
-        $this->_curlClient       = $curl;
-        $this->_storeManager     = $storeManager;
+        $this->storeManager     = $storeManager;
         $this->_checkoutSession  = $checkoutSession;
-        $this->_encryptor        = $encryptor;
         $this->priceCurrency     = $priceCurrency;
         $this->jsonHelper        = $jsonHelper;
         $this->jsonResultFactory = $jsonResultFactory;
@@ -251,12 +238,12 @@ class Idin extends \Magento\Framework\App\Action\Action
             ],
         ];
 
-        $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
+        $currency = $this->storeManager->getStore()->getCurrentCurrencyCode();
 
         $orderId = $this->helper->getOrderId();
         $order   = $this->order->load($orderId);
 
-        $activeMode = $this->configProviderAccount->getIdin($this->_storeManager->getStore());
+        $activeMode = $this->configProviderAccount->getIdin($this->storeManager->getStore());
 
         $transactionBuilder = $this->transactionBuilderFactory->get('datarequest');
         $transaction        = $transactionBuilder->setOrder($order)

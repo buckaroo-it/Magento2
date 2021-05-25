@@ -1,5 +1,4 @@
-<!--The 'step_idin' value from the .js file should be used-->
-<li id="step_idin" data-bind="fadeVisible: isVisible">
+<li id="step_idin" role="presentation" class="checkout-idin-method" data-bind="if: isVisible">
     <div class="step-title" data-bind="i18n: 'Age verification'" data-role="title" />
     <div id="checkout-step-idin"
          class="buckaroo_magento2_idin"
