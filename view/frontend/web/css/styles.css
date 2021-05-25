@@ -1360,3 +1360,41 @@
     margin-top: 7px
 }
 
+#checkout-step-idin{
+    padding: 10px;
+    background: #d4eded;
+    display: inline-block;
+    width: 100%;
+}
+
+.buckaroo_idin_left{
+    width: 50%;
+    float: left;
+    margin-top: 10px;
+}
+
+.buckaroo_idin_left img{
+    float: left;
+}
+
+.buckaroo_idin_left span{
+    height: 50px;
+    vertical-align: middle;
+    padding-left: 5px;
+    display: table-cell;
+}
+
+.buckaroo_idin_right{
+    width: 50%;
+    float: right;
+}
+
+#idin-verification{
+    margin-top: 5px;
+    width: 100%;
+}
+
+.opc-wrapper #step_idin{
+    clear: both;
+    display: inline-block!important;
+}

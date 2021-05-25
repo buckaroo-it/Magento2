@@ -82,6 +82,32 @@
             <config_path>buckaroo_magento2/account/certificate_file</config_path>
         </field>
 
+        <field id="idin" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Enabled iDIN verification</label>
+            <comment><![CDATA[Enabled iDIN verification]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
+            <config_path>buckaroo_magento2/account/idin</config_path>
+        </field>
+
+        <field id="idin_mode" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>iDIN mode</label>
+            <comment><![CDATA[iDIN mode]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Idinmode</source_model>
+            <config_path>buckaroo_magento2/account/idin_mode</config_path>
+            <depends>
+                <field id="idin" separator=",">1,2</field>
+            </depends>
+        </field>
+
+        <field id="idin_category" translate="label" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Select Categorys for iDIN verification</label>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Categorylist</source_model>
+            <config_path>buckaroo_magento2/account/idin_category</config_path>
+            <depends>
+                <field id="idin_mode">2</field>
+            </depends>
+        </field>
+
         <group id="buckaroo_magento2_advanced" translate="label comment" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
             <comment><![CDATA[These options are only intended for expert users. Tampering with the default settings may negatively affect the workflow and performance of all Buckaroo payment methods. Use at your own risk.]]></comment>
