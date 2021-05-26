@@ -664,15 +664,18 @@ class Process extends \Magento\Framework\App\Action\Action
     }
 
     private function setCustomerIDIN(){
-        if (isset($this->response['brq_service_idin_consumerbin']) && !empty($this->response['brq_service_idin_consumerbin'])){
+        if (isset($this->response['brq_service_idin_consumerbin']) && !empty($this->response['brq_service_idin_consumerbin']) && isset($this->response['brq_service_idin_iseighteenorolder']) && $this->response['brq_service_idin_iseighteenorolder'] == 'True'){
             $this->checkoutSession->setCustomerIDIN($this->response['brq_service_idin_consumerbin']);
+            $this->checkoutSession->setCustomerIDINIsEighteenOrOlder(true);
             if(isset($this->response['add_idin_cid']) && !empty($this->response['add_idin_cid'])) {
                     $customerNew = $this->customerModel->load((int) $this->response['add_idin_cid']);
                     $customerData = $customerNew->getDataModel();
                     $customerData->setCustomAttribute('buckaroo_idin',$this->response['brq_service_idin_consumerbin']);
+                    $customerData->setCustomAttribute('buckaroo_idin_iseighteenorolder',1);
                     $customerNew->updateData($customerData);
                     $customerResource = $this->customerResourceFactory->create();
                     $customerResource->saveAttribute($customerNew, 'buckaroo_idin');
+                    $customerResource->saveAttribute($customerNew, 'buckaroo_idin_iseighteenorolder');
             } 
             return true;
         }

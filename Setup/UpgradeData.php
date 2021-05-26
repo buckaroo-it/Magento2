@@ -551,6 +551,8 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         }
 
         $this->setCustomerIDIN($setup);
+        
+        $this->setCustomerIsEighteenOrOlder($setup);
 
         $this->setProductIDIN($setup);
 
@@ -1431,6 +1433,33 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             ]
         );
         $buckarooIDIN = $this->eavConfig->getAttribute(Customer::ENTITY, 'buckaroo_idin');
+
+        $buckarooIDIN->setData(
+            'used_in_forms',
+            ['adminhtml_customer']
+        );
+        $buckarooIDIN->save();
+    }
+
+    protected function setCustomerIsEighteenOrOlder(ModuleDataSetupInterface $setup){
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+        $eavSetup->addAttribute(
+            \Magento\Customer\Model\Customer::ENTITY,
+            'buckaroo_idin_iseighteenorolder',
+            [
+                'type'         => 'int',
+                'label'        => 'Buckaroo iDIN IsEighteenOrOlder',
+                'input'        => 'select',
+                'source'       => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                'default'      => '0',
+                'required'     => false,
+                'visible'      => true,
+                'user_defined' => false,
+                'position'     => 999,
+                'system'       => 0,
+            ]
+        );
+        $buckarooIDIN = $this->eavConfig->getAttribute(Customer::ENTITY, 'buckaroo_idin_iseighteenorolder');
 
         $buckarooIDIN->setData(
             'used_in_forms',

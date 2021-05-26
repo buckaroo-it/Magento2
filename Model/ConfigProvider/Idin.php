@@ -141,9 +141,9 @@ class Idin extends AbstractConfigProvider
             if ($active === true && $customerId = $this->customerSession->getCustomer()->getId()) {
                 $customer              = $this->customerRepositoryInterface->getById($customerId);
                 $customerAttributeData = $customer->__toArray();
-                $active                = (isset($customerAttributeData['custom_attributes']) && isset($customerAttributeData['custom_attributes']['buckaroo_idin']) && $customerAttributeData['custom_attributes']['buckaroo_idin']['value']) ? false : 1;
+                $active                = (isset($customerAttributeData['custom_attributes']) && isset($customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder']) && $customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder']['value']==1) ? false : 1;
             } elseif ($active === true) {
-                if ($this->checkoutSession->getCustomerIDIN()) {
+                if ($this->checkoutSession->getCustomerIDINIsEighteenOrOlder()) {
                     $active = false;
                 }
             }
