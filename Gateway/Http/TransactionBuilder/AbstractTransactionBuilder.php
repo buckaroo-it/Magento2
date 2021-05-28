@@ -439,9 +439,10 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         $transaction->setHeaders($this->getHeaders());
         $transaction->setMethod($this->getMethod());
 
-        $store = $this->getOrder()->getStore();
-
-        $transaction->setStore($store);
+        if ($this->getOrder()) {
+            $store = $this->getOrder()->getStore();
+            $transaction->setStore($store);
+        }
 
         return $transaction;
     }
@@ -456,21 +457,20 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      */
     public function getHeaders()
     {
-        /** @var \Magento\Store\Model\Store $store */
-        $store = $this->getOrder()->getStore();
+        if ($this->getOrder() && ($store = $this->getOrder()->getStore())) {
+            $localeCountry = $this->scopeConfig->getValue('general/locale/code', ScopeInterface::SCOPE_STORE, $store);
+            $localeCountry = str_replace('_', '-', $localeCountry);
 
-        $localeCountry = $this->scopeConfig->getValue('general/locale/code', ScopeInterface::SCOPE_STORE, $store);
-        $localeCountry = str_replace('_', '-', $localeCountry);
-
-        $merchantKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey($store));
+            $merchantKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey($store));
+        }
 
         $headers[] = new \SoapHeader(
             'https://checkout.buckaroo.nl/PaymentEngine/',
             'MessageControlBlock',
             [
                 'Id' => '_control',
-                'WebsiteKey' => $merchantKey,
-                'Culture' => $localeCountry,
+                'WebsiteKey' => $merchantKey ?? $this->getMerchantKey(),
+                'Culture' => $localeCountry ?? 'en-US',
                 'TimeStamp' => time(),
                 'Channel' => $this->channel,
                 'Software' => $this->softwareData->get()
@@ -609,5 +609,17 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     public function getAllAdditionalParameters()
     {
         return $this->additionaParameters;
+    }
+
+    public function setMerchantKey($merchantKey)
+    {
+        $this->merchantKey = $merchantKey;
+
+        return $this;
+    }
+
+    public function getMerchantKey()
+    {
+        return $this->merchantKey;
     }
 }
