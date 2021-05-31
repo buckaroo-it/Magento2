@@ -33,6 +33,8 @@ use Buckaroo\Magento2\Model\ConfigProvider\Refund;
  */
 class Push
 {
+    const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
+
     public $postData;
 
     public $creditAmount;
@@ -69,6 +71,9 @@ class Push
      * @var Log $logging
      */
     public $logging;
+
+    protected $scopeConfig;
+
     /**
      * @param CreditmemoFactory             $creditmemoFactory
      * @param CreditmemoManagementInterface $creditmemoManagement
@@ -82,7 +87,8 @@ class Push
         CreditmemoSender $creditEmailSender,
         Refund $configRefund,
         Data $helper,
-        Log $logging
+        Log $logging,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->creditmemoFactory     = $creditmemoFactory;
         $this->creditmemoManagement  = $creditmemoManagement;
@@ -90,6 +96,7 @@ class Push
         $this->helper = $helper;
         $this->logging               = $logging;
         $this->configRefund          = $configRefund;
+        $this->scopeConfig           = $scopeConfig;
     }
 
     /**
@@ -368,8 +375,20 @@ class Push
      */
     public function caluclateShippingCostToRefund()
     {
-        return $this->order->getBaseShippingAmount()
-        - $this->order->getBaseShippingRefunded();
+        $includesTax = $this->scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        if ($includesTax) {
+            $this->logging->addDebug(__METHOD__.'|1|');
+            return ($this->order->getBaseShippingAmount() + $this->order->getBaseShippingTaxAmount())
+                - ($this->order->getBaseShippingRefunded() + $this->order->getBaseShippingTaxRefunded());
+        } else {
+            $this->logging->addDebug(__METHOD__.'|2|');
+            return $this->order->getBaseShippingAmount()
+                - $this->order->getBaseShippingRefunded();
+        }
     }
 
     /**
