@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \Buckaroo\Magento2\Model\ConfigProvider;
+use \Magento\Store\Model\ScopeInterface;
 
 /**
  * @method mixed getOrderStateNew()
@@ -54,5 +54,65 @@ class States extends AbstractConfigProvider
             'order_state_incorrect' => $this->getOrderStateIncorrect($store),
         ];
         return $config;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStateNew($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_STATES_ORDER_STATE_NEW,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStateSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_STATES_ORDER_STATE_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStateFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_STATES_ORDER_STATE_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatePending($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_STATES_ORDER_STATE_PENDING,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStateIncorrect($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_STATES_ORDER_STATE_INCORRECT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }
