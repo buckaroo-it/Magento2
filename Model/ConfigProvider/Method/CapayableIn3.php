@@ -58,7 +58,7 @@ class CapayableIn3 extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(self::XPATH_CAPAYABLEIN3_ACTIVE, ScopeInterface::SCOPE_STORE)) {
+        if (!$this->scopeConfig->getValue(static::XPATH_CAPAYABLEIN3_ACTIVE, ScopeInterface::SCOPE_STORE)) {
             return [];
         }
 
@@ -84,7 +84,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_PAYMENT_FEE,
+            static::XPATH_CAPAYABLEIN3_PAYMENT_FEE,
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -99,7 +99,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_PAYMENT_FEE_LABEL,
+            static::XPATH_CAPAYABLEIN3_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -111,7 +111,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_ACTIVE,
+            static::XPATH_CAPAYABLEIN3_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -123,7 +123,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_ACTIVE_STATUS,
+            static::XPATH_CAPAYABLEIN3_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -135,7 +135,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_ORDER_STATUS_SUCCESS,
+            static::XPATH_CAPAYABLEIN3_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -147,7 +147,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_ORDER_STATUS_FAILED,
+            static::XPATH_CAPAYABLEIN3_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -159,7 +159,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public function getOrderEmail($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_ORDER_EMAIL,
+            static::XPATH_CAPAYABLEIN3_ORDER_EMAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -171,7 +171,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_AVAILABLE_IN_BACKEND,
+            static::XPATH_CAPAYABLEIN3_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -183,7 +183,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public function getVersion($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_VERSION,
+            static::XPATH_CAPAYABLEIN3_VERSION,
             ScopeInterface::SCOPE_STORE,
             $store
         );

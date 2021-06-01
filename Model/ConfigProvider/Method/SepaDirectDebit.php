@@ -72,7 +72,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_PAYMENT_FEE,
+            static::XPATH_SEPADIRECTDEBIT_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -87,7 +87,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_PAYMENT_FEE_LABEL,
+            static::XPATH_SEPADIRECTDEBIT_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -99,7 +99,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_ACTIVE,
+            static::XPATH_SEPADIRECTDEBIT_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -111,7 +111,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS,
+            static::XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -123,7 +123,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_ORDER_STATUS_SUCCESS,
+            static::XPATH_SEPADIRECTDEBIT_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -135,7 +135,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_ORDER_STATUS_FAILED,
+            static::XPATH_SEPADIRECTDEBIT_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -147,7 +147,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_AVAILABLE_IN_BACKEND,
+            static::XPATH_SEPADIRECTDEBIT_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -159,7 +159,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getActiveStatusCm3($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS_CM3,
+            static::XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS_CM3,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -171,7 +171,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getSchemeKey($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_SCHEME_KEY,
+            static::XPATH_SEPADIRECTDEBIT_SCHEME_KEY,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -183,7 +183,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getMaxStepIndex($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_MAX_STEP_INDEX,
+            static::XPATH_SEPADIRECTDEBIT_MAX_STEP_INDEX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -195,7 +195,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getCm3DueDate($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_CM3_DUE_DATE,
+            static::XPATH_SEPADIRECTDEBIT_CM3_DUE_DATE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -207,7 +207,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getPaymentMethodAfterExpiry($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY,
+            static::XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY,
             ScopeInterface::SCOPE_STORE,
             $store
         );

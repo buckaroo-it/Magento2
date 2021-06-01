@@ -92,7 +92,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_PAYMENT_FEE,
+            static::XPATH_PAYPEREMAIL_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -106,7 +106,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getSendMail()
     {
         $sendMail = $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_SEND_MAIL,
+            static::XPATH_PAYPEREMAIL_SEND_MAIL,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
@@ -116,7 +116,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getPaymentMethod($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_PAYMENT_METHOD,
+            static::XPATH_PAYPEREMAIL_PAYMENT_METHOD,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -130,7 +130,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getEnabledB2B()
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ENABLE_B2B,
+            static::XPATH_PAYPEREMAIL_ENABLE_B2B,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
@@ -141,7 +141,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getExpireDays()
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_EXPIRE_DAYS,
+            static::XPATH_PAYPEREMAIL_EXPIRE_DAYS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
@@ -173,7 +173,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ACTIVE,
+            static::XPATH_PAYPEREMAIL_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -185,7 +185,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL,
+            static::XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -197,7 +197,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ACTIVE_STATUS,
+            static::XPATH_PAYPEREMAIL_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -209,7 +209,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS,
+            static::XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -221,7 +221,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED,
+            static::XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -233,7 +233,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getActiveStatusCm3($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3,
+            static::XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -245,7 +245,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getSchemeKey($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_SCHEME_KEY,
+            static::XPATH_PAYPEREMAIL_SCHEME_KEY,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -257,7 +257,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getMaxStepIndex($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_MAX_STEP_INDEX,
+            static::XPATH_PAYPEREMAIL_MAX_STEP_INDEX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -269,7 +269,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getCm3DueDate($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_CM3_DUE_DATE,
+            static::XPATH_PAYPEREMAIL_CM3_DUE_DATE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -281,7 +281,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getPaymentMethodAfterExpiry($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY,
+            static::XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -293,7 +293,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getVisibleFrontBack($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK,
+            static::XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -305,7 +305,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getIsVisibleForAreaCode($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE,
+            static::XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -317,7 +317,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getEnableB2b($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ENABLE_B2B,
+            static::XPATH_PAYPEREMAIL_ENABLE_B2B,
             ScopeInterface::SCOPE_STORE,
             $store
         );

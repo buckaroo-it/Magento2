@@ -62,7 +62,7 @@ class States extends AbstractConfigProvider
     public function getOrderStateNew($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_STATES_ORDER_STATE_NEW,
+            static::XPATH_STATES_ORDER_STATE_NEW,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -74,7 +74,7 @@ class States extends AbstractConfigProvider
     public function getOrderStateSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_STATES_ORDER_STATE_SUCCESS,
+            static::XPATH_STATES_ORDER_STATE_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -86,7 +86,7 @@ class States extends AbstractConfigProvider
     public function getOrderStateFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_STATES_ORDER_STATE_FAILED,
+            static::XPATH_STATES_ORDER_STATE_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -98,7 +98,7 @@ class States extends AbstractConfigProvider
     public function getOrderStatePending($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_STATES_ORDER_STATE_PENDING,
+            static::XPATH_STATES_ORDER_STATE_PENDING,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -110,7 +110,7 @@ class States extends AbstractConfigProvider
     public function getOrderStateIncorrect($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_STATES_ORDER_STATE_INCORRECT,
+            static::XPATH_STATES_ORDER_STATE_INCORRECT,
             ScopeInterface::SCOPE_STORE,
             $store
         );

@@ -93,7 +93,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getBusiness()
     {
         $business = (int) $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_BUSINESS,
+            static::XPATH_AFTERPAY2_BUSINESS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
@@ -116,7 +116,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getPaymentMethod()
     {
         $paymentMethod = (int) $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_PAYMENT_METHODS,
+            static::XPATH_AFTERPAY2_PAYMENT_METHODS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
@@ -133,7 +133,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getHighTaxClasses($storeId = null)
     {
         $taxClasses = $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_HIGH_TAX,
+            static::XPATH_AFTERPAY2_HIGH_TAX,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -151,7 +151,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getMiddleTaxClasses($storeId = null)
     {
         $taxClasses = $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_MIDDLE_TAX,
+            static::XPATH_AFTERPAY2_MIDDLE_TAX,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -169,7 +169,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getLowTaxClasses($storeId = null)
     {
         $taxClasses = $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_LOW_TAX,
+            static::XPATH_AFTERPAY2_LOW_TAX,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -187,7 +187,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getZeroTaxClasses($storeId = null)
     {
         $taxClasses = $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_ZERO_TAX,
+            static::XPATH_AFTERPAY2_ZERO_TAX,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -203,7 +203,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getNoTaxClasses()
     {
         $taxClasses = $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_NO_TAX,
+            static::XPATH_AFTERPAY2_NO_TAX,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
@@ -246,7 +246,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_PAYMENT_FEE,
+            static::XPATH_AFTERPAY2_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -261,7 +261,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_ACTIVE,
+            static::XPATH_AFTERPAY2_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -273,7 +273,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_PAYMENT_FEE_LABEL,
+            static::XPATH_AFTERPAY2_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -285,7 +285,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getSendEmail($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_SEND_EMAIL,
+            static::XPATH_AFTERPAY2_SEND_EMAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -297,7 +297,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_ACTIVE_STATUS,
+            static::XPATH_AFTERPAY2_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -309,7 +309,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_ORDER_STATUS_SUCCESS,
+            static::XPATH_AFTERPAY2_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -321,7 +321,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_ORDER_STATUS_FAILED,
+            static::XPATH_AFTERPAY2_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -333,7 +333,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_AVAILABLE_IN_BACKEND,
+            static::XPATH_AFTERPAY2_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -345,7 +345,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getDueDate($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_DUE_DATE,
+            static::XPATH_AFTERPAY2_DUE_DATE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -357,7 +357,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getPaymentMethods($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_PAYMENT_METHODS,
+            static::XPATH_AFTERPAY2_PAYMENT_METHODS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -369,7 +369,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getHighTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_HIGH_TAX,
+            static::XPATH_AFTERPAY2_HIGH_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -381,7 +381,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getMiddleTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_MIDDLE_TAX,
+            static::XPATH_AFTERPAY2_MIDDLE_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -393,7 +393,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getLowTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_LOW_TAX,
+            static::XPATH_AFTERPAY2_LOW_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -405,7 +405,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getZeroTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_ZERO_TAX,
+            static::XPATH_AFTERPAY2_ZERO_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -417,7 +417,7 @@ class Afterpay2 extends AbstractConfigProvider
     public function getNoTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY2_NO_TAX,
+            static::XPATH_AFTERPAY2_NO_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );

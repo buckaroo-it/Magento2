@@ -65,7 +65,7 @@ class Wechatpay extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_WECHATPAY_PAYMENT_FEE,
+            static::XPATH_WECHATPAY_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -101,7 +101,7 @@ class Wechatpay extends AbstractConfigProvider
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_WECHATPAY_PAYMENT_FEE_LABEL,
+            static::XPATH_WECHATPAY_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -113,7 +113,7 @@ class Wechatpay extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_WECHATPAY_ACTIVE,
+            static::XPATH_WECHATPAY_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -125,7 +125,7 @@ class Wechatpay extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_WECHATPAY_ACTIVE_STATUS,
+            static::XPATH_WECHATPAY_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -137,7 +137,7 @@ class Wechatpay extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_WECHATPAY_ORDER_STATUS_SUCCESS,
+            static::XPATH_WECHATPAY_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -149,7 +149,7 @@ class Wechatpay extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_WECHATPAY_ORDER_STATUS_FAILED,
+            static::XPATH_WECHATPAY_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -161,7 +161,7 @@ class Wechatpay extends AbstractConfigProvider
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_WECHATPAY_AVAILABLE_IN_BACKEND,
+            static::XPATH_WECHATPAY_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );

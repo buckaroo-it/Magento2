@@ -62,7 +62,7 @@ class Ideal extends AbstractConfigProvider
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Ideal::PAYMENT_METHOD_CODE);
 
         $selectionType = $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_SELECTION_TYPE,
+            static::XPATH_IDEAL_SELECTION_TYPE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
@@ -88,7 +88,7 @@ class Ideal extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_PAYMENT_FEE,
+            static::XPATH_IDEAL_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -103,7 +103,7 @@ class Ideal extends AbstractConfigProvider
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_PAYMENT_FEE_LABEL,
+            static::XPATH_IDEAL_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -115,7 +115,7 @@ class Ideal extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_ACTIVE,
+            static::XPATH_IDEAL_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -127,7 +127,7 @@ class Ideal extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_ACTIVE_STATUS,
+            static::XPATH_IDEAL_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -139,7 +139,7 @@ class Ideal extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_ORDER_STATUS_SUCCESS,
+            static::XPATH_IDEAL_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -151,7 +151,7 @@ class Ideal extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_ORDER_STATUS_FAILED,
+            static::XPATH_IDEAL_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -163,7 +163,7 @@ class Ideal extends AbstractConfigProvider
     public function getOrderEmail($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_ORDER_EMAIL,
+            static::XPATH_IDEAL_ORDER_EMAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -175,7 +175,7 @@ class Ideal extends AbstractConfigProvider
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_AVAILABLE_IN_BACKEND,
+            static::XPATH_IDEAL_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -187,7 +187,7 @@ class Ideal extends AbstractConfigProvider
     public function getSelectionType($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_SELECTION_TYPE,
+            static::XPATH_IDEAL_SELECTION_TYPE,
             ScopeInterface::SCOPE_STORE,
             $store
         );

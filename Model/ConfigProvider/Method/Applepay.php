@@ -145,7 +145,7 @@ class Applepay extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_APPLEPAY_ACTIVE,
+            static::XPATH_APPLEPAY_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -157,7 +157,7 @@ class Applepay extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_APPLEPAY_ACTIVE_STATUS,
+            static::XPATH_APPLEPAY_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -169,7 +169,7 @@ class Applepay extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_APPLEPAY_ORDER_STATUS_SUCCESS,
+            static::XPATH_APPLEPAY_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -181,7 +181,7 @@ class Applepay extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_APPLEPAY_ORDER_STATUS_FAILED,
+            static::XPATH_APPLEPAY_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -193,7 +193,7 @@ class Applepay extends AbstractConfigProvider
     public function getOrderEmail($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_APPLEPAY_ORDER_EMAIL,
+            static::XPATH_APPLEPAY_ORDER_EMAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -205,7 +205,7 @@ class Applepay extends AbstractConfigProvider
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_APPLEPAY_AVAILABLE_IN_BACKEND,
+            static::XPATH_APPLEPAY_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -217,7 +217,7 @@ class Applepay extends AbstractConfigProvider
     public function getButtonStyle($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_APPLEPAY_BUTTON_STYLE,
+            static::XPATH_APPLEPAY_BUTTON_STYLE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -229,7 +229,7 @@ class Applepay extends AbstractConfigProvider
     public function getDontAskBillingInfoInCheckout($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
+            static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
             ScopeInterface::SCOPE_STORE,
             $store
         );
