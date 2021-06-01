@@ -63,6 +63,7 @@ class Creditcard extends AbstractConfigProvider
     const XPATH_CREDITCARD_SORT                 = 'payment/buckaroo_magento2_creditcard/sorted_creditcards';
     const XPATH_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
     const XPATH_PAYMENT_FLOW                    = 'payment/buckaroo_magento2_creditcard/payment_action';
+    const DEFAULT_SORT_VALUE                    = '99';
 
     protected $issuers = [
         [
@@ -124,12 +125,6 @@ class Creditcard extends AbstractConfigProvider
      */
     public function formatIssuers()
     {
-        $issuers = parent::formatIssuers();
-        $allowed = explode(',', $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        );
-
         $sorted = explode(',', $this->scopeConfig->getValue(
             self::XPATH_CREDITCARD_SORT,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
@@ -138,25 +133,30 @@ class Creditcard extends AbstractConfigProvider
         if (!empty($sorted)) {
             $sortedPosition = 1;
             foreach ($sorted as $cardName) {
-                foreach ($issuers as $key => $issuer) {
-                    if ($issuers[$key]['name'] == $cardName && empty($issuers[$key]['sort'])) {
-                        $issuers[$key]['sort'] = $sortedPosition;
-                        $sortedPosition++;
-                        break;
-                    }
-                }
+                $sorted_array[$cardName] = $sortedPosition++;
             }
         }
 
-        usort($issuers, function ($cardA, $cardB){
+        $issuers = parent::formatIssuers();
+        foreach ($issuers as $item) {
+            $item['sort'] = isset($sorted_array[$item['name']]) ? $sorted_array[$item['name']] : self::DEFAULT_SORT_VALUE; 
+            $allCreditcard[$item['code']] = $item;
+        }
+
+        $allowed = explode(',', $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+        );
+        
+        foreach ($allowed as $key => $value) {
+            $cards[] = $allCreditcard[$value];
+        }
+
+        usort($cards, function ($cardA, $cardB){
             return $cardA['sort'] - $cardB['sort'];
         });
 
-        foreach ($issuers as $key => $issuer) {
-            $issuers[$key]['active'] = in_array($issuer['code'], $allowed);
-        }
-
-        return $issuers;
+        return $cards;
     }
 
     /**

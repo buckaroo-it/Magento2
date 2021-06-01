@@ -69,13 +69,8 @@ define(
 
                 initObservable: function () {
                     this._super().observe(['selectedCard', 'creditcards', 'selectionType']);
-                    var filteredCards = [];
-                    for (var key in window.checkoutConfig.payment.buckaroo.creditcard.cards) {
-                        if (window.checkoutConfig.payment.buckaroo.creditcard.cards[key].active) {
-                            filteredCards.push(window.checkoutConfig.payment.buckaroo.creditcard.cards[key]);
-                        }
-                    }
-                    this.creditcards = ko.observableArray(filteredCards);
+                    console.log('window.checkoutConfig.payment.buckaroo.creditcard.cards', window.checkoutConfig.payment.buckaroo.creditcard.cards);
+                    this.creditcards = ko.observableArray(window.checkoutConfig.payment.buckaroo.creditcard.cards);
 
                     this.selectionType  = window.checkoutConfig.payment.buckaroo.creditcard.selectionType;
 
