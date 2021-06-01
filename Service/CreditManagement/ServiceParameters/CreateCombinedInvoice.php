@@ -143,12 +143,15 @@ class CreateCombinedInvoice
             [
                 '_'    => $this->configProvider->getPaymentMethod(),
                 'Name' => 'AllowedServices',
-            ],
-            [
+            ]
+        ];
+
+        if ($this->configProvider->getPaymentMethodAfterExpiry()) {
+            $ungroupedParameters[] = [
                 '_'    => $this->configProvider->getPaymentMethodAfterExpiry(),
                 'Name' => 'AllowedServicesAfterDueDate',
-            ],
-        ];
+            ];
+        }
 
         return $ungroupedParameters;
     }

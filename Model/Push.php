@@ -243,10 +243,11 @@ class Push implements PushInterface
         //Check if the push have PayLink
         $this->receivePushCheckPayLink($response, $validSignature);
 
-        //Check second push for PayPerEmail
-        $receivePushCheckPayPerEmailResult = $this->receivePushCheckPayPerEmail($response, $validSignature);
-
         $payment       = $this->order->getPayment();
+
+        //Check second push for PayPerEmail
+        $receivePushCheckPayPerEmailResult = $this->receivePushCheckPayPerEmail($response, $validSignature, $payment);
+
         $skipFirstPush = $payment->getAdditionalInformation('skip_push');
 
         $this->logging->addDebug(__METHOD__ . '|1_20|' . var_export($skipFirstPush, true));
@@ -1526,9 +1527,25 @@ class Push implements PushInterface
         return false;
     }
 
-    private function receivePushCheckPayPerEmail($response, $validSignature)
+    private function receivePushCheckPayPerEmail($response, $validSignature, $payment)
     {
-        if (isset($this->postData['add_frompayperemail']) && isset($this->postData['brq_transaction_method']) && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS' && $validSignature) {
+        if (
+            (
+                isset($this->originalPostData['ADD_fromPayPerEmail'])
+                ||
+                ($payment->getMethod() == 'buckaroo_magento2_payperemail')
+            )
+            &&
+            isset($this->originalPostData['brq_transaction_method'])
+            &&
+            (
+                ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+                ||
+                ($this->helper->getStatusByValue($this->postData['brq_statuscode'] ?? '') == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            )
+            &&
+            $validSignature
+        ) {
             if ($this->postData['brq_transaction_method'] != 'payperemail') {
                 $brq_transaction_method = strtolower($this->postData['brq_transaction_method']);
                 $payment                = $this->order->getPayment();
