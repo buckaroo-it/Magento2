@@ -53,7 +53,6 @@ class Sort extends Field {
      */
     public function render(AbstractElement $element)
     {
-        $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
         return parent::render($element);
     }
 
@@ -66,10 +65,6 @@ class Sort extends Field {
     protected function _getElementHtml(AbstractElement $element)
     {
         return $this->_toHtml();
-    }
-
-    public function getConfig(){
-
     }
 
 }
