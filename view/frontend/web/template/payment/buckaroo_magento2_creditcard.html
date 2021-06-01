@@ -26,7 +26,6 @@
 
                         <!-- ko if: selectionType == '1' -->
                             <!-- ko foreach: creditcards -->
-                                <!-- ko if: active -->
                                 <label class="card-types">
                                     <img class="card-types-img" data-bind="attr: {
                                              'src': img,
@@ -35,7 +34,6 @@
                                             />
                                     <input class="card-types-input" type="radio" data-bind="value: code, click: $parent.setSelectedCard" data-validate="{'validate-one-required-by-name':true}" name="card"> <!-- ko text: name --><!--/ko-->
                                 </label>
-                                <!--/ko-->
                             <!--/ko-->
                         <!--/ko-->
 
