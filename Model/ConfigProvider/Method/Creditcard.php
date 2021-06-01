@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\ScopeInterface;
+
 /**
  * @method getPaymentFeeLabel();
  * @method getMaestroUnsecureHold()
@@ -246,5 +248,126 @@ class Creditcard extends AbstractConfigProvider
         }
 
         throw new \InvalidArgumentException("No card found for card type: {$cardType}");
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllowedCreditcards($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMastercardUnsecureHold($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getVisaUnsecureHold($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_VISA_UNSECURE_HOLD,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMaestroUnsecureHold($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSort($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_SORT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

@@ -27,7 +27,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
 
-
 /**
  * @method getDueDate()
  * @method getSendEmail()

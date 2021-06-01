@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use \Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class Belfius extends AbstractConfigProvider
 {
