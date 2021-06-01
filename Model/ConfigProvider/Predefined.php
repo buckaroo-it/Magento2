@@ -60,7 +60,7 @@ class Predefined extends AbstractConfigProvider
     public function getLocationLiveWeb($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PREDEFINED_LOCATION_LIVE_WEB,
+            static::XPATH_PREDEFINED_LOCATION_LIVE_WEB,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -72,7 +72,7 @@ class Predefined extends AbstractConfigProvider
     public function getLocationTestWeb($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PREDEFINED_LOCATION_TEST_WEB,
+            static::XPATH_PREDEFINED_LOCATION_TEST_WEB,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -84,7 +84,7 @@ class Predefined extends AbstractConfigProvider
     public function getWsdlLiveWeb($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PREDEFINED_WSDL_LIVE_WEB,
+            static::XPATH_PREDEFINED_WSDL_LIVE_WEB,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -96,7 +96,7 @@ class Predefined extends AbstractConfigProvider
     public function getWsdlTestWeb($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PREDEFINED_WSDL_TEST_WEB,
+            static::XPATH_PREDEFINED_WSDL_TEST_WEB,
             ScopeInterface::SCOPE_STORE,
             $store
         );

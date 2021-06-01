@@ -81,7 +81,7 @@ class Giftcards extends AbstractConfigProvider
         }
 
         $sorted = explode(',', $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_SORT,
+            static::XPATH_GIFTCARDS_SORT,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
         );
 
@@ -95,12 +95,12 @@ class Giftcards extends AbstractConfigProvider
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE);
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resource      = $objectManager->get('Magento\Framework\App\ResourceConnection');
-        $connection    = $resource->getConnection();
-        $tableName     = $resource->getTableName('buckaroo_magento2_giftcard');
-        $result        = $connection->fetchAll("SELECT * FROM " . $tableName);
+        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $connection = $resource->getConnection();
+        $tableName = $resource->getTableName('buckaroo_magento2_giftcard');
+        $result = $connection->fetchAll("SELECT * FROM " . $tableName);
         foreach ($result as $item) {
-            $item['sort']                       = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99';
+            $item['sort'] = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99';
             $allGiftCards[$item['servicecode']] = $item;
         }
 
@@ -149,7 +149,7 @@ class Giftcards extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_PAYMENT_FEE,
+            static::XPATH_GIFTCARDS_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -160,7 +160,7 @@ class Giftcards extends AbstractConfigProvider
     public function getAllowedCards($storeId = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
+            static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -173,7 +173,7 @@ class Giftcards extends AbstractConfigProvider
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_PAYMENT_FEE_LABEL,
+            static::XPATH_GIFTCARDS_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -185,7 +185,7 @@ class Giftcards extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_ACTIVE,
+            static::XPATH_GIFTCARDS_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -197,7 +197,7 @@ class Giftcards extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_ACTIVE_STATUS,
+            static::XPATH_GIFTCARDS_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -209,7 +209,7 @@ class Giftcards extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS,
+            static::XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -221,7 +221,7 @@ class Giftcards extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_ORDER_STATUS_FAILED,
+            static::XPATH_GIFTCARDS_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -233,7 +233,7 @@ class Giftcards extends AbstractConfigProvider
     public function getOrderEmail($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_ORDER_EMAIL,
+            static::XPATH_GIFTCARDS_ORDER_EMAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -245,7 +245,7 @@ class Giftcards extends AbstractConfigProvider
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND,
+            static::XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -257,7 +257,7 @@ class Giftcards extends AbstractConfigProvider
     public function getAllowedGiftcards($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
+            static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -269,7 +269,7 @@ class Giftcards extends AbstractConfigProvider
     public function getGroupGiftcards($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
+            static::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -281,7 +281,7 @@ class Giftcards extends AbstractConfigProvider
     public function getSort($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_SORT,
+            static::XPATH_GIFTCARDS_SORT,
             ScopeInterface::SCOPE_STORE,
             $store
         );

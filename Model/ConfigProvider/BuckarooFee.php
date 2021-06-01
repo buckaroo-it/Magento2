@@ -87,7 +87,7 @@ class BuckarooFee extends AbstractConfigProvider
     public function getTaxClass($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_BUCKAROOFEE_TAX_CLASS,
+            static::XPATH_BUCKAROOFEE_TAX_CLASS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -99,7 +99,7 @@ class BuckarooFee extends AbstractConfigProvider
     public function getPaymentFeeTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_BUCKAROOFEE_PAYMENT_FEE_TAX,
+            static::XPATH_BUCKAROOFEE_PAYMENT_FEE_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -111,7 +111,7 @@ class BuckarooFee extends AbstractConfigProvider
     public function getPriceDisplayCart($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_BUCKAROOFEE_PRICE_DISPLAY_CART,
+            static::XPATH_BUCKAROOFEE_PRICE_DISPLAY_CART,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -123,7 +123,7 @@ class BuckarooFee extends AbstractConfigProvider
     public function getPriceDisplaySales($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_BUCKAROOFEE_PRICE_DISPLAY_SALES,
+            static::XPATH_BUCKAROOFEE_PRICE_DISPLAY_SALES,
             ScopeInterface::SCOPE_STORE,
             $store
         );

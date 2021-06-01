@@ -86,7 +86,7 @@ class Klarna extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_PAYMENT_FEE,
+            static::XPATH_KLARNA_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -107,7 +107,7 @@ class Klarna extends AbstractConfigProvider
     public function getEnabled($storeId = null)
     {
         $enabled = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_ACTIVE,
+            static::XPATH_KLARNA_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -121,7 +121,7 @@ class Klarna extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_ACTIVE,
+            static::XPATH_KLARNA_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -133,7 +133,7 @@ class Klarna extends AbstractConfigProvider
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_PAYMENT_FEE_LABEL,
+            static::XPATH_KLARNA_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -145,7 +145,7 @@ class Klarna extends AbstractConfigProvider
     public function getSendEmail($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_SEND_EMAIL,
+            static::XPATH_KLARNA_SEND_EMAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -157,7 +157,7 @@ class Klarna extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_ACTIVE_STATUS,
+            static::XPATH_KLARNA_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -169,7 +169,7 @@ class Klarna extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_ORDER_STATUS_SUCCESS,
+            static::XPATH_KLARNA_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -181,7 +181,7 @@ class Klarna extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_ORDER_STATUS_FAILED,
+            static::XPATH_KLARNA_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -193,7 +193,7 @@ class Klarna extends AbstractConfigProvider
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_AVAILABLE_IN_BACKEND,
+            static::XPATH_KLARNA_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -205,7 +205,7 @@ class Klarna extends AbstractConfigProvider
     public function getDueDate($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_DUE_DATE,
+            static::XPATH_KLARNA_DUE_DATE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -217,7 +217,7 @@ class Klarna extends AbstractConfigProvider
     public function getBusiness($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_BUSINESS,
+            static::XPATH_KLARNA_BUSINESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -229,7 +229,7 @@ class Klarna extends AbstractConfigProvider
     public function getPaymentMethods($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_PAYMENT_METHODS,
+            static::XPATH_KLARNA_PAYMENT_METHODS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -241,7 +241,7 @@ class Klarna extends AbstractConfigProvider
     public function getHighTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_HIGH_TAX,
+            static::XPATH_KLARNA_HIGH_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -253,7 +253,7 @@ class Klarna extends AbstractConfigProvider
     public function getMiddleTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_MIDDLE_TAX,
+            static::XPATH_KLARNA_MIDDLE_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -265,7 +265,7 @@ class Klarna extends AbstractConfigProvider
     public function getLowTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_LOW_TAX,
+            static::XPATH_KLARNA_LOW_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -277,7 +277,7 @@ class Klarna extends AbstractConfigProvider
     public function getZeroTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_ZERO_TAX,
+            static::XPATH_KLARNA_ZERO_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -289,7 +289,7 @@ class Klarna extends AbstractConfigProvider
     public function getNoTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_NO_TAX,
+            static::XPATH_KLARNA_NO_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -301,7 +301,7 @@ class Klarna extends AbstractConfigProvider
     public function getGetInvoice($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_GET_INVOICE,
+            static::XPATH_KLARNA_GET_INVOICE,
             ScopeInterface::SCOPE_STORE,
             $store
         );

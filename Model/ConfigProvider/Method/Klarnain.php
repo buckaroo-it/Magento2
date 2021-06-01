@@ -86,7 +86,7 @@ class Klarnain extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_PAYMENT_FEE,
+            static::XPATH_KLARNAIN_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -107,7 +107,7 @@ class Klarnain extends AbstractConfigProvider
     public function getEnabled($storeId = null)
     {
         $enabled = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_ACTIVE,
+            static::XPATH_KLARNAIN_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -123,7 +123,7 @@ class Klarnain extends AbstractConfigProvider
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_ACTIVE,
+            static::XPATH_KLARNAIN_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -135,7 +135,7 @@ class Klarnain extends AbstractConfigProvider
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_PAYMENT_FEE_LABEL,
+            static::XPATH_KLARNAIN_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -147,7 +147,7 @@ class Klarnain extends AbstractConfigProvider
     public function getSendEmail($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_SEND_EMAIL,
+            static::XPATH_KLARNAIN_SEND_EMAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -159,7 +159,7 @@ class Klarnain extends AbstractConfigProvider
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_ACTIVE_STATUS,
+            static::XPATH_KLARNAIN_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -171,7 +171,7 @@ class Klarnain extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_ORDER_STATUS_SUCCESS,
+            static::XPATH_KLARNAIN_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -183,7 +183,7 @@ class Klarnain extends AbstractConfigProvider
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_ORDER_STATUS_FAILED,
+            static::XPATH_KLARNAIN_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -195,7 +195,7 @@ class Klarnain extends AbstractConfigProvider
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_AVAILABLE_IN_BACKEND,
+            static::XPATH_KLARNAIN_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -207,7 +207,7 @@ class Klarnain extends AbstractConfigProvider
     public function getDueDate($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_DUE_DATE,
+            static::XPATH_KLARNAIN_DUE_DATE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -219,7 +219,7 @@ class Klarnain extends AbstractConfigProvider
     public function getBusiness($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_BUSINESS,
+            static::XPATH_KLARNAIN_BUSINESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -231,7 +231,7 @@ class Klarnain extends AbstractConfigProvider
     public function getPaymentMethods($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_PAYMENT_METHODS,
+            static::XPATH_KLARNAIN_PAYMENT_METHODS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -243,7 +243,7 @@ class Klarnain extends AbstractConfigProvider
     public function getHighTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_HIGH_TAX,
+            static::XPATH_KLARNAIN_HIGH_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -255,7 +255,7 @@ class Klarnain extends AbstractConfigProvider
     public function getMiddleTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_MIDDLE_TAX,
+            static::XPATH_KLARNAIN_MIDDLE_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -267,7 +267,7 @@ class Klarnain extends AbstractConfigProvider
     public function getLowTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_LOW_TAX,
+            static::XPATH_KLARNAIN_LOW_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -279,7 +279,7 @@ class Klarnain extends AbstractConfigProvider
     public function getZeroTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_ZERO_TAX,
+            static::XPATH_KLARNAIN_ZERO_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -291,7 +291,7 @@ class Klarnain extends AbstractConfigProvider
     public function getNoTax($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_NO_TAX,
+            static::XPATH_KLARNAIN_NO_TAX,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -303,7 +303,7 @@ class Klarnain extends AbstractConfigProvider
     public function getGetInvoice($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_GET_INVOICE,
+            static::XPATH_KLARNAIN_GET_INVOICE,
             ScopeInterface::SCOPE_STORE,
             $store
         );

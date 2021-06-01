@@ -53,7 +53,7 @@ class Refund extends AbstractConfigProvider
     public function getEnabled($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_REFUND_ENABLED,
+            static::XPATH_REFUND_ENABLED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -65,7 +65,7 @@ class Refund extends AbstractConfigProvider
     public function getAllowPush($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_REFUND_ALLOW_PUSH,
+            static::XPATH_REFUND_ALLOW_PUSH,
             ScopeInterface::SCOPE_STORE,
             $store
         );
