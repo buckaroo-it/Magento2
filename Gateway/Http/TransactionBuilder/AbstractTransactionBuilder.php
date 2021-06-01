@@ -135,6 +135,8 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      */
     public $logging;
 
+    protected $merchantKey;
+
     /**
      * TransactionBuilder constructor.
      *
