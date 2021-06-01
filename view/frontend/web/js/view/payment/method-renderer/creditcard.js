@@ -69,7 +69,7 @@ define(
 
                 initObservable: function () {
                     this._super().observe(['selectedCard', 'creditcards', 'selectionType']);
-                    console.log('window.checkoutConfig.payment.buckaroo.creditcard.cards', window.checkoutConfig.payment.buckaroo.creditcard.cards);
+
                     this.creditcards = ko.observableArray(window.checkoutConfig.payment.buckaroo.creditcard.cards);
 
                     this.selectionType  = window.checkoutConfig.payment.buckaroo.creditcard.selectionType;
