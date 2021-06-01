@@ -142,4 +142,149 @@ class Creditcards extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(self::XPATH_USE_CARD_DESIGN, ScopeInterface::SCOPE_STORE);
     }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableInBackend($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_AVAILABLE_IN_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtection($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtectionEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtectionIneligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtectionItemnotreceivedEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllowedIssuers($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
 }

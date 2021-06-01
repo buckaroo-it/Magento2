@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Config\Source\AfterpayPaymentMethods;
 use Buckaroo\Magento2\Model\Config\Source\Business;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @method getDueDate()
@@ -251,5 +252,174 @@ class Afterpay extends AbstractConfigProvider
         );
 
         return $paymentFee ? $paymentFee : false;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSendEmail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_SEND_EMAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableInBackend($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_AVAILABLE_IN_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDueDate($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_DUE_DATE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentMethods($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_PAYMENT_METHODS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHighTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_HIGH_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMiddleTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_MIDDLE_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLowTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_LOW_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getZeroTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_ZERO_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNoTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_NO_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

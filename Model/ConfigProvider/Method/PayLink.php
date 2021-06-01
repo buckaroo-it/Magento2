@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Method\PayLink as MethodPayLink;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @method getCm3DueDate()
@@ -128,5 +129,162 @@ class PayLink extends AbstractConfigProvider
         }
 
         return true;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatusCm3($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_ACTIVE_STATUS_CM3,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSchemeKey($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_SCHEME_KEY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMaxStepIndex($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_MAX_STEP_INDEX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCm3DueDate($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_CM3_DUE_DATE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentMethod($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_PAYMENT_METHOD,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentMethodAfterExpiry($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_PAYMENT_METHOD_AFTER_EXPIRY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getVisibleFrontBack($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_VISIBLE_FRONT_BACK,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIsVisibleForAreaCode($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYLINK_IS_VISIBLE_FOR_AREA_CODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

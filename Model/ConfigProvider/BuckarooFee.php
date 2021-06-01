@@ -20,7 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
+use Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @method int getPriceDisplayCart()
@@ -77,5 +78,54 @@ class BuckarooFee extends AbstractConfigProvider
                 ],
             ],
         ];
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTaxClass($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_BUCKAROOFEE_TAX_CLASS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_BUCKAROOFEE_PAYMENT_FEE_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPriceDisplayCart($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_BUCKAROOFEE_PRICE_DISPLAY_CART,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPriceDisplaySales($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_BUCKAROOFEE_PRICE_DISPLAY_SALES,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

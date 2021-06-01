@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @method mixed getActive()
@@ -234,5 +235,390 @@ class Account extends AbstractConfigProvider
         $methodCode = $array[2];
 
         return $this->methodConfigProviderFactory->get($methodCode);
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSecretKey($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_SECRET_KEY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMerchantKey($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_MERCHANT_KEY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMerchantGuid($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_MERCHANT_GUID,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTransactionLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_TRANSACTION_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCertificateFile($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_CERTIFICATE_FILE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderConfirmationEmail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderConfirmationEmailSync($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL_SYNC,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getInvoiceEmail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_INVOICE_EMAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSuccessRedirect($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_SUCCESS_REDIRECT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFailureRedirect($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_FAILURE_REDIRECT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFailureRedirectToCheckout($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_FAILURE_REDIRECT_TO_CHECKOUT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCancelOnFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_CANCEL_ON_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDigitalSignature($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_DIGITAL_SIGNATURE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDebugTypes($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_DEBUG_TYPES,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDebugEmail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_DEBUG_EMAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLimitByIp($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_LIMIT_BY_IP,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFeePercentageMode($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_FEE_PERCENTAGE_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusNew($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_ORDER_STATUS_NEW,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusPending($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_ORDER_STATUS_PENDING,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCreateOrderBeforeTransaction($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_CREATE_ORDER_BEFORE_TRANSACTION,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIpHeader($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_IP_HEADER,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCartKeepAlive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_CART_KEEP_ALIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSelectionType($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_SELECTION_TYPE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCustomerAdditionalInfo($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSecondChance($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_SECOND_CHANCE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSecondChanceTiming($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_SECOND_CHANCE_TIMING,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNoSendSecondChance($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIdin($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_IDIN,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIdinMode($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_IDIN_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIdinCategory($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_IDIN_CATEGORY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }
