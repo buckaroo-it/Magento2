@@ -710,7 +710,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $transactionType = $transactionResponse->TransactionType ?? '';
         $methodMessage = '';
 
-        if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038') {
+        if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038' && $transactionType != 'C074') {
             return $methodMessage;
         }
 
