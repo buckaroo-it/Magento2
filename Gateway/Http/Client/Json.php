@@ -88,7 +88,7 @@ class Json
             $this->client->post($uri, $data);
             $response = json_decode($this->client->getBody(), true);
         } catch (\Exception $e) {
-            $this->logger->addDebug(__METHOD__.'|10|'.var_export($e, true));
+            $this->logger->addDebug(__METHOD__.'|10|'.var_export($e->getMessage(), true));
             return false;
         }
 

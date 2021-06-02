@@ -1449,7 +1449,11 @@ class Push implements PushInterface
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $payment->setTransactionId($transactionKey . '-capture');
+        if ($this->hasPostData('brq_transaction_method', 'KlarnaKp')) {
+            $payment->setTransactionId($transactionKey);
+        } else {
+            $payment->setTransactionId($transactionKey . '-capture');
+        }
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
