@@ -587,4 +587,9 @@ class Capayable extends AbstractMethod
     {
         return 'capayable';
     }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return '';
+    }
 }
