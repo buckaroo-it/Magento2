@@ -148,6 +148,9 @@ class Push implements PushInterface
 
     protected $dirList;
 
+    private $klarnakpConfig;
+    private $afterpayConfig;
+
     /**
      * @param Order $order
      * @param TransactionInterface $transaction
@@ -178,7 +181,9 @@ class Push implements PushInterface
         PaymentGroupTransaction $groupTransaction,
         \Magento\Framework\ObjectManagerInterface $objectManager,
         ResourceConnection $resourceConnection,
-        \Magento\Framework\Filesystem\DirectoryList $dirList
+        \Magento\Framework\Filesystem\DirectoryList $dirList,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig
     ) {
         $this->order                       = $order;
         $this->transaction                 = $transaction;
@@ -197,6 +202,8 @@ class Push implements PushInterface
         $this->objectManager      = $objectManager;
         $this->resourceConnection = $resourceConnection;
         $this->dirList            = $dirList;
+        $this->klarnakpConfig     = $klarnakpConfig;
+        $this->afterpayConfig     = $afterpayConfig;
     }
 
     /**
@@ -1098,15 +1105,20 @@ class Push implements PushInterface
                 return true;
             }
 
-            $klarnakpConfig = $this->objectManager->create('\Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp');
-
             if ($this->hasPostData('add_initiated_by_magento', 1) &&
-                $this->hasPostData('brq_transaction_method', 'KlarnaKp') &&
-                $this->hasPostData('add_service_action_from_magento', 'pay') &&
-                empty($this->postData['brq_service_klarnakp_reservationnumber']) &&
-                $klarnakpConfig->getCreateInvoiceAfterShipment()
+                (
+                    $this->hasPostData('brq_transaction_method', 'KlarnaKp') &&
+                    $this->hasPostData('add_service_action_from_magento', 'pay') &&
+                    empty($this->postData['brq_service_klarnakp_reservationnumber']) &&
+                    $this->klarnakpConfig->getCreateInvoiceAfterShipment()
+                ) ||
+                (
+                    $this->hasPostData('brq_transaction_method', 'afterpay') &&
+                    $this->hasPostData('add_service_action_from_magento', 'capture') &&
+                    $this->afterpayConfig->getCreateInvoiceAfterShipment()
+                )
             ) {
-                $this->logging->addDebug(__METHOD__ . '|5.1|');
+                $this->logging->addDebug(__METHOD__ . '|5_1|');
                 $this->dontSaveOrderUponSuccessPush = true;
                 return true;
             } else {
