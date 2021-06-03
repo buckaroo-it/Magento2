@@ -88,4 +88,9 @@ class Kbc extends AbstractMethod
     {
         return 'KBCPaymentButton';
     }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return '';
+    }
 }
