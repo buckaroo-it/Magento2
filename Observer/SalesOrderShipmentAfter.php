@@ -39,6 +39,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /** @var Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp */
     private $klarnakpConfig;
 
+    private $afterpayConfig;
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -92,6 +94,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
         \Buckaroo\Magento2\Helper\Data $helper,
         Log $logger
@@ -101,23 +104,14 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->shipmentFactory = $shipmentFactory;
         $this->transactionFactory = $transactionFactory;
         $this->klarnakpConfig = $klarnakpConfig;
+        $this->afterpayConfig = $afterpayConfig;
         $this->helper = $helper;
         $this->gateway = $gateway;
-        $this->gateway->setMode(
-            $this->helper->getMode('buckaroo_magento2_klarnakp')
-        );
         $this->logger = $logger;
     }
 
-
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        if ( !$this->klarnakpConfig->getEnabled() ||
-             !$this->klarnakpConfig->getCreateInvoiceAfterShipment()
-        ) {
-            return;
-        }
-
         /** @var \Magento\Sales\Model\Order\Shipment $shipment */
         $shipment = $observer->getEvent()->getShipment();
 
@@ -125,7 +119,27 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $order = $shipment->getOrder();
 
         $payment = $order->getPayment();
-        if ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp') {
+
+        $this->logger->addDebug(__METHOD__ . '|1|');
+
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp') &&
+            $this->klarnakpConfig->getCreateInvoiceAfterShipment()
+        ) {
+            $this->gateway->setMode(
+                $this->helper->getMode('buckaroo_magento2_klarnakp')
+            );
+            $this->createInvoice($order, $shipment);
+        }
+
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20') &&
+            $this->afterpayConfig->getCreateInvoiceAfterShipment() &&
+            ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
+        ) {
+            $this->gateway->setMode(
+                $this->helper->getMode('buckaroo_magento2_afterpay20')
+            );
             $this->createInvoice($order, $shipment);
         }
     }

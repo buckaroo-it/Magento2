@@ -43,6 +43,7 @@ class Afterpay20 extends AbstractConfigProvider
     const XPATH_AFTERPAY20_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_afterpay20/available_in_backend';
     const XPATH_AFTERPAY20_DUE_DATE               = 'payment/buckaroo_magento2_afterpay20/due_date';
     const XPATH_AFTERPAY20_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay20/allowed_currencies';
+    const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
 
     /**
      * @return array
@@ -86,5 +87,21 @@ class Afterpay20 extends AbstractConfigProvider
         );
 
         return $paymentFee ? $paymentFee : false;
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return bool
+     */
+    public function getCreateInvoiceAfterShipment($storeId = null)
+    {
+        $createInvoiceAfterShipment = $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
     }
 }
