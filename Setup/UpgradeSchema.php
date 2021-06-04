@@ -139,6 +139,26 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             'Label'
         );
 
+        $table->addColumn(
+            'is_partial_refundable',
+            \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+            null,
+            [
+                'nullable' => false,
+            ],
+            'Giftcard partial refund'
+        );
+
+        $table->addColumn(
+            'logo',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            255,
+            [
+                'nullable' => true,
+            ],
+            'Giftcard logo'
+        );
+
         $table->setComment('Buckaroo Giftcard');
 
         $installer->getConnection()->createTable($table);

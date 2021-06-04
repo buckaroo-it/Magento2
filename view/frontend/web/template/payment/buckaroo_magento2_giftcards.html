@@ -62,8 +62,17 @@
                    name="payment[method]"
                    class="radio"
                    data-bind="attr: {'id': code, 'data-method': 'buckaroo_magento2_giftcards'}, value: code,  click: $parent.selectGiftCardPaymentMethod.bind($parent, code), checked: $parent.isCheckedGiftCardPaymentMethod.bind($parent, code), visible: $parent.isRadioButtonVisible()"/>
-            <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': code }" >
-                <span data-bind="text: title"></span></label>
+            <!-- ko if: logo -->
+                <label class="buckaroo_magento2_image_title buckaroo_magento2_image_title_custom label" data-bind="attr: {'for': code }" >
+                    <span data-bind="text: title"></span>
+                    <img class="buckaroo_magento2_logo" data-bind="attr: { src: logo }" />
+                </label>
+            <!--/ko-->
+            <!-- ko ifnot: logo -->
+                <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': code }" >
+                    <span data-bind="text: title"></span>
+                </label>
+            <!--/ko-->
         </div>
 
         <div class="payment-method-content">
