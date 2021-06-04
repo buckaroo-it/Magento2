@@ -87,11 +87,6 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             ]
         );
 
-        $fieldset->addType(
-            'logo',
-            'Buckaroo\Magento2\Block\Adminhtml\Giftcard\Image'
-        );
-
         $fieldset->addField(
             'logo',
             'image',

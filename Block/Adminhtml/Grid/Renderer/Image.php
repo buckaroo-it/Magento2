@@ -41,7 +41,7 @@ class Image extends AbstractRenderer
         if ($img = $row['logo']) {
             $mediaDirectory = $this->storeManager->getStore()->getBaseUrl(
                 \Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-            return '<img src="' . $mediaDirectory . $img . '" width="50"/>';
+            return '<img src="' . $mediaDirectory . $img . '" width="50" >';
         }
     }
 }

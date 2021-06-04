@@ -38,8 +38,10 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
             }
 
             $formData = $this->getRequest()->getParam('giftcard');
+            
+            $filesData = $this->getRequest()->getFiles('logo');
 
-            if ((isset($_FILES['logo']['name'])) && ($_FILES['logo']['name'] != '') && (!isset($formData['logo']['delete']))) {
+            if ((isset($filesData['name'])) && ($filesData['name'] != '') && (!isset($formData['logo']['delete']))) {
                 try
                 {
                     $uploaderFactory = $this->uploaderFactory->create(['fileId' => 'logo']);
