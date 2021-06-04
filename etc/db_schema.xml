@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="buckaroo_magento2_giftcard" resource="default" engine="innodb" comment="Buckaroo Giftcard">
+        <column name="entity_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column name="servicecode" xsi:type="text" nullable="true" comment="Servicecode"/>
+        <column name="label" xsi:type="text" nullable="true" comment="Label"/>
+        <column name="is_partial_refundable" xsi:type="tinyint" padding="1" nullable="true" comment="Customer id"/>
+        <column name="logo" xsi:type="text" nullable="true" comment="Giftcard logo"/>
+        <index referenceId="BUCKAROO_MAGENTO2_GIFTCARD_ENTITY_ID" indexType="btree">
+            <column name="entity_id"/>
+        </index>
+    </table>
+</schema>
