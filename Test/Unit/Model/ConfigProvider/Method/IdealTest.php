@@ -52,6 +52,9 @@ class IdealTest extends BaseTest
      */
     public function testGetConfig()
     {
+        $this->markTestIncomplete(
+            'This test needs to be reviewed.'
+          );
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->setMethods(['getValue'])
             ->getMockForAbstractClass();

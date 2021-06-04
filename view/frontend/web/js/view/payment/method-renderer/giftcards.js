@@ -64,7 +64,7 @@ define(
         }
 
         function checkPayments(){
-            var p = ["billink","klarna","klarnakp","klarnain","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcards","bancontactmrcash"];
+            var p = ["billink","klarna","klarnakp","klarnain","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcards","mrcash","payperemail","emandate","rtp"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
@@ -202,6 +202,7 @@ define(
                         }
                     });
                     checkoutData.setSelectedPaymentMethod(this.item.method);
+                    this.checkValidness();
                     return true;
                 },
 
@@ -258,6 +259,9 @@ define(
                    }).done(function (data) {
 
                         $('.buckaroo_magento2_giftcards_input').val('');
+                        self.CardNumber('');
+                        self.Pin('');
+                        self.checkValidness();
 
                         if(data.alreadyPaid){
                             if(data.RemainderAmount == null){
@@ -311,6 +315,36 @@ define(
                             }
                         });
                     }, 500);
+                },
+                checkValidness: function () {
+                    var pfx = 'buckaroo_magento2_giftcards_';
+                    var currentCode;
+                    if (this.currentGiftcard) {
+                        currentCode = this.currentGiftcard;
+                    } else {
+                        currentCode = this.code;
+                    }
+                    var submitBtn = document.getElementById(pfx+ 'submit_' + currentCode);
+
+                    if (
+                        document.getElementById(pfx+ 'cardnumber_' + currentCode)
+                        &&
+                        document.getElementById(pfx+ 'cardnumber_' + currentCode).value
+                        &&
+                        document.getElementById(pfx+ 'pin_' + currentCode)
+                        &&
+                        document.getElementById(pfx+ 'pin_' + currentCode).value
+                    ) {
+                        if (submitBtn) {
+                            submitBtn.classList.remove("disabled");
+                        }
+                        return true;
+                    } else {
+                        if (submitBtn) {
+                            submitBtn.classList.add("disabled");
+                        }
+                        return false;
+                    }
                 }
             }
         );

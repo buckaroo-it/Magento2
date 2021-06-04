@@ -108,7 +108,9 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                     'buckaroo_fee_excl',
                     $dataObject->getBuckarooFee(),
                     $dataObject->getBaseBuckarooFee(),
-                    $label . __(' (Excl. Tax)')
+                    $label . __(' (Excl. Tax)'),
+                    false,
+                    true
                 );
             }
             /**
@@ -116,38 +118,14 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
              */
             $this->addTotalToTotals(
                 $totals,
-                'buckaroo_fee_incl',
+                ($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) ? 'buckaroo_fee' : 'buckaroo_fee_incl',
                 $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount(),
                 $dataObject->getBaseBuckarooFee() + $dataObject->getBuckarooFeeBaseTaxAmount(),
-                $label . __(' (Incl. Tax)')
+                $label . __(' (Incl. Tax)'),
+                ($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) ? 'buckaroo_fee': false,
+                false,
+                ['incl_tax' => true, 'fee_with_tax'=> $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount()]
             );
-        } elseif($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) {
-            $method = $dataObject->getOrder()->getPayment()->getMethod();
-            if (!preg_match('/afterpay/', $method) || (strpos($method, 'afterpay20') !== false)) {
-                /**
-                 * @noinspection PhpUndefinedMethodInspection
-                 */
-                $this->addTotalToTotals(
-                    $totals,
-                    'buckaroo_fee',
-                    $dataObject->getBuckarooFee(),
-                    $dataObject->getBaseBuckarooFee(),
-                    $label,
-                    'buckaroo_fee'
-                );
-            } else {
-                /**
-                 * @noinspection PhpUndefinedMethodInspection
-                 */
-                $this->addTotalToTotals(
-                    $totals,
-                    'buckaroo_fee',
-                    $dataObject->getBuckarooFee(),
-                    $dataObject->getBaseBuckarooFee(),
-                    $label,
-                    'buckaroo_fee_afterpay'
-                );
-            }
         } else {
             /**
              * @noinspection PhpUndefinedMethodInspection
@@ -157,7 +135,11 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 'buckaroo_fee',
                 $dataObject->getBuckarooFee(),
                 $dataObject->getBaseBuckarooFee(),
-                $label
+                $label,
+                ($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) ? 'buckaroo_fee': false,
+                false,
+                ['incl_tax' => false, 'fee_with_tax'=> $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount()]
+
             );
         }
 
@@ -477,12 +459,13 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
      * @param  string $label
      * @return void
      */
-    protected function addTotalToTotals(&$totals, $code, $value, $baseValue, $label, $block_name = false, $transaction_id = false)
+    protected function addTotalToTotals(&$totals, $code, $value, $baseValue, $label, $block_name = false,
+        $transaction_id = false, $extra_info = [])
     {
         if ($value == 0 && $baseValue == 0) {
             return;
         }
-        $total = ['code' => $code, 'value' => $value, 'base_value' => $baseValue, 'label' => $label];
+        $total = ['code' => $code, 'value' => $value, 'base_value' => $baseValue, 'label' => $label, 'extra_info' => $extra_info];
         if($block_name){$total['block_name'] = $block_name;}
         if($transaction_id){$total['transaction_id'] = $transaction_id;}
         $totals[] = $total;

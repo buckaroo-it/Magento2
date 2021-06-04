@@ -26,6 +26,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class Giftcards extends AbstractMethod
 {
@@ -45,16 +46,6 @@ class Giftcards extends AbstractMethod
      * @var string
      */
     protected $_code                    = self::PAYMENT_METHOD_CODE;
-
-    /**
-     * @var bool
-     */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
 
     /**
      * @var bool
@@ -79,17 +70,7 @@ class Giftcards extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
     protected $_canUseInternal          = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
 
     /**
      * @var bool
@@ -113,6 +94,7 @@ class Giftcards extends AbstractMethod
         Config $taxConfig,
         Calculation $taxCalculation,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -142,6 +124,7 @@ class Giftcards extends AbstractMethod
             $taxConfig,
             $taxCalculation,
             $configProviderBuckarooFee,
+            $buckarooLog,
             $softwareData,
             $addressFactory,
             $resource,
@@ -352,5 +335,15 @@ class Giftcards extends AbstractMethod
     public function getVoidTransactionBuilder($payment)
     {
         return true;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return $this->buckarooPaymentMethodCode;
     }
 }

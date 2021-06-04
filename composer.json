@@ -22,7 +22,7 @@
         "docs": "https://support.buckaroo.nl"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v1.35.0",
+    "version" : "v1.36.0",
     "minimum-stability": "stable",
     "autoload": {
         "files": [
@@ -34,7 +34,7 @@
     },
     "require-dev": {
         "satooshi/php-coveralls": "^1.0",
-        "facebook/webdriver": "^1.1"
+        "php-webdriver/webdriver": "^1.1"
     },
     "repositories": {
         "magento": {

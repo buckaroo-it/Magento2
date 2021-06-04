@@ -43,55 +43,6 @@ class Giropay extends AbstractMethod
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
 
-    /**
-     * @var bool
-     */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canAuthorize            = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapture              = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapturePartial       = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefund               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
 
     /**
@@ -157,34 +108,9 @@ class Giropay extends AbstractMethod
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRefundTransactionBuilder($payment)
+    protected function getRefundTransactionBuilderVersion()
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'    => 'giropay',
-            'Action'  => 'Refund',
-            'Version' => 2,
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            )
-            ->setChannel('CallCenter');
-
-        return $transactionBuilder;
+        return 2;
     }
 
     /**
@@ -220,5 +146,15 @@ class Giropay extends AbstractMethod
         }
 
         return $this;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return $this->buckarooPaymentMethodCode;
     }
 }

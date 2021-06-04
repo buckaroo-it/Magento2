@@ -311,15 +311,11 @@ class Order extends AbstractTransactionBuilder
             return $body;
         }
 
-        if (($services['Name'] == 'paymentguarantee' && $services['Action'] == 'Order') ||
-            ($services['Name'] == 'emandate' && $this->getMethod() == 'DataRequest')
-        ) {
+        if ($services['Name'] == 'emandate' && $this->getMethod() == 'DataRequest') {
             unset($body['Invoice']);
         }
 
-        if (($services['Name'] == 'paymentguarantee' && $services['Action'] == 'PartialInvoice') ||
-            (in_array($services['Name'],['klarnakp']) && $services['Action'] == 'Pay')
-        ) {
+        if (in_array($services['Name'],['klarnakp']) && $services['Action'] == 'Pay') {
             unset($body['OriginalTransactionKey']);
         }
 

@@ -43,52 +43,12 @@ class Creditcard extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
     protected $_canAuthorize            = true;
 
     /**
      * @var bool
      */
     protected $_canCapture              = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapturePartial       = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefund               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
 
     /**
      * @var string
@@ -247,38 +207,18 @@ class Creditcard extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getRefundTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'    => $payment->getAdditionalInformation('card_type'),
-            'Action'  => 'Refund',
-            'Version' => 1,
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            )
-            ->setChannel('CallCenter');
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getVoidTransactionBuilder($payment)
     {
         return true;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return $payment->getAdditionalInformation('card_type');
     }
 }

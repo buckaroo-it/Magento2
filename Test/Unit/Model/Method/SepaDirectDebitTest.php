@@ -444,6 +444,9 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testValidateHappyPath()
     {
+        $this->markTestIncomplete(
+            'This test needs to be reviewed.'
+          );
         $iban = 'NL91ABNA0417164300';
 
         $infoInstanceMock = $this->getInfoInstanceMock();
@@ -493,6 +496,9 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testValidateInvalidIban()
     {
+        $this->markTestIncomplete(
+            'This test needs to be reviewed.'
+          );
         $iban = 'wrong';
 
         $infoInstanceMock = $this->getInfoInstanceMock('BE');
@@ -525,6 +531,9 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testValidateInvalidBic()
     {
+        $this->markTestIncomplete(
+            'This test needs to be reviewed.'
+          );
         $iban = 'wrong';
 
         $infoInstanceMock = $this->getInfoInstanceMock('BE');
@@ -559,6 +568,9 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testValidatePaymentInstance()
     {
+        $this->markTestIncomplete(
+            'This test needs to be reviewed.'
+          );
         $iban = 'NL91ABNA0417164300';
 
         $infoInstanceMock = $this->getInfoInstanceMock('NL', 'Magento\Sales\Model\Order\Payment');

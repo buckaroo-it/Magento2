@@ -30,7 +30,8 @@
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
     <preference for="Magento\Quote\Model\Cart\CartTotalRepository" type="Buckaroo\Magento2\Model\Cart\CartTotalRepository" />
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
-    <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Model\Plugin\GuestSaveManager" />
+    <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" />
+    <preference for="Magento\Payment\Model\Checks\CanUseForCountry\CountryProvider" type="Buckaroo\Magento2\Model\Checks\CanUseForCountry\CountryProvider" />
 
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>
@@ -45,32 +46,32 @@
             <argument name="configProviderMethodFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Factory</argument>
             <argument name="priceHelper" xsi:type="object">Magento\Framework\Pricing\Helper\Data</argument>
             <argument name="quoteFactory" xsi:type="object">Magento\Quote\Model\QuoteFactory</argument>
+            <argument name="logger2" xsi:type="object">Buckaroo\Magento2\Logging\Log</argument>
         </arguments>
     </type>
-
     <type name="Buckaroo\Magento2\Model\Method\Paypal">
         <plugin name="buckaroo_magento2_paypal_sellersprotection_order" type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\Order" />
     </type>
 
     <type name="Buckaroo\Magento2\Model\Method\SepaDirectDebit">
-        <plugin name="buckaroo_magento2_sepadirectdebit" type="Buckaroo\Magento2\Model\Plugin\Method\SepaDirectDebit" />
+        <plugin name="buckaroo_magento2_sepadirectdebit" type="Buckaroo\Magento2\Plugin\Method\SepaDirectDebit" />
     </type>
 
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
-        <plugin name="buckaroo_magento2_add_order_extension_attributes" type="Buckaroo\Magento2\Model\Plugin\OrderExtensionAttribute" />
+        <plugin name="buckaroo_magento2_add_order_extension_attributes" type="Buckaroo\Magento2\Plugin\OrderExtensionAttribute" />
     </type>
 
     <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
-        <plugin name="buckaroo_magento2_add_creditmemo_extension_attributes" type="Buckaroo\Magento2\Model\Plugin\CreditmemoExtensionAttribute" />
+        <plugin name="buckaroo_magento2_add_creditmemo_extension_attributes" type="Buckaroo\Magento2\Plugin\CreditmemoExtensionAttribute" />
     </type>
 
     <type name="Magento\Sales\Model\Order">
-        <plugin name="buckaroo_magento2_plugin_afterpay" type="Buckaroo\Magento2\Model\Plugin\Method\Afterpay"/>
-        <plugin name="buckaroo_magento2_plugin_afterpay2" type="Buckaroo\Magento2\Model\Plugin\Method\Afterpay2"/>
-        <plugin name="buckaroo_magento2_plugin_emandate" type="Buckaroo\Magento2\Model\Plugin\Method\Emandate"/>
-        <plugin name="buckaroo_magento2_plugin_klarna" type="Buckaroo\Magento2\Model\Plugin\Method\Klarna"/>
-        <plugin name="buckaroo_magento2_plugin_klarnakp" type="Buckaroo\Magento2\Model\Plugin\Method\Klarnakp"/>
-        <plugin name="buckaroo_magento2_plugin_klarnain" type="Buckaroo\Magento2\Model\Plugin\Method\Klarnain"/>
+        <plugin name="buckaroo_magento2_plugin_afterpay" type="Buckaroo\Magento2\Plugin\Method\Afterpay"/>
+        <plugin name="buckaroo_magento2_plugin_afterpay2" type="Buckaroo\Magento2\Plugin\Method\Afterpay2"/>
+        <plugin name="buckaroo_magento2_plugin_emandate" type="Buckaroo\Magento2\Plugin\Method\Emandate"/>
+        <plugin name="buckaroo_magento2_plugin_klarna" type="Buckaroo\Magento2\Plugin\Method\Klarna"/>
+        <plugin name="buckaroo_magento2_plugin_klarnakp" type="Buckaroo\Magento2\Plugin\Method\Klarnakp"/>
+        <plugin name="buckaroo_magento2_plugin_klarnain" type="Buckaroo\Magento2\Plugin\Method\Klarnain"/>
     </type>
 
     <type name="Buckaroo\Magento2\Model\Push">
@@ -79,11 +80,11 @@
     </type>
 
     <type name="Magento\Sales\Model\Order\Payment\State\OrderCommand">
-        <plugin name="buckaroo_magento2_plugin_commandInterface" type="Buckaroo\Magento2\Model\Plugin\CommandInterface" />
+        <plugin name="buckaroo_magento2_plugin_commandInterface" type="Buckaroo\Magento2\Plugin\CommandInterface" />
     </type>
 
     <type name="Magento\Sales\Model\Order\Payment\State\AuthorizeCommand">
-        <plugin name="buckaroo_magento2_plugin_commandInterface" type="Buckaroo\Magento2\Model\Plugin\CommandInterface" />
+        <plugin name="buckaroo_magento2_plugin_commandInterface" type="Buckaroo\Magento2\Plugin\CommandInterface" />
     </type>
 
     <type name="Buckaroo\Magento2\Model\PaymentInformationManagement">
@@ -158,6 +159,10 @@
                     <item name="type" xsi:type="string">cancel</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Cancel</item>
                 </item>
+                <item name="datarequest" xsi:type="array">
+                    <item name="type" xsi:type="string">datarequest</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\DataRequest</item>
+                </item>
             </argument>
         </arguments>
     </type>
@@ -205,6 +210,10 @@
                     <item name="type" xsi:type="string">sofortbanking</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking</item>
                 </item>
+                <item name="belfius" xsi:type="array">
+                    <item name="type" xsi:type="string">belfius</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
+                </item>
                 <item name="transfer" xsi:type="array">
                     <item name="type" xsi:type="string">transfer</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer</item>
@@ -240,10 +249,6 @@
                 <item name="giftcards" xsi:type="array">
                     <item name="type" xsi:type="string">giftcards</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards</item>
-                </item>
-                <item name="paymentguarantee" xsi:type="array">
-                    <item name="type" xsi:type="string">paymentguarantee</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PaymentGuarantee</item>
                 </item>
                 <item name="kbc" xsi:type="array">
                     <item name="type" xsi:type="string">kbc</item>
@@ -395,15 +400,15 @@
     </type>
 
     <type name="Magento\Quote\Model\Cart\CartTotalRepository">
-        <plugin name="buckaroo_magento2_fee_total" type="Buckaroo\Magento2\Model\Plugin\CartTotalRepository" />
+        <plugin name="buckaroo_magento2_fee_total" type="Buckaroo\Magento2\Plugin\CartTotalRepository" />
     </type>
 
     <type name="Magento\Quote\Model\Quote\TotalsCollector">
-        <plugin name="buckaroo_magento2_fee_total_collector" type="Buckaroo\Magento2\Model\Plugin\TotalsCollector" />
+        <plugin name="buckaroo_magento2_fee_total_collector" type="Buckaroo\Magento2\Plugin\TotalsCollector" />
     </type>
 
     <type name="Magento\Quote\Model\Cart\TotalsConverter">
-        <plugin name="buckaroo_magento2_fee_total_converter" type="Buckaroo\Magento2\Model\Plugin\TotalsConverter" />
+        <plugin name="buckaroo_magento2_fee_total_converter" type="Buckaroo\Magento2\Plugin\TotalsConverter" />
     </type>
 
     <type name="Buckaroo\Magento2\Block\Info\Creditcard">
@@ -433,11 +438,11 @@
     </type>
 
     <type name="Magento\Framework\View\Asset\Minification">
-        <plugin name="my-exclude" type="Buckaroo\Magento2\Model\Plugin\ExcludeFilesFromMinification" />
+        <plugin name="my-exclude" type="Buckaroo\Magento2\Plugin\ExcludeFilesFromMinification" />
     </type>
 
     <type name="MyParcelNL\Magento\Model\Checkout\ShippingMethods">
-        <plugin name="myParcelNLBuckarooPlugin" type="Buckaroo\Magento2\Model\Plugin\MyParcelNLBuckarooPlugin" />
+        <plugin name="myParcelNLBuckarooPlugin" type="Buckaroo\Magento2\Plugin\MyParcelNLBuckarooPlugin" />
     </type>
 
     <type name="Magento\CatalogInventory\Model\Configuration">

@@ -75,6 +75,10 @@ class Order
 
         $services = $result->getServices();
 
+        if (!empty($services['Action']) && ($services['Action'] == 'PayRemainder')) {
+            return $result;
+        }
+
         // Build ExtraInfo Request Parameter
         $extraInfoRequestParameter = $this->getRequestParameter($shippingAddress);
 

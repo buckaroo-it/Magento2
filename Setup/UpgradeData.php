@@ -25,6 +25,11 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Store\Model\Store;
 
+use Magento\Eav\Setup\EavSetup;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Eav\Model\Config;
+use Magento\Customer\Model\Customer;
+
 class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 {
     /**
@@ -406,6 +411,8 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         ),
     );
 
+    private $eavSetupFactory;
+
     /**
      * @param \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory
      * @param \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory
@@ -419,7 +426,9 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
         \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection,
         \Magento\Framework\Encryption\Encryptor $encryptor,
-        \Magento\Framework\Registry $registry
+        \Magento\Framework\Registry $registry,
+        EavSetupFactory $eavSetupFactory, 
+        Config $eavConfig
     )
     {
         $this->salesSetupFactory = $salesSetupFactory;
@@ -428,6 +437,8 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         $this->certificateCollection = $certificateCollection;
         $this->encryptor = $encryptor;
         $this->registry = $registry;
+        $this->eavSetupFactory = $eavSetupFactory;
+        $this->eavConfig       = $eavConfig;
     }
 
     /**
@@ -538,6 +549,13 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         if (version_compare($context->getVersion(), '1.25.2', '<')) {
             $this->giftcardPartialRefund($setup);
         }
+
+        $this->setCustomerIDIN($setup);
+        
+        $this->setCustomerIsEighteenOrOlder($setup);
+
+        $this->setProductIDIN($setup);
+
         $setup->endSetup();
     }
 
@@ -1396,5 +1414,76 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         }
 
         return $this;
+    }
+
+    protected function setCustomerIDIN(ModuleDataSetupInterface $setup){
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+        $eavSetup->addAttribute(
+            \Magento\Customer\Model\Customer::ENTITY,
+            'buckaroo_idin',
+            [
+                'type'         => 'varchar',
+                'label'        => 'Buckaroo iDIN',
+                'input'        => 'text',
+                'required'     => false,
+                'visible'      => true,
+                'user_defined' => false,
+                'position'     => 999,
+                'system'       => 0,
+            ]
+        );
+        $buckarooIDIN = $this->eavConfig->getAttribute(Customer::ENTITY, 'buckaroo_idin');
+
+        $buckarooIDIN->setData(
+            'used_in_forms',
+            ['adminhtml_customer']
+        );
+        $buckarooIDIN->save();
+    }
+
+    protected function setCustomerIsEighteenOrOlder(ModuleDataSetupInterface $setup){
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+        $eavSetup->addAttribute(
+            \Magento\Customer\Model\Customer::ENTITY,
+            'buckaroo_idin_iseighteenorolder',
+            [
+                'type'         => 'int',
+                'label'        => 'Buckaroo iDIN IsEighteenOrOlder',
+                'input'        => 'select',
+                'source'       => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                'default'      => '0',
+                'required'     => false,
+                'visible'      => true,
+                'user_defined' => false,
+                'position'     => 999,
+                'system'       => 0,
+            ]
+        );
+        $buckarooIDIN = $this->eavConfig->getAttribute(Customer::ENTITY, 'buckaroo_idin_iseighteenorolder');
+
+        $buckarooIDIN->setData(
+            'used_in_forms',
+            ['adminhtml_customer']
+        );
+        $buckarooIDIN->save();
+    }
+
+    protected function setProductIDIN(ModuleDataSetupInterface $setup)
+    {
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+        $eavSetup->addAttribute(
+            \Magento\Catalog\Model\Product::ENTITY,
+            'buckaroo_product_idin',
+            [
+                'type' => 'int',
+                'label' => 'Buckaroo iDIN',
+                'input' => 'select',
+                'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                'required' => false,
+                'sort_order' => 999,
+                'global' => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
+                'default' => '0',
+            ]
+        );
     }
 }

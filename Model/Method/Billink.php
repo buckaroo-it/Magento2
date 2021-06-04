@@ -71,16 +71,6 @@ class Billink extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
     protected $_canAuthorize            = true;
 
     /**
@@ -93,30 +83,6 @@ class Billink extends AbstractMethod
      */
     protected $_canCapturePartial       = true;
 
-    /**
-     * @var bool
-     */
-    protected $_canRefund               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
 
     /**
@@ -191,9 +157,11 @@ class Billink extends AbstractMethod
     }
 
     /**
-     * @return string
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
      */
-    public function getPaymentMethodName()
+    public function getPaymentMethodName($payment)
     {
         return static::BILLINK_PAYMENT_METHOD_NAME;
     }
@@ -209,7 +177,7 @@ class Billink extends AbstractMethod
             'Name'             => 'Billink',
             'Action'           => 'Pay',
             'Version'          => 1,
-            'RequestParameter' => $this->getAfterPayRequestParameters($payment),
+            'RequestParameter' => $this->getPaymentRequestParameters($payment),
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())
@@ -228,96 +196,14 @@ class Billink extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getCaptureTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $capturePartial = true;
-
-        $order = $payment->getOrder();
-
-        $totalOrder = $order->getBaseGrandTotal();
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($totalOrder == $currentInvoiceTotal && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        }
-
-        $services = [
-            'Name'   => $this->getPaymentMethodName(),
-            'Action' => 'Capture',
-        ];
-
-        // always get articles from invoice
-        $articles = '';
-        if (isset($currentInvoice)) {
-            $articles = $this->getInvoiceArticleData($currentInvoice);
-        }
-
-        // For the first invoice possible add payment fee
-        if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(
-                static::TAX_CALCULATION_INCLUDES_TAX,
-                ScopeInterface::SCOPE_STORE
-            );
-            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
-            $articles = array_merge($articles, $serviceLine);
-        }
-
-        // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($currentInvoice, (count($articles) + 1));
-        $articles = array_merge($articles, $shippingCosts);
-
-        $services['RequestParameter'] = $articles;
-
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setAmount($currentInvoiceTotal)
-            ->setMethod('TransactionRequest')
-            ->setCurrency($this->payment->getOrder()->getOrderCurrencyCode())
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(
-                    self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
-                )
-            );
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId() . '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
-        }
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getAuthorizeTransactionBuilder($payment)
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'             => $this->getPaymentMethodName(),
+            'Name'             => $this->getPaymentMethodName($payment),
             'Action'           => 'Authorize',
-            'RequestParameter' => $this->getAfterPayRequestParameters($payment),
+            'RequestParameter' => $this->getPaymentRequestParameters($payment),
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())->setServices($services)->setMethod('TransactionRequest');
@@ -339,7 +225,7 @@ class Billink extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'   => $this->getPaymentMethodName(),
+            'Name'   => $this->getPaymentMethodName($payment),
             'Action' => 'CancelAuthorize',
         ];
 
@@ -366,97 +252,9 @@ class Billink extends AbstractMethod
      */
     public function getRefundTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'   => $this->getPaymentMethodName(),
-            'Action' => 'Refund',
-            'Version' => 1,
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
-        $creditmemo = $payment->getCreditmemo();
-        $articles = [];
-
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            //AddCreditMemoArticles
-            // $articles = $this->getCreditmemoArticleData($payment);
-        }
-
-        if (isset($services['RequestParameter'])) {
-            $articles = array_merge($services['RequestParameter'], $articles);
-        }
-
-        // $services['RequestParameter'] = $articles;
-
-        /** @noinspection PhpUndefinedMethodInspection */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            )
-            ->setChannel('CallCenter');
-
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            $invoice = $creditmemo->getInvoice();
-
-            $transactionBuilder->setInvoiceId($this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment))
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
-        }
-
+        $transactionBuilder = parent::getRefundTransactionBuilder($payment);
+        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
         return $transactionBuilder;
-    }
-
-    /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return array
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function getAfterPayRequestParameters($payment)
-    {
-        // First data to set is the billing address data.
-        $requestData = $this->getRequestBillingData($payment);
-
-        // If the shipping address is not the same as the billing it will be merged inside the data array.
-        if ($this->isAddressDataDifferent($payment)) {
-            $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
-        }
-
-        $this->logger2->addDebug(__METHOD__.'|1|');
-        $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
-
-        if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
-            $this->updateShippingAddressByDpdParcel($quote, $requestData);
-        }
-
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
-            &&
-            $payment->getOrder()->getDhlparcelShippingServicepointId()
-        ) {
-            $this->updateShippingAddressByDhlParcel(
-                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
-            );
-        }
-
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
-            &&
-            $payment->getOrder()->getSendcloudServicePointId()
-        ) {
-            $this->updateShippingAddressBySendcloud($payment->getOrder(), $requestData);
-        }
-
-        // Merge the article data; products and fee's
-        $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
-
-        return $requestData;
     }
 
     /**
@@ -698,7 +496,7 @@ class Billink extends AbstractMethod
      * @param $count
      * @return array
      */
-    private function getShippingCostsLine($order, $count, &$itemsTotalAmount = 0)
+    protected function getShippingCostsLine333($order, $count, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 
@@ -1103,34 +901,22 @@ class Billink extends AbstractMethod
      */
     protected function getFailureMessageFromMethod($transactionResponse)
     {
-        $transactionType = $transactionResponse->TransactionType;
-        $methodMessage = '';
+        return $this->getFailureMessageFromMethodCommon($transactionResponse);
+    }
 
-        if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038') {
-            return $methodMessage;
-        }
+    protected function getPriceFieldName()
+    {
+        return 'GrossUnitPriceIncl';
+    }
 
-        if ($transactionType == 'I038') {
-            if (
-                isset($transactionResponse->Services->Service->ResponseParameter->Name)
-                &&
-                ($transactionResponse->Services->Service->ResponseParameter->Name === 'ErrorResponseMessage')
-                &&
-                isset($transactionResponse->Services->Service->ResponseParameter->_)
-            )
-            return $transactionResponse->Services->Service->ResponseParameter->_;
-        }
+    protected function formatPrice($price)
+    {
+        return number_format($price, 4, '.', '');
+    }
 
-        $subcodeMessage = $transactionResponse->Status->SubCode->_;
-        $subcodeMessage = explode(':', $subcodeMessage);
-
-        if (count($subcodeMessage) > 1) {
-            array_shift($subcodeMessage);
-        }
-
-        $methodMessage = trim(implode(':', $subcodeMessage));
-
-        return $methodMessage;
+    protected function formatShippingCostsLineVatPercentage($price)
+    {
+        return (int)$price;
     }
 
 }

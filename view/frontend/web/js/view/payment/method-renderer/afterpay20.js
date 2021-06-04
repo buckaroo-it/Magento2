@@ -393,7 +393,6 @@ define(
 
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
 
                         //resave dpd cookies with '/' path , otherwise in some cases they won't be available at backend side
                         var dpdCookies = [
@@ -409,6 +408,8 @@ define(
                                 $.mage.cookies.set(item, value, { path: '/' });
                             }
                         });
+
+                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
 
                         $.when(placeOrder).fail(
                             function () {

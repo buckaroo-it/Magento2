@@ -21,7 +21,7 @@ namespace Buckaroo\Magento2\Test;
 
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
-class BaseTest extends TestCaseFinder
+abstract class BaseTest extends TestCaseFinder
 {
     /**
      * @var null|string

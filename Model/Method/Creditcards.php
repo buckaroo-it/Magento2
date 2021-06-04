@@ -24,6 +24,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class Creditcards extends AbstractMethod
 {
@@ -45,61 +46,7 @@ class Creditcards extends AbstractMethod
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
 
-    /**
-     * @var bool
-     */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canAuthorize            = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapture              = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapturePartial       = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefund               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
-
-    /**
-     * @var bool
-     */
-    public $usesRedirect                = true;
 
     /** @var \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters */
     private $serviceParameters;
@@ -119,6 +66,7 @@ class Creditcards extends AbstractMethod
         Config $taxConfig,
         Calculation $taxCalculation,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -148,6 +96,7 @@ class Creditcards extends AbstractMethod
             $taxConfig,
             $taxCalculation,
             $configProviderBuckarooFee,
+            $buckarooLog,
             $softwareData,
             $addressFactory,
             $resource,
@@ -320,37 +269,6 @@ class Creditcards extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getRefundTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $additionalInformation = $payment->getAdditionalInformation();
-
-        $services = [
-            'Name'    => $additionalInformation['customer_creditcardcompany'],
-            'Action'  => 'Refund',
-            'Version' => 1,
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            );
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getVoidTransactionBuilder($payment)
     {
         $services = $this->serviceParameters->getCreateCreditNote($payment);
@@ -374,5 +292,16 @@ class Creditcards extends AbstractMethod
             );
 
         return $transactionBuilder;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        $additionalInformation = $payment->getAdditionalInformation();
+        return $additionalInformation['customer_creditcardcompany'];
     }
 }

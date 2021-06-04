@@ -41,56 +41,6 @@ class Payconiq extends AbstractMethod
     protected $_code = self::PAYMENT_METHOD_CODE;
 
     /**
-     * @var bool
-     */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canAuthorize            = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapture              = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapturePartial       = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefund               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
-
-    /**
      * {@inheritdoc}
      */
     public function getOrderTransactionBuilder($payment)
@@ -132,36 +82,6 @@ class Payconiq extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getRefundTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name' => 'payconiq',
-            'Action' => 'Refund',
-            'Version' => 1,
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            )
-            ->setChannel('CallCenter');
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getVoidTransactionBuilder($payment)
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
@@ -179,5 +99,15 @@ class Payconiq extends AbstractMethod
             ->setOriginalTransactionKey($originalTrxKey);
 
         return $transactionBuilder;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return $this->buckarooPaymentMethodCode;
     }
 }

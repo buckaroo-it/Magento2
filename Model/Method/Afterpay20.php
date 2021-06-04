@@ -64,16 +64,6 @@ class Afterpay20 extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
     protected $_canAuthorize            = true;
 
     /**
@@ -86,30 +76,6 @@ class Afterpay20 extends AbstractMethod
      */
     protected $_canCapturePartial       = true;
 
-    /**
-     * @var bool
-     */
-    protected $_canRefund               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
 
     /**
@@ -134,26 +100,7 @@ class Afterpay20 extends AbstractMethod
     {
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
-
-        if (isset($data['additional_data']['termsCondition'])) {
-            $additionalData = $data['additional_data'];
-            $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
-            $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
-            $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
-            $this->getInfoInstance()->setAdditionalInformation('customer_identificationNumber', $additionalData['customer_identificationNumber']);
-
-            $dobDate = \DateTime::createFromFormat('d/m/Y', $additionalData['customer_DoB']);
-            $dobDate = (!$dobDate ? $additionalData['customer_DoB'] : $dobDate->format('Y-m-d'));
-            $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $dobDate);
-
-            if (isset($additionalData['customer_telephone'])) {
-                $this->getInfoInstance()->setAdditionalInformation(
-                    'customer_telephone',
-                    $additionalData['customer_telephone']
-                );
-            }
-        }
-
+        $this->assignDataCommon($data);
         return $this;
     }
 
@@ -172,9 +119,11 @@ class Afterpay20 extends AbstractMethod
     }
 
     /**
-     * @return string
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
      */
-    public function getPaymentMethodName()
+    public function getPaymentMethodName($payment)
     {
         return static::AFTERPAY_PAYMENT_METHOD_NAME;
     }
@@ -189,9 +138,9 @@ class Afterpay20 extends AbstractMethod
         $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, $serviceAction);
 
         $services = [
-            'Name'             => $this->getPaymentMethodName(),
+            'Name'             => $this->getPaymentMethodName($payment),
             'Action'           => $serviceAction,
-            'RequestParameter' => $this->getAfterPayRequestParameters($payment),
+            'RequestParameter' => $this->getPaymentRequestParameters($payment),
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())
@@ -204,88 +153,6 @@ class Afterpay20 extends AbstractMethod
          */
         if ($serviceAction != 'PayRemainder') {
             $payment->setAdditionalInformation('skip_push', 1);
-        }
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCaptureTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $capturePartial = true;
-
-        $order = $payment->getOrder();
-
-        $totalOrder = $order->getBaseGrandTotal();
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($totalOrder == $currentInvoiceTotal && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        }
-
-        $services = [
-            'Name'   => $this->getPaymentMethodName(),
-            'Action' => 'Capture',
-        ];
-
-        // always get articles from invoice
-        $articles = '';
-        if (isset($currentInvoice)) {
-            $articles = $this->getInvoiceArticleData($currentInvoice);
-        }
-
-        // For the first invoice possible add payment fee
-        if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(
-                static::TAX_CALCULATION_INCLUDES_TAX,
-                ScopeInterface::SCOPE_STORE
-            );
-            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
-            $articles = array_merge($articles, $serviceLine);
-        }
-
-        // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($currentInvoice, (count($articles) + 1));
-        $articles = array_merge($articles, $shippingCosts);
-
-        $services['RequestParameter'] = $articles;
-
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setAmount($currentInvoiceTotal)
-            ->setMethod('TransactionRequest')
-            ->setCurrency($this->payment->getOrder()->getOrderCurrencyCode())
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(
-                    self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
-                )
-            );
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId() . '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
         }
 
         return $transactionBuilder;
@@ -307,7 +174,7 @@ class Afterpay20 extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'   => $this->getPaymentMethodName(),
+            'Name'   => $this->getPaymentMethodName($payment),
             'Action' => 'CancelAuthorize',
         ];
 
@@ -334,136 +201,25 @@ class Afterpay20 extends AbstractMethod
      */
     public function getRefundTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'   => $this->getPaymentMethodName(),
-            'Action' => 'Refund',
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
-        $creditmemo = $payment->getCreditmemo();
-        $articles = [];
-
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            //AddCreditMemoArticles
-            $articles = $this->getCreditmemoArticleData($payment);
-        }
-
-        if (isset($services['RequestParameter'])) {
-            $articles = array_merge($services['RequestParameter'], $articles);
-        }
-
-        $services['RequestParameter'] = $articles;
-
-        /** @noinspection PhpUndefinedMethodInspection */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            )
-            ->setChannel('CallCenter');
-
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            $invoice = $creditmemo->getInvoice();
-
-            $transactionBuilder->setInvoiceId($this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment));
-            if ($payment->getParentTransactionId()) {
-                $transactionBuilder->setOriginalTransactionKey($payment->getParentTransactionId());
-            }
-        }
-
+        $transactionBuilder = parent::getRefundTransactionBuilder($payment);
+        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
         return $transactionBuilder;
     }
 
-    /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return array
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function getAfterPayRequestParameters($payment)
+    protected function getRefundTransactionBuilderServices($payment, &$services)
     {
-        // First data to set is the billing address data.
-        $requestData = $this->getRequestBillingData($payment);
+        $this->getRefundTransactionBuilderServicesAdd($payment, $services);
+    }
 
-        // If the shipping address is not the same as the billing it will be merged inside the data array.
-        if ($this->isAddressDataDifferent($payment)) {
-            $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
-        }
 
-        $this->logger2->addDebug(__METHOD__.'|1|');
-        $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
-
-        if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
-            $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
-            $this->updateShippingAddressByDpdParcel($quote, $requestData);
-        }
-
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
-            &&
-            $payment->getOrder()->getDhlparcelShippingServicepointId()
-        ) {
-            $this->updateShippingAddressByDhlParcel(
-                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
-            );
-        }
-
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
-            &&
-            $payment->getOrder()->getSendcloudServicePointId()
-        ) {
-            $this->updateShippingAddressBySendcloud($payment->getOrder(), $requestData);
-        }
-
-        $this->handleShippingAddressByMyParcel($payment, $requestData);
-
-        // Merge the article data; products and fee's
-        $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
-
-        return $requestData;
+    protected function getRefundTransactionBuilderVersion()
+    {
+        return null;
     }
 
     protected function updateShippingAddressByMyParcel($myParcelLocation, &$requestData)
     {
-        $mapping = [
-            ['Street', $myParcelLocation['street']],
-            ['PostalCode', $myParcelLocation['postal_code']],
-            ['City', $myParcelLocation['city']],
-            ['Country', $myParcelLocation['cc']],
-            ['StreetNumber', $myParcelLocation['number']],
-            ['StreetNumberAdditional', $myParcelLocation['number_suffix']],
-        ];
-
-        $this->logger2->addDebug(__METHOD__ . '|1|' . var_export($mapping, true));
-
-        foreach ($mapping as $mappingItem) {
-            if (!empty($mappingItem[1])) {
-                $found = false;
-                foreach ($requestData as $key => $value) {
-                    if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                        if ($requestData[$key]['Name'] == $mappingItem[0]) {
-                            $requestData[$key]['_'] = $mappingItem[1];
-                            $found = true;
-                        }
-                    }
-                }
-                if (!$found) {
-                    $requestData[] = [
-                        '_'    => $mappingItem[1],
-                        'Name' => $mappingItem[0],
-                        'Group' => 'ShippingCustomer',
-                        'GroupID' =>  '',
-                    ];
-                }
-            }
-        }
+        $this->updateShippingAddressByMyParcelV2($myParcelLocation, $requestData);
     }
 
     /**
@@ -706,63 +462,6 @@ class Afterpay20 extends AbstractMethod
         }
 
         return $articles;
-    }
-
-    /**
-     * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
-     *
-     * @param $count
-     * @return array
-     */
-    private function getShippingCostsLine($order, $count, &$itemsTotalAmount = 0)
-    {
-        $shippingCostsArticle = [];
-
-        $shippingAmount = $this->getShippingAmount($order);
-        if ($shippingAmount <= 0) {
-            return $shippingCostsArticle;
-        }
-
-        $request = $this->taxCalculation->getRateRequest(null, null, null);
-        $taxClassId = $this->taxConfig->getShippingTaxClass();
-        $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
-
-        $shippingCostsArticle = [
-            [
-                '_'       => 'Shipping fee',
-                'Name'    => 'Description',
-                'Group'   => 'Article',
-                'GroupID' =>  $count,
-            ],
-            [
-                '_'       => $shippingAmount,
-                'Name'    => 'GrossUnitPrice',
-                'Group'   => 'Article',
-                'GroupID' =>  $count,
-            ],
-            [
-                '_'       => $percent,
-                'Name'    => 'VatPercentage',
-                'Group'   => 'Article',
-                'GroupID' =>  $count,
-            ],
-            [
-                '_'       => '1',
-                'Name'    => 'Quantity',
-                'Group'   => 'Article',
-                'GroupID' =>  $count,
-            ],
-            [
-                '_'       => '1',
-                'Name'    => 'Identifier',
-                'Group'   => 'Article',
-                'GroupID' => $count,
-            ]
-        ];
-
-        $itemsTotalAmount += $shippingAmount;
-
-        return $shippingCostsArticle;
     }
 
     /**
@@ -1084,7 +783,6 @@ class Afterpay20 extends AbstractMethod
         return $shippingData;
     }
 
-
     /**
      * Failure message from failed Aferpay Transactions
      *
@@ -1092,34 +790,7 @@ class Afterpay20 extends AbstractMethod
      */
     protected function getFailureMessageFromMethod($transactionResponse)
     {
-        $transactionType = $transactionResponse->TransactionType ?? '';
-        $methodMessage = '';
-
-        if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038') {
-            return $methodMessage;
-        }
-
-        if ($transactionType == 'I038') {
-            if (
-                isset($transactionResponse->Services->Service->ResponseParameter->Name)
-                &&
-                ($transactionResponse->Services->Service->ResponseParameter->Name === 'ErrorResponseMessage')
-                &&
-                isset($transactionResponse->Services->Service->ResponseParameter->_)
-            )
-            return $transactionResponse->Services->Service->ResponseParameter->_;
-        }
-
-        $subcodeMessage = $transactionResponse->Status->SubCode->_;
-        $subcodeMessage = explode(':', $subcodeMessage);
-
-        if (count($subcodeMessage) > 1) {
-            array_shift($subcodeMessage);
-        }
-
-        $methodMessage = trim(implode(':', $subcodeMessage));
-
-        return $methodMessage;
+        return $this->getFailureMessageFromMethodCommon($transactionResponse);
     }
 
     protected function getPayRemainderAmount($payment, $alreadyPaid)

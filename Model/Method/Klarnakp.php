@@ -25,6 +25,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Checkout\Model\Cart;
@@ -73,16 +74,6 @@ class Klarnakp extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder = true;
-
-    /**
-     * @var bool
-     */
     protected $_canAuthorize = true;
 
     /**
@@ -103,27 +94,8 @@ class Klarnakp extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_canVoid = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout = true;
-
-    /**
-     * @var bool
-     */
     public $closeAuthorizeTransaction   = false;
 
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
 
     /** @var Cart */
@@ -182,6 +154,7 @@ class Klarnakp extends AbstractMethod
         Config $taxConfig,
         Calculation $taxCalculation,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -211,6 +184,7 @@ class Klarnakp extends AbstractMethod
             $taxConfig,
             $taxCalculation,
             $configProviderBuckarooFee,
+            $buckarooLog,
             $softwareData,
             $addressFactory,
             $resource,
@@ -283,58 +257,18 @@ class Klarnakp extends AbstractMethod
         return $transactionBuilder;
     }
 
-    /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     *
-     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function getCaptureTransactionBuilder($payment)
+    protected function getCaptureTransactionBuilderVersion()
     {
-        $this->logger2->addDebug(__METHOD__.'|1|');
+        return 1;
+    }
 
-        //$group = 1;
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
+    protected function getCaptureTransactionBuilderAction()
+    {
+        return 'Pay';
+    }
 
-        $capturePartial = true;
-
-        /** @var \Magento\Sales\Model\Order $order */
-        $order = $payment->getOrder();
-
-        $totalOrder = $order->getBaseGrandTotal();
-
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($this->helper->areEqualAmounts($totalOrder, $currentInvoiceTotal) && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        }
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $services = [
-            'Name' => 'klarnakp',
-            'Action' => 'Pay',
-            'Version' => 1,
-        ];
-
+    protected function getCaptureTransactionBuilderArticles($payment, $currentInvoice, $numberOfInvoices)
+    {
         // add additional information
         $articles = $this->getAdditionalInformation($payment);
 
@@ -367,85 +301,27 @@ class Klarnakp extends AbstractMethod
             $articles = array_merge($articles, $shippingCosts);
         }
 
-        $services['RequestParameter'] = $articles;
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setAmount($currentInvoiceTotal)
-            ->setMethod('TransactionRequest')
-            ->setCurrency($this->payment->getOrder()->getOrderCurrencyCode());
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId(). '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
-        }
-
-        return $transactionBuilder;
+        return $articles;
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     *
-     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
-     * @throws \Buckaroo\Magento2\Exception
+     * {@inheritdoc}
      */
     public function getRefundTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $capturePartial = true;
-
-        $order = $payment->getOrder();
-
-        $totalOrder = $order->getBaseGrandTotal();
-
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($this->helper->areEqualAmounts($totalOrder, $currentInvoiceTotal) && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        }
-
-        $services = [
-            'Name'    => 'klarnakp',
-            'Action'  => 'Refund',
-            'Version' => 1,
-        ];
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey($payment->getRefundTransactionId());
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId(). '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getRefundTransactionId());
-        }
-
+        $transactionBuilder = parent::getRefundTransactionBuilder($payment);
+        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
         return $transactionBuilder;
+    }
+
+    protected function getRefundTransactionBuilderServices($payment, &$services)
+    {
+        $this->getRefundTransactionBuilderServicesAdd($payment, $services);
+    }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return '';
     }
 
     /**
@@ -1006,7 +882,7 @@ class Klarnakp extends AbstractMethod
      *
      * @return array
      */
-    private function getShippingCostsLine($order, $group)
+    protected function getShippingCostsLine($order, $group, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 
@@ -1138,6 +1014,16 @@ class Klarnakp extends AbstractMethod
         }
 
         return $taxPercent;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return $this->buckarooPaymentMethodCode;
     }
 
 }

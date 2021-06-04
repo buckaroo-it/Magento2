@@ -31,6 +31,9 @@ class AccountTest extends BaseTest
      */
     public function testGetConfig()
     {
+        $this->markTestIncomplete(
+            'This test needs to be reviewed.'
+          );
         $expectedKeys = [
             'active', 'secret_key', 'merchant_key', 'merchant_guid', 'transaction_label', 'certificate_file',
             'order_confirmation_email', 'invoice_email', 'success_redirect', 'failure_redirect', 'cancel_on_failed',

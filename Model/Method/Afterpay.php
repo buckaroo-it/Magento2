@@ -71,16 +71,6 @@ class Afterpay extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
     protected $_canAuthorize            = true;
 
     /**
@@ -93,30 +83,6 @@ class Afterpay extends AbstractMethod
      */
     protected $_canCapturePartial       = true;
 
-    /**
-     * @var bool
-     */
-    protected $_canRefund               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
 
     /**
@@ -196,14 +162,13 @@ class Afterpay extends AbstractMethod
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return bool|string
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function getPaymentMethodName($payment)
     {
         /**
          * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay $afterpayConfig
          */
-        $afterpayConfig = $this->configProviderMethodFactory->get('afterpay');
+        $afterpayConfig = $this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode);
 
         $methodName = $afterpayConfig->getPaymentMethodName();
 
@@ -240,99 +205,6 @@ class Afterpay extends AbstractMethod
          */
         if ($serviceAction != 'PayRemainder') {
             $payment->setAdditionalInformation('skip_push', 1);
-        }
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCaptureTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $capturePartial = false;
-
-        $order = $payment->getOrder();
-        $order_id = $order->getId();
-
-        $totalOrder = $order->getBaseGrandTotal();
-
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
-        $currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $numberOfInvoices) {
-                    continue;
-                }
-
-                $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
-            }
-        }
-
-        if ($totalOrder == $currentInvoiceTotal && $numberOfInvoices == 1) {
-            //full capture
-            $capturePartial = false;
-        } else {
-            //partial capture
-            $capturePartial = true;
-        }
-
-        $services = [
-            'Name'             => $this->getPaymentMethodName($payment),
-            'Action'           => 'Capture',
-            'Version'          => 1
-        ];
-
-        // always get articles from invoice
-        $articles = '';
-        if (isset($currentInvoice)) {
-            $articles = $this->getInvoiceArticleData($currentInvoice);
-        }
-
-        // For the first invoice possible add payment fee
-        if (is_array($articles) && $numberOfInvoices == 1) {
-            $includesTax = $this->_scopeConfig->getValue(
-                static::TAX_CALCULATION_INCLUDES_TAX,
-                ScopeInterface::SCOPE_STORE
-            );
-            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
-            $articles = array_merge($articles, $serviceLine);
-        }
-
-        // Add additional shipping costs.
-        $shippingCosts = $this->getShippingCostsLine($currentInvoice);
-        $articles = array_merge($articles, $shippingCosts);
-
-        $services['RequestParameter'] = $articles;
-
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setAmount($currentInvoiceTotal)
-            ->setMethod('TransactionRequest')
-            ->setCurrency($this->payment->getOrder()->getOrderCurrencyCode())
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(
-                    self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
-                )
-            );
-
-
-        // Partial Capture Settings
-        if ($capturePartial) {
-            $transactionBuilder->setInvoiceId($payment->getOrder()->getIncrementId(). '-' . $numberOfInvoices)
-                ->setOriginalTransactionKey($payment->getParentTransactionId());
         }
 
         return $transactionBuilder;
@@ -385,51 +257,14 @@ class Afterpay extends AbstractMethod
      */
     public function getRefundTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'    => $this->getPaymentMethodName($payment),
-            'Action'  => 'Refund',
-            'Version' => 1,
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
-        $creditmemo = $payment->getCreditmemo();
-        $articles = [];
-
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            //AddCreditMemoArticles
-            $articles = $this->getCreditmemoArticleData($payment);
-        }
-
-        if (isset($services['RequestParameter'])) {
-            $articles = array_merge($services['RequestParameter'], $articles);
-        }
-
-        $services['RequestParameter'] = $articles;
-
-        /** @noinspection PhpUndefinedMethodInspection */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            )
-            ->setChannel('CallCenter');
-
-        if ($this->canRefundPartialPerInvoice() && $creditmemo) {
-            $invoice = $creditmemo->getInvoice();
-
-            $transactionBuilder->setInvoiceId($invoice->getOrder()->getIncrementId());
-            if ($payment->getParentTransactionId()) {
-                $transactionBuilder->setOriginalTransactionKey($payment->getParentTransactionId());
-            }
-        }
-
+        $transactionBuilder = parent::getRefundTransactionBuilder($payment);
+        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
         return $transactionBuilder;
+    }
+
+    protected function getRefundTransactionBuilderServices($payment, &$services)
+    {
+        $this->getRefundTransactionBuilderServicesAdd($payment, $services);
     }
 
     /**
@@ -496,23 +331,7 @@ class Afterpay extends AbstractMethod
                 ['ShippingHouseNumberSuffix', $streetHouseNumberSuffix],
             ];
 
-            foreach ($mapping as $mappingItem) {
-                if (!empty($mappingItem[1])) {
-                    $found = false;
-                    foreach ($requestData as $key => $value) {
-                        if ($requestData[$key]['Name'] == $mappingItem[0]) {
-                            $requestData[$key]['_'] = $mappingItem[1];
-                            $found = true;
-                        }
-                    }
-                    if (!$found) {
-                        $requestData[] = [
-                            '_'    => $mappingItem[1],
-                            'Name' => $mappingItem[0]
-                        ];
-                    }
-                }
-            }
+            $this->updateShippingAddressCommonMappingV2($mapping, $requestData);
 
             if (!$streetHouseNumberSuffix) {
                 foreach ($requestData as $key => $value) {
@@ -774,7 +593,7 @@ class Afterpay extends AbstractMethod
         }
 
         // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($creditmemo, $itemsTotalAmount);
+        $shippingCosts = $this->getShippingCostsLine($creditmemo, $count, $itemsTotalAmount);
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
@@ -792,7 +611,7 @@ class Afterpay extends AbstractMethod
      *
      * @return array
      */
-    private function getShippingCostsLine($order, &$itemsTotalAmount = 0)
+    protected function getShippingCostsLine($order, $count = 0, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 
@@ -948,7 +767,7 @@ class Afterpay extends AbstractMethod
          * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay $afterPayConfig
          */
         $afterPayConfig = $this->configProviderMethodFactory
-            ->get(\Buckaroo\Magento2\Model\Method\Afterpay::PAYMENT_METHOD_CODE);
+            ->get($this->_code);
 
         $highClasses   = explode(',', $afterPayConfig->getHighTaxClasses($storeId));
         $middleClasses = explode(',', $afterPayConfig->getMiddleTaxClasses($storeId));
@@ -989,6 +808,8 @@ class Afterpay extends AbstractMethod
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
         if (
+            ($this->buckarooPaymentMethodCode  === 'afterpay')
+            &&
             $payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
@@ -1063,7 +884,13 @@ class Afterpay extends AbstractMethod
             ];
         }
 
+        $this->getRequestBillingDataExtra($billingAddress, $billingData);
+
         return $billingData;
+    }
+
+    protected function getRequestBillingDataExtra(\Magento\Sales\Api\Data\OrderAddressInterface $billingAddress, array &$billingData)
+    {
     }
 
     /**
@@ -1082,6 +909,8 @@ class Afterpay extends AbstractMethod
         $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
 
         if (
+            ($this->buckarooPaymentMethodCode  === 'afterpay')
+            &&
             $payment->getAdditionalInformation('selectedBusiness')
             &&
             ($payment->getAdditionalInformation('selectedBusiness') == 2)
@@ -1265,4 +1094,8 @@ class Afterpay extends AbstractMethod
         return $methodMessage;
     }
 
+    protected function getCaptureTransactionBuilderVersion()
+    {
+        return 1;
+    }
 }

@@ -51,6 +51,7 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class Capayable extends AbstractMethod
 {
@@ -67,26 +68,9 @@ class Capayable extends AbstractMethod
     protected $_code = '';
 
     /** @var bool */
-    protected $_isGateway               = true;
-
-    /** @var bool */
-    protected $_canOrder                = true;
-
-    /** @var bool */
-    protected $_canRefund               = true;
-
-    /** @var bool */
-    protected $_canVoid                 = true;
-
-    /** @var bool */
     protected $_canUseInternal          = false;
 
-    /** @var bool */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
-
-    /** @var bool */
-    public $usesRedirect                = true;
 
     /** @var AddressFormatter */
     public $addressFormatter;
@@ -109,6 +93,7 @@ class Capayable extends AbstractMethod
         Config $taxConfig,
         Calculation $taxCalculation,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         AbstractResource $resource = null,
@@ -138,6 +123,7 @@ class Capayable extends AbstractMethod
             $taxConfig,
             $taxCalculation,
             $configProviderBuckarooFee,
+            $buckarooLog,
             $softwareData,
             $addressFactory,
             $resource,
@@ -501,7 +487,7 @@ class Capayable extends AbstractMethod
      *
      * @return array
      */
-    private function getShippingCostsLine($order, $groupId)
+    protected function getShippingCostsLine($order, $groupId, &$itemsTotalAmount = 0)
     {
         $shippingCostsArticle = [];
 
@@ -580,36 +566,30 @@ class Capayable extends AbstractMethod
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRefundTransactionBuilder($payment)
+    protected function getRefundTransactionBuilderVersion()
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'    => 'capayable',
-            'Action'  => 'Refund'
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            );
-
-        return $transactionBuilder;
+        return null;
     }
-
     /**
      * {@inheritdoc}
      */
     public function getVoidTransactionBuilder($payment)
     {
         return true;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return 'capayable';
+    }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return '';
     }
 }

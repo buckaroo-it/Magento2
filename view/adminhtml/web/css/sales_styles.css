@@ -46,6 +46,7 @@
 .buckaroo_magento2_payment_transfer,
 .buckaroo_magento2_payment_mrcash,
 .buckaroo_magento2_payment_sofortbanking,
+.buckaroo_magento2_payment_belfius,
 .buckaroo_magento2_payment_alipay,
 .buckaroo_magento2_payment_wechatpay,
 .buckaroo_magento2_payment_p24,
@@ -54,7 +55,6 @@
 .buckaroo_magento2_payment_afterpay,
 .buckaroo_magento2_payment_afterpay2,
 .buckaroo_magento2_payment_payperemail,
-.buckaroo_magento2_payment_paymentguarantee,
 .buckaroo_magento2_payment_giftcards,
 .buckaroo_magento2_payment_eps,
 .buckaroo_magento2_payment_kbc,
@@ -181,6 +181,18 @@
     content: ' ';
 }
 
+/* Belfius */
+.buckaroo_magento2_payment_belfius:before {
+    background: url(../images/buckaroo_magento2_belfius_title.png) no-repeat;
+    margin-top: -7px;
+    float: left;
+    margin-right: 10px;
+    background-size: auto 37px;
+    width: 55px;
+    height: 37px;
+    content: ' ';
+}
+
 /* Alipay */
 .buckaroo_magento2_payment_alipay:before {
     background: url(../images/buckaroo_magento2_alipay_title.jpg) no-repeat;
@@ -263,18 +275,6 @@
     width             :35px;
     height            :30px;
     content           :' ';
-}
-
-/* PaymentGuarantee */
-.buckaroo_magento2_payment_paymentguarantee:before {
-    background: url(../images/buckaroo_magento2_paymentguarantee_title.png) no-repeat;
-    float             : left;
-    margin-right      : 10px;
-    margin-top        : -2px;
-    width             : 68px;
-    height            : 26px;
-    background-size   : auto 23px;
-    content            : ' ';
 }
 
 /* Payconiq */

@@ -24,6 +24,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class PayLink extends AbstractMethod
 {
@@ -48,47 +49,7 @@ class PayLink extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canAuthorize            = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapture              = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapturePartial       = false;
-
-    /**
-     * @var bool
-     */
     protected $_canRefund               = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
 
     /**
      * @var bool
@@ -114,6 +75,7 @@ class PayLink extends AbstractMethod
         Config $taxConfig,
         Calculation $taxCalculation,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -143,6 +105,7 @@ class PayLink extends AbstractMethod
             $taxConfig,
             $taxCalculation,
             $configProviderBuckarooFee,
+            $buckarooLog,
             $softwareData,
             $addressFactory,
             $resource,
@@ -170,33 +133,7 @@ class PayLink extends AbstractMethod
     {
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
-
-        if (isset($data['additional_data']['customer_gender'])) {
-            $this->getInfoInstance()
-                ->setAdditionalInformation('customer_gender', $data['additional_data']['customer_gender']);
-        }
-
-        if (isset($data['additional_data']['customer_billingFirstName'])) {
-            $this->getInfoInstance()
-                ->setAdditionalInformation(
-                    'customer_billingFirstName',
-                    $data['additional_data']['customer_billingFirstName']
-                );
-        }
-
-        if (isset($data['additional_data']['customer_billingLastName'])) {
-            $this->getInfoInstance()
-                ->setAdditionalInformation(
-                    'customer_billingLastName',
-                    $data['additional_data']['customer_billingLastName']
-                );
-        }
-
-        if (isset($data['additional_data']['customer_email'])) {
-            $this->getInfoInstance()
-                ->setAdditionalInformation('customer_email', $data['additional_data']['customer_email']);
-        }
-
+        $this->assignDataCommonV2($data);
         return $this;
     }
 
@@ -313,33 +250,9 @@ class PayLink extends AbstractMethod
         return $services;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function afterOrder($payment, $response)
     {
-        if (empty($response[0]->Services->Service)) {
-            return parent::afterOrder($payment, $response);
-        }
-
-        $invoiceKey = '';
-        $services = $response[0]->Services->Service;
-
-        if (!is_array($services)) {
-            $services = [$services];
-        }
-
-        foreach ($services as $service) {
-            if ($service->Name == 'CreditManagement3') {
-                $invoiceKey = $this->getCM3InvoiceKey($service->ResponseParameter);
-            }
-        }
-
-        if (strlen($invoiceKey) > 0) {
-            $payment->setAdditionalInformation('buckaroo_cm3_invoice_key', $invoiceKey);
-        }
-
-        return parent::afterOrder($payment, $response);
+        return $this->afterOrderCommon($payment, $response);
     }
 
     /**

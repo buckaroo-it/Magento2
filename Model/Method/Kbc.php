@@ -33,35 +33,6 @@ class Kbc extends AbstractMethod
     /** @var string */
     protected $_code                    = self::PAYMENT_METHOD_CODE;
 
-    /** @var bool */
-    protected $_isGateway               = true;
-
-    /** @var bool */
-    protected $_canOrder                = true;
-
-    /** @var bool */
-    protected $_canAuthorize            = false;
-
-    /** @var bool */
-    protected $_canCapture              = false;
-
-    /** @var bool */
-    protected $_canCapturePartial       = false;
-
-    /** @var bool */
-    protected $_canRefund               = true;
-
-    /** @var bool */
-    protected $_canVoid                 = true;
-
-    /** @var bool */
-    protected $_canUseInternal          = true;
-
-    /** @var bool */
-    protected $_canUseCheckout          = true;
-
-    /** @var bool */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
 
     /**
@@ -103,34 +74,23 @@ class Kbc extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function getRefundTransactionBuilder($payment)
-    {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'    => 'KBCPaymentButton',
-            'Action'  => 'Refund',
-            'Version' => 1,
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            );
-
-        return $transactionBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getVoidTransactionBuilder($payment)
     {
         return true;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return 'KBCPaymentButton';
+    }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return '';
     }
 }

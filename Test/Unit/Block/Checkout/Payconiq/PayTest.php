@@ -30,6 +30,7 @@ class PayTest extends BaseTest
 
     public function testGetResponse()
     {
+        $this->markTestSkipped("SKIP (Deprecated) PayTest::testGetResponse() - getResponse() does not exist anymore");
         $responseArray = ['Key' => 'abc123', 'invoice_number' => '456'];
 
         $rqstMock = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
@@ -39,6 +40,7 @@ class PayTest extends BaseTest
         $contextMock->expects($this->once())->method('getRequest')->willReturn($rqstMock);
 
         $instance = $this->getInstance(['context' => $contextMock]);
+
         $result = $instance->getResponse();
 
         $this->assertEquals($responseArray, $result);

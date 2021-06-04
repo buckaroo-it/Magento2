@@ -63,6 +63,7 @@ class KlarnakpDiscountPartialInformationTest extends BaseTest
      */
     public function testShouldShowWarning($partialCapture, $method, $expected)
     {
+        $this->markTestSkipped("SKIP (Deprecated) KlarnakpDiscountPartialInformationTest");
         $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['canCapturePartial', 'getMethod'])->getMock();
         $paymentMock->expects($this->once())->method('canCapturePartial')->willReturn($partialCapture);
         $paymentMock->method('getMethod')->willReturn($method);

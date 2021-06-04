@@ -10,9 +10,11 @@ define(
         'mage/storage',
         'Magento_Checkout/js/model/totals',
         'Magento_Checkout/js/model/resource-url-manager',
-        'Magento_Checkout/js/model/quote'
+        'Magento_Checkout/js/model/quote',
+        'Magento_Theme/js/view/messages',
+        'Magento_Ui/js/model/messageList'
     ],
-    function (Component, $, getTotals, storage, totals, resourceUrlManager, quote) {
+    function (Component, $, getTotals, storage, totals, resourceUrlManager, quote, messagesFactory, messageList) {
         'use strict';
 
         return Component.extend(
@@ -29,6 +31,18 @@ define(
                         '.payment-methods input[type="radio"][name="payment[method]"]',
                         this.savePaymentMethod
                     );
+
+                    if (typeof URLSearchParams === 'function') {
+                        var searchParams = new URLSearchParams(window.location.search);
+                        if (searchParams.get('bk_e')) {
+                            var messagesComponent = messagesFactory();
+                            messagesComponent.cookieMessages.forEach(function (message) {
+                                if (message.type == 'error') {
+                                    messageList.addErrorMessage({message: $.mage.__($("<textarea/>").html(message.text).text())});
+                                }
+                            });
+                        }
+                    }
                 },
 
                 /**

@@ -25,6 +25,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class Transfer extends AbstractMethod
 {
@@ -46,55 +47,6 @@ class Transfer extends AbstractMethod
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
 
-    /**
-     * @var bool
-     */
-    protected $_isGateway               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canOrder                = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canAuthorize            = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapture              = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canCapturePartial       = false;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefund               = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canVoid                 = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseInternal          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canUseCheckout          = true;
-
-    /**
-     * @var bool
-     */
-    protected $_canRefundInvoicePartial = true;
     // @codingStandardsIgnoreEnd
 
     /**
@@ -120,6 +72,7 @@ class Transfer extends AbstractMethod
         Config $taxConfig,
         Calculation $taxCalculation,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -149,6 +102,7 @@ class Transfer extends AbstractMethod
             $taxConfig,
             $taxCalculation,
             $configProviderBuckarooFee,
+            $buckarooLog,
             $softwareData,
             $addressFactory,
             $resource,
@@ -266,33 +220,9 @@ class Transfer extends AbstractMethod
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function afterOrder($payment, $response)
     {
-        if (empty($response[0]->Services->Service)) {
-            return parent::afterOrder($payment, $response);
-        }
-
-        $invoiceKey = '';
-        $services = $response[0]->Services->Service;
-
-        if (!is_array($services)) {
-            $services = [$services];
-        }
-
-        foreach ($services as $service) {
-            if ($service->Name == 'CreditManagement3') {
-                $invoiceKey = $this->getCM3InvoiceKey($service->ResponseParameter);
-            }
-        }
-
-        if (strlen($invoiceKey) > 0) {
-            $payment->setAdditionalInformation('buckaroo_cm3_invoice_key', $invoiceKey);
-        }
-
-        return parent::afterOrder($payment, $response);
+        return $this->afterOrderCommon($payment, $response);
     }
 
     /**
@@ -346,33 +276,9 @@ class Transfer extends AbstractMethod
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRefundTransactionBuilder($payment)
+    protected function getRefundTransactionBuilderChannel()
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('refund');
-
-        $services = [
-            'Name'    => 'transfer',
-            'Action'  => 'Refund',
-            'Version' => 1,
-        ];
-
-        $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
-            ->setOriginalTransactionKey(
-                $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-            );
-
-        return $transactionBuilder;
+        return '';
     }
 
     /**
@@ -401,5 +307,15 @@ class Transfer extends AbstractMethod
             );
 
         return $transactionBuilder;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return 'transfer';
     }
 }
