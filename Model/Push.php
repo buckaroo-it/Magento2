@@ -379,6 +379,7 @@ class Push implements PushInterface
             //Afterpay2::PAYMENT_METHOD_CODE,
             //Afterpay20::PAYMENT_METHOD_CODE,
             Giftcards::PAYMENT_METHOD_CODE,
+            Transfer::PAYMENT_METHOD_CODE,
         ];
         if (
             $payment && $payment->getMethod() && !empty($this->postData['brq_statuscode']) &&
