@@ -25,7 +25,7 @@
         <column name="entity_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
         <column name="servicecode" xsi:type="text" nullable="true" comment="Servicecode"/>
         <column name="label" xsi:type="text" nullable="true" comment="Label"/>
-        <column name="is_partial_refundable" xsi:type="tinyint" padding="1" nullable="true" comment="Customer id"/>
+        <column name="is_partial_refundable" xsi:type="tinyint" padding="5" nullable="true" comment="Customer id"/>
         <column name="logo" xsi:type="text" nullable="true" comment="Giftcard logo"/>
         <index referenceId="BUCKAROO_MAGENTO2_GIFTCARD_ENTITY_ID" indexType="btree">
             <column name="entity_id"/>
