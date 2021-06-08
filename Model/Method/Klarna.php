@@ -462,10 +462,7 @@ class Klarna extends AbstractMethod
         /**
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
-        $shippingAddress = $order->getShippingAddress();
-        if($shippingAddress == null) {
-            $shippingAddress = $order->getBillingAddress();
-        }
+        $shippingAddress = $this->getShippingAddress($payment);
 
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 
