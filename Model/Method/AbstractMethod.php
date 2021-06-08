@@ -2407,5 +2407,15 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $requestData;
     }
 
+    public function getShippingAddress($payment, &$isAbsent = false)
+    {
+        $shippingAddress = $payment->getOrder()->getShippingAddress();
+
+        if (!$shippingAddress) {
+            $isAbsent = true;
+            $shippingAddress = $payment->getOrder()->getBillingAddress();
+        }
+        return $shippingAddress;
+    }
 }
 
