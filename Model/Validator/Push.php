@@ -122,13 +122,13 @@ class Push implements ValidatorInterface
      *
      * @return bool
      */
-    public function validateSignature($originalPostData, $postData)
+    public function validateSignature($originalPostData, $postData, $store = null)
     {
         if (!isset($postData['brq_signature'])) {
             return false;
         }
 
-        $signature = $this->calculateSignature($originalPostData);
+        $signature = $this->calculateSignature($originalPostData, $store);
 
         if ($signature !== $postData['brq_signature']) {
             return false;
@@ -144,7 +144,7 @@ class Push implements ValidatorInterface
      *
      * @return string
      */
-    protected function calculateSignature($postData)
+    protected function calculateSignature($postData, $store = null)
     {
         $copyData = $postData;
         unset($copyData['brq_signature']); unset($copyData['BRQ_SIGNATURE']);
@@ -159,7 +159,7 @@ class Push implements ValidatorInterface
             $signatureString .= $brq_key. '=' . $value;
         }
 
-        $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
+        $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));
 
         $signatureString .= $digitalSignature;
 

@@ -218,9 +218,6 @@ class Push implements PushInterface
         //Start debug mailing/logging with the postdata.
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->originalPostData, true));
 
-        //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
-        $validSignature = $this->validator->validateSignature($this->originalPostData, $this->postData);
-
         $this->logging->addDebug(__METHOD__ . '|1_2|');
         $lockHandler = $this->lockPushProcessingPpe();
         $this->logging->addDebug(__METHOD__ . '|1_3|');
@@ -237,6 +234,13 @@ class Push implements PushInterface
         }
 
         $this->loadOrder();
+
+        //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
+        $validSignature = $this->validator->validateSignature(
+            $this->originalPostData,
+            $this->postData,
+            $this->order ? $this->order->getStore() : null
+        );
 
         $transactionType = $this->getTransactionType();
         //Validate status code and return response
