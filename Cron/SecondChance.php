@@ -119,10 +119,9 @@ class SecondChance
                     $this->logging->addDebug(__METHOD__ . '|secondChance step|' . $step);
 
                     if ($step == 1) {
-                        $timing = $this->accountConfig->getSecondChanceTiming($store) > 0 ? ('-' . $this->accountConfig->getSecondChanceTiming($store) . ' hour') : 'now';
+                        $timing = $this->accountConfig->getSecondChanceTiming($store);
                     } else {
-                        $totalTiming = $this->accountConfig->getSecondChanceTiming($store) + $this->accountConfig->getSecondChanceTiming2($store);
-                        $timing      = $totalTiming > 0 ? ('-' . $totalTiming . ' hour') : 'now';
+                        $timing = $this->accountConfig->getSecondChanceTiming($store) + $this->accountConfig->getSecondChanceTiming2($store);
                     }
 
                     $this->logging->addDebug(__METHOD__ . '|secondChance timing|' . $timing);
@@ -136,7 +135,8 @@ class SecondChance
                             'store_id',
                             array('eq' => $store->getId())
                         )
-                        ->addFieldToFilter('created_at', ['lteq' => date('Y-m-d H:i:s', strtotime($timing, strtotime($now->format('Y-m-d H:i:s'))))]);
+                        ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL '.$timing.' DAY')])
+                        ->addFieldToFilter('created_at', ['gteq' => new \Zend_Db_Expr('NOW() - INTERVAL 5 DAY')]);
 
                     foreach ($collection as $item) {
                         $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());

@@ -41,7 +41,7 @@ class Recreate
         Cart $cart
     ) {
         $this->cartRepository = $cartRepository;
-        $this->cart = $cart;
+        $this->cart           = $cart;
     }
 
     /**
@@ -51,19 +51,21 @@ class Recreate
      */
     public function recreate($order)
     {
-        /** @var Quote $quote */
-        $quote = $this->cartRepository->get($order->getQuoteId());
-
-        $quote->setIsActive(true);
-        $quote->setTriggerRecollect('1');
-        $quote->setReservedOrderId(null);
-        $quote->setBuckarooFee(null);
-        $quote->setBaseBuckarooFee(null);
-        $quote->setBuckarooFeeTaxAmount(null);
-        $quote->setBuckarooFeeBaseTaxAmount(null);
-        $quote->setBuckarooFeeInclTax(null);
-        $quote->setBaseBuckarooFeeInclTax(null);
-
-        $this->cart->setQuote($quote)->save();
+        try {
+            /** @var Quote $quote */
+            $quote = $this->cartRepository->get($order->getQuoteId());
+            $quote->setIsActive(true);
+            $quote->setTriggerRecollect('1');
+            $quote->setReservedOrderId(null);
+            $quote->setBuckarooFee(null);
+            $quote->setBaseBuckarooFee(null);
+            $quote->setBuckarooFeeTaxAmount(null);
+            $quote->setBuckarooFeeBaseTaxAmount(null);
+            $quote->setBuckarooFeeInclTax(null);
+            $quote->setBaseBuckarooFeeInclTax(null);
+            $this->cart->setQuote($quote)->save();
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            //No such entity
+        }
     }
 }
