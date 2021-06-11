@@ -136,7 +136,8 @@ class SecondChance
                             'store_id',
                             array('eq' => $store->getId())
                         )
-                        ->addFieldToFilter('created_at', ['lteq' => date('Y-m-d H:i:s', strtotime($timing, strtotime($now->format('Y-m-d H:i:s'))))]);
+                        ->addFieldToFilter('created_at', ['lteq' => date('Y-m-d H:i:s', strtotime($timing, strtotime($now->format('Y-m-d H:i:s'))))])
+                        ->addFieldToFilter('created_at', ['gteq' => date('Y-m-d H:i:s', strtotime('-100 hour', strtotime($now->format('Y-m-d H:i:s'))))]);
 
                     foreach ($collection as $item) {
                         $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
