@@ -19,10 +19,16 @@
  */
 namespace Buckaroo\Magento2\Cron;
 
+use Buckaroo\Magento2\Model\Method\Transfer;
 use Magento\Store\Model\ScopeInterface;
 
 class SecondChance
 {
+    const XPATH_SECOND_CHANCE_TEMPLATE          = 'buckaroo_magento2/account/second_chance_template';
+    const XPATH_SECOND_CHANCE_TEMPLATE2         = 'buckaroo_magento2/account/second_chance_template2';
+    const XPATH_SECOND_CHANCE_DEFAULT_TEMPLATE  = 'buckaroo_second_chance';
+    const XPATH_SECOND_CHANCE_DEFAULT_TEMPLATE2 = 'buckaroo_second_chance2';
+    const XPATH_SECOND_CHANCE_FINAL_STATUS      = 10;
     /**
      * @var \Buckaroo\Magento2\Model\SecondChanceFactory
      */
@@ -107,43 +113,71 @@ class SecondChance
         $stores = $this->storeRepository->getList();
         foreach ($stores as $store) {
             if ($this->accountConfig->getSecondChance($store)) {
-                $now          = new \DateTime();
-                $secondChanceTiming = $this->accountConfig->getSecondChanceTiming($store)>0 ? ('-' . $this->accountConfig->getSecondChanceTiming($store) . ' hour') : 'now';
-                $this->logging->addDebug(__METHOD__ . '|secondChanceTiming|' . $secondChanceTiming);
-                $secondChance = $this->secondChanceFactory->create();
-                $collection   = $secondChance->getCollection()
-                    ->addFieldToFilter(
-                        'status',
-                        array('eq' => '')
-                    )
-                    ->addFieldToFilter(
-                        'store_id',
-                        array('eq' => $store->getId())
-                    )
-                    ->addFieldToFilter('created_at', ['lteq' => date('Y-m-d H:i:s', strtotime($secondChanceTiming, strtotime($now->format('Y-m-d H:i:s'))))]);
-                foreach ($collection as $item) {
-                    $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
-                    $this->logging->addDebug(__METHOD__ . '|secondChance order State|' . $order->getState());
-                    if (in_array($order->getState(), ['canceled', 'processing', 'new'])) {
-                        if ($this->accountConfig->getNoSendSecondChance($store)) {
-                            $this->logging->addDebug(__METHOD__ . '|getNoSendSecondChance|');
-                            if ($this->checkOrderProductsIsInStock($order)) {
-                                $this->logging->addDebug(__METHOD__ . '|checkOrderProductsIsInStock|');
-                                $this->sendMail($order, $item);
-                            }
-                        } else {
-                            $this->logging->addDebug(__METHOD__ . '|else getNoSendSecondChance|');
-                            $this->sendMail($order, $item);
+                $now = new \DateTime();
+
+                foreach ([2, 1] as $step) {
+                    $this->logging->addDebug(__METHOD__ . '|secondChance step|' . $step);
+
+                    if ($step == 1) {
+                        $timing = $this->accountConfig->getSecondChanceTiming($store) > 0 ? ('-' . $this->accountConfig->getSecondChanceTiming($store) . ' hour') : 'now';
+                    } else {
+                        $totalTiming = $this->accountConfig->getSecondChanceTiming($store) + $this->accountConfig->getSecondChanceTiming2($store);
+                        $timing      = $totalTiming > 0 ? ('-' . $totalTiming . ' hour') : 'now';
+                    }
+
+                    $this->logging->addDebug(__METHOD__ . '|secondChance timing|' . $timing);
+                    $secondChance = $this->secondChanceFactory->create();
+                    $collection   = $secondChance->getCollection()
+                        ->addFieldToFilter(
+                            'status',
+                            array('eq' => ($step == 2) ? 1 : '')
+                        )
+                        ->addFieldToFilter(
+                            'store_id',
+                            array('eq' => $store->getId())
+                        )
+                        ->addFieldToFilter('created_at', ['lteq' => date('Y-m-d H:i:s', strtotime($timing, strtotime($now->format('Y-m-d H:i:s'))))]);
+
+                    foreach ($collection as $item) {
+                        $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
+
+                        $payment = $order->getPayment();
+                        if (in_array($payment->getMethod(), [Transfer::PAYMENT_METHOD_CODE])) {
+                            $this->setFinalStatus($item);
+                            continue;
                         }
-                    }                    
+
+                        if ($item->getLastOrderId() != null && $last_order = $this->orderFactory->create()->loadByIncrementId($item->getLastOrderId())) {
+                            if ($last_order->hasInvoices()) {
+                                $this->setFinalStatus($item);
+                                continue;
+                            }
+                        }
+
+                        if ($order->hasInvoices()) {
+                            $this->setFinalStatus($item);
+                        } else {
+                            if ($this->accountConfig->getNoSendSecondChance($store)) {
+                                $this->logging->addDebug(__METHOD__ . '|getNoSendSecondChance|');
+                                if ($this->checkOrderProductsIsInStock($order)) {
+                                    $this->logging->addDebug(__METHOD__ . '|checkOrderProductsIsInStock|');
+                                    $this->sendMail($order, $item, $step);
+                                }
+                            } else {
+                                $this->logging->addDebug(__METHOD__ . '|else getNoSendSecondChance|');
+                                $this->sendMail($order, $item, $step);
+                            }
+                        }
+                    }
+                    $collection->save();
                 }
-                $collection->save();
+
             }
         }
         return $this;
     }
 
-    public function sendMail($order, $secondChance)
+    public function sendMail($order, $secondChance, $step)
     {
         $vars = [
             'order'                    => $order,
@@ -155,8 +189,16 @@ class SecondChance
             'secondChanceToken'        => $secondChance->getToken(),
         ];
 
+        if ($step == 1) {
+            $templateId = $this->scopeConfig->getValue(self::XPATH_SECOND_CHANCE_TEMPLATE, ScopeInterface::SCOPE_STORE) ?? self::XPATH_SECOND_CHANCE_DEFAULT_TEMPLATE;
+        } else {
+            $templateId = $this->scopeConfig->getValue(self::XPATH_SECOND_CHANCE_TEMPLATE2, ScopeInterface::SCOPE_STORE) ?? self::XPATH_SECOND_CHANCE_DEFAULT_TEMPLATE2;
+        }
+
+        $this->logging->addDebug(__METHOD__ . '|TemplateIdentifier|' . $templateId);
+
         $this->inlineTranslation->suspend();
-        $this->transportBuilder->setTemplateIdentifier('buckaroo_second_chance')
+        $this->transportBuilder->setTemplateIdentifier($templateId)
             ->setTemplateOptions(
                 [
                     'area'  => \Magento\Framework\App\Area::AREA_FRONTEND,
@@ -176,8 +218,9 @@ class SecondChance
         try {
             $transport->sendMessage();
             $this->inlineTranslation->resume();
-            $secondChance->setStatus('1');
-            $this->logging->addDebug(__METHOD__ . '|secondChanceEmail is sensed to|' . $order->getCustomerEmail());
+            $secondChance->setStatus($step);
+            $secondChance->save();
+            $this->logging->addDebug(__METHOD__ . '|secondChanceEmail is sended to|' . $order->getCustomerEmail());
         } catch (\Exception $exception) {
             $this->logging->addDebug(__METHOD__ . '|log failed email send|' . $exception->getMessage());
         }
@@ -233,5 +276,11 @@ class SecondChance
             }
         }
         return true;
+    }
+
+    public function setFinalStatus($item)
+    {
+        $item->setStatus(self::XPATH_SECOND_CHANCE_FINAL_STATUS);
+        return $item->save();
     }
 }
