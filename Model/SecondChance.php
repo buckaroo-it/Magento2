@@ -78,6 +78,22 @@ class SecondChance extends AbstractModel
     /**
      * @return string
      */
+    public function getLastOrderId()
+    {
+        return $this->getData('last_order_id');
+    }
+
+    /**
+     * @return string
+     */
+    public function setLastOrderId($last_order_id)
+    {
+        return $this->setData('last_order_id', $last_order_id);
+    }
+
+    /**
+     * @return string
+     */
     public function getToken()
     {
         return $this->getData('token');
