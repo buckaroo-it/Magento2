@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Framework\App\ObjectManager;
 
 class SecondChance extends \Magento\Framework\App\Action\Action
 {
@@ -134,6 +135,11 @@ class SecondChance extends \Magento\Framework\App\Action\Action
     protected $_sessionFactory;
 
     /**
+     * @var \Magento\Sales\Model\OrderIncrementIdChecker
+     */
+    private $orderIncrementIdChecker;
+
+    /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
      * @param \Magento\Checkout\Model\Cart                        $cart
@@ -187,7 +193,8 @@ class SecondChance extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\CustomerFactory $customerFactory,
         \Magento\Customer\Model\SessionFactory $sessionFactory,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface,
-        \Magento\Quote\Api\CartManagementInterface $quoteManagement
+        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
+        \Magento\Sales\Model\OrderIncrementIdChecker $orderIncrementIdChecker = null
 
     ) {
         parent::__construct($context);
@@ -229,6 +236,9 @@ class SecondChance extends \Magento\Framework\App\Action\Action
 
         $this->guestCart           = $guestCart;
         $this->secondChanceFactory = $secondChanceFactory;
+
+        $this->orderIncrementIdChecker = $orderIncrementIdChecker ?: ObjectManager::getInstance()
+            ->get(\Magento\Sales\Model\OrderIncrementIdChecker::class);
     }
 
     /**
@@ -251,7 +261,7 @@ class SecondChance extends \Magento\Framework\App\Action\Action
                     array('eq' => $buckaroo_second_chance)
                 );
             foreach ($collection as $item) {
-                $order          = $this->_orderFactory->create()->loadByIncrementId($item->getOrderId());
+                $order = $this->_orderFactory->create()->loadByIncrementId($item->getOrderId());
                 if ($this->customerSession->isLoggedIn()) {
                     $this->customerSession->logout();
                 }
@@ -259,9 +269,26 @@ class SecondChance extends \Magento\Framework\App\Action\Action
                 $sessionManager = $this->_sessionFactory->create();
                 $sessionManager->setCustomerAsLoggedIn($customer);
                 $this->quoteRecreate->recreate($order);
+
+                $this->setAvailableIncrementId($item->getOrderId(), $item);
+
             }
         }
         return $this->_redirect('checkout');
+    }
+
+    private function setAvailableIncrementId($orderId, $item)
+    {
+        for ($i = 1; $i < 100; $i++) {
+            $newOrderId = $orderId . '-' . $i;
+            if (!$this->orderIncrementIdChecker->isIncrementIdUsed($newOrderId)) {
+                $this->checkoutSession->getQuote()->setReservedOrderId($newOrderId);
+                $this->checkoutSession->getQuote()->save();
+                $item->setLastOrderId($newOrderId);
+                $item->save();
+                return true;
+            }
+        }
     }
 
 }

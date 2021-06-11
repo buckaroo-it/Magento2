@@ -6,4 +6,11 @@
               module="Buckaroo_Magento2"
               area="frontend"
     />
+    <template id="buckaroo_second_chance2"
+              label="Second Chance second email"
+              file="second_chance2.html"
+              type="html"
+              module="Buckaroo_Magento2"
+              area="frontend"
+    />
 </config>

@@ -259,10 +259,36 @@
                 </depends>
             </field>
 
+            <field id="buckaroo_second_chance" translate="label comment" type="select" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <label>Second chance Template</label>
+                <comment>Email template chosen based on theme fallback when "Default" option is selected.</comment>
+                <config_path>buckaroo_magento2/account/second_chance_template</config_path>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
+            </field>
+
             <field id="second_chance_timing" translate="label comment" type="text" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Due hours (between 0 and 24hr)</label>
                 <comment><![CDATA[Timing for this second-chance email .]]></comment>
                 <config_path>buckaroo_magento2/account/second_chance_timing</config_path>
+                <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
+                <depends>
+                    <field id="cart_keep_alive">1</field>
+                    <field id="second_chance">1</field>
+                </depends>
+            </field>
+
+            <field id="buckaroo_second_chance2" translate="label comment" type="select" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <label>Second chance second e-mail Template</label>
+                <comment>Second email template chosen based on theme fallback when "Default" option is selected.</comment>
+                <config_path>buckaroo_magento2/account/second_chance_template2</config_path>
+                <!-- <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model> -->
+                <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
+            </field>
+
+            <field id="second_chance_timing2" translate="label comment" type="text" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Due hours (between 0 and 72hr)</label>
+                <comment><![CDATA[Timing for sender after the first one second-chance email.]]></comment>
+                <config_path>buckaroo_magento2/account/second_chance_timing2</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
                 <depends>
                     <field id="cart_keep_alive">1</field>
