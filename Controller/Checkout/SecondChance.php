@@ -265,11 +265,14 @@ class SecondChance extends \Magento\Framework\App\Action\Action
                 if ($this->customerSession->isLoggedIn()) {
                     $this->customerSession->logout();
                 }
-                $customer       = $this->_customerFactory->create()->load($order->getCustomerId());
-                $sessionManager = $this->_sessionFactory->create();
-                $sessionManager->setCustomerAsLoggedIn($customer);
-                $this->quoteRecreate->recreate($order);
 
+                if($customerId = $order->getCustomerId()){
+                    $customer = $this->_customerFactory->create()->load($customerId);
+                    $sessionManager = $this->_sessionFactory->create();
+                    $sessionManager->setCustomerAsLoggedIn($customer);
+                }
+                
+                $this->quoteRecreate->recreate($order);
                 $this->setAvailableIncrementId($item->getOrderId(), $item);
 
             }
