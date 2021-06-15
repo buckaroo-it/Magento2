@@ -504,6 +504,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
          */
         $total = $quote->getGrandTotal();
 
+        if ($total < 0.01) {
+            return false;
+        }
+
         if ($maximum !== null && $total > $maximum) {
             return false;
         }
