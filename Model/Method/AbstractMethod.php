@@ -901,7 +901,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function capture(InfoInterface $payment, $amount)
     {
-        $this->logger2->addDebug(__METHOD__ . '|1|');
+        $this->logger2->addDebug(__METHOD__ . '|1|'.var_export($amount, true));
 
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
@@ -1515,9 +1515,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 if (++$i !== $numberOfInvoices) {
                     continue;
                 }
-                $this->logger2->addDebug(__METHOD__ . '|10|' . var_export($oInvoice->getBaseGrandTotal(), true));
+                $this->logger2->addDebug(__METHOD__ . '|10|' . var_export($oInvoice->getGrandTotal(), true));
                 $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
+                $currentInvoiceTotal = $oInvoice->getGrandTotal();
             }
         }
 
