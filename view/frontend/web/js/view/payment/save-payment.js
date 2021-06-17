@@ -28,7 +28,7 @@ define(
                      */
                     $('body').on(
                         'click',
-                        '.payment-methods input[type="radio"][name="payment[method]"]',
+                        '.payment-methods div[class^="buckaroo_magento2_"] input[type="radio"][name="payment[method]"]',
                         this.savePaymentMethod
                     );
 
