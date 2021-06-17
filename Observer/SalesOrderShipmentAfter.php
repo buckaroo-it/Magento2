@@ -140,22 +140,22 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $this->gateway->setMode(
                 $this->helper->getMode('buckaroo_magento2_afterpay20')
             );
-            $this->createInvoice($order, $shipment);
+            $this->createInvoice($order, $shipment, true);
         }
     }
 
-    public function createInvoice($order, $shipment)
+    private function createInvoice($order, $shipment, $allowPartialsWithDiscount = false)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($order->getDiscountAmount(), true));
 
         try {
             if(!$order->canInvoice()) {
                 return null;
             }
 
-            if ($order->getDiscountAmount() < 0) {
+            if (!$allowPartialsWithDiscount && ($order->getDiscountAmount() < 0)) {
                 $invoice = $this->invoiceService->prepareInvoice($order);
-                $message = 'Automatically invoiced full order with discount. (Klarna can not invoice partials with discount)';
+                $message = 'Automatically invoiced full order (can not invoice partials with discount)';
             }
             else {
                 $qtys = $this->getQtys($shipment);
