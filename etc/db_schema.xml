@@ -45,5 +45,8 @@
             <index referenceId="BUCKAROO_MAGENTO2_SECOND_CHANCE_TOKEN" indexType="btree">
                 <column name="token"/>
             </index>
+            <index referenceId="BUCKAROO_MAGENTO2_SECOND_CREATED_AT" indexType="btree">
+                <column name="created_at"/>
+            </index>
         </table>
 </schema>
