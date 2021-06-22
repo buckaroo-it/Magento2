@@ -24,22 +24,30 @@ use Magento\Store\Model\ScopeInterface;
 
 class SecondChance
 {
-    const XPATH_SECOND_CHANCE_TEMPLATE          = 'buckaroo_magento2/account/second_chance_template';
-    const XPATH_SECOND_CHANCE_TEMPLATE2         = 'buckaroo_magento2/account/second_chance_template2';
-    const XPATH_SECOND_CHANCE_DEFAULT_TEMPLATE  = 'buckaroo_second_chance';
-    const XPATH_SECOND_CHANCE_DEFAULT_TEMPLATE2 = 'buckaroo_second_chance2';
-    const XPATH_SECOND_CHANCE_FINAL_STATUS      = 10;
+    const XPATH_TEMPLATE                   = 'buckaroo_magento2/account/second_chance_template';
+    const XPATH_TEMPLATE2                  = 'buckaroo_magento2/account/second_chance_template2';
+    const XPATH_DEFAULT_TEMPLATE           = 'buckaroo_second_chance';
+    const XPATH_DEFAULT_TEMPLATE2          = 'buckaroo_second_chance2';
+    const XPATH_SECOND_CHANCE_FINAL_STATUS = 10;
+
     /**
      * @var \Buckaroo\Magento2\Model\SecondChanceFactory
      */
     protected $secondChanceFactory;
 
+    /**
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
+     */
     protected $accountConfig;
 
-    protected $dateTime;
-
+    /**
+     * @var \Magento\Sales\Model\OrderFactory
+     */
     protected $orderFactory;
 
+    /**
+     * @var \Magento\Framework\Mail\Template\TransportBuilder
+     */
     protected $transportBuilder;
 
     /**
@@ -52,8 +60,14 @@ class SecondChance
      */
     public $logging;
 
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
     protected $scopeConfig;
 
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
     protected $storeManager;
 
     /**
@@ -66,20 +80,24 @@ class SecondChance
      */
     private $paymentHelper;
 
+    /**
+     * @var \Magento\Store\Api\StoreRepositoryInterface
+     */
     private $storeRepository;
 
+    /**
+     * @var \Magento\CatalogInventory\Model\Stock\StockItemRepository
+     */
     protected $stockItemRepository;
 
     /**
      * @param \Magento\Checkout\Model\Session\Proxy                $checkoutSession
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
      * @param \Buckaroo\Magento2\Model\SecondChanceFactory         $secondChanceFactory
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime          $dateTime
      */
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
         \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
         \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder,
@@ -94,7 +112,6 @@ class SecondChance
     ) {
         $this->accountConfig       = $accountConfig;
         $this->secondChanceFactory = $secondChanceFactory;
-        $this->dateTime            = $dateTime;
         $this->orderFactory        = $orderFactory;
         $this->inlineTranslation   = $inlineTranslation;
         $this->transportBuilder    = $transportBuilder;
@@ -113,86 +130,91 @@ class SecondChance
         $stores = $this->storeRepository->getList();
         foreach ($stores as $store) {
             if ($this->accountConfig->getSecondChance($store)) {
-                $now = new \DateTime();
-
                 foreach ([2, 1] as $step) {
-                    $this->logging->addDebug(__METHOD__ . '|secondChance step|' . $step);
-
-                    if ($step == 1) {
-                        $timing = $this->accountConfig->getSecondChanceTiming($store);
-                    } else {
-                        $timing = $this->accountConfig->getSecondChanceTiming($store) + $this->accountConfig->getSecondChanceTiming2($store);
-                    }
-
-                    $this->logging->addDebug(__METHOD__ . '|secondChance timing|' . $timing);
-                    $secondChance = $this->secondChanceFactory->create();
-                    $collection   = $secondChance->getCollection()
-                        ->addFieldToFilter(
-                            'status',
-                            array('eq' => ($step == 2) ? 1 : '')
-                        )
-                        ->addFieldToFilter(
-                            'store_id',
-                            array('eq' => $store->getId())
-                        )
-                        ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL '.$timing.' DAY')])
-                        ->addFieldToFilter('created_at', ['gteq' => new \Zend_Db_Expr('NOW() - INTERVAL 5 DAY')]);
-
-                    foreach ($collection as $item) {
-                        $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
-
-                        $payment = $order->getPayment();
-                        if (in_array($payment->getMethod(), [Transfer::PAYMENT_METHOD_CODE])) {
-                            $this->setFinalStatus($item);
-                            continue;
-                        }
-
-                        if ($item->getLastOrderId() != null && $last_order = $this->orderFactory->create()->loadByIncrementId($item->getLastOrderId())) {
-                            if ($last_order->hasInvoices()) {
-                                $this->setFinalStatus($item);
-                                continue;
-                            }
-                        }
-
-                        if ($order->hasInvoices()) {
-                            $this->setFinalStatus($item);
-                        } else {
-                            if ($this->accountConfig->getNoSendSecondChance($store)) {
-                                $this->logging->addDebug(__METHOD__ . '|getNoSendSecondChance|');
-                                if ($this->checkOrderProductsIsInStock($order)) {
-                                    $this->logging->addDebug(__METHOD__ . '|checkOrderProductsIsInStock|');
-                                    $this->sendMail($order, $item, $step);
-                                }
-                            } else {
-                                $this->logging->addDebug(__METHOD__ . '|else getNoSendSecondChance|');
-                                $this->sendMail($order, $item, $step);
-                            }
-                        }
-                    }
-                    $collection->save();
+                    $this->getSecondChanceCollection($step, $store);
                 }
-
             }
         }
         return $this;
     }
 
+    private function getSecondChanceCollection($step, $store)
+    {
+        $this->logging->addDebug(__METHOD__ . '|secondChance step|' . $step);
+
+        $timing = $this->accountConfig->getSecondChanceTiming($store) +
+            ($step == 2 ? $this->accountConfig->getSecondChanceTiming2($store) : 0);
+
+        $this->logging->addDebug(__METHOD__ . '|secondChance timing|' . $timing);
+
+        $secondChance = $this->secondChanceFactory->create();
+        $collection   = $secondChance->getCollection()
+            ->addFieldToFilter(
+                'status',
+                ['eq' => ($step == 2) ? 1 : '']
+            )
+            ->addFieldToFilter(
+                'store_id',
+                ['eq' => $store->getId()]
+            )
+            ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' DAY')])
+            ->addFieldToFilter('created_at', ['gteq' => new \Zend_Db_Expr('NOW() - INTERVAL 5 DAY')]);
+
+        foreach ($collection as $item) {
+            $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
+
+            //BP-896 skip Transfer method
+            $payment = $order->getPayment();
+            if (in_array($payment->getMethod(), [Transfer::PAYMENT_METHOD_CODE])) {
+                $this->setFinalStatus($item);
+                continue;
+            }
+
+            if ($item->getLastOrderId() != null &&
+                $last_order = $this->orderFactory->create()->loadByIncrementId($item->getLastOrderId())) {
+                if ($last_order->hasInvoices()) {
+                    $this->setFinalStatus($item);
+                    continue;
+                }
+            }
+
+            if ($order->hasInvoices()) {
+                $this->setFinalStatus($item);
+            } else {
+                if ($this->accountConfig->getNoSendSecondChance($store)) {
+                    $this->logging->addDebug(__METHOD__ . '|getNoSendSecondChance|');
+                    if ($this->checkOrderProductsIsInStock($order)) {
+                        $this->logging->addDebug(__METHOD__ . '|checkOrderProductsIsInStock|');
+                        $this->sendMail($order, $item, $step);
+                    }
+                } else {
+                    $this->logging->addDebug(__METHOD__ . '|else getNoSendSecondChance|');
+                    $this->sendMail($order, $item, $step);
+                }
+            }
+        }
+        $collection->save();
+    }
+
     public function sendMail($order, $secondChance, $step)
     {
-        $vars = [
+        $store = $order->getStore();
+        $vars  = [
             'order'                    => $order,
             'billing'                  => $order->getBillingAddress(),
             'payment_html'             => $this->getPaymentHtml($order),
-            'store'                    => $order->getStore(),
+            'store'                    => $store,
             'formattedShippingAddress' => $this->getFormattedShippingAddress($order),
             'formattedBillingAddress'  => $this->getFormattedBillingAddress($order),
             'secondChanceToken'        => $secondChance->getToken(),
         ];
 
         if ($step == 1) {
-            $templateId = $this->scopeConfig->getValue(self::XPATH_SECOND_CHANCE_TEMPLATE, ScopeInterface::SCOPE_STORE) ?? self::XPATH_SECOND_CHANCE_DEFAULT_TEMPLATE;
+            $templateId = $this->scopeConfig->getValue(self::XPATH_TEMPLATE, ScopeInterface::SCOPE_STORE, $store) ??
+            self::XPATH_DEFAULT_TEMPLATE;
         } else {
-            $templateId = $this->scopeConfig->getValue(self::XPATH_SECOND_CHANCE_TEMPLATE2, ScopeInterface::SCOPE_STORE) ?? self::XPATH_SECOND_CHANCE_DEFAULT_TEMPLATE2;
+            $templateId = $this->scopeConfig->getValue(self::XPATH_TEMPLATE2, ScopeInterface::SCOPE_STORE, $store) ??
+            self::XPATH_DEFAULT_TEMPLATE2;
         }
 
         $this->logging->addDebug(__METHOD__ . '|TemplateIdentifier|' . $templateId);
@@ -202,14 +224,21 @@ class SecondChance
             ->setTemplateOptions(
                 [
                     'area'  => \Magento\Framework\App\Area::AREA_FRONTEND,
-                    'store' => $order->getStore()->getId(),
+                    'store' => $store->getId(),
                 ]
-            )->setTemplateVars(
-            $vars
-        )->setFrom([
-            'email' => $this->scopeConfig->getValue('trans_email/ident_sales/email', ScopeInterface::SCOPE_STORE),
-            'name'  => $this->scopeConfig->getValue('trans_email/ident_sales/name', ScopeInterface::SCOPE_STORE),
-        ])->addTo($order->getCustomerEmail());
+            )->setTemplateVars($vars)
+            ->setFrom([
+                'email' => $this->scopeConfig->getValue(
+                    'trans_email/ident_sales/email',
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'name'  => $this->scopeConfig->getValue(
+                    'trans_email/ident_sales/name',
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+            ])->addTo($order->getCustomerEmail());
 
         if (!isset($transport)) {
             $transport = $this->transportBuilder->getTransport();

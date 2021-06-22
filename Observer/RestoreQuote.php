@@ -79,13 +79,13 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     protected $_messageManager;
 
     /**
-     * @param \Magento\Checkout\Model\Session\Proxy                $checkoutSession
+     * @param \Magento\Checkout\Model\Session                      $checkoutSession
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
      * @param \Buckaroo\Magento2\Model\SecondChanceFactory         $secondChanceFactory
      * @param \Magento\Framework\Stdlib\DateTime\DateTime          $dateTime
      */
     public function __construct(
-        \Magento\Checkout\Model\Session\Proxy $checkoutSession,
+        \Magento\Checkout\Model\Session $checkoutSession,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
         \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
         \Magento\Framework\App\Request\Http $request,

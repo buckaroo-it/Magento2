@@ -19,6 +19,10 @@
  */
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance as SecondChanceResource;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection as SecondChanceCollection;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory as SecondChanceCollectionFactory;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Api\SearchResultsInterfaceFactory;
@@ -26,10 +30,6 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
-use Buckaroo\Magento2\Model\ResourceModel\SecondChance as SecondChanceResource;
-use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection as SecondChanceCollection;
-use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory as SecondChanceCollectionFactory;
 
 class SecondChanceRepository
 {
@@ -51,10 +51,10 @@ class SecondChanceRepository
         SecondChanceCollectionFactory $SecondChanceCollectionFactory,
         SearchResultsInterfaceFactory $searchResultsFactory
     ) {
-        $this->resource = $resource;
+        $this->resource                      = $resource;
         $this->SecondChanceCollectionFactory = $SecondChanceCollectionFactory;
-        $this->SecondChanceFactory = $SecondChanceFactory;
-        $this->searchResultsFactory = $searchResultsFactory;
+        $this->SecondChanceFactory           = $SecondChanceFactory;
+        $this->searchResultsFactory          = $searchResultsFactory;
     }
 
     /**
