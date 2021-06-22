@@ -74,7 +74,12 @@ class SendInvoiceMail implements ObserverInterface
         if (!$invoice->getEmailSent() && $invoice->getIsPaid() && $canCapture && $sendInvoiceEmail) {
             $invoice->save();
             $this->logging->addDebug(__METHOD__ . '|10|sendinvoiceemail');
+            $orderBaseShippingAmount = $invoice->getOrder()->getBaseShippingAmount();
             $this->invoiceSender->send($invoice, true);
+            if (($orderBaseShippingAmount > 0) && ($invoice->getOrder()->getBaseShippingAmount() == 0)) {
+                $this->logging->addDebug(__METHOD__ . '|15|');
+                $invoice->getOrder()->setBaseShippingAmount($orderBaseShippingAmount);
+            }
         }
     }
 }
