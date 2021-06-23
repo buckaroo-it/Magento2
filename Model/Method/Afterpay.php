@@ -492,9 +492,6 @@ class Afterpay extends AbstractMethod
                 continue;
             }
 
-            $itemTaxClassId = $invoice->getOrder()->getPayment()
-                ->getAdditionalInformation('tax_pid_' . $item->getProductId());
-
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
@@ -561,18 +558,16 @@ class Afterpay extends AbstractMethod
                 continue;
             }
 
-            $itemTaxClassId = $payment->getAdditionalInformation('tax_pid_' . $item->getProductId());
-
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
                 $item->getProductId(),
                 intval($item->getQty()),
-                $this->calculateProductPrice($item, $includesTax),
+                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
                 $this->getTaxCategory($payment->getOrder())
             );
 
-            $itemsTotalAmount += $item->getQty() * $this->calculateProductPrice($item, $includesTax);
+            $itemsTotalAmount += $item->getQty() * ($this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount());
 
             $articles = array_merge($articles, $article);
 
