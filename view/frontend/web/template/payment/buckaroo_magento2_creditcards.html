@@ -30,23 +30,18 @@
                             />
                         </div>
 
-                        <div class="field required width-70" >
-                            <label class="label" for="buckaroo_magento2_creditcards_issuer"> <span data-bind="i18n: 'Card:'"> </span> </label>
-                            <div class="control">
-                                <select id="buckaroo_magento2_creditcards_issuer" class="field"
-                                        data-bind="value: CardIssuer,
-                                        event: { change: validateIssuer },
-                                        attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
-                                        name="payment[buckaroo_magento2_creditcards][issuer]">
-                                    <option data-bind="i18n: 'Select a card', 'value': ''"></option>
-                                    <!-- ko foreach: creditcards -->
-                                        <!-- ko if: active -->
-                                            <option data-bind="i18n: name, 'value': code"></option>
-                                        <!--/ko-->
-                                    <!--/ko-->
-                                </select>
-                            </div>
-                        </div>
+                        <select id="buckaroo_magento2_creditcards_issuer" class="field" style="display: none;"
+                                data-bind="value: CardIssuer,
+                                event: { change: validateIssuer },
+                                attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                name="payment[buckaroo_magento2_creditcards][issuer]">
+                            <option data-bind="i18n: 'Select a card', 'value': ''"></option>
+                            <!-- ko foreach: creditcards -->
+                                <!-- ko if: active -->
+                                    <option data-bind="i18n: name, 'value': code"></option>
+                                <!--/ko-->
+                            <!--/ko-->
+                        </select>
 
                         <div class="field required width-100" >
                             <label class="label" for="buckaroo_magento2_creditcards_cardholdername"> <span data-bind="i18n: 'Cardholder:'"> </span> </label>
