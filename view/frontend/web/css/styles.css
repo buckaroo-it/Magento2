@@ -1116,9 +1116,6 @@
 }
 
 .card.styled .card_front .card_kind {
-    position: absolute;
-    top: 30px;
-    right: 20px;
     text-align: right;
 }
 
