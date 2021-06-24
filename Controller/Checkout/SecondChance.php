@@ -149,7 +149,7 @@ class SecondChance extends \Magento\Framework\App\Action\Action
 
             }
         }
-        return $this->_redirect('checkout');
+        return $this->_redirect('checkout', ['_fragment' => 'payment']);
     }
 
     private function setAvailableIncrementId($orderId, $item)
