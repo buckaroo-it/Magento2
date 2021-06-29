@@ -301,6 +301,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         )
                     );
                     $this->logger->addDebug(__METHOD__ . '|5|');
+                    $this->secondChance();
                     return $this->_redirect('/');
                     // $this->redirectFailure();
                 }
