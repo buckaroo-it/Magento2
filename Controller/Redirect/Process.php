@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -100,6 +101,8 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $dateTime;
     protected $mathRandom;
 
+    private $quoteRecreate;
+
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
@@ -133,7 +136,8 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
         \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
         \Magento\Framework\Math\Random $mathRandom,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        QuoteRecreate $quoteRecreate
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -157,6 +161,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->secondChanceFactory = $secondChanceFactory;
         $this->mathRandom          = $mathRandom;
         $this->dateTime            = $dateTime;
+        $this->quoteRecreate       = $quoteRecreate;
 
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
@@ -718,6 +723,7 @@ class Process extends \Magento\Framework\App\Action\Action
             'store_id' => $order->getStoreId(),
             'created_at' => $this->dateTime->gmtDate(),
         ]);
+        $this->quoteRecreate->duplicate($order);
         return $secondChance->save();
     }
 }

@@ -142,6 +142,11 @@ class SecondChance extends \Magento\Framework\App\Action\Action
                     $customer       = $this->customerFactory->create()->load($customerId);
                     $sessionManager = $this->sessionFactory->create();
                     $sessionManager->setCustomerAsLoggedIn($customer);
+                } elseif ($customerEmail = $order->getCustomerEmail()) {
+                    if ($customer = $this->customerFactory->create()->setWebsiteId($storeId)->loadByEmail($customerEmail)) {
+                        $sessionManager = $this->sessionFactory->create();
+                        $sessionManager->setCustomerAsLoggedIn($customer);
+                    }
                 }
 
                 $this->quoteRecreate->recreate($order);
