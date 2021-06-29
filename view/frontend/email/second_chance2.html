@@ -37,7 +37,7 @@
         <td>
             <p class="greeting">{{trans "%customer_name," customer_name=$order.getCustomerName()}}</p>
             <p>
-                {{trans 'You can <a href="%finish_url">finish</a> your order from  %store_name.' store_name=$store.getFrontendName() finish_url=$this.getUrl($store,'buckaroo/checkout/secondchance/',[_query:[token:$secondChanceToken]) |raw}}
+                {{trans 'You can <a href="%finish_url">finish</a> your order from  %store_name.' store_name=$store.getFrontendName() finish_url=$this.getUrl($store,'buckaroo/checkout/secondchance/',[_query:[token:$secondChanceToken]]) |raw}}
             </p>
             <p>
                 {{trans 'If you have questions about your order, you can email us at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}{{depend store_phone}} {{trans 'or call us at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}{{/depend}}.
