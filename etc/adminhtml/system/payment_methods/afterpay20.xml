@@ -169,6 +169,9 @@
                 <comment><![CDATA[If set to 'No' the order is not invoiced after creating a shipment.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment</config_path>
+                <depends>
+                    <field id="payment_flow">authorize</field>
+                </depends>
             </field>
         </group>
     </group>
