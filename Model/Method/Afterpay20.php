@@ -202,7 +202,9 @@ class Afterpay20 extends AbstractMethod
     public function getRefundTransactionBuilder($payment)
     {
         $transactionBuilder = parent::getRefundTransactionBuilder($payment);
-        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        if (!$this->payRemainder) {
+            $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        }
         return $transactionBuilder;
     }
 
@@ -792,10 +794,5 @@ class Afterpay20 extends AbstractMethod
     protected function getFailureMessageFromMethod($transactionResponse)
     {
         return $this->getFailureMessageFromMethodCommon($transactionResponse);
-    }
-
-    protected function getPayRemainderAmount($payment, $alreadyPaid)
-    {
-        return $payment->getOrder()->getGrandTotal();
     }
 }
