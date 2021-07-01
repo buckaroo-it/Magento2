@@ -349,6 +349,10 @@
                     <item name="type" xsi:type="string">refund</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Refund</item>
                 </item>
+                <item name="second_chance" xsi:type="array">
+                    <item name="type" xsi:type="string">second_chance</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\SecondChance</item>
+                </item>
             </argument>
         </arguments>
     </type>

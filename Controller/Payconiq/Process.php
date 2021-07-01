@@ -53,11 +53,8 @@ class Process extends Action
     /** @var QuoteRecreate */
     protected $quoteRecreate;
 
-    /** * @var \Buckaroo\Magento2\Model\SecondChanceFactory */
-    protected $secondChanceFactory;
-    /** * @var \Magento\Framework\Stdlib\DateTime\DateTime */
-    protected $dateTime;
-    protected $mathRandom;
+    /** * @var \Buckaroo\Magento2\Model\SecondChanceRepository */
+    protected $secondChanceRepository;
 
     /**
      * @param Context                         $context
@@ -74,7 +71,7 @@ class Process extends Action
         Account $account,
         TransactionCancel $transactionCancel,
         QuoteRecreate $quoteRecreate,
-        \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Magento\Framework\Math\Random $mathRandom,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
     ) {
@@ -85,7 +82,7 @@ class Process extends Action
         $this->account                = $account;
         $this->transactionCancel      = $transactionCancel;
         $this->quoteRecreate          = $quoteRecreate;
-        $this->secondChanceFactory    = $secondChanceFactory;
+        $this->secondChanceRepository    = $secondChanceRepository;
         $this->mathRandom             = $mathRandom;
         $this->dateTime               = $dateTime;
     }
@@ -117,7 +114,7 @@ class Process extends Action
 
         $store = $order->getStore();
         $url = $this->account->getFailureRedirect($store);
-        $this->secondChance($order);
+        $this->secondChanceRepository->createSecondChance($order);
         return $this->_redirect($url);
     }
 
@@ -175,16 +172,5 @@ class Process extends Action
         $list = $this->transactionRepository->getList($searchCriteria->create());
 
         return $list;
-    }
-
-    public function secondChance($order){
-        $secondChance = $this->secondChanceFactory->create();
-        $secondChance->setData([
-            'order_id' => $order->getIncrementId(),
-            'token' => $this->mathRandom->getUniqueHash(),
-            'store_id' => $order->getStoreId(),
-            'created_at' => $this->dateTime->gmtDate(),
-        ]);
-        return $secondChance->save();
     }
 }
