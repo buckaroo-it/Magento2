@@ -103,19 +103,19 @@ class Order
 
         $extraInfoRequestParameter = [
             [
-                '_' => $shippingAddress->getName(),
+                '_' => mb_substr($shippingAddress->getName(), 0,32),
                 'Name' => 'Name',
             ],
             [
-                '_' => $shippingAddress->getStreetLine(1),
+                '_' => mb_substr($shippingAddress->getStreetLine(1), 0, 100),
                 'Name' => 'Street1',
             ],
             [
-                '_' => $shippingAddress->getCity(),
+                '_' => mb_substr($shippingAddress->getCity(), 0, 40),
                 'Name' => 'CityName',
             ],
             [
-                '_' => $shippingAddress->getPostcode(),
+                '_' => mb_substr($shippingAddress->getPostcode(), 0, 20),
                 'Name' => 'PostalCode',
             ],
             [

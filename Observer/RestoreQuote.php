@@ -21,6 +21,7 @@ namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Model\Method\Giftcards;
 use Buckaroo\Magento2\Model\Method\Payconiq;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 
 class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 {
@@ -78,6 +79,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
     protected $_messageManager;
 
+    private $quoteRecreate;
+
     /**
      * @param \Magento\Checkout\Model\Session                      $checkoutSession
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
@@ -100,7 +103,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Checkout\Model\Cart $cart,
         \Buckaroo\Magento2\Helper\Data $helper,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        QuoteRecreate $quoteRecreate
     ) {
         $this->checkoutSession     = $checkoutSession;
         $this->accountConfig       = $accountConfig;
@@ -118,6 +122,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->cart                = $cart;
         $this->dateTime            = $dateTime;
         $this->helper              = $helper;
+        $this->quoteRecreate       = $quoteRecreate;
     }
 
     /**
@@ -144,8 +149,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                 if ($this->helper->getRestoreQuoteLastOrder() && ($lastRealOrder->getData('state') === 'new' && $lastRealOrder->getData('status') === 'pending') && $payment->getMethodInstance()->usesRedirect) {
 
                     //diactivate customer quotes
-                    if($order->getCustomerId()>0){
-                        if($quote = $this->cart->getForCustomer($order->getCustomerId())){
+                    if ($order->getCustomerId() > 0) {
+                        if ($quote = $this->cart->getForCustomer($order->getCustomerId())) {
                             $quote->setIsActive(false)->removeAllItems();
                             $this->cart->save($quote);
                         }
@@ -156,51 +161,26 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                         $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
                         $secondChance = $this->secondChanceFactory->create();
                         $secondChance->setData([
-                            'order_id' => $order->getIncrementId(),
-                            'token' => $this->mathRandom->getUniqueHash(),
-                            'store_id' => $order->getStoreId(),
+                            'order_id'   => $order->getIncrementId(),
+                            'token'      => $this->mathRandom->getUniqueHash(),
+                            'store_id'   => $order->getStoreId(),
                             'created_at' => $this->dateTime->gmtDate(),
                         ]);
                         $secondChance->save();
 
-                        $this->duplicateQuote($order);
-                    }else{
+                        $this->quoteRecreate->duplicate($order);
+                    } else {
                         $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
                         $this->checkoutSession->restoreQuote();
                     }
-                    
+
                 }
             }
             $this->helper->addDebug(__METHOD__ . '|setRestoreQuoteLastOrder for cartKeepAlive|');
             $this->helper->setRestoreQuoteLastOrder(false);
         }
-         $this->helper->addDebug(__METHOD__ . '|RestoreQuote|end|');
+        $this->helper->addDebug(__METHOD__ . '|RestoreQuote|end|');
         return true;
     }
 
-    public function duplicateQuote($order){
-        $quote = $this->quoteFactory->create()->load($order->getQuoteId());
-        $items = $quote->getAllVisibleItems();
-        foreach ($items as $item) {
-            $productId = $item->getProductId();
-            $_product = $this->productFactory->create()->load($productId);
-
-            $options = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
-
-            $info = $options['info_buyRequest'];
-            $request1 = new \Magento\Framework\DataObject();
-            $request1->setData($info);
-
-            try {
-                $this->cart->addProduct($_product, $request1);
-            } catch (\Exception $e) {
-                $this->_messageManager->addErrorMessage($e->getMessage());
-            }
-        }
-
-        $this->cart->save();
-        $this->cart->setQuote($quote);
-        $this->checkoutSession->setQuoteId($quote->getId());
-        $this->cart->save();
-    }
 }

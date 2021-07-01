@@ -258,7 +258,9 @@ class Afterpay extends AbstractMethod
     public function getRefundTransactionBuilder($payment)
     {
         $transactionBuilder = parent::getRefundTransactionBuilder($payment);
-        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        if (!$this->payRemainder) {
+            $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        }
         return $transactionBuilder;
     }
 

@@ -32,16 +32,33 @@ class Recreate
     /** @var Cart */
     private $cart;
 
+    /** @var \Magento\Checkout\Model\Session */
+    private $checkoutSession;
+
+    protected $quoteFactory;
+
+    protected $productFactory;
+
+    protected $messageManager;
     /**
      * @param CartRepositoryInterface $cartRepository
      * @param Cart                    $cart
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
-        Cart $cart
+        Cart $cart,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        \Magento\Catalog\Model\ProductFactory $productFactory,
+        \Magento\Framework\Message\ManagerInterface $messageManager
     ) {
-        $this->cartRepository = $cartRepository;
-        $this->cart           = $cart;
+        $this->cartRepository  = $cartRepository;
+        $this->cart            = $cart;
+        $this->checkoutSession = $checkoutSession;
+        $this->quoteFactory    = $quoteFactory;
+        $this->productFactory  = $productFactory;
+        $this->cart            = $cart;
+        $this->messageManager  = $messageManager;
     }
 
     /**
@@ -67,5 +84,32 @@ class Recreate
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             //No such entity
         }
+    }
+
+    public function duplicate($order)
+    {
+        $quote = $this->quoteFactory->create()->load($order->getQuoteId());
+        $items = $quote->getAllVisibleItems();
+        foreach ($items as $item) {
+            $productId = $item->getProductId();
+            $_product  = $this->productFactory->create()->load($productId);
+
+            $options = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
+
+            $info     = $options['info_buyRequest'];
+            $request1 = new \Magento\Framework\DataObject();
+            $request1->setData($info);
+
+            try {
+                $this->cart->addProduct($_product, $request1);
+            } catch (\Exception $e) {
+                $this->messageManager->addErrorMessage($e->getMessage());
+            }
+        }
+
+        $this->cart->save();
+        $this->cart->setQuote($quote);
+        $this->checkoutSession->setQuoteId($quote->getId());
+        $this->cart->save();
     }
 }

@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -93,6 +94,8 @@ class Process extends \Magento\Framework\App\Action\Action
      * @var \Buckaroo\Magento2\Model\SecondChanceRepository
      */
     protected $secondChanceRepository;
+
+    private $quoteRecreate;
 
     /**
      * @param \Magento\Framework\App\Action\Context               $context
