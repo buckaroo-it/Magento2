@@ -71,9 +71,7 @@ class Process extends Action
         Account $account,
         TransactionCancel $transactionCancel,
         QuoteRecreate $quoteRecreate,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
-        \Magento\Framework\Math\Random $mathRandom,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
     ) {
         parent::__construct($context);
 
@@ -82,9 +80,7 @@ class Process extends Action
         $this->account                = $account;
         $this->transactionCancel      = $transactionCancel;
         $this->quoteRecreate          = $quoteRecreate;
-        $this->secondChanceRepository    = $secondChanceRepository;
-        $this->mathRandom             = $mathRandom;
-        $this->dateTime               = $dateTime;
+        $this->secondChanceRepository = $secondChanceRepository;
     }
 
     /**
