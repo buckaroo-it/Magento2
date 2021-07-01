@@ -91,15 +91,9 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $customerResourceFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceFactory
+     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
      */
-    protected $secondChanceFactory;
-
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
-     */
-    protected $dateTime;
-    protected $mathRandom;
+    protected $secondChanceRepository;
 
     private $quoteRecreate;
 
@@ -134,10 +128,7 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\SessionFactory $sessionFactory,
         \Magento\Customer\Model\Customer $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-        \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
-        \Magento\Framework\Math\Random $mathRandom,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        QuoteRecreate $quoteRecreate
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -158,10 +149,7 @@ class Process extends \Magento\Framework\App\Action\Action
         
         $this->accountConfig = $configProviderFactory->get('account');
 
-        $this->secondChanceFactory = $secondChanceFactory;
-        $this->mathRandom          = $mathRandom;
-        $this->dateTime            = $dateTime;
-        $this->quoteRecreate       = $quoteRecreate;
+        $this->secondChanceRepository = $secondChanceRepository;
 
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
@@ -306,7 +294,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         )
                     );
                     $this->logger->addDebug(__METHOD__ . '|5|');
-                    $this->secondChance();
+                    $this->secondChanceRepository->createSecondChance($this->order);
                     return $this->_redirect('/');
                 }
 
@@ -375,7 +363,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     )
                 );
 
-                $this->secondChance();
+                $this->secondChanceRepository->createSecondChance($this->order);
 
                 if (!$this->recreateQuote()) {
                     $this->logger->addError('Could not recreate the quote.');
@@ -712,18 +700,5 @@ class Process extends \Magento\Framework\App\Action\Action
             return true;
         }
         return false;
-    }
-
-    public function secondChance(){
-        $order = $this->order;
-        $secondChance = $this->secondChanceFactory->create();
-        $secondChance->setData([
-            'order_id' => $order->getIncrementId(),
-            'token' => $this->mathRandom->getUniqueHash(),
-            'store_id' => $order->getStoreId(),
-            'created_at' => $this->dateTime->gmtDate(),
-        ]);
-        $this->quoteRecreate->duplicate($order);
-        return $secondChance->save();
     }
 }

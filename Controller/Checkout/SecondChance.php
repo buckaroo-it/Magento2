@@ -21,96 +21,35 @@
 namespace Buckaroo\Magento2\Controller\Checkout;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
-use Magento\Framework\App\ObjectManager;
 
 class SecondChance extends \Magento\Framework\App\Action\Action
 {
-    /**
-     * @var array
-     */
-    protected $response;
-
-    /** @var QuoteRecreate */
-    private $quoteRecreate;
-
     /**
      * @var Log
      */
     protected $logger;
 
     /**
-     * @var \Magento\Framework\HTTP\Client\Curl
+     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
      */
-    protected $curlClient;
-
-    /**
-     * @var Account
-     */
-    protected $configProviderAccount;
-
-    /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    protected $storeManager;
-
-    /** @var CheckoutSession */
-    protected $checkoutSession;
-
-    protected $secondChanceFactory;
-
-    protected $customerFactory;
-
-    protected $sessionFactory;
-
-    /**
-     * @var \Magento\Sales\Model\OrderIncrementIdChecker
-     */
-    private $orderIncrementIdChecker;
+    protected $secondChanceRepository;
 
     /**
      * @param \Magento\Framework\App\Action\Context               $context
-     * @param \Buckaroo\Magento2\Helper\Data                      $helper
-     * @param \Magento\Checkout\Model\Cart                        $cart
-     * @param \Magento\Sales\Model\Order                          $order
-     * @param \Magento\Quote\Model\Quote                          $quote
      * @param Log                                                 $logger
-     * @param Account                                             $configProviderAccount
-     * @param \Magento\Store\Model\StoreManagerInterface         $storeManager
-     * @param CheckoutSession                                    $checkoutSession
+     * @param SecondChanceRepository                              $secondChanceRepository
      *
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        QuoteRecreate $quoteRecreate,
         Log $logger,
-        Account $configProviderAccount,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Model\CustomerFactory $customerFactory,
-        \Magento\Customer\Model\SessionFactory $sessionFactory,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface,
-        \Magento\Sales\Model\OrderIncrementIdChecker $orderIncrementIdChecker = null
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
     ) {
         parent::__construct($context);
 
-        $this->logger                  = $logger;
-        $this->quoteRecreate           = $quoteRecreate;
-        $this->configProviderAccount   = $configProviderAccount;
-        $this->storeManager            = $storeManager;
-        $this->checkoutSession         = $checkoutSession;
-        $this->orderFactory            = $orderFactory;
-        $this->customerSession         = $customerSession;
-        $this->sessionFactory          = $sessionFactory;
-        $this->customerFactory         = $customerFactory;
-        $this->secondChanceFactory     = $secondChanceFactory;
-        $this->orderIncrementIdChecker = $orderIncrementIdChecker ?: ObjectManager::getInstance()
-            ->get(\Magento\Sales\Model\OrderIncrementIdChecker::class);
+        $this->logger                 = $logger;
+        $this->secondChanceRepository = $secondChanceRepository;
     }
 
     /**
@@ -121,53 +60,9 @@ class SecondChance extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        $this->response = $this->getRequest()->getParams();
-        $mode           = $this->configProviderAccount->getActive();
-        $storeId        = $this->storeManager->getStore()->getId();
-        $data           = $this->response;
-        if ($buckaroo_second_chance = $data['token']) {
-            $secondChance = $this->secondChanceFactory->create();
-            $collection   = $secondChance->getCollection()
-                ->addFieldToFilter(
-                    'token',
-                    ['eq' => $buckaroo_second_chance]
-                );
-            foreach ($collection as $item) {
-                $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
-                if ($this->customerSession->isLoggedIn()) {
-                    $this->customerSession->logout();
-                }
-
-                if ($customerId = $order->getCustomerId()) {
-                    $customer       = $this->customerFactory->create()->load($customerId);
-                    $sessionManager = $this->sessionFactory->create();
-                    $sessionManager->setCustomerAsLoggedIn($customer);
-                } elseif ($customerEmail = $order->getCustomerEmail()) {
-                    if ($customer = $this->customerFactory->create()->setWebsiteId($storeId)->loadByEmail($customerEmail)) {
-                        $sessionManager = $this->sessionFactory->create();
-                        $sessionManager->setCustomerAsLoggedIn($customer);
-                    }
-                }
-
-                $this->quoteRecreate->recreate($order);
-                $this->setAvailableIncrementId($item->getOrderId(), $item);
-
-            }
+        if ($token = $this->getRequest()->getParam('token')) {
+            $this->secondChanceRepository->getSecondChanceByToken($token);
         }
         return $this->_redirect('checkout', ['_fragment' => 'payment']);
-    }
-
-    private function setAvailableIncrementId($orderId, $item)
-    {
-        for ($i = 1; $i < 100; $i++) {
-            $newOrderId = $orderId . '-' . $i;
-            if (!$this->orderIncrementIdChecker->isIncrementIdUsed($newOrderId)) {
-                $this->checkoutSession->getQuote()->setReservedOrderId($newOrderId);
-                $this->checkoutSession->getQuote()->save();
-                $item->setLastOrderId($newOrderId);
-                $item->save();
-                return true;
-            }
-        }
     }
 }

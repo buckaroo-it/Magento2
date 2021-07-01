@@ -20,9 +20,11 @@
 namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
+use Buckaroo\Magento2\Api\SecondChanceRepositoryInterface;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance as SecondChanceResource;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection as SecondChanceCollection;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory as SecondChanceCollectionFactory;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Api\SearchResultsInterfaceFactory;
@@ -31,59 +33,136 @@ use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
-class SecondChanceRepository
+class SecondChanceRepository implements SecondChanceRepositoryInterface
 {
     /** @var SecondChanceResource */
     protected $resource;
 
     /** @var SecondChanceFactory */
-    protected $SecondChanceFactory;
+    protected $secondChanceFactory;
 
     /** @var SecondChanceCollectionFactory */
-    protected $SecondChanceCollectionFactory;
+    protected $secondChanceCollectionFactory;
 
     /** @var SearchResultsInterfaceFactory */
     protected $searchResultsFactory;
 
+    protected $orderFactory;
+    protected $sessionFactory;
+    protected $customerFactory;
+    protected $customerSession;
+    protected $checkoutSession;
+
+    /** @var QuoteRecreate */
+    private $quoteRecreate;
+
+    /** * @var \Magento\Sales\Model\OrderIncrementIdChecker */
+    private $orderIncrementIdChecker;
+
+    /** * @var \Magento\Framework\Stdlib\DateTime\DateTime */
+    protected $dateTime;
+    protected $mathRandom;
+
+    /** * @var Log $logging */
+    public $logging;
+
+    /** * @var \Buckaroo\Magento2\Model\ConfigProvider\Account */
+    protected $accountConfig;
+
+    /** * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory */
+    protected $configProviderFactory;
+
+    /** * @var \Magento\Framework\Mail\Template\TransportBuilder */
+    protected $transportBuilder;
+
+    /** * @var \Magento\Framework\Translate\Inline\StateInterface */
+    protected $inlineTranslation;
+
+    /** * @var Renderer */
+    protected $addressRenderer;
+
+    /** * @var \Magento\Payment\Helper\Data */
+    private $paymentHelper;
+
+    /** * @var \Magento\CatalogInventory\Model\Stock\StockItemRepository */
+    protected $stockItemRepository;
+
     public function __construct(
         SecondChanceResource $resource,
-        SecondChanceFactory $SecondChanceFactory,
-        SecondChanceCollectionFactory $SecondChanceCollectionFactory,
-        SearchResultsInterfaceFactory $searchResultsFactory
+        SecondChanceFactory $secondChanceFactory,
+        SecondChanceCollectionFactory $secondChanceCollectionFactory,
+        SearchResultsInterfaceFactory $searchResultsFactory,
+        \Magento\Sales\Model\OrderFactory $orderFactory,
+        \Magento\Customer\Model\CustomerFactory $customerFactory,
+        \Magento\Customer\Model\SessionFactory $sessionFactory,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        QuoteRecreate $quoteRecreate,
+        \Magento\Sales\Model\OrderIncrementIdChecker $orderIncrementIdChecker,
+        \Magento\Framework\Math\Random $mathRandom,
+        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        \Buckaroo\Magento2\Logging\Log $logging,
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
+        \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
+        \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder,
+        \Magento\Sales\Model\Order\Address\Renderer $addressRenderer,
+        \Magento\Payment\Helper\Data $paymentHelper,
+        \Magento\Sales\Model\Order\Email\Container\ShipmentIdentity $identityContainer,
+        \Magento\CatalogInventory\Model\Stock\StockItemRepository $stockItemRepository
+
     ) {
         $this->resource                      = $resource;
-        $this->SecondChanceCollectionFactory = $SecondChanceCollectionFactory;
-        $this->SecondChanceFactory           = $SecondChanceFactory;
+        $this->secondChanceCollectionFactory = $secondChanceCollectionFactory;
+        $this->secondChanceFactory           = $secondChanceFactory;
         $this->searchResultsFactory          = $searchResultsFactory;
+        $this->orderFactory                  = $orderFactory;
+        $this->sessionFactory                = $sessionFactory;
+        $this->customerFactory               = $customerFactory;
+        $this->customerSession               = $customerSession;
+        $this->checkoutSession               = $checkoutSession;
+        $this->quoteRecreate                 = $quoteRecreate;
+        $this->mathRandom                    = $mathRandom;
+        $this->dateTime                      = $dateTime;
+        $this->orderIncrementIdChecker       = $orderIncrementIdChecker;
+        $this->logging                       = $logging;
+        $this->accountConfig                 = $accountConfig;
+        $this->configProviderFactory         = $configProviderFactory;
+        $this->inlineTranslation             = $inlineTranslation;
+        $this->transportBuilder              = $transportBuilder;
+        $this->addressRenderer               = $addressRenderer;
+        $this->paymentHelper                 = $paymentHelper;
+        $this->identityContainer             = $identityContainer;
+        $this->stockItemRepository           = $stockItemRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function save(SecondChanceInterface $SecondChance)
+    public function save(SecondChanceInterface $secondChance)
     {
         try {
-            $this->resource->save($SecondChance);
+            $this->resource->save($secondChance);
         } catch (\Exception $exception) {
             throw new CouldNotSaveException(__($exception->getMessage()));
         }
 
-        return $SecondChance;
+        return $secondChance;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getById($SecondChanceId)
+    public function getById($secondChanceId)
     {
-        $SecondChance = $this->SecondChanceFactory->create();
-        $SecondChance->load($SecondChanceId);
+        $secondChance = $this->secondChanceFactory->create();
+        $secondChance->load($secondChanceId);
 
-        if (!$SecondChance->getId()) {
-            throw new NoSuchEntityException(__('SecondChance with id "%1" does not exist.', $SecondChanceId));
+        if (!$secondChance->getId()) {
+            throw new NoSuchEntityException(__('SecondChance with id "%1" does not exist.', $secondChanceId));
         }
 
-        return $SecondChance;
+        return $secondChance;
     }
 
     /**
@@ -96,7 +175,7 @@ class SecondChanceRepository
         $searchResults->setSearchCriteria($searchCriteria);
 
         /** @var SecondChanceCollection $collection */
-        $collection = $this->SecondChanceCollectionFactory->create();
+        $collection = $this->secondChanceCollectionFactory->create();
 
         foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
             $this->handleFilterGroups($filterGroup, $collection);
@@ -173,10 +252,10 @@ class SecondChanceRepository
     /**
      * {@inheritdoc}
      */
-    public function delete(SecondChanceInterface $SecondChance)
+    public function delete(SecondChanceInterface $secondChance)
     {
         try {
-            $this->resource->delete($SecondChance);
+            $this->resource->delete($secondChance);
         } catch (\Exception $exception) {
             throw new CouldNotDeleteException(__($exception->getMessage()));
         }
@@ -187,10 +266,237 @@ class SecondChanceRepository
     /**
      * {@inheritdoc}
      */
-    public function deleteById($SecondChanceId)
+    public function deleteById($secondChanceId)
     {
-        $SecondChance = $this->getById($SecondChanceId);
+        $secondChance = $this->getById($secondChanceId);
 
-        return $this->delete($SecondChance);
+        return $this->delete($secondChance);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createSecondChance($order)
+    {
+        $secondChance = $this->secondChanceFactory->create();
+        $secondChance->setData([
+            'order_id'   => $order->getIncrementId(),
+            'token'      => $this->mathRandom->getUniqueHash(),
+            'store_id'   => $order->getStoreId(),
+            'created_at' => $this->dateTime->gmtDate(),
+        ]);
+        return $secondChance->save();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSecondChanceByToken($token)
+    {
+        $secondChance = $this->secondChanceFactory->create();
+        $collection   = $secondChance->getCollection()
+            ->addFieldToFilter(
+                'token',
+                ['eq' => $token]
+            );
+        foreach ($collection as $item) {
+            $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
+
+            if ($this->customerSession->isLoggedIn()) {
+                $this->customerSession->logout();
+            }
+
+            if ($customerId = $order->getCustomerId()) {
+                $customer       = $this->customerFactory->create()->load($customerId);
+                $sessionManager = $this->sessionFactory->create();
+                $sessionManager->setCustomerAsLoggedIn($customer);
+            }
+
+            $this->quoteRecreate->recreate($order);
+            $this->setAvailableIncrementId($item->getOrderId(), $item);
+        }
+    }
+
+    private function setAvailableIncrementId($orderId, $item)
+    {
+        for ($i = 1; $i < 100; $i++) {
+            $newOrderId = $orderId . '-' . $i;
+            if (!$this->orderIncrementIdChecker->isIncrementIdUsed($newOrderId)) {
+                $this->checkoutSession->getQuote()->setReservedOrderId($newOrderId);
+                $this->checkoutSession->getQuote()->save();
+                $item->setLastOrderId($newOrderId);
+                $item->save();
+                return true;
+            }
+        }
+    }
+
+    public function getSecondChanceCollection($step, $store)
+    {
+        $configProvider = $this->configProviderFactory->get('second_chance');
+        $config         = $configProvider->getConfig();
+        $final_status   = $config['final_status'];
+
+        $this->logging->addDebug(__METHOD__ . '|getSecondChanceCollection $config|' . var_export($config));
+
+        $timing = $this->accountConfig->getSecondChanceTiming($store) +
+            ($step == 2 ? $this->accountConfig->getSecondChanceTiming2($store) : 0);
+
+        $this->logging->addDebug(__METHOD__ . '|secondChance timing|' . $timing);
+
+        $secondChance = $this->secondChanceFactory->create();
+        $collection   = $secondChance->getCollection()
+            ->addFieldToFilter(
+                'status',
+                ['eq' => ($step == 2) ? 1 : '']
+            )
+            ->addFieldToFilter(
+                'store_id',
+                ['eq' => $store->getId()]
+            )
+            ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' DAY')])
+            ->addFieldToFilter('created_at', ['gteq' => new \Zend_Db_Expr('NOW() - INTERVAL 5 DAY')]);
+
+        foreach ($collection as $item) {
+            $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
+
+            //BP-896 skip Transfer method
+            $payment = $order->getPayment();
+            if (in_array($payment->getMethod(), [\Buckaroo\Magento2\Model\Method\Transfer::PAYMENT_METHOD_CODE, \Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE])) {
+                $this->setFinalStatus($item, $final_status);
+                continue;
+            }
+
+            if ($item->getLastOrderId() != null &&
+                $last_order = $this->orderFactory->create()->loadByIncrementId($item->getLastOrderId())) {
+                if ($last_order->hasInvoices()) {
+                    $this->setFinalStatus($item, $final_status);
+                    continue;
+                }
+            }
+
+            if ($order->hasInvoices()) {
+                $this->setFinalStatus($item, $final_status);
+            } else {
+                if ($this->accountConfig->getNoSendSecondChance($store)) {
+                    $this->logging->addDebug(__METHOD__ . '|getNoSendSecondChance|');
+                    if ($this->checkOrderProductsIsInStock($order)) {
+                        $this->logging->addDebug(__METHOD__ . '|checkOrderProductsIsInStock|');
+                        $this->sendMail($order, $item, $step);
+                    }
+                } else {
+                    $this->logging->addDebug(__METHOD__ . '|else getNoSendSecondChance|');
+                    $this->sendMail($order, $item, $step);
+                }
+            }
+        }
+        $collection->save();
+    }
+
+    public function sendMail($order, $secondChance, $step)
+    {
+        $this->logging->addDebug(__METHOD__ . '|sendMail start|');
+        $configProvider = $this->configProviderFactory->get('second_chance');
+        $config         = $configProvider->getConfig();
+
+        $store = $order->getStore();
+        $vars  = [
+            'order'                    => $order,
+            'billing'                  => $order->getBillingAddress(),
+            'payment_html'             => $this->getPaymentHtml($order),
+            'store'                    => $store,
+            'formattedShippingAddress' => $this->getFormattedShippingAddress($order),
+            'formattedBillingAddress'  => $this->getFormattedBillingAddress($order),
+            'secondChanceToken'        => $secondChance->getToken(),
+        ];
+
+        $templateId = ($step == 1) ? $config['template'] : $config['template2'];
+
+        $this->logging->addDebug(__METHOD__ . '|TemplateIdentifier|' . $templateId);
+
+        $this->inlineTranslation->suspend();
+        $this->transportBuilder->setTemplateIdentifier($templateId)
+            ->setTemplateOptions(
+                [
+                    'area'  => \Magento\Framework\App\Area::AREA_FRONTEND,
+                    'store' => $store->getId(),
+                ]
+            )->setTemplateVars($vars)
+            ->setFrom([
+                'email' => $config['setFromEmail'],
+                'name'  => $config['setFromName'],
+            ])->addTo($order->getCustomerEmail());
+
+        if (!isset($transport)) {
+            $transport = $this->transportBuilder->getTransport();
+        }
+
+        try {
+            $transport->sendMessage();
+            $this->inlineTranslation->resume();
+            $secondChance->setStatus($step);
+            $secondChance->save();
+            $this->logging->addDebug(__METHOD__ . '|secondChanceEmail is sended to|' . $order->getCustomerEmail());
+        } catch (\Exception $exception) {
+            $this->logging->addDebug(__METHOD__ . '|log failed email send|' . $exception->getMessage());
+        }
+    }
+
+    /**
+     * Render shipping address into html.
+     *
+     * @param Order $order
+     * @return string|null
+     */
+    protected function getFormattedShippingAddress($order)
+    {
+        return $order->getIsVirtual()
+        ? null
+        : $this->addressRenderer->format($order->getShippingAddress(), 'html');
+    }
+
+    /**
+     * Render billing address into html.
+     *
+     * @param Order $order
+     * @return string|null
+     */
+    protected function getFormattedBillingAddress($order)
+    {
+        return $this->addressRenderer->format($order->getBillingAddress(), 'html');
+    }
+
+    /**
+     * Returns payment info block as HTML.
+     *
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     *
+     * @return string
+     * @throws \Exception
+     */
+    private function getPaymentHtml(\Magento\Sales\Api\Data\OrderInterface $order)
+    {
+        return $this->paymentHelper->getInfoBlockHtml(
+            $order->getPayment(),
+            $this->identityContainer->getStore()->getStoreId()
+        );
+    }
+
+    public function checkOrderProductsIsInStock($order)
+    {
+        foreach ($order->getAllItems() as $orderItem) {
+            $productStock = $this->stockItemRepository->get($orderItem->getProductId());
+            if (!$productStock->getIsInStock()) {
+                $this->logging->addDebug(__METHOD__ . '|not getIsInStock|' . $orderItem->getProductId());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function setFinalStatus($item, $status)
+    {
+        $item->setStatus($status);
+        return $item->save();
     }
 }
