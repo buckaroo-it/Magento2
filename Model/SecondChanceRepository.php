@@ -32,7 +32,6 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Store\Model\ScopeInterface;
 
 class SecondChanceRepository implements SecondChanceRepositoryInterface
 {
@@ -70,9 +69,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /** * @var \Buckaroo\Magento2\Model\ConfigProvider\Account */
     protected $accountConfig;
 
-    /** * @var \Magento\Framework\App\Config\ScopeConfigInterface */
-    protected $scopeConfig;
-
     /** * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory */
     protected $configProviderFactory;
 
@@ -107,7 +103,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         \Buckaroo\Magento2\Logging\Log $logging,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
         \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder,
@@ -132,7 +127,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->orderIncrementIdChecker       = $orderIncrementIdChecker;
         $this->logging                       = $logging;
         $this->accountConfig                 = $accountConfig;
-        $this->scopeConfig                   = $scopeConfig;
         $this->configProviderFactory         = $configProviderFactory;
         $this->inlineTranslation             = $inlineTranslation;
         $this->transportBuilder              = $transportBuilder;
@@ -343,6 +337,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $config         = $configProvider->getConfig();
         $final_status   = $config['final_status'];
 
+        $this->logging->addDebug(__METHOD__ . '|getSecondChanceCollection $config|' . var_export($config));
+
         $timing = $this->accountConfig->getSecondChanceTiming($store) +
             ($step == 2 ? $this->accountConfig->getSecondChanceTiming2($store) : 0);
 
@@ -403,8 +399,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $configProvider = $this->configProviderFactory->get('second_chance');
         $config         = $configProvider->getConfig();
 
-        $store          = $order->getStore();
-        $vars           = [
+        $store = $order->getStore();
+        $vars  = [
             'order'                    => $order,
             'billing'                  => $order->getBillingAddress(),
             'payment_html'             => $this->getPaymentHtml($order),
@@ -414,13 +410,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             'secondChanceToken'        => $secondChance->getToken(),
         ];
 
-        if ($step == 1) {
-            $templateId = $this->scopeConfig->getValue($config['template'], ScopeInterface::SCOPE_STORE, $store) ??
-                $config['default_template'];
-        } else {
-            $templateId = $this->scopeConfig->getValue($config['template2'], ScopeInterface::SCOPE_STORE, $store) ??
-                $config['default_template2'];
-        }
+        $templateId = ($step == 1) ? $config['template'] : $config['template2'];
 
         $this->logging->addDebug(__METHOD__ . '|TemplateIdentifier|' . $templateId);
 
@@ -433,16 +423,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 ]
             )->setTemplateVars($vars)
             ->setFrom([
-                'email' => $this->scopeConfig->getValue(
-                    'trans_email/ident_sales/email',
-                    ScopeInterface::SCOPE_STORE,
-                    $store
-                ),
-                'name'  => $this->scopeConfig->getValue(
-                    'trans_email/ident_sales/name',
-                    ScopeInterface::SCOPE_STORE,
-                    $store
-                ),
+                'email' => $config['setFromEmail'],
+                'name'  => $config['setFromName'],
             ])->addTo($order->getCustomerEmail());
 
         if (!isset($transport)) {

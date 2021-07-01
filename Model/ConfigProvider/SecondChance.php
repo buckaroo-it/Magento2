@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Store\Model\ScopeInterface;
+
 class SecondChance extends AbstractConfigProvider
 {
     const XPATH_SECONDCHANCE_TEMPLATE          = 'buckaroo_magento2/account/second_chance_template';
@@ -29,16 +31,41 @@ class SecondChance extends AbstractConfigProvider
     const XPATH_SECONDCHANCE_FINAL_STATUS      = 10;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @param MethodFactory        $methodConfigProviderFactory
+     * @param ScopeConfigInterface $scopeConfig
+     */
+    public function __construct(
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+    ) {
+        $this->scopeConfig = $scopeConfig;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getConfig($store = null)
     {
         $config = [
-            'template'          => $this->getTemplate($store),
-            'template2'         => $this->getTemplate2($store),
-            'default_template'  => self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE,
-            'default_template2' => self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE2,
-            'final_status'      => self::XPATH_SECONDCHANCE_FINAL_STATUS,
+            'template'     => $this->scopeConfig->getValue($this->getTemplate($store), ScopeInterface::SCOPE_STORE, $store) ??
+            self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE,
+            'template2'    => $this->scopeConfig->getValue($this->getTemplate2($store), ScopeInterface::SCOPE_STORE, $store) ??
+            self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE2,
+            'final_status' => self::XPATH_SECONDCHANCE_FINAL_STATUS,
+            'setFromEmail' => $this->scopeConfig->getValue(
+                'trans_email/ident_sales/email',
+                ScopeInterface::SCOPE_STORE,
+                $store
+            ),
+            'setFromName'  => $this->scopeConfig->getValue(
+                'trans_email/ident_sales/name',
+                ScopeInterface::SCOPE_STORE,
+                $store
+            ),
         ];
         return $config;
     }
