@@ -114,8 +114,6 @@ define(
                         ]
                     );
 
-                    this.businessMethod = window.checkoutConfig.payment.buckaroo.billink.businessMethod;
-
                     this.showPhone = ko.computed(
                         function () {
                             if (this.showPhoneValue() !== null) {
@@ -210,6 +208,8 @@ define(
 
                     quote.billingAddress.subscribe(
                         function(newAddress) {
+                            this.businessMethod = quote.billingAddress().company !== null ? BUSINESS_METHOD_B2B : BUSINESS_METHOD_B2C;
+                            
                             if (this.getCode() !== this.isChecked() ||
                                 !newAddress ||
                                 !newAddress.getKey()
@@ -263,7 +263,7 @@ define(
                                     max: 12
                                 },
                                 'BE': {
-                                    min: 10,
+                                    min: 9,
                                     max: 10
                                 },
                                 'DE': {
