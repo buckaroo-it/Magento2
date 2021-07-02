@@ -55,7 +55,7 @@ define(
                         max: 12
                     },
                     'BE': {
-                        min: 10,
+                        min: 9,
                         max: 12
                     },
                     'DE': {
