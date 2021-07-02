@@ -649,14 +649,10 @@ class Billink extends AbstractMethod
         $VATNumber = $payment->getAdditionalInformation('customer_VATNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
-        $category = $this->_scopeConfig->getValue(
-            static::BUSINESS_METHOD,
-            ScopeInterface::SCOPE_STORE
-        );
-        $category = ($category == static::BUSINESS_METHOD_B2B) ? 'B2B' : 'B2C';
+
+        $category = $billingAddress->getCompany() ? 'B2B' : 'B2C';
 
         $gender = 'Female';
-
         if ($payment->getAdditionalInformation('customer_gender') === '1') {
             $gender = 'Male';
         }
@@ -811,11 +807,8 @@ class Billink extends AbstractMethod
         }
 
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
-        $category = $this->_scopeConfig->getValue(
-            static::BUSINESS_METHOD,
-            ScopeInterface::SCOPE_STORE
-        );
-        $category = ($category == static::BUSINESS_METHOD_B2B) ? 'B2B' : 'B2C';
+        
+        $category = $shippingAddress->getCompany() ? 'B2B' : 'B2C';
 
         $gender = 'Female';
         if ($payment->getAdditionalInformation('customer_gender') == '1') {
