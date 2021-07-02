@@ -650,7 +650,7 @@ class Billink extends AbstractMethod
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
-        $category = (strlen($billingAddress->getCompany()) <= 0) ? 'B2C' : 'B2B';
+        $category = $billingAddress->getCompany() ? 'B2B' : 'B2C';
 
         $gender = 'Female';
         if ($payment->getAdditionalInformation('customer_gender') === '1') {
@@ -808,7 +808,7 @@ class Billink extends AbstractMethod
 
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
         
-        $category = (strlen($shippingAddress->getCompany()) <= 0) ? 'B2C' : 'B2B';
+        $category = $shippingAddress->getCompany() ? 'B2B' : 'B2C';
 
         $gender = 'Female';
         if ($payment->getAdditionalInformation('customer_gender') == '1') {

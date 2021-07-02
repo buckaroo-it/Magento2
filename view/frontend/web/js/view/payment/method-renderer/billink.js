@@ -208,8 +208,8 @@ define(
 
                     quote.billingAddress.subscribe(
                         function(newAddress) {
-                            this.businessMethod = quote.billingAddress().company !== null ? BUSINESS_METHOD_B2B : BUSINESS_METHOD_B2C;
-                            
+                            this.businessMethod = quote.billingAddress().company ? BUSINESS_METHOD_B2B : BUSINESS_METHOD_B2C;
+
                             if (this.getCode() !== this.isChecked() ||
                                 !newAddress ||
                                 !newAddress.getKey()
