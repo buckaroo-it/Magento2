@@ -137,7 +137,7 @@
                     <!-- /ko -->
 
                     <!-- ko if: showVATNumber -->
-                    <div class="field required">
+                    <div class="field">
                         <legend class="label"> <span data-bind="i18n: 'VAT number:'"> </span> </legend>
                         <div class="control">
                             <input id="buckaroo_magento2_billink_VATNumber"
@@ -145,7 +145,7 @@
                                    type="text"
                                    name="payment[buckaroo_magento2_billink][buckaroo_VATNumber]"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                   attr: { 'data-validate': JSON.stringify({ 'required': false }) },
                                    checked: VATNumberValidate
                                    valueUpdate: 'blur',
                                    value: VATNumberValidate
