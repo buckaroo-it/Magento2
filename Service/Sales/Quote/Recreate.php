@@ -66,11 +66,10 @@ class Recreate
      *
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function recreate($order)
+    public function recreate($order = false, $newQuote = false)
     {
         try {
-            /** @var Quote $quote */
-            $quote = $this->cartRepository->get($order->getQuoteId());
+            $quote = ($order != false) ? $this->cartRepository->get($order->getQuoteId()) : $newQuote;
             $quote->setIsActive(true);
             $quote->setTriggerRecollect('1');
             $quote->setReservedOrderId(null);
@@ -88,28 +87,10 @@ class Recreate
 
     public function duplicate($order)
     {
-        $quote = $this->quoteFactory->create()->load($order->getQuoteId());
-        $items = $quote->getAllVisibleItems();
-        foreach ($items as $item) {
-            $productId = $item->getProductId();
-            $_product  = $this->productFactory->create()->load($productId);
-
-            $options = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
-
-            $info     = $options['info_buyRequest'];
-            $request1 = new \Magento\Framework\DataObject();
-            $request1->setData($info);
-
-            try {
-                $this->cart->addProduct($_product, $request1);
-            } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
-            }
-        }
-
-        $this->cart->save();
-        $this->cart->setQuote($quote);
-        $this->checkoutSession->setQuoteId($quote->getId());
-        $this->cart->save();
+        $oldQuote = $this->quoteFactory->create()->load($order->getQuoteId());
+        $quote = $this->quoteFactory->create();
+        $quote->merge($oldQuote)->save();
+        $this->recreate(false,$quote);
+        return $quote;
     }
 }

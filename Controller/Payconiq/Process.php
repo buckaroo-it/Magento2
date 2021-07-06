@@ -56,6 +56,9 @@ class Process extends Action
     /** * @var \Buckaroo\Magento2\Model\SecondChanceRepository */
     protected $secondChanceRepository;
 
+    /** * @var \Magento\Checkout\Model\ConfigProviderInterface */
+    protected $accountConfig;
+
     /**
      * @param Context                         $context
      * @param SearchCriteriaBuilder           $searchCriteriaBuilder
@@ -71,6 +74,7 @@ class Process extends Action
         Account $account,
         TransactionCancel $transactionCancel,
         QuoteRecreate $quoteRecreate,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
     ) {
         parent::__construct($context);
@@ -81,6 +85,7 @@ class Process extends Action
         $this->transactionCancel      = $transactionCancel;
         $this->quoteRecreate          = $quoteRecreate;
         $this->secondChanceRepository = $secondChanceRepository;
+        $this->accountConfig          = $configProviderFactory->get('account');
     }
 
     /**
@@ -99,7 +104,12 @@ class Process extends Action
         $order = $transaction->getOrder();
         try {
             $this->transactionCancel->cancel($transaction);
-            $this->quoteRecreate->recreate($order);
+            if ($this->accountConfig->getSecondChance($store)) {
+                $this->secondChanceRepository->createSecondChance($order);
+                $this->quoteRecreate->duplicate($this->order);
+            }else{
+                $this->quoteRecreate->recreate($order);
+            }
         } catch (\Exception $exception) {
         }
 
@@ -110,7 +120,6 @@ class Process extends Action
 
         $store = $order->getStore();
         $url = $this->account->getFailureRedirect($store);
-        $this->secondChanceRepository->createSecondChance($order);
         return $this->_redirect($url);
     }
 

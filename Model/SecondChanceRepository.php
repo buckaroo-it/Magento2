@@ -87,6 +87,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /** * @var \Magento\CatalogInventory\Model\Stock\StockItemRepository */
     protected $stockItemRepository;
 
+    /** * @var \Magento\Checkout\Model\Cart */
+    protected $cart;
+
+    protected $quoteFactory;
+
     public function __construct(
         SecondChanceResource $resource,
         SecondChanceFactory $secondChanceFactory,
@@ -109,7 +114,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         \Magento\Sales\Model\Order\Address\Renderer $addressRenderer,
         \Magento\Payment\Helper\Data $paymentHelper,
         \Magento\Sales\Model\Order\Email\Container\ShipmentIdentity $identityContainer,
-        \Magento\CatalogInventory\Model\Stock\StockItemRepository $stockItemRepository
+        \Magento\CatalogInventory\Model\Stock\StockItemRepository $stockItemRepository,
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory
 
     ) {
         $this->resource                      = $resource;
@@ -134,6 +141,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->paymentHelper                 = $paymentHelper;
         $this->identityContainer             = $identityContainer;
         $this->stockItemRepository           = $stockItemRepository;
+        $this->cart                          = $cart;
+        $this->quoteFactory                  = $quoteFactory;
     }
 
     /**
@@ -312,21 +321,28 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 $sessionManager->setCustomerAsLoggedIn($customer);
             }
 
+            $this->logging->addDebug(__METHOD__ . '|recreate|' . $item->getOrderId());
             $this->quoteRecreate->recreate($order);
-            $this->setAvailableIncrementId($item->getOrderId(), $item);
+            $this->setAvailableIncrementId($item->getOrderId(), $item, $order);
         }
     }
 
-    private function setAvailableIncrementId($orderId, $item)
+    private function setAvailableIncrementId($orderId, $item, $order)
     {
+        $this->logging->addDebug(__METHOD__ . '|setAvailableIncrementId|' . $orderId);
         for ($i = 1; $i < 100; $i++) {
             $newOrderId = $orderId . '-' . $i;
             if (!$this->orderIncrementIdChecker->isIncrementIdUsed($newOrderId)) {
+                $this->logging->addDebug(__METHOD__ . '|setReservedOrderId|' . $newOrderId);
                 $this->checkoutSession->getQuote()->setReservedOrderId($newOrderId);
                 $this->checkoutSession->getQuote()->save();
+
+                $quote = $this->quoteFactory->create()->load($order->getQuoteId());
+                $quote->setReservedOrderId($newOrderId)->save();
+                
                 $item->setLastOrderId($newOrderId);
                 $item->save();
-                return true;
+                return $newOrderId;
             }
         }
     }
