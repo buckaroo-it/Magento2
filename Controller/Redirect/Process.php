@@ -128,7 +128,8 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\SessionFactory $sessionFactory,
         \Magento\Customer\Model\Customer $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        QuoteRecreate $quoteRecreate
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -150,6 +151,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->accountConfig = $configProviderFactory->get('account');
 
         $this->secondChanceRepository = $secondChanceRepository;
+        $this->quoteRecreate          = $quoteRecreate;
 
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
@@ -294,7 +296,10 @@ class Process extends \Magento\Framework\App\Action\Action
                         )
                     );
                     $this->logger->addDebug(__METHOD__ . '|5|');
-                    $this->secondChanceRepository->createSecondChance($this->order);
+                    if ($this->accountConfig->getSecondChance($store)) {
+                        $this->secondChanceRepository->createSecondChance($this->order);
+                        $this->quoteRecreate->duplicate($this->order);
+                    }
                     return $this->_redirect('/');
                 }
 
@@ -363,9 +368,10 @@ class Process extends \Magento\Framework\App\Action\Action
                     )
                 );
 
-                $this->secondChanceRepository->createSecondChance($this->order);
-
-                if (!$this->recreateQuote()) {
+                if ($this->accountConfig->getSecondChance($this->order->getStore())) {
+                    $this->secondChanceRepository->createSecondChance($this->order);
+                    $this->quoteRecreate->duplicate($this->order);
+                }elseif (!$this->recreateQuote()) {
                     $this->logger->addError('Could not recreate the quote.');
                 }
 
@@ -610,8 +616,10 @@ class Process extends \Magento\Framework\App\Action\Action
                         if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
                             $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                             $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
-                            $this->checkoutSession->restoreQuote();
-                            $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
+                            if (!$this->accountConfig->getSecondChance($this->order->getStore())) {
+                                $this->checkoutSession->restoreQuote();
+                                $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
+                            }
                         }
 
                     } catch (\Exception $e) {

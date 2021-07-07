@@ -82,6 +82,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     private $quoteRecreate;
 
     /**
+     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     */
+    protected $secondChanceRepository;
+
+    /**
      * @param \Magento\Checkout\Model\Session                      $checkoutSession
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
      * @param \Buckaroo\Magento2\Model\SecondChanceFactory         $secondChanceFactory
@@ -104,7 +109,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Magento\Checkout\Model\Cart $cart,
         \Buckaroo\Magento2\Helper\Data $helper,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        QuoteRecreate $quoteRecreate
+        QuoteRecreate $quoteRecreate,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
     ) {
         $this->checkoutSession     = $checkoutSession;
         $this->accountConfig       = $accountConfig;
@@ -123,6 +129,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->dateTime            = $dateTime;
         $this->helper              = $helper;
         $this->quoteRecreate       = $quoteRecreate;
+        $this->secondChanceRepository = $secondChanceRepository;
     }
 
     /**
@@ -159,15 +166,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
                     if ($this->accountConfig->getSecondChance($order->getStore())) {
                         $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
-                        $secondChance = $this->secondChanceFactory->create();
-                        $secondChance->setData([
-                            'order_id'   => $order->getIncrementId(),
-                            'token'      => $this->mathRandom->getUniqueHash(),
-                            'store_id'   => $order->getStoreId(),
-                            'created_at' => $this->dateTime->gmtDate(),
-                        ]);
-                        $secondChance->save();
-
+                        $this->secondChanceRepository->createSecondChance($order);
                         $this->quoteRecreate->duplicate($order);
                     } else {
                         $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
