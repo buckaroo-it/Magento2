@@ -81,9 +81,8 @@ class ProcessTest extends BaseTest
         $contextMock->expects($this->once())->method('getRedirect')->willReturn($redirectMock);
         $contextMock->expects($this->once())->method('getResponse')->willReturn($responseMock);
 
-        $accountMock = $this->getFakeMock(Account::class)->setMethods(['getFailureRedirect','getSecondChance'])->getMock();
+        $accountMock = $this->getFakeMock(Account::class)->setMethods(['getFailureRedirect'])->getMock();
         $accountMock->expects($this->once())->method('getFailureRedirect')->with(1)->willReturn('redirect.com');
-        $accountMock->expects($this->once())->method('getSecondChance')->willReturn(false);
 
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['getStore'])->getMock();
         $orderMock->expects($this->once())->method('getStore')->willReturn(1);
