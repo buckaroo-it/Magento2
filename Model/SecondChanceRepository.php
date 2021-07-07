@@ -25,6 +25,8 @@ use Buckaroo\Magento2\Model\ResourceModel\SecondChance as SecondChanceResource;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection as SecondChanceCollection;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory as SecondChanceCollectionFactory;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
+use Buckaroo\Magento2\Model\Method\Transfer;
+use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Api\SearchResultsInterfaceFactory;
@@ -32,6 +34,7 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Catalog\Model\Product\Type;
 
 class SecondChanceRepository implements SecondChanceRepositoryInterface
 {
@@ -123,7 +126,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Customer\Model\AddressFactory $addressFactory,
         \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry
-
     ) {
         $this->resource                      = $resource;
         $this->secondChanceCollectionFactory = $secondChanceCollectionFactory;
@@ -327,11 +329,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 $customer       = $this->customerFactory->create()->load($customerId);
                 $sessionManager = $this->sessionFactory->create();
                 $sessionManager->setCustomerAsLoggedIn($customer);
-            }elseif ($customerEmail = $order->getCustomerEmail()) {
-                if ($customer = $this->customerFactory->create()->setWebsiteId($order->getStoreId())->loadByEmail($customerEmail)) {
+            } elseif ($customerEmail = $order->getCustomerEmail()) {
+                if ($customer =
+                    $this->customerFactory->create()->setWebsiteId($order->getStoreId())->loadByEmail($customerEmail)
+                ) {
                     $sessionManager = $this->sessionFactory->create();
                     $sessionManager->setCustomerAsLoggedIn($customer);
-                    $this->setCustomerAddress($customer,$order);
+                    $this->setCustomerAddress($customer, $order);
                 }
             }
 
@@ -386,13 +390,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             )
             ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' DAY')])
             ->addFieldToFilter('created_at', ['gteq' => new \Zend_Db_Expr('NOW() - INTERVAL 5 DAY')]);
-
+                    
         foreach ($collection as $item) {
             $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
 
             //BP-896 skip Transfer method
             $payment = $order->getPayment();
-            if (in_array($payment->getMethod(), [\Buckaroo\Magento2\Model\Method\Transfer::PAYMENT_METHOD_CODE, \Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE])) {
+            if (in_array($payment->getMethod(), [Transfer::PAYMENT_METHOD_CODE, PayPerEmail::PAYMENT_METHOD_CODE])) {
                 $this->setFinalStatus($item, $final_status);
                 continue;
             }
@@ -514,17 +518,32 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     public function checkOrderProductsIsInStock($order)
     {
-        if($allItems = $order->getAllVisibleItems()){
+        if ($allItems = $order->getAllItems()) {
             foreach ($allItems as $orderItem) {
                 $product = $orderItem->getProduct();
-                if($sku = $product->getData('sku')){
+                if ($sku = $product->getData('sku')) {
                     $stock = $this->stockRegistry->getStockItemBySku($sku);
-                    // if (!$stock->getIsInStock()) {
-                        if(intval($orderItem->getQtyOrdered()) > intval($stock->getQty())){
-                            $this->logging->addDebug(__METHOD__ . '|not getIsInStock|' . $orderItem->getProduct()->getId());
+                    
+                    if ($orderItem->getProductType() == Type::TYPE_SIMPLE) {
+                        //check is in stock flag and if there is enough qty
+                        if ((!$stock->getIsInStock()) ||
+                            ((int)($orderItem->getQtyOrdered()) > (int)($stock->getQty()))
+                        ) {
+                            $this->logging->addDebug(
+                                __METHOD__ . '|not getIsInStock|' . $orderItem->getProduct()->getId()
+                            );
                             return false;
                         }
-                    // }
+                    } else {
+                        //other product types - bundle / configurable, etc, check only flag
+                        if (!$stock->getIsInStock()) {
+                            $this->logging->addDebug(
+                                __METHOD__ . '|not getIsInStock|' . $orderItem->getProduct()->getSku()
+                            );
+                            return false;
+                        }
+                    }
+
                 }
             }
         }
@@ -537,7 +556,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         return $item->save();
     }
 
-    private function setCustomerAddress($customer,$order)
+    private function setCustomerAddress($customer, $order)
     {
         $address = $this->addressFactory->create();
         $address->setData($order->getBillingAddress()->getData());
