@@ -33,6 +33,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Buckaroo\Magento2\Controller\Payconiq\Process;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 
 class ProcessTest extends BaseTest
 {
@@ -89,7 +90,10 @@ class ProcessTest extends BaseTest
         $transactionMock = $this->getFakeMock(Transaction::class)->setMethods(['getOrder'])->getMock();
         $transactionMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
 
-        $instance = $this->getInstance(['context' => $contextMock, 'account' => $accountMock]);
+        $configProviderFactoryMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
+        $configProviderFactoryMock->expects($this->once())->method('get')->willReturn($configProviderMock);
+
+        $instance = $this->getInstance(['context' => $contextMock, 'account' => $accountMock, 'configProviderFactory' => $configProviderFactoryMock]);
         $this->setProperty('transaction', $transactionMock, $instance);
 
         $result = $instance->execute();
