@@ -501,6 +501,11 @@ class Push implements PushInterface
         }
     }
 
+    private function saveAndReloadOrder(){
+        $this->order->save();
+        $this->loadOrder();
+    }
+
     /**
      * @return int|string
      */
@@ -1163,6 +1168,8 @@ class Push implements PushInterface
                             $saveInvoice = false;
                         }
 
+                        $this->saveAndReloadOrder();
+
                         $this->order->setTotalDue($this->order->getTotalDue() - $amount);
                         $this->order->setBaseTotalDue($this->order->getTotalDue() - $amount);
 
@@ -1171,6 +1178,8 @@ class Push implements PushInterface
 
                         $baseTotalPaid = $this->order->getBaseTotalPaid() + $amount;
                         $this->order->setBaseTotalPaid($baseTotalPaid > $this->order->getBaseGrandTotal() ? $this->order->getBaseGrandTotal() : $baseTotalPaid);
+                        
+                        $this->saveAndReloadOrder();
 
                         $this->resourceConnection->getConnection()->update(
                             $this->resourceConnection->getConnection()->getTableName('sales_order'),
