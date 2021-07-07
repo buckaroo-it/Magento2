@@ -94,6 +94,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     private $addressFactory;
 
+    private $stockRegistry;
+
     public function __construct(
         SecondChanceResource $resource,
         SecondChanceFactory $secondChanceFactory,
@@ -119,7 +121,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         \Magento\CatalogInventory\Model\Stock\StockItemRepository $stockItemRepository,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Customer\Model\AddressFactory $addressFactory
+        \Magento\Customer\Model\AddressFactory $addressFactory,
+        \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry
 
     ) {
         $this->resource                      = $resource;
@@ -147,6 +150,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->cart                          = $cart;
         $this->quoteFactory                  = $quoteFactory;
         $this->addressFactory                = $addressFactory;
+        $this->stockRegistry                 = $stockRegistry;
     }
 
     /**
@@ -510,11 +514,19 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     public function checkOrderProductsIsInStock($order)
     {
-        foreach ($order->getAllItems() as $orderItem) {
-            $productStock = $this->stockItemRepository->get($orderItem->getProductId());
-            if (!$productStock->getIsInStock()) {
-                $this->logging->addDebug(__METHOD__ . '|not getIsInStock|' . $orderItem->getProductId());
-                return false;
+        if($allItems = $order->getAllVisibleItems()){
+            $this->logging->addDebug(__METHOD__ . '|allItems|');
+            foreach ($allItems as $orderItem) {
+                $product = $orderItem->getProduct();
+                if($sku = $product->getData('sku')){
+                    $stock = $this->stockRegistry->getStockItemBySku($sku);
+                    // if (!$stock->getIsInStock()) {
+                        if(intval($orderItem->getQtyOrdered()) > intval($stock->getQty())){
+                            $this->logging->addDebug(__METHOD__ . '|not getIsInStock|' . $orderItem->getProductId());
+                            return false;
+                        }
+                    // }
+                }
             }
         }
         return true;
