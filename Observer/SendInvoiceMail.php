@@ -25,6 +25,7 @@ use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Helper\Data;
 
 class SendInvoiceMail implements ObserverInterface
 {
@@ -39,6 +40,8 @@ class SendInvoiceMail implements ObserverInterface
      */
     public $logging;
 
+    public $helper;
+
     /**
      * @param Account       $accountConfig
      * @param InvoiceSender $invoiceSender
@@ -46,11 +49,13 @@ class SendInvoiceMail implements ObserverInterface
     public function __construct(
         Account $accountConfig,
         InvoiceSender $invoiceSender,
-        Log $logging
+        Log $logging,
+        Data $helper
     ) {
         $this->accountConfig = $accountConfig;
         $this->invoiceSender = $invoiceSender;
         $this->logging = $logging;
+        $this->helper = $helper;
     }
 
     /**
@@ -63,6 +68,7 @@ class SendInvoiceMail implements ObserverInterface
         /** @var Invoice $invoice */
         $invoice = $observer->getEvent()->getInvoice();
         $payment = $invoice->getOrder()->getPayment();
+        $order = $invoice->getOrder();
 
         if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
             return;
@@ -74,11 +80,21 @@ class SendInvoiceMail implements ObserverInterface
         if (!$invoice->getEmailSent() && $invoice->getIsPaid() && $canCapture && $sendInvoiceEmail) {
             $invoice->save();
             $this->logging->addDebug(__METHOD__ . '|10|sendinvoiceemail');
-            $orderBaseShippingAmount = $invoice->getOrder()->getBaseShippingAmount();
+            $orderBaseShippingAmount = $order->getBaseShippingAmount();
             $this->invoiceSender->send($invoice, true);
-            if (($orderBaseShippingAmount > 0) && ($invoice->getOrder()->getBaseShippingAmount() == 0)) {
+            if (($orderBaseShippingAmount > 0) && ($order->getBaseShippingAmount() == 0)) {
                 $this->logging->addDebug(__METHOD__ . '|15|');
                 $invoice->getOrder()->setBaseShippingAmount($orderBaseShippingAmount);
+            }
+        }
+        if ($invoice->getIsPaid() && $canCapture) {
+            if (
+                ($payment->getMethod() == 'buckaroo_magento2_afterpay20')
+                && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
+                && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
+            ) {
+                $this->logging->addDebug(__METHOD__ . '|25|');
+                $order->setBaseTotalPaid($order->getTotalPaid());
             }
         }
     }
