@@ -96,8 +96,9 @@ class ProcessTest extends BaseTest
             ->getMockForAbstractClass();
         $configProviderMock->expects($this->once())->method('getFailureRedirect')->willReturn('failure_url');
         
-        $configProviderFactoryMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
+        $configProviderFactoryMock = $this->getFakeMock(Factory::class)->setMethods(['get', 'getSecondChance'])->getMock();
         $configProviderFactoryMock->expects($this->once())->method('get')->willReturn($configProviderMock);
+        $configProviderFactoryMock->expects($this->once())->method('getSecondChance')->willReturn(false);
 
         $instance = $this->getInstance(['context' => $contextMock, 'account' => $accountMock, 'configProviderFactory' => $configProviderFactoryMock]);
         $this->setProperty('transaction', $transactionMock, $instance);
