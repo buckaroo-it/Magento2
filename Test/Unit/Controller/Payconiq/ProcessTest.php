@@ -90,10 +90,7 @@ class ProcessTest extends BaseTest
         $transactionMock = $this->getFakeMock(Transaction::class)->setMethods(['getOrder'])->getMock();
         $transactionMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
 
-        $configProviderFactoryMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
-        $configProviderFactoryMock->expects($this->once())->method('get')->willReturn($configProviderMock);
-
-        $instance = $this->getInstance(['context' => $contextMock, 'account' => $accountMock, 'configProviderFactory' => $configProviderFactoryMock]);
+        $instance = $this->getInstance(['context' => $contextMock, 'account' => $accountMock]);
         $this->setProperty('transaction', $transactionMock, $instance);
 
         $result = $instance->execute();

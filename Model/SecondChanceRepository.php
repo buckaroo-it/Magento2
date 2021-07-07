@@ -92,6 +92,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     protected $quoteFactory;
 
+    private $addressFactory;
+
     public function __construct(
         SecondChanceResource $resource,
         SecondChanceFactory $secondChanceFactory,
@@ -116,7 +118,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         \Magento\Sales\Model\Order\Email\Container\ShipmentIdentity $identityContainer,
         \Magento\CatalogInventory\Model\Stock\StockItemRepository $stockItemRepository,
         \Magento\Checkout\Model\Cart $cart,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        \Magento\Customer\Model\AddressFactory $addressFactory
 
     ) {
         $this->resource                      = $resource;
@@ -143,6 +146,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->stockItemRepository           = $stockItemRepository;
         $this->cart                          = $cart;
         $this->quoteFactory                  = $quoteFactory;
+        $this->addressFactory                = $addressFactory;
     }
 
     /**
@@ -319,6 +323,12 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 $customer       = $this->customerFactory->create()->load($customerId);
                 $sessionManager = $this->sessionFactory->create();
                 $sessionManager->setCustomerAsLoggedIn($customer);
+            }elseif ($customerEmail = $order->getCustomerEmail()) {
+                if ($customer = $this->customerFactory->create()->setWebsiteId($order->getStoreId())->loadByEmail($customerEmail)) {
+                    $sessionManager = $this->sessionFactory->create();
+                    $sessionManager->setCustomerAsLoggedIn($customer);
+                    $this->setCustomerAddress($customer,$order);
+                }
             }
 
             $this->logging->addDebug(__METHOD__ . '|recreate|' . $item->getOrderId());
@@ -514,5 +524,29 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     {
         $item->setStatus($status);
         return $item->save();
+    }
+
+    private function setCustomerAddress($customer,$order)
+    {
+        $address = $this->addressFactory->create();
+        $address->setData($order->getBillingAddress()->getData());
+        $customerId = $customer->getId();
+ 
+        $address->setCustomerId($customerId)
+            ->setIsDefaultBilling('1')
+            ->setIsDefaultShipping('0')
+            ->setSaveInAddressBook('1');
+        $address->save();
+ 
+        if (!$order->getIsVirtual()) {
+            $address = $this->addressFactory->create();
+            $address->setData($order->getShippingAddress()->getData());
+ 
+            $address->setCustomerId($customerId)
+                ->setIsDefaultBilling('0')
+                ->setIsDefaultShipping('1')
+                ->setSaveInAddressBook('1');
+            $address->save();
+        }
     }
 }
