@@ -26,6 +26,7 @@ use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\Method\Afterpay20;
 
 class SendInvoiceMail implements ObserverInterface
 {
@@ -89,7 +90,7 @@ class SendInvoiceMail implements ObserverInterface
         }
         if ($invoice->getIsPaid() && $canCapture) {
             if (
-                ($payment->getMethod() == 'buckaroo_magento2_afterpay20')
+                ($payment->getMethod() == Afterpay20::PAYMENT_METHOD_CODE)
                 && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
                 && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
             ) {
