@@ -168,6 +168,18 @@ class Push
 
         try {
             if ($creditmemo) {
+                if (
+                    !empty($this->postData['add_service_action_from_magento'])
+                    && ($this->postData['add_service_action_from_magento'] == 'capture')
+                    && !empty($this->postData['brq_transaction_method'])
+                    && ($this->postData['brq_transaction_method'] == 'afterpay')
+                    && !empty($this->postData['brq_transaction_type'])
+                    && ($this->postData['brq_transaction_type'] == 'C041')
+                ) {
+                    $this->logging->addDebug(__METHOD__.'|5|');
+                    $creditmemo->setBaseGrandTotal($this->totalAmountToRefund());
+                    $creditmemo->setGrandTotal($this->totalAmountToRefund());
+                }
                 if (!$creditmemo->isValidGrandTotal()) {
                     $this->logging->addDebug(__METHOD__.'|10|The credit memo\'s total must be positive.');
                     throw new \Magento\Framework\Exception\LocalizedException(
