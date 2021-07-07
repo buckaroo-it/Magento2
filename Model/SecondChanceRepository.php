@@ -515,14 +515,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     public function checkOrderProductsIsInStock($order)
     {
         if($allItems = $order->getAllVisibleItems()){
-            $this->logging->addDebug(__METHOD__ . '|allItems|');
             foreach ($allItems as $orderItem) {
                 $product = $orderItem->getProduct();
                 if($sku = $product->getData('sku')){
                     $stock = $this->stockRegistry->getStockItemBySku($sku);
                     // if (!$stock->getIsInStock()) {
                         if(intval($orderItem->getQtyOrdered()) > intval($stock->getQty())){
-                            $this->logging->addDebug(__METHOD__ . '|not getIsInStock|' . $orderItem->getProductId());
+                            $this->logging->addDebug(__METHOD__ . '|not getIsInStock|' . $orderItem->getProduct()->getId());
                             return false;
                         }
                     // }
