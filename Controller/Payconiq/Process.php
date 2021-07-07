@@ -56,9 +56,6 @@ class Process extends Action
     /** * @var \Buckaroo\Magento2\Model\SecondChanceRepository */
     protected $secondChanceRepository;
 
-    /** * @var \Magento\Checkout\Model\ConfigProviderInterface */
-    protected $accountConfig;
-
     /**
      * @param Context                         $context
      * @param SearchCriteriaBuilder           $searchCriteriaBuilder
@@ -85,7 +82,6 @@ class Process extends Action
         $this->transactionCancel      = $transactionCancel;
         $this->quoteRecreate          = $quoteRecreate;
         $this->secondChanceRepository = $secondChanceRepository;
-        $this->accountConfig          = $configProviderFactory->get('account');
     }
 
     /**
@@ -104,7 +100,7 @@ class Process extends Action
         $order = $transaction->getOrder();
         try {
             $this->transactionCancel->cancel($transaction);
-            if ($this->accountConfig->getSecondChance($store)) {
+            if ($this->account->getSecondChance($store)) {
                 $this->secondChanceRepository->createSecondChance($order);
                 $this->quoteRecreate->duplicate($this->order);
             }else{
