@@ -91,14 +91,17 @@ class ProcessTest extends BaseTest
         $transactionMock = $this->getFakeMock(Transaction::class)->setMethods(['getOrder'])->getMock();
         $transactionMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
 
+        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getSecondChance'])->getMock();
+        $accountConfigMock->expects($this->once())->method('getSecondChance')->willReturn(false);
+
         $configProviderMock = $this->getFakeMock(ConfigProviderInterface::class)
-            ->setMethods(['getFailureRedirect'])
+            ->setMethods(['get','getFailureRedirect'])
             ->getMockForAbstractClass();
+        $configProviderMock->expects($this->once())->method('get')->with('account')->willReturn($accountConfigMock);
         $configProviderMock->expects($this->once())->method('getFailureRedirect')->willReturn('failure_url');
-        
-        $configProviderFactoryMock = $this->getFakeMock(Factory::class)->setMethods(['get', 'getSecondChance'])->getMock();
+
+        $configProviderFactoryMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
         $configProviderFactoryMock->expects($this->once())->method('get')->willReturn($configProviderMock);
-        $configProviderFactoryMock->expects($this->once())->method('getSecondChance')->willReturn(false);
 
         $instance = $this->getInstance(['context' => $contextMock, 'account' => $accountMock, 'configProviderFactory' => $configProviderFactoryMock]);
         $this->setProperty('transaction', $transactionMock, $instance);
