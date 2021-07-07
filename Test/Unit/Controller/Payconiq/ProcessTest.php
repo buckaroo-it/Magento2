@@ -33,6 +33,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Buckaroo\Magento2\Controller\Payconiq\Process;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Test\BaseTest;
+use Magento\Checkout\Model\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 
 class ProcessTest extends BaseTest
@@ -90,6 +91,11 @@ class ProcessTest extends BaseTest
         $transactionMock = $this->getFakeMock(Transaction::class)->setMethods(['getOrder'])->getMock();
         $transactionMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
 
+        $configProviderMock = $this->getFakeMock(ConfigProviderInterface::class)
+            ->setMethods(['getFailureRedirect'])
+            ->getMockForAbstractClass();
+        $configProviderMock->expects($this->once())->method('getFailureRedirect')->willReturn('failure_url');
+        
         $configProviderFactoryMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
         $configProviderFactoryMock->expects($this->once())->method('get')->willReturn($configProviderMock);
 
