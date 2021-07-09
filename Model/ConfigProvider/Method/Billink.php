@@ -48,6 +48,7 @@ class Billink extends AbstractConfigProvider
     const XPATH_BILLINK_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_billink/available_in_backend';
     const XPATH_BILLINK_DUE_DATE             = 'payment/buckaroo_magento2_billink/due_date';
     const XPATH_BILLINK_ALLOWED_CURRENCIES   = 'payment/buckaroo_magento2_billink/allowed_currencies';
+    const XPATH_BILLINK_BUSINESS             = 'payment/buckaroo_magento2_billink/business';
 
     protected $assetRepo;
     protected $scopeConfig;

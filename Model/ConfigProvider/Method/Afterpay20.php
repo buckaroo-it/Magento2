@@ -92,6 +92,7 @@ class Afterpay20 extends AbstractConfigProvider
 
 
     /**
+<<<<<<< HEAD
      * @param null|int $storeId
      *
      * @return bool
@@ -107,6 +108,8 @@ class Afterpay20 extends AbstractConfigProvider
         return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
 
     /**
+=======
+>>>>>>> a2f3074bcd661fea24ae298324c3297a069745dd
      * {@inheritdoc}
      */
     public function getActive($store = null)

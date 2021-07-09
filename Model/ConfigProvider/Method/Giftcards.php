@@ -19,14 +19,12 @@
  */
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
-
 
 class Giftcards extends AbstractConfigProvider
 {
