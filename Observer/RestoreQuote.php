@@ -177,6 +177,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             }
             $this->helper->addDebug(__METHOD__ . '|setRestoreQuoteLastOrder for cartKeepAlive|');
             $this->helper->setRestoreQuoteLastOrder(false);
+            $this->checkoutSession->setSkipSecondChance(false);
         }
         $this->helper->addDebug(__METHOD__ . '|RestoreQuote|end|');
         return true;
