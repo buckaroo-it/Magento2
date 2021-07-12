@@ -297,14 +297,18 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      */
     public function createSecondChance($order)
     {
-        $secondChance = $this->secondChanceFactory->create();
-        $secondChance->setData([
-            'order_id'   => $order->getIncrementId(),
-            'token'      => $this->mathRandom->getUniqueHash(),
-            'store_id'   => $order->getStoreId(),
-            'created_at' => $this->dateTime->gmtDate(),
-        ]);
-        return $secondChance->save();
+        if(!$this->checkoutSession->getSkipSecondChance()){
+            $secondChance = $this->secondChanceFactory->create();
+            $secondChance->setData([
+                'order_id'   => $order->getIncrementId(),
+                'token'      => $this->mathRandom->getUniqueHash(),
+                'store_id'   => $order->getStoreId(),
+                'created_at' => $this->dateTime->gmtDate(),
+            ]);
+            return $secondChance->save();
+        }
+        $this->checkoutSession->setSkipSecondChance(false);
+        return false;
     }
 
     /**
@@ -358,6 +362,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 $quote = $this->quoteFactory->create()->load($order->getQuoteId());
                 $quote->setReservedOrderId($newOrderId)->save();
                 
+                $this->checkoutSession->setSkipSecondChance($newOrderId);
+
                 $item->setLastOrderId($newOrderId);
                 $item->save();
                 return $newOrderId;
