@@ -69,7 +69,7 @@ class Recreate
     public function recreate($order = false, $newQuote = false)
     {
         try {
-            $quote = ($order != false) ? $this->cartRepository->get($order->getQuoteId()) : $newQuote;
+            $quote = ($order != false) ? $this->quoteFactory->create()->load($order->getQuoteId()) : $newQuote;
             $quote->setIsActive(true);
             $quote->setTriggerRecollect('1');
             $quote->setReservedOrderId(null);

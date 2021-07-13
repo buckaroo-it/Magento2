@@ -298,6 +298,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     $this->logger->addDebug(__METHOD__ . '|5|');
                     if ($this->accountConfig->getSecondChance($store)) {
                         $this->secondChanceRepository->createSecondChance($this->order);
+                        $this->quoteRecreate->duplicate($this->order);
                     }
                     return $this->_redirect('/');
                 }
@@ -369,7 +370,12 @@ class Process extends \Magento\Framework\App\Action\Action
 
                 if ($this->accountConfig->getSecondChance($this->order->getStore())) {
                     $this->secondChanceRepository->createSecondChance($this->order);
-                }elseif (!$this->recreateQuote()) {
+                    if($quote = $this->quoteRecreate->duplicate($this->order)){
+                        $this->quote->load($quote->getId());
+                    }
+                }
+
+                if (!$this->recreateQuote()) {
                     $this->logger->addError('Could not recreate the quote.');
                 }
 
