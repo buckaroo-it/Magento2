@@ -167,6 +167,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     if ($this->accountConfig->getSecondChance($order->getStore())) {
                         $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
                         $this->secondChanceRepository->createSecondChance($order);
+                        $this->quoteRecreate->duplicate($order);
                     } else {
                         $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
                         $this->checkoutSession->restoreQuote();
