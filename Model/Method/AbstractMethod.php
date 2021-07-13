@@ -2182,9 +2182,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                             ['City', 'city'],
                             ['Country', 'countryCode'],
                             ['StreetNumber', 'number'],
+                            ['StreetNumberAdditional', 'addition']
                         ];
                         foreach ($mapping as $mappingItem) {
                             if (($requestData[$key]['Name'] == $mappingItem[0]) && (!empty($parsedResponse->address->{$mappingItem[1]}))) {
+                                if ($mappingItem[1] == 'addition') {
+                                    $parsedResponse->address->{$mappingItem[1]} =
+                                        $this->cleanStreetNumberAddition($parsedResponse->address->{$mappingItem[1]});
+                                }
                                 $requestData[$key]['_'] = $parsedResponse->address->{$mappingItem[1]};
                             }
                         }
@@ -2195,6 +2200,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
     }
 
+    private function cleanStreetNumberAddition($addition)
+    {
+        return preg_replace('/[\W]/', '', $addition);
+    }
     /**
      * @param $street
      *
