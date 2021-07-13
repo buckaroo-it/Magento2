@@ -305,7 +305,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 'store_id'   => $order->getStoreId(),
                 'created_at' => $this->dateTime->gmtDate(),
             ]);
-            $this->quoteRecreate->duplicate($order);
             return $secondChance->save();
         }
         $this->customerSession->setSkipSecondChance(false);
