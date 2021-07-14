@@ -43,6 +43,7 @@ class AfterExpiry implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'maestro',                'label' => __('Maestro')],
             ['value' => 'mastercard',             'label' => __('Mastercard')],
             ['value' => 'nexi',                   'label' => __('Nexi')],
+            ['value' => 'postepay',               'label' => __('PostePay')],
             ['value' => 'paypal',                 'label' => __('PayPal')],
             ['value' => 'sofortueberweisung',     'label' => __('Sofort Banking')],
             ['value' => 'belfius',                'label' => __('Belfius')],
