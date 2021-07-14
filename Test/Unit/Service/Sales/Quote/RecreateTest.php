@@ -26,7 +26,6 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Buckaroo\Magento2\Test\BaseTest;
-use Magento\Framework\Exception\LocalizedException;
 
 class RecreateTest extends BaseTest
 {
@@ -38,11 +37,12 @@ class RecreateTest extends BaseTest
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['getQuoteId'])->getMock();
         $orderMock->expects($this->once())->method('getQuoteId')->willReturn($quoteId);
 
-        $quoteMock = $this->getFakeMock(Quote::class)->setMethods(null)->getMock();
+        $quoteMock = $this->getFakeMock(Quote::class)->setMethods(['load'])->getMock();
+        $quoteMock->expects($this->once())->method('load')->willReturnSelf();
 
         $quoteFactoryMock = $this->getFakeMock(QuoteFactory::class)
-            ->setMethods(['create','load'])
-            ->getMockForAbstractClass();
+            ->setMethods(['create'])
+            ->getMock();
         $quoteFactoryMock->expects($this->once())->method('create')->willReturn($quoteMock);
 
         $cartRepositoryMock = $this->getFakeMock(CartRepositoryInterface::class)
