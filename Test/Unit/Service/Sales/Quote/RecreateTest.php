@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Quote;
 use Magento\Checkout\Model\Cart;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -40,8 +41,9 @@ class RecreateTest extends BaseTest
 
         $quoteFactoryMock = $this->getFakeMock(QuoteFactory::class)
             ->setMethods(['create','load'])
-            ->getMockForAbstractClass();
-        $quoteFactoryMock->expects($this->once())->method('create')->willReturn($quoteMock);
+            ->getMock();
+        $quoteFactoryMock->expects($this->once())->method('create');
+        $quoteFactoryMock->expects($this->once())->method('load')->with($quoteId)->willReturn($quoteMock);
 
         $cartRepositoryMock = $this->getFakeMock(CartRepositoryInterface::class)
             ->setMethods(['get'])
