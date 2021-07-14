@@ -337,9 +337,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 if ($customer =
                     $this->customerFactory->create()->setWebsiteId($order->getStoreId())->loadByEmail($customerEmail)
                 ) {
-                    $sessionManager = $this->sessionFactory->create();
-                    $sessionManager->setCustomerAsLoggedIn($customer);
-                    $this->setCustomerAddress($customer, $order);
+                    if ($customer->getId()) {
+                        $sessionManager = $this->sessionFactory->create();
+                        $sessionManager->setCustomerAsLoggedIn($customer);
+                        $this->setCustomerAddress($customer, $order);
+                    }
                 }
             }
 
