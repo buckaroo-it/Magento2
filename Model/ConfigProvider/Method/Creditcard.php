@@ -42,6 +42,7 @@ class Creditcard extends AbstractConfigProvider
     const CREDITCARD_SERVICE_CODE_CARTEBANCAIRE = 'cartebancaire';
     const CREDITCARD_SERVICE_CODE_DANKORT       = 'dankort';
     const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
+    const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
     /**#@-*/
 
     const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
@@ -99,6 +100,11 @@ class Creditcard extends AbstractConfigProvider
         [
             'name' => 'Nexi',
             'code' => self::CREDITCARD_SERVICE_CODE_NEXI,
+            'sort' => 0
+        ],
+        [
+            'name' => 'PostePay',
+            'code' => self::CREDITCARD_SERVICE_CODE_POSTEPAY,
             'sort' => 0
         ],
         [
