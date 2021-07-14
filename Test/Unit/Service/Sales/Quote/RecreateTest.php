@@ -45,16 +45,11 @@ class RecreateTest extends BaseTest
             ->getMock();
         $quoteFactoryMock->expects($this->once())->method('create')->willReturn($quoteMock);
 
-        $cartRepositoryMock = $this->getFakeMock(CartRepositoryInterface::class)
-            ->setMethods(['get'])
-            ->getMockForAbstractClass();
-        $cartRepositoryMock->expects($this->once())->method('get')->with($quoteId)->willReturn($quoteMock);
-
         $cartMock = $this->getFakeMock(Cart::class)->setMethods(['setQuote', 'save'])->getMock();
         $cartMock->expects($this->once())->method('setQuote')->with($quoteMock)->willReturnSelf();
         $cartMock->expects($this->once())->method('save');
 
-        $instance = $this->getInstance(['quoteFactory' => $quoteFactoryMock, 'cartRepository' => $cartRepositoryMock, 'cart' => $cartMock]);
+        $instance = $this->getInstance(['quoteFactory' => $quoteFactoryMock, 'cart' => $cartMock]);
         $instance->recreate($orderMock);
 
         $this->assertTrue($quoteMock->getIsActive());
