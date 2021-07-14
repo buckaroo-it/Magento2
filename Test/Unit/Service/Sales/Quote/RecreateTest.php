@@ -26,6 +26,7 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Buckaroo\Magento2\Test\BaseTest;
+use Magento\Framework\Exception\LocalizedException;
 
 class RecreateTest extends BaseTest
 {
