@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Quote;
 use Magento\Checkout\Model\Cart;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -36,18 +37,19 @@ class RecreateTest extends BaseTest
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['getQuoteId'])->getMock();
         $orderMock->expects($this->once())->method('getQuoteId')->willReturn($quoteId);
 
-        $quoteMock = $this->getFakeMock(Quote::class)->setMethods(null)->getMock();
+        $quoteMock = $this->getFakeMock(Quote::class)->setMethods(['load'])->getMock();
+        $quoteMock->expects($this->once())->method('load')->willReturnSelf();
 
-        $cartRepositoryMock = $this->getFakeMock(CartRepositoryInterface::class)
-            ->setMethods(['get'])
-            ->getMockForAbstractClass();
-        $cartRepositoryMock->expects($this->once())->method('get')->with($quoteId)->willReturn($quoteMock);
+        $quoteFactoryMock = $this->getFakeMock(QuoteFactory::class)
+            ->setMethods(['create'])
+            ->getMock();
+        $quoteFactoryMock->expects($this->once())->method('create')->willReturn($quoteMock);
 
         $cartMock = $this->getFakeMock(Cart::class)->setMethods(['setQuote', 'save'])->getMock();
         $cartMock->expects($this->once())->method('setQuote')->with($quoteMock)->willReturnSelf();
         $cartMock->expects($this->once())->method('save');
 
-        $instance = $this->getInstance(['cartRepository' => $cartRepositoryMock, 'cart' => $cartMock]);
+        $instance = $this->getInstance(['quoteFactory' => $quoteFactoryMock, 'cart' => $cartMock]);
         $instance->recreate($orderMock);
 
         $this->assertTrue($quoteMock->getIsActive());
