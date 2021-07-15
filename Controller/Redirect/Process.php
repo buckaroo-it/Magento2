@@ -570,6 +570,8 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->messageManager->addSuccessMessage(__('Your order has been placed succesfully.'));
 
+        $this->quote->setReservedOrderId(null);
+
         if (
             !empty($this->response['brq_payment_method'])
             &&
