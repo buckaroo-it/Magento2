@@ -295,9 +295,34 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * {@inheritdoc}
      */
+    public function deleteOlderRecords()
+    {
+        $days = (int) $this->accountConfig->getSecondChancePruneDays();
+        $this->logging->addDebug(__METHOD__ . '|secondChance $days|' . $days);
+
+        if ($days <= 0) {
+            return false;
+        }
+
+        $connection = $this->resource->getConnection();
+        try {
+            $connection->delete(
+                $this->resource->getMainTable(),
+                ['created_at < (NOW() - INTERVAL ? DAY)' => $days]
+            );
+        } catch (\Exception $exception) {
+            throw new CouldNotDeleteException(__($exception->getMessage()));
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createSecondChance($order)
     {
-        if(!$this->customerSession->getSkipSecondChance()){
+        if (!$this->customerSession->getSkipSecondChance()) {
             $secondChance = $this->secondChanceFactory->create();
             $secondChance->setData([
                 'order_id'   => $order->getIncrementId(),

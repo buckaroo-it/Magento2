@@ -85,6 +85,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE          = 'buckaroo_magento2/account/second_chance_template';
     const XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE2         = 'buckaroo_magento2/account/second_chance_template2';
     const XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE           = 'buckaroo_magento2/account/no_send_second_chance';
+    const XPATH_ACCOUNT_SECOND_CHANCE_PRUNE_DAYS        = 'buckaroo_magento2/account/second_chance_prune_days';
     const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
     const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
     const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
@@ -149,6 +150,7 @@ class Account extends AbstractConfigProvider
             'second_chance_template2'           => $this->getSecondChanceTemplate2($store),
             'second_chance_timing'              => $this->getSecondChanceTiming($store),
             'second_chance_timing2'             => $this->getSecondChanceTiming2($store),
+            'second_chance_prune_days'          => $this->getSecondChancePruneDays($store),
             'no_send_second_chance'             => $this->getNoSendSecondChance($store),
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
