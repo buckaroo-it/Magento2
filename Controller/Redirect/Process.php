@@ -339,57 +339,62 @@ class Process extends \Magento\Framework\App\Action\Action
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-                $this->logger->addDebug(__METHOD__ . '|7|');
-                /*
-                 * Something went wrong, so we're going to have to
-                 * 1) recreate the quote for the user
-                 * 2) cancel the order we had to create to even get here
-                 * 3) redirect back to the checkout page to offer the user feedback & the option to try again
-                 */
-
-                // StatusCode specified error messages
-                $statusCodeAddErrorMessage                                                                 = array();
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
-                    'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-                    ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')] =
-                    'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-                    ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')] =
-                    'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-                    ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')] =
-                    'According to our system, you have canceled the payment. If this' .
-                    ' is not the case, please contact us.';
-
-                $this->messageManager->addErrorMessage(
-                    __(
-                        $statusCodeAddErrorMessage[$statusCode]
-                    )
-                );
-
-                if ($this->accountConfig->getSecondChance($this->order->getStore())) {
-                    $this->secondChanceRepository->createSecondChance($this->order);
-                    if($quote = $this->quoteRecreate->duplicate($this->order)){
-                        $this->quote->load($quote->getId());
-                    }
-                }
-
-                if (!$this->recreateQuote()) {
-                    $this->logger->addError('Could not recreate the quote.');
-                }
-
-                if (!$this->cancelOrder($statusCode)) {
-                    $this->logger->addError('Could not cancel the order.');
-                }
-                $this->logger->addDebug(__METHOD__ . '|8|');
-                $this->redirectFailure();
+                $this->handleFailed($statusCode);
                 break;
                 //no default
         }
 
         $this->logger->addDebug(__METHOD__ . '|9|');
         return $this->_response;
+    }
+
+    protected function handleFailed($statusCode)
+    {
+        $this->logger->addDebug(__METHOD__ . '|7|');
+        /*
+         * Something went wrong, so we're going to have to
+         * 1) recreate the quote for the user
+         * 2) cancel the order we had to create to even get here
+         * 3) redirect back to the checkout page to offer the user feedback & the option to try again
+         */
+
+        // StatusCode specified error messages
+        $statusCodeAddErrorMessage = array();
+        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
+            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+            ' error persists, please choose a different payment method.';
+        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')] =
+            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+            ' error persists, please choose a different payment method.';
+        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')] =
+            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+            ' error persists, please choose a different payment method.';
+        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')] =
+            'According to our system, you have canceled the payment. If this' .
+            ' is not the case, please contact us.';
+
+        $this->messageManager->addErrorMessage(
+            __(
+                $statusCodeAddErrorMessage[$statusCode]
+            )
+        );
+
+        if ($this->accountConfig->getSecondChance($this->order->getStore())) {
+            $this->secondChanceRepository->createSecondChance($this->order);
+            if($quote = $this->quoteRecreate->duplicate($this->order)){
+                $this->quote->load($quote->getId());
+            }
+        }
+
+        if (!$this->recreateQuote()) {
+            $this->logger->addError('Could not recreate the quote.');
+        }
+
+        if (!$this->cancelOrder($statusCode)) {
+            $this->logger->addError('Could not cancel the order.');
+        }
+        $this->logger->addDebug(__METHOD__ . '|8|');
+        $this->redirectFailure();
     }
 
     /**

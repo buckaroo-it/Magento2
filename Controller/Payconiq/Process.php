@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Controller\Payconiq;
 
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -29,11 +30,9 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Service\Sales\Transaction\Cancel as TransactionCancel;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 
-class Process extends Action
+class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 {
     /** @var null|Transaction */
     protected $transaction = null;
@@ -44,44 +43,51 @@ class Process extends Action
     /** @var TransactionRepositoryInterface */
     protected $transactionRepository;
 
-    /** @var Account */
-    protected $account;
-
-    /** @var TransactionCancel */
-    protected $transactionCancel;
-
-    /** @var QuoteRecreate */
-    protected $quoteRecreate;
-
-    /** * @var \Buckaroo\Magento2\Model\SecondChanceRepository */
-    protected $secondChanceRepository;
-
-    /**
-     * @param Context                         $context
-     * @param SearchCriteriaBuilder           $searchCriteriaBuilder
-     * @param TransactionRepositoryInterface  $transactionRepository
-     * @param Account                         $account
-     * @param TransactionCancel               $transactionCancel
-     * @param QuoteRecreate                   $quoteRecreate
-     */
     public function __construct(
-        Context $context,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        TransactionRepositoryInterface $transactionRepository,
-        Account $account,
-        TransactionCancel $transactionCancel,
-        QuoteRecreate $quoteRecreate,
+        \Magento\Framework\App\Action\Context $context,
+        \Buckaroo\Magento2\Helper\Data $helper,
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Sales\Model\Order $order,
+        \Magento\Quote\Model\Quote $quote,
+        TransactionInterface $transaction,
+        Log $logger,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        \Magento\Customer\Model\SessionFactory $sessionFactory,
+        \Magento\Customer\Model\Customer $customerModel,
+        \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        QuoteRecreate $quoteRecreate,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        TransactionRepositoryInterface $transactionRepository
     ) {
-        parent::__construct($context);
+        parent::__construct(
+            $context,
+            $helper,
+            $cart,
+            $order,
+            $quote,
+            $transaction,
+            $logger,
+            $configProviderFactory,
+            $orderSender,
+            $orderStatusFactory,
+            $checkoutSession,
+            $customerSession,
+            $customerRepository,
+            $sessionFactory,
+            $customerModel,
+            $customerFactory,
+            $secondChanceRepository,
+            $quoteRecreate
+        );
 
         $this->searchCriteriaBuilder  = $searchCriteriaBuilder;
         $this->transactionRepository  = $transactionRepository;
-        $this->account                = $account;
-        $this->transactionCancel      = $transactionCancel;
-        $this->quoteRecreate          = $quoteRecreate;
-        $this->secondChanceRepository = $secondChanceRepository;
     }
 
     /**
@@ -97,26 +103,17 @@ class Process extends Action
         }
 
         $transaction = $this->getTransaction();
-        $order = $transaction->getOrder();
+        $this->order = $transaction->getOrder();
+        $this->quote->load($this->order->getQuoteId());
+
         try {
-            $this->transactionCancel->cancel($transaction);
-            if ($this->account->getSecondChance($store)) {
-                $this->secondChanceRepository->createSecondChance($order);
-                $this->quoteRecreate->duplicate($this->order);
-            }else{
-                $this->quoteRecreate->recreate($order);
-            }
+            $this->handleFailed(
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
+            );
         } catch (\Exception $exception) {
         }
 
-        $cancelledErrorMessage = __(
-            'According to our system, you have canceled the payment. If this is not the case, please contact us.'
-        );
-        $this->messageManager->addErrorMessage($cancelledErrorMessage);
-
-        $store = $order->getStore();
-        $url = $this->account->getFailureRedirect($store);
-        return $this->_redirect($url);
+        return $this->_response;
     }
 
     /**
