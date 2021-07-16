@@ -19,18 +19,17 @@
  */
 namespace Buckaroo\Magento2\Cron;
 
+use Buckaroo\Magento2\Model\SecondChanceRepository as SecondChanceRepository;
+
 class SecondChancePrune
 {
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     * @param SecondChanceRepository       $secondChanceRepository
      */
     protected $secondChanceRepository;
-
-    /**
-     * @param \Buckaroo\Magento2\Model\SecondChanceRepository       $secondChanceRepository
-     */
+    
     public function __construct(
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
+        SecondChanceRepository $secondChanceRepository
     ) {
         $this->secondChanceRepository = $secondChanceRepository;
     }
