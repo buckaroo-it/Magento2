@@ -24,6 +24,7 @@ use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
+use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -97,6 +98,8 @@ class Process extends \Magento\Framework\App\Action\Action
 
     private $quoteRecreate;
 
+    protected $orderService;
+
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
@@ -129,7 +132,8 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\Customer $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
         \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
-        QuoteRecreate $quoteRecreate
+        QuoteRecreate $quoteRecreate,
+        OrderService $orderService
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -152,6 +156,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->secondChanceRepository = $secondChanceRepository;
         $this->quoteRecreate          = $quoteRecreate;
+        $this->orderService = $orderService;
 
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
@@ -498,58 +503,7 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function cancelOrder($statusCode)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-
-        // Mostly the push api already canceled the order, so first check in wich state the order is.
-        if ($this->order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
-            $this->logger->addDebug(__METHOD__ . '|5|');
-            return true;
-        }
-
-        $store = $this->order->getStore();
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        if (!$this->accountConfig->getCancelOnFailed($store)) {
-            $this->logger->addDebug(__METHOD__ . '|10|');
-            return true;
-        }
-
-        $this->logger->addDebug(__METHOD__ . '|15|');
-
-        if ($this->order->canCancel()) {
-            $this->logger->addDebug(__METHOD__ . '|20|');
-
-            if (in_array($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
-                $methodInstanceClass                 = get_class($this->order->getPayment()->getMethodInstance());
-                $methodInstanceClass::$requestOnVoid = false;
-            }
-
-            $this->order->cancel();
-
-            if (in_array($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
-                $this->logger->addDebug(__METHOD__ . '|25|');
-                return true;
-            }
-
-            $this->logger->addDebug(__METHOD__ . '|30|');
-
-            $failedStatus = $this->orderStatusFactory->get(
-                $statusCode,
-                $this->order
-            );
-
-            if ($failedStatus) {
-                $this->order->setStatus($failedStatus);
-            }
-            $this->order->save();
-            return true;
-        }
-
-        $this->logger->addDebug(__METHOD__ . '|40|');
-
-        return false;
+        return $this->orderService->cancel($this->order, $statusCode);
     }
 
     /**
