@@ -54,7 +54,7 @@
 
         <field id="due_date" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Due date (in days)</label>
-            <comment><![CDATA[The amount of days after the order date in which the customer has to complete the payment. This is only for display purposes; you can add this due date in the template of the Transfer email.]]></comment>
+            <comment><![CDATA[The amount of days after the order date in which the customer has to complete the payment. After this period order will be cancelled. You can add this due date in the template of the Transfer email.]]></comment>
             <config_path>payment/buckaroo_magento2_transfer/due_date</config_path>
             <backend_model>Buckaroo\Magento2\Model\Config\Backend\Number</backend_model>
         </field>
