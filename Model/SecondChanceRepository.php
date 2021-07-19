@@ -306,9 +306,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
         $connection = $this->resource->getConnection();
         try {
+            $condition = $connection->prepareSqlCondition(
+                'created_at',
+                ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ? DAY')]
+            );
             $connection->delete(
                 $this->resource->getMainTable(),
-                ['created_at < (NOW() - INTERVAL ? DAY)' => $days]
+                [$condition => $days]
             );
         } catch (\Exception $exception) {
             throw new CouldNotDeleteException(__($exception->getMessage()));
