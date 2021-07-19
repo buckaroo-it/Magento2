@@ -372,7 +372,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $configProviderFactoryMock->expects($this->once())->method('getPaymentFee')->willReturn($expectedFee);
 
         $configProviderFeeMock = $this->getFakeMock(ConfigProviderBuckarooFee::class)
-            ->setMethods(['getTaxClass'])
+            ->setMethods(['getTaxClass','getPaymentFeeTax'])
             ->getMock();
         $configProviderFeeMock->expects($this->once())->method('getTaxClass')->willReturn(1);
 

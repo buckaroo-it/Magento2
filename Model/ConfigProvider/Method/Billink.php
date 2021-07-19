@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Model\Method\Billink as BillinkMethod;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @method getDueDate()
@@ -47,6 +48,7 @@ class Billink extends AbstractConfigProvider
     const XPATH_BILLINK_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_billink/available_in_backend';
     const XPATH_BILLINK_DUE_DATE             = 'payment/buckaroo_magento2_billink/due_date';
     const XPATH_BILLINK_ALLOWED_CURRENCIES   = 'payment/buckaroo_magento2_billink/allowed_currencies';
+    const XPATH_BILLINK_BUSINESS             = 'payment/buckaroo_magento2_billink/business';
 
     protected $assetRepo;
     protected $scopeConfig;
@@ -101,11 +103,123 @@ class Billink extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_BILLINK_PAYMENT_FEE,
+            static::XPATH_BILLINK_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
         return $paymentFee ? $paymentFee : false;
+    }
+
+    /**
+     * businessMethod 1 = B2C
+     * businessMethod 2 = B2B
+     *
+     * @return bool|int
+     */
+    public function getBusiness()
+    {
+        $business = (int) $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_BUSINESS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        return $business ? $business : false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSendEmail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_SEND_EMAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableInBackend($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_AVAILABLE_IN_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDueDate($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_DUE_DATE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }
