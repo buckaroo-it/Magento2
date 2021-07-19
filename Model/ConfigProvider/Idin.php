@@ -77,6 +77,8 @@ class Idin extends AbstractConfigProvider
 
     protected $checkoutSession;
 
+    protected $scopeConfig;
+
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -84,7 +86,8 @@ class Idin extends AbstractConfigProvider
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface,
         \Magento\Checkout\Model\Session $session,
         \Magento\Catalog\Model\ProductFactory $productFactory,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->storeManager                = $storeManager;
         $this->configProviderAccount       = $configProviderAccount;
@@ -93,6 +96,7 @@ class Idin extends AbstractConfigProvider
         $this->session                     = $session;
         $this->productFactory              = $productFactory;
         $this->checkoutSession             = $checkoutSession;
+        $this->scopeConfig = $scopeConfig;
     }
     /**
      * Retrieve associated array of checkout configuration
@@ -103,10 +107,16 @@ class Idin extends AbstractConfigProvider
      */
     public function getConfig($store = null)
     {
+        $idin = $this->isIDINActive();
         return [
             'buckarooIdin' => [
                 'issuers' => $this->formatIssuers(),
-                'active'  => $this->isIDINActive(),
+                'active'  => $idin['active'],
+                'verified'  => $idin['verified'],
+                'isOscEnabled' => intval($this->scopeConfig->getValue(
+                    'onestepcheckout_iosc/general/enable',
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                ))
             ],
         ];
     }
@@ -114,6 +124,7 @@ class Idin extends AbstractConfigProvider
     protected function isIDINActive()
     {
         $active = false;
+        $verified = false;
         if ($this->configProviderAccount->getIdin($this->storeManager->getStore())) {
             foreach ($this->session->getQuote()->getAllVisibleItems() as $item) {
                 $productId = $item->getProductId();
@@ -142,14 +153,16 @@ class Idin extends AbstractConfigProvider
                 $customer              = $this->customerRepositoryInterface->getById($customerId);
                 $customerAttributeData = $customer->__toArray();
                 $active                = (isset($customerAttributeData['custom_attributes']) && isset($customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder']) && $customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder']['value']==1) ? false : 1;
+                $verified = !$active;
             } elseif ($active === true) {
                 if ($this->checkoutSession->getCustomerIDINIsEighteenOrOlder()) {
                     $active = false;
+                    $verified = true;
                 }
             }
         }
 
-        return $active;
+        return ['active' => $active, 'verified' => $verified];
     }
 
     protected function formatIssuers()
