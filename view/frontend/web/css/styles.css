@@ -1379,6 +1379,10 @@
     width: 100%;
 }
 
+.onestepcheckout-index-index #checkout-step-idin {
+    width: inherit;
+}
+
 .buckaroo_idin_left{
     width: 50%;
     float: left;
@@ -1409,6 +1413,12 @@
 .opc-wrapper #step_idin{
     clear: both;
     display: inline-block!important;
+    padding-left:10px;
+}
+
+.onestepcheckout-index-index .opc-wrapper #step_idin {
+    padding-left: 0px;
+    margin-bottom: 10px;
 }
 
 .buckaroo_magento2_all_giftcards{
