@@ -548,6 +548,8 @@
                 <selection_type>1</selection_type>
                 <second_chance_template>buckaroo_second_chance</second_chance_template>
                 <second_chance_template2>buckaroo_second_chance2</second_chance_template2>
+                <second_chance_email>1</second_chance_email>
+                <second_chance_email2>1</second_chance_email2>
             </account>
 
             <refund>
