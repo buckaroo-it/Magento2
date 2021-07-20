@@ -20,6 +20,7 @@
 namespace Buckaroo\Magento2\Cron;
 
 use Buckaroo\Magento2\Model\SecondChanceRepository as SecondChanceRepository;
+use Magento\Store\Api\StoreRepositoryInterface as StoreRepositoryInterface;
 
 class SecondChancePrune
 {
@@ -28,15 +29,25 @@ class SecondChancePrune
      */
     protected $secondChanceRepository;
     
+    /**
+     * @var StoreRepositoryInterface
+     */
+    private $storeRepository;
+
     public function __construct(
-        SecondChanceRepository $secondChanceRepository
+        SecondChanceRepository $secondChanceRepository,
+        StoreRepositoryInterface $storeRepository
     ) {
         $this->secondChanceRepository = $secondChanceRepository;
+        $this->storeRepository = $storeRepository;
     }
 
     public function execute()
     {
-        $this->secondChanceRepository->deleteOlderRecords();
+        $stores = $this->storeRepository->getList();
+        foreach ($stores as $store) {
+            $this->secondChanceRepository->deleteOlderRecords($store);
+        }
 
         return $this;
     }

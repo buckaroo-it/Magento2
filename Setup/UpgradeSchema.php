@@ -411,5 +411,11 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             $installer->getIdxName('sales_payment_transaction', ['txn_id']),
             ['txn_id']
         );
+
+        $installer->getConnection()->addIndex(
+            $installer->getTable('buckaroo_magento2_second_chance'),
+            $installer->getIdxName('buckaroo_magento2_second_chance', ['store_id']),
+            ['store_id']
+        );
     }
 }

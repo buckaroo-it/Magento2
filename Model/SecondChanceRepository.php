@@ -295,10 +295,12 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteOlderRecords()
+    public function deleteOlderRecords($store)
     {
-        $days = (int) $this->accountConfig->getSecondChancePruneDays();
-        $this->logging->addDebug(__METHOD__ . '|secondChance $days|' . $days);
+        $storeId = (int) $store->getId();
+        $days = (int) $this->accountConfig->getSecondChancePruneDays($storeId);
+        $this->logging->addDebug(__METHOD__ . '|$storeId|' . $storeId);
+        $this->logging->addDebug(__METHOD__ . '|$days|' . $days);
 
         if ($days <= 0) {
             return false;
@@ -306,13 +308,14 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
         $connection = $this->resource->getConnection();
         try {
-            $condition = $connection->prepareSqlCondition(
+            $ageCondition = $connection->prepareSqlCondition(
                 'created_at',
                 ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ? DAY')]
             );
+            $storeCondition = $connection->prepareSqlCondition('store_id', $storeId);
             $connection->delete(
                 $this->resource->getMainTable(),
-                [$condition => $days]
+                [$ageCondition => $days, $storeCondition]
             );
         } catch (\Exception $exception) {
             throw new CouldNotDeleteException(__($exception->getMessage()));
