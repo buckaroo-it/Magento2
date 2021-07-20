@@ -2015,7 +2015,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             1,
             1,
             round($diff, 2),
-            4
+            0
         );
 
         return $article;
@@ -2417,6 +2417,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // Merge the article data; products and fee's
         $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
 
+        $requestData = $this->checkTotalGrossAmount($requestData, $payment);
+
         return $requestData;
     }
 
@@ -2429,6 +2431,39 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $shippingAddress = $payment->getOrder()->getBillingAddress();
         }
         return $shippingAddress;
+    }
+
+    public function checkTotalGrossAmount($requestData, $payment)
+    {
+        $order = $payment->getOrder();
+        $itemsTotalAmount = 0;
+        $count = 1;
+        $requestData2 = [];
+        foreach ($requestData as $item){
+            if(isset($item['GroupID']) && $item['GroupID']>0){
+                if($item['Name'] == 'Quantity'){
+                    $requestData2[$item['GroupID']]['Quantity'] = $item['_'];
+                }
+                if($item['Name'] == $this->getPriceFieldName()){
+                    $requestData2[$item['GroupID']][$this->getPriceFieldName()] = $item['_'];
+                }
+            }
+        }
+
+        foreach ($requestData2 as $key=>$item){
+            $itemsTotalAmount += $item['Quantity'] * $item[$this->getPriceFieldName()];
+            $count++; 
+        }
+
+        //Add diff line
+        if(abs($order->getBaseGrandTotal() - $itemsTotalAmount) > 0.01){
+            $diff = $order->getBaseGrandTotal() - $itemsTotalAmount;
+            $diffLine = $this->getDiffLine($count, $diff);
+            $requestData = array_merge($requestData, $diffLine);
+        }
+
+        return $requestData;
+
     }
 }
 
