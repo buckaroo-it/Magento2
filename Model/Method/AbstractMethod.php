@@ -1849,6 +1849,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         $buckarooFeeLine = $order->getBuckarooFeeInclTax();
 
+        if (!$buckarooFeeLine && ($order->getBuckarooFee() >= 0.01)) {
+            $this->logger2->addDebug(__METHOD__ . '|5|');
+            $buckarooFeeLine = $order->getBuckarooFee();
+        }
+
         $article = [];
 
         if (false !== $buckarooFeeLine && (double) $buckarooFeeLine > 0) {
