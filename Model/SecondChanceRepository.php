@@ -396,7 +396,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 'store_id',
                 ['eq' => $store->getId()]
             )
-            ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' DAY')])
+            ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' HOUR')])
             ->addFieldToFilter('created_at', ['gteq' => new \Zend_Db_Expr('NOW() - INTERVAL 5 DAY')]);
                     
         foreach ($collection as $item) {
