@@ -439,9 +439,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     {
         $this->logging->addDebug(__METHOD__ . '|sendMail start|');
         $configProvider = $this->configProviderFactory->get('second_chance');
-        $config         = $configProvider->getConfig();
 
-        $store = $order->getStore();
+        $store  = $order->getStore();
+        $config = $configProvider->getConfig($store);
         $vars  = [
             'order'                    => $order,
             'billing'                  => $order->getBillingAddress(),
