@@ -62,6 +62,13 @@ interface SecondChanceRepositoryInterface
      * @throws NoSuchEntityException
      */
     public function deleteById($secondChanceId);
+
+    /**
+     * @param $store
+     * @return bool
+     * @throws CouldNotDeleteException
+     */
+    public function deleteOlderRecords($store);
     
     /**
      * @param $order

@@ -295,9 +295,41 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * {@inheritdoc}
      */
+    public function deleteOlderRecords($store)
+    {
+        $storeId = (int) $store->getId();
+        $days = (int) $this->accountConfig->getSecondChancePruneDays($storeId);
+        $this->logging->addDebug(__METHOD__ . '|$storeId|' . $storeId);
+        $this->logging->addDebug(__METHOD__ . '|$days|' . $days);
+
+        if ($days <= 0) {
+            return false;
+        }
+
+        $connection = $this->resource->getConnection();
+        try {
+            $ageCondition = $connection->prepareSqlCondition(
+                'created_at',
+                ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ? DAY')]
+            );
+            $storeCondition = $connection->prepareSqlCondition('store_id', $storeId);
+            $connection->delete(
+                $this->resource->getMainTable(),
+                [$ageCondition => $days, $storeCondition]
+            );
+        } catch (\Exception $exception) {
+            throw new CouldNotDeleteException(__($exception->getMessage()));
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createSecondChance($order)
     {
-        if(!$this->customerSession->getSkipSecondChance()){
+        if (!$this->customerSession->getSkipSecondChance()) {
             $secondChance = $this->secondChanceFactory->create();
             $secondChance->setData([
                 'order_id'   => $order->getIncrementId(),
