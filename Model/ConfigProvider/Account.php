@@ -62,7 +62,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_INVOICE_EMAIL                   = 'buckaroo_magento2/account/invoice_email';
     const XPATH_ACCOUNT_SUCCESS_REDIRECT                = 'buckaroo_magento2/account/success_redirect';
     const XPATH_ACCOUNT_FAILURE_REDIRECT                = 'buckaroo_magento2/account/failure_redirect';
-    const XPATH_ACCOUNT_FAILURE_REDIRECT_TO_CHECKOUT                = 'buckaroo_magento2/account/failure_redirect_to_checkout';
+    const XPATH_ACCOUNT_FAILURE_REDIRECT_TO_CHECKOUT    = 'buckaroo_magento2/account/failure_redirect_to_checkout';
     const XPATH_ACCOUNT_CANCEL_ON_FAILED                = 'buckaroo_magento2/account/cancel_on_failed';
     const XPATH_ACCOUNT_DIGITAL_SIGNATURE               = 'buckaroo_magento2/account/digital_signature';
     const XPATH_ACCOUNT_DEBUG_TYPES                     = 'buckaroo_magento2/account/debug_types';
@@ -85,6 +85,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE          = 'buckaroo_magento2/account/second_chance_template';
     const XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE2         = 'buckaroo_magento2/account/second_chance_template2';
     const XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE           = 'buckaroo_magento2/account/no_send_second_chance';
+    const XPATH_ACCOUNT_SECOND_CHANCE_PRUNE_DAYS        = 'buckaroo_magento2/account/second_chance_prune_days';
     const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
     const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
     const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
@@ -149,6 +150,7 @@ class Account extends AbstractConfigProvider
             'second_chance_template2'           => $this->getSecondChanceTemplate2($store),
             'second_chance_timing'              => $this->getSecondChanceTiming($store),
             'second_chance_timing2'             => $this->getSecondChanceTiming2($store),
+            'second_chance_prune_days'          => $this->getSecondChancePruneDays($store),
             'no_send_second_chance'             => $this->getNoSendSecondChance($store),
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
