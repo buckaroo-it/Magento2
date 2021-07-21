@@ -379,7 +379,15 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $config         = $configProvider->getConfig();
         $final_status   = $config['final_status'];
 
-        $this->logging->addDebug(__METHOD__ . '|getSecondChanceCollection $config|' . var_export($config));
+        if($step == 2){
+            if(!$this->accountConfig->getSecondChanceEmail2($store)){
+                return false;
+            }
+        }else{
+            if(!$this->accountConfig->getSecondChanceEmail($store)){
+                return false;
+            }
+        }
 
         $timing = $this->accountConfig->getSecondChanceTiming($store) +
             ($step == 2 ? $this->accountConfig->getSecondChanceTiming2($store) : 0);
@@ -390,13 +398,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $collection   = $secondChance->getCollection()
             ->addFieldToFilter(
                 'status',
-                ['eq' => ($step == 2) ? 1 : '']
+                ['eq' => ($step == 2 && $this->accountConfig->getSecondChanceEmail($store)) ? 1 : '']
             )
             ->addFieldToFilter(
                 'store_id',
                 ['eq' => $store->getId()]
             )
-            ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' DAY')])
+            ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' HOUR')])
             ->addFieldToFilter('created_at', ['gteq' => new \Zend_Db_Expr('NOW() - INTERVAL 5 DAY')]);
                     
         foreach ($collection as $item) {
