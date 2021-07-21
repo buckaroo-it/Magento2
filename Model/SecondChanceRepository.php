@@ -447,9 +447,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     {
         $this->logging->addDebug(__METHOD__ . '|sendMail start|');
         $configProvider = $this->configProviderFactory->get('second_chance');
-        $config         = $configProvider->getConfig();
 
-        $store = $order->getStore();
+        $store  = $order->getStore();
+        $config = $configProvider->getConfig($store);
         $vars  = [
             'order'                    => $order,
             'billing'                  => $order->getBillingAddress(),
@@ -460,7 +460,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             'secondChanceToken'        => $secondChance->getToken(),
         ];
 
-        $templateId = ($step == 1) ? $config['template'] : $config['template2'];
+        $templateId = ($step == 1) ? $this->accountConfig->getSecondChanceTemplate($store) : $this->accountConfig->getSecondChanceTemplate2($store);
 
         $this->logging->addDebug(__METHOD__ . '|TemplateIdentifier|' . $templateId);
 
