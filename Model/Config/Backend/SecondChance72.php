@@ -25,7 +25,7 @@ namespace Buckaroo\Magento2\Model\Config\Backend;
 class SecondChance72 extends \Magento\Framework\App\Config\Value
 {
     /**
-     * Test that the value is a integer within 0 and 180 interval
+     * Test that the value is a integer within 0 and 72 interval
      *
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
