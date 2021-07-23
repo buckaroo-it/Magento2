@@ -331,7 +331,7 @@
                     <label>Due hours (between 0 and 72hr)</label>
                     <comment><![CDATA[Timing for sender after the first one second-chance email.]]></comment>
                     <config_path>buckaroo_magento2/account/second_chance_timing2</config_path>
-                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance72</backend_model>
                     <depends>
                         <field id="second_chance_email2">1</field>
                     </depends>
