@@ -36,11 +36,13 @@ define(
                         var searchParams = new URLSearchParams(window.location.search);
                         if (searchParams.get('bk_e')) {
                             var messagesComponent = messagesFactory();
-                            messagesComponent.cookieMessages.forEach(function (message) {
-                                if (message.type == 'error') {
-                                    messageList.addErrorMessage({message: $.mage.__($("<textarea/>").html(message.text).text())});
-                                }
-                            });
+                            if (messagesComponent && messagesComponent.cookieMessages) {
+                                messagesComponent.cookieMessages.forEach(function (message) {
+                                    if (message.type == 'error') {
+                                        messageList.addErrorMessage({message: $.mage.__($("<textarea/>").html(message.text).text())});
+                                    }
+                                });
+                            }
                         }
                     }
                 },
