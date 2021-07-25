@@ -452,4 +452,7 @@
     <type name="Magento\CatalogInventory\Model\Configuration">
         <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
     </type>
+    <preference for="Buckaroo\Magento2\Api\AnalyticsRepositoryInterface" type="Buckaroo\Magento2\Model\AnalyticsRepository"/>
+	<preference for="Buckaroo\Magento2\Api\Data\AnalyticsInterface" type="Buckaroo\Magento2\Model\Data\Analytics"/>
+	<preference for="Buckaroo\Magento2\Api\Data\AnalyticsSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>    
 </config>

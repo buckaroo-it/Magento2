@@ -52,4 +52,12 @@
                 <column name="store_id"/>
             </index>
         </table>
+        <table name="buckaroo_magento2_analytics" resource="default" engine="innodb" comment="Buckaroo GA Client Id Table">
+            <column xsi:type="smallint" name="analytics_id" padding="6" unsigned="true" nullable="false" identity="true" comment="Entity Id"/>
+            <constraint xsi:type="primary" referenceId="PRIMARY">
+                <column name="analytics_id"/>
+            </constraint>
+            <column name="quote_id" nullable="true" xsi:type="int" comment="quote_id" identity="false"/>
+            <column name="client_id" nullable="true" xsi:type="varchar" comment="client_id" length="255"/>
+        </table>        
 </schema>

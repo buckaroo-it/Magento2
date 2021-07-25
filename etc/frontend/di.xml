@@ -88,4 +88,5 @@
     <type name="Magento\Framework\Stdlib\Cookie\PhpCookieManager">
         <plugin name="fixSession" type="Buckaroo\Magento2\Plugin\FixSession" />
     </type>
+    
 </config>
