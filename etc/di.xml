@@ -455,4 +455,9 @@
     <preference for="Buckaroo\Magento2\Api\AnalyticsRepositoryInterface" type="Buckaroo\Magento2\Model\AnalyticsRepository"/>
 	<preference for="Buckaroo\Magento2\Api\Data\AnalyticsInterface" type="Buckaroo\Magento2\Model\Data\Analytics"/>
 	<preference for="Buckaroo\Magento2\Api\Data\AnalyticsSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>    
+
+    <type name="Buckaroo\Magento2\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder">
+		<plugin name="Plugin_Buckaroo_Magento2_Gateway_Http_TransactionBuilder_AbstractTransactionBuilder" type="Buckaroo\Magento2\Plugin\AbstractTransactionBuilderAfterGetUrl" sortOrder="10" disabled="false"/>
+	</type>
+
 </config>

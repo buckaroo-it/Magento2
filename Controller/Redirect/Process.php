@@ -544,6 +544,13 @@ class Process extends \Magento\Framework\App\Action\Action
         }
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($url, true));
+        
+        //add clientid - GA tracking       
+        $clientId = $this->getRequest()->getParam('clientId');
+        if($clientId) {
+            $url .= "?clientId=".$clientId;
+        } 
+        
 
         return $this->_redirect($url);
     }
