@@ -25,9 +25,8 @@ class Analytics implements \Magento\Framework\Event\ObserverInterface
     public function execute(
         \Magento\Framework\Event\Observer $observer
     ) {
-
         try {
-            $quote  = $observer->getQuote();
+            $quote  = $observer->getEvent()->getQuote();
             if($quote) {
                 $quote_id = $quote->getEntityId();
             }            
@@ -42,6 +41,6 @@ class Analytics implements \Magento\Framework\Event\ObserverInterface
             $this->analyticsModel->setQuoteId($quote_id);
             $this->analyticsModel->setClientId($ga_cookie);
             $this->analyticsRepository->save($this->analyticsModel);
-        } 
+        }
     }
 }

@@ -1,6 +1,0 @@
-<?xml version="1.0" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">    
-    <event name="checkout_submit_all_after">
-		<observer name="buckaroo_magento2_observer_frontend_checkout_submitallafter_checkout_submit_all_after" instance="Buckaroo\Magento2\Observer\Analytics"/>
-	</event>    	
-</config>    

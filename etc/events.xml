@@ -57,4 +57,9 @@
     <event name="checkout_onepage_controller_success_action">
         <observer name="buckaroo_magento2_success_place_order" instance="Buckaroo\Magento2\Observer\SuccessOrder"  />
     </event>
+
+    <event name="checkout_submit_all_after">
+		<observer name="buckaroo_magento2_observer_frontend_checkout_submitallafter_checkout_submit_all_after" instance="Buckaroo\Magento2\Observer\Analytics"/>
+	</event>       
+    
 </config>
