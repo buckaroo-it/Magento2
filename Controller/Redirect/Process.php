@@ -547,10 +547,13 @@ class Process extends \Magento\Framework\App\Action\Action
         
         //add clientid - GA tracking       
         $clientId = $this->getRequest()->getParam('clientId');
-        if($clientId) {
-            $url .= "?clientId=".$clientId;
-        } 
-        
+        if($clientId) {            
+            if(strpos($url,'?') !== false) {
+                $url .= "&clientId=".$clientId;
+            } else {
+                $url .= "?clientId=".$clientId;
+            }  
+        }        
 
         return $this->_redirect($url);
     }

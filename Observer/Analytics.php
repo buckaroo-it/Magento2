@@ -9,11 +9,13 @@ class Analytics implements \Magento\Framework\Event\ObserverInterface
     public function __construct(
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Buckaroo\Magento2\Api\Data\AnalyticsInterface $analyticsModel,
-        \Buckaroo\Magento2\Api\AnalyticsRepositoryInterface $analyticsRepository
+        \Buckaroo\Magento2\Api\AnalyticsRepositoryInterface $analyticsRepository,
+        \Buckaroo\Magento2\Model\ConfigProvider\Analytics $configProvider
     ) {
         $this->cookieManager = $cookieManager;
         $this->analyticsModel = $analyticsModel;
         $this->analyticsRepository = $analyticsRepository;
+        $this->configProvider = $configProvider;
     }
 
     /**
@@ -25,16 +27,21 @@ class Analytics implements \Magento\Framework\Event\ObserverInterface
     public function execute(
         \Magento\Framework\Event\Observer $observer
     ) {
+        //check if this feature is enabled
+        if (!$this->configProvider->isClientIdTrackingEnabled()) {
+            return;
+        }
+
         try {
             $quote  = $observer->getEvent()->getQuote();
-            if($quote) {
+            if ($quote) {
                 $quote_id = $quote->getEntityId();
-            }            
-        } catch (\Exception $e) {            
+            }
+        } catch (\Exception $e) {
             //@todo log
         }
 
-        if(isset($quote_id)) {
+        if (isset($quote_id)) {
             $ga_cookie = $this->cookieManager->getCookie(
                 '_ga'
             );

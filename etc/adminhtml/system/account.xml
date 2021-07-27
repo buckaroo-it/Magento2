@@ -355,8 +355,17 @@
                     <depends>
                         <field id="second_chance">1</field>
                     </depends>
-                </field>
+                </field>                
             </group>
         </group>
     </group>
+    <group id="analytics" translate="label comment" type="text" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">                
+        <label>GA Tracking Options</label>
+        <field id="enable_ga_client_id_tracking" type="select" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <label>Enable GA Client ID tracking</label>
+            <comment/>
+        </field>
+    </group>
+
 </include>

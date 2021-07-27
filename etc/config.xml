@@ -550,8 +550,8 @@
                 <second_chance_template2>buckaroo_second_chance2</second_chance_template2>
                 <second_chance_email>1</second_chance_email>
                 <second_chance_email2>1</second_chance_email2>
+                <enable_ga_client_id_tracking>0</enable_ga_client_id_tracking>
             </account>
-
             <refund>
                 <enabled>0</enabled>
                 <allow_push>0</allow_push>

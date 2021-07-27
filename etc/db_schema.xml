@@ -59,5 +59,6 @@
             </constraint>
             <column name="quote_id" nullable="true" xsi:type="int" comment="quote_id" identity="false"/>
             <column name="client_id" nullable="true" xsi:type="varchar" comment="client_id" length="255"/>
+            <column name="created_at" xsi:type="timestamp" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
         </table>        
 </schema>
