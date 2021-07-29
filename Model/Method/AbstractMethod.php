@@ -2027,33 +2027,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $article;
     }
 
-    protected function updateShippingAddressBySendcloud($order, &$requestData)
-    {
-        if ($order->getSendcloudServicePointId() > 0) {
-            foreach ($requestData as $key => $value) {
-                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                    $mapping = [
-                        ['Street', $order->getSendcloudServicePointStreet()],
-                        ['PostalCode', $order->getSendcloudServicePointZipCode()],
-                        ['City', $order->getSendcloudServicePointCity()],
-                        ['Country', $order->getSendcloudServicePointCountry()],
-                        ['StreetNumber', $order->getSendcloudServicePointHouseNumber()],
-                    ];
-                    foreach ($mapping as $mappingItem) {
-                        if (($requestData[$key]['Name'] == $mappingItem[0]) && !empty($mappingItem[1])) {
-                            $requestData[$key]['_'] = $mappingItem[1];
-                        }
-                    }
-
-                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
-                        unset($requestData[$key]);
-                    }
-
-                }
-            }
-        }
-    }
-
     /**
      * Check if there is a "pakjegemak" address stored in the quote by this order.
      * Afterpay wants to receive the "pakjegemak" address instead of the customer shipping address.
@@ -2408,14 +2381,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->updateShippingAddressByDhlParcel(
                 $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
             );
-        }
-
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'sendcloud_sendcloud')
-            &&
-            $payment->getOrder()->getSendcloudServicePointId()
-        ) {
-            $this->updateShippingAddressBySendcloud($payment->getOrder(), $requestData);
         }
 
         $this->handleShippingAddressByMyParcel($payment, $requestData);
