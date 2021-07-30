@@ -20,12 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
@@ -467,7 +465,6 @@ class Afterpay extends AbstractMethod
 
         if (!empty($thirdPartyGiftCardLine)) {
             $requestData = array_merge($requestData, $thirdPartyGiftCardLine);
-            $count++;
         }
 
         return $requestData;
@@ -668,7 +665,6 @@ class Afterpay extends AbstractMethod
      */
     public function getThirdPartyGiftCardLine($latestKey, $quote)
     {
-        $article = [];
         $giftCardTotal = 0;
         $supportedGiftCards = ['amasty_giftcard', 'mageworx_giftcards'];
         $cartTotals = $quote->getTotals();

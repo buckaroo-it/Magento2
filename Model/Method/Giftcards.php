@@ -263,7 +263,6 @@ class Giftcards extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        $capturePartial = false;
         $order = $payment->getOrder();
         $totalOrder = $order->getBaseGrandTotal();
         $numberOfInvoices = $order->getInvoiceCollection()->count();

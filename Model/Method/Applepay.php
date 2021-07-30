@@ -19,8 +19,6 @@
  */
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
-
 class Applepay extends AbstractMethod
 {
     /** Payment Code */

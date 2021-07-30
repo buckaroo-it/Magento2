@@ -19,8 +19,6 @@
  */
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment as PospaymentConfig;
-
 class Pospayment extends AbstractMethod
 {
     /** Payment Code*/
