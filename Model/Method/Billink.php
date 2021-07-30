@@ -20,12 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Store\Model\ScopeInterface;
 
 class Billink extends AbstractMethod
@@ -340,7 +338,6 @@ class Billink extends AbstractMethod
 
         if (!empty($discountline)) {
             $articles = array_merge($articles, $discountline);
-            $count++;
         }
 
         return $articles;
@@ -807,13 +804,6 @@ class Billink extends AbstractMethod
         }
 
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
-        
-        $category = $shippingAddress->getCompany() ? 'B2B' : 'B2C';
-
-        $gender = 'Female';
-        if ($payment->getAdditionalInformation('customer_gender') == '1') {
-            $gender = 'Male';
-        }
 
         $GroupID = 2;
         $shippingData = [

@@ -27,7 +27,6 @@ use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
-use mysql_xdevapi\Exception;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -1729,7 +1728,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     $response    = $this->refundTransaction($transaction);
 
                     $this->logger2->addDebug(__METHOD__ . '|16| ' . var_export($response, true));
-                    $arrayResponse = json_decode(json_encode($response), true);
 
                     $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
 

@@ -20,12 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Store\Model\ScopeInterface;
 
 class Afterpay20 extends AbstractMethod
@@ -311,7 +309,6 @@ class Afterpay20 extends AbstractMethod
 
         if (!empty($discountline)) {
             $articles = array_merge($articles, $discountline);
-            $count++;
         }
 
         return $articles;
