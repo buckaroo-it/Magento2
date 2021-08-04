@@ -59,7 +59,7 @@ class Eps extends AbstractMethod
          */
         $services = [
             'Name'             => 'eps',
-            'Action'           => 'Pay',
+            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
             'Version'          => 1,
         ];
 
