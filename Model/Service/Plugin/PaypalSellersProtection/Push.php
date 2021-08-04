@@ -59,7 +59,8 @@ class Push
         \Buckaroo\Magento2\Model\Push $push,
         $result
     ) {
-        if (empty($push->postData['brq_service_paypal_protectioneligibility'])
+        if (!$this->configProviderPaypal->getSellersProtection()
+            || empty($push->postData['brq_service_paypal_protectioneligibility'])
             || empty($push->postData['brq_service_paypal_protectioneligibilitytype'])
         ) {
             return $result;
