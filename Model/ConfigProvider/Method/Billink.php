@@ -20,11 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Model\Method\Billink as BillinkMethod;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\View\Asset\Repository;
 
 /**
  * @method getDueDate()
@@ -47,23 +43,6 @@ class Billink extends AbstractConfigProvider
     const XPATH_BILLINK_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_billink/available_in_backend';
     const XPATH_BILLINK_DUE_DATE             = 'payment/buckaroo_magento2_billink/due_date';
     const XPATH_BILLINK_ALLOWED_CURRENCIES   = 'payment/buckaroo_magento2_billink/allowed_currencies';
-
-    protected $assetRepo;
-    protected $scopeConfig;
-    protected $allowedCurrencies = null;
-    protected $paymentFeeHelper;
-    protected $quote;
-
-    public function __construct(
-        Repository $assetRepo,
-        ScopeConfigInterface $scopeConfig,
-        AllowedCurrencies $allowedCurrencies,
-        PaymentFee $paymentFeeHelper,
-        \Magento\Checkout\Model\Session $checkoutSession
-    ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
-        $this->quote = $checkoutSession->getQuote();
-    }
 
     /**
      * @return array
