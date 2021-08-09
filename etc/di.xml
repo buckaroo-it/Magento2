@@ -47,6 +47,7 @@
             <argument name="priceHelper" xsi:type="object">Magento\Framework\Pricing\Helper\Data</argument>
             <argument name="quoteFactory" xsi:type="object">Magento\Quote\Model\QuoteFactory</argument>
             <argument name="logger2" xsi:type="object">Buckaroo\Magento2\Logging\Log</argument>
+            <argument name="sessionRegistry" xsi:type="object">Buckaroo\Magento2\Model\Service\SessionRegistry</argument>
         </arguments>
     </type>
     <type name="Buckaroo\Magento2\Model\Method\Paypal">
@@ -452,4 +453,17 @@
     <type name="Magento\CatalogInventory\Model\Configuration">
         <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
     </type>
+
+    <virtualType name="Buckaroo\Magento2\Model\Session\Storage" type="Magento\Framework\Session\Storage">
+        <arguments>
+            <argument name="namespace" xsi:type="string">Buckaroo</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Buckaroo\Magento2\Model\Session">
+        <arguments>
+            <argument name="storage" xsi:type="object">Buckaroo\Magento2\Model\Session\Storage</argument>
+        </arguments>
+    </type>
+
 </config>

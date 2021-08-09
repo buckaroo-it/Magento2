@@ -215,10 +215,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected $_code;
 
+    protected $sessionRegistry;
+
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
+     * @param \Buckaroo\Magento2\Model\Service\SessionRegistry $sessionRegistry,
      * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
      * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
      * @param \Magento\Payment\Helper\Data $paymentData
@@ -247,6 +250,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
+        \Buckaroo\Magento2\Model\Service\SessionRegistry $sessionRegistry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
         \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
         \Magento\Payment\Helper\Data $paymentData,
@@ -306,6 +310,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->softwareData                = $softwareData;
         $this->addressFactory              = $addressFactory;
         $this->logger2                     = $buckarooLog;
+        $this->sessionRegistry             = $sessionRegistry;
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
@@ -684,9 +689,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);
 
-        // SET REGISTRY BUCKAROO REDIRECT
-        $this->_registry->unregister('buckaroo_response');
-        $this->_registry->register('buckaroo_response', $response);
+        // SET REGISTRY BUCKAROO REDIRECT (BP-861, replaced Registry with custom SessionRegistry)
+        $this->sessionRegistry->unsetData('buckaroo_response');
+        $this->sessionRegistry->setData('buckaroo_response', $response);
 
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
@@ -851,9 +856,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->saveTransactionData($response[0], $payment, $this->closeAuthorizeTransaction, true);
 
-        // SET REGISTRY BUCKAROO REDIRECT
-        $this->_registry->unregister('buckaroo_response');
-        $this->_registry->register('buckaroo_response', $response);
+        // SET REGISTRY BUCKAROO REDIRECT (BP-861, replaced Registry with custom SessionRegistry)
+        $this->sessionRegistry->unsetData('buckaroo_response');
+        $this->sessionRegistry->setData('buckaroo_response', $response);
 
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
@@ -941,9 +946,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->saveTransactionData($response[0], $payment, $this->closeCaptureTransaction, true);
 
-        // SET REGISTRY BUCKAROO REDIRECT
-        $this->_registry->unregister('buckaroo_response');
-        $this->_registry->register('buckaroo_response', $response);
+        // SET REGISTRY BUCKAROO REDIRECT (BP-861, replaced Registry with custom SessionRegistry)
+        $this->sessionRegistry->unsetData('buckaroo_response');
+        $this->sessionRegistry->setData('buckaroo_response', $response);
 
         $this->afterCapture($payment, $response);
 
@@ -1231,16 +1236,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     private function addToRegistry($key, $value)
     {
         // if the key doesn't exist or is empty, the data can be directly added and registered
-        if (!$this->_registry->registry($key)) {
-            $this->_registry->register($key, [$value]);
+        if (!$this->sessionRegistry->getData($key)) {
+            $this->sessionRegistry->setData($key, [$value]);
             return;
         }
 
-        $registryValue   = $this->_registry->registry($key);
+        $registryValue   = $this->sessionRegistry->getData($key);
         $registryValue[] = $value;
 
-        $this->_registry->unregister($key);
-        $this->_registry->register($key, $registryValue);
+        $this->sessionRegistry->unsetData($key);
+        $this->sessionRegistry->setData($key, $registryValue);
     }
 
     /**

@@ -52,6 +52,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Model\Service\SessionRegistry as SessionRegistry;
 
 class Capayable extends AbstractMethod
 {
@@ -82,6 +83,7 @@ class Capayable extends AbstractMethod
         ObjectManagerInterface $objectManager,
         Context $context,
         Registry $registry,
+        SessionRegistry $sessionRegistry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
         PaymentHelperData $paymentData,
@@ -113,6 +115,7 @@ class Capayable extends AbstractMethod
             $objectManager,
             $context,
             $registry,
+            $sessionRegistry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,

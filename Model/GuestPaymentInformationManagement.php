@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model;
 use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaymentInformationManagement;
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Service\SessionRegistry as SessionRegistry;
 
 // @codingStandardsIgnoreStart
 class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
@@ -30,6 +31,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
 {
 
     protected $registry = null;
+    protected $sessionRegistry = null;
     protected $logger = null;
 
     /**
@@ -58,6 +60,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
         \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
         \Magento\Framework\Registry $registry,
+        SessionRegistry $sessionRegistry,
         \Psr\Log\LoggerInterface $logger,
         Factory $configProviderMethodFactory
     ) {
@@ -70,6 +73,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
             $cartRepository
         );
         $this->registry = $registry;
+        $this->sessionRegistry = $sessionRegistry;
         $this->logger = $logger;
         $this->configProviderMethodFactory  = $configProviderMethodFactory;
     }
@@ -101,12 +105,12 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         $this->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
 
         $this->logger->debug('-[RESULT]----------------------------------------');
-        $this->logger->debug(print_r($this->registry->registry('buckaroo_response'), true));
+        $this->logger->debug(print_r($this->sessionRegistry->getData('buckaroo_response'), true));
         $this->logger->debug('-------------------------------------------------');
 
         $response = [];
-        if ($this->registry && $this->registry->registry('buckaroo_response')) {
-            $response = $this->registry->registry('buckaroo_response')[0];
+        if ($this->sessionRegistry->getData('buckaroo_response')) {
+            $response = $this->sessionRegistry->getData('buckaroo_response')[0];
         }
         return json_encode($response);
     }

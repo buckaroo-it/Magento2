@@ -32,6 +32,7 @@ use Magento\Checkout\Model\Cart;
 use Zend_Locale;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Buckaroo\Magento2\Model\Service\SessionRegistry as SessionRegistry;
 
 class Klarnakp extends AbstractMethod
 {
@@ -142,6 +143,7 @@ class Klarnakp extends AbstractMethod
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
+        SessionRegistry $sessionRegistry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
         \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
         \Magento\Payment\Helper\Data $paymentData,
@@ -174,6 +176,7 @@ class Klarnakp extends AbstractMethod
             $objectManager,
             $context,
             $registry,
+            $sessionRegistry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,

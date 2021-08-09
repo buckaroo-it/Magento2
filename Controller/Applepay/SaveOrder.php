@@ -25,6 +25,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Customer\Model\Session as CustomerSession;
+use Buckaroo\Magento2\Model\Service\SessionRegistry as SessionRegistry;
 
 class SaveOrder extends Common
 {
@@ -32,6 +33,7 @@ class SaveOrder extends Common
     protected $customer;
     private $objectFactory;
     protected $registry = null;
+    protected $sessionRegistry = null;
     protected $order;
     protected $checkoutSession;
     protected $accountConfig;
@@ -51,6 +53,7 @@ class SaveOrder extends Common
         \Magento\Customer\Model\Session $customer,
         \Magento\Framework\DataObjectFactory $objectFactory,
         \Magento\Framework\Registry $registry,
+        SessionRegistry $sessionRegistry,
         \Magento\Sales\Model\Order $order,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
@@ -64,6 +67,7 @@ class SaveOrder extends Common
         $this->customer = $customer;
         $this->objectFactory = $objectFactory;
         $this->registry = $registry;
+        $this->sessionRegistry = $sessionRegistry;
         $this->order = $order;
         $this->checkoutSession    = $checkoutSession;
         $this->accountConfig = $configProviderFactory->get('account');
@@ -117,8 +121,8 @@ class SaveOrder extends Common
                 $order = $this->quoteManagement->submit($quote);
 
                 $data = [];
-                if ($this->registry && $this->registry->registry('buckaroo_response')) {
-                    $data = $this->registry->registry('buckaroo_response')[0];
+                if ($this->sessionRegistry->getData('buckaroo_response')) {
+                    $data = $this->sessionRegistry->getData('buckaroo_response')[0];
                     $this->logger->addDebug(__METHOD__.'|4|'.var_export($data, true));
                     if (!empty($data->RequiredAction->RedirectURL)) {
                         //test mode

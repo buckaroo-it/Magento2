@@ -49,7 +49,7 @@ use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-
+use Buckaroo\Magento2\Model\Service\SessionRegistry as SessionRegistry;
 class Emandate extends AbstractMethod
 {
     /** Payment Code */
@@ -80,6 +80,7 @@ class Emandate extends AbstractMethod
         ObjectManagerInterface $objectManager,
         Context $context,
         Registry $registry,
+        SessionRegistry $sessionRegistry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
         PaymentData $paymentData,
@@ -111,6 +112,7 @@ class Emandate extends AbstractMethod
             $objectManager,
             $context,
             $registry,
+            $sessionRegistry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,
