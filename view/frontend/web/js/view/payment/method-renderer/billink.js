@@ -72,6 +72,7 @@ define(
                     showVATNumberValue: null,
                     showFrenchTosValue: null,
                     showPhoneValue: null,
+                    termsValidate: false,
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.billink.paymentFeeLabel,
@@ -111,6 +112,7 @@ define(
                             'showVATNumberValue',
                             'showFrenchTosValue',
                             'showPhoneValue',
+                            'termsValidate',
                         ]
                     );
 
@@ -319,6 +321,7 @@ define(
                         }
                     };
 
+                    this.termsValidate.subscribe(runValidation,this);
                     this.dateValidate.subscribe(runValidation,this);
                     this.genderValidate.subscribe(runValidation,this);
                     this.chamberOfCommerceValidate.subscribe(runValidation,this);
@@ -354,6 +357,7 @@ define(
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
                                 (!this.showPhone() || ((this.phoneValidate() !== null) && (this.validatePhone()))) &&
+                                this.termsValidate() !== false &&
                                 this.validate()  &&
                                 (this.calculateAge(this.dateValidate()) >= 18)
 
@@ -447,6 +451,7 @@ define(
                             "customer_VATNumber" : this.VATNumberValidate(),
                             "customer_billingName" : this.BillingName(),
                             "customer_DoB" : this.dateValidate(),
+                            "termsCondition": this.termsValidate(),
                         }
                     };
                 }
