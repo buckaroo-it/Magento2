@@ -34,12 +34,15 @@ class Recreate
 
     /** @var \Magento\Checkout\Model\Session */
     private $checkoutSession;
+    protected $customerSession;
 
     protected $quoteFactory;
 
     protected $productFactory;
 
     protected $messageManager;
+    protected $quoteRepository;
+
     /**
      * @param CartRepositoryInterface $cartRepository
      * @param Cart                    $cart
@@ -47,7 +50,9 @@ class Recreate
     public function __construct(
         CartRepositoryInterface $cartRepository,
         Cart $cart,
+        \Magento\Quote\Model\QuoteRepository $quoteRepository,
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Customer\Model\Session $customerSession,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Framework\Message\ManagerInterface $messageManager
@@ -55,9 +60,11 @@ class Recreate
         $this->cartRepository  = $cartRepository;
         $this->cart            = $cart;
         $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
         $this->quoteFactory    = $quoteFactory;
         $this->productFactory  = $productFactory;
         $this->cart            = $cart;
+        $this->quoteRepository = $quoteRepository;
         $this->messageManager  = $messageManager;
     }
 
@@ -85,12 +92,46 @@ class Recreate
         }
     }
 
+    public function recreateById($quoteId)
+    {
+        try {
+            $quote = $this->quoteFactory->create()->load($quoteId);
+        } catch (\Exception $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+        }
+        if ($quote->getId()) {
+            if ($items = $quote->getAllVisibleItems()) {
+                foreach ($items as $item) {
+                    $productId = $item->getProductId();
+                    $product   = $this->productFactory->create()->load($productId);
+
+                    $options = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
+
+                    $info        = $options['info_buyRequest'];
+                    $info['qty'] = $item->getQty();
+                    $requestInfo = new \Magento\Framework\DataObject();
+                    $requestInfo->setData($info);
+
+                    try {
+                        $this->cart->addProduct($product, $requestInfo);
+                    } catch (\Exception $e) {
+                        $this->messageManager->addErrorMessage($e->getMessage());
+                    }
+                }
+            }
+
+            $this->cart->setQuote($quote)->save();
+            $this->checkoutSession->setQuoteId($quote->getId());
+            $this->checkoutSession->getQuote()->collectTotals()->save();
+        }
+    }
+
     public function duplicate($order)
     {
         $oldQuote = $this->quoteFactory->create()->load($order->getQuoteId());
-        $quote = $this->quoteFactory->create();
+        $quote    = $this->quoteFactory->create();
         $quote->merge($oldQuote)->save();
-        $this->recreate(false,$quote);
+        $this->recreate(false, $quote);
         return $quote;
     }
 }

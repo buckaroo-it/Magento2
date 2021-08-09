@@ -357,21 +357,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         foreach ($collection as $item) {
             $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
 
-            if ($this->customerSession->isLoggedIn()) {
-                $this->customerSession->logout();
-            }
-
-            if ($customerId = $order->getCustomerId()) {
-                $customer       = $this->customerFactory->create()->load($customerId);
-                $sessionManager = $this->sessionFactory->create();
-                $sessionManager->setCustomerAsLoggedIn($customer);
-            } elseif ($customerEmail = $order->getCustomerEmail()) {
+            if (!$order->getCustomerId() && $customerEmail = $order->getCustomerEmail()) {
                 if ($customer =
                     $this->customerFactory->create()->setWebsiteId($order->getStoreId())->loadByEmail($customerEmail)
                 ) {
                     if ($customer->getId()) {
-                        $sessionManager = $this->sessionFactory->create();
-                        $sessionManager->setCustomerAsLoggedIn($customer);
                         $this->setCustomerAddress($customer, $order);
                     }
                 }
@@ -379,6 +369,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
             $this->logging->addDebug(__METHOD__ . '|recreate|' . $item->getOrderId());
             $this->quoteRecreate->recreate($order);
+            $this->customerSession->setSecondChanceRecreate($order->getQuoteId());
             $this->setAvailableIncrementId($item->getOrderId(), $item, $order);
         }
     }
