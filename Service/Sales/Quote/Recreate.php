@@ -94,29 +94,36 @@ class Recreate
 
     public function recreateById($quoteId)
     {
-        $quote = $this->quoteFactory->create()->load($quoteId);
-        $items = $quote->getAllVisibleItems();
-        foreach ($items as $item) {
-            $productId = $item->getProductId();
-            $product   = $this->productFactory->create()->load($productId);
-
-            $options = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
-
-            $info        = $options['info_buyRequest'];
-            $info['qty'] = $item->getQty();
-            $requestInfo = new \Magento\Framework\DataObject();
-            $requestInfo->setData($info);
-
-            try {
-                $this->cart->addProduct($product, $requestInfo);
-            } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
-            }
+        try {
+            $quote = $this->quoteFactory->create()->load($quoteId);
+        } catch (\Exception $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
         }
+        if ($quote->getId()) {
+            if ($items = $quote->getAllVisibleItems()) {
+                foreach ($items as $item) {
+                    $productId = $item->getProductId();
+                    $product   = $this->productFactory->create()->load($productId);
 
-        $this->cart->setQuote($quote)->save();
-        $this->checkoutSession->setQuoteId($quote->getId());
-        $this->checkoutSession->getQuote()->collectTotals()->save();
+                    $options = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
+
+                    $info        = $options['info_buyRequest'];
+                    $info['qty'] = $item->getQty();
+                    $requestInfo = new \Magento\Framework\DataObject();
+                    $requestInfo->setData($info);
+
+                    try {
+                        $this->cart->addProduct($product, $requestInfo);
+                    } catch (\Exception $e) {
+                        $this->messageManager->addErrorMessage($e->getMessage());
+                    }
+                }
+            }
+
+            $this->cart->setQuote($quote)->save();
+            $this->checkoutSession->setQuoteId($quote->getId());
+            $this->checkoutSession->getQuote()->collectTotals()->save();
+        }
     }
 
     public function duplicate($order)
