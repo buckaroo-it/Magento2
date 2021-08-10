@@ -903,4 +903,37 @@ class Billink extends AbstractMethod
         return (int)$price;
     }
 
+    protected function isAvailableBasedOnAmount(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        if($quote && $quote->getId()){
+            $storeId = $quote->getStoreId();
+            if($quote->getBillingAddress()->getCompany() || $quote->getShippingAddress()->getCompany()){
+                $maximum = $this->getConfigData('max_amount_b2b', $storeId);
+                $minimum = $this->getConfigData('min_amount_b2b', $storeId);
+            }else{
+                $maximum = $this->getConfigData('max_amount', $storeId);
+                $minimum = $this->getConfigData('min_amount', $storeId);
+            }
+
+            /**
+             * @var \Magento\Quote\Model\Quote $quote
+             */
+            $total = $quote->getGrandTotal();
+
+            if ($total < 0.01) {
+                return false;
+            }
+
+            if ($maximum !== null && $total > $maximum) {
+                return false;
+            }
+
+            if ($minimum !== null && $total < $minimum) {
+                return false;
+            }
+
+        }
+
+        return true;
+    }
 }
