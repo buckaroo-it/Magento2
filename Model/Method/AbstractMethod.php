@@ -215,13 +215,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected $_code;
 
-    protected $sessionRegistry;
+    protected $buckarooRegistry;
 
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
-     * @param \Buckaroo\Magento2\Model\Service\SessionRegistry $sessionRegistry,
+     * @param \Buckaroo\Magento2\Registry\BuckarooRegistry $buckarooRegistry
      * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
      * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
      * @param \Magento\Payment\Helper\Data $paymentData
@@ -250,7 +250,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
-        \Buckaroo\Magento2\Model\Service\SessionRegistry $sessionRegistry,
+        \Buckaroo\Magento2\Registry\BuckarooRegistry $buckarooRegistry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
         \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
         \Magento\Payment\Helper\Data $paymentData,
@@ -310,7 +310,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->softwareData                = $softwareData;
         $this->addressFactory              = $addressFactory;
         $this->logger2                     = $buckarooLog;
-        $this->sessionRegistry             = $sessionRegistry;
+        $this->buckarooRegistry            = $buckarooRegistry;
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
@@ -689,9 +689,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);
 
-        // SET REGISTRY BUCKAROO REDIRECT (BP-861, replaced Registry with custom SessionRegistry)
-        $this->sessionRegistry->unsetData('buckaroo_response');
-        $this->sessionRegistry->setData('buckaroo_response', $response);
+        // SET REGISTRY BUCKAROO REDIRECT (BP-861, replaced Registry with custom BuckarooRegistry)
+        $this->buckarooRegistry->unsetData('buckaroo_response');
+        $this->buckarooRegistry->setData('buckaroo_response', $response);
 
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
@@ -856,9 +856,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->saveTransactionData($response[0], $payment, $this->closeAuthorizeTransaction, true);
 
-        // SET REGISTRY BUCKAROO REDIRECT (BP-861, replaced Registry with custom SessionRegistry)
-        $this->sessionRegistry->unsetData('buckaroo_response');
-        $this->sessionRegistry->setData('buckaroo_response', $response);
+        // SET REGISTRY BUCKAROO REDIRECT (BP-861, replaced Registry with custom BuckarooRegistry)
+        $this->buckarooRegistry->unsetData('buckaroo_response');
+        $this->buckarooRegistry->setData('buckaroo_response', $response);
 
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
@@ -946,9 +946,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->saveTransactionData($response[0], $payment, $this->closeCaptureTransaction, true);
 
-        // SET REGISTRY BUCKAROO REDIRECT (BP-861, replaced Registry with custom SessionRegistry)
-        $this->sessionRegistry->unsetData('buckaroo_response');
-        $this->sessionRegistry->setData('buckaroo_response', $response);
+        // SET REGISTRY BUCKAROO REDIRECT (BP-861, replaced Registry with custom BuckarooRegistry)
+        $this->buckarooRegistry->unsetData('buckaroo_response');
+        $this->buckarooRegistry->setData('buckaroo_response', $response);
 
         $this->afterCapture($payment, $response);
 
@@ -1236,16 +1236,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     private function addToRegistry($key, $value)
     {
         // if the key doesn't exist or is empty, the data can be directly added and registered
-        if (!$this->sessionRegistry->getData($key)) {
-            $this->sessionRegistry->setData($key, [$value]);
+        if (!$this->buckarooRegistry->getData($key)) {
+            $this->buckarooRegistry->setData($key, [$value]);
             return;
         }
 
-        $registryValue   = $this->sessionRegistry->getData($key);
+        $registryValue   = $this->buckarooRegistry->getData($key);
         $registryValue[] = $value;
 
-        $this->sessionRegistry->unsetData($key);
-        $this->sessionRegistry->setData($key, $registryValue);
+        $this->buckarooRegistry->unsetData($key);
+        $this->buckarooRegistry->setData($key, $registryValue);
     }
 
     /**

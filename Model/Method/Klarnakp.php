@@ -32,7 +32,7 @@ use Magento\Checkout\Model\Cart;
 use Zend_Locale;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
-use Buckaroo\Magento2\Model\Service\SessionRegistry as SessionRegistry;
+use Buckaroo\Magento2\Registry\BuckarooRegistry as BuckarooRegistry;
 
 class Klarnakp extends AbstractMethod
 {
@@ -114,6 +114,7 @@ class Klarnakp extends AbstractMethod
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
+     * @param \Buckaroo\Magento2\Registry\BuckarooRegistry $buckarooRegistry
      * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
      * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
      * @param \Magento\Payment\Helper\Data $paymentData
@@ -143,7 +144,7 @@ class Klarnakp extends AbstractMethod
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
-        SessionRegistry $sessionRegistry,
+        BuckarooRegistry $buckarooRegistry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
         \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
         \Magento\Payment\Helper\Data $paymentData,
@@ -176,7 +177,7 @@ class Klarnakp extends AbstractMethod
             $objectManager,
             $context,
             $registry,
-            $sessionRegistry,
+            $buckarooRegistry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,

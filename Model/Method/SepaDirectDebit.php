@@ -26,7 +26,7 @@ use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-use Buckaroo\Magento2\Model\Service\SessionRegistry as SessionRegistry;
+use Buckaroo\Magento2\Registry\BuckarooRegistry as BuckarooRegistry;
 
 class SepaDirectDebit extends AbstractMethod
 {
@@ -65,7 +65,7 @@ class SepaDirectDebit extends AbstractMethod
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
-        SessionRegistry $sessionRegistry,
+        BuckarooRegistry $buckarooRegistry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
         \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
         \Magento\Payment\Helper\Data $paymentData,
@@ -98,7 +98,7 @@ class SepaDirectDebit extends AbstractMethod
             $objectManager,
             $context,
             $registry,
-            $sessionRegistry,
+            $buckarooRegistry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,
