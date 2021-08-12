@@ -84,6 +84,14 @@
             </depends>
         </field>
 
+        <field id="cancel_ppe" translate="label comment" type="select" sortOrder="56" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Cancel PPE link</label>
+            <comment><![CDATA[Cancel PPE link after order is cancel in Magento]]></comment>
+            <tooltip>Set to 'Yes' will enable Cancel PPE link.</tooltip>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/buckaroo_magento2_payperemail/cancel_ppe</config_path>
+        </field>
+
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 
