@@ -62,7 +62,6 @@ class PayLink extends AbstractMethod
     private $serviceParameters;
 
     public function __construct(
-        \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         BuckarooRegistry $buckarooRegistry,
@@ -86,15 +85,16 @@ class PayLink extends AbstractMethod
         \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
         \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
         \Buckaroo\Magento2\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Helper\PaymentGroupTransaction $paymentGroupTransactionHelper,
         \Magento\Framework\App\RequestInterface $request = null,
         \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        \Magento\Framework\HTTP\Client\Curl $curl,
         array $data = []
     ) {
         parent::__construct(
-            $objectManager,
             $context,
             $registry,
             $buckarooRegistry,
@@ -117,11 +117,13 @@ class PayLink extends AbstractMethod
             $transactionBuilderFactory,
             $validatorFactory,
             $helper,
+            $paymentGroupTransactionHelper,
             $request,
             $refundFieldsFactory,
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
+            $curl,
             $data
         );
 

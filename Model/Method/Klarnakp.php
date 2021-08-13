@@ -111,7 +111,6 @@ class Klarnakp extends AbstractMethod
     private $context;
 
     /**
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Buckaroo\Magento2\Registry\BuckarooRegistry $buckarooRegistry
@@ -138,10 +137,10 @@ class Klarnakp extends AbstractMethod
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
+     * @param \Magento\Framework\HTTP\Client\Curl $curl
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         BuckarooRegistry $buckarooRegistry,
@@ -166,15 +165,16 @@ class Klarnakp extends AbstractMethod
         \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
         \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
         \Buckaroo\Magento2\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Helper\PaymentGroupTransaction $paymentGroupTransactionHelper,
         \Magento\Framework\App\RequestInterface $request = null,
         \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        \Magento\Framework\HTTP\Client\Curl $curl,
         array $data = []
     ) {
         parent::__construct(
-            $objectManager,
             $context,
             $registry,
             $buckarooRegistry,
@@ -197,11 +197,13 @@ class Klarnakp extends AbstractMethod
             $transactionBuilderFactory,
             $validatorFactory,
             $helper,
+            $paymentGroupTransactionHelper,
             $request,
             $refundFieldsFactory,
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
+            $curl,
             $data
         );
 

@@ -19,7 +19,16 @@
  */
 namespace Buckaroo\Magento2\Model\Method;
 
+use Magento\Sales\Model\Order\Payment;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Quote\Model\Quote\AddressFactory;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Registry\BuckarooRegistry as BuckarooRegistry;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment as PospaymentConfig;
+use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Framework\HTTP\Header;
 
 class Pospayment extends AbstractMethod
 {
@@ -42,6 +51,78 @@ class Pospayment extends AbstractMethod
     /** @var bool */
     protected $_canRefundInvoicePartial = false;
     // @codingStandardsIgnoreEnd
+
+    public function __construct(
+        \Magento\Framework\Model\Context $context,
+        \Magento\Framework\Registry $registry,
+        BuckarooRegistry $buckarooRegistry,
+        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
+        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
+        \Magento\Payment\Helper\Data $paymentData,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Developer\Helper\Data $developmentHelper,
+        \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooLog $buckarooLog,
+        SoftwareData $softwareData,
+        AddressFactory $addressFactory,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        \Buckaroo\Magento2\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Helper\PaymentGroupTransaction $paymentGroupTransactionHelper,
+        \Magento\Framework\App\RequestInterface $request = null,
+        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        \Magento\Framework\HTTP\Client\Curl $curl,
+        Header $header,
+        CookieManagerInterface $cookieManager,
+        array $data = []
+    ) {
+        parent::__construct(
+            $context,
+            $registry,
+            $buckarooRegistry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $paymentData,
+            $scopeConfig,
+            $logger,
+            $developmentHelper,
+            $quoteFactory,
+            $taxConfig,
+            $taxCalculation,
+            $configProviderBuckarooFee,
+            $buckarooLog,
+            $softwareData,
+            $addressFactory,
+            $resource,
+            $resourceCollection,
+            $gateway,
+            $transactionBuilderFactory,
+            $validatorFactory,
+            $helper,
+            $paymentGroupTransactionHelper,
+            $request,
+            $refundFieldsFactory,
+            $configProviderFactory,
+            $configProviderMethodFactory,
+            $priceHelper,
+            $curl,
+            $data
+        );
+
+        $this->header = $header;
+        $this->cookieManager = $cookieManager;
+    }
 
     /**
      * {@inheritdoc}
@@ -112,8 +193,7 @@ class Pospayment extends AbstractMethod
      */
     private function getPosPaymentTerminalId()
     {
-        $cookieManager = $this->objectManager->get('Magento\Framework\Stdlib\CookieManagerInterface');
-        $terminalId = $cookieManager->getCookie('Pos-Terminal-Id');
+         $terminalId = $this->cookieManager->getCookie('Pos-Terminal-Id');
         $this->logger2->addDebug(__METHOD__.'|1|');
         $this->logger2->addDebug(var_export($terminalId, true));
         return $terminalId;
@@ -132,8 +212,7 @@ class Pospayment extends AbstractMethod
                 return false;
             }
 
-            $header = $this->objectManager->get('Magento\Framework\HTTP\Header');
-            $userAgent = $header->getHttpUserAgent();
+            $userAgent = $this->header->getHttpUserAgent();
             $userAgentConfiguration = trim($this->getConfigData('user_agent'));
 
             $this->logger2->addDebug(var_export([$userAgent, $userAgentConfiguration], true));

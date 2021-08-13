@@ -30,9 +30,9 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Pricing\Helper\Data as PricingHelperData;
 use Magento\Framework\Registry;
+use Magento\Framework\HTTP\Client\Curl;
 use Magento\Payment\Helper\Data as PaymentHelperData;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
@@ -53,6 +53,7 @@ use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Buckaroo\Magento2\Registry\BuckarooRegistry as BuckarooRegistry;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class Capayable extends AbstractMethod
 {
@@ -80,7 +81,6 @@ class Capayable extends AbstractMethod
     public $softwareData;
 
     public function __construct(
-        ObjectManagerInterface $objectManager,
         Context $context,
         Registry $registry,
         BuckarooRegistry $buckarooRegistry,
@@ -104,15 +104,16 @@ class Capayable extends AbstractMethod
         TransactionBuilderFactory $transactionBuilderFactory = null,
         ValidatorFactory $validatorFactory = null,
         BuckarooHelperData $helper = null,
+        PaymentGroupTransaction $paymentGroupTransactionHelper,
         RequestInterface $request = null,
         RefundFieldsFactory $refundFieldsFactory = null,
         ConfigProviderFactory $configProviderFactory = null,
         ConfigProviderMethodFactory $configProviderMethodFactory = null,
         PricingHelperData $priceHelper = null,
+        Curl $curl,
         array $data = []
     ) {
         parent::__construct(
-            $objectManager,
             $context,
             $registry,
             $buckarooRegistry,
@@ -135,11 +136,13 @@ class Capayable extends AbstractMethod
             $transactionBuilderFactory,
             $validatorFactory,
             $helper,
+            $paymentGroupTransactionHelper,
             $request,
             $refundFieldsFactory,
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
+            $curl,
             $data
         );
 

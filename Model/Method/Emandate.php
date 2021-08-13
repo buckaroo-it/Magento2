@@ -28,7 +28,6 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Pricing\Helper\Data as PriceHelper;
 use Magento\Framework\Registry;
 use Magento\Payment\Helper\Data as PaymentData;
@@ -50,6 +49,9 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Buckaroo\Magento2\Registry\BuckarooRegistry as BuckarooRegistry;
+use Magento\Framework\HTTP\Client\Curl;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+
 class Emandate extends AbstractMethod
 {
     /** Payment Code */
@@ -77,7 +79,6 @@ class Emandate extends AbstractMethod
     private $emandateConfig;
 
     public function __construct(
-        ObjectManagerInterface $objectManager,
         Context $context,
         Registry $registry,
         BuckarooRegistry $buckarooRegistry,
@@ -101,15 +102,16 @@ class Emandate extends AbstractMethod
         TransactionBuilderFactory $transactionBuilderFactory = null,
         ValidatorFactory $validatorFactory = null,
         HelperData $helper = null,
+        PaymentGroupTransaction $paymentGroupTransactionHelper,
         RequestInterface $request = null,
         RefundFieldsFactory $refundFieldsFactory = null,
         Factory $configProviderFactory = null,
         MethodFactory $configProviderMethodFactory = null,
         PriceHelper $priceHelper = null,
+        Curl $curl,
         array $data = []
     ) {
         parent::__construct(
-            $objectManager,
             $context,
             $registry,
             $buckarooRegistry,
@@ -132,11 +134,13 @@ class Emandate extends AbstractMethod
             $transactionBuilderFactory,
             $validatorFactory,
             $helper,
+            $paymentGroupTransactionHelper,
             $request,
             $refundFieldsFactory,
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
+            $curl,
             $data
         );
 

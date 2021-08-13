@@ -167,11 +167,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     // @codingStandardsIgnoreEnd
 
     /**
-     * @var \Magento\Framework\ObjectManagerInterface
-     */
-    protected $objectManager;
-
-    /**
      * @var \Magento\Developer\Helper\Data
      */
     protected $developmentHelper;
@@ -217,8 +212,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected $buckarooRegistry;
 
+    protected $curl;
+
     /**
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Buckaroo\Magento2\Registry\BuckarooRegistry $buckarooRegistry
@@ -240,6 +236,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
+     * @param \Magento\Framework\HTTP\Client\Curl $curl
      * @param array $data
      *
      * @param GroupTransaction $groupTransaction
@@ -247,7 +244,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
-        \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         \Buckaroo\Magento2\Registry\BuckarooRegistry $buckarooRegistry,
@@ -270,11 +266,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
         \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
         \Buckaroo\Magento2\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Helper\PaymentGroupTransaction $paymentGroupTransactionHelper,
         \Magento\Framework\App\RequestInterface $request = null,
         \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        \Magento\Framework\HTTP\Client\Curl $curl,
         array $data = []
     ) {
         parent::__construct(
@@ -289,10 +287,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $resourceCollection,
             $data
         );
-        /**
-         * @todo : Remove usage of objectManager, better to use DI.
-         */
-        $this->objectManager               = $objectManager;
         $this->gateway                     = $gateway;
         $this->transactionBuilderFactory   = $transactionBuilderFactory;
         $this->validatorFactory            = $validatorFactory; //Move to gateway?
@@ -311,6 +305,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->addressFactory              = $addressFactory;
         $this->logger2                     = $buckarooLog;
         $this->buckarooRegistry            = $buckarooRegistry;
+        $this->curl                        = $curl;
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
@@ -1697,7 +1692,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $order                   = $payment->getOrder();
         $totalOrder              = $order->getBaseGrandTotal();
-        $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
+        $paymentGroupTransaction = $this->paymentGroupTransactionHelper;
 
         $requestParams = $this->request->getParams();
         if (isset($requestParams['creditmemo']) && !empty($requestParams['creditmemo']['buckaroo_already_paid'])) {
@@ -2149,10 +2144,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
-            $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
-            $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/' . $matches[2] . '/' . $servicePointId);
+            $this->curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/' . $matches[2] . '/' . $servicePointId);
             if (
-                ($response = $curl->getBody())
+                ($response = $this->curl->getBody())
                 &&
                 ($parsedResponse = @json_decode($response))
                 &&

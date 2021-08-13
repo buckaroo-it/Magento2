@@ -62,7 +62,6 @@ class SepaDirectDebit extends AbstractMethod
     public $usesRedirect                = false;
 
     public function __construct(
-        \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         BuckarooRegistry $buckarooRegistry,
@@ -87,15 +86,17 @@ class SepaDirectDebit extends AbstractMethod
         \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
         \Magento\Framework\Message\ManagerInterface $messageManager = null,
         \Buckaroo\Magento2\Helper\Data $helper = null,
+        \Buckaroo\Magento2\Helper\PaymentGroupTransaction $paymentGroupTransactionHelper,
         \Magento\Framework\App\RequestInterface $request = null,
         \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        \Magento\Framework\HTTP\Client\Curl $curl,
+        \Zend\Validator\Iban $ibanValidator,
         array $data = []
     ) {
         parent::__construct(
-            $objectManager,
             $context,
             $registry,
             $buckarooRegistry,
@@ -118,16 +119,19 @@ class SepaDirectDebit extends AbstractMethod
             $transactionBuilderFactory,
             $validatorFactory,
             $helper,
+            $paymentGroupTransactionHelper,
             $request,
             $refundFieldsFactory,
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
+            $curl,
             $data
         );
 
         $this->serviceParameters = $serviceParameters;
         $this->messageManager = $messageManager;
+        $this->ibanValidator = $ibanValidator;
     }
 
     /**
@@ -371,8 +375,7 @@ class SepaDirectDebit extends AbstractMethod
             $billingCountry = $paymentInfo->getQuote()->getBillingAddress()->getCountryId();
         }
 
-        $ibanValidator = $this->objectManager->create(\Zend\Validator\Iban::class);
-        if (empty($customerIban) || !$ibanValidator->isValid($customerIban)) {
+        if (empty($customerIban) || !$this->ibanValidator->isValid($customerIban)) {
             throw new \Buckaroo\Magento2\Exception(__('Please enter a valid bank account number'));
         }
 
