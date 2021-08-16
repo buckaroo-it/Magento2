@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Observer;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\Encryptor;
 
@@ -40,6 +41,8 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
 
     protected $configProviderAccount;
 
+    protected $configProviderPPE;
+
     protected $logging;
 
     public function __construct(
@@ -47,12 +50,14 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
         \Buckaroo\Magento2\Gateway\Http\Client\Json $client,
         Encryptor $encryptor,
         Account $configProviderAccount,
+        PayPerEmail $configProviderPPE,
         Log $logging
     ) {
         $this->scopeConfig           = $scopeConfig;
         $this->client                = $client;
         $this->encryptor             = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
+        $this->configProviderPPE     = $configProviderPPE;
         $this->logging               = $logging;
     }
 
@@ -79,13 +84,7 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
 
         $originalKey = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
 
-        $this->logging->addDebug(__METHOD__ . '|1|' . $payment->getMethodInstance()->getCode());
-        $this->logging->addDebug('OrderCancelAfter' . '|1|' . $originalKey);
-
-        $cancel_ppe = $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_payperemail/cancel_ppe',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $cancel_ppe = $this->configProviderPPE->getCancelPpe();
 
         if ($cancel_ppe && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])
         ) {
@@ -100,10 +99,7 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
 
     private function sendCancelResponse($key)
     {
-        $active = $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_payperemail/active',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $active = $this->configProviderPPE->getActive();
         $mode = ($active == \Buckaroo\Magento2\Helper\Data::MODE_LIVE) ?
         \Buckaroo\Magento2\Helper\Data::MODE_LIVE : \Buckaroo\Magento2\Helper\Data::MODE_TEST;
 
