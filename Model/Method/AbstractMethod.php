@@ -28,6 +28,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 
+
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
     const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
@@ -215,6 +216,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $_code;
 
     /**
+     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     */
+    protected $secondChanceRepository;
+
+    /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
@@ -270,6 +276,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         array $data = []
     ) {
         parent::__construct(
@@ -305,6 +312,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->softwareData                = $softwareData;
         $this->addressFactory              = $addressFactory;
         $this->logger2                     = $buckarooLog;
+        $this->secondChanceRepository      = $secondChanceRepository;
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
@@ -690,6 +698,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
+        $accountConfig = $this->configProviderFactory->get('account');
+        if ($order && $accountConfig->getSecondChance($order->getStore())) {
+            $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
+            $this->secondChanceRepository->createSecondChance($order);
+        }
+
         $this->afterOrder($payment, $response);
 
         return $this;
@@ -857,6 +871,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
+        $accountConfig = $this->configProviderFactory->get('account');
+        if ($order && $accountConfig->getSecondChance($order->getStore())) {
+            $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
+            $this->secondChanceRepository->createSecondChance($order);
+        }
+        
         $this->afterAuthorize($payment, $response);
 
         return $this;

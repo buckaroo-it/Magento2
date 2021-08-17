@@ -174,17 +174,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                             $quote->setIsActive(false)->removeAllItems();
                             $this->cart->save($quote);
                         }
-                        $this->cart->truncate()->saveQuote();
+                        // $this->cart->truncate()->saveQuote();
                     }
 
-                    if ($this->accountConfig->getSecondChance($order->getStore())) {
-                        $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
-                        $this->secondChanceRepository->createSecondChance($order);
-                        $this->quoteRecreate->duplicate($order);
-                    } else {
-                        $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
-                        $this->checkoutSession->restoreQuote();
-                    }
+                    $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
+                    $this->checkoutSession->restoreQuote();
 
                 }
             }

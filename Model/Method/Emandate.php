@@ -105,6 +105,7 @@ class Emandate extends AbstractMethod
         Factory $configProviderFactory = null,
         MethodFactory $configProviderMethodFactory = null,
         PriceHelper $priceHelper = null,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         array $data = []
     ) {
         parent::__construct(
@@ -135,6 +136,7 @@ class Emandate extends AbstractMethod
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
+            $secondChanceRepository,
             $data
         );
 
