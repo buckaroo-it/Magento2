@@ -184,6 +184,19 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         return $secondChance;
     }
 
+    public function getByOrderId(string $orderId): SecondChanceInterface
+    {
+        /** @var SecondChanceInterface $secondChanceEntity */
+        $secondChanceEntity = $this->secondChanceFactory->create();
+        $this->resource->load($secondChanceEntity, $orderId, SecondChanceInterface::ORDER_ID);
+
+        if (!$secondChanceEntity->getId()) {
+            throw new NoSuchEntityException(__('Code "%1" not found.', $orderId));
+        }
+
+        return $secondChanceEntity;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -295,6 +308,16 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * {@inheritdoc}
      */
+    public function deleteByOrderId($orderId)
+    {
+        $secondChance = $this->getByOrderId($orderId);
+
+        return $this->delete($secondChance);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function deleteOlderRecords($store)
     {
         $storeId = (int) $store->getId();
@@ -368,7 +391,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             }
 
             $this->logging->addDebug(__METHOD__ . '|recreate|' . $item->getOrderId());
-            $this->quoteRecreate->recreate($order);
+            $this->quoteRecreate->duplicate($order);
             $this->customerSession->setSecondChanceRecreate($order->getQuoteId());
             $this->setAvailableIncrementId($item->getOrderId(), $item, $order);
         }

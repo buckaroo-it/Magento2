@@ -83,6 +83,7 @@ class PayPerEmail extends AbstractMethod
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         array $data = []
     ) {
         parent::__construct(
@@ -113,6 +114,7 @@ class PayPerEmail extends AbstractMethod
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
+            $secondChanceRepository,
             $data
         );
 

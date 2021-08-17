@@ -239,6 +239,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
                     $this->order
                 )], true));
+
                 if ($this->order->canInvoice()) {
                     $this->logger->addDebug(__METHOD__ . '|31|');
                     if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
@@ -301,10 +302,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         )
                     );
                     $this->logger->addDebug(__METHOD__ . '|5|');
-                    if ($this->accountConfig->getSecondChance($store)) {
-                        $this->secondChanceRepository->createSecondChance($this->order);
-                        $this->quoteRecreate->duplicate($this->order);
-                    }
+
                     return $this->_redirect('/');
                 }
 
@@ -383,13 +381,6 @@ class Process extends \Magento\Framework\App\Action\Action
                 $statusCodeAddErrorMessage[$statusCode]
             )
         );
-
-        if ($this->accountConfig->getSecondChance($this->order->getStore())) {
-            $this->secondChanceRepository->createSecondChance($this->order);
-            if($quote = $this->quoteRecreate->duplicate($this->order)){
-                $this->quote->load($quote->getId());
-            }
-        }
 
         if (!$this->recreateQuote()) {
             $this->logger->addError('Could not recreate the quote.');

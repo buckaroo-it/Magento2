@@ -49,6 +49,7 @@ use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Model\SecondChanceRepository;
 
 class Emandate extends AbstractMethod
 {
@@ -105,6 +106,7 @@ class Emandate extends AbstractMethod
         Factory $configProviderFactory = null,
         MethodFactory $configProviderMethodFactory = null,
         PriceHelper $priceHelper = null,
+        SecondChanceRepository $secondChanceRepository,
         array $data = []
     ) {
         parent::__construct(
@@ -135,6 +137,7 @@ class Emandate extends AbstractMethod
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
+            $secondChanceRepository,
             $data
         );
 
