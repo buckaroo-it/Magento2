@@ -386,6 +386,11 @@ class Process extends \Magento\Framework\App\Action\Action
             $this->logger->addError('Could not recreate the quote.');
         }
 
+        //skip cancel order for PPE
+        if(isset($this->response['add_frompayperemail'])){
+            return $this->redirectFailure();
+        }
+
         if (!$this->cancelOrder($statusCode)) {
             $this->logger->addError('Could not cancel the order.');
         }

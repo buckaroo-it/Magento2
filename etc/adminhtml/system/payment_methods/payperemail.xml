@@ -79,9 +79,6 @@
             <comment><![CDATA[The expiration date for the paylink.]]></comment>
             <config_path>payment/buckaroo_magento2_payperemail/expire_days</config_path>
             <backend_model>Buckaroo\Magento2\Model\Config\Backend\ExpireDays</backend_model>
-            <depends>
-                <field id="enable_b2b">1</field>
-            </depends>
         </field>
 
         <field id="cancel_ppe" translate="label comment" type="select" sortOrder="56" showInDefault="1" showInWebsite="1" showInStore="1">

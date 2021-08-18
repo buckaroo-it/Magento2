@@ -33,6 +33,7 @@ class CancelExpiredOrders
     public function execute()
     {
         $this->orderService->cancelExpiredTransferOrders();
+        $this->orderService->cancelExpiredPPEOrders();
         return $this;
     }
 }
