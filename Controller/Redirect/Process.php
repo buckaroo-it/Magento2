@@ -387,7 +387,7 @@ class Process extends \Magento\Framework\App\Action\Action
         }
 
         //skip cancel order for PPE
-        if(isset($this->response['add_frompayperemail'])){
+        if (isset($this->response['add_frompayperemail'])) {
             return $this->redirectFailure();
         }
 

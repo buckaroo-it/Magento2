@@ -732,12 +732,14 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
         $configProviderMock->expects($this->once())->method('get')->with('account')->willReturn($accountConfigMock);
 
+        $instance = $this->getInstance(['configProviderMock' => $configProviderMock]);
+
         $eventManagerMock = $this->getFakeMock(ManagerInterface::class)
             ->setMethods(['dispatch'])
             ->getMockForAbstractClass();
         $eventManagerMock->expects($this->once())
             ->method('dispatch')
-            ->with($afterMethodEvent, ['payment' => $payment, 'response' => $response, 'configProviderMock' => $configProviderMock]);
+            ->with($afterMethodEvent, ['payment' => $payment, 'response' => $response]);
 
         $configMethodProviderMock = $this->getFakeMock(MethodFactory::class)
             ->setMethods(['get', 'getAllowedCurrencies'])

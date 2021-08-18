@@ -256,7 +256,7 @@ class Push implements PushInterface
 
         $payment       = $this->order->getPayment();
 
-        if($this->pushCheckPayPerEmailCancel($response, $validSignature, $payment)){
+        if ($this->pushCheckPayPerEmailCancel($response, $validSignature, $payment)) {
             return true;
         }
 
@@ -1597,12 +1597,12 @@ class Push implements PushInterface
     {
         if (
             (
-                isset($this->originalPostData['ADD_fromPayPerEmail'])
+                isset($this->postData['add_frompayperemail'])
                 ||
                 ($payment->getMethod() == 'buckaroo_magento2_payperemail')
             )
             &&
-            isset($this->originalPostData['brq_transaction_method'])
+            isset($this->postData['brq_transaction_method'])
             &&
             (
                 ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
