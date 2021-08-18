@@ -726,7 +726,12 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
         $configProviderMock->expects($this->once())->method('get')->with('account')->willReturn($accountConfigMock);
 
-        $stubbedMethods = [$methodTransaction, $methodTransactionBuilder, $configProviderMock];
+        $instance = $this->getInstance([
+            'configProviderFactory' => $configProviderMock,
+        ]);
+        $instance->execute();
+
+        $stubbedMethods = [$methodTransaction, $methodTransactionBuilder];
 
         if ($canMethod) {
             $stubbedMethods[] = $canMethod;
