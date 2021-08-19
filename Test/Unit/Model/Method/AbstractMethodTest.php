@@ -721,7 +721,6 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $transactionBuilderMock->expects($this->once())->method('build')->willReturn($transaction);
 
         $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getActive'])->getMock();
-        $accountConfigMock->expects($this->once())->method('getActive')->willReturn(1);
 
         $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
         $configProviderMock->expects($this->once())->method('get')->with('account')->willReturn($accountConfigMock);
@@ -766,9 +765,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $helperMock->method('getMode')->willReturn($helperMock);
         $partialMock->helper = $helperMock;
 
-        if(in_array($method,['order','authorize'])){
-            $partialMock->configProviderFactory = $configProviderMock;
-        }
+        $partialMock->configProviderFactory = $configProviderMock;
         $partialMock->configProviderMethodFactory = $configMethodProviderMock;
         $this->setProperty('_registry', $registryMock, $partialMock);
         $this->setProperty('_eventManager', $eventManagerMock, $partialMock);
