@@ -256,6 +256,10 @@ class Push implements PushInterface
 
         $payment       = $this->order->getPayment();
 
+        if ($this->pushCheckPayPerEmailCancel($response, $validSignature, $payment)) {
+            return true;
+        }
+
         //Check second push for PayPerEmail
         $receivePushCheckPayPerEmailResult = $this->receivePushCheckPayPerEmail($response, $validSignature, $payment);
 
@@ -1557,8 +1561,16 @@ class Push implements PushInterface
         return false;
     }
 
-    private function receivePushCheckPayPerEmail($response, $validSignature, $payment)
+    private function pushCheckPayPerEmailCancel($response, $validSignature, $payment)
     {
+        $failedStatuses = [
+            'BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR',
+            'BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE',
+            'BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT',
+            'BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER',
+            'BUCKAROO_MAGENTO2_STATUSCODE_FAILED',
+            'BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'
+        ];
         if (
             (
                 isset($this->originalPostData['ADD_fromPayPerEmail'])
@@ -1567,6 +1579,30 @@ class Push implements PushInterface
             )
             &&
             isset($this->originalPostData['brq_transaction_method'])
+            &&
+            (
+                (in_array($response['status'], $failedStatuses))
+                ||
+                (in_array($this->helper->getStatusByValue($this->postData['brq_statuscode'] ?? ''),$failedStatuses))
+            )
+            &&
+            $validSignature
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    private function receivePushCheckPayPerEmail($response, $validSignature, $payment)
+    {
+        if (
+            (
+                isset($this->postData['add_frompayperemail'])
+                ||
+                ($payment->getMethod() == 'buckaroo_magento2_payperemail')
+            )
+            &&
+            isset($this->postData['brq_transaction_method'])
             &&
             (
                 ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
@@ -1618,10 +1654,33 @@ class Push implements PushInterface
         return false;
     }
 
+    public function isPayPerEmailB2CModePush()
+    {
+        if (
+            isset($this->postData['add_frompayperemail']) &&
+            isset($this->postData['brq_transaction_method']) &&
+            ($this->postData['brq_transaction_method'] == 'payperemail')
+        ) {
+            $this->logging->addDebug(__METHOD__ . '|1|');
+            $config = $this->configProviderMethodFactory->get(\Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE);
+            if (!$config->getEnabledB2B()) {
+                $this->logging->addDebug(__METHOD__ . '|5|');
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function isPayPerEmailB2BModePushInitial($response)
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         return $this->isPayPerEmailB2BModePush() && ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER');
+    }
+
+    public function isPayPerEmailB2CModePushInitial($response)
+    {
+        $this->logging->addDebug(__METHOD__ . '|1|');
+        return $this->isPayPerEmailB2CModePush() && ($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER');
     }
 
     public function isPayPerEmailB2BModePushPaid()
@@ -1680,6 +1739,5 @@ class Push implements PushInterface
             }
         }
     }
-
 }
 

@@ -231,7 +231,7 @@ class PayPerEmail extends AbstractMethod
             ],
         ];
 
-        if ($config->getEnabledB2B() && $config->getExpireDays()) {
+        if ($config->getExpireDays()) {
             $params[] = [
                 '_' => date('Y-m-d', time() + $config->getExpireDays() * 86400),
                 'Name' => 'ExpirationDate',
