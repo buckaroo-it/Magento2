@@ -766,7 +766,9 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $helperMock->method('getMode')->willReturn($helperMock);
         $partialMock->helper = $helperMock;
 
-        $partialMock->configProviderFactory = $configProviderMock;
+        if(in_array($method,['order','authorize'])){
+            $partialMock->configProviderFactory = $configProviderMock;
+        }
         $partialMock->configProviderMethodFactory = $configMethodProviderMock;
         $this->setProperty('_registry', $registryMock, $partialMock);
         $this->setProperty('_eventManager', $eventManagerMock, $partialMock);
