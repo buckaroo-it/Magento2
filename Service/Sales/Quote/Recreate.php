@@ -43,6 +43,8 @@ class Recreate
     protected $messageManager;
     protected $quoteRepository;
 
+    protected $quoteManagement;
+
     /**
      * @param CartRepositoryInterface $cartRepository
      * @param Cart                    $cart
@@ -55,6 +57,7 @@ class Recreate
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Catalog\Model\ProductFactory $productFactory,
+        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Framework\Message\ManagerInterface $messageManager
     ) {
         $this->cartRepository  = $cartRepository;
@@ -66,6 +69,7 @@ class Recreate
         $this->cart            = $cart;
         $this->quoteRepository = $quoteRepository;
         $this->messageManager  = $messageManager;
+        $this->quoteManagement = $quoteManagement;
     }
 
     /**
@@ -100,6 +104,14 @@ class Recreate
             $this->messageManager->addErrorMessage($e->getMessage());
         }
         if ($quote->getId()) {
+            $emptyQuoteId = $this->quoteManagement->createEmptyCart();
+            $newQuote = $this->quoteFactory->create()->load($emptyQuoteId);
+            
+            $this->cart->setQuote($newQuote)->save();
+            $this->cart->saveQuote();
+            $this->checkoutSession->setQuoteId($newQuote->getId());
+            $this->checkoutSession->getQuote()->collectTotals()->save();
+
             if ($items = $quote->getAllVisibleItems()) {
                 foreach ($items as $item) {
                     $productId = $item->getProductId();
@@ -120,18 +132,19 @@ class Recreate
                 }
             }
 
-            $this->cart->setQuote($quote)->save();
-            $this->checkoutSession->setQuoteId($quote->getId());
             $this->checkoutSession->getQuote()->collectTotals()->save();
+            $this->cart->saveQuote();
         }
     }
 
     public function duplicate($order)
     {
         $oldQuote = $this->quoteFactory->create()->load($order->getQuoteId());
-        $quote    = $this->quoteFactory->create();
+        $emptyQuoteId = $this->quoteManagement->createEmptyCart();
+        $quote = $this->quoteFactory->create()->load($emptyQuoteId);
         $quote->merge($oldQuote)->save();
         $this->recreate(false, $quote);
         return $quote;
     }
+
 }

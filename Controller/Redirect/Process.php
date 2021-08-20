@@ -382,10 +382,8 @@ class Process extends \Magento\Framework\App\Action\Action
             )
         );
 
-        if (!$this->recreateQuote()) {
-            $this->logger->addError('Could not recreate the quote.');
-        }
-
+        $this->quoteRecreate->duplicate($this->order);
+        
         //skip cancel order for PPE
         if (isset($this->response['add_frompayperemail'])) {
             return $this->redirectFailure();
