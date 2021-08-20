@@ -25,8 +25,6 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Config;
 use mysql_xdevapi\Exception;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
@@ -68,11 +66,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @var \Buckaroo\Magento2\Helper\Data
      */
     public $helper;
-
-    /**
-     * @var \Magento\Framework\Pricing\Helper\Data
-     */
-    public $priceHelper;
 
     /**
      * @var OrderPaymentInterface|InfoInterface
@@ -185,19 +178,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     public static $requestOnVoid = true;
 
-    /**
-     * @var Calculation
-     */
-    protected $taxCalculation;
-
-    /**
-     * @var Config
-     */
-    protected $taxConfig;
-
-    /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
-    protected $configProviderBuckarooFee;
-
     /** @var SoftwareData */
     protected $softwareData;
 
@@ -235,7 +215,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
-     * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
      * @param \Magento\Framework\HTTP\Client\Curl $curl
      * @param array $data
      *
@@ -254,9 +233,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Developer\Helper\Data $developmentHelper,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        Config $taxConfig,
-        Calculation $taxCalculation,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
@@ -271,7 +247,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         \Magento\Framework\HTTP\Client\Curl $curl,
         array $data = []
     ) {
@@ -295,12 +270,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->refundFieldsFactory         = $refundFieldsFactory;
         $this->configProviderFactory       = $configProviderFactory; //Account and Refund used
         $this->configProviderMethodFactory = $configProviderMethodFactory; //Load interface, inject childs via di?
-        $this->priceHelper                 = $priceHelper;
         $this->developmentHelper           = $developmentHelper;
         $this->quoteFactory                = $quoteFactory;
-        $this->taxConfig                   = $taxConfig;
-        $this->taxCalculation              = $taxCalculation;
-        $this->configProviderBuckarooFee   = $configProviderBuckarooFee;
         $this->softwareData                = $softwareData;
         $this->addressFactory              = $addressFactory;
         $this->logger2                     = $buckarooLog;
@@ -578,7 +549,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public function getConfigData($field, $storeId = null)
     {
         if ('order_place_redirect_url' === $field) {
-            return $this->getOrderPlaceRedirectUrl();
+            return $this->orderPlaceRedirectUrl;
         }
         return parent::getConfigData($field, $storeId);
     }
@@ -591,24 +562,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function getRemoteAddress($ipToLong = false, $alternativeHeaders = [])
     {
-        if ($this->remoteAddress === null) {
-            foreach ($alternativeHeaders as $var) {
-                if ($this->request->getServer($var, false)) {
-                    $this->remoteAddress = $this->request->getServer($var);
-                    break;
-                }
-            }
-
-            if (!$this->remoteAddress) {
-                $this->remoteAddress = $this->request->getServer('REMOTE_ADDR');
-            }
-        }
-
-        if (!$this->remoteAddress) {
-            return false;
-        }
-
-        return $ipToLong ? ip2long($this->remoteAddress) : $this->remoteAddress;
+        //Moved logic to helper
+        return $this->helper->getRemoteAddress($this->remoteAddress, $ipToLong, $alternativeHeaders);
     }
 
     /**
@@ -617,32 +572,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function getTitle()
     {
-        $title = $this->getConfigData('title');
-
-        if (!$this->configProviderMethodFactory->has($this->buckarooPaymentMethodCode)) {
-            return $title;
-        }
-
-        $paymentFee = trim($this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode)->getPaymentFee());
-        if (!$paymentFee || (float) $paymentFee < 0.01) {
-            return $title;
-        }
-
-        if (strpos($paymentFee, '%') === false) {
-            $title .= ' + ' . $this->priceHelper->currency(number_format($paymentFee, 2), true, false);
-        } else {
-            $title .= ' + ' . $paymentFee;
-        }
-
-        return $title;
-    }
-
-    /**
-     * @return bool|string
-     */
-    public function getOrderPlaceRedirectUrl()
-    {
-        return $this->orderPlaceRedirectUrl;
+        //Moved logic to helper
+        return $this->helper->getTitle($this->getCode());
     }
 
     /**
@@ -1575,7 +1506,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         // For the first invoice possible add payment fee
         if (is_array($articles) && $numberOfInvoices == 1) {
-            $serviceLine = $this->getServiceCostLine((count($articles) / 5) + 1, $currentInvoice);
+            $serviceLine = $this->helper->getServiceCostLine((count($articles) / 5) + 1, $currentInvoice);
             $articles    = array_merge($articles, $serviceLine);
         }
 
@@ -1843,51 +1774,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->logger2->addDebug(__METHOD__ . '|1|' . var_export($mapping, true));
 
         $this->updateShippingAddressCommonMapping($mapping, $requestData);
-    }
-
-    public function getServiceCostLine($latestKey, $order, &$itemsTotalAmount = 0)
-    {
-        $buckarooFeeLine = $order->getBuckarooFeeInclTax();
-
-        if (!$buckarooFeeLine && ($order->getBuckarooFee() >= 0.01)) {
-            $this->logger2->addDebug(__METHOD__ . '|5|');
-            $buckarooFeeLine = $order->getBuckarooFee();
-        }
-
-        $article = [];
-
-        if (false !== $buckarooFeeLine && (double) $buckarooFeeLine > 0) {
-            $article = $this->getArticleArrayLine(
-                $latestKey,
-                'Servicekosten',
-                1,
-                1,
-                round($buckarooFeeLine, 2),
-                $this->getTaxCategory($order)
-            );
-            $itemsTotalAmount += round($buckarooFeeLine, 2);
-        }
-
-        return $article;
-    }
-
-    public function getArticleArrayLine(
-        $latestKey,
-        $articleDescription,
-        $articleId,
-        $articleQuantity,
-        $articleUnitPrice,
-        $articleVat = ''
-    ) {
-
-    }
-
-    protected function getTaxCategory($order)
-    {
-        $request    = $this->taxCalculation->getRateRequest(null, null, null, $order->getStore());
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($order->getStore());
-        $percent    = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
-        return $percent;
     }
 
     protected function getShippingAmount($order)
@@ -2235,25 +2121,25 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function getRequestArticlesDataPayRemainder($payment)
     {
-        return $this->getArticleArrayLine(
+        return $this->helper->getArticleArrayLine(
             1,
             'PayRemainder',
             1,
             1,
             round($this->payRemainder, 2),
-            $this->getTaxCategory($payment->getOrder())
+            $this->helper->getTaxCategory($payment->getOrder())
         );
     }
 
     protected function getCreditmemoArticleDataPayRemainder($payment, $addRefundType = true)
     {
-        $article = $this->getArticleArrayLine(
+        $article = $this->helper->getArticleArrayLine(
             1,
             'PayRemainder',
             1,
             1,
             round($this->payRemainder, 2),
-            $this->getTaxCategory($payment->getOrder())
+            $this->helper->getTaxCategory($payment->getOrder())
         );
         if ($addRefundType) {
             $article[] = [
@@ -2291,9 +2177,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return $shippingCostsArticle;
         }
 
-        $request    = $this->taxCalculation->getRateRequest(null, null, null);
-        $taxClassId = $this->taxConfig->getShippingTaxClass();
-        $percent    = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        $request    = $this->helper->taxCalculation->getRateRequest(null, null, null);
+        $taxClassId = $this->helper->taxConfig->getShippingTaxClass();
+        $percent    = $this->helper->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
         $shippingCostsArticle = [
             [

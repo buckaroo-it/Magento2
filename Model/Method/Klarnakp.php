@@ -26,8 +26,6 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Config;
 use Magento\Checkout\Model\Cart;
 use Zend_Locale;
 use Magento\Store\Model\ScopeInterface;
@@ -121,8 +119,6 @@ class Klarnakp extends AbstractMethod
      * @param \Magento\Payment\Model\Method\Logger $logger
      * @param \Magento\Developer\Helper\Data $developmentHelper
      * @param SoftwareData $softwareData
-     * @param Config $taxConfig
-     * @param Calculation $taxCalculation
      * @param Cart $cart
      * @param AddressFormatter $addressFormatter
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
@@ -136,7 +132,6 @@ class Klarnakp extends AbstractMethod
      * @param \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
-     * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
      * @param \Magento\Framework\HTTP\Client\Curl $curl
      * @param array $data
      */
@@ -153,9 +148,6 @@ class Klarnakp extends AbstractMethod
         Cart $cart,
         AddressFormatter $addressFormatter,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        Config $taxConfig,
-        Calculation $taxCalculation,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
@@ -170,7 +162,6 @@ class Klarnakp extends AbstractMethod
         \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         \Magento\Framework\HTTP\Client\Curl $curl,
         array $data = []
     ) {
@@ -185,9 +176,6 @@ class Klarnakp extends AbstractMethod
             $logger,
             $developmentHelper,
             $quoteFactory,
-            $taxConfig,
-            $taxCalculation,
-            $configProviderBuckarooFee,
             $buckarooLog,
             $softwareData,
             $addressFactory,
@@ -202,7 +190,6 @@ class Klarnakp extends AbstractMethod
             $refundFieldsFactory,
             $configProviderFactory,
             $configProviderMethodFactory,
-            $priceHelper,
             $curl,
             $data
         );
@@ -287,7 +274,7 @@ class Klarnakp extends AbstractMethod
 
         // For the first invoice possible add payment fee
         if (is_array($articles) && $numberOfInvoices == 1) {
-            $serviceLine = $this->getServiceCostLine($this->groupId++, $currentInvoice);
+            $serviceLine = $this->helper->getServiceCostLine($this->groupId++, $currentInvoice);
             if (!empty($serviceLine)) {
                 unset($serviceLine[0]);
                 unset($serviceLine[3]);
@@ -804,7 +791,7 @@ class Klarnakp extends AbstractMethod
 
         $requestData = $articles;
 
-        $serviceLine = $this->getServiceCostLine($group, $payment->getOrder());
+        $serviceLine = $this->helper->getServiceCostLine($group, $payment->getOrder());
 
         if (!empty($serviceLine)) {
             $requestData = array_merge($articles, $serviceLine);
@@ -897,9 +884,9 @@ class Klarnakp extends AbstractMethod
             return $shippingCostsArticle;
         }
 
-        $request = $this->taxCalculation->getRateRequest(null, null, null);
-        $taxClassId = $this->taxConfig->getShippingTaxClass();
-        $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        $request = $this->helper->taxCalculation->getRateRequest(null, null, null);
+        $taxClassId = $this->helper->taxConfig->getShippingTaxClass();
+        $percent = $this->helper->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
         $shippingCostsArticle = [
             [

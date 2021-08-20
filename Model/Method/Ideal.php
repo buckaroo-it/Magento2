@@ -21,8 +21,6 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Sales\Model\Order\Payment;
-use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
@@ -63,9 +61,6 @@ class Ideal extends AbstractMethod
         \Magento\Developer\Helper\Data $developmentHelper,
         \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters $serviceParameters,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        Config $taxConfig,
-        Calculation $taxCalculation,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
@@ -80,7 +75,6 @@ class Ideal extends AbstractMethod
         \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         \Magento\Framework\HTTP\Client\Curl $curl,
         IdealConfig $idealConfig,
         array $data = []
@@ -96,9 +90,6 @@ class Ideal extends AbstractMethod
             $logger,
             $developmentHelper,
             $quoteFactory,
-            $taxConfig,
-            $taxCalculation,
-            $configProviderBuckarooFee,
             $buckarooLog,
             $softwareData,
             $addressFactory,
@@ -113,7 +104,6 @@ class Ideal extends AbstractMethod
             $refundFieldsFactory,
             $configProviderFactory,
             $configProviderMethodFactory,
-            $priceHelper,
             $curl,
             $data
         );

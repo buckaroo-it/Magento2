@@ -321,7 +321,7 @@ class Billink extends AbstractMethod
             break;
         }
 
-        $serviceLine = $this->getServiceCostLine($count, $payment->getOrder());
+        $serviceLine = $this->helper->getServiceCostLine($count, $payment->getOrder());
 
         if (!empty($serviceLine)) {
             $articles = array_merge($articles, $serviceLine);
@@ -459,7 +459,7 @@ class Billink extends AbstractMethod
         // hasCreditmemos returns since 2.2.6 true or false.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
-            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $itemsTotalAmount);
+            $serviceLine = $this->helper->getServiceCostLine($count, $creditmemo, $itemsTotalAmount);
             $articles = array_merge($articles, $serviceLine);
 
             $refundType = $this->getRefundType($count);
@@ -505,9 +505,9 @@ class Billink extends AbstractMethod
             return $shippingCostsArticle;
         }
 
-        $request = $this->taxCalculation->getRateRequest(null, null, null);
-        $taxClassId = $this->taxConfig->getShippingTaxClass();
-        $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        $request = $this->helper->taxCalculation->getRateRequest(null, null, null);
+        $taxClassId = $this->helper->taxConfig->getShippingTaxClass();
+        $percent = $this->helper->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
         $shippingCostsArticle = [
             [

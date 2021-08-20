@@ -213,7 +213,7 @@ class Klarna extends AbstractMethod
             break;
         }
 
-        $serviceLine = $this->getServiceCostLine($count, $payment->getOrder());
+        $serviceLine = $this->helper->getServiceCostLine($count, $payment->getOrder());
 
         if (!empty($serviceLine)) {
             $articles = array_merge($articles, $serviceLine);

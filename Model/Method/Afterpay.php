@@ -439,7 +439,7 @@ class Afterpay extends AbstractMethod
             break;
         }
 
-        $serviceLine = $this->getServiceCostLine($count, $payment->getOrder());
+        $serviceLine = $this->helper->getServiceCostLine($count, $payment->getOrder());
 
         if (!empty($serviceLine)) {
             $requestData = array_merge($articles, $serviceLine);
@@ -584,7 +584,7 @@ class Afterpay extends AbstractMethod
         // hasCreditmemos returns since 2.2.6 true or false.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
-            $serviceLine = $this->getServiceCostLine($count, $creditmemo, $itemsTotalAmount);
+            $serviceLine = $this->helper->getServiceCostLine($count, $creditmemo, $itemsTotalAmount);
             $articles = array_merge($articles, $serviceLine);
             $count++;
         }
@@ -753,7 +753,7 @@ class Afterpay extends AbstractMethod
     protected function getTaxCategory($order)
     {
         $storeId = (int) $order->getStoreId();
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($storeId);
+        $taxClassId = $this->helper->configProviderBuckarooFee->getTaxClass($storeId);
 
         $taxCategory = 4;
 

@@ -25,11 +25,12 @@ use \Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config;
 
 /**
  * Class Data
@@ -106,6 +107,30 @@ class Data extends AbstractHelper
     protected $json;
 
     /**
+     * @var \Magento\Framework\App\Request\Http
+     */
+    public $request;
+
+    /**
+     * @var \Magento\Framework\Pricing\Helper\Data
+     */
+    public $priceHelper;
+    
+    /**
+     * @var Calculation
+     */
+    public $taxCalculation;
+
+    /**
+     * @var Config
+     */
+    public $taxConfig;
+
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
+    public $configProviderBuckarooFee;
+
+
+    /**
      * @param Context $context
      * @param Account $configProviderAccount
      * @param Factory $configProviderMethodFactory
@@ -122,8 +147,12 @@ class Data extends AbstractHelper
         CustomerRepositoryInterface $customerRepository,
         StoreManagerInterface $storeManager,
         \Magento\Config\Model\Config\ScopeDefiner $scopeDefiner,
-        \Magento\Framework\Serialize\Serializer\Json $json
-
+        \Magento\Framework\Serialize\Serializer\Json $json,
+        \Magento\Framework\App\RequestInterface $request,
+        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        Config $taxConfig,
+        Calculation $taxCalculation,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee
     ) {
         parent::__construct($context);
 
@@ -138,6 +167,11 @@ class Data extends AbstractHelper
         $this->storeManager = $storeManager;
         $this->scopeDefiner = $scopeDefiner;
         $this->json = $json;
+        $this->request = $request;
+        $this->priceHelper = $priceHelper;
+        $this->taxConfig = $taxConfig;
+        $this->taxCalculation = $taxCalculation;
+        $this->configProviderBuckarooFee = $configProviderBuckarooFee;
     }
 
     /**
@@ -425,4 +459,123 @@ class Data extends AbstractHelper
             ['value' => 'wechatpay',       'label' => __('WeChatPay')],
         ];
     }
+
+    /**
+     * Retrieve information from payment configuration
+     * @param string                                     $buckarooPaymentMethod
+     * @param string                                     $field
+     *
+     * @return mixed
+     */
+    public function getConfigData($buckarooPaymentMethod, $field)
+    {
+        $configValue = $this->scopeConfig->getValue(
+            'payment/'.$buckarooPaymentMethod.'/'.$field,
+            $this->scopeDefiner->getScope(),
+            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
+        );
+
+        return $configValue;
+    }
+
+    /**
+     * @param string    $remoteAddress
+     * @param bool      $ipToLong
+     * @param array     $alternativeHeaders
+     *
+     * @return bool|int|mixed|null|\Zend\Stdlib\ParametersInterface
+     */
+    public function getRemoteAddress($remoteAddress = null, $ipToLong = false, $alternativeHeaders = [])
+    {
+        if ($remoteAddress === null) {
+            foreach ($alternativeHeaders as $var) {
+                if ($this->request->getServer($var, false)) {
+                    $this->remoteAddress = $this->request->getServer($var);
+                    break;
+                }
+            }
+
+            if (!$remoteAddress) {
+                $remoteAddress = $this->request->getServer('REMOTE_ADDR');
+            }
+        }
+
+        if (!$remoteAddress) {
+            return false;
+        }
+
+        return $ipToLong ? ip2long($remoteAddress) : $remoteAddress;
+    }
+
+    /**
+     * @param string $buckarooPaymentMethod
+     * @return string
+     * @throws \Buckaroo\Magento2\Exception
+     */
+    public function getTitle($buckarooPaymentMethod)
+    {
+        $title = $this->getConfigData($buckarooPaymentMethod, 'title');
+
+        if (!$this->configProviderMethodFactory->has($buckarooPaymentMethod)) {
+            return $title;
+        }
+
+        $paymentFee = trim($this->configProviderMethodFactory->get($buckarooPaymentMethod)->getPaymentFee());
+        if (!$paymentFee || (float) $paymentFee < 0.01) {
+            return $title;
+        }
+
+        if (strpos($paymentFee, '%') === false) {
+            $title .= ' + ' . $this->priceHelper->currency(number_format($paymentFee, 2), true, false);
+        } else {
+            $title .= ' + ' . $paymentFee;
+        }
+
+        return $title;
+    }
+    
+    public function getServiceCostLine($latestKey, $order, &$itemsTotalAmount = 0)
+    {
+        $buckarooFeeLine = $order->getBuckarooFeeInclTax();
+
+        if (!$buckarooFeeLine && ($order->getBuckarooFee() >= 0.01)) {
+            $buckarooFeeLine = $order->getBuckarooFee();
+        }
+
+        $article = [];
+
+        if (false !== $buckarooFeeLine && (double) $buckarooFeeLine > 0) {
+            $article = $this->getArticleArrayLine(
+                $latestKey,
+                'Servicekosten',
+                1,
+                1,
+                round($buckarooFeeLine, 2),
+                $this->getTaxCategory($order)
+            );
+            $itemsTotalAmount += round($buckarooFeeLine, 2);
+        }
+
+        return $article;
+    }
+
+    public function getArticleArrayLine(
+        $latestKey,
+        $articleDescription,
+        $articleId,
+        $articleQuantity,
+        $articleUnitPrice,
+        $articleVat = ''
+    ) {
+
+    }
+
+    protected function getTaxCategory($order)
+    {
+        $request    = $this->taxCalculation->getRateRequest(null, null, null, $order->getStore());
+        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($order->getStore());
+        $percent    = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        return $percent;
+    }
+    
 }

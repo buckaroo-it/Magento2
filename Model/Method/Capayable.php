@@ -30,7 +30,6 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Pricing\Helper\Data as PricingHelperData;
 use Magento\Framework\Registry;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Payment\Helper\Data as PaymentHelperData;
@@ -92,9 +91,6 @@ class Capayable extends AbstractMethod
         DeveloperHelperData $developmentHelper,
         AddressFormatter $addressFormatter,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        Config $taxConfig,
-        Calculation $taxCalculation,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
@@ -109,7 +105,6 @@ class Capayable extends AbstractMethod
         RefundFieldsFactory $refundFieldsFactory = null,
         ConfigProviderFactory $configProviderFactory = null,
         ConfigProviderMethodFactory $configProviderMethodFactory = null,
-        PricingHelperData $priceHelper = null,
         Curl $curl,
         array $data = []
     ) {
@@ -124,9 +119,6 @@ class Capayable extends AbstractMethod
             $logger,
             $developmentHelper,
             $quoteFactory,
-            $taxConfig,
-            $taxCalculation,
-            $configProviderBuckarooFee,
             $buckarooLog,
             $softwareData,
             $addressFactory,
@@ -141,7 +133,6 @@ class Capayable extends AbstractMethod
             $refundFieldsFactory,
             $configProviderFactory,
             $configProviderMethodFactory,
-            $priceHelper,
             $curl,
             $data
         );

@@ -292,7 +292,7 @@ class Afterpay20 extends AbstractMethod
             break;
         }
 
-        $serviceLine = $this->getServiceCostLine($count, $payment->getOrder(), $includesTax);
+        $serviceLine = $this->helper->getServiceCostLine($count, $payment->getOrder(), $includesTax);
 
         if (!empty($serviceLine)) {
             $articles = array_merge($articles, $serviceLine);
@@ -434,7 +434,7 @@ class Afterpay20 extends AbstractMethod
 
         // hasCreditmemos returns since 2.2.6 true or false.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
-        $serviceLine = $this->getServiceCostLine($count, $creditmemo, $itemsTotalAmount);
+        $serviceLine = $this->helper->getServiceCostLine($count, $creditmemo, $itemsTotalAmount);
         if ($serviceLine) {
             $articles = array_merge($articles, $serviceLine);
 

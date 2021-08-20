@@ -28,7 +28,6 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Pricing\Helper\Data as PriceHelper;
 use Magento\Framework\Registry;
 use Magento\Payment\Helper\Data as PaymentData;
 use Magento\Payment\Model\InfoInterface;
@@ -43,8 +42,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate as EmandateConfig;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
 use Buckaroo\Magento2\Model\RefundFieldsFactory;
 use Buckaroo\Magento2\Model\ValidatorFactory;
-use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
@@ -90,9 +87,6 @@ class Emandate extends AbstractMethod
         DevelopmentHelper $developmentHelper,
         EmandateConfig $emandateConfig,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        Config $taxConfig,
-        Calculation $taxCalculation,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
@@ -107,7 +101,6 @@ class Emandate extends AbstractMethod
         RefundFieldsFactory $refundFieldsFactory = null,
         Factory $configProviderFactory = null,
         MethodFactory $configProviderMethodFactory = null,
-        PriceHelper $priceHelper = null,
         Curl $curl,
         array $data = []
     ) {
@@ -122,9 +115,6 @@ class Emandate extends AbstractMethod
             $logger,
             $developmentHelper,
             $quoteFactory,
-            $taxConfig,
-            $taxCalculation,
-            $configProviderBuckarooFee,
             $buckarooLog,
             $softwareData,
             $addressFactory,
@@ -139,7 +129,6 @@ class Emandate extends AbstractMethod
             $refundFieldsFactory,
             $configProviderFactory,
             $configProviderMethodFactory,
-            $priceHelper,
             $curl,
             $data
         );
