@@ -65,7 +65,6 @@ define(
                     dateValidate: null,
                     genderValidate: null,
                     chamberOfCommerceValidate: null,
-                    VATNumberValidate: null,
                     phoneValidate: null,
                     showNLBEFieldsValue: true,
                     showСhamberOfCommerceValue: null,
@@ -104,7 +103,6 @@ define(
                             'dateValidate',
                             'genderValidate',
                             'chamberOfCommerceValidate',
-                            'VATNumberValidate',
                             'phoneValidate',
                             'dummy',
                             'showNLBEFieldsValue',
@@ -325,7 +323,6 @@ define(
                     this.dateValidate.subscribe(runValidation,this);
                     this.genderValidate.subscribe(runValidation,this);
                     this.chamberOfCommerceValidate.subscribe(runValidation,this);
-                    this.VATNumberValidate.subscribe(runValidation,this);
                     this.phoneValidate.subscribe(runValidation,this);
                     this.dummy.subscribe(runValidation,this);
 
@@ -353,7 +350,6 @@ define(
                             var result =
                                 (!this.showNLBEFields() || this.selectedGender() !== null) &&
                                 (!this.showСhamberOfCommerce() || this.chamberOfCommerceValidate() !== null) &&
-                                (!this.showVATNumber() || this.VATNumberValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
                                 (!this.showPhone() || ((this.phoneValidate() !== null) && (this.validatePhone()))) &&
@@ -448,7 +444,6 @@ define(
                             "customer_telephone" : this.phoneValidate(),
                             "customer_gender" : this.genderValidate(),
                             "customer_chamberOfCommerce" : this.chamberOfCommerceValidate(),
-                            "customer_VATNumber" : this.VATNumberValidate(),
                             "customer_billingName" : this.BillingName(),
                             "customer_DoB" : this.dateValidate(),
                             "termsCondition": this.termsValidate(),
