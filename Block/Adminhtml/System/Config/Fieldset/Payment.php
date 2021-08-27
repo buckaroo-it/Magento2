@@ -47,7 +47,6 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
         parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
-
     /**
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return string
@@ -81,13 +80,13 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
 
         if (!empty($groupConfig['more_url'])) {
             $html .= '<a class="link-more" href="' . $groupConfig['more_url'] . '" target="_blank">' . __(
-                    'Learn More'
-                ) . '</a>';
+                'Learn More'
+            ) . '</a>';
         }
         if (!empty($groupConfig['demo_url'])) {
             $html .= '<a class="link-demo" href="' . $groupConfig['demo_url'] . '" target="_blank">' . __(
-                    'View Demo'
-                ) . '</a>';
+                'View Demo'
+            ) . '</a>';
         }
 
         $html .= '</div>';
@@ -169,5 +168,4 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     {
         return (bool)(string) $this->_backendConfig->getConfigDataValue('buckaroo_magento2/account/active') > 0;
     }
-
 }

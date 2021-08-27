@@ -24,10 +24,14 @@ use Magento\Framework\Module\ModuleListInterface;
 
 class Data
 {
-    /** Module supplier */
+    /**
+     * Module supplier name
+     */
     const MODULE_SUPPLIER = 'Buckaroo';
 
-    /** Module code */
+    /**
+     * Module supplier code
+     */
     const MODULE_CODE = 'Buckaroo_Magento2';
 
     /** Version of Module */

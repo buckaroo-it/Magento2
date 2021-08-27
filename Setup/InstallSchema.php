@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -27,7 +28,8 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
 {
     protected $registry;
 
-    public function __construct(\Magento\Framework\Registry $registry) {
+    public function __construct(\Magento\Framework\Registry $registry)
+    {
         $this->registry = $registry;
     }
 
@@ -52,22 +54,22 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                     $installer->getTable('buckaroo_magento2_certificate')
                 );
                 $installer->getConnection()->query(
-                    "ALTER TABLE ".$installer->getTable('buckaroo_magento2_certificate')." COMMENT = 'Buckaroo Certificate'"
+                    "ALTER TABLE " . $installer->getTable('buckaroo_magento2_certificate') . " COMMENT = 'Buckaroo Certificate'"
                 );
                 $installer->getConnection()->query(
-                    "UPDATE ".$installer->getTable('core_config_data')." SET path = replace(path, 'tig_buckaroo','buckaroo_magento2') WHERE path LIKE '%tig_buckaroo%';"
+                    "UPDATE " . $installer->getTable('core_config_data') . " SET path = replace(path, 'tig_buckaroo','buckaroo_magento2') WHERE path LIKE '%tig_buckaroo%';"
                 );
                 $installer->getConnection()->query(
-                    "UPDATE ".$setup->getTable('sales_order_payment')." SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
+                    "UPDATE " . $setup->getTable('sales_order_payment') . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
                 );
                 $installer->getConnection()->query(
-                    "UPDATE ".$setup->getTable('sales_order_grid')." SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
+                    "UPDATE " . $setup->getTable('sales_order_grid') . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
                 );
                 $installer->getConnection()->query(
-                    "UPDATE ".$setup->getTable('sales_invoice_grid')." SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
+                    "UPDATE " . $setup->getTable('sales_invoice_grid') . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
                 );
                 $installer->getConnection()->query(
-                    "UPDATE ".$setup->getTable('quote_payment')." SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
+                    "UPDATE " . $setup->getTable('quote_payment') . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
                 );
             } else {
                 $table = $installer->getConnection()
@@ -80,7 +82,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                         'identity' => true,
                         'unsigned' => true,
                         'nullable' => false,
-                        'primary' => true,
+                        'primary'  => true,
                     ],
                     'Entity ID'
                 );
@@ -164,7 +166,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                 ],
                 'Related Transaction'
             );
-            
+
             $table->addColumn(
                 'servicecode',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -227,11 +229,11 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
 
             $installer->getConnection()->createTable($table);
         }
-        
+
         if (!$installer->tableExists('buckaroo_magento2_second_chance')) {
             $table = $installer->getConnection()
                 ->newTable($installer->getTable('buckaroo_magento2_second_chance'));
-           $table->addColumn(
+            $table->addColumn(
                 'entity_id',
                 \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 null,
@@ -239,7 +241,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                     'identity' => true,
                     'unsigned' => true,
                     'nullable' => false,
-                    'primary' => true,
+                    'primary'  => true,
                 ],
                 'Entity ID'
             );
@@ -263,7 +265,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                 ],
                 'storeId'
             );
-            
+
             $table->addColumn(
                 'token',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,

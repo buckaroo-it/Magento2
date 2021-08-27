@@ -63,10 +63,13 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_INVOICE_EMAIL                   = 'buckaroo_magento2/account/invoice_email';
     const XPATH_ACCOUNT_SUCCESS_REDIRECT                = 'buckaroo_magento2/account/success_redirect';
     const XPATH_ACCOUNT_FAILURE_REDIRECT                = 'buckaroo_magento2/account/failure_redirect';
-    const XPATH_ACCOUNT_FAILURE_REDIRECT_TO_CHECKOUT                = 'buckaroo_magento2/account/failure_redirect_to_checkout';
+    const XPATH_ACCOUNT_FAILURE_REDIRECT_TO_CHECKOUT    = 'buckaroo_magento2/account/failure_redirect_to_checkout';
     const XPATH_ACCOUNT_CANCEL_ON_FAILED                = 'buckaroo_magento2/account/cancel_on_failed';
     const XPATH_ACCOUNT_DIGITAL_SIGNATURE               = 'buckaroo_magento2/account/digital_signature';
-    const XPATH_ACCOUNT_DEBUG_TYPES                     = 'buckaroo_magento2/account/debug_types';
+    const XPATH_ACCOUNT_LOG_LEVEL                       = 'buckaroo_magento2/account/debug_types';
+    const XPATH_ACCOUNT_LOG_HANDLER                     = 'buckaroo_magento2/account/log_handler';
+    const XPATH_ACCOUNT_LOG_DBTRACE_DEPTH               = 'buckaroo_magento2/account/log_handler_db_depth';
+    const XPATH_ACCOUNT_LOG_RETENTION                   = 'buckaroo_magento2/account/log_retention';
     const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
     const XPATH_ACCOUNT_LIMIT_BY_IP                     = 'buckaroo_magento2/account/limit_by_ip';
     const XPATH_ACCOUNT_FEE_PERCENTAGE_MODE             = 'buckaroo_magento2/account/fee_percentage_mode';
@@ -133,8 +136,10 @@ class Account extends AbstractConfigProvider
             'failure_redirect_to_checkout'      => $this->getFailureRedirectToCheckout($store),
             'cancel_on_failed'                  => $this->getCancelOnFailed($store),
             'digital_signature'                 => $this->getDigitalSignature($store),
-            'debug_types'                       => $this->getDebugTypes($store),
+            'debug_types'                       => $this->getLogLevel($store),
             'debug_email'                       => $this->getDebugEmail($store),
+            'log_handler'                       => $this->getLogHandler($store),
+            'log_retention'                     => $this->getLogRetention($store),
             'limit_by_ip'                       => $this->getLimitByIp($store),
             'fee_percentage_mode'               => $this->getFeePercentageMode($store),
             'payment_fee_label'                 => $this->getPaymentFeeLabel($store),

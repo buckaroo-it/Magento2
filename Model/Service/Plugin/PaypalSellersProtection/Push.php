@@ -65,7 +65,8 @@ class Push
             return $result;
         }
 
-        $eligibilityTypes = static::ELIGIBILITY_INELIGIBLE !== $push->postData['brq_service_paypal_protectioneligibility']
+        $eligibilityTypes =
+            static::ELIGIBILITY_INELIGIBLE !== $push->postData['brq_service_paypal_protectioneligibility']
             ? $push->postData['brq_service_paypal_protectioneligibilitytype']
             : static::ELIGIBILITY_TYPE_NONE;
 
@@ -73,7 +74,8 @@ class Push
         // since we know Buckaroo can provide us with
         // multiple types in a single response.
         $this->handleEligibilityTypes(
-            explode(',', $eligibilityTypes), $push->order
+            explode(',', $eligibilityTypes),
+            $push->order
         );
 
         return $result;
@@ -88,7 +90,7 @@ class Push
      */
     protected function handleEligibilityTypes($eligibilityTypes, $order)
     {
-        if ( ! \is_array($eligibilityTypes)) {
+        if (! \is_array($eligibilityTypes)) {
             $eligibilityTypes = [$eligibilityTypes];
         }
 
@@ -135,6 +137,7 @@ class Push
                 break;
             default:
                 throw new \InvalidArgumentException('Invalid eligibility type(s): ' . $eligibilityType);
+                //phpcs:ignore:Squiz.PHP.NonExecutableCode
                 break;
         }
         $order->addStatusHistoryComment($comment, $status ?: false);

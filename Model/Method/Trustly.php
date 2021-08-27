@@ -53,7 +53,7 @@ class Trustly extends AbstractMethod
 
         $services = [
             'Name'             => 'Trustly',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [
                 [
@@ -77,14 +77,6 @@ class Trustly extends AbstractMethod
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
-
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        $payment->setAdditionalInformation(
-            'skip_push', 1
-        );
 
         return $transactionBuilder;
     }
@@ -123,8 +115,7 @@ class Trustly extends AbstractMethod
         $methodMessage = '';
         $responseCode = $transactionResponse->Status->Code->Code;
         if ($responseCode == 491) {
-            if (
-                !empty($transactionResponse->RequestErrors->ParameterError->Name)
+            if (!empty($transactionResponse->RequestErrors->ParameterError->Name)
                 &&
                 ($transactionResponse->RequestErrors->ParameterError->Name == 'CustomerCountryCode')
                 &&

@@ -19,7 +19,6 @@
  */
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-
 class CustomerAdditionalInfo implements \Magento\Framework\Option\ArrayInterface
 {
     private $customFields = [

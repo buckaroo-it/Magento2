@@ -98,6 +98,7 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
 
         // decode the signature
         $signature  = $signatureArray[1][0];
+        //phpcs:ignore:Magento2.Functions.DiscouragedFunction
         $sigDecoded = base64_decode($signature);
 
         $xPath = new \DOMXPath($responseDomDoc);

@@ -85,6 +85,7 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
                         [$statusCode]
                     )
                 );
+                //phpcs:ignore:Squiz.PHP.NonExecutableCode
                 break;
         }
 

@@ -23,11 +23,6 @@ namespace Buckaroo\Magento2\Gateway\Http\Client;
 use Magento\Payment\Model\Method\Logger;
 use Buckaroo\Magento2\Soap\ClientFactory;
 
-/**
- * Class Soap
- *
- * @package Buckaroo\Magento2\Gateway\Http\Client
- */
 class Soap extends \Magento\Payment\Gateway\Http\Client\Soap
 {
     /**

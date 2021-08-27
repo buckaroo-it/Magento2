@@ -32,14 +32,16 @@ class ExpireDays extends \Magento\Framework\App\Config\Value
      */
     public function save()
     {
-        $value = intval($this->getValue());
+        $value = (int) $this->getValue();
 
         if (empty($value)) {
             return parent::save();
         }
 
         if (!is_int($value) || $value < 0 || $value > 180) {
-            throw new \Magento\Framework\Exception\LocalizedException(__("Please enter a valid integer within 0 and 180 interval"));
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __("Please enter a valid integer within 0 and 180 interval")
+            );
         }
 
         $this->setValue($value);

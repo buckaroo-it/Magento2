@@ -13,7 +13,7 @@
             <span><?php /* @escapeNotVerified */ echo $label; ?></span>
         </th>
         <td class="amount" data-th="<?php echo $block->escapeHtml($label); ?>">
-            <?php /* @escapeNotVerified */ echo $this->helper('Magento\Checkout\Helper\Data')->formatPrice($value) ?>
+            <?php /* @escapeNotVerified */ echo $block->helper('Magento\Checkout\Helper\Data')->formatPrice($value) ?>
         </td>
     </tr>
 <?php endforeach; ?>

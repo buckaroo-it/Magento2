@@ -69,6 +69,5 @@ class GroupTransactionRegister implements ObserverInterface
             $order->setTotalPaid($order->getTotalPaid() + $item['amount']);
             $order->setBaseTotalPaid($order->getBaseTotalPaid() + $item['amount']);
         }
-
     }
 }

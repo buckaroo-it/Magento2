@@ -287,11 +287,11 @@ class CreateCombinedInvoice
             $matches
         );
         if (!$addressRegexResult || !is_array($matches)) {
-            $addressData = array(
+            $addressData = [
                 'street'           => $street,
                 'house_number'          => '',
                 'number_addition' => '',
-            );
+            ];
 
             return $addressData;
         }
@@ -321,11 +321,11 @@ class CreateCombinedInvoice
             }
         }
 
-        $addressData = array(
+        $addressData = [
             'street'          => $streetname,
             'house_number'    => $housenumber,
             'number_addition' => $housenumberExtension,
-        );
+        ];
 
         return $addressData;
     }

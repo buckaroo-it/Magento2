@@ -137,6 +137,7 @@ class QuoteCheck
         $quote = $subject->getQuote();
 
         if ($quote->getBaseBuckarooAlreadyPaid() > 0) {
+            //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new \Exception('Action is blocked, please finish current order');
         }
     }

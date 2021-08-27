@@ -20,6 +20,9 @@
 
 namespace Buckaroo\Magento2\Block;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+
 class Info extends \Magento\Payment\Block\Info
 {
     // @codingStandardsIgnoreStart
@@ -39,13 +42,13 @@ class Info extends \Magento\Payment\Block\Info
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
+        PaymentGroupTransaction $groupTransaction,
+        GiftcardCollection $giftcardCollection,
         array $data = []
     ) {
         parent::__construct($context, $data);
-
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $this->groupTransaction = $objectManager->create('Buckaroo\Magento2\Helper\PaymentGroupTransaction');
-        $this->giftcardCollection = $objectManager->create('\Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection');
+        $this->groupTransaction = $groupTransaction;
+        $this->giftcardCollection = $giftcardCollection;
     }
 
     public function getGiftCards()
@@ -55,7 +58,9 @@ class Info extends \Magento\Payment\Block\Info
         if ($this->getInfo()->getOrder() && $this->getInfo()->getOrder()->getIncrementId()) {
             $items = $this->groupTransaction->getGroupTransactionItems($this->getInfo()->getOrder()->getIncrementId());
             foreach ($items as $key => $giftcard) {
-                if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode'])) {
+                if ($foundGiftcard = $this->giftcardCollection
+                    ->getItemByColumnValue('servicecode', $giftcard['servicecode'])
+                ) {
                     $result[] = [
                         'code' => $giftcard['servicecode'],
                         'label' => $foundGiftcard['label'],
@@ -67,14 +72,14 @@ class Info extends \Magento\Payment\Block\Info
         return $result;
     }
 
-    public function getPayPerEmailMethod(){
+    public function getPayPerEmailMethod()
+    {
         $payment = $this->getInfo()->getOrder()->getPayment();
-        if($servicecode = $payment->getAdditionalInformation('isPayPerEmail')){
+        if ($servicecode = $payment->getAdditionalInformation('isPayPerEmail')) {
             return [
                     'label' => __('Buckaroo PayPerEmail'),
                 ];
         }
         return false;
     }
-
 }
