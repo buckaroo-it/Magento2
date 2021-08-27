@@ -65,6 +65,7 @@ define(
                     dateValidate: null,
                     genderValidate: null,
                     chamberOfCommerceValidate: null,
+                    VATNumberValidate: null,
                     phoneValidate: null,
                     showNLBEFieldsValue: true,
                     showСhamberOfCommerceValue: null,
@@ -103,6 +104,7 @@ define(
                             'dateValidate',
                             'genderValidate',
                             'chamberOfCommerceValidate',
+                            'VATNumberValidate',
                             'phoneValidate',
                             'dummy',
                             'showNLBEFieldsValue',
@@ -323,6 +325,7 @@ define(
                     this.dateValidate.subscribe(runValidation,this);
                     this.genderValidate.subscribe(runValidation,this);
                     this.chamberOfCommerceValidate.subscribe(runValidation,this);
+                    this.VATNumberValidate.subscribe(runValidation,this);
                     this.phoneValidate.subscribe(runValidation,this);
                     this.dummy.subscribe(runValidation,this);
 
@@ -444,6 +447,7 @@ define(
                             "customer_telephone" : this.phoneValidate(),
                             "customer_gender" : this.genderValidate(),
                             "customer_chamberOfCommerce" : this.chamberOfCommerceValidate(),
+                            "customer_VATNumber" : this.VATNumberValidate(),
                             "customer_billingName" : this.BillingName(),
                             "customer_DoB" : this.dateValidate(),
                             "termsCondition": this.termsValidate(),
