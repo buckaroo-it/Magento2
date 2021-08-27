@@ -49,4 +49,21 @@
                 <column name="created_at"/>
             </index>
         </table>
+        <table name="buckaroo_magento2_log" resource="default" engine="innodb" comment="Buckaroo Log">
+            <column name="log_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Log id"/>
+            <column name="channel" xsi:type="varchar" length="255" nullable="true" comment="Channel"/>
+            <column name="level" xsi:type="varchar" length="255" nullable="true" comment="Level"/>
+            <column name="message" xsi:type="text" nullable="true" comment="Message"/>
+            <column xsi:type="timestamp" name="time" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Time"/>
+            <column name="session_id" xsi:type="varchar" length="40" nullable="true" comment="Session Id"/>
+            <column name="customer_id" xsi:type="int" padding="10" nullable="true" comment="Customer id"/>
+            <column name="quote_id" xsi:type="int" padding="10" nullable="true" comment="Quote id"/>
+            <column name="order_id" xsi:type="int" padding="10" nullable="true" comment="Order id"/>
+            <index referenceId="BUCKAROO_MAGENTO2_LOG_LOG_ID" indexType="btree">
+                <column name="log_id"/>
+            </index>
+            <index referenceId="BUCKAROO_MAGENTO2_LOG_ORDER_ID" indexType="btree">
+                <column name="order_id"/>
+            </index>
+        </table>
 </schema>
