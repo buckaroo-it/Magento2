@@ -26,18 +26,10 @@ use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
-/**
- * @method getPaymentFeeLabel()
- * @method getSellersProtection()
- * @method getSellersProtectionEligible()
- * @method getSellersProtectionIneligible()
- * @method getSellersProtectionItemnotreceivedEligible()
- * @method getSellersProtectionUnauthorizedpaymentEligible()
- */
 class Creditcards extends AbstractConfigProvider
 {
     const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
-    const XPATH_CREDITCARDS_PAYMENT_FEE_LABE = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
+    const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
     const XPATH_CREDITCARDS_ACTIVE = 'payment/buckaroo_magento2_creditcards/active';
     const XPATH_CREDITCARDS_ACTIVE_STATUS = 'payment/buckaroo_magento2_creditcards/active_status';
     const XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcards/order_status_success';
@@ -149,145 +141,146 @@ class Creditcards extends AbstractConfigProvider
     }
 
 
+
     /**
-     * {@inheritdoc}
+     * get Payment Fee Labe
      */
     public function getPaymentFeeLabel($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_PAYMENT_FEE_LABEL,
+            self::XPATH_CREDITCARDS_PAYMENT_FEE_LABEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Active
      */
     public function getActive($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_ACTIVE,
+            self::XPATH_CREDITCARDS_ACTIVE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Active Status
      */
     public function getActiveStatus($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_ACTIVE_STATUS,
+            self::XPATH_CREDITCARDS_ACTIVE_STATUS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Order Status Success
      */
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS,
+            self::XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Order Status Failed
      */
     public function getOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_ORDER_STATUS_FAILED,
+            self::XPATH_CREDITCARDS_ORDER_STATUS_FAILED,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Available In Backend
      */
     public function getAvailableInBackend($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_AVAILABLE_IN_BACKEND,
+            self::XPATH_CREDITCARDS_AVAILABLE_IN_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Sellers Protection
      */
     public function getSellersProtection($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_SELLERS_PROTECTION,
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Sellers Protection Eligible
      */
     public function getSellersProtectionEligible($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE,
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Sellers Protection Ineligible
      */
     public function getSellersProtectionIneligible($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE,
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Sellers Protection Itemnotreceived Eligible
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE,
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Sellers Protection Unauthorizedpayment Eligible
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE,
+            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
     /**
-     * {@inheritdoc}
+     * get Allowed Issuers
      */
     public function getAllowedIssuers($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
+            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
             ScopeInterface::SCOPE_STORE,
             $store
         );

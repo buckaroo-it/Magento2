@@ -22,10 +22,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * @method getDueDate()
- * @method getSendEmail()
- */
 class Klarnakp extends AbstractConfigProvider
 {
     const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarnakp/allowed_currencies';
@@ -187,7 +183,7 @@ class Klarnakp extends AbstractConfigProvider
     public function getOrderStatusSuccess($store = null)
     {
         return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_ORDER_STATUS_SUCCESS,
+            self::XPATH_KLARNAKP_ORDER_STATUS_SUCCESS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
