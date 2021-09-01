@@ -95,6 +95,7 @@ class Emandate extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
+        SecondChanceRepository $secondChanceRepository,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         GatewayInterface $gateway = null,
@@ -106,7 +107,6 @@ class Emandate extends AbstractMethod
         Factory $configProviderFactory = null,
         MethodFactory $configProviderMethodFactory = null,
         PriceHelper $priceHelper = null,
-        SecondChanceRepository $secondChanceRepository,
         array $data = []
     ) {
         parent::__construct(
@@ -126,6 +126,7 @@ class Emandate extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
+            $secondChanceRepository,
             $resource,
             $resourceCollection,
             $gateway,
@@ -137,7 +138,6 @@ class Emandate extends AbstractMethod
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
-            $secondChanceRepository,
             $data
         );
 

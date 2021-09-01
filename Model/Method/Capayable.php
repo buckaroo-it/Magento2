@@ -97,6 +97,7 @@ class Capayable extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
+        SecondChanceRepository $secondChanceRepository,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         GatewayInterface $gateway = null,
@@ -108,7 +109,6 @@ class Capayable extends AbstractMethod
         ConfigProviderFactory $configProviderFactory = null,
         ConfigProviderMethodFactory $configProviderMethodFactory = null,
         PricingHelperData $priceHelper = null,
-        SecondChanceRepository $secondChanceRepository,
         array $data = []
     ) {
         parent::__construct(
@@ -128,6 +128,7 @@ class Capayable extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
+            $secondChanceRepository,
             $resource,
             $resourceCollection,
             $gateway,
@@ -139,7 +140,6 @@ class Capayable extends AbstractMethod
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
-            $secondChanceRepository,
             $data
         );
 
