@@ -265,6 +265,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -276,7 +277,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         array $data = []
     ) {
         parent::__construct(

@@ -77,6 +77,7 @@ class SepaDirectDebit extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -89,7 +90,6 @@ class SepaDirectDebit extends AbstractMethod
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
         \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         array $data = []
     ) {
         parent::__construct(
@@ -109,6 +109,7 @@ class SepaDirectDebit extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
+            $secondChanceRepository,
             $resource,
             $resourceCollection,
             $gateway,
@@ -120,7 +121,6 @@ class SepaDirectDebit extends AbstractMethod
             $configProviderFactory,
             $configProviderMethodFactory,
             $priceHelper,
-            $secondChanceRepository,
             $data
         );
 
