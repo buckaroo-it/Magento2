@@ -90,10 +90,13 @@ class Recreate
             $quote->setBuckarooFeeBaseTaxAmount(null);
             $quote->setBuckarooFeeInclTax(null);
             $quote->setBaseBuckarooFeeInclTax(null);
-            $this->cart->setQuote($quote)->save();
+            if ($this->cart->setQuote($quote)->save()) {
+                return true;
+            }
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             //No such entity
         }
+        return false;
     }
 
     public function recreateById($quoteId)

@@ -382,8 +382,12 @@ class Process extends \Magento\Framework\App\Action\Action
             )
         );
 
-        $this->quoteRecreate->duplicate($this->order);
-        
+        if ($this->accountConfig->getSecondChance($this->order->getStore())) {
+            $this->quoteRecreate->duplicate($this->order);
+        } elseif (!$this->quoteRecreate->recreate(false, $this->quote)) {
+            $this->logger->addError('Could not recreate the quote.');
+        }
+
         //skip cancel order for PPE
         if (isset($this->response['add_frompayperemail'])) {
             return $this->redirectFailure();
@@ -443,49 +447,6 @@ class Process extends \Magento\Framework\App\Action\Action
         }
 
         return $order;
-    }
-
-    /**
-     * Make the previous quote active again, so we can offer the user another opportunity to order (since something
-     * went wrong)
-     *
-     * @return bool
-     */
-    protected function recreateQuote()
-    {
-        $this->quote->setIsActive('1');
-        $this->quote->setTriggerRecollect('1');
-        $this->quote->setReservedOrderId(null);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFee(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBaseBuckarooFee(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFeeTaxAmount(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFeeBaseTaxAmount(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFeeInclTax(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBaseBuckarooFeeInclTax(null);
-
-        if ($this->cart->setQuote($this->quote)->save()) {
-            return true;
-        }
-        return false;
     }
 
     /**
