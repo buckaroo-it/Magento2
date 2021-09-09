@@ -145,8 +145,19 @@ class Recreate
         $oldQuote = $this->quoteFactory->create()->load($order->getQuoteId());
         $emptyQuoteId = $this->quoteManagement->createEmptyCart();
         $quote = $this->quoteFactory->create()->load($emptyQuoteId);
+
+        if (!$oldQuote->getCustomerIsGuest() && $oldQuote->getCustomerId()) {
+            $quote->setCustomerId($oldQuote->getCustomerId());
+        }
+        $quote->setCustomerIsGuest($oldQuote->getCustomerIsGuest());
+        $quote->setBillingAddress($oldQuote->getBillingAddress());
+        $quote->setShippingAddress($oldQuote->getShippingAddress());
+
         $quote->merge($oldQuote)->save();
         $this->recreate(false, $quote);
+        $this->cart->saveQuote();
+        $this->checkoutSession->setQuoteId($quote->getId());
+        $this->checkoutSession->getQuote()->collectTotals()->save();
         return $quote;
     }
 
