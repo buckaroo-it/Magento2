@@ -167,6 +167,15 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|cartKeepAlive enabled|');
+
+                if ($this->checkoutSession->getQuote() && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))) {
+                    if ($shippingAddress = $quote->getShippingAddress()) {
+                        if (!$shippingAddress->getShippingMethod()) {
+                            $shippingAddress->load($shippingAddress->getAddressId());
+                        }
+                    }
+                }
+
                 if ($this->helper->getRestoreQuoteLastOrder() && ($lastRealOrder->getData('state') === 'new' && $lastRealOrder->getData('status') === 'pending') && $payment->getMethodInstance()->usesRedirect) {
 
                     $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
