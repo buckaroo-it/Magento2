@@ -23,6 +23,7 @@ use Magento\Checkout\Model\Cart;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
+use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
 
 class Recreate
 {
@@ -44,6 +45,7 @@ class Recreate
     protected $quoteRepository;
 
     protected $quoteManagement;
+    private $quoteAddressResource;
 
     /**
      * @param CartRepositoryInterface $cartRepository
@@ -58,7 +60,8 @@ class Recreate
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
-        \Magento\Framework\Message\ManagerInterface $messageManager
+        \Magento\Framework\Message\ManagerInterface $messageManager,
+        QuoteAddressResource $quoteAddressResource
     ) {
         $this->cartRepository  = $cartRepository;
         $this->cart            = $cart;
@@ -70,6 +73,7 @@ class Recreate
         $this->quoteRepository = $quoteRepository;
         $this->messageManager  = $messageManager;
         $this->quoteManagement = $quoteManagement;
+        $this->quoteAddressResource = $quoteAddressResource;
     }
 
     /**
@@ -158,6 +162,8 @@ class Recreate
         $this->cart->saveQuote();
         $this->checkoutSession->setQuoteId($quote->getId());
         $this->checkoutSession->getQuote()->collectTotals()->save();
+        $quote->getShippingAddress()->setShippingMethod($oldQuote->getShippingAddress()->getShippingMethod());
+        $this->quoteAddressResource->save($quote->getShippingAddress());
         return $quote;
     }
 
