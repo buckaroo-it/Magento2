@@ -54,7 +54,7 @@
 
 <!-- ko ifnot: isGiftcardsRedirectMode() -->
 
-    <div class="buckaroo_magento2_all_giftcards" data-bind="foreach: { data: allgiftcards, as: 'giftcard', noChildContext: true }">
+    <div class="buckaroo_magento2_all_giftcards" data-bind="foreach: { data: allgiftcards, as: 'giftcard', noChildContext: false }">
     <div data-bind="attr: { 'class': 'buckaroo_magento2_all_giftcard payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.getGiftcardType() == code)}">
 
         <div class="payment-method-title field choice">
@@ -81,11 +81,9 @@
             <!--/ko-->
 
             <div class="payment-method-billing-address">
-            <!-- ko foreach: $parents[1].getRegion($parent.getBillingAddressFormName()).bind($parent) -->
-                    <!-- ko if: $parent = $parents[1] -->
-                        <!-- ko template: getTemplate()--><!-- /ko -->
-                    <!--/ko-->
-                <!--/ko-->
+            <!-- ko foreach: $parent.getRegion($parent.getBillingAddressFormName()).bind($parent) -->
+                <!-- ko template: getTemplate()--><!-- /ko -->
+            <!--/ko-->
             </div>
 
         <div class="payment-method-second-col billing-address-form">
@@ -153,10 +151,8 @@
         </div>
 
             <div class="checkout-agreements-block">
-                <!-- ko foreach: $parents[1].getRegion('before-place-order') -->
-                    <!-- ko if: $parent = $parents[1] -->
-                        <!-- ko template: getTemplate() --><!-- /ko -->
-                     <!--/ko-->
+                <!-- ko foreach: $parent.getRegion('before-place-order') -->
+                    <!-- ko template: getTemplate() --><!-- /ko -->
                 <!--/ko-->
             </div>
 
