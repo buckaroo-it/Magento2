@@ -81,9 +81,9 @@
             <!--/ko-->
 
             <div class="payment-method-billing-address">
-            <!-- ko foreach: $parent.getRegion($parent.getBillingAddressFormName()).bind($parent) -->
-                <!-- ko template: getTemplate()--><!-- /ko -->
-            <!--/ko-->
+                <!-- ko foreach: $parent.getRegion($parent.getBillingAddressFormName()) -->
+                        <!-- ko template: getTemplate()--><!-- /ko -->
+                <!--/ko-->
             </div>
 
         <div class="payment-method-second-col billing-address-form">
@@ -152,7 +152,7 @@
 
             <div class="checkout-agreements-block">
                 <!-- ko foreach: $parent.getRegion('before-place-order') -->
-                    <!-- ko template: getTemplate() --><!-- /ko -->
+                        <!-- ko template: getTemplate() --><!-- /ko -->
                 <!--/ko-->
             </div>
 
