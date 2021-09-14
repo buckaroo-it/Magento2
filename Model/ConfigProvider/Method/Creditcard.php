@@ -153,9 +153,12 @@ class Creditcard extends AbstractConfigProvider
             self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
         );
-        
+
+        $cards = [];
         foreach ($allowed as $key => $value) {
-            $cards[] = $allCreditcard[$value];
+            if (isset($allCreditcard[$value])) {
+                $cards[] = $allCreditcard[$value];
+            }
         }
 
         usort($cards, function ($cardA, $cardB){
