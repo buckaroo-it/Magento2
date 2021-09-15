@@ -226,7 +226,7 @@ class Klarna extends AbstractConfigProvider
     /**
      * {@inheritdoc}
      */
-    public function getPaymentMethods($store = null)
+    public function getPaymentMethod($store = null)
     {
         return $this->scopeConfig->getValue(
             static::XPATH_KLARNA_PAYMENT_METHODS,
