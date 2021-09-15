@@ -577,6 +577,8 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
                         $this->checkoutSession->restoreQuote();
                         $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
+                    }elseif($this->hasPostData('brq_primary_service', 'IDIN')){
+                        $this->checkoutSession->restoreQuote();
                     }
 
                 } catch (\Exception $e) {
