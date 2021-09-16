@@ -33,6 +33,7 @@
     <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" />
     <preference for="Magento\Payment\Model\Checks\CanUseForCountry\CountryProvider" type="Buckaroo\Magento2\Model\Checks\CanUseForCountry\CountryProvider" />
     <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
+    <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
 
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>
