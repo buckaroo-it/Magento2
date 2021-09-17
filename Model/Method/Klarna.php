@@ -102,9 +102,13 @@ class Klarna extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
+        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, static::KLARNA_ORDER_SERVICE_ACTION);
+
+        $this->logger2->addDebug(__METHOD__.'|$serviceAction|' . $serviceAction);
+
         $services = [
             'Name'             => 'klarna',
-            'Action'           => static::KLARNA_ORDER_SERVICE_ACTION,
+            'Action'           => $serviceAction,
             'RequestParameter' => $this->getPaymentRequestParameters($payment),
             'Version'          => 0,
         ];
@@ -117,7 +121,10 @@ class Klarna extends AbstractMethod
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * @todo when buckaroo changes the push / response order this can be removed
          */
-        $payment->setAdditionalInformation('skip_push', 1);
+        
+        if ($serviceAction != 'PayRemainder') {
+            $payment->setAdditionalInformation('skip_push', 1);
+        }
 
         return $transactionBuilder;
     }
@@ -136,7 +143,9 @@ class Klarna extends AbstractMethod
     public function getRefundTransactionBuilder($payment)
     {
         $transactionBuilder = parent::getRefundTransactionBuilder($payment);
-        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        if (!$this->payRemainder) {
+            $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        }
         return $transactionBuilder;
     }
 
@@ -170,6 +179,10 @@ class Klarna extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
+        if ($this->payRemainder) {
+            return $this->getRequestArticlesDataPayRemainder($payment);
+        }
+        
         $includesTax = $this->_scopeConfig->getValue(
             static::TAX_CALCULATION_INCLUDES_TAX,
             ScopeInterface::SCOPE_STORE
