@@ -40,6 +40,8 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
     protected $orderRepository;
     protected $groupTransaction;
     protected $giftcardCollection;
+    protected $configProviderAccount;
+    protected $storeManager;
 
     /**
      * @param Filesystem $filesystem
@@ -55,15 +57,19 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         $pageSize = 200,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Buckaroo\Magento2\Helper\PaymentGroupTransaction $groupTransaction,
-        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection
+        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
     ) {
-        $this->filter             = $filter;
-        $this->directory          = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
-        $this->metadataProvider   = $metadataProvider;
-        $this->pageSize           = $pageSize;
-        $this->orderRepository    = $orderRepository;
-        $this->groupTransaction   = $groupTransaction;
-        $this->giftcardCollection = $giftcardCollection;
+        $this->filter                = $filter;
+        $this->directory             = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+        $this->metadataProvider      = $metadataProvider;
+        $this->pageSize              = $pageSize;
+        $this->orderRepository       = $orderRepository;
+        $this->groupTransaction      = $groupTransaction;
+        $this->giftcardCollection    = $giftcardCollection;
+        $this->storeManager          = $storeManager;
+        $this->configProviderAccount = $configProviderAccount;
     }
 
     /**
@@ -97,7 +103,9 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         while ($totalCount > 0) {
             $items = $dataProvider->getSearchResult()->getItems();
             foreach ($items as $item) {
-                $this->convertDateGiftCards($item, $component->getName());
+                if ($this->configProviderAccount->getAdvancedExportGiftcards($this->storeManager->getStore())) {
+                    $this->convertGiftCardsValue($item);
+                }
                 $this->metadataProvider->convertDate($item, $component->getName());
                 $stream->writeCsv($this->metadataProvider->getRowData($item, $fields, $options));
             }
@@ -114,7 +122,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         ];
     }
 
-    public function convertDateGiftCards($document, $componentName)
+    public function convertGiftCardsValue($document)
     {
         $item             = $document->toArray();
         $orderId          = $item['entity_id'];
