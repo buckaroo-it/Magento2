@@ -1255,7 +1255,7 @@ class Push implements PushInterface
         // Transfer has a slightly different flow where a successful order has a 792 status code instead of an 190 one
         if (!$this->order->getEmailSent()
             && in_array($payment->getMethod(), array(Transfer::PAYMENT_METHOD_CODE,
-                Paypal::PAYMENT_METHOD_CODE,
+                //Paypal::PAYMENT_METHOD_CODE,
                 SepaDirectDebit::PAYMENT_METHOD_CODE,
                 Sofortbanking::PAYMENT_METHOD_CODE,
                 PayPerEmail::PAYMENT_METHOD_CODE,
