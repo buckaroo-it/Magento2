@@ -113,9 +113,14 @@ class Recreate
 
         if ($oldQuote->getId()) {
             $emptyQuoteId = $this->quoteManagement->createEmptyCart();
-            $quote = $this->quoteFactory->create()->load($emptyQuoteId);
 
-            $quote->merge($oldQuote)->save();
+            try {
+                $quote = $this->quoteFactory->create()->load($emptyQuoteId);
+                $quote->merge($oldQuote)->save();
+            } catch (\Exception $e) {
+                $this->messageManager->addErrorMessage($e->getMessage());
+            }
+
             $this->recreate(false, $quote);
 
             if($newIncrementId = $this->customerSession->getSecondChanceNewIncrementId()){
