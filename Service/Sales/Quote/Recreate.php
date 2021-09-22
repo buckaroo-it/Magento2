@@ -24,6 +24,7 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
+use Buckaroo\Magento2\Logging\Log;
 
 class Recreate
 {
@@ -47,6 +48,8 @@ class Recreate
     protected $quoteManagement;
     private $quoteAddressResource;
 
+    protected $logger;
+
     /**
      * @param CartRepositoryInterface $cartRepository
      * @param Cart                    $cart
@@ -61,7 +64,8 @@ class Recreate
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        QuoteAddressResource $quoteAddressResource
+        QuoteAddressResource $quoteAddressResource,
+        Log $logger
     ) {
         $this->cartRepository  = $cartRepository;
         $this->cart            = $cart;
@@ -74,6 +78,7 @@ class Recreate
         $this->messageManager  = $messageManager;
         $this->quoteManagement = $quoteManagement;
         $this->quoteAddressResource = $quoteAddressResource;
+        $this->logger          = $logger;
     }
 
     /**
@@ -118,6 +123,7 @@ class Recreate
                 $quote = $this->quoteFactory->create()->load($emptyQuoteId);
                 $quote->merge($oldQuote)->save();
             } catch (\Exception $e) {
+                $this->logger->addError($e->getMessage());
                 $this->messageManager->addErrorMessage($e->getMessage());
             }
 
