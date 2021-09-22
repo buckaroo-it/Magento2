@@ -106,20 +106,41 @@ class Recreate
     public function recreateById($quoteId)
     {
         try {
-            $quote = $this->quoteFactory->create()->load($quoteId);
+            $oldQuote = $this->quoteFactory->create()->load($quoteId);
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         }
-        if ($quote->getId()) {
-            $emptyQuoteId = $this->quoteManagement->createEmptyCart();
-            $newQuote = $this->quoteFactory->create()->load($emptyQuoteId);
-            
-            $this->cart->setQuote($newQuote)->save();
-            $this->cart->saveQuote();
-            $this->checkoutSession->setQuoteId($newQuote->getId());
-            $this->checkoutSession->getQuote()->collectTotals()->save();
 
-            if ($items = $quote->getAllVisibleItems()) {
+        if ($oldQuote->getId()) {
+            $emptyQuoteId = $this->quoteManagement->createEmptyCart();
+            $quote = $this->quoteFactory->create()->load($emptyQuoteId);
+
+            $quote->merge($oldQuote)->save();
+            $this->recreate(false, $quote);
+
+            if($newIncrementId = $this->customerSession->getSecondChanceNewIncrementId()){
+                $this->customerSession->setSecondChanceNewIncrementId(false);
+                $this->checkoutSession->getQuote()->setReservedOrderId($newIncrementId);
+                $this->checkoutSession->getQuote()->save();
+                $quote->setReservedOrderId($newIncrementId)->save();
+            }
+
+            if($email = $oldQuote->getBillingAddress()->getEmail()){
+                $quote->setCustomerEmail($email);
+            }
+
+            $quote->setCustomerIsGuest(true);
+            if($customer = $this->customerSession->getCustomer()){
+                $quote->setCustomerId($customer->getId());
+                $quote->setCustomerGroupId($customer->getGroupId());
+                $quote->setCustomerIsGuest(false);
+            }
+
+            $quote->collectTotals();
+
+            $this->checkoutSession->setQuoteId($quote->getId());
+
+            if ($items = $oldQuote->getAllVisibleItems()) {
                 foreach ($items as $item) {
                     $productId = $item->getProductId();
                     $product   = $this->productFactory->create()->load($productId);
@@ -140,6 +161,7 @@ class Recreate
             }
 
             $this->checkoutSession->getQuote()->collectTotals()->save();
+            $this->cart->setQuote($quote)->save();
             $this->cart->saveQuote();
         }
     }
@@ -153,11 +175,24 @@ class Recreate
         if (!$oldQuote->getCustomerIsGuest() && $oldQuote->getCustomerId()) {
             $quote->setCustomerId($oldQuote->getCustomerId());
         }
+
+        $quote->setCustomerEmail($oldQuote->getBillingAddress()->getEmail());
         $quote->setCustomerIsGuest($oldQuote->getCustomerIsGuest());
+
+        if($customer = $this->customerSession->getCustomer()){
+            $quote->setCustomerId($customer->getId());
+            $quote->setCustomerEmail($customer->getEmail());
+            $quote->setCustomerFirstname($customer->getFirstname());
+            $quote->setCustomerLastname($customer->getLastname());
+            $quote->setCustomerGroupId($customer->getGroupId());
+            $quote->setCustomerIsGuest(false);
+        }
+
         $quote->setBillingAddress($oldQuote->getBillingAddress());
         $quote->setShippingAddress($oldQuote->getShippingAddress());
 
         $quote->merge($oldQuote)->save();
+        $quote->collectTotals();
         $this->recreate(false, $quote);
         $this->cart->saveQuote();
         $this->checkoutSession->setQuoteId($quote->getId());
