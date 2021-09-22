@@ -389,11 +389,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     }
                 }
             }
-
-            $this->logging->addDebug(__METHOD__ . '|duplicate|' . $item->getOrderId());
-            $this->quoteRecreate->duplicate($order);
             $this->customerSession->setSecondChanceRecreate($order->getQuoteId());
-            $this->setAvailableIncrementId($item->getOrderId(), $item, $order);
+            $newOrderId = $this->setAvailableIncrementId($item->getOrderId(), $item, $order);
+            $this->customerSession->setSecondChanceNewIncrementId($newOrderId);
         }
     }
 
