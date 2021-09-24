@@ -25,8 +25,8 @@ define(
                 },
                 totals              : quote.getTotals(),
                 model               : {},
-                excludingTaxMessage : '(Excluding Tax)',
-                includingTaxMessage : '(Including Tax)',
+                excludingTaxMessage : $t('(Excluding Tax)'),
+                includingTaxMessage : $t('(Including Tax)'),
 
                 /**
                  * @override
