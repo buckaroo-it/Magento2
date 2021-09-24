@@ -53,6 +53,7 @@ class Payconiq extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_payconiq/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_payconiq/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payconiq/specificcustomergroup';
 
     const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
 

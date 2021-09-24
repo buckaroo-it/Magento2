@@ -52,6 +52,8 @@ class Afterpay2 extends AbstractConfigProvider
     const XPATH_AFTERPAY2_ZERO_TAX               = 'payment/buckaroo_magento2_afterpay2/zero_tax';
     const XPATH_AFTERPAY2_NO_TAX                 = 'payment/buckaroo_magento2_afterpay2/no_tax';
 
+    const XPATH_SPECIFIC_CUSTOMER_GROUP          = 'payment/buckaroo_magento2_afterpay2/specificcustomergroup';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B      = 'payment/buckaroo_magento2_afterpay2/specificcustomergroupb2b';
     /**
      * @return array
      */

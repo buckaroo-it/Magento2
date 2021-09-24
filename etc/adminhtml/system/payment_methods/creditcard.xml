@@ -153,6 +153,13 @@
                 <config_path>payment/buckaroo_magento2_creditcard/limit_by_ip</config_path>
             </field>
 
+            <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Allow customer groups</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
+                <can_be_empty>1</can_be_empty>
+                <config_path>payment/buckaroo_magento2_creditcard/specificcustomergroup</config_path>
+            </field>
+
             <field id="payment_fee" translate="label comment" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee</label>
                 <comment><![CDATA[The above amount is calculated based on de Tax settings in Stores > Configuration > Sales > Tax.]]></comment>
