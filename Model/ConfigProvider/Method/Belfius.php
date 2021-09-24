@@ -34,6 +34,7 @@ class Belfius extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_belfius/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_belfius/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_belfius/specificcustomergroup';
 
     /**
      * @return array|void

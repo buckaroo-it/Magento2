@@ -44,6 +44,8 @@ class CapayableIn3 extends AbstractConfigProvider
 
     const XPATH_CAPAYABLEIN3_VERSION = 'payment/buckaroo_magento2_capayablein3/version';
 
+    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_capayablein3/specificcustomergroup';
+
     /** @var array */
     protected $allowedCurrencies = [
         'EUR'

@@ -34,6 +34,7 @@ class Kbc extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_kbc/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_kbc/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_kbc/specificcustomergroup';
 
     /**
      * @return array

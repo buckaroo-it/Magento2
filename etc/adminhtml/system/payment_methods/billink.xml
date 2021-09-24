@@ -179,6 +179,21 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_billink/limit_by_ip</config_path>
             </field>
+
+            <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Allow customer groups</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
+                <can_be_empty>1</can_be_empty>
+                <config_path>payment/buckaroo_magento2_billink/specificcustomergroup</config_path>
+            </field>
+
+            <field id="specificcustomergroupb2b" translate="label" type="multiselect" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Allow customer groups for B2B mode</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
+                <can_be_empty>1</can_be_empty>
+                <config_path>payment/buckaroo_magento2_billink/specificcustomergroupb2b</config_path>
+            </field>
+
         </group>
     </group>
 </include>

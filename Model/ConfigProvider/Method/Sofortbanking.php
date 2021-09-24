@@ -34,6 +34,7 @@ class Sofortbanking extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_sofortbanking/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_sofortbanking/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_sofortbanking/specificcustomergroup';
 
     /**
      * @return array|void
