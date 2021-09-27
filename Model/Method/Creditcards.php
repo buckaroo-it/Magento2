@@ -148,8 +148,10 @@ class Creditcards extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
+        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, 'PayEncrypted', 'PayRemainderEncrypted');
+
         $services = [];
-        $services[] = $this->getCreditcardsService($payment);
+        $services[] = $this->getCreditcardsService($payment, $serviceAction);
 
         $filterParameter = [
             ['Name' => 'AllowedServices'],
@@ -183,7 +185,7 @@ class Creditcards extends AbstractMethod
      * @return array
      * @throws \Buckaroo\Magento2\Exception
      */
-    public function getCreditcardsService($payment)
+    public function getCreditcardsService($payment, $serviceAction)
     {
         $additionalInformation = $payment->getAdditionalInformation();
 
@@ -197,7 +199,7 @@ class Creditcards extends AbstractMethod
 
         $services = [
             'Name'             => $additionalInformation['customer_creditcardcompany'],
-            'Action'           => 'PayEncrypted',
+            'Action'           => $serviceAction,
             'Version'          => 2,
             'RequestParameter' => [
                 [
