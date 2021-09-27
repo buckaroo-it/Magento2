@@ -64,7 +64,7 @@ define(
         }
 
         function checkPayments(){
-            var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcards","creditcard","mrcash","payperemail","emandate","rtp", "tinka"];
+            var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail","emandate","rtp", "tinka"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
