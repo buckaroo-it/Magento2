@@ -19,8 +19,6 @@
  */
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Logging\Log;
-
 class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -43,6 +41,8 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     protected $secondChanceRepository;
 
+    protected $configProviderAccount;
+
     /**
      * @param \Magento\Checkout\Model\Cart          $cart
      */
@@ -53,7 +53,8 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
         \Magento\Framework\View\LayoutInterface $layout,
         \Magento\Checkout\Model\Cart $cart,
         \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
-        Log $logging
+        \Buckaroo\Magento2\Logging\Log $logging,
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
     ) {
         $this->checkoutSession        = $checkoutSession;
         $this->quoteFactory           = $quoteFactory;
@@ -62,6 +63,7 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
         $this->cart                   = $cart;
         $this->secondChanceRepository = $secondChanceRepository;
         $this->logging                = $logging;
+        $this->configProviderAccount  = $configProviderAccount;
     }
 
     /**
@@ -75,10 +77,13 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
 
         /* @var $order \Magento\Sales\Model\Order */
         $order = $observer->getEvent()->getOrder();
-        try {
-            $this->secondChanceRepository->deleteByOrderId($order->getIncrementId());
-        } catch (\Exception $e) {
-            $this->logging->addError('Could not find SC by order id:' . $order->getIncrementId());
+
+        if ($order && $this->configProviderAccount->getSecondChance($order->getStore())) {
+            try {
+                $this->secondChanceRepository->deleteByOrderId($order->getIncrementId());
+            } catch (\Exception $e) {
+                $this->logging->addError('Could not find SC by order id:' . $order->getIncrementId());
+            }
         }
 
         if ($this->checkoutSession->getMyParcelNLBuckarooData()) {
