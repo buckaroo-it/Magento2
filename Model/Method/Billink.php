@@ -647,7 +647,7 @@ class Billink extends AbstractMethod
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
-        $category = $billingAddress->getCompany() ? 'B2B' : 'B2C';
+        $category = $this->helper->checkCustomerGroup('buckaroo_magento2_billink') ? 'B2B' : 'B2C'; //1
 
         $gender = 'Female';
         if ($payment->getAdditionalInformation('customer_gender') === '1') {
@@ -907,10 +907,10 @@ class Billink extends AbstractMethod
     {
         if($quote && $quote->getId()){
             $storeId = $quote->getStoreId();
-            if($quote->getBillingAddress()->getCompany() || $quote->getShippingAddress()->getCompany()){
+            if ($this->helper->checkCustomerGroup('buckaroo_magento2_billink')) {
                 $maximum = $this->getConfigData('max_amount_b2b', $storeId);
                 $minimum = $this->getConfigData('min_amount_b2b', $storeId);
-            }else{
+            } else {
                 $maximum = $this->getConfigData('max_amount', $storeId);
                 $minimum = $this->getConfigData('min_amount', $storeId);
             }

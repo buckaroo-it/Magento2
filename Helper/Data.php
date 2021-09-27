@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Helper;
 
+use Buckaroo\Magento2\Model\Config\Source\Business;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
@@ -30,6 +31,10 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\App\State;
+use Magento\Customer\Model\Session;
+use Magento\Customer\Model\Group;
+use Magento\Framework\App\Area;
 
 /**
  * Class Data
@@ -105,6 +110,9 @@ class Data extends AbstractHelper
      */
     protected $json;
 
+    private $state;
+    private $customerSession;
+
     /**
      * @param Context $context
      * @param Account $configProviderAccount
@@ -122,8 +130,9 @@ class Data extends AbstractHelper
         CustomerRepositoryInterface $customerRepository,
         StoreManagerInterface $storeManager,
         \Magento\Config\Model\Config\ScopeDefiner $scopeDefiner,
-        \Magento\Framework\Serialize\Serializer\Json $json
-
+        \Magento\Framework\Serialize\Serializer\Json $json,
+        State $state,
+        Session $customerSession
     ) {
         parent::__construct($context);
 
@@ -138,6 +147,8 @@ class Data extends AbstractHelper
         $this->storeManager = $storeManager;
         $this->scopeDefiner = $scopeDefiner;
         $this->json = $json;
+        $this->state = $state;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -424,5 +435,89 @@ class Data extends AbstractHelper
             ['value' => 'trustly',       'label' => __('Trustly')],
             ['value' => 'wechatpay',       'label' => __('WeChatPay')],
         ];
+    }
+
+    public function checkCustomerGroup(string $paymentMethod, bool $forceB2C = false): bool
+    {
+        if ($this->isBuckarooMethod($paymentMethod)) {
+            $paymentMethodCode = $this->getBuckarooMethod($paymentMethod);
+            $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
+            $configCustomerGroup = $configProvider->getSpecificCustomerGroup();
+
+            if (
+                !$forceB2C
+                && (
+                    ($paymentMethodCode == 'billink')
+                    || (
+                        (($paymentMethodCode == 'afterpay') || ($paymentMethodCode == 'afterpay2'))
+                        && ($configProvider->getBusiness() == Business::BUSINESS_B2B)
+                    )
+                    || (
+                        ($paymentMethodCode == 'payperemail') && ($configProvider->getEnabledB2B())
+                    )
+                )
+            ) {
+                $configCustomerGroup = $configProvider->getSpecificCustomerGroupB2B();
+
+            }
+
+            if ($configCustomerGroup === null) {
+                return true;
+            }
+
+            if ($configCustomerGroup == -1) {
+                return false;
+            }
+
+            if ($configCustomerGroup == Group::CUST_GROUP_ALL) {
+                return true;
+            }
+
+            $configCustomerGroupArr = explode(',', $configCustomerGroup);
+
+            if ($this->state->getAreaCode() == Area::AREA_ADMINHTML) {
+                return $this->checkCustomerGroupAdminArea($configCustomerGroupArr);
+            } else {
+                return $this->checkCustomerGroupFrontArea($configCustomerGroupArr);
+            }
+        }
+
+        return true;
+    }
+
+    private function checkCustomerGroupAdminArea(array $configCustomerGroupArr): bool
+    {
+        if (($customerId = $this->_getRequest()->getParam('customer_id')) && ($customerId > 0)) {
+            if ($customer = $this->customerRepository->getById($customerId)) {
+                if ($customerGroup = $customer->getGroupId()) {
+                    return in_array($customerGroup, $configCustomerGroupArr);
+                }
+            }
+        }
+        return true;
+    }
+
+    private function checkCustomerGroupFrontArea(array $configCustomerGroupArr): bool
+    {
+        if ($this->customerSession->isLoggedIn()) {
+            if ($customerGroup = $this->customerSession->getCustomer()->getGroupId()) {
+                return in_array($customerGroup, $configCustomerGroupArr);
+            }
+        } else {
+            if (!in_array(Group::NOT_LOGGED_IN_ID, $configCustomerGroupArr)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function isBuckarooMethod(string $paymentMethod): bool
+    {
+        return strpos($paymentMethod, 'buckaroo_magento2_') !== false;
+    }
+
+    public function getBuckarooMethod(string $paymentMethod): string
+    {
+        return strtolower(str_replace('buckaroo_magento2_','', $paymentMethod));
     }
 }
