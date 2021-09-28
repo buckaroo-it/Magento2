@@ -74,6 +74,14 @@
             <config_path>payment/buckaroo_magento2_payperemail/enable_b2b</config_path>
         </field>
 
+        <field id="cron_cancel_ppe" translate="label comment" type="select" sortOrder="53" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Auto cancelling enabled</label>
+            <comment><![CDATA[Enables or disables auto cancelling by cron]]></comment>
+            <tooltip>Set to 'Yes' will enable auto cancelling by cron.</tooltip>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/buckaroo_magento2_payperemail/cron_cancel_ppe</config_path>
+        </field>
+
         <field id="payperemail_expire_days" translate="label comment" type="text" sortOrder="55" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Due date (in days)</label>
             <comment><![CDATA[The expiration date for the paylink.]]></comment>

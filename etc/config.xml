@@ -273,6 +273,7 @@
                 <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,sepadirectdebit,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,rtp,tinka,belfius</payment_method>
                 <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,rtp,tinka,belfius</payment_method_after_expiry>
                 <expire_days>7</expire_days>
+                <cron_cancel_ppe>1</cron_cancel_ppe>
             </buckaroo_magento2_payperemail>
 
             <buckaroo_magento2_eps>
