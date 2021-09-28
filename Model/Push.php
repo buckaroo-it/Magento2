@@ -28,6 +28,11 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Method\Afterpay;
+use Buckaroo\Magento2\Model\Method\Afterpay2;
+use Buckaroo\Magento2\Model\Method\Afterpay20;
+use Buckaroo\Magento2\Model\Method\Creditcard;
+use Buckaroo\Magento2\Model\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Method\Giftcards;
 use Buckaroo\Magento2\Model\Method\Paypal;
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
@@ -635,9 +640,9 @@ class Push implements PushInterface
                 $this->processFailedPush($newStatus, $response['message']);
                 break;
             case 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS':
-                if ($this->order->getPayment()->getMethod() == \Buckaroo\Magento2\Model\Method\Paypal::PAYMENT_METHOD_CODE) {
+                if ($this->order->getPayment()->getMethod() == Paypal::PAYMENT_METHOD_CODE) {
                     $paypalConfig = $this->configProviderMethodFactory
-                        ->get(\Buckaroo\Magento2\Model\Method\Paypal::PAYMENT_METHOD_CODE);
+                        ->get(Paypal::PAYMENT_METHOD_CODE);
 
                     /**
                      * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal $paypalConfig
@@ -1229,6 +1234,8 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|8|');
 
+        $this->processSucceededPushAuth($payment);
+
         $this->updateOrderStatus($state, $newStatus, $description, $forceState);
 
         $this->logging->addDebug(__METHOD__ . '|9|');
@@ -1739,6 +1746,35 @@ class Push implements PushInterface
             if (($path = $this->getLockPushProcessingPpeFilePath()) && file_exists($path)) {
                 unlink($path);
                 $this->logging->addDebug(__METHOD__ . '|5|');
+            }
+        }
+    }
+
+    private function processSucceededPushAuth($payment)
+    {
+        $authPpaymentMethods = [
+            Afterpay::PAYMENT_METHOD_CODE,
+            Afterpay2::PAYMENT_METHOD_CODE,
+            Afterpay20::PAYMENT_METHOD_CODE,
+            Creditcard::PAYMENT_METHOD_CODE,
+            Klarnakp::PAYMENT_METHOD_CODE
+        ];
+
+        if (in_array($payment->getMethod(), $authPpaymentMethods)) {
+            if (
+                (
+                    ($payment->getMethod() == Klarnakp::PAYMENT_METHOD_CODE)
+                    || (
+                        !empty($this->postData['brq_transaction_type'])
+                        && in_array($this->postData['brq_transaction_type'], ['I038', 'I880'])
+                    )
+                )
+                && !empty($this->postData['brq_statuscode'])
+                && ($this->postData['brq_statuscode'] == 190)
+            ) {
+                $this->logging->addDebug(__METHOD__ . '|88|' . var_export($payment->getMethod(), true));
+                $this->order->setState(Order::STATE_PROCESSING);
+                $this->order->save();
             }
         }
     }
