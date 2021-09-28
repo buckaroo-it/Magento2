@@ -98,6 +98,7 @@ class Giftcards extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -128,6 +129,7 @@ class Giftcards extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
+            $secondChanceRepository,
             $resource,
             $resourceCollection,
             $gateway,
@@ -263,7 +265,6 @@ class Giftcards extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        $capturePartial = false;
         $order = $payment->getOrder();
         $totalOrder = $order->getBaseGrandTotal();
         $numberOfInvoices = $order->getInvoiceCollection()->count();

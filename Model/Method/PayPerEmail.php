@@ -72,6 +72,7 @@ class PayPerEmail extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -102,6 +103,7 @@ class PayPerEmail extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
+            $secondChanceRepository,
             $resource,
             $resourceCollection,
             $gateway,
@@ -229,7 +231,7 @@ class PayPerEmail extends AbstractMethod
             ],
         ];
 
-        if ($config->getEnabledB2B() && $config->getExpireDays()) {
+        if ($config->getExpireDays()) {
             $params[] = [
                 '_' => date('Y-m-d', time() + $config->getExpireDays() * 86400),
                 'Name' => 'ExpirationDate',

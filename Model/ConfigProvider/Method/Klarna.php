@@ -49,6 +49,7 @@ class Klarna extends AbstractConfigProvider
     const XPATH_KLARNA_ZERO_TAX               = 'payment/buckaroo_magento2_klarna/zero_tax';
     const XPATH_KLARNA_NO_TAX                 = 'payment/buckaroo_magento2_klarna/no_tax';
     const XPATH_KLARNA_GET_INVOICE            = 'payment/buckaroo_magento2_klarna/send_invoice';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP       = 'payment/buckaroo_magento2_klarna/specificcustomergroup';
 
     public function getConfig()
     {

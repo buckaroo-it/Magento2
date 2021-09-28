@@ -88,4 +88,8 @@
     <type name="Magento\Framework\Stdlib\Cookie\PhpCookieManager">
         <plugin name="fixSession" type="Buckaroo\Magento2\Plugin\FixSession" />
     </type>
+
+    <type name="Magento\Quote\Model\ShippingMethodManagement">
+        <plugin name="shippingMethodManagement" type="Buckaroo\Magento2\Plugin\ShippingMethodManagement"/>
+    </type>
 </config>

@@ -226,51 +226,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
         $orderId = $this->helper->getOrderId();
 
-        /*if(isset($data['refund'])){
-            $transactionKey = $data['refund'];
-            $amount_value = preg_replace("/([^0-9\\.,])/i", "", $data['amount']);
-            $postArray = array(
-                "Currency" => $currency,
-                "AmountCredit" => $amount_value,
-                "Invoice" => $orderId,
-                "OriginalTransactionKey" => $transactionKey,
-                "Services" => array(
-                    "ServiceList" => array(
-                        array(
-                            "Action" => "Refund",
-                            "Name" => $data['card'],
-                            "Version" => 1,
-                        )
-                    )
-                )
-            );
-
-            $response = $this->sendResponse($postArray);
-
-            $res['status'] = $response['Status']['Code']['Code'];
-
-            if($response['Status']['Code']['Code']=='190'){
-                $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($transactionKey);
-                foreach ($groupTransaction as $item) {
-                    if (!empty(floatval($item['refunded_amount']))) {
-                        $item['refunded_amount'] += $amount_value;
-                    } else {
-                        $item['refunded_amount'] = $amount_value;
-                    }
-                   $this->groupTransaction->updateGroupTransaction($item->_data);
-                }
-
-                $alreadyPaid = $this->getAlreadyPaid($orderId) - $amount_value;
-                $this->setAlreadyPaid($orderId, $alreadyPaid);
-
-                $res['message'] = __("Your refund successfully.");
-            }else{
-                $res['error'] = isset($response['Status']['SubCode']['Description']) ? $response['Status']['SubCode']['Description'] : $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
-            }
-
-            return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);     
-        }*/
-
         if (!isset($data['card']) || empty($data['card']) || !isset($data['cardNumber']) || empty($data['cardNumber']) || !isset($data['pin']) || empty($data['pin'])) {
             $res['error'] = 'Card number or pin not valid';
             return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
@@ -312,6 +267,12 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $cartTotals = $this->_checkoutSession->getQuote()->getTotals();
         $grand_total = $cartTotals['grand_total']->getData();
         $grandTotal =  $grand_total['value'];
+
+        if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($orderId)) {
+            $payRemainder = $grandTotal - $alreadyPaid;
+            $this->logger->addDebug(__METHOD__ . '|11|' . var_export([$orderId, $payRemainder], true));
+            $grandTotal = $payRemainder;
+        }
 
         $postArray = array(
             "Currency" => $currency,

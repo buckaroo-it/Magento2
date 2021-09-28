@@ -42,6 +42,7 @@ class Eps extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_eps/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_eps/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_eps/specificcustomergroup';
 
     /**
      * @return array

@@ -19,8 +19,6 @@
  */
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Kbc as KbcConfig;
-
 class Kbc extends AbstractMethod
 {
     /** Payment Code*/

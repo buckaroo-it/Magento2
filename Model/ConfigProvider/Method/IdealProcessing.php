@@ -38,6 +38,7 @@ class IdealProcessing extends AbstractConfigProvider
     const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_idealprocessing/allowspecific';
     const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_idealprocessing/specificcountry';
     const XPATH_SELECTION_TYPE     = 'buckaroo_magento2/account/selection_type';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_idealprocessing/specificcustomergroup';
 
     /**
      * @var array

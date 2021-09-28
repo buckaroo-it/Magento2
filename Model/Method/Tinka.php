@@ -25,7 +25,6 @@ use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Tinka extends AbstractMethod
 {

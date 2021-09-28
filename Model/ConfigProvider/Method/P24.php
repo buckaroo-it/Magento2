@@ -36,6 +36,7 @@ class P24 extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_p24/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_p24/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_p24/specificcustomergroup';
 
     /**
      * @return array|void

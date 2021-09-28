@@ -21,5 +21,5 @@ namespace Buckaroo\Magento2\Api\Data;
 
 interface SecondChanceInterface
 {
-
+    const ORDER_ID = 'order_id';
 }

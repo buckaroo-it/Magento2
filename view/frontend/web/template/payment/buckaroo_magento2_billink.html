@@ -146,7 +146,6 @@
                                    name="payment[buckaroo_magento2_billink][buckaroo_VATNumber]"
                                    data-bind="
                                    attr: { 'data-validate': JSON.stringify({ 'required': false }) },
-                                   checked: VATNumberValidate
                                    valueUpdate: 'blur',
                                    value: VATNumberValidate
                                    ">
@@ -155,6 +154,32 @@
                     <!-- /ko -->
 
                     <!-- Default -->
+                    <div class="field required">
+                        <label class="label" for="buckaroo_magento2_billink_TermsCondition"> <span data-bind="i18n: 'Terms and Conditions:'"> </span> </label>
+                        <div class="control">
+                            <input id="buckaroo_magento2_billink_TermsCondition"
+                                   class="field"
+                                   type="checkbox"
+                                   data-bind="
+                                   checked: termsValidate,
+                                   event: { change: selectPaymentMethod },
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true})}"
+                                   name="payment[buckaroo_magento2_billink][termsCondition]">
+                            <span>
+                                <a target="_blank"
+                                   data-bind="
+                                       i18n: 'Accept terms of use',
+                                       attr: { 'href': 'https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf' }
+                                   ">
+                                </a>
+                                <!-- ko if: showFrenchTos -->
+                                <span data-bind="html: getFrenchTos()"></span>
+                                <!-- /ko -->
+                            </span>
+                            <div for="buckaroo_magento2_billink_TermsCondition" generated="true" class="mage-error" id="buckaroo_magento2_billink_TermsCondition-error" style="display: none;"><span data-bind="i18n: 'This is a required field.' "></span></div>
+                        </div>
+                    </div>
+
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>

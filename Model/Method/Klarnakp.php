@@ -157,6 +157,7 @@ class Klarnakp extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -187,6 +188,7 @@ class Klarnakp extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
+            $secondChanceRepository,
             $resource,
             $resourceCollection,
             $gateway,
@@ -375,8 +377,6 @@ class Klarnakp extends AbstractMethod
         if (!is_numeric($rawPhoneNumber) || $rawPhoneNumber == '-') {
             $rawPhoneNumber = $payment->getAdditionalInformation('customer_telephone');
         }
-
-        $phoneNumber = $this->addressFormatter->formatTelephone($rawPhoneNumber, $shippingAddress->getCountryId());
 
         $shippingData = [
             [
@@ -656,13 +656,10 @@ class Klarnakp extends AbstractMethod
         $this->logger2->addDebug(__METHOD__.'|1|');
         $this->logger2->addDebug(var_export([$billingAddress->getStreet(), $streetFormat], true));
 
-        $listCountries = Zend_Locale::getTranslationList('territory', 'en_US');
-
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
         $telephone = $this->addressFormatter->formatTelephone($telephone, $billingAddress->getCountryId());
 
-        $birthDayStamp = str_replace('-', '', $payment->getAdditionalInformation('customer_DoB'));
         $billingData = [
             [
                 '_' => $billingAddress->getCity(),
@@ -817,7 +814,6 @@ class Klarnakp extends AbstractMethod
 
         if (!empty($discountline)) {
             $requestData = array_merge($requestData, $discountline);
-            $group++;
         }
 
         return $requestData;

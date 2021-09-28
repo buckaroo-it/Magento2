@@ -68,6 +68,8 @@ class Creditcard extends AbstractConfigProvider
     const XPATH_PAYMENT_FLOW                    = 'payment/buckaroo_magento2_creditcard/payment_action';
     const DEFAULT_SORT_VALUE                    = '99';
 
+    const XPATH_SPECIFIC_CUSTOMER_GROUP            = 'payment/buckaroo_magento2_creditcard/specificcustomergroup';
+
     protected $issuers = [
         [
             'name' => 'American Express',
@@ -156,8 +158,11 @@ class Creditcard extends AbstractConfigProvider
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
         );
 
+        $cards = [];
         foreach ($allowed as $key => $value) {
-            $cards[] = $allCreditcard[$value];
+            if (isset($allCreditcard[$value])) {
+                $cards[] = $allCreditcard[$value];
+            }
         }
 
         usort($cards, function ($cardA, $cardB){

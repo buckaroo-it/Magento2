@@ -146,6 +146,13 @@
                 <config_path>payment/buckaroo_magento2_klarnakp/limit_by_ip</config_path>
             </field>
 
+            <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="125" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Allow customer groups</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
+                <can_be_empty>1</can_be_empty>
+                <config_path>payment/buckaroo_magento2_klarnakp/specificcustomergroup</config_path>
+            </field>
+
             <field id="create_invoice_after_shipment" translate="label comment" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Create invoice after shipment</label>
                 <comment><![CDATA[If set to 'No' the order is not invoiced after creating a shipment.]]></comment>

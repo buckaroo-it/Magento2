@@ -251,6 +251,26 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
+     * @param null|int|\Magento\Store\Model\Store $store
+     *
+     * @return mixed
+     */
+    public function getSpecificCustomerGroup($store = null)
+    {
+        return $this->getConfigFromXpath(static::XPATH_SPECIFIC_CUSTOMER_GROUP, $store);
+    }
+
+    /**
+     * @param null|int|\Magento\Store\Model\Store $store
+     *
+     * @return mixed
+     */
+    public function getSpecificCustomerGroupB2B($store = null)
+    {
+        return $this->getConfigFromXpath(static::XPATH_SPECIFIC_CUSTOMER_GROUP_B2B, $store);
+    }
+
+    /**
      * @param string|bool $method
      *
      * @return string

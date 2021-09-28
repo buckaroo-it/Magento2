@@ -232,72 +232,6 @@
               <config_path>buckaroo_magento2/account/selection_type</config_path>
             </field>
 
-            <field id="cart_keep_alive" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Cart keep alive</label>
-              <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-              <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
-              <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>
-            </field>
-
-            <field id="second_chance" translate="label comment" type="select" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Second Chance enabled</label>
-                <comment><![CDATA[Enables or disables Second Chance mode <br/> <b>Important: enable this function will enable keep cart alive function too</b>]]></comment>
-                <tooltip>Set to 'Yes' will enable Second Chance mode.</tooltip>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/second_chance</config_path>
-                <depends>
-                    <field id="cart_keep_alive">1</field>
-                </depends>
-            </field>
-
-            <field id="buckaroo_second_chance" translate="label comment" type="select" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                <label>Second chance Template</label>
-                <comment>Email template chosen based on theme fallback when "Default" option is selected.</comment>
-                <config_path>buckaroo_magento2/account/second_chance_template</config_path>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
-            </field>
-
-            <field id="second_chance_timing" translate="label comment" type="text" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Due hours (between 0 and 24hr)</label>
-                <comment><![CDATA[Timing for this second-chance email .]]></comment>
-                <config_path>buckaroo_magento2/account/second_chance_timing</config_path>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
-                <depends>
-                    <field id="cart_keep_alive">1</field>
-                    <field id="second_chance">1</field>
-                </depends>
-            </field>
-
-            <field id="buckaroo_second_chance2" translate="label comment" type="select" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                <label>Second chance second e-mail Template</label>
-                <comment>Second email template chosen based on theme fallback when "Default" option is selected.</comment>
-                <config_path>buckaroo_magento2/account/second_chance_template2</config_path>
-                <!-- <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model> -->
-                <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
-            </field>
-
-            <field id="second_chance_timing2" translate="label comment" type="text" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Due hours (between 0 and 72hr)</label>
-                <comment><![CDATA[Timing for sender after the first one second-chance email.]]></comment>
-                <config_path>buckaroo_magento2/account/second_chance_timing2</config_path>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
-                <depends>
-                    <field id="cart_keep_alive">1</field>
-                    <field id="second_chance">1</field>
-                </depends>
-            </field>
-
-            <field id="no_send_second_chance" translate="label comment" type="select" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Don't send payment reminder when product is out of stock</label>
-                <comment><![CDATA[Don't send payment reminder when product is out of stock]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/no_send_second_chance</config_path>
-                <depends>
-                    <field id="cart_keep_alive">1</field>
-                    <field id="second_chance">1</field>
-                </depends>
-            </field>
-
             <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="0" showInStore="0">
               <label>Add customer data to request</label>
               <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>
@@ -305,46 +239,158 @@
               <config_path>buckaroo_magento2/account/customer_additional_info</config_path>
               <can_be_empty>1</can_be_empty>
             </field>
-
-        <!-- Logging section -->
-        <group id="buckaroo_magento2_logging_section" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Logging</label>
-            <fieldset_css>buckaroo_magento2-section</fieldset_css>
-
-            <field id="log_level" translate="label" type="multiselect" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Log level</label>
-              <source_model>Buckaroo\Magento2\Model\Config\Source\LogLevel</source_model>
-              <comment><![CDATA[Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.]]></comment>
-              <config_path>buckaroo_magento2/account/debug_types</config_path>
+            
+            <field id="advanced_export_giftcards" translate="label comment" type="select" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Advanced order export for giftcards</label>
+                <comment><![CDATA[Advanced order export, added used gitcards]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>buckaroo_magento2/account/advanced_export_giftcards</config_path>
             </field>
+            
+            <!-- Logging section -->
+            <group id="buckaroo_magento2_logging_section" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Logging</label>
+                <fieldset_css>buckaroo_magento2-section</fieldset_css>
 
-            <field id="log_handler" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Handler</label>
-              <source_model>Buckaroo\Magento2\Model\Config\Source\LogHandler</source_model>
-              <comment><![CDATA[Decide what Logging Handler used]]></comment>
-              <config_path>buckaroo_magento2/account/log_handler</config_path>
-            </field>
+                <field id="log_level" translate="label" type="multiselect" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Log level</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\LogLevel</source_model>
+                <comment><![CDATA[Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.]]></comment>
+                <config_path>buckaroo_magento2/account/debug_types</config_path>
+                </field>
 
-            <field id="log_handler_db_depth" translate="label" type="text" sortOrder="255" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Debug backtrace logging depth</label>
-              <comment><![CDATA[Depth for debug backtrace. Default 10]]></comment>
-              <config_path>buckaroo_magento2/account/log_handler_db_depth</config_path>
-            </field>
+                <field id="log_handler" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Handler</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\LogHandler</source_model>
+                <comment><![CDATA[Decide what Logging Handler used]]></comment>
+                <config_path>buckaroo_magento2/account/log_handler</config_path>
+                </field>
 
-            <field id="log_retention" translate="label" type="multiselect" sortOrder="260" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Log retention period</label>
-              <source_model>Buckaroo\Magento2\Model\Config\Source\LogRetention</source_model>
-              <comment><![CDATA[[Decide what period will be for log retention]]></comment>
-              <config_path>buckaroo_magento2/account/log_retention</config_path>
-            </field>
+                <field id="log_handler_db_depth" translate="label" type="text" sortOrder="255" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Debug backtrace logging depth</label>
+                <comment><![CDATA[Depth for debug backtrace. Default 10]]></comment>
+                <config_path>buckaroo_magento2/account/log_handler_db_depth</config_path>
+                </field>
 
-            <field id="debug_email" translate="label comment" type="text" sortOrder="240" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Debug email</label>
-                <comment><![CDATA[Debug information will be sent to these comma-separated email addresses.]]></comment>
-                <config_path>buckaroo_magento2/account/debug_email</config_path>
-            </field>
+                <field id="log_retention" translate="label" type="multiselect" sortOrder="260" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Log retention period</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\LogRetention</source_model>
+                <comment><![CDATA[[Decide what period will be for log retention]]></comment>
+                <config_path>buckaroo_magento2/account/log_retention</config_path>
+                </field>
 
-        </group>
+                <field id="debug_email" translate="label comment" type="text" sortOrder="240" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Debug email</label>
+                    <comment><![CDATA[Debug information will be sent to these comma-separated email addresses.]]></comment>
+                    <config_path>buckaroo_magento2/account/debug_email</config_path>
+                </field>
+
+            </group>
+
+            <group id="buckaroo_magento2_second_chance" translate="label comment" type="text" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Second Chance</label>
+                <attribute type="expanded">1</attribute>
+
+                <field id="cart_keep_alive" translate="label" type="select" sortOrder="310" showInDefault="1" showInWebsite="0" showInStore="0">
+                  <label>Cart keep alive</label>
+                  <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                  <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
+                  <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>
+                </field>
+
+                <field id="second_chance" translate="label comment" type="select" sortOrder="320" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Second Chance enabled</label>
+                    <comment><![CDATA[Enables or disables Second Chance mode <br/> <b>Important: enable this function will enable keep cart alive function too</b>]]></comment>
+                    <tooltip>Set to 'Yes' will enable Second Chance mode.</tooltip>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/second_chance</config_path>
+                    <depends>
+                        <field id="cart_keep_alive">1</field>
+                    </depends>
+                </field>
+
+                <field id="second_chance_email" translate="label comment" type="select" sortOrder="330" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Second Chance 1 email enabled</label>
+                    <comment><![CDATA[Enables or disables Second Chance 1 email]]></comment>
+                    <tooltip>Set to 'Yes' will enable Second Chance 1 email.</tooltip>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/second_chance_email</config_path>
+                    <depends>
+                        <field id="second_chance">1</field>
+                    </depends>
+                </field>
+
+                <field id="buckaroo_second_chance" translate="label comment" type="select" sortOrder="340" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Second chance Template</label>
+                    <comment>Email template chosen based on theme fallback when "Default" option is selected.</comment>
+                    <config_path>buckaroo_magento2/account/second_chance_template</config_path>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
+                    <depends>
+                        <field id="second_chance_email">1</field>
+                    </depends>
+                </field>
+
+                <field id="second_chance_timing" translate="label comment" type="text" sortOrder="350" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Due hours (between 0 and 24hr)</label>
+                    <comment><![CDATA[Timing for this second-chance email .]]></comment>
+                    <config_path>buckaroo_magento2/account/second_chance_timing</config_path>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
+                    <depends>
+                        <field id="second_chance_email">1</field>
+                    </depends>
+                </field>
+
+                <field id="second_chance_email2" translate="label comment" type="select" sortOrder="360" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Second Chance 2 email enabled</label>
+                    <comment><![CDATA[Enables or disables Second Chance 2 email]]></comment>
+                    <tooltip>Set to 'Yes' will enable Second Chance 2 email.</tooltip>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/second_chance_email2</config_path>
+                    <depends>
+                        <field id="second_chance">1</field>
+                    </depends>
+                </field>
+
+                <field id="buckaroo_second_chance2" translate="label comment" type="select" sortOrder="370" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Second chance second e-mail Template</label>
+                    <comment>Second email template chosen based on theme fallback when "Default" option is selected.</comment>
+                    <config_path>buckaroo_magento2/account/second_chance_template2</config_path>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
+                    <depends>
+                        <field id="second_chance_email2">1</field>
+                    </depends>
+                </field>
+
+                <field id="second_chance_timing2" translate="label comment" type="text" sortOrder="380" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Due hours (between 0 and 72hr)</label>
+                    <comment><![CDATA[Timing for sender after the first one second-chance email.]]></comment>
+                    <config_path>buckaroo_magento2/account/second_chance_timing2</config_path>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance72</backend_model>
+                    <depends>
+                        <field id="second_chance_email2">1</field>
+                    </depends>
+                </field>
+
+                <field id="no_send_second_chance" translate="label comment" type="select" sortOrder="390" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Don't send payment reminder when product is out of stock</label>
+                    <comment><![CDATA[Don't send payment reminder when product is out of stock]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/no_send_second_chance</config_path>
+                    <depends>
+                        <field id="cart_keep_alive">1</field>
+                        <field id="second_chance">1</field>
+                    </depends>
+                </field>
+              
+                <field id="second_chance_prune_days" translate="label comment" type="text" sortOrder="192" showInDefault="1" showInStore="1">
+                    <label>Prune older second chance entries (days)</label>
+                    <comment><![CDATA[Timing in days, 0 to disable this.]]></comment>
+                    <config_path>buckaroo_magento2/account/second_chance_prune_days</config_path>
+                    <depends>
+                        <field id="second_chance">1</field>
+                    </depends>
+                </field>
+            </group>
 
         </group>
     </group>
