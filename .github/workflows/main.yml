@@ -36,7 +36,7 @@ jobs:
           url=" https://api.github.com/repos/buckaroo-it/Magento2/$pull_number/files"
           echo $url
           curl $url > files_changed
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs phpcs --standard=Magento2          
+          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ./vendor/bin/phpcs --standard=Magento2          
           bin/magento module:enable --all
           bin/magento setup:di:compile
           vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2
