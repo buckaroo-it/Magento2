@@ -56,6 +56,7 @@ class PayPerEmail extends AbstractConfigProvider
     const XPATH_PAYPEREMAIL_ENABLE_B2B                  = 'payment/buckaroo_magento2_payperemail/enable_b2b';
     const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'payment/buckaroo_magento2_payperemail/expire_days';
     const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'payment/buckaroo_magento2_payperemail/cancel_ppe';
+    const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE             = 'payment/buckaroo_magento2_payperemail/cron_cancel_ppe';
 
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payperemail/specificcustomergroup';
     const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B     = 'payment/buckaroo_magento2_payperemail/specificcustomergroupb2b';
@@ -134,6 +135,14 @@ class PayPerEmail extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_PAYPEREMAIL_ENABLE_B2B,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getEnabledCronCancelPPE()
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_PAYPEREMAIL_CRON_CANCEL_PPE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }

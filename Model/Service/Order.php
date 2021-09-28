@@ -134,46 +134,47 @@ class Order
         $statesConfig = $this->configProviderFactory->get('states');
         $state = $statesConfig->getOrderStateNew($store);
         if ($ppeConfig = $this->configProviderMethodFactory->get('payperemail')) {
-            if ($dueDays = abs($ppeConfig->getExpireDays())) {
-                $dueDays = 0;
-                $this->logging->addDebug(__METHOD__ . '|5|' . var_export($dueDays, true));
-                $orderCollection = $this->orderFactory->create()->addFieldToSelect(['*']);
-                $orderCollection
-                    ->addFieldToFilter(
-                        'state',
-                        ['eq' => $state]
-                    )
-                    ->addFieldToFilter(
-                        'store_id',
-                        ['eq' => $store->getId()]
-                    )
-                    ->addFieldToFilter(
-                        'created_at',
-                        ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
-                    )
-                    ->addFieldToFilter(
-                        'created_at',
-                        ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
-                    );
-
-                $orderCollection->getSelect()
-                    ->join(
-                        ['p' => 'sales_order_payment'],
-                        'main_table.entity_id = p.parent_id',
-                        ['method']
-                    )
-                    ->where('p.additional_information like "%isPayPerEmail%" OR p.method ="buckaroo_magento2_payperemail"');
-
-                $this->logging->addDebug(__METHOD__ . '|PPEOrders query|' . $orderCollection->getSelect()->__toString());
-
-                $this->logging->addDebug(__METHOD__ . '|10|' . var_export($orderCollection->count(), true));
-
-                if ($orderCollection->count()) {
-                    foreach ($orderCollection as $order) {
-                        $this->cancel(
-                            $order,
-                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')
+            if ($ppeConfig->getEnabledCronCancelPPE()) {
+                if ($dueDays = abs($ppeConfig->getExpireDays())) {
+                    $this->logging->addDebug(__METHOD__ . '|5|' . var_export($dueDays, true));
+                    $orderCollection = $this->orderFactory->create()->addFieldToSelect(['*']);
+                    $orderCollection
+                        ->addFieldToFilter(
+                            'state',
+                            ['eq' => $state]
+                        )
+                        ->addFieldToFilter(
+                            'store_id',
+                            ['eq' => $store->getId()]
+                        )
+                        ->addFieldToFilter(
+                            'created_at',
+                            ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                        )
+                        ->addFieldToFilter(
+                            'created_at',
+                            ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
                         );
+
+                    $orderCollection->getSelect()
+                        ->join(
+                            ['p' => 'sales_order_payment'],
+                            'main_table.entity_id = p.parent_id',
+                            ['method']
+                        )
+                        ->where('p.additional_information like "%isPayPerEmail%" OR p.method ="buckaroo_magento2_payperemail"');
+
+                    $this->logging->addDebug(__METHOD__ . '|PPEOrders query|' . $orderCollection->getSelect()->__toString());
+
+                    $this->logging->addDebug(__METHOD__ . '|10|' . var_export($orderCollection->count(), true));
+
+                    if ($orderCollection->count()) {
+                        foreach ($orderCollection as $order) {
+                            $this->cancel(
+                                $order,
+                                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')
+                            );
+                        }
                     }
                 }
             }

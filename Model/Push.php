@@ -1588,7 +1588,10 @@ class Push implements PushInterface
             &&
             $validSignature
         ) {
-            return true;
+            $config = $this->configProviderMethodFactory->get(\Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE);
+            if ($config->getEnabledCronCancelPPE()) {
+                return true;
+            }
         }
         return false;
     }
