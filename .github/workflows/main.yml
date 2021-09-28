@@ -35,7 +35,7 @@ jobs:
           pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           url=" https://api.github.com/repos/buckaroo-it/Magento2/$pull_number/files"
           echo $url
-          curl -H $url > files_changed
+          curl $url > files_changed
           cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs phpcs --standard=Magento2          
           bin/magento module:enable --all
           bin/magento setup:di:compile
