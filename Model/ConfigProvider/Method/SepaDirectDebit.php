@@ -40,8 +40,10 @@ class SepaDirectDebit extends AbstractConfigProvider
     const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/'.
         'buckaroo_magento2_sepadirectdebit/payment_method_after_expiry';
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_sepadirectdebit/allowed_currencies';
+
     const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_sepadirectdebit/allowspecific';
     const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_sepadirectdebit/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_sepadirectdebit/specificcustomergroup';
 
     /**
      * @return array|void

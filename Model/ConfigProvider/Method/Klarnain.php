@@ -49,6 +49,7 @@ class Klarnain extends AbstractConfigProvider
     const XPATH_KLARNAIN_ZERO_TAX               = 'payment/buckaroo_magento2_klarnain/zero_tax';
     const XPATH_KLARNAIN_NO_TAX                 = 'payment/buckaroo_magento2_klarnain/no_tax';
     const XPATH_KLARNAIN_GET_INVOICE            = 'payment/buckaroo_magento2_klarnain/send_invoice';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnain/specificcustomergroup';
 
     public function getConfig()
     {

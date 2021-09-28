@@ -46,6 +46,7 @@ class Klarnakp extends AbstractConfigProvider
     const XPATH_KLARNAKP_NO_TAX                 = 'payment/buckaroo_magento2_klarnakp/no_tax';
     const XPATH_KLARNAKP_GET_INVOICE            = 'payment/buckaroo_magento2_klarnakp/send_invoice';
     const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnakp/specificcustomergroup';
 
     public function getConfig()
     {

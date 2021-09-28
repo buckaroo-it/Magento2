@@ -184,6 +184,19 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         return $secondChance;
     }
 
+    public function getByOrderId(string $orderId): SecondChanceInterface
+    {
+        /** @var SecondChanceInterface $secondChanceEntity */
+        $secondChanceEntity = $this->secondChanceFactory->create();
+        $this->resource->load($secondChanceEntity, $orderId, SecondChanceInterface::ORDER_ID);
+
+        if (!$secondChanceEntity->getId()) {
+            throw new NoSuchEntityException(__('Code "%1" not found.', $orderId));
+        }
+
+        return $secondChanceEntity;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -295,9 +308,51 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * {@inheritdoc}
      */
+    public function deleteByOrderId($orderId)
+    {
+        $secondChance = $this->getByOrderId($orderId);
+
+        return $this->delete($secondChance);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteOlderRecords($store)
+    {
+        $storeId = (int) $store->getId();
+        $days = (int) $this->accountConfig->getSecondChancePruneDays($storeId);
+        $this->logging->addDebug(__METHOD__ . '|$storeId|' . $storeId);
+        $this->logging->addDebug(__METHOD__ . '|$days|' . $days);
+
+        if ($days <= 0) {
+            return false;
+        }
+
+        $connection = $this->resource->getConnection();
+        try {
+            $ageCondition = $connection->prepareSqlCondition(
+                'created_at',
+                ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ? DAY')]
+            );
+            $storeCondition = $connection->prepareSqlCondition('store_id', $storeId);
+            $connection->delete(
+                $this->resource->getMainTable(),
+                [$ageCondition => $days, $storeCondition]
+            );
+        } catch (\Exception $exception) {
+            throw new CouldNotDeleteException(__($exception->getMessage()));
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createSecondChance($order)
     {
-        if(!$this->customerSession->getSkipSecondChance()){
+        if (!$this->customerSession->getSkipSecondChance()) {
             $secondChance = $this->secondChanceFactory->create();
             $secondChance->setData([
                 'order_id'   => $order->getIncrementId(),
@@ -325,29 +380,18 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         foreach ($collection as $item) {
             $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
 
-            if ($this->customerSession->isLoggedIn()) {
-                $this->customerSession->logout();
-            }
-
-            if ($customerId = $order->getCustomerId()) {
-                $customer       = $this->customerFactory->create()->load($customerId);
-                $sessionManager = $this->sessionFactory->create();
-                $sessionManager->setCustomerAsLoggedIn($customer);
-            } elseif ($customerEmail = $order->getCustomerEmail()) {
+            if (!$order->getCustomerId() && $customerEmail = $order->getCustomerEmail()) {
                 if ($customer =
                     $this->customerFactory->create()->setWebsiteId($order->getStoreId())->loadByEmail($customerEmail)
                 ) {
                     if ($customer->getId()) {
-                        $sessionManager = $this->sessionFactory->create();
-                        $sessionManager->setCustomerAsLoggedIn($customer);
                         $this->setCustomerAddress($customer, $order);
                     }
                 }
             }
-
-            $this->logging->addDebug(__METHOD__ . '|recreate|' . $item->getOrderId());
-            $this->quoteRecreate->recreate($order);
-            $this->setAvailableIncrementId($item->getOrderId(), $item, $order);
+            $this->customerSession->setSecondChanceRecreate($order->getQuoteId());
+            $newOrderId = $this->setAvailableIncrementId($item->getOrderId(), $item, $order);
+            $this->customerSession->setSecondChanceNewIncrementId($newOrderId);
         }
     }
 
@@ -379,7 +423,15 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $config         = $configProvider->getConfig();
         $final_status   = $config['final_status'];
 
-        $this->logging->addDebug(__METHOD__ . '|getSecondChanceCollection $config|' . var_export($config));
+        if($step == 2){
+            if(!$this->accountConfig->getSecondChanceEmail2($store)){
+                return false;
+            }
+        }else{
+            if(!$this->accountConfig->getSecondChanceEmail($store)){
+                return false;
+            }
+        }
 
         $timing = $this->accountConfig->getSecondChanceTiming($store) +
             ($step == 2 ? $this->accountConfig->getSecondChanceTiming2($store) : 0);
@@ -390,13 +442,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $collection   = $secondChance->getCollection()
             ->addFieldToFilter(
                 'status',
-                ['eq' => ($step == 2) ? 1 : '']
+                ['eq' => ($step == 2 && $this->accountConfig->getSecondChanceEmail($store)) ? 1 : '']
             )
             ->addFieldToFilter(
                 'store_id',
                 ['eq' => $store->getId()]
             )
-            ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' DAY')])
+            ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' HOUR')])
             ->addFieldToFilter('created_at', ['gteq' => new \Zend_Db_Expr('NOW() - INTERVAL 5 DAY')]);
                     
         foreach ($collection as $item) {
@@ -439,9 +491,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     {
         $this->logging->addDebug(__METHOD__ . '|sendMail start|');
         $configProvider = $this->configProviderFactory->get('second_chance');
-        $config         = $configProvider->getConfig();
 
-        $store = $order->getStore();
+        $store  = $order->getStore();
+        $config = $configProvider->getConfig($store);
         $vars  = [
             'order'                    => $order,
             'billing'                  => $order->getBillingAddress(),
@@ -452,7 +504,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             'secondChanceToken'        => $secondChance->getToken(),
         ];
 
-        $templateId = ($step == 1) ? $config['template'] : $config['template2'];
+        $templateId = ($step == 1) ? $this->accountConfig->getSecondChanceTemplate($store) : $this->accountConfig->getSecondChanceTemplate2($store);
 
         $this->logging->addDebug(__METHOD__ . '|TemplateIdentifier|' . $templateId);
 

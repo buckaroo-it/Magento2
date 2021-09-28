@@ -17,27 +17,25 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-class BillinkBusiness implements \Magento\Framework\Option\ArrayInterface
-{
-    const BUSINESS_B2C = 1;
-    const BUSINESS_B2B = 2;
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Customer\Model\Customer\Source\Group;
 
-    /**
-     * Options getter
-     *
-     * @return array
-     */
+class SpecificCustomerGroups extends Group implements OptionSourceInterface
+{
     public function toOptionArray()
     {
-        $options = [];
+        $values = parent::toOptionArray();
 
-        // Business options
-        $options[] = ['value' => self::BUSINESS_B2C, 'label' => __('B2C')];
-        $options[] = ['value' => self::BUSINESS_B2B, 'label' => __('B2B')];
+        array_unshift(
+            $values,
+            [
+                'label' => __('None'),
+                'value' => '-1',
+            ]
+        );
 
-        return $options;
+        return $values;
     }
 }

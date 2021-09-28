@@ -21,15 +21,23 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Model\Session as BuckarooSession;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Module\Manager;
 
 class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterface
 {
     protected $buckarooSession;
+    protected $logging;
+    protected $moduleManager;
 
     public function __construct(
-        BuckarooSession $buckarooSession
+        BuckarooSession $buckarooSession,
+        Log $logging,
+        Manager $moduleManager
     ) {
         $this->buckarooSession = $buckarooSession;
+        $this->logging = $logging;
+        $this->moduleManager = $moduleManager;
     }
 
     /**
@@ -73,7 +81,11 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             }
 
             try {
-                $this->buckarooSession->setData('flagHandleFailedQuote', 1);
+                $this->logging->addDebug(__METHOD__ . '|1|');
+                if ($this->moduleManager->isEnabled('Magento_Inventory')) {
+                    $this->logging->addDebug(__METHOD__ . '|5|');
+                    $this->buckarooSession->setData('flagHandleFailedQuote', 1);
+                }
                 $order->cancel();
                 $order->save();
                 //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch

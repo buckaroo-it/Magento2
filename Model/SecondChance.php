@@ -19,9 +19,10 @@
  */
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
 use Magento\Framework\Model\AbstractModel;
 
-class SecondChance extends AbstractModel
+class SecondChance extends AbstractModel implements SecondChanceInterface
 {
     /**
      * @var string

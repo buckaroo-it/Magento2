@@ -51,6 +51,7 @@ class Paypal extends AbstractConfigProvider
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paypal/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_paypal/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_paypal/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paypal/specificcustomergroup';
 
     /**
      * @return array|void

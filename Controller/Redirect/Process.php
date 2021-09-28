@@ -239,6 +239,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
                     $this->order
                 )], true));
+
                 if ($this->order->canInvoice()) {
                     $this->logger->addDebug(__METHOD__ . '|31|');
                     if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
@@ -301,10 +302,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         )
                     );
                     $this->logger->addDebug(__METHOD__ . '|5|');
-                    if ($this->accountConfig->getSecondChance($store)) {
-                        $this->secondChanceRepository->createSecondChance($this->order);
-                        $this->quoteRecreate->duplicate($this->order);
-                    }
+
                     return $this->_redirect('/');
                 }
 
@@ -385,14 +383,14 @@ class Process extends \Magento\Framework\App\Action\Action
         );
 
         if ($this->accountConfig->getSecondChance($this->order->getStore())) {
-            $this->secondChanceRepository->createSecondChance($this->order);
-            if($quote = $this->quoteRecreate->duplicate($this->order)){
-                $this->quote->load($quote->getId());
-            }
+            $this->quoteRecreate->duplicate($this->order);
+        } elseif (!$this->quoteRecreate->recreate(false, $this->quote)) {
+            $this->logger->addError('Could not recreate the quote.');
         }
 
-        if (!$this->recreateQuote()) {
-            $this->logger->addError('Could not recreate the quote.');
+        //skip cancel order for PPE
+        if (isset($this->response['add_frompayperemail'])) {
+            return $this->redirectFailure();
         }
 
         if (!$this->cancelOrder($statusCode)) {
@@ -449,49 +447,6 @@ class Process extends \Magento\Framework\App\Action\Action
         }
 
         return $order;
-    }
-
-    /**
-     * Make the previous quote active again, so we can offer the user another opportunity to order (since something
-     * went wrong)
-     *
-     * @return bool
-     */
-    protected function recreateQuote()
-    {
-        $this->quote->setIsActive('1');
-        $this->quote->setTriggerRecollect('1');
-        $this->quote->setReservedOrderId(null);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFee(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBaseBuckarooFee(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFeeTaxAmount(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFeeBaseTaxAmount(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFeeInclTax(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBaseBuckarooFeeInclTax(null);
-
-        if ($this->cart->setQuote($this->quote)->save()) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -622,6 +577,8 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
                         $this->checkoutSession->restoreQuote();
                         $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
+                    }elseif($this->hasPostData('brq_primary_service', 'IDIN')){
+                        $this->checkoutSession->restoreQuote();
                     }
 
                 } catch (\Exception $e) {

@@ -48,6 +48,9 @@
             <index referenceId="BUCKAROO_MAGENTO2_SECOND_CREATED_AT" indexType="btree">
                 <column name="created_at"/>
             </index>
+            <index referenceId="BUCKAROO_MAGENTO2_SECOND_STORE_ID" indexType="btree">
+                <column name="store_id"/>
+            </index>
         </table>
         <table name="buckaroo_magento2_log" resource="default" engine="innodb" comment="Buckaroo Log">
             <column name="log_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Log id"/>

@@ -192,6 +192,21 @@ class Push implements ValidatorInterface
             case 'brq_previousstepdatetime':
             case 'brq_eventdatetime':
             case 'brq_service_transfer_accountholdername':
+            case 'brq_service_transfer_customeraccountname':
+            case 'cust_customerbillingfirstname':
+            case 'cust_customerbillinglastname':
+            case 'cust_customerbillingemail':
+            case 'cust_customerbillingstreet':
+            case 'cust_customerbillingtelephone':
+            case 'cust_customerbillinghousenumber':
+            case 'cust_customerbillinghouseadditionalnumber':
+            case 'cust_customershippingfirstname':
+            case 'cust_customershippinglastname':
+            case 'cust_customershippingemail':
+            case 'cust_customershippingstreet':
+            case 'cust_customershippingtelephone':
+            case 'cust_customershippinghousenumber':
+            case 'cust_customershippinghouseadditionalnumber':
                 $decodedValue = $brq_value;
                 break;
             default:

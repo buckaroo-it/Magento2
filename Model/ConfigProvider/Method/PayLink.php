@@ -55,6 +55,8 @@ class PayLink extends AbstractConfigProvider
     const XPATH_PAYLINK_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_paylink/visible_front_back';
     const XPATH_PAYLINK_IS_VISIBLE_FOR_AREA_CODE    = 'payment/buckaroo_magento2_paylink/is_visible_for_area_code';
 
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paylink/specificcustomergroup';
+
     /**
      * @return array
      */

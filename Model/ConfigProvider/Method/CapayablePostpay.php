@@ -42,6 +42,7 @@ class CapayablePostpay extends AbstractConfigProvider
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_capayablepostpay/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_capayablepostpay/allowspecific';
     const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_capayablepostpay/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_capayablepostpay/specificcustomergroup';
 
     /** @var array */
     protected $allowedCurrencies = [
