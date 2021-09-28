@@ -279,7 +279,7 @@ class Push implements PushInterface
         }
 
         if ($this->receivePushCheckDuplicates()) {
-            return true;
+            throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, duplicate'));
         }
 
         $this->logging->addDebug(__METHOD__ . '|2|' . var_export($response, true));
