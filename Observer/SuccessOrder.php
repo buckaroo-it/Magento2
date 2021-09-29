@@ -47,7 +47,7 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      * @param \Magento\Checkout\Model\Cart          $cart
      */
     public function __construct(
-        \Magento\Checkout\Model\Session\Proxy $checkoutSession,
+        \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\View\LayoutInterface $layout,
