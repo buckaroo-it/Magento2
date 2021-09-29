@@ -105,12 +105,7 @@ class CommandInterface
     private function updateOrderStateAndStatus(OrderInterface $order, MethodInterface $methodInstance)
     {
         $orderState = Order::STATE_NEW;
-        $orderStatus = $methodInstance->getConfigData('order_status');
-        $states = $order->getConfig()->getStateStatuses($orderState);
-
-        if (!$orderStatus || !array_key_exists($orderStatus, $states)) {
-            $orderStatus = $order->getConfig()->getStateDefaultStatus($orderState);
-        }
+        $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
 
         $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
 

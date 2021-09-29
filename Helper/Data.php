@@ -520,4 +520,16 @@ class Data extends AbstractHelper
     {
         return strtolower(str_replace('buckaroo_magento2_','', $paymentMethod));
     }
+
+    public function getOrderStatusByState($order, $orderState)
+    {
+        $orderStatus = $order->getPayment()->getMethodInstance()->getConfigData('order_status');
+        $states = $order->getConfig()->getStateStatuses($orderState);
+
+        if (!$orderStatus || !array_key_exists($orderStatus, $states)) {
+            $orderStatus = $order->getConfig()->getStateDefaultStatus($orderState);
+        }
+
+        return $orderStatus;
+    }
 }

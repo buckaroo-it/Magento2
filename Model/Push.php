@@ -388,11 +388,8 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->order->getPayment()->getMethod(), true));
         $payment               = $this->order->getPayment();
         $ignoredPaymentMethods = [
-            //Afterpay::PAYMENT_METHOD_CODE,
-            //Afterpay2::PAYMENT_METHOD_CODE,
-            //Afterpay20::PAYMENT_METHOD_CODE,
             Giftcards::PAYMENT_METHOD_CODE,
-            Transfer::PAYMENT_METHOD_CODE,
+            Transfer::PAYMENT_METHOD_CODE
         ];
         if (
             $payment && $payment->getMethod() && !empty($this->postData['brq_statuscode']) &&
@@ -409,6 +406,16 @@ class Push implements PushInterface
                 isset($receivedTransactionStatuses[$this->postData['brq_transactions']]) &&
                 ($receivedTransactionStatuses[$this->postData['brq_transactions']] == $this->postData['brq_statuscode'])
             ) {
+                if (
+                    ($this->order->getState() == Order::STATE_NEW)
+                    && ($this->order->getStatus() == $this->helper->getOrderStatusByState($this->order, Order::STATE_NEW))
+                    && ($this->postData['brq_statuscode'] == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'))
+                ) {
+                    //allow duplicated pushes for 190 statuses in case if order stills to be new/pending
+                    $this->logging->addDebug(__METHOD__ . '|13|');
+                    return false;
+                }
+
                 $this->logging->addDebug(__METHOD__ . '|15|');
                 return true;
             }
