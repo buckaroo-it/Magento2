@@ -48,12 +48,19 @@ class PluginBefore
             $state          = $order->getState();
             $config         = $this->configProviderMethodFactory->get('paylink');
             $this->_request = $context->getRequest();
-            if ($config->getActive() != '0' && $this->_request->getFullActionName() == 'sales_order_view' && $state == 'new') {
+            if ($config->getActive() != '0' &&
+                $this->_request->getFullActionName() == 'sales_order_view' &&
+                $state == 'new'
+            ) {
                 $buttonList->add(
                     'payLinkButton',
                     [
                         'label'   => __('Create Paylink'),
-                        'onclick' => sprintf("confirmSetLocation('%s', '%s')", __('Are you sure you want create Paylink?'), $viewUrl),
+                        'onclick' => sprintf(
+                            "confirmSetLocation('%s', '%s')",
+                            __('Are you sure you want create Paylink?'),
+                            $viewUrl
+                        ),
                         'class'   => 'reset',
                     ],
                     -1

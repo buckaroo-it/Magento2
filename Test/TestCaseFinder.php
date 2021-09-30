@@ -23,8 +23,8 @@
  * have an updated version of PHPUnit, which uses \PHPUnit\Framework\Testcase as base class
  */
 if (class_exists('PHPUnit_Framework_TestCase')) {
-    require 'TestCaseFinder/PHPUnit4.php';
+    require_once 'TestCaseFinder/PHPUnit4.php';
     return;
 }
 
-require 'TestCaseFinder/PHPUnit6.php';
+require_once 'TestCaseFinder/PHPUnit6.php';

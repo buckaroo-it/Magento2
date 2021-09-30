@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -153,7 +154,6 @@ class Giftcards extends AbstractMethod
 
         $this->_canRefund = isset($groupGiftcards) && $groupGiftcards == '1' ? false : true;
         $this->_canRefundInvoicePartial = isset($groupGiftcards) && $groupGiftcards == '1' ? false : true;
-
     }
 
     /**
@@ -211,7 +211,7 @@ class Giftcards extends AbstractMethod
             'ContinueOnIncomplete' => 'RedirectToHTML',
         ];
 
-        if($this->groupTransaction->isGroupTransaction($payment->getOrder()->getIncrementId())){
+        if ($this->groupTransaction->isGroupTransaction($payment->getOrder()->getIncrementId())) {
             return true;
         }
 

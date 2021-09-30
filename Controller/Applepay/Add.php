@@ -48,7 +48,17 @@ class Add extends Common
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         CustomerSession $customerSession = null
     ) {
-        parent::__construct($context, $resultPageFactory, $inlineParser, $resultJsonFactory, $logger, $cart, $totalsCollector, $converter, $customerSession);
+        parent::__construct(
+            $context,
+            $resultPageFactory,
+            $inlineParser,
+            $resultJsonFactory,
+            $logger,
+            $cart,
+            $totalsCollector,
+            $converter,
+            $customerSession
+        );
 
         $this->formKey = $formKey;
         $this->product = $product;
@@ -66,8 +76,7 @@ class Add extends Common
         $data = [];
         $shippingMethodsResult = [];
         if ($isPost) {
-            if (
-                ($product = $this->getRequest()->getParam('product'))
+            if (($product = $this->getRequest()->getParam('product'))
                 &&
                 !empty($product['id'])
                 &&
@@ -79,17 +88,17 @@ class Add extends Common
                 $this->logger->addDebug(var_export($wallet, true));
 
                 ////products
-                $params = array(
+                $params = [
                     'form_key' => $this->formKey->getFormKey(),
                     'product' => $product['id'],
                     'qty'   => $product['qty']
-                );
+                ];
                 if (!empty($product['selected_options'])) {
                     $params['super_attribute'] = $product['selected_options'];
                 }
 
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                $checkoutSession = $objectManager->get('Magento\Checkout\Model\Session');
+                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
                 $quote = $checkoutSession->getQuote();
 
                 $quote->removeAllItems();
@@ -111,5 +120,4 @@ class Add extends Common
 
         return $this->commonResponse($data, $errorMessage);
     }
-
 }

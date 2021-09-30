@@ -130,7 +130,7 @@ class Creditcard extends AbstractMethod
 
         $services = [
             'Name'             => $payment->getAdditionalInformation('card_type'),
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1,
         ];
 
@@ -140,14 +140,6 @@ class Creditcard extends AbstractMethod
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
-
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-         $payment->setAdditionalInformation(
-            'skip_push', 1
-         );
 
         return $transactionBuilder;
     }

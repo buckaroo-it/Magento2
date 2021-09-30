@@ -64,12 +64,6 @@ class Pospayment extends AbstractMethod
             ->setServices($services)
             ->setMethod('TransactionRequest');
 
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        $payment->setAdditionalInformation('skip_push', 1);
-
         return $transactionBuilder;
     }
 
@@ -110,7 +104,7 @@ class Pospayment extends AbstractMethod
      */
     private function getPosPaymentTerminalId()
     {
-        $cookieManager = $this->objectManager->get('Magento\Framework\Stdlib\CookieManagerInterface');
+        $cookieManager = $this->objectManager->get(\Magento\Framework\Stdlib\CookieManagerInterface::class);
         $terminalId = $cookieManager->getCookie('Pos-Terminal-Id');
         $this->logger2->addDebug(__METHOD__.'|1|');
         $this->logger2->addDebug(var_export($terminalId, true));
@@ -130,7 +124,7 @@ class Pospayment extends AbstractMethod
                 return false;
             }
 
-            $header = $this->objectManager->get('Magento\Framework\HTTP\Header');
+            $header = $this->objectManager->get(\Magento\Framework\HTTP\Header::class);
             $userAgent = $header->getHttpUserAgent();
             $userAgentConfiguration = trim($this->getConfigData('user_agent'));
 
@@ -144,7 +138,6 @@ class Pospayment extends AbstractMethod
         }
 
         return false;
-
     }
 
     public function getOtherPaymentMethods()

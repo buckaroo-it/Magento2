@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \Buckaroo\Magento2\Model\ConfigProvider;
+use \Magento\Store\Model\ScopeInterface;
 
 /**
  * @method mixed getEnabled()
@@ -45,5 +45,29 @@ class Refund extends AbstractConfigProvider
             'allow_push' => $this->getAllowPush($store),
         ];
         return $config;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_REFUND_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllowPush($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_REFUND_ALLOW_PUSH,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

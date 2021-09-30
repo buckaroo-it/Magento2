@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -347,7 +348,6 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
 
-
         $quoteMock = $this->getFakeMock(Quote::class)
             ->setMethods(['getPayment', 'getMethod', 'getMethodInstance', 'getStore'])
             ->getMock();
@@ -372,7 +372,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $configProviderFactoryMock->expects($this->once())->method('getPaymentFee')->willReturn($expectedFee);
 
         $configProviderFeeMock = $this->getFakeMock(ConfigProviderBuckarooFee::class)
-            ->setMethods(['getTaxClass'])
+            ->setMethods(['getTaxClass','getPaymentFeeTax'])
             ->getMock();
         $configProviderFeeMock->expects($this->once())->method('getTaxClass')->willReturn(1);
 
@@ -477,8 +477,6 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         //$totalMock->expects($this->once())->method('getGrandTotal')->willReturn($grandTotal);
         //$totalMock->expects($this->once())->method('setBaseGrandTotal')->with($fee + $baseGrandTotal);
         //$totalMock->expects($this->once())->method('setGrandTotal')->with($fee + $grandTotal);
-
-
 
         $instance = $this->getInstance([
             'catalogHelper' => $catalogHelperMock,

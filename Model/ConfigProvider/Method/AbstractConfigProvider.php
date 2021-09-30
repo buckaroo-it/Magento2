@@ -26,15 +26,8 @@ use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
-/**
- * @method string getActiveStatus()
- * @method string getOrderStatusSuccess()
- * @method string getOrderStatusFailed()
- * @method int    getActive()
- */
-// @codingStandardsIgnoreStart
+
 abstract class AbstractConfigProvider extends BaseAbstractConfigProvider implements CheckoutConfigProvider, ConfigProviderInterface
-// @codingStandardsIgnoreEnd
 {
     /**
      * This xpath should be overridden in child classes.
@@ -217,7 +210,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
 
         return $configuredAllowedCurrencies;
     }
-
 
     /**
      * @return array

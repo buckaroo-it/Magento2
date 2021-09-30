@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @method getCm3DueDate()
@@ -32,34 +33,35 @@ use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
  */
 class PayPerEmail extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_payperemail/allowed_currencies';
+    const XPATH_ALLOWED_CURRENCIES = 'buckaroo/buckaroo_magento2_payperemail/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_payperemail/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_payperemail/specificcountry';
-
-    const XPATH_PAYPEREMAIL_ACTIVE               = 'payment/buckaroo_magento2_payperemail/active';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_payperemail/payment_fee_label';
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS        = 'payment/buckaroo_magento2_payperemail/active_status';
+    const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_payperemail/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_payperemail/specificcountry';
+    
+    const XPATH_PAYPEREMAIL_ACTIVE = 'payment/buckaroo_magento2_payperemail/active';
+    const XPATH_PAYPEREMAIL_PAYMENT_FEE = 'payment/buckaroo_magento2_payperemail/payment_fee';
+    const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_payperemail/payment_fee_label';
+    const XPATH_PAYPEREMAIL_ACTIVE_STATUS = 'payment/buckaroo_magento2_payperemail/active_status';
     const XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_payperemail/order_status_success';
-    const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_payperemail/order_status_failed';
+    const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_payperemail/order_status_failed';
+    
+    const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3 = 'payment/buckaroo_magento2_payperemail/active_status_cm3';
+    const XPATH_PAYPEREMAIL_SEND_MAIL = 'payment/buckaroo_magento2_payperemail/send_mail';
+    const XPATH_PAYPEREMAIL_SCHEME_KEY = 'payment/buckaroo_magento2_payperemail/scheme_key';
+    const XPATH_PAYPEREMAIL_MAX_STEP_INDEX = 'payment/buckaroo_magento2_payperemail/max_step_index';
+    const XPATH_PAYPEREMAIL_CM3_DUE_DATE = 'payment/buckaroo_magento2_payperemail/cm3_due_date';
+    const XPATH_PAYPEREMAIL_PAYMENT_METHOD = 'payment/buckaroo_magento2_payperemail/payment_method';
+    const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/'.
+        'buckaroo_magento2_payperemail/payment_method_after_expiry';
+    const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK = 'payment/buckaroo_magento2_payperemail/visible_front_back';
+    const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE = 'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
+    const XPATH_PAYPEREMAIL_ENABLE_B2B = 'payment/buckaroo_magento2_payperemail/enable_b2b';
+    const XPATH_PAYPEREMAIL_EXPIRE_DAYS = 'payment/buckaroo_magento2_payperemail/expire_days';
+    const XPATH_PAYPEREMAIL_CANCEL_PPE = 'payment/buckaroo_magento2_payperemail/cancel_ppe';
+    const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE = 'payment/buckaroo_magento2_payperemail/cron_cancel_ppe';
 
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_payperemail/active_status_cm3';
-    const XPATH_PAYPEREMAIL_SEND_MAIL                   = 'payment/buckaroo_magento2_payperemail/send_mail';
-    const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'payment/buckaroo_magento2_payperemail/scheme_key';
-    const XPATH_PAYPEREMAIL_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_payperemail/max_step_index';
-    const XPATH_PAYPEREMAIL_CM3_DUE_DATE                = 'payment/buckaroo_magento2_payperemail/cm3_due_date';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD              = 'payment/buckaroo_magento2_payperemail/payment_method';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_payperemail/payment_method_after_expiry';
-    const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_payperemail/visible_front_back';
-    const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE    = 'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
-    const XPATH_PAYPEREMAIL_ENABLE_B2B                  = 'payment/buckaroo_magento2_payperemail/enable_b2b';
-    const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'payment/buckaroo_magento2_payperemail/expire_days';
-    const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'payment/buckaroo_magento2_payperemail/cancel_ppe';
-    const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE             = 'payment/buckaroo_magento2_payperemail/cron_cancel_ppe';
-
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payperemail/specificcustomergroup';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B     = 'payment/buckaroo_magento2_payperemail/specificcustomergroupb2b';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_payperemail/specificcustomergroup';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B = 'payment/buckaroo_magento2_payperemail/specificcustomergroupb2b';
 
     /**
      * @return array
@@ -96,7 +98,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_PAYMENT_FEE,
+            static::XPATH_PAYPEREMAIL_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -110,7 +112,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getSendMail()
     {
         $sendMail = $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_SEND_MAIL,
+            static::XPATH_PAYPEREMAIL_SEND_MAIL,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
@@ -120,7 +122,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getPaymentMethod($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_PAYMENT_METHOD,
+            static::XPATH_PAYPEREMAIL_PAYMENT_METHOD,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -134,7 +136,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getEnabledB2B()
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ENABLE_B2B,
+            static::XPATH_PAYPEREMAIL_ENABLE_B2B,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
@@ -153,7 +155,7 @@ class PayPerEmail extends AbstractConfigProvider
     public function getExpireDays()
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_EXPIRE_DAYS,
+            static::XPATH_PAYPEREMAIL_EXPIRE_DAYS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
@@ -162,14 +164,6 @@ class PayPerEmail extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_PAYPEREMAIL_CANCEL_PPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    public function getActive()
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
@@ -192,5 +186,162 @@ class PayPerEmail extends AbstractConfigProvider
         }
 
         return true;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatusCm3($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSchemeKey($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_SCHEME_KEY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMaxStepIndex($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_MAX_STEP_INDEX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCm3DueDate($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_CM3_DUE_DATE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentMethodAfterExpiry($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getVisibleFrontBack($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIsVisibleForAreaCode($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEnableB2b($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPEREMAIL_ENABLE_B2B,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

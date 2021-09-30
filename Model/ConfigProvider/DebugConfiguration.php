@@ -38,9 +38,9 @@ class DebugConfiguration extends AbstractConfigProvider
     /**
      * @return mixed
      */
-    public function getDebugTypes()
+    public function getLogLevel()
     {
-        return $this->accountConfig->getDebugTypes();
+        return $this->accountConfig->getLogLevel();
     }
 
     /**
@@ -61,7 +61,12 @@ class DebugConfiguration extends AbstractConfigProvider
      */
     public function canLog($level)
     {
-        $logTypes = explode(',', $this->getDebugTypes());
+        $logTypes = explode(',', $this->getLoglevel());
         return in_array($level, $logTypes);
+    }
+
+    public function getDebugBacktraceDepth()
+    {
+        return $this->accountConfig->getLogDbtraceDepth();
     }
 }

@@ -62,6 +62,7 @@ class Mail
             'X-Mailer: PHP/' . phpversion();
 
         foreach ($debugEmails as $mailTo) {
+            //@codingStandardsIgnoreLine
             mail($mailTo, $this->getMailSubject(), $message, $headers);
         }
 
@@ -88,6 +89,7 @@ class Mail
     public function addToMessage($message)
     {
         if (is_array($message) || is_object($message)) {
+            //@codingStandardsIgnoreLine
             $message = print_r($message, true);
         }
 

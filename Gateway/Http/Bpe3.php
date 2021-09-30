@@ -127,7 +127,9 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
         }
 
         $this->logger->addDebug('Failed to refund because the configuration is set to disabled');
-        throw new \Buckaroo\Magento2\Exception(__("Online refunds are currently disabled for Buckaroo payment methods."));
+        throw new \Buckaroo\Magento2\Exception(
+            __("Online refunds are currently disabled for Buckaroo payment methods.")
+        );
     }
 
     /**
