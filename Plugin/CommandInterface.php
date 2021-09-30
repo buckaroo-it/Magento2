@@ -27,6 +27,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\Method\PayPerEmail;
 
 class CommandInterface
 {
@@ -86,7 +87,7 @@ class CommandInterface
 
         if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
             if (($methodInstance->getCode() == 'buckaroo_magento2_payperemail') && ($paymentAction == 'order')) {
-                $config = $this->configProviderMethodFactory->get(\Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE);
+                $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
                 if ($config->getEnabledB2B()) {
                     $this->logging->addDebug(__METHOD__ . '|5|');
                     return $message;
@@ -105,17 +106,11 @@ class CommandInterface
     private function updateOrderStateAndStatus(OrderInterface $order, MethodInterface $methodInstance)
     {
         $orderState = Order::STATE_NEW;
-        $orderStatus = $methodInstance->getConfigData('order_status');
-        $states = $order->getConfig()->getStateStatuses($orderState);
-
-        if (!$orderStatus || !array_key_exists($orderStatus, $states)) {
-            $orderStatus = $order->getConfig()->getStateDefaultStatus($orderState);
-        }
+        $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
 
         $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
 
-        if (
-            (
+        if ((
                 (
                     preg_match('/afterpay/', $methodInstance->getCode())
                     &&
