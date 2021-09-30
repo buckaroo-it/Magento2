@@ -82,7 +82,6 @@ class Data extends AbstractHelper
      */
     protected $httpHeader;
 
-    /** @var CheckoutSession */
     protected $_checkoutSession;
 
     protected $groupTransaction;
@@ -311,26 +310,25 @@ class Data extends AbstractHelper
         $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(), true));
         if (($customerId = $this->_getRequest()->getParam('customer_id')) && ($customerId > 0)) {
             $this->logger->addDebug(__METHOD__ . '|5|');
-            if (!isset($this->staticCache['getPPeCustomerDetails'])) {
-                if ($customer = $this->customerRepository->getById($customerId)) {
-                    $this->logger->addDebug(__METHOD__ . '|15|');
-                    $billingAddress = null;
-                    if ($addresses = $customer->getAddresses()) {
-                        foreach ($addresses as $address) {
-                            if ($address->isDefaultBilling()) {
-                                $billingAddress = $address;
-                                break;
-                            }
+            if (!isset($this->staticCache['getPPeCustomerDetails'])
+                && ($customer = $this->customerRepository->getById($customerId))
+            ) {
+                $this->logger->addDebug(__METHOD__ . '|15|');
+                $billingAddress = null;
+                if ($addresses = $customer->getAddresses()) {
+                    foreach ($addresses as $address) {
+                        if ($address->isDefaultBilling()) {
+                            $billingAddress = $address;
+                            break;
                         }
                     }
-                    $this->logger->addDebug(var_export([$customer->getEmail()], true));
-                    $this->staticCache['getPPeCustomerDetails'] = [
-                        'email' => $customer->getEmail(),
-                        'firstName' => $billingAddress ? $billingAddress->getFirstName() : '',
-                        'lastName' => $billingAddress ? $billingAddress->getLastName() : '',
-                    ];
-
                 }
+                $this->logger->addDebug(var_export([$customer->getEmail()], true));
+                $this->staticCache['getPPeCustomerDetails'] = [
+                    'email' => $customer->getEmail(),
+                    'firstName' => $billingAddress ? $billingAddress->getFirstName() : '',
+                    'lastName' => $billingAddress ? $billingAddress->getLastName() : '',
+                ];
             }
         }
 
@@ -346,8 +344,8 @@ class Data extends AbstractHelper
             }
         }
 
-        if (($payment = $this->_getRequest()->getParam('payment')) &&
-            ($payment['method'] == 'buckaroo_magento2_payperemail')
+        if (($payment = $this->_getRequest()->getParam('payment'))
+            && ($payment['method'] == 'buckaroo_magento2_payperemail')
         ) {
             $this->logger->addDebug(__METHOD__ . '|40|');
             $this->staticCache['getPPeCustomerDetails'] = [
@@ -365,10 +363,7 @@ class Data extends AbstractHelper
         if ($amount2 == 0) {
             return $amount1 == $amount2;
         } else {
-            return abs(
-                (floatval($amount1) - floatval($amount2))
-                    / floatval($amount2)
-            ) < 0.00001;
+            return abs((floatval($amount1) - floatval($amount2)) / floatval($amount2)) < 0.00001;
         }
     }
 
@@ -449,8 +444,7 @@ class Data extends AbstractHelper
             $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
             $configCustomerGroup = $configProvider->getSpecificCustomerGroup();
 
-            if (
-                !$forceB2C
+            if (!$forceB2C
                 && (
                     ($paymentMethodCode == 'billink')
                     || (
@@ -523,6 +517,18 @@ class Data extends AbstractHelper
 
     public function getBuckarooMethod(string $paymentMethod): string
     {
-        return strtolower(str_replace('buckaroo_magento2_','', $paymentMethod));
+        return strtolower(str_replace('buckaroo_magento2_', '', $paymentMethod));
+    }
+
+    public function getOrderStatusByState($order, $orderState)
+    {
+        $orderStatus = $order->getPayment()->getMethodInstance()->getConfigData('order_status');
+        $states = $order->getConfig()->getStateStatuses($orderState);
+
+        if (!$orderStatus || !array_key_exists($orderStatus, $states)) {
+            $orderStatus = $order->getConfig()->getStateDefaultStatus($orderState);
+        }
+
+        return $orderStatus;
     }
 }
