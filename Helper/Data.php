@@ -244,7 +244,7 @@ class Data extends AbstractHelper
      */
     public function isMobile()
     {
-        $userAgent = $this->httpHeader->getHttpUserAgent();
+        $userAgent = new \Zend_Http_UserAgent;
         return \Zend_Http_UserAgent_Mobile::match($this->httpHeader->getHttpUserAgent(), $userAgent->getServer());
     }
 
