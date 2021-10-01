@@ -19,6 +19,7 @@
  */
 
 namespace Buckaroo\Magento2\Model\Total\Creditmemo;
+
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResourceConnection;
 use Buckaroo\Magento2\Logging\Log;
@@ -69,7 +70,9 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
                 $buckarooFee = 0;
                 if (preg_match('/afterpay/', $method)) {
                     $creditmemo->setTaxAmount($creditmemo->getTaxAmount() - $creditmemo->getBuckarooFeeTaxAmount());
-                    $creditmemo->setBaseTaxAmount($creditmemo->getBaseTaxAmount() - $creditmemo->getBuckarooFeeBaseTaxAmount());
+                    $creditmemo->setBaseTaxAmount(
+                        $creditmemo->getBaseTaxAmount() - $creditmemo->getBuckarooFeeBaseTaxAmount()
+                    );
 
                     $creditmemo->setBaseGrandTotal(
                         $creditmemo->getBaseGrandTotal() -

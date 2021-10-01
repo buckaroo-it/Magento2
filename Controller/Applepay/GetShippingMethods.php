@@ -38,11 +38,10 @@ class GetShippingMethods extends Common
         $data = [];
         $shippingMethodsResult = [];
         if ($isPost) {
-            if (
-                ($wallet = $this->getRequest()->getParam('wallet'))
+            if (($wallet = $this->getRequest()->getParam('wallet'))
             ) {
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                $checkoutSession = $objectManager->get('Magento\Checkout\Model\Session');
+                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
                 $quote = $checkoutSession->getQuote();
 
                 if (!$this->setShippingAddress($quote, $wallet)) {
@@ -55,5 +54,4 @@ class GetShippingMethods extends Common
 
         return $this->commonResponse($data, $errorMessage);
     }
-
 }

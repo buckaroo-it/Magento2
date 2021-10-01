@@ -2,11 +2,6 @@
 
 namespace Buckaroo\Magento2\Model;
 
-/**
- * Class RefundFieldsFactory
- *
- * @package Buckaroo\Magento2\Model
- */
 class RefundFieldsFactory
 {
     /**

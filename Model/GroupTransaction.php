@@ -78,7 +78,6 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
         return $this->setData('created_at', $createdAt);
     }
 
-
     /**
      * {@inheritdoc}
      */

@@ -36,6 +36,7 @@ class XWwwFormUrlencoded implements \Magento\Framework\Webapi\Rest\Request\Deser
     {
         if (!is_string($encodedBody)) {
             throw new \InvalidArgumentException(
+                //phpcs:ignore:Magento2.Functions.DiscouragedFunction
                 __("'%s' data type is invalid. String is expected.", gettype($encodedBody))
             );
         }

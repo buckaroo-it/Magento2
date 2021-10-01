@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -20,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Setup;
 
-use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 
@@ -71,9 +71,9 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 $installer->getTable('buckaroo_magento2_group_transaction'),
                 'refunded_amount',
                 [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                     'nullable' => true,
-                    'comment' => 'RefundedAmount'
+                    'comment'  => 'RefundedAmount',
                 ]
             );
 
@@ -81,9 +81,9 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 $installer->getTable('buckaroo_magento2_giftcard'),
                 'is_partial_refundable',
                 [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+                    'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
                     'nullable' => true,
-                    'comment' => 'Giftcard partial refund'
+                    'comment'  => 'Giftcard partial refund',
                 ]
             );
         }
@@ -114,7 +114,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary' => true,
+                'primary'  => true,
             ],
             'Entity ID'
         );
@@ -181,7 +181,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary' => true,
+                'primary'  => true,
             ],
             'Entity ID'
         );
@@ -228,7 +228,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary' => true,
+                'primary'  => true,
             ],
             'Entity ID'
         );
@@ -342,7 +342,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'identity' => true,
                 'unsigned' => true,
                 'nullable' => false,
-                'primary' => true,
+                'primary'  => true,
             ],
             'Entity ID'
         );
@@ -366,7 +366,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             ],
             'storeId'
         );
-        
+
         $table->addColumn(
             'token',
             \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,

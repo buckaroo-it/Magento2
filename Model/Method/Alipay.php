@@ -51,7 +51,7 @@ class Alipay extends AbstractMethod
 
         $services = [
             'Name'             => 'Alipay',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [
                 [

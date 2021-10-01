@@ -20,11 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-/**
- * Class AfterpayPaymentMethods
- *
- * @package Buckaroo\Magento2\Model\Config\Source
- */
 class Afterpay2PaymentMethods implements \Magento\Framework\Option\ArrayInterface
 {
     const PAYMENT_METHOD_ACCEPTGIRO = 1;

@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -1815,8 +1816,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if (!$myparcelFetched) {
             $this->logger2->addDebug(__METHOD__ . '|10|');
-            if (
-                (strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
+            if ((strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
                 &&
                 (strpos($payment->getOrder()->getShippingMethod(), 'pickup') !== false)
             ) {
@@ -1897,7 +1897,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $articleUnitPrice,
         $articleVat = ''
     ) {
-
     }
 
     protected function getTaxCategory($order)
@@ -2191,9 +2190,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
             $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/' . $matches[2] . '/' . $servicePointId);
-            if (
-                ($response = $curl->getBody())
+            if (($response = $curl->getBody())
                 &&
+                //phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
                 ($parsedResponse = @json_decode($response))
                 &&
                 !empty($parsedResponse->address)

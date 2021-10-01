@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -58,7 +59,7 @@ class Tinka extends AbstractMethod
             $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $data['additional_data']['customer_billingName']);
         }
 
-        if (isset($data['additional_data']['customer_gender'])){
+        if (isset($data['additional_data']['customer_gender'])) {
             $this->getInfoInstance()->setAdditionalInformation('customer_gender', $data['additional_data']['customer_gender']);
         }
 
@@ -85,7 +86,8 @@ class Tinka extends AbstractMethod
      *
      * @return array
      */
-    public function getRequestBillingData($payment){
+    public function getRequestBillingData($payment)
+    {
 
         $billingAddress = $payment->getOrder()->getBillingAddress();
         $billingStreetFormat   = $this->formatStreet($billingAddress->getStreet());
@@ -311,13 +313,13 @@ class Tinka extends AbstractMethod
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
-        if (
-            ($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
+        if (($payment->getOrder()->getShippingMethod() == 'dhlparcel_servicepoint')
             &&
             $payment->getOrder()->getDhlparcelShippingServicepointId()
         ) {
             $this->updateShippingAddressByDhlParcel(
-                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
+                $payment->getOrder()->getDhlparcelShippingServicepointId(),
+                $requestData
             );
         }
 
@@ -327,7 +329,7 @@ class Tinka extends AbstractMethod
 
         $services = [
             'Name'             => 'Tinka',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'RequestParameter' => [
                 [
                     '_'    => 'Credit',
@@ -480,8 +482,7 @@ class Tinka extends AbstractMethod
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    )
-    {
+    ) {
         $article = [
             [
                 '_' => $articleDescription,

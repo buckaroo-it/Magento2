@@ -30,16 +30,16 @@ class SendInvoiceBy implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
 
-        $array = array(
-            array(
+        $array = [
+            [
                 'value' => self::ACTION_EMAIL,
                 'label' => 'By e-mail'
-            ),
-            array(
+            ],
+            [
                 'value' => self::ACTION_MAIL,
                 'label' => 'By mail (Includes fee from Klarna)'
-            ),
-        );
+            ],
+        ];
 
         return $array;
     }

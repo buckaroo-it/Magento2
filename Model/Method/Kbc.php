@@ -42,7 +42,7 @@ class Kbc extends AbstractMethod
 
         $services = [
             'Name'             => 'KBCPaymentButton',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1
         ];
 

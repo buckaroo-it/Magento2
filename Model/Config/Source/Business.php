@@ -20,11 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-/**
- * Class Business
- *
- * @package Buckaroo\Magento2\Model\Config\Business
- */
 class Business implements \Magento\Framework\Option\ArrayInterface
 {
     const BUSINESS_B2C = 1;

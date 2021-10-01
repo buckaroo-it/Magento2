@@ -20,11 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\Config\Source\TaxClass;
 
-/**
- * Class Calculation
- *
- * @package Buckaroo\Magento2\Model\Config\Source\TaxClass
- */
 class Calculation implements \Magento\Framework\Option\ArrayInterface
 {
     /**#@+

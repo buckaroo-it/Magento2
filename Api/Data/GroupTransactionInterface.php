@@ -31,5 +31,4 @@ interface GroupTransactionInterface
      * @return string
      */
     public function getServicecode();
-
 }
