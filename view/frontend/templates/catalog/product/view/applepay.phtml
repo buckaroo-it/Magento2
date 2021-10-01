@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<?php if($this->canShowProductButton()): ?>
+<?php if ($block->canShowProductButton()): ?>
 <div id="apple-pay-catalog-product-view-component" data-bind="scope:'applepayproductcomponent'">
     <!-- ko template: getTemplate() --><!-- /ko -->
 
     <script>
         if ('undefined' === typeof window.checkoutConfig) {
-            window.checkoutConfig = <?php echo $this->getApplepayConfig(); ?>;
+            window.checkoutConfig = <?= /* @noEscape */ ($block->getApplepayConfig()); ?>;
             window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
             if ('undefined' === typeof window.checkoutConfig.totalsData) {
                 window.checkoutConfig.totalsData = {};

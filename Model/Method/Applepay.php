@@ -59,12 +59,14 @@ class Applepay extends AbstractMethod
         }
 
         if (!empty($data['additional_data']['billingContact'])) {
-            $this->getInfoInstance()->setAdditionalInformation('billingContact', $data['additional_data']['billingContact']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'billingContact',
+                $data['additional_data']['billingContact']
+            );
         }
 
         return $this;
     }
-
 
     /**
      * {@inheritdoc}

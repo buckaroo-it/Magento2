@@ -80,7 +80,6 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
         $sendOrderConfirmationEmail = $this->accountConfig->getOrderConfirmationEmail($order->getStore())
             || $methodInstance->getConfigData('order_email', $order->getStoreId());
 
-
         $createOrderBeforeTransaction = $this->accountConfig->getCreateOrderBeforeTransaction($order->getStore());
 
         /**

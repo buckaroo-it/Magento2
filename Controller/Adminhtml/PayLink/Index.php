@@ -43,7 +43,8 @@ class Index extends \Magento\Backend\App\Action
 
     protected $_messageManager;
 
-    public function __construct(Context $context,
+    public function __construct(
+        Context $context,
         PageFactory $resultPageFactory,
         \Magento\Framework\App\Request\Http $request,
         \Magento\Sales\Api\Data\OrderInterface $order,
@@ -51,7 +52,8 @@ class Index extends \Magento\Backend\App\Action
         Factory $configProviderMethodFactory,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        ResultFactory $resultFactory) {
+        ResultFactory $resultFactory
+    ) {
         parent::__construct($context);
         $this->request                     = $request;
         $this->resultPageFactory           = $resultPageFactory;
@@ -132,17 +134,17 @@ class Index extends \Magento\Backend\App\Action
                         $payLink = $parameter->_;
                     }
                 }
-            }    
+            }
         } catch (\Exception $e) {
             $this->_messageManager->addErrorMessage($e->getMessage());
         }
-
 
         if (empty($payLink)) {
             $this->_messageManager->addErrorMessage('Error creating PayLink');
         } else {
             $this->_messageManager->addSuccess(
-                __('You PayLink <a href="%1">%1</a>',
+                __(
+                    'You PayLink <a href="%1">%1</a>',
                     $payLink
                 )
             );
@@ -155,6 +157,5 @@ class Index extends \Magento\Backend\App\Action
 
         $redirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $redirect->setUrl($this->_redirect->getRefererUrl());
-
     }
 }

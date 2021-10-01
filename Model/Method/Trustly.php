@@ -53,7 +53,7 @@ class Trustly extends AbstractMethod
 
         $services = [
             'Name'             => 'Trustly',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [
                 [
@@ -123,8 +123,7 @@ class Trustly extends AbstractMethod
         $methodMessage = '';
         $responseCode = $transactionResponse->Status->Code->Code;
         if ($responseCode == 491) {
-            if (
-                !empty($transactionResponse->RequestErrors->ParameterError->Name)
+            if (!empty($transactionResponse->RequestErrors->ParameterError->Name)
                 &&
                 ($transactionResponse->RequestErrors->ParameterError->Name == 'CustomerCountryCode')
                 &&

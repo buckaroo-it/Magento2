@@ -69,7 +69,8 @@ class Totals extends \Magento\Framework\View\Element\Template
         return $this;
     }
 
-    public function getTotals(){
+    public function getTotals()
+    {
         $parent = $this->getParentBlock();
         /**
         * @noinspection PhpUndefinedMethodInspection

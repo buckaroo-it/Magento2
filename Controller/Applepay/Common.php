@@ -85,8 +85,7 @@ class Common extends Action
         \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         CustomerSession $customerSession = null
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
@@ -99,10 +98,15 @@ class Common extends Action
         $this->customerSession = $customerSession ?? ObjectManager::getInstance()->get(CustomerSession::class);
     }
 
+    // @codingStandardsIgnoreStart
     public function execute()
     {
-
+        /**
+         * call the parent, method required part of the interface
+         */
+        parent::execute();
     }
+    // @codingStandardsIgnoreEnd
 
     /**
      * @param $address
@@ -112,12 +116,12 @@ class Common extends Action
      */
     public function gatherTotals($address, $quoteTotals)
     {
-        $totals = array(
+        $totals = [
             'subtotal' => $quoteTotals['subtotal']->getValue(),
             'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
             'shipping' => $address->getData('shipping_incl_tax'),
             'grand_total' => $quoteTotals['grand_total']->getValue()
-        );
+        ];
 
         return $totals;
     }
@@ -130,15 +134,15 @@ class Common extends Action
      */
     public function processAddressFromWallet($wallet, $type = 'shipping')
     {
-        $address = array(
+        $address = [
             'prefix' => '',
             'firstname' => isset($wallet['givenName']) ? $wallet['givenName'] : '',
             'middlename' => '',
             'lastname' => isset($wallet['familyName']) ? $wallet['familyName'] : '',
-            'street' => array(
+            'street' => [
                 '0' => isset($wallet['addressLines'][0]) ? $wallet['addressLines'][0] : '',
                 '1' => isset($wallet['addressLines'][1]) ? $wallet['addressLines'][1] : null
-            ),
+            ],
             'city' => isset($wallet['locality']) ? $wallet['locality'] : '',
             'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
             'region' => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : '',
@@ -147,7 +151,7 @@ class Common extends Action
             'telephone' => isset($wallet['phoneNumber']) ? $wallet['phoneNumber'] : 'N/A',
             'fax' => '',
             'vat_id' => ''
-        );
+        ];
 
         if ($type == 'shipping') {
             $address['email'] = isset($wallet['emailAddress']) ? $wallet['emailAddress'] : '';
@@ -200,7 +204,7 @@ class Common extends Action
         $this->logger->addDebug(__METHOD__ . '|1|');
         $this->logger->addDebug(var_export($errors, true));
 
-        $errorFields = array();
+        $errorFields = [];
         if ($errors && is_array($errors)) {
             foreach ($errors as $error) {
                 if (($arguments = $error->getArguments()) && !empty($arguments['fieldName'])) {
@@ -228,7 +232,7 @@ class Common extends Action
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
 
-        $quoteRepository = $objectManager->get('Magento\Quote\Model\QuoteRepository');
+        $quoteRepository = $objectManager->get(\Magento\Quote\Model\QuoteRepository::class);
 
         $quote->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
         $quote->getShippingAddress()->setCollectShippingRates(true);
@@ -238,7 +242,8 @@ class Common extends Action
 
         if (count($shippingMethods) == 0) {
             $errorMessage = __(
-                'Apple Pay payment failed, because no shipping methods were found for the selected address. Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
+                'Apple Pay payment failed, because no shipping methods were found for the selected address. '.
+                'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
             );
             $this->messageManager->addErrorMessage($errorMessage);
 
@@ -273,7 +278,6 @@ class Common extends Action
 
             return $data;
         }
-
     }
 
     /**
@@ -327,7 +331,6 @@ class Common extends Action
             unset($extractedAddressData['extension_attributes']);
         }
         $shippingAddress->addData($extractedAddressData);
-
 
         $shippingAddress->setCollectShippingRates(true);
 

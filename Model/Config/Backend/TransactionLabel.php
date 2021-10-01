@@ -21,14 +21,15 @@ namespace Buckaroo\Magento2\Model\Config\Backend;
 
 class TransactionLabel extends \Magento\Framework\App\Config\Value
 {
-    public function _afterLoad(){
+    public function _afterLoad()
+    {
         $value = $this->getValue();
-        if(!$value || $value == 'Magento Buckaroo') {
+        if (!$value || $value == 'Magento Buckaroo') {
             $storeName = \Magento\Framework\App\ObjectManager::getInstance()
                     ->get(\Magento\Store\Model\StoreManagerInterface::class)
                     ->getStore()
                     ->getName();
-            if($storeName){
+            if ($storeName) {
                 $this->setValue($storeName);
             }
         }

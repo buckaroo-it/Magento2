@@ -26,7 +26,6 @@ use \Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Logging\Log;
@@ -305,6 +304,7 @@ class Data extends AbstractHelper
      *
      * @return array
      */
+    //phpcs:ignore:Generic.Metrics.NestingLevel
     public function getPPeCustomerDetails()
     {
         $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(), true));

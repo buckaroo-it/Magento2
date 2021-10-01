@@ -23,14 +23,14 @@
 <?php
 if ($giftCards = $block->getGiftCards()) {
     foreach ($giftCards as $giftCard) { ?>
-        <div class="buckaroo_magento2_payment_<?php echo $block->escapeHtml($giftCard['code']); ?>">
-            <?php echo $block->escapeHtml($giftCard['label']) ?>
+        <div class="buckaroo_magento2_payment_<?= $block->escapeHtml($giftCard['code']); ?>">
+            <?= $block->escapeHtml($giftCard['label']) ?>
         </div>
         <?php
     }
 }
 ?>
 
-<div class="payment-method buckaroo_magento2_payment_<?php echo $block->escapeHtml($bpePaymentCode) ?>">
-    <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
+<div class="payment-method buckaroo_magento2_payment_<?= $block->escapeHtml($bpePaymentCode) ?>">
+    <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
 </div>

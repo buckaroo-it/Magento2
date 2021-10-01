@@ -130,7 +130,7 @@ class Creditcard extends AbstractMethod
 
         $services = [
             'Name'             => $payment->getAdditionalInformation('card_type'),
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1,
         ];
 

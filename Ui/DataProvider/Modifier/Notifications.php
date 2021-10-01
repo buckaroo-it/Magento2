@@ -173,18 +173,5 @@ class Notifications implements ModifierInterface
     private function getNotificationContent()
     {
         return '';
-        $cacheKey = 'buckaroo-release-notification';
-        $modalContent = $this->cacheStorage->load($cacheKey);
-        if ($modalContent === false) {
-            $readDirectory  = $this->readFactory->create(
-                $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Buckaroo_Magento2'),
-                \Magento\Framework\Filesystem\DriverPool::FILE
-            );
-            $modalContent = $readDirectory->readFile('release-notification.json');
-
-            $this->cacheStorage->save($modalContent, $cacheKey);
-        }
-
-        return $this->serializer->unserialize($modalContent);
     }
 }

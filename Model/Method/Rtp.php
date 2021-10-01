@@ -115,5 +115,4 @@ class Rtp extends AbstractMethod
     {
         return 'RequestToPay';
     }
-
 }

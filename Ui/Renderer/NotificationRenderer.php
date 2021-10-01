@@ -37,9 +37,10 @@ class NotificationRenderer
      * @param Escaper $escaper
      * @param AssetRepository $assetRepository
      */
-    public function __construct(Escaper $escaper,
-                                AssetRepository $assetRepository)
-    {
+    public function __construct(
+        Escaper $escaper,
+        AssetRepository $assetRepository
+    ) {
         $this->escaper = $escaper;
         $this->assetRepository = $assetRepository;
     }
