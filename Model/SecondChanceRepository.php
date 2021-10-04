@@ -423,12 +423,12 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $config         = $configProvider->getConfig();
         $final_status   = $config['final_status'];
 
-        if($step == 2){
-            if(!$this->accountConfig->getSecondChanceEmail2($store)){
+        if ($step == 2) {
+            if (!$this->accountConfig->getSecondChanceEmail2($store)) {
                 return false;
             }
-        }else{
-            if(!$this->accountConfig->getSecondChanceEmail($store)){
+        } else {
+            if (!$this->accountConfig->getSecondChanceEmail($store)) {
                 return false;
             }
         }
@@ -504,7 +504,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             'secondChanceToken'        => $secondChance->getToken(),
         ];
 
-        $templateId = ($step == 1) ? $this->accountConfig->getSecondChanceTemplate($store) : $this->accountConfig->getSecondChanceTemplate2($store);
+        $templateId = ($step == 1) ?
+            $this->accountConfig->getSecondChanceTemplate($store) :
+            $this->accountConfig->getSecondChanceTemplate2($store);
 
         $this->logging->addDebug(__METHOD__ . '|TemplateIdentifier|' . $templateId);
 

@@ -122,9 +122,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
         $this->logger->addDebug(__METHOD__ . '|1|');
 
-        if (
-            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp') &&
-            $this->klarnakpConfig->getCreateInvoiceAfterShipment()
+        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
+            && $this->klarnakpConfig->getCreateInvoiceAfterShipment()
         ) {
             $this->gateway->setMode(
                 $this->helper->getMode('buckaroo_magento2_klarnakp')
@@ -132,10 +131,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $this->createInvoice($order, $shipment);
         }
 
-        if (
-            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20') &&
-            $this->afterpayConfig->getCreateInvoiceAfterShipment() &&
-            ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
+        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20')
+            && $this->afterpayConfig->getCreateInvoiceAfterShipment()
+            && ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
         ) {
             $this->gateway->setMode(
                 $this->helper->getMode('buckaroo_magento2_afterpay20')
@@ -149,33 +147,35 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger->addDebug(__METHOD__ . '|1|' . var_export($order->getDiscountAmount(), true));
 
         try {
-            if(!$order->canInvoice()) {
+            if (!$order->canInvoice()) {
                 return null;
             }
 
             if (!$allowPartialsWithDiscount && ($order->getDiscountAmount() < 0)) {
                 $invoice = $this->invoiceService->prepareInvoice($order);
                 $message = 'Automatically invoiced full order (can not invoice partials with discount)';
-            }
-            else {
+            } else {
                 $qtys = $this->getQtys($shipment);
                 $invoice = $this->invoiceService->prepareInvoice($order, $qtys);
                 $message = 'Automatically invoiced shipped items.';
             }
-
 
             $invoice->setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE);
             $invoice->register();
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);
             $order->addStatusHistoryComment($message, false);
-            $transactionSave = $this->transactionFactory->create()->addObject($invoice)->addObject($invoice->getOrder());
+            $transactionSave = $this->transactionFactory->create()->addObject($invoice)->addObject(
+                $invoice->getOrder()
+            );
             $transactionSave->save();
 
             $this->logger->addDebug(__METHOD__ . '|3|' . var_export($order->getStatus(), true));
 
             if ($order->getStatus() == 'complete') {
-                $description = 'Total amount of ' . $order->getBaseCurrency()->formatTxt($order->getTotalInvoiced()) . ' has been paid';
+                $description = 'Total amount of '
+                    . $order->getBaseCurrency()->formatTxt($order->getTotalInvoiced())
+                    . ' has been paid';
                 $order->addStatusHistoryComment($description, false);
                 $order->save();
             }

@@ -25,6 +25,7 @@ use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+
 class PayPerEmail extends AbstractMethod
 {
     /**
@@ -120,7 +121,6 @@ class PayPerEmail extends AbstractMethod
 
         $this->serviceParameters = $serviceParameters;
     }
-
 
     /**
      * {@inheritdoc}
@@ -342,22 +342,22 @@ class PayPerEmail extends AbstractMethod
 
     private function getPaymentMethodsAllowed($config, $storeId)
     {
-       if ($methods = $config->getPaymentMethod($storeId)) {
-           $methods = explode(',', $methods);
-           $activeCards = '';
-           foreach ($methods as $key=>$value) {
+        if ($methods = $config->getPaymentMethod($storeId)) {
+            $methods = explode(',', $methods);
+            $activeCards = '';
+            foreach ($methods as $key => $value) {
                 if ($value === 'giftcard') {
                     $giftcardsConfig = $this->configProviderMethodFactory->get('giftcards');
                     if ($activeCards = $giftcardsConfig->getAllowedCards($storeId)) {
                         unset($methods[$key]);
                     }
                 }
-           }
-           if ($activeCards) {
-               $methods = array_merge($methods, explode(',', $activeCards));
-           }
-           $methods = join(',', $methods);
-       }
-       return $methods;
+            }
+            if ($activeCards) {
+                $methods = array_merge($methods, explode(',', $activeCards));
+            }
+            $methods = join(',', $methods);
+        }
+        return $methods;
     }
 }

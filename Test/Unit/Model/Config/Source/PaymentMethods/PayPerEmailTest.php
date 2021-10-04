@@ -89,7 +89,7 @@ class PayPerEmailTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $instance = $this->getInstance();
         $result = $instance->toOptionArray();
         $this->assertContains($paymentOption, $result);

@@ -56,7 +56,7 @@ class CreateCombinedInvoiceTest extends BaseTest
         $infoInstanceMock->method('getOrder')->willReturn($orderMock);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $instance = $this->getInstance(['configProviderMethodFactory' => $factoryMock]);
         $result = $instance->get($infoInstanceMock, 'payperemail');
 

@@ -20,11 +20,6 @@
 
 namespace Buckaroo\Magento2\Plugin\Method;
 
-/**
- * Class Afterpay
- *
- *
- */
 class Afterpay
 {
     const AFTERPAY_METHOD_NAME = 'buckaroo_magento2_afterpay';

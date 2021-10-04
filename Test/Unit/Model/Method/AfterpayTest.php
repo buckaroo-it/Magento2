@@ -52,7 +52,7 @@ class AfterpayTest extends BaseTest
         $result = $instance->getCreditmemoArticleData($paymentMock);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $this->assertInternalType('array', $result);
         $this->assertCount(5, $result);
         $this->assertArrayHasKey('_', $result[0]);
@@ -248,7 +248,7 @@ class AfterpayTest extends BaseTest
             ->willReturnOnConsecutiveCalls($catalogIncludesTax, $shippingIncludesTax);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-            );
+        );
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getTaxLine(rand(0, 10), $orderMock);
         $this->assertInternalType('array', $result);
@@ -324,7 +324,7 @@ class AfterpayTest extends BaseTest
             ->willReturn($includesTax);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-            );
+        );
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $this->invokeArgs('getShippingCostsLine', [$orderMock], $instance);
 

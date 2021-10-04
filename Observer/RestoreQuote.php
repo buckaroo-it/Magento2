@@ -149,7 +149,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     {
         $this->helper->addDebug(__METHOD__ . '|RestoreQuote|1|');
 
-        if($quoteId = $this->customerSession->getSecondChanceRecreate()){
+        if ($quoteId = $this->customerSession->getSecondChanceRecreate()) {
             $this->quoteRecreate->recreateById($quoteId);
             $this->customerSession->setSecondChanceRecreate(false);
             return true;
@@ -168,7 +168,9 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|cartKeepAlive enabled|');
 
-                if ($this->checkoutSession->getQuote() && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))) {
+                if ($this->checkoutSession->getQuote()
+                    && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
+                ) {
                     if ($shippingAddress = $quote->getShippingAddress()) {
                         if (!$shippingAddress->getShippingMethod()) {
                             $shippingAddress->load($shippingAddress->getAddressId());
@@ -176,11 +178,13 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     }
                 }
 
-                if ($this->helper->getRestoreQuoteLastOrder() && ($lastRealOrder->getData('state') === 'new' && $lastRealOrder->getData('status') === 'pending') && $payment->getMethodInstance()->usesRedirect) {
-
+                if ($this->helper->getRestoreQuoteLastOrder()
+                    && ($lastRealOrder->getData('state') === 'new')
+                    && ($lastRealOrder->getData('status') === 'pending')
+                    && $payment->getMethodInstance()->usesRedirect
+                ) {
                     $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
                     $this->checkoutSession->restoreQuote();
-
                 }
             }
             $this->helper->addDebug(__METHOD__ . '|setRestoreQuoteLastOrder for cartKeepAlive|');
@@ -189,5 +193,4 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->helper->addDebug(__METHOD__ . '|RestoreQuote|end|');
         return true;
     }
-
 }

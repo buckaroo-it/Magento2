@@ -150,7 +150,7 @@ class AbstractTransactionBuilderTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $merchantKey = uniqid();
 
         $configProviderAccountMock = $this->getFakeMock(Account::class)->setMethods(['getMerchantKey'])->getMock();

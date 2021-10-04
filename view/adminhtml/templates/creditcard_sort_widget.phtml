@@ -17,10 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+// @codingStandardsIgnoreStart
 ?>
 <div class="creditcard_sort_wrapper">
-    <input type="hidden" name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][sort_creditcards][value]" id="sort_cards"
-           value="<?php echo $this->helper('Buckaroo\Magento2\Helper\Data')->getConfigCardSort() ?>">
+    <input type="hidden"
+           name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][sort_creditcards][value]"
+           id="sort_cards"
+           value="<?= $this->helper('Buckaroo\Magento2\Helper\Data')->getConfigCardSort() ?>">
     <div id="sort_creditcard_list"></div>
 </div>
 
@@ -106,3 +109,6 @@
         });
     });
 </script>
+<?php
+// @codingStandardsIgnoreEnd
+?>

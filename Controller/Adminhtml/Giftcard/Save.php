@@ -42,8 +42,7 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
             $filesData = $this->getRequest()->getFiles('logo');
 
             if ((isset($filesData['name'])) && ($filesData['name'] != '') && (!isset($formData['logo']['delete']))) {
-                try
-                {
+                try {
                     $uploaderFactory = $this->uploaderFactory->create(['fileId' => 'logo']);
                     $uploaderFactory->setAllowedExtensions(['jpg', 'jpeg', 'gif', 'png']);
                     $imageAdapter = $this->adapterFactory->create();
@@ -54,10 +53,7 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
                     $result          = $uploaderFactory->save($destinationPath);
 
                     if (!$result) {
-                        throw new LocalizedException
-                            (
-                            __('File cannot be saved to path: $1', $destinationPath)
-                        );
+                        throw new LocalizedException(__('File cannot be saved to path: $1', $destinationPath));
                     }
 
                     $formData['logo'] = 'buckaroo' . $result['file'];
@@ -67,7 +63,7 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
                 }
             }
 
-            if(isset($formData['logo']['delete'])){
+            if (isset($formData['logo']['delete'])) {
                 $formData['logo']  = '';
             }
 

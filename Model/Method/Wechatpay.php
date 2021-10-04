@@ -51,7 +51,7 @@ class Wechatpay extends AbstractMethod
 
         $services = [
             'Name'             => 'WeChatPay',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [
                 [
@@ -72,9 +72,7 @@ class Wechatpay extends AbstractMethod
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * @todo when buckaroo changes the push / response order this can be removed
          */
-        $payment->setAdditionalInformation(
-            'skip_push', 1
-        );
+        $payment->setAdditionalInformation('skip_push', 1);
 
         return $transactionBuilder;
     }
@@ -109,7 +107,7 @@ class Wechatpay extends AbstractMethod
 
         if ($country == 'CN') {
             $localeCode = 'zh-CN';
-        } else if ($country == 'TW') {
+        } elseif ($country == 'TW') {
             $localeCode = 'zh-TW';
         } else {
             $localeCode = 'en-US';

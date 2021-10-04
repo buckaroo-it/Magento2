@@ -249,7 +249,7 @@ abstract class BaseTest extends TestCaseFinder
         return $this;
     }
 
-    public function getPartialObject($object, $arguments = array(), $mockMethods = array())
+    public function getPartialObject($object, $arguments = [], $mockMethods = [])
     {
         $constructorArgs = $this->objectManagerHelper->getConstructArguments($object, $arguments);
 

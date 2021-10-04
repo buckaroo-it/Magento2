@@ -30,20 +30,20 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function servicecodeProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'servicecode' => 'shopgiftcard',
                 'expected' => 'shopgiftcard'
-            ),
-            array(
+            ],
+            [
                 'servicecode' => 'bookgiftcard',
                 'expected' => 'bookgiftcard'
-            ),
-            array(
+            ],
+            [
                 'servicecode' => 'discountcard',
                 'expected' => 'discountcard'
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -65,20 +65,20 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function labelProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'label' => 'Webshop Giftcard',
                 'expected' => 'Webshop Giftcard'
-            ),
-            array(
+            ],
+            [
                 'label' => 'Book Giftcard',
                 'expected' => 'Book Giftcard'
-            ),
-            array(
+            ],
+            [
                 'label' => 'Discount Card',
                 'expected' => 'Discount Card'
-            )
-        );
+            ]
+        ];
     }
 
     /**

@@ -33,7 +33,7 @@ class IdealProcessingTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
