@@ -34,9 +34,12 @@ use Magento\Quote\Api\PaymentMethodManagementInterface;
 use Magento\Quote\Api\ShippingMethodManagementInterface;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote\TotalsCollector;
+use Magento\Quote\Model\QuoteAddressValidator;
 use Mageplaza\Osc\Helper\Item as OscHelper;
 use Mageplaza\Osc\Model\OscDetailsFactory;
 use Psr\Log\LoggerInterface;
+
+// @codingStandardsIgnoreStart
 
 if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
 
@@ -72,6 +75,8 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
         protected $_addressInterface;
         /** * @var ShippingMethodConverter */
         protected $_shippingMethodConverter;
+        /** * @var QuoteAddressValidator */
+        protected $addressValidator;
         /** * @var LoggerInterface */
         private $logger;
 
@@ -91,6 +96,7 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
             TotalsCollector $totalsCollector,
             AddressInterface $addressInterface,
             ShippingMethodConverter $shippingMethodConverter,
+            QuoteAddressValidator $quoteAddressValidator,
             LoggerInterface $logger
         ) {
             $this->cartRepository                = $cartRepository;
@@ -108,9 +114,28 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
             $this->_totalsCollector              = $totalsCollector;
             $this->_addressInterface             = $addressInterface;
             $this->_shippingMethodConverter      = $shippingMethodConverter;
+            $this->addressValidator              = $quoteAddressValidator;
             $this->logger                        = $logger;
 
-            parent::__construct($cartRepository, $oscDetailsFactory, $shippingMethodManagement, $paymentMethodManagement, $cartTotalsRepository, $urlBuilder, $checkoutSession, $shippingInformationManagement, $oscHelper, $giftMessage, $giftMessageManager, $customerSession, $totalsCollector, $addressInterface, $shippingMethodConverter, $logger);
+            parent::__construct(
+                $cartRepository,
+                $oscDetailsFactory,
+                $shippingMethodManagement,
+                $paymentMethodManagement,
+                $cartTotalsRepository,
+                $urlBuilder,
+                $checkoutSession,
+                $shippingInformationManagement,
+                $oscHelper,
+                $giftMessage,
+                $giftMessageManager,
+                $customerSession,
+                $totalsCollector,
+                $addressInterface,
+                $shippingMethodConverter,
+                $quoteAddressValidator,
+                $logger
+            );
         }
 
         public function updateItemQty($cartId, $itemId, $itemQty)
@@ -131,7 +156,6 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
             }
             parent::removeItemById($cartId, $itemId);
         }
-
     }
 
 } else {
@@ -139,3 +163,5 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
     {
     }
 }
+
+// @codingStandardsIgnoreEnd
