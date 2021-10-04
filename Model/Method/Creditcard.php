@@ -32,7 +32,6 @@ class Creditcard extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'creditcard';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -54,7 +53,6 @@ class Creditcard extends AbstractMethod
      * @var string
      */
     protected $_infoBlockType = 'Buckaroo\Magento2\Block\Info\Creditcard';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var bool

@@ -39,15 +39,12 @@ class SepaDirectDebit extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'sepadirectdebit';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /** @var \Magento\Framework\Message\ManagerInterface */
     public $messageManager;

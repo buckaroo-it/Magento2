@@ -38,7 +38,6 @@ class Tinka extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'tinka';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -46,7 +45,6 @@ class Tinka extends AbstractMethod
      */
     protected $_code                    = self::PAYMENT_METHOD_CODE;
 
-    // @codingStandardsIgnoreEnd
     /**
      * {@inheritdoc}
      */

@@ -32,15 +32,12 @@ class P24 extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'p24';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

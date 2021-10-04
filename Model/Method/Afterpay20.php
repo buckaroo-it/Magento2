@@ -51,7 +51,6 @@ class Afterpay20 extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'afterpay20';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -73,8 +72,6 @@ class Afterpay20 extends AbstractMethod
      * @var bool
      */
     protected $_canCapturePartial       = true;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var bool

@@ -32,15 +32,12 @@ class Wechatpay extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'wechatpay';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

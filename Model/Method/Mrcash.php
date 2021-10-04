@@ -34,15 +34,12 @@ class Mrcash extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'mrcash';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

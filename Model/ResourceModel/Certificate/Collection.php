@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Model\ResourceModel\Certificate;
 
 class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractCollection
 {
-    // @codingStandardsIgnoreStart
     /**
      * @var string
      */
@@ -49,7 +48,9 @@ class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractC
      */
     protected function _construct()
     {
-        $this->_init('Buckaroo\Magento2\Model\Certificate', 'Buckaroo\Magento2\Model\ResourceModel\Certificate');
+        $this->_init(
+            \Buckaroo\Magento2\Model\Certificate::class,
+            \Buckaroo\Magento2\Model\ResourceModel\Certificate::class
+        );
     }
-    // @codingStandardsIgnoreEnd
 }

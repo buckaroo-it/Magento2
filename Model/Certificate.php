@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Api\Data\CertificateInterface;
 
 class Certificate extends AbstractModel implements CertificateInterface
 {
-    // @codingStandardsIgnoreStart
     /**
      * @var string
      */
@@ -50,7 +49,6 @@ class Certificate extends AbstractModel implements CertificateInterface
     {
         $this->_init('Buckaroo\Magento2\Model\ResourceModel\Certificate');
     }
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

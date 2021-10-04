@@ -59,7 +59,6 @@ class Emandate extends AbstractMethod
     /** @var string */
     public $buckarooPaymentMethodCode = 'emandate';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -72,7 +71,6 @@ class Emandate extends AbstractMethod
 
     /** @var bool */
     protected $_canRefundInvoicePartial = false;
-    // @codingStandardsIgnoreEnd
 
     /** @var EmandateConfig */
     private $emandateConfig;
