@@ -19,8 +19,6 @@
  */
 namespace Buckaroo\Magento2\Model\Order;
 
-use Magento\Bundle\Ui\DataProvider\Product\Listing\Collector\BundlePrice;
-use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order\CreditmemoFactory as MagentoCreditmemoFactory;
 
 /**
@@ -66,9 +64,9 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
         \Magento\Framework\Serialize\Serializer\Json $serializer = null,
         \Buckaroo\Magento2\Logging\Log $logger
     ) {
-        $this->convertor = $convertOrderFactory->create();
-        $this->taxConfig = $taxConfig;
-        $this->logger    = $logger;
+        $this->convertor  = $convertOrderFactory->create();
+        $this->taxConfig  = $taxConfig;
+        $this->logger     = $logger;
         $this->serializer = $serializer ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
             \Magento\Framework\Serialize\Serializer\Json::class
         );
@@ -85,7 +83,7 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     {
         $creditmemo = $this->convertor->toCreditmemo($order);
         $this->initBuckarooFeeData($creditmemo, $data, $order);
-        return parent::createByOrder($order,$data);
+        return parent::createByOrder($order, $data);
     }
 
     /**
@@ -97,10 +95,10 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      */
     public function createByInvoice(\Magento\Sales\Model\Order\Invoice $invoice, array $data = [])
     {
-        $order = $invoice->getOrder();
+        $order      = $invoice->getOrder();
         $creditmemo = $this->convertor->toCreditmemo($order);
         $this->initBuckarooFeeData($creditmemo, $data, $invoice);
-        return parent::createByInvoice($invoice,$data);
+        return parent::createByInvoice($invoice, $data);
     }
 
     /**
@@ -114,11 +112,11 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     public function initBuckarooFeeData($creditmemo, $data, $salesModel)
     {
         if (isset($data['extension_attributes']['buckaroo_fee'])) {
-            $salesModel->setBuckarooFee((double)$data['extension_attributes']['buckaroo_fee']);
+            $salesModel->setBuckarooFee((double) $data['extension_attributes']['buckaroo_fee']);
         }
 
         if (isset($data['extension_attributes']['base_buckaroo_fee'])) {
-            $salesModel->setBaseBuckarooFee((double)$data['extension_attributes']['base_buckaroo_fee']);
+            $salesModel->setBaseBuckarooFee((double) $data['extension_attributes']['base_buckaroo_fee']);
         }
     }
 }
