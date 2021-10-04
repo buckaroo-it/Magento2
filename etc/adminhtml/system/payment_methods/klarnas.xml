@@ -23,12 +23,12 @@
     <!-- Klarna Payment methods group -->
     <group id="buckaroo_magento2_klarna" translate="label" type="text" sortOrder="270" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Klarna</label>
-
+<!--
         <include path="Buckaroo_Magento2::system/payment_methods/klarna.xml"/>
-
+-->
         <include path="Buckaroo_Magento2::system/payment_methods/klarnakp.xml"/>
-
+<!--
         <include path="Buckaroo_Magento2::system/payment_methods/klarnain.xml"/>
-
+-->
     </group>
 </include>
