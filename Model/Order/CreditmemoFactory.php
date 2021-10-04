@@ -61,8 +61,8 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     public function __construct(
         \Magento\Sales\Model\Convert\OrderFactory $convertOrderFactory,
         \Magento\Tax\Model\Config $taxConfig,
-        \Magento\Framework\Serialize\Serializer\Json $serializer = null,
-        \Buckaroo\Magento2\Logging\Log $logger
+        \Buckaroo\Magento2\Logging\Log $logger,
+        \Magento\Framework\Serialize\Serializer\Json $serializer = null
     ) {
         $this->convertor  = $convertOrderFactory->create();
         $this->taxConfig  = $taxConfig;
