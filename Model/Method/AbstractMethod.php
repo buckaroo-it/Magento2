@@ -20,20 +20,19 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use mysql_xdevapi\Exception;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
-use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-use Magento\Quote\Model\Quote\AddressFactory;
-use Magento\Store\Model\ScopeInterface;
+
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
     const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
-    const BUCKAROO_ALL_TRANSACTIONS = 'buckaroo_all_transactions';
+    const BUCKAROO_ALL_TRANSACTIONS             = 'buckaroo_all_transactions';
 
     /**
      * The regex used to validate the entered BIC number
@@ -98,47 +97,47 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @var bool
      */
-    public $closeOrderTransaction       = true;
+    public $closeOrderTransaction = true;
 
     /**
      * @var bool
      */
-    public $closeAuthorizeTransaction   = true;
+    public $closeAuthorizeTransaction = true;
 
     /**
      * @var bool
      */
-    public $closeCaptureTransaction     = true;
+    public $closeCaptureTransaction = true;
 
     /**
      * @var bool
      */
-    public $closeRefundTransaction      = true;
+    public $closeRefundTransaction = true;
 
     /**
      * @var bool
      */
-    public $closeCancelTransaction      = true;
+    public $closeCancelTransaction = true;
 
     /**
      * @var bool|string
      */
-    public $orderPlaceRedirectUrl       = true;
+    public $orderPlaceRedirectUrl = true;
 
     /**
      * @var bool
      */
-    protected $_isGateway               = true;
+    protected $_isGateway = true;
 
     /**
      * @var bool
      */
-    protected $_canOrder                = true;
+    protected $_canOrder = true;
 
     /**
      * @var bool
      */
-    protected $_canRefund               = true;
+    protected $_canRefund = true;
 
     /**
      * @var bool
@@ -148,12 +147,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @var bool
      */
-    protected $_canVoid                 = true;
+    protected $_canVoid = true;
 
     /**
      * @var bool
      */
-    public $usesRedirect            = true;
+    public $usesRedirect = true;
 
     /**
      * @var \Magento\Framework\App\Request\Http
@@ -217,6 +216,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $_code;
 
     /**
+     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     */
+    protected $secondChanceRepository;
+
+    /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
@@ -261,6 +265,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -289,24 +294,25 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         /**
          * @todo : Remove usage of objectManager, better to use DI.
          */
-        $this->objectManager                = $objectManager;
-        $this->gateway                      = $gateway;
-        $this->transactionBuilderFactory    = $transactionBuilderFactory;
-        $this->validatorFactory             = $validatorFactory; //Move to gateway?
-        $this->helper                       = $helper;
-        $this->request                      = $request;
-        $this->refundFieldsFactory          = $refundFieldsFactory;
-        $this->configProviderFactory        = $configProviderFactory; //Account and Refund used
-        $this->configProviderMethodFactory  = $configProviderMethodFactory; //Load interface, inject childs via di?
-        $this->priceHelper                  = $priceHelper;
-        $this->developmentHelper            = $developmentHelper;
-        $this->quoteFactory                 = $quoteFactory;
-        $this->taxConfig = $taxConfig;
-        $this->taxCalculation = $taxCalculation;
-        $this->configProviderBuckarooFee = $configProviderBuckarooFee;
-        $this->softwareData = $softwareData;
-        $this->addressFactory  = $addressFactory;
-        $this->logger2 = $buckarooLog;
+        $this->objectManager               = $objectManager;
+        $this->gateway                     = $gateway;
+        $this->transactionBuilderFactory   = $transactionBuilderFactory;
+        $this->validatorFactory            = $validatorFactory; //Move to gateway?
+        $this->helper                      = $helper;
+        $this->request                     = $request;
+        $this->refundFieldsFactory         = $refundFieldsFactory;
+        $this->configProviderFactory       = $configProviderFactory; //Account and Refund used
+        $this->configProviderMethodFactory = $configProviderMethodFactory; //Load interface, inject childs via di?
+        $this->priceHelper                 = $priceHelper;
+        $this->developmentHelper           = $developmentHelper;
+        $this->quoteFactory                = $quoteFactory;
+        $this->taxConfig                   = $taxConfig;
+        $this->taxCalculation              = $taxCalculation;
+        $this->configProviderBuckarooFee   = $configProviderBuckarooFee;
+        $this->softwareData                = $softwareData;
+        $this->addressFactory              = $addressFactory;
+        $this->logger2                     = $buckarooLog;
+        $this->secondChanceRepository      = $secondChanceRepository;
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
@@ -475,7 +481,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     ) {
         $methodValue = $this->getConfigData('limit_by_ip');
         if ($accountConfig->getLimitByIp() == 1 || $methodValue == 1) {
-            $storeId = $quote ? $quote->getStoreId() : null;
+            $storeId   = $quote ? $quote->getStoreId() : null;
             $isAllowed = $this->developmentHelper->isDevAllowed($storeId);
 
             if (!$isAllowed) {
@@ -504,6 +510,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
          */
         $total = $quote->getGrandTotal();
 
+        if ($total < 0.01) {
+            return false;
+        }
+
         if ($maximum !== null && $total > $maximum) {
             return false;
         }
@@ -523,7 +533,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected function isAvailableBasedOnCurrency(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         $allowedCurrenciesRaw = $this->getConfigData('allowed_currencies');
-        $allowedCurrencies = explode(',', $allowedCurrenciesRaw);
+        $allowedCurrencies    = explode(',', $allowedCurrenciesRaw);
 
         $currentCurrency = $quote->getCurrency()->getQuoteCurrencyCode();
 
@@ -688,6 +698,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
+        $accountConfig = $this->configProviderFactory->get('account');
+        if ($order && $accountConfig->getSecondChance($order->getStore())) {
+            $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
+            $this->secondChanceRepository->createSecondChance($order);
+        }
+
         $this->afterOrder($payment, $response);
 
         return $this;
@@ -708,9 +724,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected function getFailureMessageFromMethodCommon($transactionResponse)
     {
         $transactionType = $transactionResponse->TransactionType ?? '';
-        $methodMessage = '';
+        $methodMessage   = '';
 
-        if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038') {
+        if ($transactionType != 'C011' && $transactionType != 'C016' && $transactionType != 'C039' && $transactionType != 'I038' && $transactionType != 'C074') {
             return $methodMessage;
         }
 
@@ -721,8 +737,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 ($transactionResponse->Services->Service->ResponseParameter->Name === 'ErrorResponseMessage')
                 &&
                 isset($transactionResponse->Services->Service->ResponseParameter->_)
-            )
+            ) {
                 return $transactionResponse->Services->Service->ResponseParameter->_;
+            }
+
         }
 
         $subcodeMessage = $transactionResponse->Status->SubCode->_;
@@ -751,8 +769,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $transactionResponse = $response[0];
-        $responseCode = $transactionResponse->Status->Code->Code;
-        $billingCountry = $this->payment->getOrder()->getBillingAddress()->getCountryId();
+        $responseCode        = $transactionResponse->Status->Code->Code;
+        $billingCountry      = $this->payment->getOrder()->getBillingAddress()->getCountryId();
 
         $method = null;
         if ($this->payment->getMethodInstance() && !empty($this->payment->getMethodInstance()->buckarooPaymentMethodCode)) {
@@ -760,7 +778,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
         if ($method == 'trustly') {
             $methodMessage = $this->getFailureMessageFromMethod($transactionResponse);
-            $message = strlen($methodMessage) > 0 ? $methodMessage : $message;
+            $message       = strlen($methodMessage) > 0 ? $methodMessage : $message;
             return $message;
         }
 
@@ -768,7 +786,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if ($billingCountry == 'NL' && in_array($responseCode, $allowedResponseCodes)) {
             $methodMessage = $this->getFailureMessageFromMethod($transactionResponse);
-            $message = strlen($methodMessage) > 0 ? $methodMessage : $message;
+            $message       = strlen($methodMessage) > 0 ? $methodMessage : $message;
         }
 
         if (isset($transactionResponse->Status->SubCode->_)) {
@@ -853,6 +871,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
+        $accountConfig = $this->configProviderFactory->get('account');
+        if ($order && $accountConfig->getSecondChance($order->getStore())) {
+            $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
+            $this->secondChanceRepository->createSecondChance($order);
+        }
+        
         $this->afterAuthorize($payment, $response);
 
         return $this;
@@ -897,7 +921,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function capture(InfoInterface $payment, $amount)
     {
-        $this->logger2->addDebug(__METHOD__ . '|1|');
+        $this->logger2->addDebug(__METHOD__ . '|1|' . var_export($amount, true));
 
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
@@ -1011,7 +1035,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->logger2->addDebug(__METHOD__ . '|5|');
 
-        $this->payment = $payment;
+        $this->payment        = $payment;
         $paymentCm3InvoiceKey = $payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
         if (strlen($paymentCm3InvoiceKey) > 0) {
@@ -1231,7 +1255,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return;
         }
 
-        $registryValue = $this->_registry->registry($key);
+        $registryValue   = $this->_registry->registry($key);
         $registryValue[] = $value;
 
         $this->_registry->unregister($key);
@@ -1259,7 +1283,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $invoiceKey = '';
-        $services = $response[0]->Services->Service;
+        $services   = $response[0]->Services->Service;
 
         if (!is_array($services)) {
             $services = [$services];
@@ -1344,7 +1368,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->_eventManager->dispatch(
             $name,
             [
-                'payment' => $payment,
+                'payment'  => $payment,
                 'response' => $response,
             ]
         );
@@ -1444,14 +1468,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public function addExtraFields($paymentMethodCode)
     {
         $requestParams = $this->request->getParams();
-        $services = [];
+        $services      = [];
 
         if (empty($requestParams['creditmemo'])) {
             return $services;
         }
 
         $creditMemoParams = $requestParams['creditmemo'];
-        $extraFields = $this->refundFieldsFactory->get($paymentMethodCode);
+        $extraFields      = $this->refundFieldsFactory->get($paymentMethodCode);
 
         if (empty($extraFields)) {
             return $services;
@@ -1461,9 +1485,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
          * If extra fields are found, attach these as 'RequestParameter' to the services.
          */
         foreach ($extraFields as $extraField) {
-            $code = $extraField['code'];
+            $code                           = $extraField['code'];
             $services['RequestParameter'][] = [
-                '_' => "$creditMemoParams[$code]",
+                '_'    => "$creditMemoParams[$code]",
                 'Name' => $code,
             ];
         }
@@ -1498,8 +1522,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $order = $payment->getOrder();
 
-        $totalOrder = $order->getBaseGrandTotal();
-        $numberOfInvoices = $order->getInvoiceCollection()->count();
+        $totalOrder          = $order->getBaseGrandTotal();
+        $numberOfInvoices    = $order->getInvoiceCollection()->count();
         $currentInvoiceTotal = 0;
 
         // loop through invoices to get the last one (=current invoice)
@@ -1511,9 +1535,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 if (++$i !== $numberOfInvoices) {
                     continue;
                 }
-                $this->logger2->addDebug(__METHOD__ . '|10|' . var_export($oInvoice->getBaseGrandTotal(), true));
-                $currentInvoice = $oInvoice;
-                $currentInvoiceTotal = $oInvoice->getBaseGrandTotal();
+                $this->logger2->addDebug(__METHOD__ . '|10|' . var_export($oInvoice->getGrandTotal(), true));
+                $currentInvoice      = $oInvoice;
+                $currentInvoiceTotal = $oInvoice->getGrandTotal();
             }
         }
 
@@ -1570,13 +1594,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         // For the first invoice possible add payment fee
         if (is_array($articles) && $numberOfInvoices == 1) {
-            $serviceLine = $this->getServiceCostLine((count($articles)/5)+1, $currentInvoice);
-            $articles = array_merge($articles, $serviceLine);
+            $serviceLine = $this->getServiceCostLine((count($articles) / 5) + 1, $currentInvoice);
+            $articles    = array_merge($articles, $serviceLine);
         }
 
         // Add aditional shippin costs.
         $shippingCosts = $this->getShippingCostsLine($currentInvoice, (count($articles) + 1));
-        $articles = array_merge($articles, $shippingCosts);
+        $articles      = array_merge($articles, $shippingCosts);
 
         return $articles;
     }
@@ -1591,8 +1615,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $transactionBuilder = $this->transactionBuilderFactory->get('refund');
 
         $services = [
-            'Name'    => $this->getPaymentMethodName($payment),
-            'Action'  => 'Refund'
+            'Name'   => $this->getPaymentMethodName($payment),
+            'Action' => 'Refund',
         ];
 
         if (!is_null($this->getRefundTransactionBuilderVersion())) {
@@ -1600,7 +1624,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $requestParams = $this->addExtraFields($this->_code);
-        $services = array_merge($services, $requestParams);
+        $services      = array_merge($services, $requestParams);
 
         $this->getRefundTransactionBuilderServices($payment, $services);
 
@@ -1629,7 +1653,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
-        $articles = [];
+        $articles   = [];
 
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             //AddCreditMemoArticles
@@ -1685,8 +1709,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         $this->logger2->addDebug(__METHOD__ . '|1|');
 
-        $order = $payment->getOrder();
-        $totalOrder = $order->getBaseGrandTotal();
+        $order                   = $payment->getOrder();
+        $totalOrder              = $order->getBaseGrandTotal();
         $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
 
         $requestParams = $this->request->getParams();
@@ -1694,7 +1718,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $amount_value) {
 
                 $transaction = explode('|', $transaction);
-                $totalOrder = $totalOrder - $transaction[2];
+                $totalOrder  = $totalOrder - $transaction[2];
 
                 $groupTransaction = $paymentGroupTransaction->getGroupTransactionByTrxId($transaction[0]);
 
@@ -1709,8 +1733,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     $transactionBuilder = $this->transactionBuilderFactory->get('refund');
 
                     $services = [
-                        'Name' => $transaction[1],
-                        'Action' => 'Refund',
+                        'Name'    => $transaction[1],
+                        'Action'  => 'Refund',
                         'Version' => 1,
                     ];
 
@@ -1721,10 +1745,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
                     $transactionBuilder->setAmount($amount_value);
                     $transaction = $transactionBuilder->build();
-                    $response = $this->refundTransaction($transaction);
+                    $response    = $this->refundTransaction($transaction);
 
                     $this->logger2->addDebug(__METHOD__ . '|16| ' . var_export($response, true));
-                    $arrayResponse = json_decode(json_encode($response), true);
 
                     $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
 
@@ -1779,7 +1802,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             if (!empty($myparcelOptions)) {
                 try {
                     $myparcelOptions = json_decode($myparcelOptions, true);
-                    $isPickup = $myparcelOptions['isPickup'] ?? false;
+                    $isPickup        = $myparcelOptions['isPickup'] ?? false;
                     if ($isPickup) {
                         $this->updateShippingAddressByMyParcel($myparcelOptions['pickupLocation'], $requestData);
                         $myparcelFetched = true;
@@ -1844,9 +1867,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         $buckarooFeeLine = $order->getBuckarooFeeInclTax();
 
+        if (!$buckarooFeeLine && ($order->getBuckarooFee() >= 0.01)) {
+            $this->logger2->addDebug(__METHOD__ . '|5|');
+            $buckarooFeeLine = $order->getBuckarooFee();
+        }
+
         $article = [];
 
-        if (false !== $buckarooFeeLine && (double)$buckarooFeeLine > 0) {
+        if (false !== $buckarooFeeLine && (double) $buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
                 $latestKey,
                 'Servicekosten',
@@ -1874,9 +1902,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function getTaxCategory($order)
     {
-        $request = $this->taxCalculation->getRateRequest(null, null, null, $order->getStore());
+        $request    = $this->taxCalculation->getRateRequest(null, null, null, $order->getStore());
         $taxClassId = $this->configProviderBuckarooFee->getTaxClass($order->getStore());
-        $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        $percent    = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
         return $percent;
     }
 
@@ -1896,14 +1924,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
 
         $discount = 0;
-        $edition = $this->softwareData->getProductMetaData()->getEdition();
+        $edition  = $this->softwareData->getProductMetaData()->getEdition();
 
         if ($order->getDiscountAmount() < 0) {
-            $discount -= abs((double)$order->getDiscountAmount());
+            $discount -= abs((double) $order->getDiscountAmount());
         }
 
         if ($edition == 'Enterprise' && $order->getCustomerBalanceAmount() > 0) {
-            $discount -= abs((double)$order->getCustomerBalanceAmount());
+            $discount -= abs((double) $order->getCustomerBalanceAmount());
         }
 
         return $discount;
@@ -1922,7 +1950,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!$includesTax) {
             if ($productItem->getDiscountAmount() >= 0.01) {
                 $productPrice = $productItem->getPrice()
-                    + $productItem->getTaxAmount() / $productItem->getQty();
+                 + $productItem->getTaxAmount() / $productItem->getQty();
             }
         }
 
@@ -1940,8 +1968,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 '_'       => 'Refund',
                 'Name'    => 'RefundType',
                 'GroupID' => $count,
-                'Group' => 'Article',
-            ]
+                'Group'   => 'Article',
+            ],
         ];
 
         return $article;
@@ -1957,14 +1985,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function isAddressDataDifferent($payment)
     {
-        $billingAddress = $payment->getOrder()->getBillingAddress();
+        $billingAddress  = $payment->getOrder()->getBillingAddress();
         $shippingAddress = $payment->getOrder()->getShippingAddress();
 
         if ($billingAddress === null || $shippingAddress === null) {
             return false;
         }
 
-        $billingAddressData = $billingAddress->getData();
+        $billingAddressData  = $billingAddress->getData();
         $shippingAddressData = $shippingAddress->getData();
 
         $arrayDifferences = $this->calculateAddressDataDifference($billingAddressData, $shippingAddressData);
@@ -1998,7 +2026,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $filteredAddressOne = array_diff_key($addressOne, $keysToExclude);
         $filteredAddressTwo = array_diff_key($addressTwo, $keysToExclude);
-        $arrayDiff = array_diff($filteredAddressOne, $filteredAddressTwo);
+        $arrayDiff          = array_diff($filteredAddressOne, $filteredAddressTwo);
 
         return $arrayDiff;
     }
@@ -2011,7 +2039,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             1,
             1,
             round($diff, 2),
-            4
+            0
         );
 
         return $article;
@@ -2072,16 +2100,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     if ($requestData[$key]['Group'] == 'ShippingCustomer') {
                         if ($requestData[$key]['Name'] == $mappingItem[0]) {
                             $requestData[$key]['_'] = $mappingItem[1];
-                            $found = true;
+                            $found                  = true;
                         }
                     }
                 }
                 if (!$found) {
                     $requestData[] = [
-                        '_'    => $mappingItem[1],
-                        'Name' => $mappingItem[0],
-                        'Group' => 'ShippingCustomer',
-                        'GroupID' =>  '',
+                        '_'       => $mappingItem[1],
+                        'Name'    => $mappingItem[0],
+                        'Group'   => 'ShippingCustomer',
+                        'GroupID' => '',
                     ];
                 }
             }
@@ -2096,13 +2124,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 foreach ($requestData as $key => $value) {
                     if ($requestData[$key]['Name'] == $mappingItem[0]) {
                         $requestData[$key]['_'] = $mappingItem[1];
-                        $found = true;
+                        $found                  = true;
                     }
                 }
                 if (!$found) {
                     $requestData[] = [
-                        '_' => $mappingItem[1],
-                        'Name' => $mappingItem[0]
+                        '_'    => $mappingItem[1],
+                        'Name' => $mappingItem[0],
                     ];
                 }
             }
@@ -2113,23 +2141,23 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         $fullStreet = $quote->getDpdStreet();
         $postalCode = $quote->getDpdZipcode();
-        $city = $quote->getDpdCity();
-        $country = $quote->getDpdCountry();
+        $city       = $quote->getDpdCity();
+        $country    = $quote->getDpdCountry();
 
         if (!$fullStreet && $quote->getDpdParcelshopId()) {
             $this->logger2->addDebug(__METHOD__ . '|2|');
             $this->logger2->addDebug(var_export($_COOKIE, true));
             $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
             $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
-            $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
-            $country = $_COOKIE['dpd-selected-parcelshop-country'] ?? '';
+            $city       = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
+            $country    = $_COOKIE['dpd-selected-parcelshop-country'] ?? '';
         }
 
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
             $this->logger2->addDebug(__METHOD__ . '|3|');
 
-            $street = $matches[1];
+            $street            = $matches[1];
             $streetHouseNumber = $matches[2];
 
             $mapping = [
@@ -2178,9 +2206,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                             ['City', 'city'],
                             ['Country', 'countryCode'],
                             ['StreetNumber', 'number'],
+                            ['StreetNumberAdditional', 'addition'],
                         ];
                         foreach ($mapping as $mappingItem) {
                             if (($requestData[$key]['Name'] == $mappingItem[0]) && (!empty($parsedResponse->address->{$mappingItem[1]}))) {
+                                if ($mappingItem[1] == 'addition') {
+                                    $parsedResponse->address->{$mappingItem[1]} =
+                                    $this->cleanStreetNumberAddition($parsedResponse->address->{$mappingItem[1]});
+                                }
                                 $requestData[$key]['_'] = $parsedResponse->address->{$mappingItem[1]};
                             }
                         }
@@ -2191,6 +2224,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
     }
 
+    private function cleanStreetNumberAddition($addition)
+    {
+        return preg_replace('/[\W]/', '', $addition);
+    }
     /**
      * @param $street
      *
@@ -2203,7 +2240,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $format = [
             'house_number'    => '',
             'number_addition' => '',
-            'street'          => $street
+            'street'          => $street,
         ];
 
         if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
@@ -2230,8 +2267,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
 
             if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())) {
-                $transactionBuilder->setAmount($transactionBuilder->getAmount() - $alreadyPaid);
                 $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
+                $transactionBuilder->setAmount($this->payRemainder);
             }
         }
         return $serviceAction;
@@ -2266,10 +2303,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         );
         if ($addRefundType) {
             $article[] = [
-                '_' => 'Refund',
-                'Name' => 'RefundType',
+                '_'       => 'Refund',
+                'Name'    => 'RefundType',
                 'GroupID' => 1,
-                'Group' => 'Article',
+                'Group'   => 'Article',
             ];
         }
         return $article;
@@ -2300,41 +2337,41 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return $shippingCostsArticle;
         }
 
-        $request = $this->taxCalculation->getRateRequest(null, null, null);
+        $request    = $this->taxCalculation->getRateRequest(null, null, null);
         $taxClassId = $this->taxConfig->getShippingTaxClass();
-        $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        $percent    = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
         $shippingCostsArticle = [
             [
                 '_'       => 'Shipping fee',
                 'Name'    => 'Description',
                 'Group'   => 'Article',
-                'GroupID' =>  $count,
+                'GroupID' => $count,
             ],
             [
                 '_'       => $this->formatPrice($shippingAmount),
                 'Name'    => $this->getPriceFieldName(),
                 'Group'   => 'Article',
-                'GroupID' =>  $count,
+                'GroupID' => $count,
             ],
             [
                 '_'       => $this->formatShippingCostsLineVatPercentage($percent),
                 'Name'    => 'VatPercentage',
                 'Group'   => 'Article',
-                'GroupID' =>  $count,
+                'GroupID' => $count,
             ],
             [
                 '_'       => '1',
                 'Name'    => 'Quantity',
                 'Group'   => 'Article',
-                'GroupID' =>  $count,
+                'GroupID' => $count,
             ],
             [
                 '_'       => '1',
                 'Name'    => 'Identifier',
                 'Group'   => 'Article',
                 'GroupID' => $count,
-            ]
+            ],
         ];
 
         $itemsTotalAmount += $shippingAmount;
@@ -2373,7 +2410,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
-        $this->logger2->addDebug(__METHOD__.'|1|');
+        $this->logger2->addDebug(__METHOD__ . '|1|');
         $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
 
         if ($payment->getOrder()->getShippingMethod() == 'dpdpickup_dpdpickup') {
@@ -2404,8 +2441,52 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // Merge the article data; products and fee's
         $requestData = array_merge($requestData, $this->getRequestArticlesData($payment));
 
+        $requestData = $this->checkTotalGrossAmount($requestData, $payment);
+
         return $requestData;
     }
 
-}
+    public function getShippingAddress($payment, &$isAbsent = false)
+    {
+        $shippingAddress = $payment->getOrder()->getShippingAddress();
 
+        if (!$shippingAddress) {
+            $isAbsent        = true;
+            $shippingAddress = $payment->getOrder()->getBillingAddress();
+        }
+        return $shippingAddress;
+    }
+
+    public function checkTotalGrossAmount($requestData, $payment)
+    {
+        $order            = $payment->getOrder();
+        $itemsTotalAmount = 0;
+        $count            = 1;
+        $requestData2     = [];
+        foreach ($requestData as $item) {
+            if (isset($item['GroupID']) && $item['GroupID'] > 0) {
+                if ($item['Name'] == 'Quantity') {
+                    $requestData2[$item['GroupID']]['Quantity'] = $item['_'];
+                }
+                if ($item['Name'] == $this->getPriceFieldName()) {
+                    $requestData2[$item['GroupID']][$this->getPriceFieldName()] = $item['_'];
+                }
+            }
+        }
+
+        foreach ($requestData2 as $key => $item) {
+            $itemsTotalAmount += $item['Quantity'] * $item[$this->getPriceFieldName()];
+            $count++;
+        }
+
+        //Add diff line
+        if (!$this->helper->areEqualAmounts($order->getBaseGrandTotal(), $itemsTotalAmount) && !$this->payRemainder) {
+            $diff        = $order->getBaseGrandTotal() - $itemsTotalAmount;
+            $diffLine    = $this->getDiffLine($count, $diff);
+            $requestData = array_merge($requestData, $diffLine);
+        }
+
+        return $requestData;
+
+    }
+}

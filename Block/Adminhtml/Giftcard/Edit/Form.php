@@ -40,11 +40,13 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             [
                 'data' => [
                     'id'    => 'edit_form',
+                    'enctype' => 'multipart/form-data',
                     'action' => $this->getData('action'),
                     'method' => 'post'
                 ]
             ]
         );
+
 
         $form->setHtmlIdPrefix('giftcard_');
         $form->setFieldNameSuffix('giftcard');
@@ -84,6 +86,16 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'value'    => $model->getLabel()
             ]
         );
+
+        $fieldset->addField(
+            'logo',
+            'image',
+            [
+                'title' => __('Giftcard logo'),
+                'label' => __('Giftcard logo'),
+                'name' => 'logo',
+                'note' => 'Allow image type: jpg, jpeg, gif, png']
+            );
 
         $form->setValues($model->getData());
         $form->setUseContainer(true);

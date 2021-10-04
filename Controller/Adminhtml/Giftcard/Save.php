@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
+use Magento\Framework\App\Filesystem\DirectoryList;
+
 class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
 {
     public function execute()
@@ -27,14 +29,48 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
         $isPost = $this->getRequest()->getPost();
 
         if ($isPost) {
+
             $giftcardModel = $this->giftcardFactory->create();
-            $giftcardId = $this->getRequest()->getParam('entity_id');
+            $giftcardId    = $this->getRequest()->getParam('entity_id');
 
             if ($giftcardId) {
                 $giftcardModel->load($giftcardId);
             }
 
             $formData = $this->getRequest()->getParam('giftcard');
+            
+            $filesData = $this->getRequest()->getFiles('logo');
+
+            if ((isset($filesData['name'])) && ($filesData['name'] != '') && (!isset($formData['logo']['delete']))) {
+                try
+                {
+                    $uploaderFactory = $this->uploaderFactory->create(['fileId' => 'logo']);
+                    $uploaderFactory->setAllowedExtensions(['jpg', 'jpeg', 'gif', 'png']);
+                    $imageAdapter = $this->adapterFactory->create();
+                    $uploaderFactory->setAllowRenameFiles(true);
+                    $uploaderFactory->setFilesDispersion(true);
+                    $mediaDirectory  = $this->fileSystem->getDirectoryRead(DirectoryList::MEDIA);
+                    $destinationPath = $mediaDirectory->getAbsolutePath('buckaroo');
+                    $result          = $uploaderFactory->save($destinationPath);
+
+                    if (!$result) {
+                        throw new LocalizedException
+                            (
+                            __('File cannot be saved to path: $1', $destinationPath)
+                        );
+                    }
+
+                    $formData['logo'] = 'buckaroo' . $result['file'];
+
+                } catch (\Exception $e) {
+                    $this->messageManager->addError($e->getMessage());
+                }
+            }
+
+            if(isset($formData['logo']['delete'])){
+                $formData['logo']  = '';
+            }
+
             $giftcardModel->setData($formData);
 
             try {

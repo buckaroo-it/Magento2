@@ -410,6 +410,21 @@
     content: ' ';
 }
 
+.buckaroo_magento2_image_title_custom:after {
+    background: none!important;
+    width: 1px!important;
+    height: 1px!important;
+}
+
+.buckaroo_magento2_logo {
+    float: right;
+    width: auto;
+    max-width: 50px;
+    margin-top: -7px;
+    max-height: 40px;
+    margin-right: 5px;
+}
+
 /* ===================== All Giftcards ============================ */
 .buckaroo_magento2_giftcards_group .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_giftcards_title.png) no-repeat;
@@ -632,7 +647,7 @@
 .buckaroo_magento2_tinka .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_tinka_title.svg) no-repeat;
     float: right;
-    margin-right: -25px;
+    margin-right: -15px;
     margin-top: 0px;
     background-size: auto 26px;
     width: 105px;
@@ -1101,9 +1116,6 @@
 }
 
 .card.styled .card_front .card_kind {
-    position: absolute;
-    top: 30px;
-    right: 20px;
     text-align: right;
 }
 
@@ -1367,6 +1379,10 @@
     width: 100%;
 }
 
+.onestepcheckout-index-index #checkout-step-idin {
+    width: inherit;
+}
+
 .buckaroo_idin_left{
     width: 50%;
     float: left;
@@ -1397,4 +1413,15 @@
 .opc-wrapper #step_idin{
     clear: both;
     display: inline-block!important;
+    padding-left:10px;
+}
+
+.onestepcheckout-index-index .opc-wrapper #step_idin {
+    padding-left: 0px;
+    margin-bottom: 10px;
+}
+
+.buckaroo_magento2_all_giftcards{
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
 }

@@ -32,6 +32,7 @@
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
     <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" />
     <preference for="Magento\Payment\Model\Checks\CanUseForCountry\CountryProvider" type="Buckaroo\Magento2\Model\Checks\CanUseForCountry\CountryProvider" />
+    <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
 
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>
@@ -348,6 +349,10 @@
                 <item name="refund" xsi:type="array">
                     <item name="type" xsi:type="string">refund</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Refund</item>
+                </item>
+                <item name="second_chance" xsi:type="array">
+                    <item name="type" xsi:type="string">second_chance</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\SecondChance</item>
                 </item>
             </argument>
         </arguments>

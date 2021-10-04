@@ -23,6 +23,9 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
 use Buckaroo\Magento2\Model\GiftcardFactory;
+use Magento\Framework\Filesystem;
+use Magento\MediaStorage\Model\File\UploaderFactory;
+use Magento\Framework\Image\AdapterFactory;
 
 class Index extends \Magento\Backend\App\Action
 {
@@ -41,6 +44,10 @@ class Index extends \Magento\Backend\App\Action
      */
     protected $giftcardFactory;
 
+    protected $fileSystem;
+    protected $uploaderFactory;
+    protected $adapterFactory;
+
     /**
      * @param Context         $context
      * @param Registry        $coreRegistry
@@ -51,13 +58,19 @@ class Index extends \Magento\Backend\App\Action
         Context $context,
         Registry $coreRegistry,
         PageFactory $resultPageFactory,
-        GiftcardFactory $giftcardFactory
+        GiftcardFactory $giftcardFactory,
+        Filesystem $fileSystem,
+        UploaderFactory $uploaderFactory,
+        AdapterFactory $adapterFactory
     ) {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
         $this->_coreRegistry = $coreRegistry;
         $this->giftcardFactory = $giftcardFactory;
+        $this->fileSystem = $fileSystem;
+        $this->adapterFactory = $adapterFactory;
+        $this->uploaderFactory = $uploaderFactory;
     }
 
     /**

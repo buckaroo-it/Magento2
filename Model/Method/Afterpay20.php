@@ -20,12 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Store\Model\ScopeInterface;
 
 class Afterpay20 extends AbstractMethod
@@ -202,7 +200,9 @@ class Afterpay20 extends AbstractMethod
     public function getRefundTransactionBuilder($payment)
     {
         $transactionBuilder = parent::getRefundTransactionBuilder($payment);
-        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        if (!$this->payRemainder) {
+            $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        }
         return $transactionBuilder;
     }
 
@@ -309,7 +309,6 @@ class Afterpay20 extends AbstractMethod
 
         if (!empty($discountline)) {
             $articles = array_merge($articles, $discountline);
-            $count++;
         }
 
         return $articles;
@@ -696,7 +695,8 @@ class Afterpay20 extends AbstractMethod
         /**
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
-        $shippingAddress = $order->getShippingAddress();
+        $shippingAddress = $this->getShippingAddress($payment);
+
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 
         if (!empty($postNLPakjeGemakAddress) && !empty($postNLPakjeGemakAddress->getData())) {
@@ -791,10 +791,5 @@ class Afterpay20 extends AbstractMethod
     protected function getFailureMessageFromMethod($transactionResponse)
     {
         return $this->getFailureMessageFromMethodCommon($transactionResponse);
-    }
-
-    protected function getPayRemainderAmount($payment, $alreadyPaid)
-    {
-        return $payment->getOrder()->getGrandTotal();
     }
 }

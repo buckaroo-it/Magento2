@@ -20,12 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Store\Model\ScopeInterface;
 
 class Billink extends AbstractMethod
@@ -340,7 +338,6 @@ class Billink extends AbstractMethod
 
         if (!empty($discountline)) {
             $articles = array_merge($articles, $discountline);
-            $count++;
         }
 
         return $articles;
@@ -649,14 +646,10 @@ class Billink extends AbstractMethod
         $VATNumber = $payment->getAdditionalInformation('customer_VATNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
-        $category = $this->_scopeConfig->getValue(
-            static::BUSINESS_METHOD,
-            ScopeInterface::SCOPE_STORE
-        );
-        $category = ($category == static::BUSINESS_METHOD_B2B) ? 'B2B' : 'B2C';
+
+        $category = $billingAddress->getCompany() ? 'B2B' : 'B2C';
 
         $gender = 'Female';
-
         if ($payment->getAdditionalInformation('customer_gender') === '1') {
             $gender = 'Male';
         }
@@ -802,7 +795,8 @@ class Billink extends AbstractMethod
         /**
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
-        $shippingAddress = $order->getShippingAddress();
+        $shippingAddress = $this->getShippingAddress($payment);
+
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 
         if (!empty($postNLPakjeGemakAddress) && !empty($postNLPakjeGemakAddress->getData())) {
@@ -810,16 +804,6 @@ class Billink extends AbstractMethod
         }
 
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
-        $category = $this->_scopeConfig->getValue(
-            static::BUSINESS_METHOD,
-            ScopeInterface::SCOPE_STORE
-        );
-        $category = ($category == static::BUSINESS_METHOD_B2B) ? 'B2B' : 'B2C';
-
-        $gender = 'Female';
-        if ($payment->getAdditionalInformation('customer_gender') == '1') {
-            $gender = 'Male';
-        }
 
         $GroupID = 2;
         $shippingData = [
@@ -919,4 +903,37 @@ class Billink extends AbstractMethod
         return (int)$price;
     }
 
+    protected function isAvailableBasedOnAmount(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        if($quote && $quote->getId()){
+            $storeId = $quote->getStoreId();
+            if($quote->getBillingAddress()->getCompany() || $quote->getShippingAddress()->getCompany()){
+                $maximum = $this->getConfigData('max_amount_b2b', $storeId);
+                $minimum = $this->getConfigData('min_amount_b2b', $storeId);
+            }else{
+                $maximum = $this->getConfigData('max_amount', $storeId);
+                $minimum = $this->getConfigData('min_amount', $storeId);
+            }
+
+            /**
+             * @var \Magento\Quote\Model\Quote $quote
+             */
+            $total = $quote->getGrandTotal();
+
+            if ($total < 0.01) {
+                return false;
+            }
+
+            if ($maximum !== null && $total > $maximum) {
+                return false;
+            }
+
+            if ($minimum !== null && $total < $minimum) {
+                return false;
+            }
+
+        }
+
+        return true;
+    }
 }

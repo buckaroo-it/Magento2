@@ -32,13 +32,17 @@
     ], function ($) {
         'use strict';
 
-        $('#sort_giftcards_list').sortable({
+        let listSelector = '#sort_giftcards_list';
+        $(listSelector).sortable({
             axis: 'y',
             tolerance: 'pointer',
             items: 'p'
         });
 
+        let ccInherit = $('input[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][sort_giftcards][inherit]"]');
+        let selector = 'select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"]';
         let inputText = $('#sort_giftcards').val();
+        let selectorWrapper = '.giftcards_sort_wrapper';
 
         if (inputText !== '') {
             let cardSortedArray = inputText.split(',');
@@ -46,35 +50,59 @@
                 let p = document.createElement("p");
                 p.innerHTML = item;
                 p.classList.add('sort_giftcards');
-                $('#sort_giftcards_list').append(p);
+                $(listSelector).append(p);
             });
         } else {
-            $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"] option:selected').each(function () {
+            $(selector + ' option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();
                 p.classList.add('sort_giftcards');
-                $('#sort_giftcards_list').append(p);
+                $(listSelector).append(p);
             });
         }
 
-        $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"]').change(function () {
-            $('#sort_giftcards_list p').remove();
+        $(selector).change(function () {
+            $(listSelector +' p').remove();
 
-            $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"] option:selected').each(function () {
+            $(selector + ' option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();
                 p.classList.add('sort_giftcards');
-                $('#sort_giftcards_list').append(p);
+                $(listSelector).append(p);
             });
         });
 
         $('#save').click(function () {
             let cardList = '';
-            $('#sort_giftcards_list p').each(function () {
+            $(listSelector + ' p').each(function () {
                 cardList += $(this).text() + ',';
             });
             cardList = cardList.slice(0, -1);
             $('#sort_giftcards').val(cardList);
+        });
+
+        function sortableOnOff(status){
+            if(status == 'disable'){
+                $(listSelector).sortable("disable");
+                $(selectorWrapper).addClass('sortable_disable');
+            }else{
+                $(listSelector).sortable("enable");
+                $(selectorWrapper).removeClass('sortable_disable');
+            }
+        }
+
+        $(document).ready(function() {
+            if(ccInherit.is(":checked")){
+                sortableOnOff('disable');
+            }
+        });
+
+        $('body').on('click', ccInherit, function() {
+           if(ccInherit.is(":checked")){
+             sortableOnOff('disable');
+           }else{
+             sortableOnOff();
+           }
         });
     });
 </script>

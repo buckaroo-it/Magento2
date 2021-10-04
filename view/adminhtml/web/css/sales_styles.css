@@ -70,6 +70,7 @@
 .buckaroo_magento2_payment_card_cartebancaire,
 .buckaroo_magento2_payment_card_dankort,
 .buckaroo_magento2_payment_card_nexi,
+.buckaroo_magento2_payment_card_postepay,
 .buckaroo_magento2_payment_klarna,
 .buckaroo_magento2_payment_klarnakp,
 .buckaroo_magento2_payment_klarnain,
@@ -486,6 +487,17 @@
 
 .buckaroo_magento2_payment_card_nexi:before {
     background: url(../images/creditcard/ico-nx.png) no-repeat;
+    margin-top: -2px;
+    float: left;
+    margin-right: 7px;
+    background-size: auto 23px;
+    width: 40px;
+    height: 23px;
+    content: ' ';
+}
+
+.buckaroo_magento2_payment_card_postepay:before {
+    background: url(../images/creditcard/ico-postepay.png) no-repeat;
     margin-top: -2px;
     float: left;
     margin-right: 7px;

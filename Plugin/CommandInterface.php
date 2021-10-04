@@ -26,6 +26,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
+use Buckaroo\Magento2\Helper\Data;
 
 class CommandInterface
 {
@@ -40,7 +41,7 @@ class CommandInterface
     public $configProviderMethodFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Helper\Data
+     * @var Data
      */
     public $helper;
 
@@ -51,7 +52,7 @@ class CommandInterface
     public function __construct(
         Factory $configProviderMethodFactory,
         Log $logging,
-        \Buckaroo\Magento2\Helper\Data $helper
+        Data $helper
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->logging = $logging;
@@ -114,9 +115,18 @@ class CommandInterface
         $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
 
         if (
-            preg_match('/afterpay/', $methodInstance->getCode())
-            &&
-            $this->helper->getOriginalTransactionKey($order->getIncrementId())
+            (
+                (
+                    preg_match('/afterpay/', $methodInstance->getCode())
+                    &&
+                    $this->helper->getOriginalTransactionKey($order->getIncrementId())
+                ) ||
+                (
+                    preg_match('/eps/', $methodInstance->getCode())
+                    &&
+                    ($this->helper->getMode($methodInstance->getCode()) != Data::MODE_LIVE)
+                )
+            )
             &&
             ($orderStatus == 'pending')
             &&
@@ -124,6 +134,7 @@ class CommandInterface
             &&
             ($order->getStatus() === Order::STATE_PROCESSING)
         ) {
+            $this->logging->addDebug(__METHOD__ . '|10|');
             return false;
         }
 

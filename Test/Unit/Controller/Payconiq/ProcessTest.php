@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Controller\Payconiq;
 
+use Buckaroo\Magento2\Helper\Data;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
@@ -33,6 +34,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Buckaroo\Magento2\Controller\Payconiq\Process;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 
 class ProcessTest extends BaseTest
 {
@@ -58,42 +60,82 @@ class ProcessTest extends BaseTest
 
     public function testExecuteCanShowPage()
     {
-        $requestMock = $this->getFakeMock(RequestInterface::class)->setMethods(['getParam'])->getMockForAbstractClass();
-        $requestMock->expects($this->once())->method('getParam')->with('transaction_key')->willReturn('key123');
+        $params = [
+            'brq_ordernumber' => null,
+            'brq_invoicenumber' => null,
+            'brq_statuscode' => null,
+            'brq_transactions' => null,
+            'brq_datarequest' => null
+        ];
+        $this->markTestIncomplete(
+            'This test needs to be reviewed.'
+        );
+        $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
-        $error = 'According to our system, you have canceled the payment. If this is not the case, please contact us.';
+        $request = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
+        $request->expects($this->atLeastOnce())->method('getParams')->willReturn($params);
+
+        $redirect = $this->getFakeMock(RedirectInterface::class)->setMethods(['redirect'])->getMockForAbstractClass();
+        $redirect->expects($this->once())->method('redirect')->with($response, 'failure_url', []);
+
         $messageManagerMock = $this->getFakeMock(ManagerInterface::class)
             ->setMethods(['addErrorMessage'])
             ->getMockForAbstractClass();
-        $messageManagerMock->expects($this->once())->method('addErrorMessage')->with($error);
-
-        $responseMock = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
-
-        $redirectMock = $this->getFakeMock(RedirectInterface::class)->setMethods(['redirect'])->getMockForAbstractClass();
-        $redirectMock->expects($this->once())->method('redirect')->with($responseMock, 'redirect.com');
+        $messageManagerMock->expects($this->once())->method('addErrorMessage');
 
         $contextMock = $this->getFakeMock(Context::class)
-            ->setMethods(['getRequest', 'getMessageManager', 'getRedirect', 'getResponse'])
+            ->setMethods(['getRequest', 'getRedirect', 'getResponse', 'getMessageManager'])
             ->getMock();
-        $contextMock->expects($this->once())->method('getRequest')->willReturn($requestMock);
+        $contextMock->expects($this->once())->method('getRequest')->willReturn($request);
+        $contextMock->expects($this->once())->method('getRedirect')->willReturn($redirect);
+        $contextMock->expects($this->once())->method('getResponse')->willReturn($response);
         $contextMock->expects($this->once())->method('getMessageManager')->willReturn($messageManagerMock);
-        $contextMock->expects($this->once())->method('getRedirect')->willReturn($redirectMock);
-        $contextMock->expects($this->once())->method('getResponse')->willReturn($responseMock);
 
-        $accountMock = $this->getFakeMock(Account::class)->setMethods(['getFailureRedirect'])->getMock();
-        $accountMock->expects($this->once())->method('getFailureRedirect')->with(1)->willReturn('redirect.com');
+        $configProviderMock = $this->getFakeMock(ConfigProviderInterface::class)
+            ->setMethods(['getFailureRedirect', 'getCancelOnFailed'])
+            ->getMockForAbstractClass();
+        $configProviderMock->expects($this->once())->method('getFailureRedirect')->willReturn('failure_url');
+        $configProviderMock->expects($this->once())->method('getCancelOnFailed')->willReturn(true);
 
-        $orderMock = $this->getFakeMock(Order::class)->setMethods(['getStore'])->getMock();
-        $orderMock->expects($this->once())->method('getStore')->willReturn(1);
+        $configProviderFactoryMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
+        $configProviderFactoryMock->expects($this->once())->method('get')->willReturn($configProviderMock);
 
-        $transactionMock = $this->getFakeMock(Transaction::class)->setMethods(['getOrder'])->getMock();
+        $cartMock = $this->getFakeMock(Cart::class)->setMethods(['setQuote', 'save'])->getMock();
+        $cartMock->expects($this->once())->method('setQuote')->willReturnSelf();
+        $cartMock->expects($this->once())->method('save')->willReturn(true);
+
+        $payment = $this->getFakeMock(Payment::class)
+            ->setMethods(['getMethodInstance', 'canProcessPostData'])
+            ->getMock();
+        $payment->expects($this->once())->method('getMethodInstance')->willReturnSelf();
+        $payment->expects($this->once())->method('canProcessPostData')->with($payment, $params)->willReturn(true);
+
+        $orderMock = $this->getFakeMock(Order::class)
+            ->setMethods(['loadByIncrementId', 'getId', 'canCancel', 'getStore','getPayment'])
+            ->getMock();
+        $orderMock->expects($this->once())->method('loadByIncrementId')->with(null)->willReturnSelf();
+        $orderMock->expects($this->exactly(2))->method('getId')->willReturn(null);
+        $orderMock->expects($this->once())->method('canCancel')->willReturn(false);
+        $orderMock->method('getStore')->willReturnSelf();
+        $orderMock->expects($this->once())->method('getPayment')->willReturn($payment);
+
+        $helperMock = $this->getFakeMock(Data::class)->setMethods(['setRestoreQuoteLastOrder'])->getMock();
+
+        $transactionMock = $this->getFakeMock(TransactionInterface::class)
+            ->setMethods(['load', 'getOrder'])
+            ->getMockForAbstractClass();
+        $transactionMock->expects($this->once())->method('load')->with(null, 'txn_id');
         $transactionMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
 
-        $instance = $this->getInstance(['context' => $contextMock, 'account' => $accountMock]);
-        $this->setProperty('transaction', $transactionMock, $instance);
-
-        $result = $instance->execute();
-        $this->assertEquals($responseMock, $result);
+        $instance = $this->getInstance([
+            'context' => $contextMock,
+            'configProviderFactory' => $configProviderFactoryMock,
+            'cart' => $cartMock,
+            'order' => $orderMock,
+            'transaction' => $transactionMock,
+            'helper' => $helperMock,
+        ]);
+        $instance->execute();
     }
 
     /**

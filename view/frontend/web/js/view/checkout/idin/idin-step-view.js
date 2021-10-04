@@ -29,10 +29,20 @@ define([
 ], function ($, ko, Component, _, uiRegistry, stepNavigator, alert, $t, quote) {
     'use strict';
 
+    function isOsc() {
+        return window.checkoutConfig && window.checkoutConfig.buckarooIdin && window.checkoutConfig.buckarooIdin.isOscEnabled;
+    }
+
+    function isOscMagePlaza() {
+        return window.checkoutConfig && window.checkoutConfig.oscConfig;
+    }
+
     window.onhashchange = function(){
-        if(window.checkoutConfig.buckarooIdin.active > 0 && window.location.hash.replace('#', '') != 'step_idin'){
-            window.location.replace('#step_idin');
-        }  
+        if (!isOscMagePlaza() && !isOsc()) {
+            if (window.checkoutConfig.buckarooIdin.active > 0 && window.location.hash.replace('#', '') != 'step_idin') {
+                window.location.replace('#step_idin');
+            }
+        }
     };
 
     /**
@@ -46,6 +56,8 @@ define([
         banktypes: [],
         idinIssuer: null,
         selectedBankDropDown: null,
+        hideSubmitButton: null,
+        hideIdinBlock: null,
 
         // isVisible: ko.observable(false),
         isVisible: ko.observable(window.checkoutConfig.buckarooIdin.active > 0),
@@ -58,19 +70,28 @@ define([
 
             if(window.checkoutConfig.buckarooIdin.active > 0){
                 this.isVisible(true);
-                stepNavigator.registerStep(
-                    'step_idin',
-                    null,
-                    $t('Age verification'),
-                    this.isVisible,
-                    _.bind(this.navigate, this),
-                    1
-                );
+                if (isOscMagePlaza() || isOsc()) {
+                    if (!window.checkoutConfig.buckarooIdin.verified) {
+                        this.hideSubmitButton = true;
+                    }
+                } else {
+                    stepNavigator.registerStep(
+                        'step_idin',
+                        null,
+                        $t('Age verification'),
+                        this.isVisible,
+                        _.bind(this.navigate, this),
+                        1
+                    );
 
-                if(window.location.hash.replace('#', '') != 'step_idin'){
-                    window.location.replace('#step_idin');
+                    if (window.location.hash.replace('#', '') != 'step_idin') {
+                        window.location.replace('#step_idin');
+                    }
                 }
             }else{
+                if (isOscMagePlaza() || isOsc()) {
+                    this.hideIdinBlock = true;
+                }
                 this.isVisible(false);
             }
 
@@ -81,10 +102,6 @@ define([
             this._super().observe(['selectedBank', 'banktypes']);
             this.banktypes = ko.observableArray(window.checkoutConfig.buckarooIdin.issuers);
             return this;
-        },
-
-        isOsc: function () {
-            return document.querySelector('.action.primary.checkout.iosc-place-order-button');
         },
 
         setSelectedBankDropDown: function() {

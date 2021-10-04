@@ -23,6 +23,8 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
+use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -90,6 +92,15 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $customerResourceFactory;
 
     /**
+     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     */
+    protected $secondChanceRepository;
+
+    private $quoteRecreate;
+
+    protected $orderService;
+
+    /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
      * @param \Magento\Checkout\Model\Cart                        $cart
@@ -119,7 +130,10 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         \Magento\Customer\Model\SessionFactory $sessionFactory,
         \Magento\Customer\Model\Customer $customerModel,
-        \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory
+        \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        QuoteRecreate $quoteRecreate,
+        OrderService $orderService
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -139,6 +153,10 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->customerResourceFactory    = $customerFactory;
         
         $this->accountConfig = $configProviderFactory->get('account');
+
+        $this->secondChanceRepository = $secondChanceRepository;
+        $this->quoteRecreate          = $quoteRecreate;
+        $this->orderService = $orderService;
 
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
@@ -206,6 +224,14 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($statusCode, true));
 
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal') &&
+            ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'))
+        ) {
+            $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');
+            $this->logger->addDebug(__METHOD__ . '|22|' . var_export($statusCode, true));
+        }
+
         switch ($statusCode) {
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
@@ -213,6 +239,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
                     $this->order
                 )], true));
+
                 if ($this->order->canInvoice()) {
                     $this->logger->addDebug(__METHOD__ . '|31|');
                     if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
@@ -275,8 +302,8 @@ class Process extends \Magento\Framework\App\Action\Action
                         )
                     );
                     $this->logger->addDebug(__METHOD__ . '|5|');
+
                     return $this->_redirect('/');
-                    // $this->redirectFailure();
                 }
 
                 $this->logger->addDebug(__METHOD__ . '|51|' . var_export(
@@ -315,50 +342,62 @@ class Process extends \Magento\Framework\App\Action\Action
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-                $this->logger->addDebug(__METHOD__ . '|7|');
-                /*
-                 * Something went wrong, so we're going to have to
-                 * 1) recreate the quote for the user
-                 * 2) cancel the order we had to create to even get here
-                 * 3) redirect back to the checkout page to offer the user feedback & the option to try again
-                 */
-
-                // StatusCode specified error messages
-                $statusCodeAddErrorMessage                                                                 = array();
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
-                    'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-                    ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')] =
-                    'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-                    ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')] =
-                    'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-                    ' error persists, please choose a different payment method.';
-                $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')] =
-                    'According to our system, you have canceled the payment. If this' .
-                    ' is not the case, please contact us.';
-
-                $this->messageManager->addErrorMessage(
-                    __(
-                        $statusCodeAddErrorMessage[$statusCode]
-                    )
-                );
-
-                if (!$this->recreateQuote()) {
-                    $this->logger->addError('Could not recreate the quote.');
-                }
-
-                if (!$this->cancelOrder($statusCode)) {
-                    $this->logger->addError('Could not cancel the order.');
-                }
-                $this->logger->addDebug(__METHOD__ . '|8|');
-                $this->redirectFailure();
+                $this->handleFailed($statusCode);
                 break;
                 //no default
         }
 
         $this->logger->addDebug(__METHOD__ . '|9|');
         return $this->_response;
+    }
+
+    protected function handleFailed($statusCode)
+    {
+        $this->logger->addDebug(__METHOD__ . '|7|');
+        /*
+         * Something went wrong, so we're going to have to
+         * 1) recreate the quote for the user
+         * 2) cancel the order we had to create to even get here
+         * 3) redirect back to the checkout page to offer the user feedback & the option to try again
+         */
+
+        // StatusCode specified error messages
+        $statusCodeAddErrorMessage = array();
+        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
+            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+            ' error persists, please choose a different payment method.';
+        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')] =
+            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+            ' error persists, please choose a different payment method.';
+        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')] =
+            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+            ' error persists, please choose a different payment method.';
+        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')] =
+            'According to our system, you have canceled the payment. If this' .
+            ' is not the case, please contact us.';
+
+        $this->messageManager->addErrorMessage(
+            __(
+                $statusCodeAddErrorMessage[$statusCode]
+            )
+        );
+
+        if ($this->accountConfig->getSecondChance($this->order->getStore())) {
+            $this->quoteRecreate->duplicate($this->order);
+        } elseif (!$this->quoteRecreate->recreate(false, $this->quote)) {
+            $this->logger->addError('Could not recreate the quote.');
+        }
+
+        //skip cancel order for PPE
+        if (isset($this->response['add_frompayperemail'])) {
+            return $this->redirectFailure();
+        }
+
+        if (!$this->cancelOrder($statusCode)) {
+            $this->logger->addError('Could not cancel the order.');
+        }
+        $this->logger->addDebug(__METHOD__ . '|8|');
+        $this->redirectFailure();
     }
 
     /**
@@ -411,49 +450,6 @@ class Process extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Make the previous quote active again, so we can offer the user another opportunity to order (since something
-     * went wrong)
-     *
-     * @return bool
-     */
-    protected function recreateQuote()
-    {
-        $this->quote->setIsActive('1');
-        $this->quote->setTriggerRecollect('1');
-        $this->quote->setReservedOrderId(null);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFee(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBaseBuckarooFee(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFeeTaxAmount(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFeeBaseTaxAmount(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBuckarooFeeInclTax(null);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->quote->setBaseBuckarooFeeInclTax(null);
-
-        if ($this->cart->setQuote($this->quote)->save()) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * If possible, cancel the order
      *
      * @param $statusCode
@@ -462,58 +458,7 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function cancelOrder($statusCode)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-
-        // Mostly the push api already canceled the order, so first check in wich state the order is.
-        if ($this->order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
-            $this->logger->addDebug(__METHOD__ . '|5|');
-            return true;
-        }
-
-        $store = $this->order->getStore();
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        if (!$this->accountConfig->getCancelOnFailed($store)) {
-            $this->logger->addDebug(__METHOD__ . '|10|');
-            return true;
-        }
-
-        $this->logger->addDebug(__METHOD__ . '|15|');
-
-        if ($this->order->canCancel()) {
-            $this->logger->addDebug(__METHOD__ . '|20|');
-
-            if (in_array($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
-                $methodInstanceClass                 = get_class($this->order->getPayment()->getMethodInstance());
-                $methodInstanceClass::$requestOnVoid = false;
-            }
-
-            $this->order->cancel();
-
-            if (in_array($this->order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
-                $this->logger->addDebug(__METHOD__ . '|25|');
-                return true;
-            }
-
-            $this->logger->addDebug(__METHOD__ . '|30|');
-
-            $failedStatus = $this->orderStatusFactory->get(
-                $statusCode,
-                $this->order
-            );
-
-            if ($failedStatus) {
-                $this->order->setStatus($failedStatus);
-            }
-            $this->order->save();
-            return true;
-        }
-
-        $this->logger->addDebug(__METHOD__ . '|40|');
-
-        return false;
+        return $this->orderService->cancel($this->order, $statusCode);
     }
 
     /**
@@ -533,6 +478,9 @@ class Process extends \Magento\Framework\App\Action\Action
         $url = $this->accountConfig->getSuccessRedirect($store);
 
         $this->messageManager->addSuccessMessage(__('Your order has been placed succesfully.'));
+
+        $this->quote->setReservedOrderId(null);
+        $this->customerSession->setSkipSecondChance(false);
 
         if (
             !empty($this->response['brq_payment_method'])
@@ -589,8 +537,10 @@ class Process extends \Magento\Framework\App\Action\Action
                         if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
                             $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                             $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
-                            $this->checkoutSession->restoreQuote();
-                            $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
+                            if (!$this->accountConfig->getSecondChance($this->order->getStore())) {
+                                $this->checkoutSession->restoreQuote();
+                                $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
+                            }
                         }
 
                     } catch (\Exception $e) {

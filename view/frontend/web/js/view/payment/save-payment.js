@@ -28,7 +28,7 @@ define(
                      */
                     $('body').on(
                         'click',
-                        '.payment-methods input[type="radio"][name="payment[method]"]',
+                        '.payment-methods div[class^="buckaroo_magento2_"] input[type="radio"][name="payment[method]"]',
                         this.savePaymentMethod
                     );
 
@@ -36,11 +36,13 @@ define(
                         var searchParams = new URLSearchParams(window.location.search);
                         if (searchParams.get('bk_e')) {
                             var messagesComponent = messagesFactory();
-                            messagesComponent.cookieMessages.forEach(function (message) {
-                                if (message.type == 'error') {
-                                    messageList.addErrorMessage({message: $.mage.__($("<textarea/>").html(message.text).text())});
-                                }
-                            });
+                            if (messagesComponent && messagesComponent.cookieMessages) {
+                                messagesComponent.cookieMessages.forEach(function (message) {
+                                    if (message.type == 'error') {
+                                        messageList.addErrorMessage({message: $.mage.__($("<textarea/>").html(message.text).text())});
+                                    }
+                                });
+                            }
                         }
                     }
                 },

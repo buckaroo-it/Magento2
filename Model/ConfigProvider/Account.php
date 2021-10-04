@@ -80,11 +80,17 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
     const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
     const XPATH_ACCOUNT_SECOND_CHANCE                   = 'buckaroo_magento2/account/second_chance';
+    const XPATH_ACCOUNT_SECOND_CHANCE_EMAIL             = 'buckaroo_magento2/account/second_chance_email';
+    const XPATH_ACCOUNT_SECOND_CHANCE_EMAIL2            = 'buckaroo_magento2/account/second_chance_email2';
     const XPATH_ACCOUNT_SECOND_CHANCE_TIMING            = 'buckaroo_magento2/account/second_chance_timing';
+    const XPATH_ACCOUNT_SECOND_CHANCE_TIMING2           = 'buckaroo_magento2/account/second_chance_timing2';
+    const XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE          = 'buckaroo_magento2/account/second_chance_template';
+    const XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE2         = 'buckaroo_magento2/account/second_chance_template2';
     const XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE           = 'buckaroo_magento2/account/no_send_second_chance';
+    const XPATH_ACCOUNT_SECOND_CHANCE_PRUNE_DAYS        = 'buckaroo_magento2/account/second_chance_prune_days';
     const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
-    const XPATH_ACCOUNT_IDIN_MODE                            = 'buckaroo_magento2/account/idin_mode';
-    const XPATH_ACCOUNT_IDIN_CATEGORY                            = 'buckaroo_magento2/account/idin_category';
+    const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
+    const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
 
     /**
      * @var MethodFactory
@@ -142,7 +148,13 @@ class Account extends AbstractConfigProvider
             'ip_header'                         => $this->getIpHeader($store),
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
             'second_chance'                     => $this->getSecondChance($store),
+            'second_chance_email'               => $this->getSecondChanceEmail($store),
+            'second_chance_email2'              => $this->getSecondChanceEmail2($store),
+            'second_chance_template'            => $this->getSecondChanceTemplate($store),
+            'second_chance_template2'           => $this->getSecondChanceTemplate2($store),
             'second_chance_timing'              => $this->getSecondChanceTiming($store),
+            'second_chance_timing2'             => $this->getSecondChanceTiming2($store),
+            'second_chance_prune_days'          => $this->getSecondChancePruneDays($store),
             'no_send_second_chance'             => $this->getNoSendSecondChance($store),
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),

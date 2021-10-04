@@ -19,9 +19,10 @@
  */
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
 use Magento\Framework\Model\AbstractModel;
 
-class SecondChance extends AbstractModel
+class SecondChance extends AbstractModel implements SecondChanceInterface
 {
     /**
      * @var string
@@ -54,6 +55,14 @@ class SecondChance extends AbstractModel
     /**
      * {@inheritdoc}
      */
+    public function getCreatedAt()
+    {
+        return $this->getData('created_at');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setStatus($status)
     {
         return $this->setData('status', $status);
@@ -68,6 +77,14 @@ class SecondChance extends AbstractModel
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function setOrderId($order_id)
+    {
+        return $this->setData('order_id', $order_id);
+    }
+
+    /**
      * @return string
      */
     public function getOrderId()
@@ -78,9 +95,41 @@ class SecondChance extends AbstractModel
     /**
      * @return string
      */
+    public function getLastOrderId()
+    {
+        return $this->getData('last_order_id');
+    }
+
+    /**
+     * @return string
+     */
+    public function setLastOrderId($last_order_id)
+    {
+        return $this->setData('last_order_id', $last_order_id);
+    }
+
+    /**
+     * @return string
+     */
+    public function setToken($token)
+    {
+        return $this->setData('token', $token);
+    }
+
+    /**
+     * @return string
+     */
     public function getToken()
     {
         return $this->getData('token');
+    }
+
+    /**
+     * @return string
+     */
+    public function setStoreId($store_id)
+    {
+        return $this->setData('store_id', $store_id);
     }
 
     /**

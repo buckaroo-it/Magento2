@@ -82,11 +82,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
-     * @var \Magento\Framework\HTTP\Client\Curl
-     */
-    protected $curlClient;
-
-    /**
      * @var Account
      */
     protected $configProviderAccount;
@@ -135,6 +130,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
      */
     protected $scopeConfig;
 
+    protected $client;
+
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
@@ -166,7 +163,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
-        \Magento\Framework\HTTP\Client\Curl $curl,
         Account $configProviderAccount,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -181,7 +177,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         \Magento\Framework\UrlInterface $urlBuilder,
         PaymentGroupTransaction $groupTransaction,
         ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Data\Form\FormKey $formKey
+        \Magento\Framework\Data\Form\FormKey $formKey,
+        \Buckaroo\Magento2\Gateway\Http\Client\Json $client
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -195,7 +192,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         $this->accountConfig = $configProviderFactory->get('account');
 
-        $this->_curlClient            = $curl;
         $this->_configProviderAccount = $configProviderAccount;
         $this->_storeManager          = $storeManager;
         $this->_checkoutSession       = $checkoutSession;
@@ -212,6 +208,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->groupTransaction = $groupTransaction;
         $this->formKey          = $formKey;
         $this->scopeConfig = $scopeConfig;
+        $this->client = $client;
     }
 
     /**
@@ -228,51 +225,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
         $orderId = $this->helper->getOrderId();
-
-        /*if(isset($data['refund'])){
-            $transactionKey = $data['refund'];
-            $amount_value = preg_replace("/([^0-9\\.,])/i", "", $data['amount']);
-            $postArray = array(
-                "Currency" => $currency,
-                "AmountCredit" => $amount_value,
-                "Invoice" => $orderId,
-                "OriginalTransactionKey" => $transactionKey,
-                "Services" => array(
-                    "ServiceList" => array(
-                        array(
-                            "Action" => "Refund",
-                            "Name" => $data['card'],
-                            "Version" => 1,
-                        )
-                    )
-                )
-            );
-
-            $response = $this->sendResponse($postArray);
-
-            $res['status'] = $response['Status']['Code']['Code'];
-
-            if($response['Status']['Code']['Code']=='190'){
-                $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($transactionKey);
-                foreach ($groupTransaction as $item) {
-                    if (!empty(floatval($item['refunded_amount']))) {
-                        $item['refunded_amount'] += $amount_value;
-                    } else {
-                        $item['refunded_amount'] = $amount_value;
-                    }
-                   $this->groupTransaction->updateGroupTransaction($item->_data);
-                }
-
-                $alreadyPaid = $this->getAlreadyPaid($orderId) - $amount_value;
-                $this->setAlreadyPaid($orderId, $alreadyPaid);
-
-                $res['message'] = __("Your refund successfully.");
-            }else{
-                $res['error'] = isset($response['Status']['SubCode']['Description']) ? $response['Status']['SubCode']['Description'] : $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
-            }
-
-            return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);     
-        }*/
 
         if (!isset($data['card']) || empty($data['card']) || !isset($data['cardNumber']) || empty($data['cardNumber']) || !isset($data['pin']) || empty($data['pin'])) {
             $res['error'] = 'Card number or pin not valid';
@@ -315,6 +267,12 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $cartTotals = $this->_checkoutSession->getQuote()->getTotals();
         $grand_total = $cartTotals['grand_total']->getData();
         $grandTotal =  $grand_total['value'];
+
+        if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($orderId)) {
+            $payRemainder = $grandTotal - $alreadyPaid;
+            $this->logger->addDebug(__METHOD__ . '|11|' . var_export([$orderId, $payRemainder], true));
+            $grandTotal = $payRemainder;
+        }
 
         $postArray = array(
             "Currency" => $currency,
@@ -394,67 +352,19 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
     }
 
-    private function sendResponse($data){
-        $secretKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getSecretKey());
-        $websiteKey =  $this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey());
-
-        $url = ($this->scopeConfig->getValue(
-                'payment/buckaroo_magento2_giftcards/active',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            ) == 2) ? 'checkout.buckaroo.nl': 'testcheckout.buckaroo.nl';
-        $uri        = 'https://'.$url.'/json/Transaction';
-        $uri2       = strtolower(rawurlencode($url.'/json/Transaction'));
-
-        $timeStamp = time();
-        $httpMethod = 'POST';
-        $nonce      = $this->stringRandom();
-
-        $json = json_encode($data, JSON_PRETTY_PRINT);
-        $md5 = md5($json, true);
-        $encodedContent = base64_encode($md5);
-
-        $rawData = $websiteKey . $httpMethod . $uri2 . $timeStamp . $nonce . $encodedContent;
-        $hash = hash_hmac('sha256', $rawData, $secretKey, true);
-        $hmac = base64_encode($hash);
-
-        $hmac_full = $websiteKey . ':' . $hmac . ':' . $nonce . ':' . $timeStamp;
-
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
-        curl_setopt($curl, CURLOPT_USERAGENT, 'Magento2');
-        curl_setopt($curl, CURLOPT_URL, $uri);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $httpMethod);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
-        //ZAK
-        //curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-        //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-
-        $headers = [
-            'Content-Type: application/json; charset=utf-8',
-            'Accept: application/json',
-            'Authorization: hmac ' . $hmac_full,
-        ];
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        $result = curl_exec($curl);
-
-        $curlInfo = curl_getinfo($curl);
-        return json_decode($result, true);
-    }
-
-    private function stringRandom($length = 16)
+    private function sendResponse($data)
     {
-        $chars = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
-        $str = "";
+        $active = $this->scopeConfig->getValue(
+            'payment/buckaroo_magento2_giftcards/active',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        $mode = ($active == \Buckaroo\Magento2\Helper\Data::MODE_LIVE) ?
+            \Buckaroo\Magento2\Helper\Data::MODE_LIVE : \Buckaroo\Magento2\Helper\Data::MODE_TEST;
 
-        for ($i=0; $i < $length; $i++)
-        {
-            $key = array_rand($chars);
-            $str .= $chars[$key];
-        }
+        $this->client->setSecretKey($this->_encryptor->decrypt($this->_configProviderAccount->getSecretKey()));
+        $this->client->setWebsiteKey($this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey()));
 
-        return $str;
+        return $this->client->doRequest($data, $mode);
     }
 
     private function setAlreadyPaid($orderId, $amount)

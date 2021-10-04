@@ -54,7 +54,7 @@
 
 <!-- ko ifnot: isGiftcardsRedirectMode() -->
 
-    <div data-bind="foreach: { data: allgiftcards, as: 'giftcard', noChildContext: true }">
+    <div class="buckaroo_magento2_all_giftcards" data-bind="foreach: { data: allgiftcards, as: 'giftcard', noChildContext: false }">
     <div data-bind="attr: { 'class': 'buckaroo_magento2_all_giftcard payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.getGiftcardType() == code)}">
 
         <div class="payment-method-title field choice">
@@ -62,8 +62,17 @@
                    name="payment[method]"
                    class="radio"
                    data-bind="attr: {'id': code, 'data-method': 'buckaroo_magento2_giftcards'}, value: code,  click: $parent.selectGiftCardPaymentMethod.bind($parent, code), checked: $parent.isCheckedGiftCardPaymentMethod.bind($parent, code), visible: $parent.isRadioButtonVisible()"/>
-            <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': code }" >
-                <span data-bind="text: title"></span></label>
+            <!-- ko if: logo -->
+                <label class="buckaroo_magento2_image_title buckaroo_magento2_image_title_custom label" data-bind="attr: {'for': code }" >
+                    <span data-bind="text: title"></span>
+                    <img class="buckaroo_magento2_logo" data-bind="attr: { src: logo }" />
+                </label>
+            <!--/ko-->
+            <!-- ko ifnot: logo -->
+                <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': code }" >
+                    <span data-bind="text: title"></span>
+                </label>
+            <!--/ko-->
         </div>
 
         <div class="payment-method-content">
@@ -72,10 +81,8 @@
             <!--/ko-->
 
             <div class="payment-method-billing-address">
-            <!-- ko foreach: $parents[1].getRegion($parent.getBillingAddressFormName()).bind($parent) -->
-                    <!-- ko if: $parent = $parents[1] -->
+                <!-- ko foreach: $parent.getRegion($parent.getBillingAddressFormName()) -->
                         <!-- ko template: getTemplate()--><!-- /ko -->
-                    <!--/ko-->
                 <!--/ko-->
             </div>
 
@@ -144,10 +151,8 @@
         </div>
 
             <div class="checkout-agreements-block">
-                <!-- ko foreach: $parents[1].getRegion('before-place-order') -->
-                    <!-- ko if: $parent = $parents[1] -->
+                <!-- ko foreach: $parent.getRegion('before-place-order') -->
                         <!-- ko template: getTemplate() --><!-- /ko -->
-                     <!--/ko-->
                 <!--/ko-->
             </div>
 

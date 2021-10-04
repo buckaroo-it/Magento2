@@ -66,6 +66,16 @@
                             <argument name="header_css_class" xsi:type="string">col-id</argument>
                         </arguments>
                     </block>
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="logo">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">Logo</argument>
+                            <argument name="index" xsi:type="string">logo</argument>
+                            <argument name="type" xsi:type="string">text</argument>
+                            <argument name="column_css_class" xsi:type="string">col-id</argument>
+                            <argument name="header_css_class" xsi:type="string">col-id</argument>
+                            <argument name="renderer" xsi:type="string">Buckaroo\Magento2\Block\Adminhtml\Grid\Renderer\Image</argument>
+                        </arguments>
+                    </block>
                 </block>
             </block>
         </referenceBlock>

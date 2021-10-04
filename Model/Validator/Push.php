@@ -122,13 +122,13 @@ class Push implements ValidatorInterface
      *
      * @return bool
      */
-    public function validateSignature($originalPostData, $postData)
+    public function validateSignature($originalPostData, $postData, $store = null)
     {
         if (!isset($postData['brq_signature'])) {
             return false;
         }
 
-        $signature = $this->calculateSignature($originalPostData);
+        $signature = $this->calculateSignature($originalPostData, $store);
 
         if ($signature !== $postData['brq_signature']) {
             return false;
@@ -144,7 +144,7 @@ class Push implements ValidatorInterface
      *
      * @return string
      */
-    protected function calculateSignature($postData)
+    protected function calculateSignature($postData, $store = null)
     {
         $copyData = $postData;
         unset($copyData['brq_signature']); unset($copyData['BRQ_SIGNATURE']);
@@ -159,7 +159,7 @@ class Push implements ValidatorInterface
             $signatureString .= $brq_key. '=' . $value;
         }
 
-        $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
+        $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));
 
         $signatureString .= $digitalSignature;
 
@@ -196,6 +196,21 @@ class Push implements ValidatorInterface
             case 'brq_previousstepdatetime':
             case 'brq_eventdatetime':
             case 'brq_service_transfer_accountholdername':
+            case 'brq_service_transfer_customeraccountname':
+            case 'cust_customerbillingfirstname':
+            case 'cust_customerbillinglastname':
+            case 'cust_customerbillingemail':
+            case 'cust_customerbillingstreet':
+            case 'cust_customerbillingtelephone':
+            case 'cust_customerbillinghousenumber':
+            case 'cust_customerbillinghouseadditionalnumber':
+            case 'cust_customershippingfirstname':
+            case 'cust_customershippinglastname':
+            case 'cust_customershippingemail':
+            case 'cust_customershippingstreet':
+            case 'cust_customershippingtelephone':
+            case 'cust_customershippinghousenumber':
+            case 'cust_customershippinghouseadditionalnumber':
                 $decodedValue = $brq_value;
                 break;
             default:

@@ -20,12 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
@@ -258,7 +256,9 @@ class Afterpay extends AbstractMethod
     public function getRefundTransactionBuilder($payment)
     {
         $transactionBuilder = parent::getRefundTransactionBuilder($payment);
-        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        if (!$this->payRemainder) {
+            $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        }
         return $transactionBuilder;
     }
 
@@ -465,7 +465,6 @@ class Afterpay extends AbstractMethod
 
         if (!empty($thirdPartyGiftCardLine)) {
             $requestData = array_merge($requestData, $thirdPartyGiftCardLine);
-            $count++;
         }
 
         return $requestData;
@@ -491,9 +490,6 @@ class Afterpay extends AbstractMethod
             if (empty($item) || $this->calculateProductPrice($item, $includesTax) == 0) {
                 continue;
             }
-
-            $itemTaxClassId = $invoice->getOrder()->getPayment()
-                ->getAdditionalInformation('tax_pid_' . $item->getProductId());
 
             $article = $this->getArticleArrayLine(
                 $count,
@@ -561,18 +557,16 @@ class Afterpay extends AbstractMethod
                 continue;
             }
 
-            $itemTaxClassId = $payment->getAdditionalInformation('tax_pid_' . $item->getProductId());
-
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
                 $item->getProductId(),
                 intval($item->getQty()),
-                $this->calculateProductPrice($item, $includesTax),
+                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
                 $this->getTaxCategory($payment->getOrder())
             );
 
-            $itemsTotalAmount += $item->getQty() * $this->calculateProductPrice($item, $includesTax);
+            $itemsTotalAmount += $item->getQty() * ($this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount());
 
             $articles = array_merge($articles, $article);
 
@@ -671,7 +665,6 @@ class Afterpay extends AbstractMethod
      */
     public function getThirdPartyGiftCardLine($latestKey, $quote)
     {
-        $article = [];
         $giftCardTotal = 0;
         $supportedGiftCards = ['amasty_giftcard', 'mageworx_giftcards'];
         $cartTotals = $quote->getTotals();

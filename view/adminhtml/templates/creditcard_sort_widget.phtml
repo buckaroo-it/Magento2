@@ -20,11 +20,8 @@
 ?>
 <div class="creditcard_sort_wrapper">
     <input type="hidden" name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][sort_creditcards][value]" id="sort_cards"
-           value="<?php echo $this->helper('Buckaroo\Magento2\Helper\Data')->getConfigCardSort()?>">
-    <div id="sort_creditcard_list">
-
-    </div>
-
+           value="<?php echo $this->helper('Buckaroo\Magento2\Helper\Data')->getConfigCardSort() ?>">
+    <div id="sort_creditcard_list"></div>
 </div>
 
 <script>
@@ -35,13 +32,18 @@
     ], function ($) {
         'use strict';
 
-        $('#sort_creditcard_list').sortable({
+        let ccInherit = $('input[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][sort_creditcards][inherit]"]');
+
+        let listSelector = '#sort_creditcard_list';
+        $(listSelector).sortable({
             axis: 'y',
             tolerance: 'pointer',
             items: 'p'
         });
 
         let inputText = $('#sort_cards').val();
+        let selector = 'select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"]';
+        let selectorWrapper = '.creditcard_sort_wrapper';
 
         if (inputText !== '') {
             let cardSortedArray = inputText.split(',');
@@ -49,35 +51,58 @@
                 let p = document.createElement("p");
                 p.innerHTML = item;
                 p.classList.add('sort_creditcard');
-                $('#sort_creditcard_list').append(p);
+                $(listSelector).append(p);
             });
         } else {
-            $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"] option:selected').each(function () {
+            $(selector + ' option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();
                 p.classList.add('sort_creditcard');
-                $('#sort_creditcard_list').append(p);
+                $(listSelector).append(p);
             });
         }
 
-        $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"]').change(function () {
-            $('#sort_creditcard_list p').remove();
-
-            $('select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"] option:selected').each(function () {
+        $(selector).change(function () {
+            $(listSelector + ' p').remove();
+            $(selector + ' option:selected').each(function () {
                 let p = document.createElement("p");
                 p.innerHTML = $(this).text();
                 p.classList.add('sort_creditcard');
-                $('#sort_creditcard_list').append(p);
+                $(listSelector).append(p);
             });
         });
 
         $('#save').click(function () {
             let cardList = '';
-            $('#sort_creditcard_list p').each(function () {
+            $(listSelector + ' p').each(function () {
                 cardList += $(this).text() + ',';
             });
             cardList = cardList.slice(0, -1);
             $('#sort_cards').val(cardList);
+        });
+
+        function sortableOnOff(status){
+            if(status == 'disable'){
+                $(listSelector).sortable("disable");
+                $(selectorWrapper).addClass('sortable_disable');
+            }else{
+                $(listSelector).sortable("enable");
+                $(selectorWrapper).removeClass('sortable_disable');
+            }
+        }
+
+        $(document).ready(function() {
+            if(ccInherit.is(":checked")){
+                sortableOnOff('disable');
+            }
+        });
+
+        $('body').on('click', ccInherit, function() {
+           if(ccInherit.is(":checked")){
+             sortableOnOff('disable');
+           }else{
+             sortableOnOff();
+           }
         });
     });
 </script>

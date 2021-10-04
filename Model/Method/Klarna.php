@@ -20,12 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Store\Model\ScopeInterface;
 
 class Klarna extends AbstractMethod
@@ -232,7 +230,6 @@ class Klarna extends AbstractMethod
 
         if (!empty($discountline)) {
             $articles = array_merge($articles, $discountline);
-            $count++;
         }
 
         return $articles;
@@ -462,10 +459,7 @@ class Klarna extends AbstractMethod
         /**
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
-        $shippingAddress = $order->getShippingAddress();
-        if($shippingAddress == null) {
-            $shippingAddress = $order->getBillingAddress();
-        }
+        $shippingAddress = $this->getShippingAddress($payment);
 
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 

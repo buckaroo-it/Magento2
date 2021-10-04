@@ -24,7 +24,6 @@ use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Tinka extends AbstractMethod
 {
@@ -224,7 +223,8 @@ class Tinka extends AbstractMethod
         /**
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
-        $shippingAddress = $payment->getOrder()->getShippingAddress();
+        $shippingAddress = $this->getShippingAddress($payment);
+
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 
         if (!empty($postNLPakjeGemakAddress) && !empty($postNLPakjeGemakAddress->getData())) {
