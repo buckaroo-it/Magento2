@@ -22,14 +22,12 @@ namespace Buckaroo\Magento2\Block\Checkout;
 
 class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
 {
-    // @codingStandardsIgnoreStart
     /**
      * Template file path
      *
      * @var string
      */
     protected $_template = 'checkout/totals.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * Buckaroo fee helper

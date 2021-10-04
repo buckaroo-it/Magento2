@@ -62,7 +62,6 @@ class Klarnakp extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'klarnakp';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -94,8 +93,6 @@ class Klarnakp extends AbstractMethod
      * @var bool
      */
     public $closeAuthorizeTransaction   = false;
-
-    // @codingStandardsIgnoreEnd
 
     /** @var Cart */
     private $cart;

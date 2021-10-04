@@ -32,15 +32,12 @@ class Eps extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'eps';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var bool

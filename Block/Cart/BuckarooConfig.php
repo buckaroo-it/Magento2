@@ -7,12 +7,10 @@ namespace Buckaroo\Magento2\Block\Cart;
 
 class BuckarooConfig extends \Magento\Backend\Block\Template
 {
-    // @codingStandardsIgnoreStart
     /**
      * @var bool
      */
     protected $_isScopePrivate = false;
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory

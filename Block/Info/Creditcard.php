@@ -40,12 +40,11 @@ class Creditcard extends \Buckaroo\Magento2\Block\Info
      */
     protected $configProvider;
 
-    // @codingStandardsIgnoreStart
     /**
      * @var string
      */
     protected $_template = 'Buckaroo_Magento2::info/creditcard.phtml';
-    // @codingStandardsIgnoreEnd
+
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         PaymentGroupTransaction $groupTransaction,

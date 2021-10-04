@@ -38,7 +38,6 @@ class PayPerEmail extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'payperemail';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -50,7 +49,6 @@ class PayPerEmail extends AbstractMethod
      * @var bool
      */
     protected $_canRefundInvoicePartial = false;
-    // @codingStandardsIgnoreEnd
 
     /** @var \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters */
     private $serviceParameters;

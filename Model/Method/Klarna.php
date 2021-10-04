@@ -59,15 +59,12 @@ class Klarna extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'klarna';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var null

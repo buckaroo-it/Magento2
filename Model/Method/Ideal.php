@@ -34,15 +34,12 @@ class Ideal extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'ideal';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code                    = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

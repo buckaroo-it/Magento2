@@ -58,7 +58,6 @@ class Billink extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'billink';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -80,8 +79,6 @@ class Billink extends AbstractMethod
      * @var bool
      */
     protected $_canCapturePartial       = true;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var bool

@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Model\ResourceModel;
 
 class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb
 {
-    // @codingStandardsIgnoreStart
     /**
      * Event prefix
      *
@@ -36,7 +35,6 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
      * @var string
      */
     protected $_eventObject = 'resource';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime

@@ -26,9 +26,7 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class SupportTab extends \Magento\Framework\View\Element\Template implements RendererInterface
 {
-    // @codingStandardsIgnoreStart
     protected $_template = 'supportTab.phtml';
-    // @codingStandardsIgnoreEnd
 
     /** @var array  */
     private $phpVersionSupport = ['2.3' => ['7.3' => ['+'], '7.4' => ['+']],

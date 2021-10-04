@@ -36,7 +36,6 @@ class IdealProcessing extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'idealprocessing';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -48,8 +47,6 @@ class IdealProcessing extends AbstractMethod
      * @var bool
      */
     protected $_canRefund               = false;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
