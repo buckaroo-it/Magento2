@@ -34,6 +34,7 @@ use Magento\Quote\Api\PaymentMethodManagementInterface;
 use Magento\Quote\Api\ShippingMethodManagementInterface;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote\TotalsCollector;
+use Magento\Quote\Model\QuoteAddressValidator;
 use Mageplaza\Osc\Helper\Item as OscHelper;
 use Mageplaza\Osc\Model\OscDetailsFactory;
 use Psr\Log\LoggerInterface;
