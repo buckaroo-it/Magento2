@@ -64,12 +64,8 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
         \Buckaroo\Magento2\Logging\Log $logger,
         \Magento\Framework\Serialize\Serializer\Json $serializer = null
     ) {
-        $this->convertor  = $convertOrderFactory->create();
-        $this->taxConfig  = $taxConfig;
-        $this->logger     = $logger;
-        $this->serializer = $serializer ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
-            \Magento\Framework\Serialize\Serializer\Json::class
-        );
+        $this->logger = $logger;
+        parent::__construct($convertOrderFactory, $taxConfig, $serializer);
     }
 
     /**
