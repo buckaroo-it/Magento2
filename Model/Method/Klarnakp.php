@@ -51,7 +51,6 @@ class Klarnakp extends AbstractMethod
     const KLARNAKP_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
     const KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
 
-
     /**
      * Business methods that will be used in klarna.
      */
@@ -278,7 +277,6 @@ class Klarnakp extends AbstractMethod
         if (isset($currentInvoice)) {
             $articledata = $this->getPayRequestData($currentInvoice, $payment);
             $articles = array_merge($articles, $articledata);
-            //$group++;
         }
 
         // For the first invoice possible add payment fee
@@ -289,7 +287,6 @@ class Klarnakp extends AbstractMethod
                 unset($serviceLine[3]);
                 unset($serviceLine[4]);
                 $articles = array_merge($articles, $serviceLine);
-                //$group++;
             }
         }
 
@@ -413,7 +410,6 @@ class Klarnakp extends AbstractMethod
             ],
         ];
 
-
         if (!empty($streetFormat['house_number'])) {
             $shippingData[] = [
                 '_'    => $streetFormat['house_number'],
@@ -448,23 +444,25 @@ class Klarnakp extends AbstractMethod
             ScopeInterface::SCOPE_STORE
         );
 
-        $articles = array();
-        //$group = 1;
+        $articles = [];
 
         $invoiceItems = $invoice->getAllItems();
 
         $qtys = [];
         foreach ($invoiceItems as $item) {
-            $this->logger2->addDebug(__METHOD__.'|2|'.var_export([$item->getSku(),$item->getOrderItem()->getParentItemId()],true));
-            if (empty($item)  || $item->getOrderItem()->getParentItemId() || $this->calculateProductPrice($item, $includesTax) == 0) {
+            $this->logger2->addDebug(
+                __METHOD__.'|2|' . var_export([$item->getSku(), $item->getOrderItem()->getParentItemId()], true)
+            );
+            if (empty($item)
+                || $item->getOrderItem()->getParentItemId()
+                || $this->calculateProductPrice($item, $includesTax) == 0
+            ) {
                 continue;
             }
 
             $qtys[$item->getSku()] = [
-                'qty' => intval($item->getQty()),
-                //'name' => $item->getName(),
+                'qty' => (int) $item->getQty(),
                 'price' => $this->calculateProductPrice($item, $includesTax),
-                //'tax' => $item->getTaxPercent()
             ];
         }
 
@@ -736,7 +734,7 @@ class Klarnakp extends AbstractMethod
         $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
 
-        $articles = array();
+        $articles = [];
         $group    = 1;
         $max      = 99;
         $i        = 1;
@@ -785,7 +783,9 @@ class Klarnakp extends AbstractMethod
                 ]
             ];
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
             $group++;
 
             if ($i > $max) {
@@ -1021,5 +1021,4 @@ class Klarnakp extends AbstractMethod
     {
         return $this->buckarooPaymentMethodCode;
     }
-
 }

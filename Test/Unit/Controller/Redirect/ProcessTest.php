@@ -78,7 +78,7 @@ class ProcessTest extends BaseTest
         ];
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
@@ -138,7 +138,6 @@ class ProcessTest extends BaseTest
 
         $helperMock = $this->getFakeMock(Data::class)->setMethods(['setRestoreQuoteLastOrder'])->getMock();
 
-
         $orderStatusFactoryMock = $this->getFakeMock(OrderStatusFactory::class)->setMethods(['get'])->getMock();
         $orderStatusFactoryMock->expects($this->once())
             ->method('get')
@@ -160,7 +159,6 @@ class ProcessTest extends BaseTest
             'helper' => $helperMock,
             'orderStatusFactory' => $orderStatusFactoryMock
         ]);
-        #$instance->execute();
     }
 
     /**
@@ -177,7 +175,7 @@ class ProcessTest extends BaseTest
         ];
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
@@ -258,7 +256,7 @@ class ProcessTest extends BaseTest
         ];
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();

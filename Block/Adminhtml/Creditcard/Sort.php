@@ -25,36 +25,14 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
-class Sort extends Field {
-
+class Sort extends Field
+{
     /**
      * Template path
      *
      * @var string
      */
     protected $_template = 'Buckaroo_Magento2::creditcard_sort_widget.phtml';
-
-    /**
-     * @param Context $context
-     * @param array $data
-     */
-    public function __construct(
-        Context $context,
-        array $data = []
-    ) {
-        parent::__construct($context, $data);
-    }
-
-    /**
-     * Remove scope label
-     *
-     * @param  AbstractElement $element
-     * @return string
-     */
-    public function render(AbstractElement $element)
-    {
-        return parent::render($element);
-    }
 
     /**
      * Return element html
@@ -66,5 +44,4 @@ class Sort extends Field {
     {
         return $this->_toHtml();
     }
-
 }

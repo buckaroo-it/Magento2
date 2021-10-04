@@ -72,10 +72,12 @@ class ProcessTest extends BaseTest
         );
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
-        $request = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
+        $request = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])
+            ->getMockForAbstractClass();
         $request->expects($this->atLeastOnce())->method('getParams')->willReturn($params);
 
-        $redirect = $this->getFakeMock(RedirectInterface::class)->setMethods(['redirect'])->getMockForAbstractClass();
+        $redirect = $this->getFakeMock(RedirectInterface::class)->setMethods(['redirect'])
+            ->getMockForAbstractClass();
         $redirect->expects($this->once())->method('redirect')->with($response, 'failure_url', []);
 
         $messageManagerMock = $this->getFakeMock(ManagerInterface::class)
@@ -314,7 +316,8 @@ class ProcessTest extends BaseTest
         $searchCriteriaBuildMock->expects($this->exactly($expectedCallCount))
             ->method('create')->willReturn($searchCriteriaMock);
 
-        $trxRepoMock = $this->getFakeMock(TransactionRepositoryInterface::class)->setMethods(['getList'])->getMockForAbstractClass();
+        $trxRepoMock = $this->getFakeMock(TransactionRepositoryInterface::class)->setMethods(['getList'])
+            ->getMockForAbstractClass();
         $trxRepoMock->expects($this->exactly($expectedCallCount))
             ->method('getList')->with($searchCriteriaMock)->willReturn('list of items');
 

@@ -99,7 +99,7 @@ class IdealProcessingTest extends BaseTest
         $paymentMock->expects($this->once())->method('getOrder');
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $instance = $this->getInstance(['transactionBuilderFactory' => $transactionBuilderMock]);
         $result = $instance->getOrderTransactionBuilder($paymentMock);
 

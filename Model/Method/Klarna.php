@@ -214,7 +214,9 @@ class Klarna extends AbstractMethod
                 $item->getTaxPercent() ?? 0
             );
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             if ($count < self::KLARNA_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -449,7 +451,7 @@ class Klarna extends AbstractMethod
             ];
         }
 
-        if($birthDayStamp){
+        if ($birthDayStamp) {
             $billingData[] = [
                 '_'    => $birthDayStamp,
                 'Name' => 'BirthDate',

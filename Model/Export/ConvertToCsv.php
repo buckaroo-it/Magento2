@@ -12,9 +12,6 @@ use Magento\Framework\Filesystem;
 use Magento\Ui\Component\MassAction\Filter;
 use Magento\Ui\Model\Export\MetadataProvider;
 
-/**
- * Class ConvertToCsv
- */
 class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
 {
     /**
@@ -54,12 +51,12 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         Filesystem $filesystem,
         Filter $filter,
         MetadataProvider $metadataProvider,
-        $pageSize = 200,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Buckaroo\Magento2\Helper\PaymentGroupTransaction $groupTransaction,
         \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
+        $pageSize = 200
     ) {
         $this->filter                = $filter;
         $this->directory             = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
@@ -82,7 +79,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
     {
         $component = $this->filter->getComponent();
 
-        $name = md5(microtime());
+        $name = sha1(microtime());
         $file = 'export/' . $component->getName() . $name . '.csv';
 
         $this->filter->prepareComponent($component);

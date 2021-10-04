@@ -28,6 +28,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class Afterpay extends AbstractMethod
 {
@@ -320,7 +321,7 @@ class Afterpay extends AbstractMethod
         if ($fullStreet && preg_match('/(.*)\s([0-9]+)([^\w]*)([\w]*)/', $fullStreet, $matches)) {
             $street = $matches[1];
             $streetHouseNumber = $matches[2];
-            $streetHouseNumberSuffix = @$matches[4];
+            $streetHouseNumberSuffix = empty($matches[4]) ? '' : $matches[4];
 
             $mapping = [
                 ['ShippingStreet', $street],
@@ -417,7 +418,7 @@ class Afterpay extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                intval($item->getQty()),
+                (int) $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($payment->getOrder())
             );
@@ -427,7 +428,9 @@ class Afterpay extends AbstractMethod
              */
             $payment->setAdditionalInformation('tax_pid_' . $item->getProductId(), $item->getTaxClassId());
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -483,7 +486,7 @@ class Afterpay extends AbstractMethod
         );
 
         // Set loop variables
-        $articles = array();
+        $articles = [];
         $count    = 1;
 
         foreach ($invoice->getAllItems() as $item) {
@@ -495,12 +498,14 @@ class Afterpay extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                intval($item->getQty()),
+                (int) $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
                 $this->getTaxCategory($invoice->getOrder())
             );
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             // Capture calculates discount per order line
             if ($item->getDiscountAmount() > 0) {
@@ -513,7 +518,9 @@ class Afterpay extends AbstractMethod
                     number_format(($item->getDiscountAmount()*-1), 2),
                     $this->getTaxCategory($invoice->getOrder())
                 );
+                // @codingStandardsIgnoreStart
                 $articles = array_merge($articles, $article);
+                // @codingStandardsIgnoreEnd
             }
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -557,18 +564,21 @@ class Afterpay extends AbstractMethod
                 continue;
             }
 
+            $prodPrice = $this->calculateProductPrice($item, $includesTax);
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
                 $item->getProductId(),
-                intval($item->getQty()),
-                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
+                (int) $item->getQty(),
+                $prodPrice - round($item->getDiscountAmount() / $item->getQty(), 2),
                 $this->getTaxCategory($payment->getOrder())
             );
 
-            $itemsTotalAmount += $item->getQty() * ($this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount());
+            $itemsTotalAmount += $item->getQty() * ($prodPrice - $item->getDiscountAmount());
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -591,7 +601,7 @@ class Afterpay extends AbstractMethod
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
@@ -791,7 +801,7 @@ class Afterpay extends AbstractMethod
     public function getRequestBillingData($payment)
     {
         /**
-         * @var \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+         * @var OrderAddressInterface $billingAddress
          */
         $billingAddress = $payment->getOrder()->getBillingAddress();
         $streetFormat   = $this->formatStreet($billingAddress->getStreet());
@@ -800,14 +810,10 @@ class Afterpay extends AbstractMethod
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
-        if (
-            ($this->buckarooPaymentMethodCode  === 'afterpay')
-            &&
-            $payment->getAdditionalInformation('selectedBusiness')
-            &&
-            ($payment->getAdditionalInformation('selectedBusiness') == 2)
-            &&
-            !$birthDayStamp
+        if (($this->buckarooPaymentMethodCode  === 'afterpay')
+            && $payment->getAdditionalInformation('selectedBusiness')
+            && ($payment->getAdditionalInformation('selectedBusiness') == 2)
+            && !$birthDayStamp
         ) {
             $birthDayStamp = '11-11-1990';
         }
@@ -882,8 +888,9 @@ class Afterpay extends AbstractMethod
         return $billingData;
     }
 
-    protected function getRequestBillingDataExtra(\Magento\Sales\Api\Data\OrderAddressInterface $billingAddress, array &$billingData)
+    protected function getRequestBillingDataExtra(OrderAddressInterface $billingAddress, array &$billingData)
     {
+        return false;
     }
 
     /**
@@ -894,21 +901,17 @@ class Afterpay extends AbstractMethod
     public function getRequestShippingData($payment)
     {
         /**
-         * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
+         * @var OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $payment->getOrder()->getShippingAddress();
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
 
         $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
 
-        if (
-            ($this->buckarooPaymentMethodCode  === 'afterpay')
-            &&
-            $payment->getAdditionalInformation('selectedBusiness')
-            &&
-            ($payment->getAdditionalInformation('selectedBusiness') == 2)
-            &&
-            !$birthDayStamp
+        if (($this->buckarooPaymentMethodCode  === 'afterpay')
+            && $payment->getAdditionalInformation('selectedBusiness')
+            && ($payment->getAdditionalInformation('selectedBusiness') == 2)
+            && !$birthDayStamp
         ) {
             $birthDayStamp = '11-11-1990';
         }

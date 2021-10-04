@@ -102,7 +102,7 @@ class Order
 
         $extraInfoRequestParameter = [
             [
-                '_' => mb_substr($shippingAddress->getName(), 0,32),
+                '_' => mb_substr($shippingAddress->getName(), 0, 32),
                 'Name' => 'Name',
             ],
             [

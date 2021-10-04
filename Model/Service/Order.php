@@ -162,9 +162,12 @@ class Order
                             'main_table.entity_id = p.parent_id',
                             ['method']
                         )
-                        ->where('p.additional_information like "%isPayPerEmail%" OR p.method ="buckaroo_magento2_payperemail"');
+                        ->where('p.additional_information like "%isPayPerEmail%"'
+                            . ' OR p.method ="buckaroo_magento2_payperemail"');
 
-                    $this->logging->addDebug(__METHOD__ . '|PPEOrders query|' . $orderCollection->getSelect()->__toString());
+                    $this->logging->addDebug(
+                        __METHOD__ . '|PPEOrders query|' . $orderCollection->getSelect()->__toString()
+                    );
 
                     $this->logging->addDebug(__METHOD__ . '|10|' . var_export($orderCollection->count(), true));
 
@@ -203,7 +206,8 @@ class Order
 
         $this->logging->addDebug(__METHOD__ . '|15|');
 
-        if ($order->canCancel() || in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['payperemail'])) {
+        if ($order->canCancel()
+            || in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['payperemail'])) {
             $this->logging->addDebug(__METHOD__ . '|20|');
 
             if (in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {

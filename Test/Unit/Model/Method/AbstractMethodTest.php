@@ -142,7 +142,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $quoteMock = $this->getFakeMock(CartInterface::class)->setMethods(['getGrandTotal'])->getMockForAbstractClass();
         $quoteMock->expects($this->once())->method('getGrandTotal')->willReturn(25);
 
-        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getActive'])->getMock();
+        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getActive','getLimitByIp'])->getMock();
         $accountConfigMock->expects($this->once())->method('getActive')->willReturn(1);
 
         $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
@@ -182,7 +182,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $quoteMock = $this->getFakeMock(CartInterface::class)->setMethods(['getGrandTotal'])->getMockForAbstractClass();
         $quoteMock->expects($this->once())->method('getGrandTotal')->willReturn(5);
 
-        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getActive'])->getMock();
+        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getActive','getLimitByIp'])->getMock();
         $accountConfigMock->expects($this->once())->method('getActive')->willReturn(1);
 
         $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
@@ -226,7 +226,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $quoteMock->expects($this->once())->method('getCurrency')->willReturnSelf();
         $quoteMock->expects($this->once())->method('getQuoteCurrencyCode')->willReturn('GBP');
 
-        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getActive'])->getMock();
+        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getActive','getLimitByIp'])->getMock();
         $accountConfigMock->expects($this->once())->method('getActive')->willReturn(1);
 
         $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
@@ -271,7 +271,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $quoteMock->expects($this->once())->method('getCurrency')->willReturnSelf();
         $quoteMock->expects($this->once())->method('getQuoteCurrencyCode')->willReturn('EUR');
 
-        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getActive'])->getMock();
+        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getActive','getLimitByIp'])->getMock();
         $accountConfigMock->expects($this->once())->method('getActive')->willReturn(1);
 
         $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
@@ -724,7 +724,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
         
-        if(in_array($method,['order','authorize'])){
+        if (in_array($method, ['order','authorize'])) {
             $configProviderMock->expects($this->once())->method('get')->with('account')->willReturn($accountConfigMock);
         }
 

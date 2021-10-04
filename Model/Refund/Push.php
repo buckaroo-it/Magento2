@@ -171,8 +171,7 @@ class Push
 
         try {
             if ($creditmemo) {
-                if (
-                    !empty($this->postData['add_service_action_from_magento'])
+                if (!empty($this->postData['add_service_action_from_magento'])
                     && ($this->postData['add_service_action_from_magento'] == 'capture')
                     && !empty($this->postData['brq_transaction_method'])
                     && ($this->postData['brq_transaction_method'] == 'afterpay')

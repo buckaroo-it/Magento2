@@ -44,7 +44,7 @@ class PayconiqTest extends BaseTest
         $transactionBuildMock->expects($this->once())->method('get')->with('order')->willReturn($transactionOrderMock);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $instance = $this->getInstance(['transactionBuilderFactory' => $transactionBuildMock]);
         $result = $instance->getOrderTransactionBuilder($paymentMock);
 

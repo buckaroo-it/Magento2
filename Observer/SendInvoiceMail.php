@@ -89,8 +89,7 @@ class SendInvoiceMail implements ObserverInterface
             }
         }
         if ($invoice->getIsPaid() && $canCapture) {
-            if (
-                ($payment->getMethod() == Afterpay20::PAYMENT_METHOD_CODE)
+            if (($payment->getMethod() == Afterpay20::PAYMENT_METHOD_CODE)
                 && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
                 && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
             ) {

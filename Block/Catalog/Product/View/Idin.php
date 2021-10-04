@@ -71,7 +71,7 @@ class Idin extends Template
      */
     private function getProduct()
     {
-        if (is_null($this->product)) {
+        if ($this->product === null) {
             $this->product = $this->registry->registry('product');
 
             if (!$this->product->getId()) {
@@ -97,7 +97,8 @@ class Idin extends Template
             switch ($this->idinConfigProvider->getIdinMode()) {
                 case 1:
                     if (null !== $this->getProduct()->getCustomAttribute('buckaroo_product_idin')) {
-                        $result = $this->getProduct()->getCustomAttribute('buckaroo_product_idin')->getValue() == 1 ? true : false;
+                        $result = $this->getProduct()->getCustomAttribute('buckaroo_product_idin')->getValue() == 1 ?
+                            true : false;
                     }
                     break;
                 case 2:

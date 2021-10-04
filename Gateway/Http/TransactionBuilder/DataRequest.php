@@ -52,7 +52,6 @@ class DataRequest extends AbstractTransactionBuilder
         return $body;
     }
 
-
     /**
      * @return array
      */
@@ -60,12 +59,15 @@ class DataRequest extends AbstractTransactionBuilder
     {
         $parameterLine = [];
         if (isset($this->getServices()['Action'])) {
-            $parameterLine[] = $this->getParameterLine('service_action_from_magento', strtolower($this->getServices()['Action']));
+            $parameterLine[] = $this->getParameterLine(
+                'service_action_from_magento',
+                strtolower($this->getServices()['Action'])
+            );
         }
 
         $parameterLine[] = $this->getParameterLine('initiated_by_magento', 1);
 
-        if($additionalParameters = $this->getAllAdditionalParameters()){
+        if ($additionalParameters = $this->getAllAdditionalParameters()) {
             foreach ($additionalParameters as $key => $value) {
                 $parameterLine[] = $this->getParameterLine($key, $value);
             }

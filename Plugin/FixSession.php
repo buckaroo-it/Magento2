@@ -23,6 +23,7 @@ use Magento\Framework\HTTP\Header;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Stdlib\Cookie\PhpCookieManager;
 use Magento\Framework\Stdlib\Cookie\PublicCookieMetadata;
+use Magento\Framework\Session\SessionManager;
 
 class FixSession
 {
@@ -36,12 +37,16 @@ class FixSession
      */
     protected $logger;
 
+    protected $sessionManager;
+
     public function __construct(
         Header $header,
-        Log $logger
+        Log $logger,
+        SessionManager $sessionManager
     ) {
         $this->header = $header;
-        $this->logger             = $logger;
+        $this->logger = $logger;
+        $this->sessionManager = $sessionManager;
     }
 
     public function beforeSetPublicCookie(
@@ -50,7 +55,7 @@ class FixSession
         $value,
         PublicCookieMetadata $metadata = null
     ) {
-        if ($metadata && method_exists($metadata, 'getSameSite') && ($name == session_name())) {
+        if ($metadata && method_exists($metadata, 'getSameSite') && ($name == $this->sessionManager->getName())) {
             if ($metadata->getSameSite() != 'None') {
                 $metadata->setSecure(true);
                 $metadata->setSameSite('None');

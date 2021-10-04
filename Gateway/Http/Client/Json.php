@@ -41,7 +41,8 @@ class Json
 
     public function doRequest(array $data, $mode)
     {
-        $url  = $mode == \Buckaroo\Magento2\Helper\Data::MODE_LIVE ? 'checkout.buckaroo.nl' : 'testcheckout.buckaroo.nl';
+        $url  = $mode == \Buckaroo\Magento2\Helper\Data::MODE_LIVE ?
+            'checkout.buckaroo.nl' : 'testcheckout.buckaroo.nl';
         $uri  = 'https://' . $url . '/json/Transaction';
         $uri2 = strtolower(rawurlencode($url . '/json/Transaction'));
 
@@ -72,7 +73,8 @@ class Json
 
     public function doCancelRequest($key, $mode)
     {
-        $url  = $mode == \Buckaroo\Magento2\Helper\Data::MODE_LIVE ? 'checkout.buckaroo.nl' : 'testcheckout.buckaroo.nl';
+        $url  = $mode == \Buckaroo\Magento2\Helper\Data::MODE_LIVE ?
+            'checkout.buckaroo.nl' : 'testcheckout.buckaroo.nl';
         $uri  = 'https://' . $url . '/json/Transaction/cancel/' . $key;
         $uri2 = strtolower(rawurlencode($url . '/json/Transaction/cancel/' . $key));
 

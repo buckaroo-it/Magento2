@@ -37,7 +37,7 @@ class OrderTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $expected = [
             'Currency' => 'EUR',
             'AmountDebit' => 50,
