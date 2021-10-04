@@ -227,7 +227,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $orderId = $this->helper->getOrderId();
 
         if (!isset($data['card']) || empty($data['card']) || !isset($data['cardNumber']) || empty($data['cardNumber']) || !isset($data['pin']) || empty($data['pin'])) {
-            $res['error'] = 'Card number or pin not valid';
+            $res['error'] = __('Card number or pin not valid');
             return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
         }
 
