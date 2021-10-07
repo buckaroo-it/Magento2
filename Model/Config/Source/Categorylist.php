@@ -79,9 +79,11 @@ class Categorylist implements \Magento\Framework\Option\ArrayInterface
     {
         $categories = $this->getCategoryCollection(true, false, false, false);
 
-        $catagoryList = array();
+        $catagoryList = [];
         foreach ($categories as $category) {
-            $catagoryList[$category->getEntityId()] = __($this->_getParentName($category->getPath()) . $category->getName());
+            $catagoryList[$category->getEntityId()] = __(
+                $this->_getParentName($category->getPath()) . $category->getName()
+            );
         }
 
         return $catagoryList;
@@ -90,7 +92,7 @@ class Categorylist implements \Magento\Framework\Option\ArrayInterface
     private function _getParentName($path = '')
     {
         $parentName = '';
-        $rootCats   = array(1, 2);
+        $rootCats   = [1, 2];
 
         $catTree = explode("/", $path);
         array_pop($catTree);

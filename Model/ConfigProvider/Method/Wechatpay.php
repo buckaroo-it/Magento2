@@ -41,8 +41,9 @@ class Wechatpay extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Wechatpay::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Wechatpay::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [

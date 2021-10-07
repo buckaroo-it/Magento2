@@ -50,9 +50,10 @@ class PayPerEmail extends AbstractConfigProvider
     const XPATH_PAYPEREMAIL_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_payperemail/max_step_index';
     const XPATH_PAYPEREMAIL_CM3_DUE_DATE                = 'payment/buckaroo_magento2_payperemail/cm3_due_date';
     const XPATH_PAYPEREMAIL_PAYMENT_METHOD              = 'payment/buckaroo_magento2_payperemail/payment_method';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_payperemail/payment_method_after_expiry';
+    const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/'.
+        'buckaroo_magento2_payperemail/payment_method_after_expiry';
     const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_payperemail/visible_front_back';
-    const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE    = 'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
+    const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE = 'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
     const XPATH_PAYPEREMAIL_ENABLE_B2B                  = 'payment/buckaroo_magento2_payperemail/enable_b2b';
     const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'payment/buckaroo_magento2_payperemail/expire_days';
     const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'payment/buckaroo_magento2_payperemail/cancel_ppe';

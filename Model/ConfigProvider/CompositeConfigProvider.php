@@ -1,5 +1,5 @@
 <?php
- /**
+/**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License

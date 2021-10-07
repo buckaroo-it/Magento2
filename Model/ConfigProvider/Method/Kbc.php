@@ -48,7 +48,9 @@ class Kbc extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Kbc::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Kbc::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
