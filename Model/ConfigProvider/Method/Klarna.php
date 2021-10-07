@@ -87,7 +87,7 @@ class Klarna extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_PAYMENT_FEE,
+            static::XPATH_KLARNA_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -108,7 +108,7 @@ class Klarna extends AbstractConfigProvider
     public function getEnabled($storeId = null)
     {
         $enabled = $this->scopeConfig->getValue(
-            self::XPATH_KLARNA_ACTIVE,
+            static::XPATH_KLARNA_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );

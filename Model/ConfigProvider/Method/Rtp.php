@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\ScopeInterface;
+
 class Rtp extends AbstractConfigProvider
 {
     const XPATH_RTP_PAYMENT_FEE           = 'payment/buckaroo_magento2_rtp/payment_fee';
@@ -69,7 +71,7 @@ class Rtp extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_RTP_PAYMENT_FEE,
+            static::XPATH_RTP_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );

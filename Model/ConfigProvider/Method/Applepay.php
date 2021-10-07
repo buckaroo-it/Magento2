@@ -140,4 +140,101 @@ class Applepay extends AbstractConfigProvider
 
         return $availableButtons;
     }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderEmail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_ORDER_EMAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableInBackend($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_AVAILABLE_IN_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getButtonStyle($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_BUTTON_STYLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDontAskBillingInfoInCheckout($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
 }

@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Method\Afterpay20 as Afterpay20Method;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @method getDueDate()
@@ -55,7 +56,7 @@ class Afterpay20 extends AbstractConfigProvider
     {
         if (!$this->scopeConfig->getValue(
             static::XPATH_AFTERPAY20_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         )) {
             return [];
         }
@@ -84,7 +85,7 @@ class Afterpay20 extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY20_PAYMENT_FEE,
+            static::XPATH_AFTERPAY20_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -100,11 +101,120 @@ class Afterpay20 extends AbstractConfigProvider
     public function getCreateInvoiceAfterShipment($storeId = null)
     {
         $createInvoiceAfterShipment = $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP,
+            static::XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
         return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
+    }
+
+
+    /**
+     * get Active
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_AFTERPAY20_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * get Payment Fee Label
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_AFTERPAY20_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * get Send Email
+     */
+    public function getSendEmail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_AFTERPAY20_SEND_EMAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * get Active Status
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_AFTERPAY20_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * get Order Status Success
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_AFTERPAY20_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * get Order Status Failed
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_AFTERPAY20_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * get Available In Backend
+     */
+    public function getAvailableInBackend($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_AFTERPAY20_AVAILABLE_IN_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * get Due Date
+     */
+    public function getDueDate($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_AFTERPAY20_DUE_DATE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * get Create Invoice By Ship
+     */
+    public function getCreateInvoiceByShip($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

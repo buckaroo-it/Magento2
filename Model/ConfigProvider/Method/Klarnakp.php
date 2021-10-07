@@ -20,10 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-/**
- * @method getDueDate()
- * @method getSendEmail()
- */
 class Klarnakp extends AbstractConfigProvider
 {
     const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarnakp/allowed_currencies';
@@ -40,7 +36,7 @@ class Klarnakp extends AbstractConfigProvider
     const XPATH_KLARNAKP_DUE_DATE               = 'payment/buckaroo_magento2_klarnakp/due_date';
     const XPATH_KLARNAKP_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_klarnakp/allowed_currencies';
     const XPATH_KLARNAKP_BUSINESS               = 'payment/buckaroo_magento2_klarnakp/business';
-    const XPATH_KLARNAKP_PAYMENT_METHODS        = 'payment/buckaroo_magento2_klarnakp/payment_method';
+    const XPATH_KLARNAKP_PAYMENT_METHOD        = 'payment/buckaroo_magento2_klarnakp/payment_method';
     const XPATH_KLARNAKP_HIGH_TAX               = 'payment/buckaroo_magento2_klarnakp/high_tax';
     const XPATH_KLARNAKP_MIDDLE_TAX             = 'payment/buckaroo_magento2_klarnakp/middle_tax';
     const XPATH_KLARNAKP_LOW_TAX                = 'payment/buckaroo_magento2_klarnakp/low_tax';
@@ -88,7 +84,7 @@ class Klarnakp extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAKP_PAYMENT_FEE,
+            static::XPATH_KLARNAKP_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -109,7 +105,7 @@ class Klarnakp extends AbstractConfigProvider
     public function getEnabled($storeId = null)
     {
         $enabled = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAKP_ACTIVE,
+            static::XPATH_KLARNAKP_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -125,7 +121,7 @@ class Klarnakp extends AbstractConfigProvider
     public function getCreateInvoiceAfterShipment($storeId = null)
     {
         $createInvoiceAfterShipment = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
+            static::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );

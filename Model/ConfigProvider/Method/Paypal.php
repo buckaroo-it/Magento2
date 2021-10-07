@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\ScopeInterface;
+
 /**
  * @method getPaymentFeeLabel()
  * @method getSellersProtection()
@@ -39,6 +41,7 @@ class Paypal extends AbstractConfigProvider
     const XPATH_PAYPAL_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_paypal/available_in_backend';
     const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_paypal/sellers_protection';
     const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/'.
+
     'buckaroo_magento2_paypal/sellers_protection_eligible';
     const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/'.
     'buckaroo_magento2_paypal/sellers_protection_ineligible';
@@ -48,7 +51,6 @@ class Paypal extends AbstractConfigProvider
     'buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paypal/allowed_currencies';
-
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_paypal/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_paypal/specificcountry';
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paypal/specificcustomergroup';
@@ -82,11 +84,144 @@ class Paypal extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_PAYPAL_PAYMENT_FEE,
+            static::XPATH_PAYPAL_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
         return $paymentFee ? $paymentFee : false;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableInBackend($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_AVAILABLE_IN_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtection($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtectionEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtectionIneligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtectionItemnotreceivedEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }
