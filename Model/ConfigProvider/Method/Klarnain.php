@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-
 /**
  * @method getDueDate()
  * @method getSendEmail()
@@ -59,7 +58,9 @@ class Klarnain extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Klarna\Klarnain::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Klarna\Klarnain::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
@@ -114,5 +115,4 @@ class Klarnain extends AbstractConfigProvider
 
         return $enabled ? $enabled : false;
     }
-
 }

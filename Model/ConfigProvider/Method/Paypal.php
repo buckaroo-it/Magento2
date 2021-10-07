@@ -38,10 +38,14 @@ class Paypal extends AbstractConfigProvider
     const XPATH_PAYPAL_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_paypal/order_status_failed';
     const XPATH_PAYPAL_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_paypal/available_in_backend';
     const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_paypal/sellers_protection';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/buckaroo_magento2_paypal/sellers_protection_eligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/buckaroo_magento2_paypal/sellers_protection_ineligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/buckaroo_magento2_paypal/sellers_protection_itemnotreceived_eligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
+    const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/'.
+    'buckaroo_magento2_paypal/sellers_protection_eligible';
+    const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/'.
+    'buckaroo_magento2_paypal/sellers_protection_ineligible';
+    const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
+    'buckaroo_magento2_paypal/sellers_protection_itemnotreceived_eligible';
+    const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
+    'buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paypal/allowed_currencies';
 
@@ -54,7 +58,9 @@ class Paypal extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Paypal::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Paypal::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [

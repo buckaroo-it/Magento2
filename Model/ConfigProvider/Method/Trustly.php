@@ -54,8 +54,9 @@ class Trustly extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Trustly::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Trustly::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
@@ -99,5 +100,4 @@ class Trustly extends AbstractConfigProvider
             'NOK',
         ];
     }
-
 }

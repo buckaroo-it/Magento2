@@ -50,11 +50,21 @@ class SecondChance extends AbstractConfigProvider
      */
     public function getConfig($store = null)
     {
+        $template = $this->scopeConfig->getValue(
+            $this->getTemplate($store),
+            ScopeInterface::SCOPE_STORE,
+            $store
+        ) ?? self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE;
+
+        $template2 = $this->scopeConfig->getValue(
+            $this->getTemplate2($store),
+            ScopeInterface::SCOPE_STORE,
+            $store
+        ) ?? self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE2;
+
         $config = [
-            'template'     => $this->scopeConfig->getValue($this->getTemplate($store), ScopeInterface::SCOPE_STORE, $store) ??
-            self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE,
-            'template2'    => $this->scopeConfig->getValue($this->getTemplate2($store), ScopeInterface::SCOPE_STORE, $store) ??
-            self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE2,
+            'template'     => $template,
+            'template2'    => $template2,
             'final_status' => self::XPATH_SECONDCHANCE_FINAL_STATUS,
             'setFromEmail' => $this->scopeConfig->getValue(
                 'trans_email/ident_sales/email',
