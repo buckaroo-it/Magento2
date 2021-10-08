@@ -115,7 +115,6 @@ class Klarna extends AbstractConfigProvider
         return $enabled ? $enabled : false;
     }
 
-
     /**
      * {@inheritdoc}
      */

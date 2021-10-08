@@ -116,8 +116,6 @@ class Klarnain extends AbstractConfigProvider
         return $enabled ? $enabled : false;
     }
 
-
-
     /**
      * {@inheritdoc}
      */

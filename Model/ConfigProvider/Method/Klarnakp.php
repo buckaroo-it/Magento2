@@ -128,4 +128,208 @@ class Klarnakp extends AbstractConfigProvider
 
         return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSendEmail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_SEND_EMAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_KLARNAKP_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableInBackend($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_AVAILABLE_IN_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDueDate($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_DUE_DATE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBusiness($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_BUSINESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentMethod($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_PAYMENT_METHOD,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHighTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_HIGH_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMiddleTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_MIDDLE_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLowTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_LOW_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getZeroTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_ZERO_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNoTax($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_NO_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGetInvoice($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_GET_INVOICE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCreateInvoiceByShip($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
 }

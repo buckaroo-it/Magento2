@@ -88,4 +88,76 @@ class Rtp extends AbstractConfigProvider
             'EUR',
         ];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_RTP_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActive($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_RTP_ACTIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_RTP_ACTIVE_STATUS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_RTP_ORDER_STATUS_SUCCESS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_RTP_ORDER_STATUS_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAvailableInBackend($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_RTP_AVAILABLE_IN_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
 }
