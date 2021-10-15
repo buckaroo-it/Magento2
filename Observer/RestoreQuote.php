@@ -122,27 +122,27 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \Magento\Framework\Event\ManagerInterface $eventManager
     ) {
-        $this->checkoutSession     = $checkoutSession;
-        $this->customerSession     = $customerSession;
-        $this->accountConfig       = $accountConfig;
-        $this->secondChanceFactory = $secondChanceFactory;
-        $this->request             = $request;
-        $this->mathRandom          = $mathRandom;
-        $this->resultFactory       = $resultFactory;
-        $this->responseFactory     = $responseFactory;
-        $this->url                 = $url;
-        $this->orderFactory        = $orderFactory;
-        $this->quote               = $quote;
-        $this->quoteFactory        = $quoteFactory;
-        $this->productFactory      = $productFactory;
-        $this->_messageManager     = $messageManager;
-        $this->cart                = $cart;
-        $this->dateTime            = $dateTime;
-        $this->helper              = $helper;
-        $this->quoteRecreate       = $quoteRecreate;
+        $this->checkoutSession        = $checkoutSession;
+        $this->customerSession        = $customerSession;
+        $this->accountConfig          = $accountConfig;
+        $this->secondChanceFactory    = $secondChanceFactory;
+        $this->request                = $request;
+        $this->mathRandom             = $mathRandom;
+        $this->resultFactory          = $resultFactory;
+        $this->responseFactory        = $responseFactory;
+        $this->url                    = $url;
+        $this->orderFactory           = $orderFactory;
+        $this->quote                  = $quote;
+        $this->quoteFactory           = $quoteFactory;
+        $this->productFactory         = $productFactory;
+        $this->_messageManager        = $messageManager;
+        $this->cart                   = $cart;
+        $this->dateTime               = $dateTime;
+        $this->helper                 = $helper;
+        $this->quoteRecreate          = $quoteRecreate;
         $this->secondChanceRepository = $secondChanceRepository;
-        $this->quoteRepository     = $quoteRepository;
-        $this->eventManager        = $eventManager;
+        $this->quoteRepository        = $quoteRepository;
+        $this->eventManager           = $eventManager;
     }
 
     /**
@@ -156,7 +156,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         if ($payment = $lastRealOrder->getPayment()) {
-            if($this->customerSession->getSecondChanceRecreate()){
+            if ($this->customerSession->getSecondChanceRecreate()) {
                 return;
             }
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
