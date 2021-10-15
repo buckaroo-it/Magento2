@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\ScopeInterface;
+
 class Klarnakp extends AbstractConfigProvider
 {
     const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarnakp/allowed_currencies';
