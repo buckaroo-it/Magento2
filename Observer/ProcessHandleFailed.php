@@ -19,51 +19,36 @@
  */
 namespace Buckaroo\Magento2\Observer;
 
-class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
+class ProcessHandleFailed implements \Magento\Framework\Event\ObserverInterface
 {
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    private $checkoutSession;
-
-    protected $quoteFactory;
-
-    protected $messageManager;
-
-    protected $layout;
-
-    protected $cart;
-
-    protected $logging;
-
     /**
      * @var \Buckaroo\Magento2\Model\SecondChanceRepository
      */
     protected $secondChanceRepository;
 
+    protected $logging;
+
     protected $configProviderAccount;
+
+    protected $quoteRecreate;
+
+    protected $customerSession;
 
     /**
      * @param \Magento\Checkout\Model\Cart          $cart
      */
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Framework\View\LayoutInterface $layout,
-        \Magento\Checkout\Model\Cart $cart,
         \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Buckaroo\Magento2\Logging\Log $logging,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
+        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
+        \Magento\Customer\Model\Session $customerSession
     ) {
-        $this->checkoutSession        = $checkoutSession;
-        $this->quoteFactory           = $quoteFactory;
-        $this->messageManager         = $messageManager;
-        $this->layout                 = $layout;
-        $this->cart                   = $cart;
         $this->secondChanceRepository = $secondChanceRepository;
         $this->logging                = $logging;
         $this->configProviderAccount  = $configProviderAccount;
+        $this->quoteRecreate          = $quoteRecreate;
+        $this->customerSession        = $customerSession;
     }
 
     /**
@@ -75,14 +60,13 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
 
-        if ($this->checkoutSession->getMyParcelNLBuckarooData()) {
-            $this->checkoutSession->setMyParcelNLBuckarooData(null);
+        /* @var $order \Magento\Sales\Model\Order */
+        $order = $observer->getEvent()->getOrder();
+
+        if ($order && $this->configProviderAccount->getSecondChance($order->getStore())) {
+            $this->quoteRecreate->duplicate($order);
+            $this->customerSession->setSkipHandleFailedRecreate(1);
         }
 
-        try {
-            $this->cart->truncate()->save();
-        } catch (\Exception $exception) {
-            $this->messageManager->addExceptionMessage($exception, __('We can\'t empty the shopping cart.'));
-        }
     }
 }

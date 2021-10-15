@@ -29,7 +29,6 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 
-
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
     const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
@@ -215,9 +214,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $_code;
 
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     * @var EventManager
      */
-    protected $secondChanceRepository;
+    private $eventManager;
 
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
@@ -264,7 +263,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -311,7 +310,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->softwareData                = $softwareData;
         $this->addressFactory              = $addressFactory;
         $this->logger2                     = $buckarooLog;
-        $this->secondChanceRepository      = $secondChanceRepository;
+        $this->eventManager                = $eventManager;
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
@@ -661,6 +660,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function order(InfoInterface $payment, $amount)
     {
+
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
         ) {
@@ -671,6 +671,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         parent::order($payment, $amount);
+
+        $this->eventManager->dispatch('buckaroo_order_before', ['payment' => $payment]);
 
         $this->payment = $payment;
 
@@ -697,11 +699,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
-        $accountConfig = $this->configProviderFactory->get('account');
-        if ($order && $accountConfig->getSecondChance($order->getStore())) {
-            $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
-            $this->secondChanceRepository->createSecondChance($order);
-        }
+        $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
 
         $this->afterOrder($payment, $response);
 
@@ -845,6 +843,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         parent::authorize($payment, $amount);
 
+        $this->eventManager->dispatch('buckaroo_authorize_before', ['payment' => $payment]);
+
         $this->payment = $payment;
 
         $transactionBuilder = $this->getAuthorizeTransactionBuilder($payment);
@@ -870,12 +870,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
-        $accountConfig = $this->configProviderFactory->get('account');
-        if ($order && $accountConfig->getSecondChance($order->getStore())) {
-            $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
-            $this->secondChanceRepository->createSecondChance($order);
-        }
-        
+        $this->eventManager->dispatch('buckaroo_authorize_after', ['order' => $order]);
+
         $this->afterAuthorize($payment, $response);
 
         return $this;

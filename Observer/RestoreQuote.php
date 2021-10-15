@@ -90,6 +90,9 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
     protected $quoteRepository;
 
+    /* @var EventManager */
+    private $eventManager;
+
     /**
      * @param \Magento\Checkout\Model\Session                      $checkoutSession
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
@@ -116,7 +119,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         QuoteRecreate $quoteRecreate,
         \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Framework\Event\ManagerInterface $eventManager
     ) {
         $this->checkoutSession     = $checkoutSession;
         $this->customerSession     = $customerSession;
@@ -138,6 +142,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->quoteRecreate       = $quoteRecreate;
         $this->secondChanceRepository = $secondChanceRepository;
         $this->quoteRepository     = $quoteRepository;
+        $this->eventManager        = $eventManager;
     }
 
     /**
@@ -149,14 +154,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     {
         $this->helper->addDebug(__METHOD__ . '|RestoreQuote|1|');
 
-        if ($quoteId = $this->customerSession->getSecondChanceRecreate()) {
-            $this->quoteRecreate->recreateById($quoteId);
-            $this->customerSession->setSecondChanceRecreate(false);
-            return true;
-        }
-
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         if ($payment = $lastRealOrder->getPayment()) {
+            if($this->customerSession->getSecondChanceRecreate()){
+                return;
+            }
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
                 return;
             }

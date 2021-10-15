@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
-use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
 class Process extends \Magento\Framework\App\Action\Action
@@ -96,9 +95,13 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected $secondChanceRepository;
 
-    private $quoteRecreate;
-
     protected $orderService;
+
+    /**
+     * @var EventManager
+     */
+    private $eventManager;
+
 
     /**
      * @param \Magento\Framework\App\Action\Context               $context
@@ -132,8 +135,8 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\Customer $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
         \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
-        QuoteRecreate $quoteRecreate,
-        OrderService $orderService
+        OrderService $orderService,
+        \Magento\Framework\Event\ManagerInterface $eventManager
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -155,8 +158,8 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->accountConfig = $configProviderFactory->get('account');
 
         $this->secondChanceRepository = $secondChanceRepository;
-        $this->quoteRecreate          = $quoteRecreate;
-        $this->orderService = $orderService;
+        $this->orderService           = $orderService;
+        $this->eventManager           = $eventManager;
 
         // @codingStandardsIgnoreStart
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
@@ -353,6 +356,16 @@ class Process extends \Magento\Framework\App\Action\Action
     protected function handleFailed($statusCode)
     {
         $this->logger->addDebug(__METHOD__ . '|7|');
+
+        $this->eventManager->dispatch('buckaroo_process_handle_failed_before', ['order' => $this->order,'quote' => $this->quote]);
+
+        if(!$this->customerSession->getSkipHandleFailedRecreate()){
+            if (!$this->quoteRecreate->recreate(false, $quote)) {
+                $this->logging->addError('Could not recreate the quote.');
+            }
+            $this->customerSession->setSkipHandleFailedRecreate(false);
+        }
+
         /*
          * Something went wrong, so we're going to have to
          * 1) recreate the quote for the user
@@ -381,12 +394,6 @@ class Process extends \Magento\Framework\App\Action\Action
                 $statusCodeAddErrorMessage[$statusCode]
             )
         );
-
-        if ($this->accountConfig->getSecondChance($this->order->getStore())) {
-            $this->quoteRecreate->duplicate($this->order);
-        } elseif (!$this->quoteRecreate->recreate(false, $this->quote)) {
-            $this->logger->addError('Could not recreate the quote.');
-        }
 
         //skip cancel order for PPE
         if (isset($this->response['add_frompayperemail'])) {
