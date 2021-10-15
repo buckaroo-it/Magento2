@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\ScopeInterface;
+
 /**
  * @method getDueDate()
  * @method getSendEmail()
