@@ -67,6 +67,5 @@ class ProcessHandleFailed implements \Magento\Framework\Event\ObserverInterface
             $this->quoteRecreate->duplicate($order);
             $this->customerSession->setSkipHandleFailedRecreate(1);
         }
-
     }
 }

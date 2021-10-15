@@ -356,7 +356,7 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $this->logger->addDebug(__METHOD__ . '|7|');
 
-        $this->eventManager->dispatch('buckaroo_process_handle_failed_before', ['order' => $this->order, 'quote' => $this->quote]);
+        $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
 
         if (!$this->customerSession->getSkipHandleFailedRecreate()) {
             if (!$this->quoteRecreate->recreate(false, $quote)) {
