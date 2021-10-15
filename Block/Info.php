@@ -25,15 +25,12 @@ use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollect
 
 class Info extends \Magento\Payment\Block\Info
 {
-    // @codingStandardsIgnoreStart
     /**
      * @var string
      */
     protected $_template = 'Buckaroo_Magento2::info/payment_method.phtml';
     protected $groupTransaction;
     protected $giftcardCollection;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @param \Magento\Framework\View\Element\Template\Context     $context

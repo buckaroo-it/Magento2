@@ -91,8 +91,8 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
             try {
                 $this->logging->addDebug(__METHOD__ . '|sendCancelResponse|');
                 $response = $this->sendCancelResponse($originalKey);
+                //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-                //ignore
             }
         }
     }

@@ -32,7 +32,6 @@ class Afterpay2 extends Afterpay
      */
     public $buckarooPaymentMethodCode = 'afterpay2';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -40,12 +39,13 @@ class Afterpay2 extends Afterpay
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
 
-    protected function getRequestBillingDataExtra(\Magento\Sales\Api\Data\OrderAddressInterface $billingAddress, array &$billingData)
-    {
+    protected function getRequestBillingDataExtra(
+        \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress,
+        array &$billingData
+    ) {
         $billingData[] = [
             '_' => $billingAddress->getFirstname(),
             'Name' => 'BillingFirstName',
         ];
     }
-
 }

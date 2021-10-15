@@ -47,7 +47,6 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             ]
         );
 
-
         $form->setHtmlIdPrefix('giftcard_');
         $form->setFieldNameSuffix('giftcard');
 
@@ -94,7 +93,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'label' => __('Giftcard logo'),
                 'name' => 'logo',
                 'note' => 'Allow image type: jpg, jpeg, gif, png']
-            );
+        );
 
         $form->setValues($model->getData());
         $form->setUseContainer(true);

@@ -724,7 +724,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $configProviderMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
         
-        if(in_array($method,['order','authorize'])){
+        if (in_array($method, ['order','authorize'])) {
             $configProviderMock->expects($this->once())->method('get')->with('account')->willReturn($accountConfigMock);
         }
 

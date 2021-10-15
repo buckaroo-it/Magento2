@@ -59,15 +59,12 @@ class Klarna extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'klarna';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var null
@@ -214,7 +211,9 @@ class Klarna extends AbstractMethod
                 $item->getTaxPercent() ?? 0
             );
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             if ($count < self::KLARNA_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -449,7 +448,7 @@ class Klarna extends AbstractMethod
             ];
         }
 
-        if($birthDayStamp){
+        if ($birthDayStamp) {
             $billingData[] = [
                 '_'    => $birthDayStamp,
                 'Name' => 'BirthDate',

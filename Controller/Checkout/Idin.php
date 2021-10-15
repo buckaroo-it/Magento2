@@ -256,5 +256,4 @@ class Idin extends \Magento\Framework\App\Action\Action
 
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($response[0]);
     }
-
 }

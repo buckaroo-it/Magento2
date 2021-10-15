@@ -32,15 +32,12 @@ class Trustly extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'trustly';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

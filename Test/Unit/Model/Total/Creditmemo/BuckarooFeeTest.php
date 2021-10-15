@@ -91,7 +91,7 @@ class BuckarooFeeTest extends BaseTest
         $creditmemoMock->expects($this->once())->method('getInvoice')->willReturn($invoiceMock);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $instance = $this->getInstance();
         $result = $instance->collect($creditmemoMock);
 

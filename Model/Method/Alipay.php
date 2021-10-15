@@ -32,15 +32,12 @@ class Alipay extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'alipay';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

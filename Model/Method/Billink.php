@@ -58,7 +58,6 @@ class Billink extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'billink';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -80,8 +79,6 @@ class Billink extends AbstractMethod
      * @var bool
      */
     protected $_canCapturePartial       = true;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var bool
@@ -109,7 +106,10 @@ class Billink extends AbstractMethod
         $additionalData = $data['additional_data'];
 
         if (isset($additionalData['customer_billingName'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_billingName',
+                $additionalData['customer_billingName']
+            );
         }
 
         if (isset($additionalData['customer_gender'])) {
@@ -117,11 +117,17 @@ class Billink extends AbstractMethod
         }
 
         if (isset($additionalData['customer_chamberOfCommerce'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_chamberOfCommerce', $additionalData['customer_chamberOfCommerce']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_chamberOfCommerce',
+                $additionalData['customer_chamberOfCommerce']
+            );
         }
 
         if (isset($additionalData['customer_VATNumber'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_VATNumber', $additionalData['customer_VATNumber']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_VATNumber',
+                $additionalData['customer_VATNumber']
+            );
         }
 
         if (isset($additionalData['customer_DoB'])) {
@@ -287,7 +293,7 @@ class Billink extends AbstractMethod
                 continue;
             }
 
-            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no), because the underlying simples are also in the quote
+            //Skip bundles which have dynamic pricing on (0 = yes,1 = no) - the underlying simples are also in the quote
             if ($item->getProductType() == Type::TYPE_BUNDLE
                 && $item->getProduct()->getCustomAttribute('price_type')
                 && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
@@ -309,7 +315,9 @@ class Billink extends AbstractMethod
                 $item->getTaxPercent()
             );
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreStart
 
             if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -375,7 +383,9 @@ class Billink extends AbstractMethod
                 $item->getOrderItem()->getTaxPercent()
             );
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             // Capture calculates discount per order line
             if ($item->getDiscountAmount() > 0) {
@@ -388,7 +398,9 @@ class Billink extends AbstractMethod
                     number_format(($item->getDiscountAmount()*-1), 2),
                     0
                 );
+                // @codingStandardsIgnoreStart
                 $articles = array_merge($articles, $article);
+                // @codingStandardsIgnoreEnd
             }
 
             if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
@@ -430,20 +442,26 @@ class Billink extends AbstractMethod
             }
 
             $refundType = $this->getRefundType($count);
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $refundType);
+            // @codingStandardsIgnoreEnd
+
+            $prodPrice = $this->calculateProductPrice($item, $includesTax);
 
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
-                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
+                $prodPrice - round($item->getDiscountAmount() / $item->getQty(), 2),
                 $item->getOrderItem()->getTaxPercent()
             );
 
-            $itemsTotalAmount += $item->getQty() * ($this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount());
+            $itemsTotalAmount += $item->getQty() * ($prodPrice - $item->getDiscountAmount());
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -475,7 +493,7 @@ class Billink extends AbstractMethod
         }
 
         //Add diff line
-        if($creditmemo->getBaseGrandTotal() != $itemsTotalAmount){
+        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
@@ -641,7 +659,10 @@ class Billink extends AbstractMethod
         $billingAddress = $order->getBillingAddress();
         $streetFormat   = $this->formatStreet($billingAddress->getStreet());
 
-        $birthDayStamp = date("d-m-Y", strtotime(str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'))));
+        $birthDayStamp = date(
+            "d-m-Y",
+            strtotime(str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB')))
+        );
         $chamberOfCommerce = $payment->getAdditionalInformation('customer_chamberOfCommerce');
         $VATNumber = $payment->getAdditionalInformation('customer_VATNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');
@@ -905,7 +926,7 @@ class Billink extends AbstractMethod
 
     protected function isAvailableBasedOnAmount(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        if($quote && $quote->getId()){
+        if ($quote && $quote->getId()) {
             $storeId = $quote->getStoreId();
             if ($this->helper->checkCustomerGroup('buckaroo_magento2_billink')) {
                 $maximum = $this->getConfigData('max_amount_b2b', $storeId);

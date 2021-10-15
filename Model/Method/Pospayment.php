@@ -27,7 +27,6 @@ class Pospayment extends AbstractMethod
     /** @var string */
     public $buckarooPaymentMethodCode = 'pospayment';
 
-    // @codingStandardsIgnoreStart
     /** @var string */
     protected $_code                    = self::PAYMENT_METHOD_CODE;
 
@@ -39,7 +38,6 @@ class Pospayment extends AbstractMethod
 
     /** @var bool */
     protected $_canRefundInvoicePartial = false;
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

@@ -43,8 +43,9 @@ class Alipay extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Alipay::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Alipay::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [

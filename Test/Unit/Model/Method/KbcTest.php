@@ -33,7 +33,7 @@ class KbcTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $expectedServices = ['Name' => 'KBCPaymentButton', 'Action' => 'Pay', 'Version' => 1];
 
         $orderMock = $this->getFakeMock(Order::class, true);

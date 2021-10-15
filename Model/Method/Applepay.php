@@ -27,15 +27,12 @@ class Applepay extends AbstractMethod
     /** @var string */
     public $buckarooPaymentMethodCode = 'applepay';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code                    = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

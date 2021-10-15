@@ -84,7 +84,7 @@ class ApplepayTest extends BaseTest
             ->getMock();
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-            );
+        );
         $orderTrxMock->expects($this->once())->method('setOrder')->with($orderMock)->willReturnSelf();
         $orderTrxMock->expects($this->once())->method('setServices')->with($expectedServices)->willReturnSelf();
         $orderTrxMock->expects($this->once())->method('setMethod')->with('TransactionRequest')->willReturnSelf();

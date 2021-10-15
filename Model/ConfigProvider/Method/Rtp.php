@@ -47,8 +47,9 @@ class Rtp extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Rtp::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Rtp::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
@@ -87,8 +88,6 @@ class Rtp extends AbstractConfigProvider
             'EUR',
         ];
     }
-
-
 
     /**
      * {@inheritdoc}

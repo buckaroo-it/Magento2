@@ -64,14 +64,11 @@ class Capayable extends AbstractMethod
     /** @var string */
     public $buckarooPaymentMethodCode = '';
 
-    // @codingStandardsIgnoreStart
     /** @var string */
     protected $_code = '';
 
     /** @var bool */
     protected $_canUseInternal          = false;
-
-    // @codingStandardsIgnoreEnd
 
     /** @var AddressFormatter */
     public $addressFormatter;

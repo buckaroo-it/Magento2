@@ -41,13 +41,15 @@ class Paypal extends AbstractConfigProvider
     const XPATH_PAYPAL_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_paypal/available_in_backend';
     const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_paypal/sellers_protection';
     const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/'.
-        'buckaroo_magento2_paypal/sellers_protection_eligible';
+
+    'buckaroo_magento2_paypal/sellers_protection_eligible';
     const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/'.
-        'buckaroo_magento2_paypal/sellers_protection_ineligible';
+    'buckaroo_magento2_paypal/sellers_protection_ineligible';
     const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
-        'buckaroo_magento2_paypal/sellers_protection_itemnotreceived_eligible';
+    'buckaroo_magento2_paypal/sellers_protection_itemnotreceived_eligible';
     const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
-        'buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
+    'buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
+
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paypal/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_paypal/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_paypal/specificcountry';

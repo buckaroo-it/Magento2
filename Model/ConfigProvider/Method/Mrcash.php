@@ -79,7 +79,9 @@ class Mrcash extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Mrcash::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Mrcash::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
@@ -87,8 +89,8 @@ class Mrcash extends AbstractConfigProvider
                     'mrcash' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'useClientSide' => intval($this->useClientSide()),
-                        'redirecturl' => static::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'useClientSide' => (int) $this->useClientSide(),
+                        'redirecturl' => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
                     ],
                 ],
             ],

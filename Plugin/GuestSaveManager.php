@@ -18,7 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 namespace Buckaroo\Magento2\Plugin;
+
 use Buckaroo\Magento2\Logging\Log;
+
+// @codingStandardsIgnoreStart
 
 if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
@@ -63,7 +66,13 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
                 $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
             }
             
-            parent::beforeSavePaymentInformationAndPlaceOrder($parent, $cartId, $email, $paymentMethod, $billingAddress);
+            parent::beforeSavePaymentInformationAndPlaceOrder(
+                $parent,
+                $cartId,
+                $email,
+                $paymentMethod,
+                $billingAddress
+            );
         }
 
         public function beforeSavePaymentInformation(
@@ -80,7 +89,6 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
             parent::beforeSavePaymentInformation($parent, $cartId, $email, $paymentMethod, $billingAddress);
         }
-
     }
 
 } else {
@@ -89,3 +97,6 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
     }
 }
+
+// @codingStandardsIgnoreEnd
+

@@ -43,25 +43,25 @@ class PayPerEmail extends AbstractConfigProvider
     const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_payperemail/payment_fee_label';
     const XPATH_PAYPEREMAIL_ACTIVE_STATUS = 'payment/buckaroo_magento2_payperemail/active_status';
     const XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_payperemail/order_status_success';
-    const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_payperemail/order_status_failed';
-    
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3 = 'payment/buckaroo_magento2_payperemail/active_status_cm3';
-    const XPATH_PAYPEREMAIL_SEND_MAIL = 'payment/buckaroo_magento2_payperemail/send_mail';
-    const XPATH_PAYPEREMAIL_SCHEME_KEY = 'payment/buckaroo_magento2_payperemail/scheme_key';
-    const XPATH_PAYPEREMAIL_MAX_STEP_INDEX = 'payment/buckaroo_magento2_payperemail/max_step_index';
-    const XPATH_PAYPEREMAIL_CM3_DUE_DATE = 'payment/buckaroo_magento2_payperemail/cm3_due_date';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD = 'payment/buckaroo_magento2_payperemail/payment_method';
+    const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_payperemail/order_status_failed';
+
+    const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_payperemail/active_status_cm3';
+    const XPATH_PAYPEREMAIL_SEND_MAIL                   = 'payment/buckaroo_magento2_payperemail/send_mail';
+    const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'payment/buckaroo_magento2_payperemail/scheme_key';
+    const XPATH_PAYPEREMAIL_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_payperemail/max_step_index';
+    const XPATH_PAYPEREMAIL_CM3_DUE_DATE                = 'payment/buckaroo_magento2_payperemail/cm3_due_date';
+    const XPATH_PAYPEREMAIL_PAYMENT_METHOD              = 'payment/buckaroo_magento2_payperemail/payment_method';
     const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/'.
         'buckaroo_magento2_payperemail/payment_method_after_expiry';
-    const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK = 'payment/buckaroo_magento2_payperemail/visible_front_back';
+    const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_payperemail/visible_front_back';
     const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE = 'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
-    const XPATH_PAYPEREMAIL_ENABLE_B2B = 'payment/buckaroo_magento2_payperemail/enable_b2b';
-    const XPATH_PAYPEREMAIL_EXPIRE_DAYS = 'payment/buckaroo_magento2_payperemail/expire_days';
-    const XPATH_PAYPEREMAIL_CANCEL_PPE = 'payment/buckaroo_magento2_payperemail/cancel_ppe';
-    const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE = 'payment/buckaroo_magento2_payperemail/cron_cancel_ppe';
+    const XPATH_PAYPEREMAIL_ENABLE_B2B                  = 'payment/buckaroo_magento2_payperemail/enable_b2b';
+    const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'payment/buckaroo_magento2_payperemail/expire_days';
+    const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'payment/buckaroo_magento2_payperemail/cancel_ppe';
+    const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE             = 'payment/buckaroo_magento2_payperemail/cron_cancel_ppe';
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_payperemail/specificcustomergroup';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B = 'payment/buckaroo_magento2_payperemail/specificcustomergroupb2b';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payperemail/specificcustomergroup';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B     = 'payment/buckaroo_magento2_payperemail/specificcustomergroupb2b';
 
     /**
      * @return array

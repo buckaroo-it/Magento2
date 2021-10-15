@@ -27,9 +27,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Method;
  */
 class AbstractMethodMock extends \Buckaroo\Magento2\Model\Method\AbstractMethod
 {
-    // @codingStandardsIgnoreStart
     protected $_code = 'buckaroo_magento2_test';
-    // @codingStandardsIgnoreEnd
 
     public function getOrderTransactionBuilder($payment)
     {

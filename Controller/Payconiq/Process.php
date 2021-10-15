@@ -109,12 +109,14 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         $this->order = $transaction->getOrder();
         $this->quote->load($this->order->getQuoteId());
 
+        // @codingStandardsIgnoreStart
         try {
             $this->handleFailed(
                 $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
             );
         } catch (\Exception $exception) {
         }
+        // @codingStandardsIgnoreEnd
 
         return $this->_response;
     }

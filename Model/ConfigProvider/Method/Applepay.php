@@ -116,10 +116,10 @@ class Applepay extends AbstractConfigProvider
                             static::XPATH_APPLEPAY_BUTTON_STYLE,
                             ScopeInterface::SCOPE_STORE
                         ),
-                        'dontAskBillingInfoInCheckout' => (int) ($this->scopeConfig->getValue(
+                        'dontAskBillingInfoInCheckout' => (int) $this->scopeConfig->getValue(
                             static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
                             ScopeInterface::SCOPE_STORE
-                        ))
+                        )
                     ],
                 ],
             ],

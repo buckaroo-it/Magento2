@@ -80,9 +80,9 @@ class Giftcards extends AbstractConfigProvider
         }
 
         $sorted = explode(',', $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_SORT,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        );
+            self::XPATH_GIFTCARDS_SORT,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
 
         if (!empty($sorted)) {
             $sortedPosition = 1;
@@ -91,13 +91,15 @@ class Giftcards extends AbstractConfigProvider
             }
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE
+        );
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
-        $connection = $resource->getConnection();
-        $tableName = $resource->getTableName('buckaroo_magento2_giftcard');
-        $result = $connection->fetchAll("SELECT * FROM " . $tableName);
+        $resource      = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);
+        $connection    = $resource->getConnection();
+        $tableName     = $resource->getTableName('buckaroo_magento2_giftcard');
+        $result        = $connection->fetchAll("SELECT * FROM " . $tableName);
         foreach ($result as $item) {
             $item['sort'] = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99';
             $allGiftCards[$item['servicecode']] = $item;
@@ -129,7 +131,9 @@ class Giftcards extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'groupGiftcards'   => $this->scopeConfig->getValue(
-                        static::XPATH_GIFTCARDS_GROUP_GIFTCARDS, \Magento\Store\Model\ScopeInterface::SCOPE_STORE),
+                        static::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
+                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                    ),
                     'avaibleGiftcards' => $cards,
                     'giftcards'        => [
                         'paymentFeeLabel'   => $paymentFeeLabel,

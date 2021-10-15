@@ -100,12 +100,12 @@ class Order extends AbstractTransactionBuilder
         ];
 
         if (!empty($customParametersKey)) {
-            $body['CustomParameters']['CustomParameter'] = $this->getCustomInfo($customParametersKey, $billingData, $shippingData);
-
+            $body['CustomParameters']['CustomParameter'] = $this->getCustomInfo(
+                $customParametersKey,
+                $billingData,
+                $shippingData
+            );
         }
-//        $customData = 'CustomParameters' => (object)[
-//        'CustomParameter' => $this->getCustomInfo($customParametersKey, $billingData, $shippingData)
-//        ];
 
         if (!$this->emptyDescriptionFlag) {
             $body['Description'] = $this->configProviderAccount->getTransactionLabel($store);
@@ -130,12 +130,15 @@ class Order extends AbstractTransactionBuilder
     {
         $parameterLine = [];
         if (isset($this->getServices()['Action'])) {
-            $parameterLine[] = $this->getParameterLine('service_action_from_magento', strtolower($this->getServices()['Action']));
+            $parameterLine[] = $this->getParameterLine(
+                'service_action_from_magento',
+                strtolower($this->getServices()['Action'])
+            );
         }
 
         $parameterLine[] = $this->getParameterLine('initiated_by_magento', 1);
 
-        if($additionalParameters = $this->getAllAdditionalParameters()){
+        if ($additionalParameters = $this->getAllAdditionalParameters()) {
             foreach ($additionalParameters as $key => $value) {
                 $parameterLine[] = $this->getParameterLine($key, $value);
             }
@@ -159,28 +162,28 @@ class Order extends AbstractTransactionBuilder
             if ($value != 'housenumber' && $value != 'houseadditionalnumber') {
                 $customerBillingArray[$key] = '';
             }
-            if (!empty($billingData->getData($value))){
+            if (!empty($billingData->getData($value))) {
                 $customerBillingArray[$key] = $billingData->getData($value);
             }
-            if ($value == 'country'){
+            if ($value == 'country') {
                 $customerBillingArray[$key] = $this->getCountryName($objectManager, $billingData);
             }
         }
-        $this->setStreetData('CustomerBillingStreet',$customerBillingArray);
+        $this->setStreetData('CustomerBillingStreet', $customerBillingArray);
         $customerBillingArray = $this->getNotEmptyCustomData($customerBillingArray);
 
         foreach ($customerShippingArray as $key => $value) {
             if ($value != 'housenumber' && $value != 'houseadditionalnumber') {
                 $customerShippingArray[$key] = '';
             }
-            if (!empty($shippingData->getData($value))){
+            if (!empty($shippingData->getData($value))) {
                 $customerShippingArray[$key] = $shippingData->getData($value);
             }
-            if ($value == 'country'){
+            if ($value == 'country') {
                 $customerShippingArray[$key] = $this->getCountryName($objectManager, $shippingData);
             }
         }
-        $this->setStreetData('CustomerShippingStreet',$customerShippingArray);
+        $this->setStreetData('CustomerShippingStreet', $customerShippingArray);
         $customerShippingArray = $this->getNotEmptyCustomData($customerShippingArray);
 
         $customDataList = array_merge($customerBillingArray, $customerShippingArray);
@@ -220,14 +223,17 @@ class Order extends AbstractTransactionBuilder
 
     private function getCountryName($objectManager, $data)
     {
-        $countryName = $objectManager->create('\Magento\Directory\Model\Country')->load($data->getData('country_id'))->getName();
+        $countryName = $objectManager
+            ->create(\Magento\Directory\Model\Country::class)
+            ->load($data->getData('country_id'))
+            ->getName();
 
         return $countryName;
     }
 
     private function getNotEmptyCustomData($customData)
     {
-        foreach ($customData as $key => $value){
+        foreach ($customData as $key => $value) {
             if (empty($value)) {
                 unset($customData[$key]);
             }
@@ -315,7 +321,7 @@ class Order extends AbstractTransactionBuilder
             unset($body['Invoice']);
         }
 
-        if (in_array($services['Name'],['klarnakp']) && $services['Action'] == 'Pay') {
+        if (in_array($services['Name'], ['klarnakp']) && $services['Action'] == 'Pay') {
             unset($body['OriginalTransactionKey']);
         }
 
@@ -389,7 +395,7 @@ class Order extends AbstractTransactionBuilder
         $customBillingData = [];
         $customShippingData = [];
         foreach ($customParametersArray as $customParameter) {
-            if (strpos($customParameter, 'billing')) {
+            if (strpos($customParameter, 'billing') !== false) {
                 $customBillingData[] = $customParameter;
             } else {
                 $customShippingData[] = $customParameter;
@@ -404,7 +410,7 @@ class Order extends AbstractTransactionBuilder
 
     public function getCustomParameterLabel($parameterKey)
     {
-        $parameterLabel = str_replace(' ','', ucwords(str_replace('_', ' ', $parameterKey)));
+        $parameterLabel = str_replace(' ', '', ucwords(str_replace('_', ' ', $parameterKey)));
 
         return $parameterLabel;
     }

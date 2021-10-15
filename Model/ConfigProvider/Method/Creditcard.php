@@ -136,9 +136,9 @@ class Creditcard extends AbstractConfigProvider
     public function formatIssuers()
     {
         $sorted = explode(',', $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARD_SORT,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        );
+            self::XPATH_CREDITCARD_SORT,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
 
         if (!empty($sorted)) {
             $sortedPosition = 1;
@@ -149,14 +149,15 @@ class Creditcard extends AbstractConfigProvider
 
         $issuers = parent::formatIssuers();
         foreach ($issuers as $item) {
-            $item['sort'] = isset($sorted_array[$item['name']]) ? $sorted_array[$item['name']] : static::DEFAULT_SORT_VALUE;
+            $item['sort'] = isset($sorted_array[$item['name']]) ?
+                $sorted_array[$item['name']] : self::DEFAULT_SORT_VALUE;
             $allCreditcard[$item['code']] = $item;
         }
 
         $allowed = explode(',', $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        );
+            self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
 
         $cards = [];
         foreach ($allowed as $key => $value) {
@@ -165,7 +166,7 @@ class Creditcard extends AbstractConfigProvider
             }
         }
 
-        usort($cards, function ($cardA, $cardB){
+        usort($cards, function ($cardA, $cardB) {
             return $cardA['sort'] - $cardB['sort'];
         });
 
@@ -178,8 +179,9 @@ class Creditcard extends AbstractConfigProvider
     public function getConfig()
     {
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Creditcard::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Creditcard::PAYMENT_METHOD_CODE
+        );
 
         $selectionType = $this->scopeConfig->getValue(
             static::XPATH_SELECTION_TYPE,

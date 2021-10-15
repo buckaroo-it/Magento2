@@ -44,7 +44,8 @@ class Afterpay20 extends AbstractConfigProvider
     const XPATH_AFTERPAY20_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_afterpay20/available_in_backend';
     const XPATH_AFTERPAY20_DUE_DATE               = 'payment/buckaroo_magento2_afterpay20/due_date';
     const XPATH_AFTERPAY20_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay20/allowed_currencies';
-    const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
+    const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP =
+        'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
 
     const XPATH_SPECIFIC_CUSTOMER_GROUP           = 'payment/buckaroo_magento2_afterpay20/specificcustomergroup';
 

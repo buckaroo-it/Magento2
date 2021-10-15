@@ -52,17 +52,6 @@ class Sort extends Field
     }
 
     /**
-     * Remove scope label
-     *
-     * @param  AbstractElement $element
-     * @return string
-     */
-    public function render(AbstractElement $element)
-    {
-        return parent::render($element);
-    }
-
-    /**
      * Return element html
      *
      * @param  AbstractElement $element

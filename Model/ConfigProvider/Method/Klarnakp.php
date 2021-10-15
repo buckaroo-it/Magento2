@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Store\Model\ScopeInterface;
-
 class Klarnakp extends AbstractConfigProvider
 {
     const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarnakp/allowed_currencies';
@@ -57,7 +55,9 @@ class Klarnakp extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Klarnakp::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Klarnakp::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
@@ -128,7 +128,6 @@ class Klarnakp extends AbstractConfigProvider
 
         return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
     }
-
 
     /**
      * {@inheritdoc}

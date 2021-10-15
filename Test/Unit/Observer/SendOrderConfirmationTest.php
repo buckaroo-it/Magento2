@@ -88,7 +88,9 @@ class SendOrderConfirmationTest extends BaseTest
         $observerMock = $this->getFakeMock(Observer::class)->setMethods(['getPayment'])->getMock();
         $observerMock->expects($this->once())->method('getPayment')->willReturn($paymentMock);
 
-        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getOrderConfirmationEmail','getCreateOrderBeforeTransaction'])->getMock();
+        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(
+            ['getOrderConfirmationEmail','getCreateOrderBeforeTransaction']
+        )->getMock();
         $accountConfigMock->expects($this->once())->method('getOrderConfirmationEmail')->willReturn(true);
 
         $instance = $this->getInstance(['accountConfig' => $accountConfigMock]);

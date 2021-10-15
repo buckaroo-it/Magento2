@@ -39,7 +39,6 @@ class PayLink extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'paylink';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -56,7 +55,6 @@ class PayLink extends AbstractMethod
      * @var bool
      */
     protected $_canRefundInvoicePartial = false;
-    // @codingStandardsIgnoreEnd
 
     /** @var \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters */
     private $serviceParameters;

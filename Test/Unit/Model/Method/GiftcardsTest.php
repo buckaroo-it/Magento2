@@ -42,7 +42,7 @@ class GiftcardsTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->setMethods(['getValue'])
             ->getMockForAbstractClass();
@@ -57,7 +57,7 @@ class GiftcardsTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->setMethods(['getValue'])
             ->getMockForAbstractClass();
@@ -87,7 +87,7 @@ class GiftcardsTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['getStore'])->getMock();
         $orderMock->expects($this->once())->method('getStore')->willReturn(0);
 

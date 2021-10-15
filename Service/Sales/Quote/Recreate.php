@@ -88,6 +88,7 @@ class Recreate
      */
     public function recreate($order = false, $newQuote = false)
     {
+        // @codingStandardsIgnoreStart
         try {
             $quote = ($order != false) ? $this->quoteFactory->create()->load($order->getQuoteId()) : $newQuote;
             $quote->setIsActive(true);
@@ -105,6 +106,7 @@ class Recreate
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             //No such entity
         }
+        // @codingStandardsIgnoreEnd
         return false;
     }
 
@@ -129,19 +131,19 @@ class Recreate
 
             $this->recreate(false, $quote);
 
-            if($newIncrementId = $this->customerSession->getSecondChanceNewIncrementId()){
+            if ($newIncrementId = $this->customerSession->getSecondChanceNewIncrementId()) {
                 $this->customerSession->setSecondChanceNewIncrementId(false);
                 $this->checkoutSession->getQuote()->setReservedOrderId($newIncrementId);
                 $this->checkoutSession->getQuote()->save();
                 $quote->setReservedOrderId($newIncrementId)->save();
             }
 
-            if($email = $oldQuote->getBillingAddress()->getEmail()){
+            if ($email = $oldQuote->getBillingAddress()->getEmail()) {
                 $quote->setCustomerEmail($email);
             }
 
             $quote->setCustomerIsGuest(true);
-            if($customer = $this->customerSession->getCustomer()){
+            if ($customer = $this->customerSession->getCustomer()) {
                 $quote->setCustomerId($customer->getId());
                 $quote->setCustomerGroupId($customer->getGroupId());
                 $quote->setCustomerIsGuest(false);
@@ -190,7 +192,7 @@ class Recreate
         $quote->setCustomerEmail($oldQuote->getBillingAddress()->getEmail());
         $quote->setCustomerIsGuest($oldQuote->getCustomerIsGuest());
 
-        if($customer = $this->customerSession->getCustomer()){
+        if ($customer = $this->customerSession->getCustomer()) {
             $quote->setCustomerId($customer->getId());
             $quote->setCustomerEmail($customer->getEmail());
             $quote->setCustomerFirstname($customer->getFirstname());
@@ -212,5 +214,4 @@ class Recreate
         $this->quoteAddressResource->save($quote->getShippingAddress());
         return $quote;
     }
-
 }

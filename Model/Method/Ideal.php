@@ -34,15 +34,12 @@ class Ideal extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'ideal';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code                    = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
@@ -144,13 +141,13 @@ class Ideal extends AbstractMethod
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
         
         if (!$chosenIssuer) {
-    	    if ($content = $this->request->getContent()) {
+            if ($content = $this->request->getContent()) {
                 $jsonDecode = $this->helper->getJson()->unserialize($content);
                 if (!empty($jsonDecode['paymentMethod']['additional_data']['issuer'])) {
                     $chosenIssuer = $jsonDecode['paymentMethod']['additional_data']['issuer'];
                     $this->getInfoInstance()->setAdditionalInformation('issuer', $chosenIssuer);
                 }
-    	    }
+            }
         }
 
         $valid = false;

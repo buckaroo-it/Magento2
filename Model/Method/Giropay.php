@@ -35,15 +35,12 @@ class Giropay extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'giropay';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

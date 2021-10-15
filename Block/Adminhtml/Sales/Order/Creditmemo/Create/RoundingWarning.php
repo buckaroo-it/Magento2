@@ -125,7 +125,6 @@ class RoundingWarning extends \Magento\Backend\Block\Template
         return true;
     }
 
-    //@codingStandardsIgnoreStart
     /**
      * {@inheritdoc}
      */
@@ -137,5 +136,4 @@ class RoundingWarning extends \Magento\Backend\Block\Template
 
         return parent::_toHtml();
     }
-    //@codingStandardsIgnoreEnd
 }
