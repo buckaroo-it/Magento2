@@ -59,7 +59,7 @@ class ShippingMethodManagement
                 && $this->accountConfig->getSecondChance($order->getStore())
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
-                if ($this->checkoutSession->getQuote()
+                if ($this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|3|');

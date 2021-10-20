@@ -168,7 +168,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|cartKeepAlive enabled|');
 
-                if ($this->checkoutSession->getQuote()
+                if ($this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
                     if ($shippingAddress = $quote->getShippingAddress()) {
