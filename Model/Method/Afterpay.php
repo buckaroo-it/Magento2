@@ -598,7 +598,7 @@ class Afterpay extends AbstractMethod
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
-        if ($creditmemo->getBaseGrandTotal() != $itemsTotalAmount) {
+        if (!$this->helper->areEqualAmounts($creditmemo->getBaseGrandTotal(), $itemsTotalAmount)) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
