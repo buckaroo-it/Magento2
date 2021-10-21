@@ -19,13 +19,6 @@
  */
 namespace Buckaroo\Magento2\Service\Sales\Quote;
 
-use Magento\Checkout\Model\Cart;
-use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Model\Quote;
-use Magento\Sales\Model\Order;
-use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
-use Buckaroo\Magento2\Logging\Log;
-
 class Recreate
 {
     /** @var CartRepositoryInterface */
@@ -36,6 +29,7 @@ class Recreate
 
     /** @var \Magento\Checkout\Model\Session */
     private $checkoutSession;
+
     protected $customerSession;
 
     protected $quoteFactory;
@@ -43,10 +37,12 @@ class Recreate
     protected $productFactory;
 
     protected $messageManager;
+
     protected $quoteRepository;
 
     protected $quoteManagement;
-    private $quoteAddressResource;
+
+    protected $quoteAddressResource;
 
     protected $logger;
 
@@ -55,8 +51,8 @@ class Recreate
      * @param Cart                    $cart
      */
     public function __construct(
-        CartRepositoryInterface $cartRepository,
-        Cart $cart,
+        \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
+        \Magento\Checkout\Model\Cart $cart,
         \Magento\Quote\Model\QuoteRepository $quoteRepository,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Customer\Model\Session $customerSession,
@@ -64,21 +60,21 @@ class Recreate
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Quote\Api\CartManagementInterface $quoteManagement,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        QuoteAddressResource $quoteAddressResource,
-        Log $logger
+        \Magento\Quote\Model\ResourceModel\Quote\Address $quoteAddressResource,
+        \Buckaroo\Magento2\Logging\Log $logger
     ) {
-        $this->cartRepository  = $cartRepository;
-        $this->cart            = $cart;
-        $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
-        $this->quoteFactory    = $quoteFactory;
-        $this->productFactory  = $productFactory;
-        $this->cart            = $cart;
-        $this->quoteRepository = $quoteRepository;
-        $this->messageManager  = $messageManager;
-        $this->quoteManagement = $quoteManagement;
+        $this->cartRepository       = $cartRepository;
+        $this->cart                 = $cart;
+        $this->checkoutSession      = $checkoutSession;
+        $this->customerSession      = $customerSession;
+        $this->quoteFactory         = $quoteFactory;
+        $this->productFactory       = $productFactory;
+        $this->cart                 = $cart;
+        $this->quoteRepository      = $quoteRepository;
+        $this->messageManager       = $messageManager;
+        $this->quoteManagement      = $quoteManagement;
         $this->quoteAddressResource = $quoteAddressResource;
-        $this->logger          = $logger;
+        $this->logger               = $logger;
     }
 
     /**
@@ -86,11 +82,10 @@ class Recreate
      *
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function recreate($order = false, $newQuote = false)
+    public function recreate($quote)
     {
         // @codingStandardsIgnoreStart
         try {
-            $quote = ($order != false) ? $this->quoteFactory->create()->load($order->getQuoteId()) : $newQuote;
             $quote->setIsActive(true);
             $quote->setTriggerRecollect('1');
             $quote->setReservedOrderId(null);
@@ -100,11 +95,13 @@ class Recreate
             $quote->setBuckarooFeeBaseTaxAmount(null);
             $quote->setBuckarooFeeInclTax(null);
             $quote->setBaseBuckarooFeeInclTax(null);
-            if ($this->cart->setQuote($quote)->save()) {
-                return true;
-            }
+            $quote->save();
+            $this->cart->setQuote($quote);
+            $this->cart->save();
+            return $quote;
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             //No such entity
+            $this->logger->addError($e->getMessage());
         }
         // @codingStandardsIgnoreEnd
         return false;
@@ -119,17 +116,18 @@ class Recreate
         }
 
         if ($oldQuote->getId()) {
-            $emptyQuoteId = $this->quoteManagement->createEmptyCart();
-
             try {
-                $quote = $this->quoteFactory->create()->load($emptyQuoteId);
+                $quote = $this->quoteFactory->create();
                 $quote->merge($oldQuote)->save();
             } catch (\Exception $e) {
                 $this->logger->addError($e->getMessage());
                 $this->messageManager->addErrorMessage($e->getMessage());
             }
 
-            $this->recreate(false, $quote);
+            $quote->setStoreId($oldQuote->getStoreId());
+            $quote->getPayment()->setMethod($oldQuote->getPayment()->getMethod());
+            $this->cart->setStoreId($oldQuote->getStoreId());
+            $this->checkoutSession->setQuoteId($quote->getId());
 
             if ($newIncrementId = $this->customerSession->getSecondChanceNewIncrementId()) {
                 $this->customerSession->setSecondChanceNewIncrementId(false);
@@ -149,42 +147,29 @@ class Recreate
                 $quote->setCustomerIsGuest(false);
             }
 
-            $quote->collectTotals();
+            $this->recreate($quote);
 
-            $this->checkoutSession->setQuoteId($quote->getId());
+            return $this->additionalMerge($oldQuote, $quote);
 
-            if ($items = $oldQuote->getAllVisibleItems()) {
-                foreach ($items as $item) {
-                    $productId = $item->getProductId();
-                    $product   = $this->productFactory->create()->load($productId);
-
-                    $options = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
-
-                    $info        = $options['info_buyRequest'];
-                    $info['qty'] = $item->getQty();
-                    $requestInfo = new \Magento\Framework\DataObject();
-                    $requestInfo->setData($info);
-
-                    try {
-                        $this->cart->addProduct($product, $requestInfo);
-                    } catch (\Exception $e) {
-                        $this->messageManager->addErrorMessage($e->getMessage());
-                    }
-                }
-            }
-
-            $this->checkoutSession->getQuote()->collectTotals()->save();
-            $this->cart->setQuote($quote)->save();
-            $this->cart->saveQuote();
         }
     }
 
     public function duplicate($order)
     {
-        $oldQuote = $this->quoteFactory->create()->load($order->getQuoteId());
-        $emptyQuoteId = $this->quoteManagement->createEmptyCart();
-        $quote = $this->quoteFactory->create()->load($emptyQuoteId);
+        $quote = $this->quoteFactory->create();
+        try {
+            $oldQuote = $this->quoteFactory->create()->load($order->getQuoteId());
+            $quote->merge($oldQuote)->save();
+        } catch (\Exception $e) {
+            $this->logger->addError($e->getMessage());
+        }
+        $this->recreate($quote);
 
+        return $this->additionalMerge($oldQuote, $quote);
+    }
+
+    private function additionalMerge($oldQuote, $quote)
+    {
         if (!$oldQuote->getCustomerIsGuest() && $oldQuote->getCustomerId()) {
             $quote->setCustomerId($oldQuote->getCustomerId());
         }
@@ -200,18 +185,16 @@ class Recreate
             $quote->setCustomerGroupId($customer->getGroupId());
             $quote->setCustomerIsGuest(false);
         }
-
-        $quote->setBillingAddress($oldQuote->getBillingAddress());
-        $quote->setShippingAddress($oldQuote->getShippingAddress());
-
-        $quote->merge($oldQuote)->save();
-        $quote->collectTotals();
-        $this->recreate(false, $quote);
-        $this->cart->saveQuote();
-        $this->checkoutSession->setQuoteId($quote->getId());
-        $this->checkoutSession->getQuote()->collectTotals()->save();
+        $quote->setBillingAddress($oldQuote->getBillingAddress()->setQuote($quote)->setId($quote->getBillingAddress()->getId()));
+        $quote->setShippingAddress($oldQuote->getShippingAddress()->setQuote($quote)->setId($quote->getShippingAddress()->getId()));
         $quote->getShippingAddress()->setShippingMethod($oldQuote->getShippingAddress()->getShippingMethod());
+        $this->quoteAddressResource->save($quote->getBillingAddress());
         $this->quoteAddressResource->save($quote->getShippingAddress());
+
+        $this->cart->setQuote($quote);
+        $this->cart->save();
+
         return $quote;
     }
+
 }

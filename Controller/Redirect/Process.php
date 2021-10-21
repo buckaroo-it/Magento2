@@ -90,17 +90,14 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $customerModel;
     protected $customerResourceFactory;
 
-    /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
-     */
-    protected $secondChanceRepository;
-
     protected $orderService;
 
     /**
      * @var EventManager
      */
     private $eventManager;
+
+    private $quoteRecreate;
 
     /**
      * @param \Magento\Framework\App\Action\Context               $context
@@ -133,9 +130,9 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\SessionFactory $sessionFactory,
         \Magento\Customer\Model\Customer $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         OrderService $orderService,
-        \Magento\Framework\Event\ManagerInterface $eventManager
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -156,9 +153,9 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->accountConfig = $configProviderFactory->get('account');
 
-        $this->secondChanceRepository = $secondChanceRepository;
         $this->orderService           = $orderService;
         $this->eventManager           = $eventManager;
+        $this->quoteRecreate          = $quoteRecreate;
 
         // @codingStandardsIgnoreStart
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
@@ -359,7 +356,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
 
         if (!$this->customerSession->getSkipHandleFailedRecreate()) {
-            if (!$this->quoteRecreate->recreate(false, $quote)) {
+            if (!$this->quoteRecreate->recreate($this->quote)) {
                 $this->logging->addError('Could not recreate the quote.');
             }
         }

@@ -60,11 +60,11 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         \Magento\Customer\Model\SessionFactory $sessionFactory,
         \Magento\Customer\Model\Customer $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         OrderService $orderService,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         TransactionRepositoryInterface $transactionRepository,
-        \Magento\Framework\Event\ManagerInterface $eventManager
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate
     ) {
         parent::__construct(
             $context,
@@ -83,9 +83,9 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $sessionFactory,
             $customerModel,
             $customerFactory,
-            $secondChanceRepository,
             $orderService,
-            $eventManager
+            $eventManager,
+            $quoteRecreate
         );
 
         $this->searchCriteriaBuilder  = $searchCriteriaBuilder;
