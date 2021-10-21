@@ -75,4 +75,9 @@
     <event name="buckaroo_process_handle_failed_before">
         <observer name="buckaroo_event_process_handle_failed_before" instance="Buckaroo\Magento2\Observer\ProcessHandleFailed"/>
     </event>
+
+    <event name="buckaroo_process_redirect_success_before">
+        <observer name="buckaroo_event_process_redirect_success_before" instance="Buckaroo\Magento2\Observer\ProcessRedirectSuccess"/>
+    </event>
+    
 </config>

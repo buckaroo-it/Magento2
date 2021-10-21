@@ -472,6 +472,8 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
 
+        $this->eventManager->dispatch('buckaroo_process_redirect_success_before');
+
         $store = $this->order->getStore();
 
         /**
@@ -482,7 +484,6 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->messageManager->addSuccessMessage(__('Your order has been placed succesfully.'));
 
         $this->quote->setReservedOrderId(null);
-        $this->customerSession->setSkipSecondChance(false);
 
         if (!empty($this->response['brq_payment_method'])
             &&

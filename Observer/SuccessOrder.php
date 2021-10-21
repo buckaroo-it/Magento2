@@ -36,11 +36,6 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
 
     protected $logging;
 
-    /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
-     */
-    protected $secondChanceRepository;
-
     protected $configProviderAccount;
 
     /**
@@ -52,7 +47,6 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\View\LayoutInterface $layout,
         \Magento\Checkout\Model\Cart $cart,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Buckaroo\Magento2\Logging\Log $logging,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
     ) {
@@ -61,7 +55,6 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
         $this->messageManager         = $messageManager;
         $this->layout                 = $layout;
         $this->cart                   = $cart;
-        $this->secondChanceRepository = $secondChanceRepository;
         $this->logging                = $logging;
         $this->configProviderAccount  = $configProviderAccount;
     }

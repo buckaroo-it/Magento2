@@ -52,7 +52,6 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class Capayable extends AbstractMethod

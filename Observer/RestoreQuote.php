@@ -38,11 +38,6 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     protected $accountConfig;
 
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceFactory
-     */
-    protected $secondChanceFactory;
-
-    /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime
      */
     protected $dateTime;
@@ -83,11 +78,6 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
     private $quoteRecreate;
 
-    /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
-     */
-    protected $secondChanceRepository;
-
     protected $quoteRepository;
 
     /* @var EventManager */
@@ -96,14 +86,12 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     /**
      * @param \Magento\Checkout\Model\Session                      $checkoutSession
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
-     * @param \Buckaroo\Magento2\Model\SecondChanceFactory         $secondChanceFactory
      * @param \Magento\Framework\Stdlib\DateTime\DateTime          $dateTime
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Customer\Model\Session $customerSession,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\Math\Random $mathRandom,
         \Magento\Framework\Controller\ResultFactory $resultFactory,
@@ -118,14 +106,12 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Buckaroo\Magento2\Helper\Data $helper,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         QuoteRecreate $quoteRecreate,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \Magento\Framework\Event\ManagerInterface $eventManager
     ) {
         $this->checkoutSession        = $checkoutSession;
         $this->customerSession        = $customerSession;
         $this->accountConfig          = $accountConfig;
-        $this->secondChanceFactory    = $secondChanceFactory;
         $this->request                = $request;
         $this->mathRandom             = $mathRandom;
         $this->resultFactory          = $resultFactory;
@@ -140,7 +126,6 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->dateTime               = $dateTime;
         $this->helper                 = $helper;
         $this->quoteRecreate          = $quoteRecreate;
-        $this->secondChanceRepository = $secondChanceRepository;
         $this->quoteRepository        = $quoteRepository;
         $this->eventManager           = $eventManager;
     }
