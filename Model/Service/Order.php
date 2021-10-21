@@ -28,6 +28,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Buckaroo\Magento2\Helper\Data;
+use Magento\Framework\App\ResourceConnection;
 
 class Order
 {
@@ -38,6 +39,7 @@ class Order
     protected $orderStatusFactory;
     protected $helper;
     protected $logging;
+    protected $resourceConnection;
 
     public function __construct(
         Account $accountConfig,
@@ -47,7 +49,8 @@ class Order
         CollectionFactory $orderFactory,
         OrderStatusFactory $orderStatusFactory,
         Data $helper,
-        Log $logging
+        Log $logging,
+        ResourceConnection $resourceConnection
     ) {
         $this->accountConfig = $accountConfig;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -57,6 +60,7 @@ class Order
         $this->orderStatusFactory = $orderStatusFactory;
         $this->helper = $helper;
         $this->logging = $logging;
+        $this->resourceConnection = $resourceConnection;
     }
 
     public function cancelExpiredTransferOrders()
@@ -98,7 +102,7 @@ class Order
 
                 $orderCollection->getSelect()
                     ->join(
-                        ['p' => 'sales_order_payment'],
+                        ['p' => $this->resourceConnection->getTableName('sales_order_payment')],
                         'main_table.entity_id = p.parent_id',
                         ['method']
                     )
@@ -158,7 +162,7 @@ class Order
 
                     $orderCollection->getSelect()
                         ->join(
-                            ['p' => 'sales_order_payment'],
+                            ['p' => $this->resourceConnection->getTableName('sales_order_payment')],
                             'main_table.entity_id = p.parent_id',
                             ['method']
                         )
