@@ -37,7 +37,8 @@ class SecondChance
         return $this->customerSession->getSecondChanceRecreate();
     }
 
-    public function aroundIsNeedRecreate() {
+    public function aroundIsNeedRecreate()
+    {
         return $this->customerSession->getSecondChanceRecreate();
     }
     
