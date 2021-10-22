@@ -69,8 +69,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /** * @var Log $logging */
     public $logging;
 
-    /** * @var \Buckaroo\Magento2\Model\ConfigProvider\Account */
-    protected $accountConfig;
+    /** * @var \Buckaroo\Magento2\Model\ConfigProvider\SecondChance */
+    protected $configProvider;
 
     /** * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory */
     protected $configProviderFactory;
@@ -114,7 +114,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         \Magento\Framework\Math\Random $mathRandom,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         \Buckaroo\Magento2\Logging\Log $logging,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
+        \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
         \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder,
@@ -141,7 +141,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->dateTime                      = $dateTime;
         $this->orderIncrementIdChecker       = $orderIncrementIdChecker;
         $this->logging                       = $logging;
-        $this->accountConfig                 = $accountConfig;
+        $this->configProvider                = $configProvider;
         $this->configProviderFactory         = $configProviderFactory;
         $this->inlineTranslation             = $inlineTranslation;
         $this->transportBuilder              = $transportBuilder;
@@ -320,9 +320,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      */
     public function deleteOlderRecords($store)
     {
-        $storeId = (int) $store->getId();
-        $days = (int) $this->accountConfig->getSecondChancePruneDays($storeId);
-        $this->logging->addDebug(__METHOD__ . '|$storeId|' . $storeId);
+        $this->logging->addDebug(__METHOD__ . '|1|');
+        $days = (int) $this->configProvider->getSecondChancePruneDays($store);
         $this->logging->addDebug(__METHOD__ . '|$days|' . $days);
 
         if ($days <= 0) {
@@ -335,7 +334,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 'created_at',
                 ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ? DAY')]
             );
-            $storeCondition = $connection->prepareSqlCondition('store_id', $storeId);
+            $storeCondition = $connection->prepareSqlCondition('store_id', $store->getId());
             $connection->delete(
                 $this->resource->getMainTable(),
                 [$ageCondition => $days, $storeCondition]
@@ -419,22 +418,20 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     public function getSecondChanceCollection($step, $store)
     {
-        $configProvider = $this->configProviderFactory->get('second_chance');
-        $config         = $configProvider->getConfig();
-        $final_status   = $config['final_status'];
+        $final_status = $this->configProvider->getFinalStatus();
 
         if ($step == 2) {
-            if (!$this->accountConfig->getSecondChanceEmail2($store)) {
+            if (!$this->configProvider->isSecondChanceEmail2($store)) {
                 return false;
             }
         } else {
-            if (!$this->accountConfig->getSecondChanceEmail($store)) {
+            if (!$this->configProvider->isSecondChanceEmail($store)) {
                 return false;
             }
         }
 
-        $timing = $this->accountConfig->getSecondChanceTiming($store) +
-            ($step == 2 ? $this->accountConfig->getSecondChanceTiming2($store) : 0);
+        $timing = $this->configProvider->getSecondChanceTiming($store) +
+            ($step == 2 ? $this->configProvider->getSecondChanceTiming2($store) : 0);
 
         $this->logging->addDebug(__METHOD__ . '|secondChance timing|' . $timing);
 
@@ -442,7 +439,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $collection   = $secondChance->getCollection()
             ->addFieldToFilter(
                 'status',
-                ['eq' => ($step == 2 && $this->accountConfig->getSecondChanceEmail($store)) ? 1 : '']
+                ['eq' => ($step == 2 && $this->configProvider->isSecondChanceEmail($store)) ? 1 : '']
             )
             ->addFieldToFilter(
                 'store_id',
@@ -450,7 +447,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             )
             ->addFieldToFilter('created_at', ['lteq' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $timing . ' HOUR')])
             ->addFieldToFilter('created_at', ['gteq' => new \Zend_Db_Expr('NOW() - INTERVAL 5 DAY')]);
-                    
+
         foreach ($collection as $item) {
             $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
 
@@ -461,8 +458,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 continue;
             }
 
-            if ($item->getLastOrderId() != null &&
-                $last_order = $this->orderFactory->create()->loadByIncrementId($item->getLastOrderId())) {
+            if ($item->getLastOrderId() != null
+                && $last_order = $this->orderFactory->create()->loadByIncrementId($item->getLastOrderId())
+            ) {
                 if ($last_order->hasInvoices()) {
                     $this->setFinalStatus($item, $final_status);
                     continue;
@@ -472,7 +470,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             if ($order->hasInvoices()) {
                 $this->setFinalStatus($item, $final_status);
             } else {
-                if ($this->accountConfig->getNoSendSecondChance($store)) {
+                if ($this->configProvider->getNoSendSecondChance($store)) {
                     $this->logging->addDebug(__METHOD__ . '|getNoSendSecondChance|');
                     if ($this->checkOrderProductsIsInStock($order)) {
                         $this->logging->addDebug(__METHOD__ . '|checkOrderProductsIsInStock|');
@@ -490,10 +488,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     public function sendMail($order, $secondChance, $step)
     {
         $this->logging->addDebug(__METHOD__ . '|sendMail start|');
-        $configProvider = $this->configProviderFactory->get('second_chance');
 
-        $store  = $order->getStore();
-        $config = $configProvider->getConfig($store);
+        $store = $order->getStore();
         $vars  = [
             'order'                    => $order,
             'billing'                  => $order->getBillingAddress(),
@@ -505,8 +501,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         ];
 
         $templateId = ($step == 1) ?
-            $this->accountConfig->getSecondChanceTemplate($store) :
-            $this->accountConfig->getSecondChanceTemplate2($store);
+        $this->configProvider->getSecondChanceTemplate($store) :
+        $this->configProvider->getSecondChanceTemplate2($store);
 
         $this->logging->addDebug(__METHOD__ . '|TemplateIdentifier|' . $templateId);
 
@@ -518,10 +514,12 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     'store' => $store->getId(),
                 ]
             )->setTemplateVars($vars)
-            ->setFrom([
-                'email' => $config['setFromEmail'],
-                'name'  => $config['setFromName'],
-            ])->addTo($order->getCustomerEmail());
+            ->setFrom(
+                [
+                    'email' => $this->configProvider->getFromEmail($store),
+                    'name'  => $this->configProvider->getFromName($store),
+                ]
+            )->addTo($order->getCustomerEmail());
 
         if (!isset($transport)) {
             $transport = $this->transportBuilder->getTransport();

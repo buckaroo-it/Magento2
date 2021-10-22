@@ -22,29 +22,14 @@ namespace Buckaroo\Magento2\Cron;
 class SecondChance
 {
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceFactory
-     */
-    protected $secondChanceFactory;
-
-    /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
      */
-    protected $accountConfig;
-
-    /**
-     * @var \Magento\Sales\Model\OrderFactory
-     */
-    protected $orderFactory;
+    protected $configProvider;
 
     /**
      * @var Log $logging
      */
     public $logging;
-
-    /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    protected $storeManager;
 
     /**
      * @var \Magento\Store\Api\StoreRepositoryInterface
@@ -58,24 +43,16 @@ class SecondChance
 
     /**
      * @param \Magento\Checkout\Model\Session\Proxy                $checkoutSession
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
-     * @param \Buckaroo\Magento2\Model\SecondChanceFactory         $secondChanceFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $configProvider
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
         \Magento\Store\Api\StoreRepositoryInterface $storeRepository,
         \Buckaroo\Magento2\Logging\Log $logging,
         \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
     ) {
-        $this->accountConfig       = $accountConfig;
-        $this->secondChanceFactory = $secondChanceFactory;
-        $this->orderFactory        = $orderFactory;
-        $this->storeManager        = $storeManager;
-        $this->storeRepository     = $storeRepository;
-
+        $this->configProvider         = $configProvider;
+        $this->storeRepository        = $storeRepository;
         $this->logging                = $logging;
         $this->secondChanceRepository = $secondChanceRepository;
     }
@@ -84,7 +61,7 @@ class SecondChance
     {
         $stores = $this->storeRepository->getList();
         foreach ($stores as $store) {
-            if ($this->accountConfig->getSecondChance($store)) {
+            if ($this->configProvider->isSecondChanceEnabled($store)) {
                 foreach ([2, 1] as $step) {
                     $this->secondChanceRepository->getSecondChanceCollection($step, $store);
                 }

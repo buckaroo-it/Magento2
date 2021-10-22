@@ -20,63 +20,166 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 
-class SecondChance extends AbstractConfigProvider
+class SecondChance
 {
-    const XPATH_SECONDCHANCE_TEMPLATE          = 'buckaroo_magento2/account/second_chance_template';
-    const XPATH_SECONDCHANCE_TEMPLATE2         = 'buckaroo_magento2/account/second_chance_template2';
-    const XPATH_SECONDCHANCE_DEFAULT_TEMPLATE  = 'buckaroo_second_chance';
-    const XPATH_SECONDCHANCE_DEFAULT_TEMPLATE2 = 'buckaroo_second_chance2';
-    const XPATH_SECONDCHANCE_FINAL_STATUS      = 10;
+    private const XML_PATH_SECOND_CHANCE_ENABLE_SECOND_CHANCE
+        = 'buckaroo_magento2/second_chance/enable_second_chance';
+
+    private const XML_PATH_SECOND_CHANCE_EMAIL
+        = 'buckaroo_magento2/second_chance/email';
+
+    private const XML_PATH_SECOND_CHANCE_EMAIL2
+        = 'buckaroo_magento2/second_chance/email2';
+
+    private const XML_PATH_SECOND_CHANCE_TEMPLATE
+        = 'buckaroo_magento2/second_chance/second_chance_template';
+
+    private const XML_PATH_SECOND_CHANCE_TEMPLATE2
+        = 'buckaroo_magento2/second_chance/second_chance_template2';
+
+    private const XML_PATH_SECOND_CHANCE_DEFAULT_TEMPLATE = 'buckaroo_second_chance';
+    
+    private const XML_PATH_SECOND_CHANCE_DEFAULT_TEMPLATE2 = 'buckaroo_second_chance2';
+
+    private const XML_PATH_SECOND_CHANCE_TIMING
+        = 'buckaroo_magento2/second_chance/second_chance_timing';
+    
+    private const XML_PATH_SECOND_CHANCE_TIMING2
+        = 'buckaroo_magento2/second_chance/second_chance_timing2';
+
+    private const XML_PATH_SECOND_CHANCE_PRUNE_DAYS
+        = 'buckaroo_magento2/second_chance/prune_days';
+
+    private const XML_PATH_SECOND_CHANCE_NO_SEND
+        = 'buckaroo_magento2/second_chance/no_send_second_chance';
+
+    private const XML_PATH_SECOND_FINAL_STATUS = 10;
 
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    private $storeConfig;
 
-    /**
-     * @param MethodFactory        $methodConfigProviderFactory
-     * @param ScopeConfigInterface $scopeConfig
-     */
-    public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-    ) {
-        $this->scopeConfig = $scopeConfig;
+    public function __construct(ScopeConfigInterface $storeConfig)
+    {
+        $this->storeConfig = $storeConfig;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfig($store = null)
+    public function isSecondChanceEnabled($store = null): bool
     {
-        $template = $this->scopeConfig->getValue(
-            $this->getTemplate($store),
+        $config = $this->storeConfig->getValue(
+            static::XML_PATH_SECOND_CHANCE_ENABLE_SECOND_CHANCE,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        );
+        return (bool) $config;
+    }
+
+    public function getSecondChancePruneDays($store = null): string
+    {
+        $config = $this->storeConfig->getValue(
+            static::XML_PATH_SECOND_CHANCE_PRUNE_DAYS,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        );
+        return (string) $config;
+    }
+
+    public function getFinalStatus(): string
+    {
+        return static::XML_PATH_SECOND_FINAL_STATUS;
+    }
+
+    public function isSecondChanceEmail($store = null): bool
+    {
+        $config = $this->storeConfig->getValue(
+            static::XML_PATH_SECOND_CHANCE_EMAIL,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        );
+        return (bool) $config;
+    }
+
+    public function isSecondChanceEmail2($store = null): bool
+    {
+        $config = $this->storeConfig->getValue(
+            static::XML_PATH_SECOND_CHANCE_EMAIL2,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        );
+        return (bool) $config;
+    }
+
+    public function getSecondChanceTiming($store = null): string
+    {
+        $config = $this->storeConfig->getValue(
+            static::XML_PATH_SECOND_CHANCE_TIMING,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        );
+        return (string) $config;
+    }
+
+    public function getSecondChanceTiming2($store = null): string
+    {
+        $config = $this->storeConfig->getValue(
+            static::XML_PATH_SECOND_CHANCE_TIMING2,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        );
+        return (string) $config;
+    }
+
+    public function getSecondChanceTemplate($store = null): string
+    {
+        $config = $this->storeConfig->getValue(
+            static::XML_PATH_SECOND_CHANCE_TEMPLATE,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        ) ?? self::XML_PATH_SECOND_CHANCE_DEFAULT_TEMPLATE;
+        return (string) $config;
+    }
+
+    public function getSecondChanceTemplate2($store = null): string
+    {
+        $config = $this->storeConfig->getValue(
+            static::XML_PATH_SECOND_CHANCE_TEMPLATE2,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        ) ?? self::XML_PATH_SECOND_CHANCE_DEFAULT_TEMPLATE2;
+        return (string) $config;
+    }
+
+    public function getFromEmail($store = null): string
+    {
+        $config = $this->storeConfig->getValue(
+            'trans_email/ident_sales/email',
             ScopeInterface::SCOPE_STORE,
             $store
-        ) ?? self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE;
-
-        $template2 = $this->scopeConfig->getValue(
-            $this->getTemplate2($store),
+        );
+        return (string) $config;
+    }
+    
+    public function getFromName($store = null): string
+    {
+        $config = $this->storeConfig->getValue(
+            'trans_email/ident_sales/name',
             ScopeInterface::SCOPE_STORE,
             $store
-        ) ?? self::XPATH_SECONDCHANCE_DEFAULT_TEMPLATE2;
+        );
+        return (string) $config;
+    }
 
-        $config = [
-            'template'     => $template,
-            'template2'    => $template2,
-            'final_status' => self::XPATH_SECONDCHANCE_FINAL_STATUS,
-            'setFromEmail' => $this->scopeConfig->getValue(
-                'trans_email/ident_sales/email',
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'setFromName'  => $this->scopeConfig->getValue(
-                'trans_email/ident_sales/name',
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-        ];
-        return $config;
+    public function getNoSendSecondChance($store = null): bool
+    {
+        $config = $this->storeConfig->getValue(
+            static::XML_PATH_SECOND_CHANCE_NO_SEND,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        );
+        return (bool) $config;
     }
 }

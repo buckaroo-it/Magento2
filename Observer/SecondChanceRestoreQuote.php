@@ -19,31 +19,27 @@
  */
 namespace Buckaroo\Magento2\Observer;
 
-class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
+class SecondChanceRestoreQuote implements \Magento\Framework\Event\ObserverInterface
 {
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    private $checkoutSession;
+    protected $customerSession;
 
-    protected $messageManager;
-
-    protected $cart;
+    protected $quoteRecreate;
 
     protected $logging;
-
     /**
-     * @param \Magento\Checkout\Model\Cart          $cart
+     *
+     * @param \Magento\Customer\Model\Session $customerSession,
+     * @param \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate
+     * @param \Buckaroo\Magento2\Logging\Log $logging,
+     *
      */
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Customer\Model\Session $customerSession,
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
         \Buckaroo\Magento2\Logging\Log $logging
     ) {
-        $this->checkoutSession        = $checkoutSession;
-        $this->messageManager         = $messageManager;
-        $this->cart                   = $cart;
+        $this->customerSession        = $customerSession;
+        $this->quoteRecreate          = $quoteRecreate;
         $this->logging                = $logging;
     }
 
@@ -54,16 +50,13 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $this->logging->addDebug(__METHOD__ . '|1|');
-
-        if ($this->checkoutSession->getMyParcelNLBuckarooData()) {
-            $this->checkoutSession->setMyParcelNLBuckarooData(null);
-        }
-
-        try {
-            $this->cart->truncate()->save();
-        } catch (\Exception $exception) {
-            $this->messageManager->addExceptionMessage($exception, __('We can\'t empty the shopping cart.'));
+        if ($quoteId = $this->customerSession->getSecondChanceRecreate()) {
+            try {
+                $this->quoteRecreate->recreateById($quoteId);
+                $this->customerSession->setSecondChanceRecreate(false);
+            } catch (\Exception $e) {
+                $this->logging->addError('Could not recreateById SC:' . $quoteId);
+            }
         }
     }
 }

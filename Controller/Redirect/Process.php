@@ -21,10 +21,9 @@
 namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
-use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
-use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -91,14 +90,14 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $customerModel;
     protected $customerResourceFactory;
 
+    protected $orderService;
+
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     * @var EventManager
      */
-    protected $secondChanceRepository;
+    private $eventManager;
 
     private $quoteRecreate;
-
-    protected $orderService;
 
     /**
      * @param \Magento\Framework\App\Action\Context               $context
@@ -131,9 +130,9 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\SessionFactory $sessionFactory,
         \Magento\Customer\Model\Customer $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
-        QuoteRecreate $quoteRecreate,
-        OrderService $orderService
+        OrderService $orderService,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -149,14 +148,14 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->customerRepository = $customerRepository;
         $this->_sessionFactory    = $sessionFactory;
 
-        $this->customerModel      = $customerModel;
-        $this->customerResourceFactory    = $customerFactory;
-        
+        $this->customerModel           = $customerModel;
+        $this->customerResourceFactory = $customerFactory;
+
         $this->accountConfig = $configProviderFactory->get('account');
 
-        $this->secondChanceRepository = $secondChanceRepository;
+        $this->orderService           = $orderService;
+        $this->eventManager           = $eventManager;
         $this->quoteRecreate          = $quoteRecreate;
-        $this->orderService = $orderService;
 
         // @codingStandardsIgnoreStart
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
@@ -241,7 +240,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     $this->orderStatusFactory->get(
                         $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
                         $this->order
-                    )
+                    ),
                 ];
                 $this->logger->addDebug(__METHOD__ . '|3|' . var_export($debugInfo, true));
 
@@ -309,14 +308,14 @@ class Process extends \Magento\Framework\App\Action\Action
                 }
 
                 $this->logger->addDebug(__METHOD__ . '|51|' . var_export([
-                        $this->checkoutSession->getLastSuccessQuoteId(),
-                        $this->checkoutSession->getLastQuoteId(),
-                        $this->checkoutSession->getLastOrderId(),
-                        $this->checkoutSession->getLastRealOrderId(),
-                        $this->order->getQuoteId(),
-                        $this->order->getId(),
-                        $this->order->getIncrementId(),
-                    ], true));
+                    $this->checkoutSession->getLastSuccessQuoteId(),
+                    $this->checkoutSession->getLastQuoteId(),
+                    $this->checkoutSession->getLastOrderId(),
+                    $this->checkoutSession->getLastRealOrderId(),
+                    $this->order->getQuoteId(),
+                    $this->order->getId(),
+                    $this->order->getIncrementId(),
+                ], true));
 
                 if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
                     $this->logger->addDebug(__METHOD__ . '|52|');
@@ -353,6 +352,15 @@ class Process extends \Magento\Framework\App\Action\Action
     protected function handleFailed($statusCode)
     {
         $this->logger->addDebug(__METHOD__ . '|7|');
+
+        $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
+
+        if (!$this->getSkipHandleFailedRecreate()) {
+            if (!$this->quoteRecreate->recreate($this->quote)) {
+                $this->logging->addError('Could not recreate the quote.');
+            }
+        }
+
         /*
          * Something went wrong, so we're going to have to
          * 1) recreate the quote for the user
@@ -361,7 +369,7 @@ class Process extends \Magento\Framework\App\Action\Action
          */
 
         // StatusCode specified error messages
-        $statusCodeAddErrorMessage = [];
+        $statusCodeAddErrorMessage                                                                 = [];
         $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
             'Unfortunately an error occurred while processing your payment. Please try again. If this' .
             ' error persists, please choose a different payment method.';
@@ -381,12 +389,6 @@ class Process extends \Magento\Framework\App\Action\Action
                 $statusCodeAddErrorMessage[$statusCode]
             )
         );
-
-        if ($this->accountConfig->getSecondChance($this->order->getStore())) {
-            $this->quoteRecreate->duplicate($this->order);
-        } elseif (!$this->quoteRecreate->recreate(false, $this->quote)) {
-            $this->logger->addError('Could not recreate the quote.');
-        }
 
         //skip cancel order for PPE
         if (isset($this->response['add_frompayperemail'])) {
@@ -470,6 +472,8 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
 
+        $this->eventManager->dispatch('buckaroo_process_redirect_success_before');
+
         $store = $this->order->getStore();
 
         /**
@@ -480,7 +484,6 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->messageManager->addSuccessMessage(__('Your order has been placed succesfully.'));
 
         $this->quote->setReservedOrderId(null);
-        $this->customerSession->setSkipSecondChance(false);
 
         if (!empty($this->response['brq_payment_method'])
             &&
@@ -535,12 +538,12 @@ class Process extends \Magento\Framework\App\Action\Action
                     if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
                         $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
-                        if (!$this->accountConfig->getSecondChance($this->order->getStore())) {
+                        if (!$this->getSkipHandleFailedRecreate()) {
                             $this->checkoutSession->restoreQuote();
                             $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
                         }
                     }
-
+                    $this->setSkipHandleFailedRecreate(false);
                 } catch (\Exception $e) {
                     $this->logger->addError('Could not load customer');
                 }
@@ -620,17 +623,27 @@ class Process extends \Magento\Framework\App\Action\Action
             $this->checkoutSession->setCustomerIDIN($this->response['brq_service_idin_consumerbin']);
             $this->checkoutSession->setCustomerIDINIsEighteenOrOlder(true);
             if (isset($this->response['add_idin_cid']) && !empty($this->response['add_idin_cid'])) {
-                    $customerNew = $this->customerModel->load((int) $this->response['add_idin_cid']);
-                    $customerData = $customerNew->getDataModel();
-                    $customerData->setCustomAttribute('buckaroo_idin', $this->response['brq_service_idin_consumerbin']);
-                    $customerData->setCustomAttribute('buckaroo_idin_iseighteenorolder', 1);
-                    $customerNew->updateData($customerData);
-                    $customerResource = $this->customerResourceFactory->create();
-                    $customerResource->saveAttribute($customerNew, 'buckaroo_idin');
-                    $customerResource->saveAttribute($customerNew, 'buckaroo_idin_iseighteenorolder');
+                $customerNew  = $this->customerModel->load((int) $this->response['add_idin_cid']);
+                $customerData = $customerNew->getDataModel();
+                $customerData->setCustomAttribute('buckaroo_idin', $this->response['brq_service_idin_consumerbin']);
+                $customerData->setCustomAttribute('buckaroo_idin_iseighteenorolder', 1);
+                $customerNew->updateData($customerData);
+                $customerResource = $this->customerResourceFactory->create();
+                $customerResource->saveAttribute($customerNew, 'buckaroo_idin');
+                $customerResource->saveAttribute($customerNew, 'buckaroo_idin_iseighteenorolder');
             }
             return true;
         }
         return false;
+    }
+
+    public function getSkipHandleFailedRecreate()
+    {
+        return false;
+    }
+
+    public function setSkipHandleFailedRecreate($value)
+    {
+        return true;
     }
 }

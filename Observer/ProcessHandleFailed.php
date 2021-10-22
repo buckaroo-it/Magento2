@@ -19,32 +19,29 @@
  */
 namespace Buckaroo\Magento2\Observer;
 
-class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
+class ProcessHandleFailed implements \Magento\Framework\Event\ObserverInterface
 {
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    private $checkoutSession;
-
-    protected $messageManager;
-
-    protected $cart;
-
     protected $logging;
+
+    protected $configProvider;
+
+    protected $quoteRecreate;
+
+    protected $customerSession;
 
     /**
      * @param \Magento\Checkout\Model\Cart          $cart
      */
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Checkout\Model\Cart $cart,
-        \Buckaroo\Magento2\Logging\Log $logging
+        \Buckaroo\Magento2\Logging\Log $logging,
+        \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
+        \Magento\Customer\Model\Session $customerSession
     ) {
-        $this->checkoutSession        = $checkoutSession;
-        $this->messageManager         = $messageManager;
-        $this->cart                   = $cart;
         $this->logging                = $logging;
+        $this->configProvider  = $configProvider;
+        $this->quoteRecreate          = $quoteRecreate;
+        $this->customerSession        = $customerSession;
     }
 
     /**
@@ -55,15 +52,11 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
-
-        if ($this->checkoutSession->getMyParcelNLBuckarooData()) {
-            $this->checkoutSession->setMyParcelNLBuckarooData(null);
-        }
-
-        try {
-            $this->cart->truncate()->save();
-        } catch (\Exception $exception) {
-            $this->messageManager->addExceptionMessage($exception, __('We can\'t empty the shopping cart.'));
+        /* @var $order \Magento\Sales\Model\Order */
+        $order = $observer->getEvent()->getOrder();
+        if ($order && $this->configProvider->isSecondChanceEnabled($order->getStore())) {
+            $this->quoteRecreate->duplicate($order);
+            $this->customerSession->setSkipHandleFailedRecreate(1);
         }
     }
 }

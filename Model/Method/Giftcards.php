@@ -28,6 +28,7 @@ use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class Giftcards extends AbstractMethod
 {
@@ -98,7 +99,7 @@ class Giftcards extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        EventManager $eventManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -129,7 +130,7 @@ class Giftcards extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
-            $secondChanceRepository,
+            $eventManager,
             $resource,
             $resourceCollection,
             $gateway,

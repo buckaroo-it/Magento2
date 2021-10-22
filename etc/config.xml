@@ -548,11 +548,14 @@
                 <debug_types>300,400,500,550,600</debug_types>
                 <cart_keep_alive>1</cart_keep_alive>
                 <selection_type>1</selection_type>
+            </account>
+
+            <second_chance>
                 <second_chance_template>buckaroo_second_chance</second_chance_template>
                 <second_chance_template2>buckaroo_second_chance2</second_chance_template2>
-                <second_chance_email>1</second_chance_email>
-                <second_chance_email2>1</second_chance_email2>
-            </account>
+                <email>1</email>
+                <email2>1</email2>
+            </second_chance>
 
             <refund>
                 <enabled>0</enabled>

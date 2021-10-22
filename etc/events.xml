@@ -52,13 +52,32 @@
 
     <event name="controller_action_predispatch_checkout_index_index">
         <observer name="initiate_checkout_onepage" instance="Buckaroo\Magento2\Observer\RestoreQuote" />
+        <observer name="buckaroo_second_chance_restore_quote" instance="Buckaroo\Magento2\Observer\SecondChanceRestoreQuote" />
     </event>
 
     <event name="checkout_onepage_controller_success_action">
+        <observer name="buckaroo_magento2_second_chance_success_place_order" instance="Buckaroo\Magento2\Observer\SecondChanceSuccessOrder"  />
         <observer name="buckaroo_magento2_success_place_order" instance="Buckaroo\Magento2\Observer\SuccessOrder"  />
     </event>
     
     <event name="order_cancel_after">
         <observer name="buckaroo_magento2_order_cancel_after" instance="Buckaroo\Magento2\Observer\OrderCancelAfter" />
     </event>
+
+    <event name="buckaroo_order_after">
+        <observer name="buckaroo_event_order_after_observer" instance="Buckaroo\Magento2\Observer\SecondChance"/>
+    </event>
+
+    <event name="buckaroo_authorize_after">
+        <observer name="buckaroo_event_authorize_after_observer" instance="Buckaroo\Magento2\Observer\SecondChance"/>
+    </event>
+
+    <event name="buckaroo_process_handle_failed_before">
+        <observer name="buckaroo_event_process_handle_failed_before" instance="Buckaroo\Magento2\Observer\ProcessHandleFailed"/>
+    </event>
+
+    <event name="buckaroo_process_redirect_success_before">
+        <observer name="buckaroo_event_process_redirect_success_before" instance="Buckaroo\Magento2\Observer\ProcessRedirectSuccess"/>
+    </event>
+    
 </config>
