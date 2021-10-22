@@ -23,7 +23,7 @@ class ProcessRedirectSuccess implements \Magento\Framework\Event\ObserverInterfa
 {
     protected $logging;
 
-    protected $configProviderAccount;
+    protected $configProvider;
 
     protected $customerSession;
 
@@ -32,12 +32,12 @@ class ProcessRedirectSuccess implements \Magento\Framework\Event\ObserverInterfa
      */
     public function __construct(
         \Buckaroo\Magento2\Logging\Log $logging,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
+        \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
         \Magento\Customer\Model\Session $customerSession
     ) {
-        $this->logging                = $logging;
-        $this->configProviderAccount  = $configProviderAccount;
-        $this->customerSession        = $customerSession;
+        $this->logging         = $logging;
+        $this->configProvider  = $configProvider;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -49,7 +49,7 @@ class ProcessRedirectSuccess implements \Magento\Framework\Event\ObserverInterfa
     {
         /* @var $order \Magento\Sales\Model\Order */
         $order = $observer->getEvent()->getOrder();
-        if ($order && $this->configProviderAccount->getSecondChance($order->getStore())) {
+        if ($order && $this->configProvider->isSecondChanceEnabled($order->getStore())) {
             $this->customerSession->setSkipSecondChance(false);
         }
     }

@@ -19,28 +19,32 @@
  */
 namespace Buckaroo\Magento2\Plugin;
 
-use \Magento\Checkout\Model\Session;
-use \Buckaroo\Magento2\Model\ConfigProvider\Account;
 use \Buckaroo\Magento2\Helper\Data;
+use \Buckaroo\Magento2\Model\ConfigProvider\Account;
+use \Magento\Checkout\Model\Session;
+use \Magento\Customer\Model\Session as CustomerSession;
 use \Magento\Quote\Api\CartRepositoryInterface;
 
 class ShippingMethodManagement
 {
     private $checkoutSession;
     private $accountConfig;
+    private $customerSession;
     private $helper;
     private $quoteRepository;
 
     public function __construct(
         Session $checkoutSession,
+        CustomerSession $customerSession,
         Account $accountConfig,
         Data $helper,
         CartRepositoryInterface $quoteRepository
     ) {
-        $this->checkoutSession     = $checkoutSession;
-        $this->accountConfig       = $accountConfig;
-        $this->helper              = $helper;
-        $this->quoteRepository     = $quoteRepository;
+        $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
+        $this->accountConfig   = $accountConfig;
+        $this->helper          = $helper;
+        $this->quoteRepository = $quoteRepository;
     }
 
     public function beforeGet($cartId)
@@ -54,9 +58,9 @@ class ShippingMethodManagement
 
             $order = $payment->getOrder();
 
-            $this->helper->addDebug(__METHOD__.'|1|');
+            $this->helper->addDebug(__METHOD__ . '|1|');
             if ($this->accountConfig->getCartKeepAlive($order->getStore())
-                && $this->accountConfig->getSecondChance($order->getStore())
+                && $this->customerSession->getSecondChanceRecreate()
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
                 if ($this->checkoutSession->getQuote()

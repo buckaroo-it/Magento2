@@ -26,37 +26,25 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     private $checkoutSession;
 
-    protected $quoteFactory;
-
     protected $messageManager;
-
-    protected $layout;
 
     protected $cart;
 
     protected $logging;
-
-    protected $configProviderAccount;
 
     /**
      * @param \Magento\Checkout\Model\Cart          $cart
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Framework\View\LayoutInterface $layout,
         \Magento\Checkout\Model\Cart $cart,
-        \Buckaroo\Magento2\Logging\Log $logging,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
+        \Buckaroo\Magento2\Logging\Log $logging
     ) {
         $this->checkoutSession        = $checkoutSession;
-        $this->quoteFactory           = $quoteFactory;
         $this->messageManager         = $messageManager;
-        $this->layout                 = $layout;
         $this->cart                   = $cart;
         $this->logging                = $logging;
-        $this->configProviderAccount  = $configProviderAccount;
     }
 
     /**

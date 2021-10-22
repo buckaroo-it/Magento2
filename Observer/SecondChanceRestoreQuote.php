@@ -21,8 +21,6 @@ namespace Buckaroo\Magento2\Observer;
 
 class SecondChanceRestoreQuote implements \Magento\Framework\Event\ObserverInterface
 {
-    protected $configProviderAccount;
-
     protected $customerSession;
 
     protected $quoteRecreate;
@@ -30,19 +28,16 @@ class SecondChanceRestoreQuote implements \Magento\Framework\Event\ObserverInter
     protected $logging;
     /**
      *
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
      * @param \Magento\Customer\Model\Session $customerSession,
      * @param \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate
      * @param \Buckaroo\Magento2\Logging\Log $logging,
      *
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
         \Magento\Customer\Model\Session $customerSession,
         \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
         \Buckaroo\Magento2\Logging\Log $logging
     ) {
-        $this->configProviderAccount  = $configProviderAccount;
         $this->customerSession        = $customerSession;
         $this->quoteRecreate          = $quoteRecreate;
         $this->logging                = $logging;

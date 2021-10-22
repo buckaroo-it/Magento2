@@ -28,21 +28,21 @@ class SecondChance implements \Magento\Framework\Event\ObserverInterface
 
     protected $logging;
 
-    protected $configProviderAccount;
+    protected $configProvider;
 
     /**
      * @param \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
      * @param \Buckaroo\Magento2\Logging\Log $logging,
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider
      */
     public function __construct(
         \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
         \Buckaroo\Magento2\Logging\Log $logging,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
+        \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider
     ) {
         $this->secondChanceRepository = $secondChanceRepository;
         $this->logging                = $logging;
-        $this->configProviderAccount  = $configProviderAccount;
+        $this->configProvider         = $configProvider;
     }
 
     /**
@@ -54,8 +54,7 @@ class SecondChance implements \Magento\Framework\Event\ObserverInterface
     {
         /* @var $order \Magento\Sales\Model\Order */
         $order = $observer->getEvent()->getOrder();
-        // $order = $observer->getData('order');
-        if ($order && $this->configProviderAccount->getSecondChance($order->getStore())) {
+        if ($order && $this->configProvider->isSecondChanceEnabled($order->getStore())) {
             try {
                 $this->secondChanceRepository->createSecondChance($order);
             } catch (\Exception $e) {

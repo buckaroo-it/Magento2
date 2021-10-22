@@ -19,36 +19,43 @@
  */
 namespace Buckaroo\Magento2\Cron;
 
-use Buckaroo\Magento2\Model\SecondChanceRepository as SecondChanceRepository;
-use Magento\Store\Api\StoreRepositoryInterface as StoreRepositoryInterface;
-
 class SecondChancePrune
 {
     /**
-     * @param SecondChanceRepository       $secondChanceRepository
+     * @var Log $logging
      */
-    protected $secondChanceRepository;
-    
+    public $logging;
+
     /**
-     * @var StoreRepositoryInterface
+     * @var \Magento\Store\Api\StoreRepositoryInterface
      */
     private $storeRepository;
 
+    /**
+     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     */
+    protected $secondChanceRepository;
+
+    /**
+     * @param \Magento\Checkout\Model\Session\Proxy                $checkoutSession
+     */
     public function __construct(
-        SecondChanceRepository $secondChanceRepository,
-        StoreRepositoryInterface $storeRepository
+        \Magento\Store\Api\StoreRepositoryInterface $storeRepository,
+        \Buckaroo\Magento2\Logging\Log $logging,
+        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
     ) {
+        $this->storeRepository        = $storeRepository;
+        $this->logging                = $logging;
         $this->secondChanceRepository = $secondChanceRepository;
-        $this->storeRepository = $storeRepository;
     }
 
     public function execute()
     {
+        $this->logging->addDebug(__METHOD__ . '|1|');
         $stores = $this->storeRepository->getList();
         foreach ($stores as $store) {
             $this->secondChanceRepository->deleteOlderRecords($store);
         }
-
         return $this;
     }
 }

@@ -23,7 +23,7 @@ class ProcessHandleFailed implements \Magento\Framework\Event\ObserverInterface
 {
     protected $logging;
 
-    protected $configProviderAccount;
+    protected $configProvider;
 
     protected $quoteRecreate;
 
@@ -34,12 +34,12 @@ class ProcessHandleFailed implements \Magento\Framework\Event\ObserverInterface
      */
     public function __construct(
         \Buckaroo\Magento2\Logging\Log $logging,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
+        \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
         \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
         \Magento\Customer\Model\Session $customerSession
     ) {
         $this->logging                = $logging;
-        $this->configProviderAccount  = $configProviderAccount;
+        $this->configProvider  = $configProvider;
         $this->quoteRecreate          = $quoteRecreate;
         $this->customerSession        = $customerSession;
     }
@@ -52,11 +52,9 @@ class ProcessHandleFailed implements \Magento\Framework\Event\ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
-
         /* @var $order \Magento\Sales\Model\Order */
         $order = $observer->getEvent()->getOrder();
-
-        if ($order && $this->configProviderAccount->getSecondChance($order->getStore())) {
+        if ($order && $this->configProvider->isSecondChanceEnabled($order->getStore())) {
             $this->quoteRecreate->duplicate($order);
             $this->customerSession->setSkipHandleFailedRecreate(1);
         }
