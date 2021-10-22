@@ -455,4 +455,17 @@
     <type name="Magento\CatalogInventory\Model\Configuration">
         <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
     </type>
+
+    <type name="Buckaroo\Magento2\Observer\RestoreQuote">
+        <plugin name="SecondChanceRestoreQuote" type="Buckaroo\Magento2\Plugin\SecondChance" />
+    </type>
+
+    <type name="Buckaroo\Magento2\Controller\Redirect\Process">
+        <plugin name="SecondChanceRedirectProcess" type="Buckaroo\Magento2\Plugin\SecondChance" />
+    </type>
+    
+    <type name="Buckaroo\Magento2\Plugin\ShippingMethodManagement">
+        <plugin name="SecondChanceShippingMethodManagement" type="Buckaroo\Magento2\Plugin\SecondChance" />
+    </type>
+
 </config>

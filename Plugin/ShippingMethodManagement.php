@@ -60,7 +60,7 @@ class ShippingMethodManagement
 
             $this->helper->addDebug(__METHOD__ . '|1|');
             if ($this->accountConfig->getCartKeepAlive($order->getStore())
-                && $this->customerSession->getSecondChanceRecreate()
+                && $this->isNeedRecreate()
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
                 if ($this->checkoutSession->getQuote()
@@ -77,5 +77,9 @@ class ShippingMethodManagement
                 }
             }
         }
+    }
+
+    public function isNeedRecreate() {
+        return false;
     }
 }

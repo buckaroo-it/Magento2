@@ -141,7 +141,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         if ($payment = $lastRealOrder->getPayment()) {
-            if ($this->customerSession->getSecondChanceRecreate()) {
+            if ($this->shouldSkipFurtherEventHandling()) {
                 return;
             }
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
@@ -178,6 +178,10 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             $this->helper->setRestoreQuoteLastOrder(false);
         }
         $this->helper->addDebug(__METHOD__ . '|RestoreQuote|end|');
+        return true;
+    }
+
+    public function shouldSkipFurtherEventHandling() {
         return true;
     }
 }

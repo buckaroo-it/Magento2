@@ -355,7 +355,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
 
-        if (!$this->customerSession->getSkipHandleFailedRecreate()) {
+        if (!$this->getSkipHandleFailedRecreate()) {
             if (!$this->quoteRecreate->recreate($this->quote)) {
                 $this->logging->addError('Could not recreate the quote.');
             }
@@ -538,12 +538,12 @@ class Process extends \Magento\Framework\App\Action\Action
                     if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
                         $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
-                        if (!$this->customerSession->getSkipHandleFailedRecreate()) {
+                        if (!$this->getSkipHandleFailedRecreate()) {
                             $this->checkoutSession->restoreQuote();
                             $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
                         }
                     }
-                    $this->customerSession->setSkipHandleFailedRecreate(false);
+                    $this->setSkipHandleFailedRecreate(false);
                 } catch (\Exception $e) {
                     $this->logger->addError('Could not load customer');
                 }
@@ -635,5 +635,13 @@ class Process extends \Magento\Framework\App\Action\Action
             return true;
         }
         return false;
+    }
+
+    public function getSkipHandleFailedRecreate() {
+        return false;
+    }
+
+    public function setSkipHandleFailedRecreate($value) {
+        return true;
     }
 }
