@@ -550,13 +550,6 @@
                 <selection_type>1</selection_type>
             </account>
 
-            <second_chance>
-                <second_chance_template>buckaroo_second_chance</second_chance_template>
-                <second_chance_template2>buckaroo_second_chance2</second_chance_template2>
-                <email>1</email>
-                <email2>1</email2>
-            </second_chance>
-
             <refund>
                 <enabled>0</enabled>
                 <allow_push>0</allow_push>

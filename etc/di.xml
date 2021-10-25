@@ -352,10 +352,6 @@
                     <item name="type" xsi:type="string">refund</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Refund</item>
                 </item>
-                <item name="second_chance" xsi:type="array">
-                    <item name="type" xsi:type="string">second_chance</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\SecondChance</item>
-                </item>
             </argument>
         </arguments>
     </type>
@@ -454,18 +450,6 @@
 
     <type name="Magento\CatalogInventory\Model\Configuration">
         <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
-    </type>
-
-    <type name="Buckaroo\Magento2\Observer\RestoreQuote">
-        <plugin name="SecondChanceRestoreQuote" type="Buckaroo\Magento2\Plugin\SecondChance" />
-    </type>
-
-    <type name="Buckaroo\Magento2\Controller\Redirect\Process">
-        <plugin name="SecondChanceRedirectProcess" type="Buckaroo\Magento2\Plugin\SecondChance" />
-    </type>
-    
-    <type name="Buckaroo\Magento2\Plugin\ShippingMethodManagement">
-        <plugin name="SecondChanceShippingMethodManagement" type="Buckaroo\Magento2\Plugin\SecondChance" />
     </type>
 
 </config>

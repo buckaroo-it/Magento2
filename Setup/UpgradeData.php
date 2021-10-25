@@ -566,8 +566,6 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 
         $this->setProductIDIN($setup);
 
-        $this->updateSecondChanceEmailTemplates($setup);
-
         $setup->endSetup();
     }
 
@@ -1505,15 +1503,4 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         );
     }
 
-    protected function updateSecondChanceEmailTemplates(ModuleDataSetupInterface $setup)
-    {
-        $setup->getConnection()->update(
-            $setup->getTable('email_template'),
-            ['is_legacy' => 1],
-            $setup->getConnection()->quoteInto(
-                'orig_template_code IN(?) ',
-                ['buckaroo_second_chance','buckaroo_second_chance2']
-            )
-        );
-    }
 }
