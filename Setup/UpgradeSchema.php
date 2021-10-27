@@ -88,10 +88,6 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             );
         }
 
-        if (!$installer->tableExists('buckaroo_magento2_second_chance')) {
-            $this->createSecondChanceTable($installer);
-        }
-
         $this->createOptimizationIndexes($installer);
 
         $installer->endSetup();
@@ -321,80 +317,6 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             'Created At'
         );
         $table->setComment('Buckaroo Group Transaction');
-
-        $installer->getConnection()->createTable($table);
-    }
-
-    /**
-     * @param SchemaSetupInterface $installer
-     *
-     * @throws \Zend_Db_Exception
-     */
-    protected function createSecondChanceTable(SchemaSetupInterface $installer)
-    {
-        $table = $installer->getConnection()->newTable($installer->getTable('buckaroo_magento2_second_chance'));
-
-        $table->addColumn(
-            'entity_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-            null,
-            [
-                'identity' => true,
-                'unsigned' => true,
-                'nullable' => false,
-                'primary'  => true,
-            ],
-            'Entity ID'
-        );
-
-        $table->addColumn(
-            'order_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'orderId'
-        );
-
-        $table->addColumn(
-            'store_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'storeId'
-        );
-
-        $table->addColumn(
-            'token',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'orderId'
-        );
-
-        $table->addColumn(
-            'status',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Status'
-        );
-
-        $table->addColumn(
-            'created_at',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
-            null,
-            [],
-            'Created At'
-        );
-        $table->setComment('Buckaroo Second Chance');
 
         $installer->getConnection()->createTable($table);
     }
