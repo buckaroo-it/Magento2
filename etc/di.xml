@@ -36,6 +36,16 @@
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
 
+    <!-- Adapter -->
+    <type name="Buckaroo\Magento2\Model\Method\MethodAdapter">
+        <arguments>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Payment\Block\Info\Base</argument>
+            <argument name="valueHandlerPool" xsi:type="object">BuckarooValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">BuckarooCommandPool</argument>
+        </arguments>
+    </type>
+
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>
             <argument name="gateway" xsi:type="object">Buckaroo\Magento2\Gateway\GatewayInterface</argument>
@@ -59,6 +69,37 @@
     <type name="Buckaroo\Magento2\Model\Method\SepaDirectDebit">
         <plugin name="buckaroo_magento2_sepadirectdebit" type="Buckaroo\Magento2\Plugin\Method\SepaDirectDebit" />
     </type>
+
+    <!-- Ideal -->
+    <type name="Buckaroo\Magento2\Model\Method\IdealNew">
+        <arguments>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Payment\Block\Info\Base</argument>
+            <argument name="valueHandlerPool" xsi:type="object">BuckarooIdealValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">BuckarooCommandPool</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="BuckarooIdealValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">BuckarooIdealConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooIdealConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">BuckarooIdealConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooIdealConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Buckaroo\Magento2\Model\Method\IdealNew::CODE</argument>
+        </arguments>
+    </virtualType>
+
 
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
         <plugin name="buckaroo_magento2_add_order_extension_attributes" type="Buckaroo\Magento2\Plugin\OrderExtensionAttribute" />
@@ -470,4 +511,77 @@
     <type name="Magento\CatalogInventory\Model\Configuration">
         <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
     </type>
+
+    <virtualType name="Buckaroo\Magento2\Model\Session\Storage" type="Magento\Framework\Session\Storage">
+        <arguments>
+            <argument name="namespace" xsi:type="string">Buckaroo</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Buckaroo\Magento2\Model\Session">
+        <arguments>
+            <argument name="storage" xsi:type="object">Buckaroo\Magento2\Model\Session\Storage</argument>
+        </arguments>
+    </type>
+
+    <!-- MPG-->
+    <virtualType name="BuckarooValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">BuckarooConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">BuckarooGenericConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Buckaroo\Magento2\Model\Method\MethodAdapter::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">BuckarooInitializeCommand</item>
+                <item name="authorize" xsi:type="string">BuckarooInitializeCommand</item>
+                <item name="vault_authorize" xsi:type="string">BuckarooInitializeCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BuckarooInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Payment\Gateway\Http\Transfer</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Payment\Gateway\Http\Client\GenericClient</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite" />
+
+    <virtualType name="BuckarooSaleCommand" type="BuckarooAuthorizeCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BuckarooSaleRequest</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
+        <arguments>
+            <argument name="executors" xsi:type="array">
+                <item name="buckaroo_creditcards" xsi:type="string">BuckarooCommandManager</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="BuckarooCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">BuckarooCommandPool</argument>
+        </arguments>
+    </virtualType>
+
 </config>

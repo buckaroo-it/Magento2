@@ -38,6 +38,25 @@
         </tax>
         <payment>
             <buckaroo_magento2_ideal>
+                <active>1</active>
+                <title>Ideal (New)</title>
+                <model>Buckaroo\Magento2\Model\Method\IdealNew</model>
+                <method>payment</method>
+                <payment_action>order</payment_action>
+                <is_gateway>1</is_gateway>
+                <can_order>1</can_order>
+                <can_use_checkout>1</can_use_checkout>
+                <can_capture>1</can_capture>
+                <can_order>1</can_order>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>0</can_use_internal>
+                <can_cancel>1</can_cancel>
+                <can_authorize>0</can_authorize>
+                <issuer_list_type>radio</issuer_list_type>
+            </buckaroo_magento2_ideal>
+<!--
+            <buckaroo_magento2_ideal>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Ideal</model>
                 <order_status>pending</order_status>
@@ -50,7 +69,7 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_ideal>
-
+-->
             <buckaroo_magento2_idealprocessing>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\IdealProcessing</model>
