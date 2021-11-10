@@ -83,7 +83,7 @@
                                 <select id="buckaroo_magento2_mrcash_expirationyear" class="field"
                                         data-bind="value: ExpirationYear,
                                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
-                                                   event: { change: validateYear },
+                                                   event: { change: validateYear, blur: validateYear },
                                                    foreach: getYears()"
                                         name="payment[buckaroo_magento2_mrcash][expirationyear]">
                                     <option data-bind="i18n: label, 'value': value"></option>
