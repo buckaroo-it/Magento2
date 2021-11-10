@@ -120,7 +120,7 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
                 throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
             }
 
-            parent::updateItemQty($cartId, $itemId, $itemQty);
+            return parent::updateItemQty($cartId, $itemId, $itemQty);
         }
 
         public function removeItemById($cartId, $itemId)
@@ -129,7 +129,8 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
             if ($quote->getBaseBuckarooAlreadyPaid() > 0) {
                 throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
             }
-            parent::removeItemById($cartId, $itemId);
+            
+            return parent::removeItemById($cartId, $itemId);
         }
 
     }
