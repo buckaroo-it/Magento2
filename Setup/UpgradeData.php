@@ -1502,5 +1502,4 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             ]
         );
     }
-
 }

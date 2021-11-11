@@ -60,7 +60,7 @@ class ShippingMethodManagement
 
             $this->helper->addDebug(__METHOD__ . '|1|');
             if ($this->accountConfig->getCartKeepAlive($order->getStore())
-                && $this->isNeedRecreate()
+                && $this->isNeedRecreate($order->getStore())
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
                 if ($this->checkoutSession->getQuote()
@@ -74,13 +74,14 @@ class ShippingMethodManagement
                             $this->helper->addDebug(__METHOD__ . '|5|');
                             $shippingAddress->load($shippingAddress->getAddressId());
                         }
+                        $shippingAddress->setCollectShippingRates(true);
                     }
                 }
             }
         }
     }
 
-    public function isNeedRecreate()
+    public function isNeedRecreate($store)
     {
         return false;
     }
