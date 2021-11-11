@@ -137,11 +137,12 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $this->helper->addDebug(__METHOD__ . '|RestoreQuote|1|');
+        $this->helper->addDebug(__METHOD__ . '|1|');
 
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         if ($payment = $lastRealOrder->getPayment()) {
             if ($this->shouldSkipFurtherEventHandling()) {
+                $this->helper->addDebug(__METHOD__ . '|10|');
                 return;
             }
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
@@ -153,14 +154,16 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             $order = $payment->getOrder();
 
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
-                $this->helper->addDebug(__METHOD__ . '|cartKeepAlive enabled|');
+                $this->helper->addDebug(__METHOD__ . '|20|');
 
                 if ($this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
+                    $this->helper->addDebug(__METHOD__ . '|25|');
                     if ($shippingAddress = $quote->getShippingAddress()) {
                         if (!$shippingAddress->getShippingMethod()) {
+                            $this->helper->addDebug(__METHOD__ . '|35|');
                             $shippingAddress->load($shippingAddress->getAddressId());
                         }
                     }
@@ -171,14 +174,14 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     && ($lastRealOrder->getData('status') === 'pending')
                     && $payment->getMethodInstance()->usesRedirect
                 ) {
-                    $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
+                    $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
                 }
             }
-            $this->helper->addDebug(__METHOD__ . '|setRestoreQuoteLastOrder for cartKeepAlive|');
+            $this->helper->addDebug(__METHOD__ . '|50|');
             $this->helper->setRestoreQuoteLastOrder(false);
         }
-        $this->helper->addDebug(__METHOD__ . '|RestoreQuote|end|');
+        $this->helper->addDebug(__METHOD__ . '|55|');
         return true;
     }
 
