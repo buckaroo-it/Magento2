@@ -28,7 +28,8 @@ var config = {
             "buckaroo/applepay/order-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/order-handler",
             "buckaroo/payconiq/pay": "Buckaroo_Magento2/js/view/checkout/payconiq/pay",
             "buckaroo/mrcash/pay": "Buckaroo_Magento2/js/view/checkout/mrcash/pay",
-            "BuckarooClientSideEncryption": "//static.buckaroo.nl/script/ClientSideEncryption001.js"
+            "BuckarooClientSideEncryption": "//static.buckaroo.nl/script/ClientSideEncryption001.js",
+            "buckaroo/checkout/common": "Buckaroo_Magento2/js/view/checkout/common",
         }
     },
     shim: {

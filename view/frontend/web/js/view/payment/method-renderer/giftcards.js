@@ -34,7 +34,8 @@ define(
         'Magento_Checkout/js/action/get-totals',
         'Magento_Customer/js/customer-data',
         'Magento_Checkout/js/model/payment-service',
-        'Magento_Ui/js/modal/alert'
+        'Magento_Ui/js/modal/alert',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -51,7 +52,8 @@ define(
         getTotalsAction,
         customerData,
         paymentService,
-        alert
+        alert,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -175,9 +177,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
 
                     if(this.alreadyPayed){
                         window.location.replace(url.build('checkout/onepage/success/'));
