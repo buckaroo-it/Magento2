@@ -106,9 +106,6 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $payment = $this->getFakeMock(Payment::class)->setMethods(['getOrder', 'setAdditionalInformation'])->getMock();
         $payment->expects($this->once())->method('getOrder')->willReturn($fixture['order']);
-        $payment->expects($this->exactly(2))
-            ->method('setAdditionalInformation')
-            ->withConsecutive(['skip_push', 1], ['skip_push', 2]);
 
         $orderMock = $this->getFakeMock(TransactionOrder::class)
             ->setMethods(['setOrder', 'setMethod', 'setServices'])

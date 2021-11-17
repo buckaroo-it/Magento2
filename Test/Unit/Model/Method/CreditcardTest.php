@@ -107,7 +107,6 @@ class CreditcardTest extends \Buckaroo\Magento2\Test\BaseTest
         $paymentMock->expects($this->once())->method('getAdditionalInformation')
             ->with('card_type')
             ->willReturn($fixture['card_type']);
-        $paymentMock->expects($this->once())->method('setAdditionalInformation')->with('skip_push', 1);
 
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['setOrder', 'setMethod', 'setServices'])->getMock();
         $orderMock->expects($this->once())->method('setOrder')->with($fixture['order'])->willReturnSelf();
