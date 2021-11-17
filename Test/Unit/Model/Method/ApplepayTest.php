@@ -77,7 +77,6 @@ class ApplepayTest extends BaseTest
             ->method('getAdditionalInformation')
             ->with('applepayTransaction')
             ->willReturn('abc123');
-        $paymentMock->expects($this->once())->method('setAdditionalInformation')->with('skip_push', 1);
 
         $orderTrxMock = $this->getFakeMock(orderTrxBuilder::class)
             ->setMethods(['setOrder', 'setServices', 'setMethod'])

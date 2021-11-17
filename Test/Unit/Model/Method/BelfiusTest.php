@@ -43,7 +43,6 @@ class BelfiusTest extends \Buckaroo\Magento2\Test\BaseTest
             ->setMethods(['getOrder', 'setAdditionalInformation'])
             ->getMock();
         $paymentMock->expects($this->once())->method('getOrder')->willReturn($fixture['order']);
-        $paymentMock->expects($this->once())->method('setAdditionalInformation')->with('skip_push', 1);
 
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['setOrder', 'setMethod', 'setServices'])->getMock();
         $orderMock->expects($this->once())->method('setOrder')->with($fixture['order'])->willReturnSelf();
