@@ -85,9 +85,6 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
             ->setMethods(['getOrder', 'setAdditionalInformation'])
             ->getMock();
         $paymentMock->expects($this->exactly(3))->method('getOrder')->willReturn($orderMock);
-        $paymentMock->expects($this->exactly(2))
-            ->method('setAdditionalInformation')
-            ->withConsecutive(['skip_push', 1], ['skip_push', 2]);
 
         $trxFactoryMock = $this->getFakeMock(TransactionBuilderFactory::class)->setMethods(['get'])->getMock();
         $trxFactoryMock->expects($this->once())->method('get')->with('order')->willReturn($orderMock);
