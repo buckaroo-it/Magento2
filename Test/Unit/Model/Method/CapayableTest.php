@@ -130,7 +130,6 @@ class CapayableTest extends BaseTest
             ->setMethods(['getOrder', 'setAdditionalInformation'])
             ->getMockForAbstractClass();
         $paymentMock->method('getOrder')->willReturn($orderMock);
-        $paymentMock->expects($this->once())->method('setAdditionalInformation')->with('skip_push', 1);
 
         $softwareDataMock = $this->getFakeMock(SoftwareData::class)
             ->setMethods(['getProductMetaData', 'getEdition'])
