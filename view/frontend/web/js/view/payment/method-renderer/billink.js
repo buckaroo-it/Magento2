@@ -28,6 +28,7 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/checkout/common',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
         /*,
          'jquery/validate'*/
@@ -40,7 +41,8 @@ define(
         quote,
         ko,
         checkoutData,
-        selectPaymentMethodAction
+        selectPaymentMethodAction,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -210,7 +212,7 @@ define(
 
                     quote.billingAddress.subscribe(
                         function(newAddress) {
-                            this.businessMethod = quote.billingAddress() && quote.billingAddress().company ? BUSINESS_METHOD_B2B : BUSINESS_METHOD_B2C;
+                            this.businessMethod = window.checkoutConfig.payment.buckaroo.billink.b2b ? BUSINESS_METHOD_B2B : BUSINESS_METHOD_B2C;
 
                             if (this.getCode() !== this.isChecked() ||
                                 !newAddress ||
@@ -421,9 +423,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
                 },
 
                 selectPaymentMethod: function () {

@@ -3,9 +3,6 @@ namespace Buckaroo\Magento2\Ui\Component\Listing\Column\Method;
 
 use Magento\Framework\App\ResourceConnection;
 
-/**
- * Class Filter
- */
 class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
 {
     protected $resourceConnection;
@@ -33,22 +30,57 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
         parent::toOptionArray();
 
         $db = $this->resourceConnection->getConnection();
-
-        $result = $db->query('
-            select 
-            method, 
-            group_concat(distinct('.$this->resourceConnection->getTableName('buckaroo_magento2_giftcard').'.servicecode) SEPARATOR "-") as giftcard_codes,
-            group_concat(distinct('.$this->resourceConnection->getTableName('buckaroo_magento2_giftcard').'.label) SEPARATOR "-") as giftcard_titles 
-            from '.$this->resourceConnection->getTableName('sales_order_payment').'  
-            inner join '.$this->resourceConnection->getTableName('sales_order').' on '.$this->resourceConnection->getTableName('sales_order').'.entity_id = '.$this->resourceConnection->getTableName('sales_order_payment').'.parent_id 
-            inner join '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').' on '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.order_id='.$this->resourceConnection->getTableName('sales_order').'.increment_id 
-            inner join '.$this->resourceConnection->getTableName('buckaroo_magento2_giftcard').' on '.$this->resourceConnection->getTableName('buckaroo_magento2_giftcard').'.servicecode='.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.servicecode 
-            group by '.$this->resourceConnection->getTableName('buckaroo_magento2_group_transaction').'.order_id
-        ');
-
+        /**
+         * converting this to zend db is part of another ticket
+         */
+        $result = $db->query(
+            '
+                SELECT 
+                    method, 
+                    group_concat(distinct(' .
+                $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') .
+                '.servicecode) SEPARATOR "-") as giftcard_codes,
+                    group_concat(distinct(' .
+                $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') .
+                '.label) SEPARATOR "-") as giftcard_titles 
+                    from ' .
+                $this->resourceConnection->getTableName('sales_order_payment') .
+                '  
+                    inner join ' .
+                $this->resourceConnection->getTableName('sales_order') .
+                ' on ' .
+                $this->resourceConnection->getTableName('sales_order') .
+                '.entity_id = ' .
+                $this->resourceConnection->getTableName('sales_order_payment') .
+                '.parent_id 
+                    inner join ' .
+                $this->resourceConnection->getTableName(
+                    'buckaroo_magento2_group_transaction'
+                ) .
+                ' on ' .
+                $this->resourceConnection->getTableName(
+                    'buckaroo_magento2_group_transaction'
+                ) .
+                '.order_id=' .
+                $this->resourceConnection->getTableName('sales_order') .
+                '.increment_id 
+                    inner join ' .
+                $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') .
+                ' on ' .
+                $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') .
+                '.servicecode=' .
+                $this->resourceConnection->getTableName(
+                    'buckaroo_magento2_group_transaction'
+                ) .
+                '.servicecode 
+                    group by ' .
+                $this->resourceConnection->getTableName(
+                    'buckaroo_magento2_group_transaction'
+                ) .
+                '.order_id'
+        );
         $additionalOptions = [];
-        while($row = $result->fetch())
-        {
+        while ($row = $result->fetch()) {
             if (!isset($additionalOptions[$row['method']. '-' . $row['giftcard_codes']])) {
                 foreach ($this->options as $option) {
                     if ($option['value'] == $row['method']) {
@@ -59,7 +91,7 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
             }
         }
 
-        if  ($additionalOptions) {
+        if ($additionalOptions) {
             foreach ($additionalOptions as $key => $value) {
                 $this->options[] = [
                     "value" => $key,
@@ -72,7 +104,10 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
 
         $options = new \Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail();
         $option = $options->toOptionArray();
-        $option = array_merge($option, [['value'=>'creditcards','label'=>__('Creditcards')],['value'=>'sofortbanking','label'=>__('Sofort')]]);
+        $option = array_merge($option, [
+            ['value' => 'creditcards', 'label' => __('Creditcards')],
+            ['value' => 'sofortbanking', 'label' => __('Sofort')],
+        ]);
         foreach ($option as $item) {
             $this->options[] = [
                 "value" => 'buckaroo_magento2_payperemail-'.$item['value'],

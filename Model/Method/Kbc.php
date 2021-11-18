@@ -27,11 +27,8 @@ class Kbc extends AbstractMethod
     /** @var string */
     public $buckarooPaymentMethodCode = 'kbc';
 
-    // @codingStandardsIgnoreStart
     /** @var string */
     protected $_code                    = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
@@ -42,7 +39,7 @@ class Kbc extends AbstractMethod
 
         $services = [
             'Name'             => 'KBCPaymentButton',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1
         ];
 

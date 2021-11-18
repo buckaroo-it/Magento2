@@ -38,11 +38,13 @@ class Applepay extends AbstractConfigProvider
     const XPATH_APPLEPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_applepay/available_in_backend';
     const XPATH_APPLEPAY_AVAILABLE_BUTTONS     = 'payment/buckaroo_magento2_applepay/available_buttons';
     const XPATH_APPLEPAY_BUTTON_STYLE     = 'payment/buckaroo_magento2_applepay/button_style';
-    const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
+    const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'payment/'.
+        'buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_applepay/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_applepay/allowspecific';
     const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_applepay/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_applepay/specificcustomergroup';
 
     /**
      * @var array
@@ -105,7 +107,8 @@ class Applepay extends AbstractConfigProvider
                         'currency' => $currency,
                         'cultureCode' => $shortLocale,
                         'country' => $this->scopeConfig->getValue(
-                            'general/country/default', ScopeInterface::SCOPE_WEBSITES
+                            'general/country/default',
+                            ScopeInterface::SCOPE_WEBSITES
                         ),
                         'guid' => $this->configProvicerAccount->getMerchantGuid(),
                         'availableButtons' => $this->getAvailableButtons(),
@@ -113,10 +116,10 @@ class Applepay extends AbstractConfigProvider
                             static::XPATH_APPLEPAY_BUTTON_STYLE,
                             ScopeInterface::SCOPE_STORE
                         ),
-                        'dontAskBillingInfoInCheckout' => intval($this->scopeConfig->getValue(
+                        'dontAskBillingInfoInCheckout' => (int) $this->scopeConfig->getValue(
                             static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
                             ScopeInterface::SCOPE_STORE
-                        ))
+                        )
                     ],
                 ],
             ],

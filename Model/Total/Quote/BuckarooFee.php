@@ -227,25 +227,17 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         if (is_numeric($basePaymentFee)) {
             if (in_array($buckarooPaymentMethodCode, ['billink','afterpay20','afterpay','paypal'])) {
 
-                $inclTax = $this->configProviderBuckarooFee->getPaymentFeeTax() == Calculation::DISPLAY_TYPE_INCLUDING_TAX;
-
-                //$this->logging->addDebug(__METHOD__.'|2|');
-                //$this->logging->addDebug(var_export([$basePaymentFee, $inclTax, $buckarooPaymentMethodCode], true));
+                $inclTax = $this->configProviderBuckarooFee->getPaymentFeeTax() ==
+                    Calculation::DISPLAY_TYPE_INCLUDING_TAX;
 
                 if ($inclTax) {
-                    //$this->logging->addDebug(__METHOD__ . '|3|');
                     $request = $this->taxCalculation->getRateRequest(null, null, null, $quote->getStore());
                     $taxClassId = $this->configProviderBuckarooFee->getTaxClass($quote->getStore());
                     $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
-
-                    //$this->logging->addDebug(__METHOD__ . '|32|');
-                    //$this->logging->addDebug(var_export([$percent], true));
-
                     if ($percent > 0) {
                         return $basePaymentFee / (1 + ($percent / 100));
                     }
                 }
-                //$this->logging->addDebug(__METHOD__ . '|4|');
                 return $basePaymentFee;
             } else {
                 if ($inclTax) {

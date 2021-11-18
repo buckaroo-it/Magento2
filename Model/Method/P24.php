@@ -32,15 +32,12 @@ class P24 extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'p24';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
@@ -53,7 +50,7 @@ class P24 extends AbstractMethod
 
         $services = [
             'Name'             => 'Przelewy24',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [
                 [
@@ -82,9 +79,7 @@ class P24 extends AbstractMethod
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * @todo when buckaroo changes the push / response order this can be removed
          */
-        $payment->setAdditionalInformation(
-            'skip_push', 1
-        );
+        $payment->setAdditionalInformation('skip_push', 1);
 
         return $transactionBuilder;
     }

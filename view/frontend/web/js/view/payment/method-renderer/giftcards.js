@@ -34,7 +34,8 @@ define(
         'Magento_Checkout/js/action/get-totals',
         'Magento_Customer/js/customer-data',
         'Magento_Checkout/js/model/payment-service',
-        'Magento_Ui/js/modal/alert'
+        'Magento_Ui/js/modal/alert',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -51,7 +52,8 @@ define(
         getTotalsAction,
         customerData,
         paymentService,
-        alert
+        alert,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -64,7 +66,7 @@ define(
         }
 
         function checkPayments(){
-            var p = ["billink","klarna","klarnakp","klarnain","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcards","creditcard","mrcash","payperemail","emandate","rtp", "tinka"];
+            var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail","emandate","rtp", "tinka"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
@@ -175,9 +177,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
 
                     if(this.alreadyPayed){
                         window.location.replace(url.build('checkout/onepage/success/'));

@@ -32,15 +32,12 @@ class Eps extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'eps';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var bool
@@ -59,7 +56,7 @@ class Eps extends AbstractMethod
          */
         $services = [
             'Name'             => 'eps',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1,
         ];
 

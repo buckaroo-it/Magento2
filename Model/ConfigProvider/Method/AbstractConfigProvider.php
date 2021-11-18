@@ -218,7 +218,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         return $configuredAllowedCurrencies;
     }
 
-
     /**
      * @return array
      */
@@ -256,6 +255,26 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getAllowSpecific($store = null)
     {
         return $this->getConfigFromXpath(static::XPATH_ALLOW_SPECIFIC, $store);
+    }
+
+    /**
+     * @param null|int|\Magento\Store\Model\Store $store
+     *
+     * @return mixed
+     */
+    public function getSpecificCustomerGroup($store = null)
+    {
+        return $this->getConfigFromXpath(static::XPATH_SPECIFIC_CUSTOMER_GROUP, $store);
+    }
+
+    /**
+     * @param null|int|\Magento\Store\Model\Store $store
+     *
+     * @return mixed
+     */
+    public function getSpecificCustomerGroupB2B($store = null)
+    {
+        return $this->getConfigFromXpath(static::XPATH_SPECIFIC_CUSTOMER_GROUP_B2B, $store);
     }
 
     /**

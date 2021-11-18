@@ -52,7 +52,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-use Buckaroo\Magento2\Model\SecondChanceRepository;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class Capayable extends AbstractMethod
 {
@@ -64,14 +64,11 @@ class Capayable extends AbstractMethod
     /** @var string */
     public $buckarooPaymentMethodCode = '';
 
-    // @codingStandardsIgnoreStart
     /** @var string */
     protected $_code = '';
 
     /** @var bool */
     protected $_canUseInternal          = false;
-
-    // @codingStandardsIgnoreEnd
 
     /** @var AddressFormatter */
     public $addressFormatter;
@@ -97,7 +94,7 @@ class Capayable extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        SecondChanceRepository $secondChanceRepository,
+        EventManager $eventManager,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         GatewayInterface $gateway = null,
@@ -128,7 +125,7 @@ class Capayable extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
-            $secondChanceRepository,
+            $eventManager,
             $resource,
             $resourceCollection,
             $gateway,

@@ -44,6 +44,25 @@ utpwIl+bFlxvC64V
 -----END CERTIFICATE-----
 KEY;
 
+    protected $publicKey85694BFB9716140DFF33604775A9668DAA67ECD4 = <<<KEY
+-----BEGIN CERTIFICATE-----
+MIICeTCCAeKgAwIBAgIBADANBgkqhkiG9w0BAQUFADCBwjEUMBIGA1UEBhMLTmV0
+aGVybGFuZHMxEDAOBgNVBAgTB1V0cmVjaHQxEDAOBgNVBAcTB1V0cmVjaHQxFjAU
+BgNVBAoTDUJ1Y2thcm9vIEIuVi4xGjAYBgNVBAsTEVRlY2huaWNhbCBTdXBwb3J0
+MS4wLAYDVQQDEyVCdWNrYXJvbyBPbmxpbmUgUGF5bWVudCBTZXJ2aWNlcyBCLlYu
+MSIwIAYJKoZIhvcNAQkBFhNzdXBwb3J0QGJ1Y2thcm9vLm5sMB4XDTIxMDgzMDA3
+MDQxMVoXDTMxMDgzMDA3MDQxMVowQjEQMA4GA1UEBxMHVVRSRUNIVDEWMBQGA1UE
+ChMNQnVja2Fyb28gQi5WLjEWMBQGA1UEAxMNQnVja2Fyb28gQi5WLjCBnzANBgkq
+hkiG9w0BAQEFAAOBjQAwgYkCgYEAyL7qNsQiaMA0rzWJZrttntoonFqJmpO6nGtc
+CIRZhDt8SEZaE4/SL0nvXHGDLSub8kqpn1AftFfTFeYAekENsyc7yyY37e52W271
+PLVhURSa/amASYyJ71arzmleAGK9TNykGk9dawffQFA8mJoa3eTRHtItqWMr/y5q
+nLckFEkCAwEAATANBgkqhkiG9w0BAQUFAAOBgQBBwefjXSPdMKEO7D0j7W1YN1PF
+beWhkJoSST8HsnX9E5uUNCL0roNg/XDA9EpgsbPeXS2e4160pq6BhDVllu/FkRHl
+/w4nWCvWZdLJVU/jtmfo/Mc/01GsusX/jjp3Qfy0uLgHTXIOOLhVhAHaUVS+fYfB
+rGiZ8AqhytAWg+r5Yw==
+-----END CERTIFICATE-----
+KEY;
+
     /**
      * @param null $publicKey
      */
@@ -60,7 +79,7 @@ KEY;
     public function getConfig($store = null)
     {
         $config = [
-            'public_key' => $this->getPublicKey($store),
+            'public_key' => $this->getPublicKey(),
         ];
         return $config;
     }
@@ -70,8 +89,12 @@ KEY;
      *
      * @return null|string
      */
-    public function getPublicKey()
+    public function getPublicKey($keyIdentifier = '')
     {
-        return $this->publicKey;
+        if (isset($this->{'publicKey' . $keyIdentifier})) {
+            return $this->{'publicKey' . $keyIdentifier};
+        } else {
+            return $this->publicKey;
+        }
     }
 }

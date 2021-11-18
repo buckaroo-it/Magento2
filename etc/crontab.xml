@@ -1,16 +1,8 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
-        <job instance="Buckaroo\Magento2\Cron\SecondChance" method="execute" name="buckaroo_magento2_cron">
-            <schedule>*/5 * * * *</schedule>
-        </job>
-      
         <job instance="Buckaroo\Magento2\Cron\CancelExpiredOrders" method="execute" name="buckaroo_magento2_cancel_cron">
             <schedule>0 */6 * * *</schedule>
-        </job>
-      
-        <job instance="Buckaroo\Magento2\Cron\SecondChancePrune" method="execute" name="buckaroo_magento2_prune_cron">
-            <schedule>5 * * * *</schedule>
         </job>
     </group>
 </config>

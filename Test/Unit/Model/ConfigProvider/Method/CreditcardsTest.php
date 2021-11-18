@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -82,7 +83,6 @@ class CreditcardsTest extends BaseTest
             'paymentFeeHelper' => $paymentFeeMock,
             'creditcardConfigProvider' => $creditcardMock
         ]);
-
 
         $result = $instance->getConfig();
 

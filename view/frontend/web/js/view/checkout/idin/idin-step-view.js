@@ -56,7 +56,6 @@ define([
         banktypes: [],
         idinIssuer: null,
         selectedBankDropDown: null,
-        hideSubmitButton: null,
         hideIdinBlock: null,
 
         // isVisible: ko.observable(false),
@@ -72,7 +71,7 @@ define([
                 this.isVisible(true);
                 if (isOscMagePlaza() || isOsc()) {
                     if (!window.checkoutConfig.buckarooIdin.verified) {
-                        this.hideSubmitButton = true;
+                        this.hideSubmitButton();
                     }
                 } else {
                     stepNavigator.registerStep(
@@ -95,6 +94,40 @@ define([
                 this.isVisible(false);
             }
 
+            if (isOscMagePlaza() || isOsc()) {
+                quote.billingAddress.subscribe(
+                    function (newAddress) {
+                        if (newAddress.countryId && (newAddress.countryId == 'NL')) {
+                            if (window.checkoutConfig.buckarooIdin.active > 0) {
+                                if (!window.checkoutConfig.buckarooIdin.verified) {
+                                    this.hideSubmitButton();
+                                    this.hideIdinBlock = false;
+                                    this.isVisible(true);
+                                    return true;
+                                }
+                            }
+                        }
+                        this.showSubmitButton();
+                        this.hideIdinBlock = true;
+                        this.isVisible(false);
+                    }.bind(this)
+                );
+            }
+
+            return this;
+        },
+
+        hideSubmitButton: function () {
+            if ($('.action.primary.checkout')) {
+                $('.action.primary.checkout').css('display', 'none');
+            }
+            return this;
+        },
+
+        showSubmitButton: function () {
+            if ($('.action.primary.checkout')) {
+                $('.action.primary.checkout').css('display', 'inline-block');
+            }
             return this;
         },
 

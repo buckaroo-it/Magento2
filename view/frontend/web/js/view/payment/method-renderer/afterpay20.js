@@ -28,6 +28,7 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/checkout/common',
         'Magento_Customer/js/model/customer',
         'Magento_Ui/js/lib/knockout/bindings/datepicker',
         'Magento_Checkout/js/action/select-billing-address',
@@ -42,6 +43,7 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
+        checkoutCommon,
         customer,
         selectBillingAddress
     ) {
@@ -443,9 +445,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
                 },
 
                 selectPaymentMethod: function () {

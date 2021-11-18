@@ -1,5 +1,5 @@
 <?php
- /**
+/**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
@@ -103,13 +103,13 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     public $priceCurrency;
 
     /**
-    * @var \Magento\Framework\Json\Helper\Data
-    */
+     * @var \Magento\Framework\Json\Helper\Data
+     */
     protected $jsonHelper;
 
     /**
-    * @var \Magento\Framework\Controller\Result\JsonFactory
-    */
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
     protected $jsonResultFactory;
 
     /** @var \Magento\Framework\Message\ManagerInterface */
@@ -226,8 +226,14 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
         $orderId = $this->helper->getOrderId();
 
-        if (!isset($data['card']) || empty($data['card']) || !isset($data['cardNumber']) || empty($data['cardNumber']) || !isset($data['pin']) || empty($data['pin'])) {
-            $res['error'] = 'Card number or pin not valid';
+        if (!isset($data['card'])
+            || empty($data['card'])
+            || !isset($data['cardNumber'])
+            || empty($data['cardNumber'])
+            || !isset($data['pin'])
+            || empty($data['pin'])
+        ) {
+            $res['error'] = __('Card number or pin not valid');
             return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($res);
         }
 
@@ -274,7 +280,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $grandTotal = $payRemainder;
         }
 
-        $postArray = array(
+        $postArray = [
             "Currency" => $currency,
             "AmountDebit" => $grandTotal,
             "Invoice" => $orderId,
@@ -283,26 +289,26 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             "ReturnURLError" => $returnUrl,
             "ReturnURLReject" => $returnUrl,
             "PushURL" => $pushUrl,
-            "Services" => array(
-                "ServiceList" => array(
-                    array(
+            "Services" => [
+                "ServiceList" => [
+                    [
                         "Action" => "Pay",
                         "Name" => $card,
-                        "Parameters" => array(
-                            array(
+                        "Parameters" => [
+                            [
                                 "Name" => $parameters['number'],
                                 "Value" => trim(preg_replace('/([\s-]+)/', '', $data['cardNumber']))
-                            ),array(
+                            ], [
                                 "Name" => $parameters['pin'],
                                 "Value" => trim($data['pin'])
-                            )
-                        )
-                    )
-                )
-            )
-        );
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
 
-        if($originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId)){
+        if ($originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId)) {
             $postArray['Services']['ServiceList'][0]['Action'] = 'PayRemainder';
             $postArray['OriginalTransactionKey'] = $originalTransactionKey;
         }
@@ -315,7 +321,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->logger->addDebug(__METHOD__.'|2|');
         $this->logger->addDebug(var_export($response, true));
 
-        if($response['Status']['Code']['Code']=='190'){
+        if ($response['Status']['Code']['Code']=='190') {
             
             $this->groupTransaction->saveGroupTransaction($response);
 
@@ -323,18 +329,33 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $alreadyPaid = $this->groupTransaction->getGroupTransactionAmount($orderId);
             
             $res['PayRemainingAmountButton'] = '';
-            if($res['RemainderAmount'] > 0){
-                $this->setOriginalTransactionKey($orderId, $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']);
-                $message = __('A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4', $response['Currency'], $response['AmountDebit'],$res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
-                $res['PayRemainingAmountButton'] = __('Pay remaining amount: %1 %2', $res['RemainderAmount'],$response['RequiredAction']['PayRemainderDetails']['Currency']);
-            }else{
+            $t = 'A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4';
+            if ($res['RemainderAmount'] > 0) {
+                $this->setOriginalTransactionKey(
+                    $orderId,
+                    $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']
+                );
+
+                $message = __(
+                    $t,
+                    $response['Currency'],
+                    $response['AmountDebit'],
+                    $res['RemainderAmount'],
+                    $response['RequiredAction']['PayRemainderDetails']['Currency']
+                );
+                $res['PayRemainingAmountButton'] = __(
+                    'Pay remaining amount: %1 %2',
+                    $res['RemainderAmount'],
+                    $response['RequiredAction']['PayRemainderDetails']['Currency']
+                );
+            } else {
                 $message = __("Your paid successfully. Please finish your order");
             }
             $this->setAlreadyPaid($orderId, $alreadyPaid);
             $res['alreadyPaid'] = $alreadyPaid;
             $res['message'] = $message;
 
-        }else{
+        } else {
             $res['error'] = isset($response['Status']['SubCode']['Description']) ?
                 $response['Status']['SubCode']['Description'] :
                 (
@@ -369,9 +390,11 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
     private function setAlreadyPaid($orderId, $amount)
     {
-        if($orderId){
+        if ($orderId) {
             $this->_checkoutSession->getQuote()->setBaseBuckarooAlreadyPaid($amount);
-            $this->_checkoutSession->getQuote()->setBuckarooAlreadyPaid($this->priceCurrency->convert($amount, $this->quote->getStore()));
+            $this->_checkoutSession->getQuote()->setBuckarooAlreadyPaid(
+                $this->priceCurrency->convert($amount, $this->quote->getStore())
+            );
         }
 
         $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();

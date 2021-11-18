@@ -100,7 +100,7 @@ class RefundTest extends BaseTest
         $instance->setOrder($orderMock);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->getBody();
 
         foreach ($expected as $key => $value) {
@@ -174,7 +174,7 @@ class RefundTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $paymentMethod = 'buckaroo_payment_method';
         $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['getMethodInstance'])->getMock();
         $paymentMock->expects($this->once())->method('getMethodInstance')->willReturnSelf();
@@ -201,7 +201,7 @@ class RefundTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $paymentMethod = 'buckaroo_payment_method';
         $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['getMethodInstance'])->getMock();
         $paymentMock->expects($this->once())->method('getMethodInstance')->willReturnSelf();

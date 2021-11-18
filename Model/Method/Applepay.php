@@ -27,15 +27,12 @@ class Applepay extends AbstractMethod
     /** @var string */
     public $buckarooPaymentMethodCode = 'applepay';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code                    = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
@@ -59,12 +56,14 @@ class Applepay extends AbstractMethod
         }
 
         if (!empty($data['additional_data']['billingContact'])) {
-            $this->getInfoInstance()->setAdditionalInformation('billingContact', $data['additional_data']['billingContact']);
+            $this->getInfoInstance()->setAdditionalInformation(
+                'billingContact',
+                $data['additional_data']['billingContact']
+            );
         }
 
         return $this;
     }
-
 
     /**
      * {@inheritdoc}

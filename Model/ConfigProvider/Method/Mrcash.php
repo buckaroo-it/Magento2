@@ -40,6 +40,7 @@ class Mrcash extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_mrcash/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_mrcash/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_mrcash/specificcustomergroup';
 
     const XPATH_MRCASH_USE_CLIENT_SIDE          = 'payment/buckaroo_magento2_mrcash/client_side';
 
@@ -77,7 +78,9 @@ class Mrcash extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Mrcash::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Mrcash::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
@@ -85,7 +88,7 @@ class Mrcash extends AbstractConfigProvider
                     'mrcash' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'useClientSide' => intval($this->useClientSide()),
+                        'useClientSide' => (int) $this->useClientSide(),
                         'redirecturl' => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
                     ],
                 ],

@@ -26,11 +26,7 @@ use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
-/**
- * Class Creditmemo
- *
- * @package Buckaroo\Magento2\Model\Refund
- */
+
 class Push
 {
     const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
@@ -115,10 +111,15 @@ class Push
         $this->postData = $postData;
         $this->order    = $order;
 
-        $this->logging->addDebug(__METHOD__.'|1|Trying to refund order ' . $this->order->getId(). ' out of paymentplaza. ');
+        $this->logging->addDebug(
+            __METHOD__.'|1|Trying to refund order ' . $this->order->getId(). ' out of paymentplaza. '
+        );
 
         if (!$this->configRefund->getAllowPush()) {
-            $this->logging->addDebug(__METHOD__.'|5|But failed, the configuration is set not to accept refunds out of Payment Plaza');
+            $this->logging->addDebug(
+                __METHOD__.'|5|But failed, the configuration is set not to accept refunds out of Payment Plaza'
+            );
+            //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new Exception(
                 __('Buckaroo refund is disabled')
             );
@@ -126,6 +127,7 @@ class Push
 
         if (!$signatureValidation && !$this->order->canCreditmemo()) {
             $debugMessage = 'Validation incorrect: ' . PHP_EOL;
+            //phpcs:ignore:Magento2.Functions.DiscouragedFunction
             $debugMessage .= print_r(
                 [
                     'signature'      => $signatureValidation,
@@ -134,6 +136,7 @@ class Push
                 true
             );
             $this->logging->addDebug($debugMessage);
+            //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new Exception(
                 __('Buckaroo refund push validation failed')
             );
@@ -168,8 +171,7 @@ class Push
 
         try {
             if ($creditmemo) {
-                if (
-                    !empty($this->postData['add_service_action_from_magento'])
+                if (!empty($this->postData['add_service_action_from_magento'])
                     && ($this->postData['add_service_action_from_magento'] == 'capture')
                     && !empty($this->postData['brq_transaction_method'])
                     && ($this->postData['brq_transaction_method'] == 'afterpay')
@@ -199,14 +201,18 @@ class Push
                 return true;
             } else {
                 $debugMessage = 'Failed to create the creditmemo, method saveCreditmemo return value: ' . PHP_EOL;
+                //phpcs:ignore:Magento2.Functions.DiscouragedFunction
                 $debugMessage .= print_r($creditmemo, true);
                 $this->logging->addDebug(__METHOD__.'|30|'.$debugMessage);
+                //phpcs:ignore:Magento2.Exceptions.DirectThrow
                 throw new Exception(
                     __('Failed to create the creditmemo')
                 );
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->logging->addDebug(__METHOD__.'|35|Buckaroo failed to create the credit memo\'s { '. $e->getLogMessage().' }');
+            $this->logging->addDebug(
+                __METHOD__.'|35|Buckaroo failed to create the credit memo\'s { '. $e->getLogMessage().' }'
+            );
         }
         $this->logging->addDebug(__METHOD__.'|40');
         return false;
@@ -282,6 +288,7 @@ class Push
         }
 
         $debugMessage = 'Data used for credit nota: ' . PHP_EOL;
+        //phpcs:ignore:Magento2.Functions.DiscouragedFunction
         $debugMessage .= print_r($data, true);
         $this->logging->addDebug($debugMessage);
 
@@ -321,7 +328,9 @@ class Push
             /**
              * @noinspection PhpUndefinedMethodInspection
              */
-            $totalAmount = $totalAmount - $this->order->getBaseBuckarooFeeInvoiced() - $this->order->getBuckarooFeeBaseTaxAmountInvoiced();
+            $totalAmount = $totalAmount -
+                $this->order->getBaseBuckarooFeeInvoiced() -
+                $this->order->getBuckarooFeeBaseTaxAmountInvoiced();
         }
 
         return $totalAmount;
@@ -427,6 +436,7 @@ class Push
         }
 
         $debugMessage = 'Total items to be refunded: ' . PHP_EOL;
+        //phpcs:ignore:Magento2.Functions.DiscouragedFunction
         $debugMessage .= print_r($items, true);
         $this->logging->addDebug($debugMessage);
 

@@ -98,6 +98,7 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
 
         // decode the signature
         $signature  = $signatureArray[1][0];
+        //phpcs:ignore:Magento2.Functions.DiscouragedFunction
         $sigDecoded = base64_decode($signature);
 
         $xPath = new \DOMXPath($responseDomDoc);
@@ -118,10 +119,17 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
         // Canonicalize nodeset
         $signedInfo = $SignedInfoNodeSet->C14N(true, false);
 
+        $keyIdentifier = '//wsse:Security/sig:Signature/sig:KeyInfo/wsse:SecurityTokenReference/wsse:KeyIdentifier';
+        $keyIdentifierList = $xPath->query($keyIdentifier);
+        $keyIdentifierValue = '';
+        if ($keyIdentifierList && $keyIdentifierList->item(0) && $keyIdentifierList->item(0)->nodeValue) {
+            $keyIdentifierValue = $keyIdentifierList->item(0)->nodeValue;
+        }
+
         // get the public key
         $pubKey = openssl_get_publickey(
             openssl_x509_read(
-                $this->publicKeyConfigProvider->getPublicKey()
+                $this->publicKeyConfigProvider->getPublicKey($keyIdentifierValue)
             )
         );
 

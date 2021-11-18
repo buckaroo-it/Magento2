@@ -32,14 +32,17 @@ class CapayablePostpay extends AbstractConfigProvider
     const XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_capayablepostpay/payment_fee_label';
     const XPATH_CAPAYABLEPOSTPAY_ACTIVE               = 'payment/buckaroo_magento2_capayablepostpay/active';
     const XPATH_CAPAYABLEPOSTPAY_ACTIVE_STATUS        = 'payment/buckaroo_magento2_capayablepostpay/active_status';
-    const XPATH_CAPAYABLEPOSTPAY_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_capayablepostpay/order_status_success';
-    const XPATH_CAPAYABLEPOSTPAY_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_capayablepostpay/order_status_failed';
-    const XPATH_CAPAYABLEPOSTPAY_ORDER_EMAIL          = 'payment/buckaroo_magento2_capayablepostpay/order_email';
-    const XPATH_CAPAYABLEPOSTPAY_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_capayablepostpay/available_in_backend';
+    const XPATH_CAPAYABLEPOSTPAY_ORDER_STATUS_SUCCESS = 'payment/'.
+        'buckaroo_magento2_capayablepostpay/order_status_success';
+    const XPATH_CAPAYABLEPOSTPAY_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_capayablepostpay/order_status_failed';
+    const XPATH_CAPAYABLEPOSTPAY_ORDER_EMAIL = 'payment/buckaroo_magento2_capayablepostpay/order_email';
+    const XPATH_CAPAYABLEPOSTPAY_AVAILABLE_IN_BACKEND = 'payment/'.
+        'buckaroo_magento2_capayablepostpay/available_in_backend';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_capayablepostpay/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_capayablepostpay/allowspecific';
     const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_capayablepostpay/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_capayablepostpay/specificcustomergroup';
 
     /** @var array */
     protected $allowedCurrencies = [

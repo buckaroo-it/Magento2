@@ -79,7 +79,6 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
         return true;
     }
 
-    //@codingStandardsIgnoreStart
     /**
      * {@inheritdoc}
      */
@@ -91,5 +90,4 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
 
         return parent::_toHtml();
     }
-    //@codingStandardsIgnoreEnd
 }

@@ -39,6 +39,7 @@ class Emandate extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                 = 'payment/buckaroo_magento2_emandate/allowspecific';
     const XPATH_SPECIFIC_COUNTRY               = 'payment/buckaroo_magento2_emandate/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP        = 'payment/buckaroo_magento2_emandate/specificcustomergroup';
 
     /**
      * @var array
@@ -98,7 +99,9 @@ class Emandate extends AbstractConfigProvider
         }
 
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Emandate::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Emandate::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [

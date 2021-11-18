@@ -84,7 +84,7 @@ class KlarnakpTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $addressMock = $this->getFakeMock(Address::class)->setMethods(['getCountryId'])->getMock();
         $addressMock->expects($this->exactly(6))->method('getCountryId')->willReturn('NL');
 
@@ -175,7 +175,7 @@ class KlarnakpTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $postDataMock = (Object)[
             'Services' => (Object)[
                 'Service' => (Object)[
@@ -313,7 +313,7 @@ class KlarnakpTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $itemMock = $this->getFakeMock(Item::class)->setMethods(['getRowTotalInclTax', 'getRowTotal'])->getMock();
         $itemMock->expects($this->exactly((int)$includesTax))->method('getRowTotalInclTax')->willReturn($priceInclTax);
         $itemMock->expects($this->exactly((int)(!$includesTax)))->method('getRowTotal')->willReturn($priceExclTax);

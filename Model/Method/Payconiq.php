@@ -32,7 +32,6 @@ class Payconiq extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'payconiq';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -49,7 +48,7 @@ class Payconiq extends AbstractMethod
 
         $services = [
             'Name'             => 'payconiq',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 1,
             'RequestParameter' => [],
         ];
@@ -61,7 +60,6 @@ class Payconiq extends AbstractMethod
 
         return $transactionBuilder;
     }
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

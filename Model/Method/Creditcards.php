@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -38,15 +39,12 @@ class Creditcards extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'creditcards';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /** @var \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters */
     private $serviceParameters;
@@ -69,7 +67,7 @@ class Creditcards extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -100,7 +98,7 @@ class Creditcards extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
-            $secondChanceRepository,
+            $eventManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -148,8 +146,10 @@ class Creditcards extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
+        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, 'PayEncrypted', 'PayRemainderEncrypted');
+
         $services = [];
-        $services[] = $this->getCreditcardsService($payment);
+        $services[] = $this->getCreditcardsService($payment, $serviceAction);
 
         $filterParameter = [
             ['Name' => 'AllowedServices'],
@@ -183,7 +183,7 @@ class Creditcards extends AbstractMethod
      * @return array
      * @throws \Buckaroo\Magento2\Exception
      */
-    public function getCreditcardsService($payment)
+    public function getCreditcardsService($payment, $serviceAction)
     {
         $additionalInformation = $payment->getAdditionalInformation();
 
@@ -197,7 +197,7 @@ class Creditcards extends AbstractMethod
 
         $services = [
             'Name'             => $additionalInformation['customer_creditcardcompany'],
-            'Action'           => 'PayEncrypted',
+            'Action'           => $serviceAction,
             'Version'          => 2,
             'RequestParameter' => [
                 [

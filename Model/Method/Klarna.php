@@ -59,15 +59,12 @@ class Klarna extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'klarna';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var null
@@ -102,9 +99,13 @@ class Klarna extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
+        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, static::KLARNA_ORDER_SERVICE_ACTION);
+
+        $this->logger2->addDebug(__METHOD__.'|$serviceAction|' . $serviceAction);
+
         $services = [
             'Name'             => 'klarna',
-            'Action'           => static::KLARNA_ORDER_SERVICE_ACTION,
+            'Action'           => $serviceAction,
             'RequestParameter' => $this->getPaymentRequestParameters($payment),
             'Version'          => 0,
         ];
@@ -117,7 +118,10 @@ class Klarna extends AbstractMethod
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * @todo when buckaroo changes the push / response order this can be removed
          */
-        $payment->setAdditionalInformation('skip_push', 1);
+        
+        if ($serviceAction != 'PayRemainder') {
+            $payment->setAdditionalInformation('skip_push', 1);
+        }
 
         return $transactionBuilder;
     }
@@ -136,7 +140,9 @@ class Klarna extends AbstractMethod
     public function getRefundTransactionBuilder($payment)
     {
         $transactionBuilder = parent::getRefundTransactionBuilder($payment);
-        $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        if (!$this->payRemainder) {
+            $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
+        }
         return $transactionBuilder;
     }
 
@@ -170,6 +176,10 @@ class Klarna extends AbstractMethod
     {
         $this->logger2->addDebug(__METHOD__.'|1|');
 
+        if ($this->payRemainder) {
+            return $this->getRequestArticlesDataPayRemainder($payment);
+        }
+        
         $includesTax = $this->_scopeConfig->getValue(
             static::TAX_CALCULATION_INCLUDES_TAX,
             ScopeInterface::SCOPE_STORE
@@ -201,7 +211,9 @@ class Klarna extends AbstractMethod
                 $item->getTaxPercent() ?? 0
             );
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             if ($count < self::KLARNA_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -436,7 +448,7 @@ class Klarna extends AbstractMethod
             ];
         }
 
-        if($birthDayStamp){
+        if ($birthDayStamp) {
             $billingData[] = [
                 '_'    => $birthDayStamp,
                 'Name' => 'BirthDate',

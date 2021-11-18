@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Store\Model\ScopeInterface;
+
 /**
  * @method int getPriceDisplayCart()
  * @method int getPriceDisplaySales()
@@ -79,6 +81,8 @@ class Idin extends AbstractConfigProvider
 
     protected $scopeConfig;
 
+    protected $addressFactory;
+
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -87,17 +91,20 @@ class Idin extends AbstractConfigProvider
         \Magento\Checkout\Model\Session $session,
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Customer\Model\AddressFactory $addressFactory
     ) {
-        $this->storeManager                = $storeManager;
-        $this->configProviderAccount       = $configProviderAccount;
-        $this->customerSession             = $customerSession;
+        $this->storeManager = $storeManager;
+        $this->configProviderAccount = $configProviderAccount;
+        $this->customerSession = $customerSession;
         $this->customerRepositoryInterface = $customerRepositoryInterface;
-        $this->session                     = $session;
-        $this->productFactory              = $productFactory;
-        $this->checkoutSession             = $checkoutSession;
+        $this->session = $session;
+        $this->productFactory = $productFactory;
+        $this->checkoutSession = $checkoutSession;
         $this->scopeConfig = $scopeConfig;
+        $this->addressFactory = $addressFactory;
     }
+
     /**
      * Retrieve associated array of checkout configuration
      *
@@ -108,15 +115,16 @@ class Idin extends AbstractConfigProvider
     public function getConfig($store = null)
     {
         $idin = $this->isIDINActive();
+        $osc = (int) $this->scopeConfig->getValue(
+            'onestepcheckout_iosc/general/enable',
+            ScopeInterface::SCOPE_STORE
+        );
         return [
             'buckarooIdin' => [
                 'issuers' => $this->formatIssuers(),
-                'active'  => $idin['active'],
-                'verified'  => $idin['verified'],
-                'isOscEnabled' => intval($this->scopeConfig->getValue(
-                    'onestepcheckout_iosc/general/enable',
-                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                ))
+                'active' => $idin['active'],
+                'verified' => $idin['verified'],
+                'isOscEnabled' => $osc
             ],
         ];
     }
@@ -128,20 +136,18 @@ class Idin extends AbstractConfigProvider
         if ($this->configProviderAccount->getIdin($this->storeManager->getStore())) {
             foreach ($this->session->getQuote()->getAllVisibleItems() as $item) {
                 $productId = $item->getProductId();
-                $product   = $this->productFactory->create()->load($productId);
+                $product = $this->productFactory->create()->load($productId);
 
                 switch ($this->configProviderAccount->getIdinMode($this->storeManager->getStore())) {
                     case 1:
-                        if (null !== $product->getCustomAttribute('buckaroo_product_idin') && $product->getCustomAttribute('buckaroo_product_idin')->getValue() == 1) {
+                        if (null !== $product->getCustomAttribute('buckaroo_product_idin')
+                            && $product->getCustomAttribute('buckaroo_product_idin')->getValue() == 1
+                        ) {
                             $active = true;
                         }
                         break;
                     case 2:
-                        foreach ($product->getCategoryIds() as $key => $cat) {
-                            if (in_array($cat, explode(',', $this->configProviderAccount->getIdinCategory()))) {
-                                $active = true;
-                            }
-                        }
+                        $active = $this->checkCategories($product);
                         break;
                     default:
                         $active = true;
@@ -150,9 +156,15 @@ class Idin extends AbstractConfigProvider
 
             }
             if ($active === true && $customerId = $this->customerSession->getCustomer()->getId()) {
-                $customer              = $this->customerRepositoryInterface->getById($customerId);
+                $customer = $this->customerRepositoryInterface->getById($customerId);
+                if (!$this->checkCountry($customer)) {
+                    return ['active' => false, 'verified' => false];
+                }
                 $customerAttributeData = $customer->__toArray();
-                $active                = (isset($customerAttributeData['custom_attributes']) && isset($customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder']) && $customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder']['value']==1) ? false : 1;
+                $active = (isset($customerAttributeData['custom_attributes'])
+                    && isset($customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder'])
+                    && $customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder']['value'] == 1)
+                        ? false : 1;
                 $verified = !$active;
             } elseif ($active === true) {
                 if ($this->checkoutSession->getCustomerIDINIsEighteenOrOlder()) {
@@ -180,5 +192,27 @@ class Idin extends AbstractConfigProvider
         );
 
         return $issuers;
+    }
+
+    protected function checkCategories($product)
+    {
+        foreach ($product->getCategoryIds() as $key => $cat) {
+            if (in_array($cat, explode(',', $this->configProviderAccount->getIdinCategory()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected function checkCountry($customer)
+    {
+        if ($customer->getDefaultBilling()) {
+            if ($billingAddress = $this->addressFactory->create()->load($customer->getDefaultBilling())) {
+                if ($billingAddress->getCountryId()) {
+                    return strtolower($billingAddress->getCountryId()) == 'nl';
+                }
+            }
+        }
+        return true;
     }
 }

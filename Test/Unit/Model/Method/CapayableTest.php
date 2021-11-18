@@ -315,7 +315,7 @@ class CapayableTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $orderMock = $this->getFakeMock(Order::class)->getMock();
 
         $paymentMock = $this->getFakeMock(OrderPaymentInterface::class)

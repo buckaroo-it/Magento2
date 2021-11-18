@@ -55,4 +55,8 @@
         <attribute code="base_buckaroo_fee_incl_tax" type="float"/>
         <attribute code="buckaroo_push_data" type="string"/>
     </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\CreditmemoCreationArgumentsInterface">
+        <attribute code="buckaroo_fee" type="float"/>
+        <attribute code="base_buckaroo_fee" type="float"/>
+    </extension_attributes>
 </config>

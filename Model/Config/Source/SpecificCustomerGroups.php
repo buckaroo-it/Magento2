@@ -17,32 +17,25 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+namespace Buckaroo\Magento2\Model\Config\Source;
 
-namespace Buckaroo\Magento2\Model\ResourceModel;
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Customer\Model\Customer\Source\Group;
 
-class SecondChance extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb
+class SpecificCustomerGroups extends Group implements OptionSourceInterface
 {
-    /**
-     * Event prefix
-     *
-     * @var string
-     */
-    protected $_eventPrefix = 'buckaroo_magento2_second_chance_resource';
-
-    /**
-     * Event object
-     *
-     * @var string
-     */
-    protected $_eventObject = 'resource';
-
-    /**
-     * Model Initialization
-     *
-     * @return void
-     */
-    protected function _construct()
+    public function toOptionArray()
     {
-        $this->_init('buckaroo_magento2_second_chance', 'entity_id');
+        $values = parent::toOptionArray();
+
+        array_unshift(
+            $values,
+            [
+                'label' => __('None'),
+                'value' => '-1',
+            ]
+        );
+
+        return $values;
     }
 }

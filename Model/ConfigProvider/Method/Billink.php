@@ -20,7 +20,12 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Model\Method\Billink as BillinkMethod;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 
 /**
  * @method getDueDate()
@@ -44,6 +49,30 @@ class Billink extends AbstractConfigProvider
     const XPATH_BILLINK_DUE_DATE             = 'payment/buckaroo_magento2_billink/due_date';
     const XPATH_BILLINK_ALLOWED_CURRENCIES   = 'payment/buckaroo_magento2_billink/allowed_currencies';
 
+    const XPATH_SPECIFIC_CUSTOMER_GROUP      = 'payment/buckaroo_magento2_billink/specificcustomergroup';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B  = 'payment/buckaroo_magento2_billink/specificcustomergroupb2b';
+
+    private $helper;
+
+    /**
+     * @param Repository           $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies    $allowedCurrencies
+     * @param PaymentFee           $paymentFeeHelper
+     * @param FormKey              $formKey
+     */
+    public function __construct(
+        Repository $assetRepo,
+        ScopeConfigInterface $scopeConfig,
+        AllowedCurrencies $allowedCurrencies,
+        PaymentFee $paymentFeeHelper,
+        BuckarooHelper $helper
+    ) {
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+
+        $this->helper = $helper;
+    }
+
     /**
      * @return array
      */
@@ -65,6 +94,7 @@ class Billink extends AbstractConfigProvider
                         'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'b2b' => $this->helper->checkCustomerGroup('buckaroo_magento2_billink')
                     ],
                     'response' => [],
                 ],

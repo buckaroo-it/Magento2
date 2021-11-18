@@ -45,7 +45,7 @@ class ServiceParameters
      *
      * @return array
      */
-    public function getCreateCombinedInvoice($payment, $configProviderType, $filterParameter = array())
+    public function getCreateCombinedInvoice($payment, $configProviderType, $filterParameter = [])
     {
         $requestParameter = $this->createCombinedInvoice->get($payment, $configProviderType);
 
@@ -60,7 +60,7 @@ class ServiceParameters
      *
      * @return array
      */
-    public function getCreateCreditNote($payment, $filterParameter = array())
+    public function getCreateCreditNote($payment, $filterParameter = [])
     {
         $requestParameter = $this->createCreditNote->get($payment);
 

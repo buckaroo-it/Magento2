@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -38,7 +39,6 @@ class PayLink extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'paylink';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -55,7 +55,6 @@ class PayLink extends AbstractMethod
      * @var bool
      */
     protected $_canRefundInvoicePartial = false;
-    // @codingStandardsIgnoreEnd
 
     /** @var \Buckaroo\Magento2\Service\CreditManagement\ServiceParameters */
     private $serviceParameters;
@@ -78,7 +77,7 @@ class PayLink extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -109,7 +108,7 @@ class PayLink extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
-            $secondChanceRepository,
+            $eventManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -152,7 +151,8 @@ class PayLink extends AbstractMethod
             $services[] = $cmService;
 
             $payment->setAdditionalInformation(
-                'skip_push', 2
+                'skip_push',
+                2
             );
         }
 

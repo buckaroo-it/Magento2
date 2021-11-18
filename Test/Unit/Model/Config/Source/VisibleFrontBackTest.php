@@ -81,5 +81,4 @@ class VisibleFrontBackTest extends BaseTest
 
         $this->assertContains($visibleFrontBack, $result);
     }
-
 }

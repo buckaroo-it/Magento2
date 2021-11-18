@@ -24,14 +24,18 @@ use Magento\Framework\Module\ModuleListInterface;
 
 class Data
 {
-    /** Module supplier */
+    /**
+     * Module supplier name
+     */
     const MODULE_SUPPLIER = 'Buckaroo';
 
-    /** Module code */
+    /**
+     * Module supplier code
+     */
     const MODULE_CODE = 'Buckaroo_Magento2';
 
     /** Version of Module */
-    const BUCKAROO_VERSION = '1.38.1';
+    const BUCKAROO_VERSION = '1.39.0';
 
     /** @var ProductMetadataInterface */
     private $productMetadata;

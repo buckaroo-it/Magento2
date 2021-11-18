@@ -51,7 +51,6 @@ class Afterpay20 extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'afterpay20';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -73,8 +72,6 @@ class Afterpay20 extends AbstractMethod
      * @var bool
      */
     protected $_canCapturePartial       = true;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var bool
@@ -211,7 +208,6 @@ class Afterpay20 extends AbstractMethod
         $this->getRefundTransactionBuilderServicesAdd($payment, $services);
     }
 
-
     protected function getRefundTransactionBuilderVersion()
     {
         return null;
@@ -258,7 +254,7 @@ class Afterpay20 extends AbstractMethod
                 continue;
             }
 
-            //Skip bundles which have dynamic pricing on (0 = yes, 1 = no), because the underlying simples are also in the quote
+            //Skip bundles which have dynamic pricing on (0=yes, 1=no) - the underlying simples are also in the quote
             if ($item->getProductType() == Type::TYPE_BUNDLE
                 && $item->getProduct()->getCustomAttribute('price_type')
                 && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
@@ -280,7 +276,9 @@ class Afterpay20 extends AbstractMethod
                 $item->getTaxPercent()
             );
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -342,12 +340,13 @@ class Afterpay20 extends AbstractMethod
                 $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
-//                $item->getRowTotalInclTax(),
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getOrderItem()->getTaxPercent()
             );
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             // Capture calculates discount per order line
             if ($item->getDiscountAmount() > 0) {
@@ -360,7 +359,9 @@ class Afterpay20 extends AbstractMethod
                     number_format(($item->getDiscountAmount()*-1), 2),
                     0
                 );
+                // @codingStandardsIgnoreStart
                 $articles = array_merge($articles, $article);
+                // @codingStandardsIgnoreEnd
             }
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
@@ -406,20 +407,25 @@ class Afterpay20 extends AbstractMethod
             }
 
             $refundType = $this->getRefundType($count);
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $refundType);
+            // @codingStandardsIgnoreEnd
 
+            $prodPrice = $this->calculateProductPrice($item, $includesTax);
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
-                $this->calculateProductPrice($item, $includesTax) - round($item->getDiscountAmount() / $item->getQty(), 2),
+                $prodPrice - round($item->getDiscountAmount() / $item->getQty(), 2),
                 $item->getOrderItem()->getTaxPercent()
             );
 
-            $itemsTotalAmount += $item->getQty() * ($this->calculateProductPrice($item, $includesTax) - $item->getDiscountAmount());
+            $itemsTotalAmount += $item->getQty() * ($prodPrice - $item->getDiscountAmount());
 
+            // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
+            // @codingStandardsIgnoreEnd
 
             if ($count < self::AFTERPAY_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -451,7 +457,7 @@ class Afterpay20 extends AbstractMethod
         }
 
         //Add diff line
-        if(abs($creditmemo->getBaseGrandTotal() - $itemsTotalAmount) > 0.01){
+        if (abs($creditmemo->getBaseGrandTotal() - $itemsTotalAmount) > 0.01) {
             $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);

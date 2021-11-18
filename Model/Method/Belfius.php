@@ -32,15 +32,12 @@ class Belfius extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'belfius';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}

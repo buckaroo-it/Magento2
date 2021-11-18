@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-
 /**
  * @method getDueDate()
  * @method getSendEmail()
@@ -48,6 +47,7 @@ class Klarnain extends AbstractConfigProvider
     const XPATH_KLARNAIN_ZERO_TAX               = 'payment/buckaroo_magento2_klarnain/zero_tax';
     const XPATH_KLARNAIN_NO_TAX                 = 'payment/buckaroo_magento2_klarnain/no_tax';
     const XPATH_KLARNAIN_GET_INVOICE            = 'payment/buckaroo_magento2_klarnain/send_invoice';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnain/specificcustomergroup';
 
     public function getConfig()
     {
@@ -58,7 +58,9 @@ class Klarnain extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Klarna\Klarnain::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Klarna\Klarnain::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
@@ -113,5 +115,4 @@ class Klarnain extends AbstractConfigProvider
 
         return $enabled ? $enabled : false;
     }
-
 }

@@ -49,7 +49,7 @@ use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-use Buckaroo\Magento2\Model\SecondChanceRepository;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class Emandate extends AbstractMethod
 {
@@ -59,7 +59,6 @@ class Emandate extends AbstractMethod
     /** @var string */
     public $buckarooPaymentMethodCode = 'emandate';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -72,11 +71,10 @@ class Emandate extends AbstractMethod
 
     /** @var bool */
     protected $_canRefundInvoicePartial = false;
-    // @codingStandardsIgnoreEnd
 
     /** @var EmandateConfig */
     private $emandateConfig;
-
+    
     public function __construct(
         ObjectManagerInterface $objectManager,
         Context $context,
@@ -95,7 +93,7 @@ class Emandate extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        SecondChanceRepository $secondChanceRepository,
+        EventManager $eventManager,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         GatewayInterface $gateway = null,
@@ -126,7 +124,7 @@ class Emandate extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
-            $secondChanceRepository,
+            $eventManager,
             $resource,
             $resourceCollection,
             $gateway,

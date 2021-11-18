@@ -21,11 +21,6 @@
 
 namespace Buckaroo\Magento2\Model;
 
-/**
- * Interface ValidatorInterface
- *
- * @package Buckaroo\Magento2\Model
- */
 interface ValidatorInterface
 {
     /**

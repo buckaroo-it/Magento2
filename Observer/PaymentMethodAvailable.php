@@ -20,36 +20,51 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Magento\Framework\Event\Observer;
+use Magento\Payment\Helper\Data;
+use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
+
 class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterface
 {
     private $paymentHelper;
+    private $helper;
 
-    /**
-     * @param Log $logging
-     * @param Factory $configProviderMethodFactory
-     */
     public function __construct(
-        \Magento\Payment\Helper\Data $paymentHelper
+        Data $paymentHelper,
+        BuckarooHelper $helper
     ) {
         $this->paymentHelper = $paymentHelper;
+        $this->helper = $helper;
     }
 
     /**
      * @param \Magento\Framework\Event\Observer $observer
      * @return void
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         $method = $observer->getMethodInstance();
+
+        $checkCustomerGroup = $this->helper->checkCustomerGroup($method->getCode());
+        if ($method->getCode() === 'buckaroo_magento2_billink') {
+            if (!$checkCustomerGroup) {
+                $checkCustomerGroup = $this->helper->checkCustomerGroup($method->getCode(), true);
+            }
+        }
+        if (!$checkCustomerGroup) {
+            $this->setNotAvailableResult($observer);
+            return false;
+        }
+
         if ($method->getCode() !== 'buckaroo_magento2_pospayment') {
             $pospaymentMethodInstance = $this->paymentHelper->getMethodInstance('buckaroo_magento2_pospayment');
             if ($pospaymentMethodInstance->isAvailable($observer->getEvent()->getQuote())) {
                 $showMethod = false;
                 //check custom set payment methods what should be visible in addition to POS
                 if ($otherPaymentMethods = $pospaymentMethodInstance->getOtherPaymentMethods()) {
-                    if (strpos($method->getCode(), 'buckaroo_magento2') !== false) {
+                    if ($this->helper->isBuckarooMethod($method->getCode())) {
                         if (in_array(
-                            str_replace('buckaroo_magento2_', '', $method->getCode()),
+                            $this->helper->getBuckarooMethod($method->getCode()),
                             explode(',', $otherPaymentMethods)
                         )) {
                             $showMethod = true;
@@ -58,10 +73,14 @@ class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterfa
                 }
 
                 if (!$showMethod) {
-                    $checkResult = $observer->getEvent()->getResult();
-                    $checkResult->setData('is_available', false);
+                    $this->setNotAvailableResult($observer);
                 }
             }
         }
+    }
+
+    private function setNotAvailableResult(Observer $observer)
+    {
+        $observer->getEvent()->getResult()->setData('is_available', false);
     }
 }

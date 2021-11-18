@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -19,7 +20,8 @@
  */
 namespace Buckaroo\Magento2\Test;
 
-class TestCaseFinder extends \PHPUnit\Framework\TestCase {
+class TestCaseFinder extends \PHPUnit\Framework\TestCase
+{
     public function getMock($className)
     {
         return $this->createMock($className);

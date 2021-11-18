@@ -34,6 +34,7 @@ class Trustly extends AbstractConfigProvider
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_trustly/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_trustly/specificcountry';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_trustly/specificcustomergroup';
 
     protected $allowedCountries = [
         'DE',
@@ -53,8 +54,9 @@ class Trustly extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Trustly::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Trustly::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [
@@ -98,5 +100,4 @@ class Trustly extends AbstractConfigProvider
             'NOK',
         ];
     }
-
 }

@@ -20,6 +20,9 @@
 
 namespace Buckaroo\Magento2\Block\Info;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+
 class Creditcard extends \Buckaroo\Magento2\Block\Info
 {
     /**
@@ -37,25 +40,19 @@ class Creditcard extends \Buckaroo\Magento2\Block\Info
      */
     protected $configProvider;
 
-    // @codingStandardsIgnoreStart
     /**
      * @var string
      */
     protected $_template = 'Buckaroo_Magento2::info/creditcard.phtml';
-    // @codingStandardsIgnoreEnd
 
-    /**
-     * @param \Magento\Framework\View\Element\Template\Context     $context
-     * @param array                                                $data
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
-     */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
+        PaymentGroupTransaction $groupTransaction,
+        GiftcardCollection $giftcardCollection,
         array $data = [],
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider = null
     ) {
-        parent::__construct($context, $data);
-
+        parent::__construct($context, $groupTransaction, $giftcardCollection, $data);
         $this->configProvider = $configProvider;
     }
 

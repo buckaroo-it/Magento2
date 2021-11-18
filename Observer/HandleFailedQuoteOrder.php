@@ -21,15 +21,23 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Model\Session as BuckarooSession;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Module\Manager;
 
 class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterface
 {
     protected $buckarooSession;
+    protected $logging;
+    protected $moduleManager;
 
     public function __construct(
-        BuckarooSession $buckarooSession
+        BuckarooSession $buckarooSession,
+        Log $logging,
+        Manager $moduleManager
     ) {
         $this->buckarooSession = $buckarooSession;
+        $this->logging = $logging;
+        $this->moduleManager = $moduleManager;
     }
 
     /**
@@ -58,26 +66,33 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/AbstractMethod.php:880
             $payment = $order->getPayment();
-            if (in_array($payment->getMethodInstance()->getCode(),['buckaroo_magento2_afterpay','buckaroo_magento2_afterpay2','buckaroo_magento2_klarnakp'])               
-            ) {
+            if (in_array(
+                $payment->getMethodInstance()->getCode(),
+                ['buckaroo_magento2_afterpay','buckaroo_magento2_afterpay2','buckaroo_magento2_klarnakp']
+            )) {
                 try {
                     $order->addStatusHistoryComment('Buckaroo: failed to authorize an order', false);
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
-                    $payment->save();  
+                    $payment->save();
+                    //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
                 } catch (\Exception $e) {
-                    //ignore
+
                 }
             }
 
             try {
-                $this->buckarooSession->setData('flagHandleFailedQuote', 1);
+                $this->logging->addDebug(__METHOD__ . '|1|');
+                if ($this->moduleManager->isEnabled('Magento_Inventory')) {
+                    $this->logging->addDebug(__METHOD__ . '|5|');
+                    $this->buckarooSession->setData('flagHandleFailedQuote', 1);
+                }
                 $order->cancel();
                 $order->save();
+                //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-                //ignore
+
             }
             $this->buckarooSession->setData('flagHandleFailedQuote', 0);
         }
-
     }
 }

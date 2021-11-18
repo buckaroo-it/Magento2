@@ -66,6 +66,8 @@ class Creditcard extends AbstractConfigProvider
     const XPATH_PAYMENT_FLOW                    = 'payment/buckaroo_magento2_creditcard/payment_action';
     const DEFAULT_SORT_VALUE                    = '99';
 
+    const XPATH_SPECIFIC_CUSTOMER_GROUP            = 'payment/buckaroo_magento2_creditcard/specificcustomergroup';
+
     protected $issuers = [
         [
             'name' => 'American Express',
@@ -133,8 +135,8 @@ class Creditcard extends AbstractConfigProvider
     {
         $sorted = explode(',', $this->scopeConfig->getValue(
             self::XPATH_CREDITCARD_SORT,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        );
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
 
         if (!empty($sorted)) {
             $sortedPosition = 1;
@@ -145,14 +147,15 @@ class Creditcard extends AbstractConfigProvider
 
         $issuers = parent::formatIssuers();
         foreach ($issuers as $item) {
-            $item['sort'] = isset($sorted_array[$item['name']]) ? $sorted_array[$item['name']] : self::DEFAULT_SORT_VALUE; 
+            $item['sort'] = isset($sorted_array[$item['name']]) ?
+                $sorted_array[$item['name']] : self::DEFAULT_SORT_VALUE;
             $allCreditcard[$item['code']] = $item;
         }
 
         $allowed = explode(',', $this->scopeConfig->getValue(
             self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        );
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
 
         $cards = [];
         foreach ($allowed as $key => $value) {
@@ -161,7 +164,7 @@ class Creditcard extends AbstractConfigProvider
             }
         }
 
-        usort($cards, function ($cardA, $cardB){
+        usort($cards, function ($cardA, $cardB) {
             return $cardA['sort'] - $cardB['sort'];
         });
 
@@ -174,8 +177,9 @@ class Creditcard extends AbstractConfigProvider
     public function getConfig()
     {
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this
-            ->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Creditcard::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Creditcard::PAYMENT_METHOD_CODE
+        );
 
         $selectionType = $this->scopeConfig->getValue(
             self::XPATH_SELECTION_TYPE,

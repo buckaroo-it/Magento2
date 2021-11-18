@@ -1,4 +1,3 @@
-<?php
 /**
  * NOTICE OF LICENSE
  *
@@ -17,9 +16,26 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data;
+define(
+    [
+    ],
+    function (
+    ) {
+        'use strict';
 
-interface SecondChanceInterface
-{
-    const ORDER_ID = 'order_id';
-}
+        return {
+
+            redirectHandle: function (response) {
+                if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
+                    if (window.location.hash && (window.location.hash == '#payment')) {
+                        window.history.pushState(
+                            null, null, `${window.location.pathname}${window.location.hash}`
+                        );
+                    }
+                    window.location.replace(response.RequiredAction.RedirectURL);
+                }
+            }
+
+        };
+    }
+);

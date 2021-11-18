@@ -28,6 +28,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Buckaroo\Magento2\Helper\Data;
+use Magento\Framework\App\ResourceConnection;
 
 class Order
 {
@@ -38,6 +39,7 @@ class Order
     protected $orderStatusFactory;
     protected $helper;
     protected $logging;
+    protected $resourceConnection;
 
     public function __construct(
         Account $accountConfig,
@@ -47,7 +49,8 @@ class Order
         CollectionFactory $orderFactory,
         OrderStatusFactory $orderStatusFactory,
         Data $helper,
-        Log $logging
+        Log $logging,
+        ResourceConnection $resourceConnection
     ) {
         $this->accountConfig = $accountConfig;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -57,6 +60,7 @@ class Order
         $this->orderStatusFactory = $orderStatusFactory;
         $this->helper = $helper;
         $this->logging = $logging;
+        $this->resourceConnection = $resourceConnection;
     }
 
     public function cancelExpiredTransferOrders()
@@ -98,7 +102,7 @@ class Order
 
                 $orderCollection->getSelect()
                     ->join(
-                        ['p' => 'sales_order_payment'],
+                        ['p' => $this->resourceConnection->getTableName('sales_order_payment')],
                         'main_table.entity_id = p.parent_id',
                         ['method']
                     )
@@ -134,46 +138,50 @@ class Order
         $statesConfig = $this->configProviderFactory->get('states');
         $state = $statesConfig->getOrderStateNew($store);
         if ($ppeConfig = $this->configProviderMethodFactory->get('payperemail')) {
-            if ($dueDays = abs($ppeConfig->getExpireDays())) {
-                $dueDays = 0;
-                $this->logging->addDebug(__METHOD__ . '|5|' . var_export($dueDays, true));
-                $orderCollection = $this->orderFactory->create()->addFieldToSelect(['*']);
-                $orderCollection
-                    ->addFieldToFilter(
-                        'state',
-                        ['eq' => $state]
-                    )
-                    ->addFieldToFilter(
-                        'store_id',
-                        ['eq' => $store->getId()]
-                    )
-                    ->addFieldToFilter(
-                        'created_at',
-                        ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
-                    )
-                    ->addFieldToFilter(
-                        'created_at',
-                        ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+            if ($ppeConfig->getEnabledCronCancelPPE()) {
+                if ($dueDays = abs($ppeConfig->getExpireDays())) {
+                    $this->logging->addDebug(__METHOD__ . '|5|' . var_export($dueDays, true));
+                    $orderCollection = $this->orderFactory->create()->addFieldToSelect(['*']);
+                    $orderCollection
+                        ->addFieldToFilter(
+                            'state',
+                            ['eq' => $state]
+                        )
+                        ->addFieldToFilter(
+                            'store_id',
+                            ['eq' => $store->getId()]
+                        )
+                        ->addFieldToFilter(
+                            'created_at',
+                            ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                        )
+                        ->addFieldToFilter(
+                            'created_at',
+                            ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                        );
+
+                    $orderCollection->getSelect()
+                        ->join(
+                            ['p' => $this->resourceConnection->getTableName('sales_order_payment')],
+                            'main_table.entity_id = p.parent_id',
+                            ['method']
+                        )
+                        ->where('p.additional_information like "%isPayPerEmail%"'
+                            . ' OR p.method ="buckaroo_magento2_payperemail"');
+
+                    $this->logging->addDebug(
+                        __METHOD__ . '|PPEOrders query|' . $orderCollection->getSelect()->__toString()
                     );
 
-                $orderCollection->getSelect()
-                    ->join(
-                        ['p' => 'sales_order_payment'],
-                        'main_table.entity_id = p.parent_id',
-                        ['method']
-                    )
-                    ->where('p.additional_information like "%isPayPerEmail%" OR p.method ="buckaroo_magento2_payperemail"');
+                    $this->logging->addDebug(__METHOD__ . '|10|' . var_export($orderCollection->count(), true));
 
-                $this->logging->addDebug(__METHOD__ . '|PPEOrders query|' . $orderCollection->getSelect()->__toString());
-
-                $this->logging->addDebug(__METHOD__ . '|10|' . var_export($orderCollection->count(), true));
-
-                if ($orderCollection->count()) {
-                    foreach ($orderCollection as $order) {
-                        $this->cancel(
-                            $order,
-                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')
-                        );
+                    if ($orderCollection->count()) {
+                        foreach ($orderCollection as $order) {
+                            $this->cancel(
+                                $order,
+                                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')
+                            );
+                        }
                     }
                 }
             }
@@ -202,7 +210,8 @@ class Order
 
         $this->logging->addDebug(__METHOD__ . '|15|');
 
-        if ($order->canCancel() || in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['payperemail'])) {
+        if ($order->canCancel()
+            || in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['payperemail'])) {
             $this->logging->addDebug(__METHOD__ . '|20|');
 
             if (in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {

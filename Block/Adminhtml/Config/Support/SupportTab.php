@@ -26,9 +26,7 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class SupportTab extends \Magento\Framework\View\Element\Template implements RendererInterface
 {
-    // @codingStandardsIgnoreStart
     protected $_template = 'supportTab.phtml';
-    // @codingStandardsIgnoreEnd
 
     /** @var array  */
     private $phpVersionSupport = ['2.3' => ['7.3' => ['+'], '7.4' => ['+']],
@@ -118,11 +116,9 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
 
             if (in_array($phpPatch, $currentVersion)) {
                 return true;
-            }
-            elseif(in_array('+', $currentVersion) && $phpPatch >= max($currentVersion)){
+            } elseif (in_array('+', $currentVersion) && $phpPatch >= max($currentVersion)) {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -135,8 +131,7 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
         $version = false;
         if (defined('PHP_VERSION')) {
             $version = explode('.', PHP_VERSION);
-        }
-        elseif (function_exists('phpversion')){
+        } elseif (function_exists('phpversion')) {
             $version = explode('.', phpversion());
         }
 

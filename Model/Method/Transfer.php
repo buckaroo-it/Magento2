@@ -39,15 +39,12 @@ class Transfer extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'transfer';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var bool
@@ -75,7 +72,7 @@ class Transfer extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -106,7 +103,7 @@ class Transfer extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
-            $secondChanceRepository,
+            $eventManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -144,7 +141,8 @@ class Transfer extends AbstractMethod
             $services[] = $cmService;
 
             $payment->setAdditionalInformation(
-                'skip_push', 2
+                'skip_push',
+                2
             );
         }
 

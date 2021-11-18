@@ -66,7 +66,6 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     public function saveGroupTransaction($response)
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($response, true));
-
         $groupTransaction           = $this->groupTransactionFactory->create();
         $data['order_id']           = $response['Invoice'];
         $data['transaction_id']     = $response['Key'];
@@ -96,13 +95,18 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
 
     public function getGroupTransactionItems($order_id)
     {
-        $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('order_id', ['eq' => $order_id]);
+        $collection = $this->groupTransactionFactory->create()
+        ->getCollection()
+        ->addFieldToFilter('order_id', ['eq' => $order_id]);
         return array_values($collection->getItems());
     }
 
     public function getGroupTransactionItemsNotRefunded($order_id)
     {
-        $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('order_id', ['eq' => $order_id])->addFieldToFilter('refunded_amount', ['null' => true]);
+        $collection = $this->groupTransactionFactory->create()
+        ->getCollection()
+        ->addFieldToFilter('order_id', ['eq' => $order_id])
+        ->addFieldToFilter('refunded_amount', ['null' => true]);
         return array_values($collection->getItems());
     }
 
@@ -129,12 +133,16 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
 
     public function getGroupTransactionById($entity_id)
     {
-        $collection = $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('entity_id', ['eq' => $entity_id]);
+        $collection = $this->groupTransactionFactory->create()
+        ->getCollection()
+        ->addFieldToFilter('entity_id', ['eq' => $entity_id]);
         return $collection->getItems();
     }
 
     public function getGroupTransactionByTrxId($trx_id)
     {
-        return $this->groupTransactionFactory->create()->getCollection()->addFieldToFilter('transaction_id', ['eq' => $trx_id])->getItems();
+        return $this->groupTransactionFactory->create()
+        ->getCollection()
+        ->addFieldToFilter('transaction_id', ['eq' => $trx_id])->getItems();
     }
 }

@@ -52,6 +52,9 @@ class Afterpay extends AbstractConfigProvider
     const XPATH_AFTERPAY_ZERO_TAX               = 'payment/buckaroo_magento2_afterpay/zero_tax';
     const XPATH_AFTERPAY_NO_TAX                 = 'payment/buckaroo_magento2_afterpay/no_tax';
 
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_afterpay/specificcustomergroup';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B     = 'payment/buckaroo_magento2_afterpay/specificcustomergroupb2b';
+
     /**
      * @return array
      */
@@ -64,7 +67,9 @@ class Afterpay extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(\Buckaroo\Magento2\Model\Method\Afterpay::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+            \Buckaroo\Magento2\Model\Method\Afterpay::PAYMENT_METHOD_CODE
+        );
 
         return [
             'payment' => [

@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -27,7 +28,6 @@ use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
-
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -159,12 +159,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected $request;
 
-    // @codingStandardsIgnoreStart
     /**
      * @var string
      */
     protected $_infoBlockType = 'Buckaroo\Magento2\Block\Info';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Framework\ObjectManagerInterface
@@ -216,9 +214,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $_code;
 
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     * @var EventManager
      */
-    protected $secondChanceRepository;
+    private $eventManager;
 
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
@@ -265,7 +263,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -312,7 +310,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->softwareData                = $softwareData;
         $this->addressFactory              = $addressFactory;
         $this->logger2                     = $buckarooLog;
-        $this->secondChanceRepository      = $secondChanceRepository;
+        $this->eventManager                = $eventManager;
         $this->gateway->setMode(
             $this->helper->getMode($this->buckarooPaymentMethodCode)
         );
@@ -662,6 +660,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function order(InfoInterface $payment, $amount)
     {
+
         if (!$payment instanceof OrderPaymentInterface
             || !$payment instanceof InfoInterface
         ) {
@@ -672,6 +671,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         parent::order($payment, $amount);
+
+        $this->eventManager->dispatch('buckaroo_order_before', ['payment' => $payment]);
 
         $this->payment = $payment;
 
@@ -698,11 +699,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
-        $accountConfig = $this->configProviderFactory->get('account');
-        if ($order && $accountConfig->getSecondChance($order->getStore())) {
-            $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
-            $this->secondChanceRepository->createSecondChance($order);
-        }
+        $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
 
         $this->afterOrder($payment, $response);
 
@@ -846,6 +843,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         parent::authorize($payment, $amount);
 
+        $this->eventManager->dispatch('buckaroo_authorize_before', ['payment' => $payment]);
+
         $this->payment = $payment;
 
         $transactionBuilder = $this->getAuthorizeTransactionBuilder($payment);
@@ -871,12 +870,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
-        $accountConfig = $this->configProviderFactory->get('account');
-        if ($order && $accountConfig->getSecondChance($order->getStore())) {
-            $this->helper->addDebug(__METHOD__ . '|SecondChance enabled|');
-            $this->secondChanceRepository->createSecondChance($order);
-        }
-        
+        $this->eventManager->dispatch('buckaroo_authorize_after', ['order' => $order]);
+
         $this->afterAuthorize($payment, $response);
 
         return $this;
@@ -1815,8 +1810,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if (!$myparcelFetched) {
             $this->logger2->addDebug(__METHOD__ . '|10|');
-            if (
-                (strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
+            if ((strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
                 &&
                 (strpos($payment->getOrder()->getShippingMethod(), 'pickup') !== false)
             ) {
@@ -1897,7 +1891,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $articleUnitPrice,
         $articleVat = ''
     ) {
-
     }
 
     protected function getTaxCategory($order)
@@ -2191,9 +2184,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
             $curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/' . $matches[2] . '/' . $servicePointId);
-            if (
-                ($response = $curl->getBody())
+            if (($response = $curl->getBody())
                 &&
+                //phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
                 ($parsedResponse = @json_decode($response))
                 &&
                 !empty($parsedResponse->address)
@@ -2260,10 +2253,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $format;
     }
 
-    protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay')
+    protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay', $newServiceAction = 'PayRemainder')
     {
         if ($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())) {
-            $serviceAction = 'PayRemainder';
+            $serviceAction = $newServiceAction;
             $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
 
             if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())) {

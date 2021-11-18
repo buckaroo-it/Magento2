@@ -273,6 +273,7 @@
                 <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,sepadirectdebit,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,rtp,tinka,belfius</payment_method>
                 <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,rtp,tinka,belfius</payment_method_after_expiry>
                 <expire_days>7</expire_days>
+                <cron_cancel_ppe>1</cron_cancel_ppe>
             </buckaroo_magento2_payperemail>
 
             <buckaroo_magento2_eps>
@@ -547,10 +548,6 @@
                 <debug_types>300,400,500,550,600</debug_types>
                 <cart_keep_alive>1</cart_keep_alive>
                 <selection_type>1</selection_type>
-                <second_chance_template>buckaroo_second_chance</second_chance_template>
-                <second_chance_template2>buckaroo_second_chance2</second_chance_template2>
-                <second_chance_email>1</second_chance_email>
-                <second_chance_email2>1</second_chance_email2>
             </account>
 
             <refund>

@@ -19,8 +19,6 @@
  */
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Logging\Log;
-
 class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -28,39 +26,24 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      */
     private $checkoutSession;
 
-    protected $quoteFactory;
-
     protected $messageManager;
-
-    protected $layout;
 
     protected $cart;
 
     protected $logging;
 
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
-     */
-    protected $secondChanceRepository;
-
-    /**
      * @param \Magento\Checkout\Model\Cart          $cart
      */
     public function __construct(
-        \Magento\Checkout\Model\Session\Proxy $checkoutSession,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Framework\View\LayoutInterface $layout,
         \Magento\Checkout\Model\Cart $cart,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
-        Log $logging
+        \Buckaroo\Magento2\Logging\Log $logging
     ) {
         $this->checkoutSession        = $checkoutSession;
-        $this->quoteFactory           = $quoteFactory;
         $this->messageManager         = $messageManager;
-        $this->layout                 = $layout;
         $this->cart                   = $cart;
-        $this->secondChanceRepository = $secondChanceRepository;
         $this->logging                = $logging;
     }
 
@@ -72,14 +55,6 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
-
-        /* @var $order \Magento\Sales\Model\Order */
-        $order = $observer->getEvent()->getOrder();
-        try {
-            $this->secondChanceRepository->deleteByOrderId($order->getIncrementId());
-        } catch (\Exception $e) {
-            $this->logging->addError('Could not find SC by order id:' . $order->getIncrementId());
-        }
 
         if ($this->checkoutSession->getMyParcelNLBuckarooData()) {
             $this->checkoutSession->setMyParcelNLBuckarooData(null);

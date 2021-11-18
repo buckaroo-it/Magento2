@@ -36,7 +36,6 @@ class IdealProcessing extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'idealprocessing';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
@@ -48,8 +47,6 @@ class IdealProcessing extends AbstractMethod
      * @var bool
      */
     protected $_canRefund               = false;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
@@ -82,7 +79,7 @@ class IdealProcessing extends AbstractMethod
 
         $services = [
             'Name'             => 'idealprocessing',
-            'Action'           => $this->getPayRemainder($payment,$transactionBuilder),
+            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 2,
             'RequestParameter' => [
                 [

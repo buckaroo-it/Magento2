@@ -32,15 +32,12 @@ class Sofortbanking extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'sofortbanking';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
@@ -66,9 +63,7 @@ class Sofortbanking extends AbstractMethod
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * @todo when buckaroo changes the push / response order this can be removed
          */
-        $payment->setAdditionalInformation(
-            'skip_push', 1
-        );
+        $payment->setAdditionalInformation('skip_push', 1);
 
         return $transactionBuilder;
     }

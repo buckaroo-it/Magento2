@@ -35,15 +35,12 @@ class Giropay extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'giropay';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
@@ -142,6 +139,7 @@ class Giropay extends AbstractMethod
         $customerBicNumber = $paymentInfo->getAdditionalInformation('customer_bic');
 
         if (!preg_match(static::BIC_NUMBER_REGEX, $customerBicNumber)) {
+            //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new Exception(__('Please enter a valid BIC number'));
         }
 

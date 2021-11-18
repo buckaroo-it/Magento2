@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *

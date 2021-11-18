@@ -32,15 +32,12 @@ class Rtp extends AbstractMethod
      */
     public $buckarooPaymentMethodCode = 'rtp';
 
-    // @codingStandardsIgnoreStart
     /**
      * Payment method code
      *
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
-
-    // @codingStandardsIgnoreEnd
 
     /**
      * {@inheritdoc}
@@ -75,9 +72,7 @@ class Rtp extends AbstractMethod
          * Buckaroo Push is send before Response, for correct flow we skip the first push
          * @todo when buckaroo changes the push / response order this can be removed
          */
-        $payment->setAdditionalInformation(
-            'skip_push', 1
-        );
+        $payment->setAdditionalInformation('skip_push', 1);
 
         return $transactionBuilder;
     }
@@ -115,5 +110,4 @@ class Rtp extends AbstractMethod
     {
         return 'RequestToPay';
     }
-
 }
