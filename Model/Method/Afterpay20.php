@@ -271,7 +271,7 @@ class Afterpay20 extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getSku(),
-                $bundleProductQty ? $bundleProductQty : $item->getQty(),
+                $bundleProductQty ? (int) ($bundleProductQty * $item->getQty()): $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getTaxPercent()
             );
