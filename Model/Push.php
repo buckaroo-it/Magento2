@@ -48,7 +48,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Magento\Framework\Filesystem\DriverInterface;
+use Magento\Framework\Filesystem\Driver\File;
 
 class Push implements PushInterface
 {
@@ -187,7 +187,7 @@ class Push implements PushInterface
         \Magento\Framework\Filesystem\DirectoryList $dirList,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig,
-        DriverInterface $fileSystemDriver
+        File $fileSystemDriver
     ) {
         $this->order                       = $order;
         $this->transaction                 = $transaction;
