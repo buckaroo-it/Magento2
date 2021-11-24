@@ -28,6 +28,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'mageUtils',
+        'mage/url'
     ],
     function (
         $,
@@ -37,7 +38,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        utils
+        utils,
+        url
     ) {
         'use strict';
 
@@ -94,6 +96,12 @@ define(
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
+                        var formKey = $.mage.cookies.get('form_key');
+                        window.history.pushState(
+                            null,
+                            null,
+                            url.build('/buckaroo/payconiq/process/?cancel=1&form_key=' + formKey + '&transaction_key=' + response.Key)
+                        );
                         var data =  {};
                         data['transaction_key'] = response.key;
 
