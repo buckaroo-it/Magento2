@@ -247,7 +247,7 @@ define(
                     self = this;
 
                     $.ajax({
-                        url: "/buckaroo/checkout/giftcard",
+                        url: url.build('buckaroo/checkout/giftcard'),
                         type: 'POST',
                         dataType: 'json',
                         showLoader: true, //use for display loader 
