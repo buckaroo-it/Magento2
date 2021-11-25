@@ -230,8 +230,9 @@ class Push implements PushInterface
         if ($this->isGroupTransactionInfo()) {
             if ($this->isGroupTransactionFailed()) {
                 $this->savePartGroupTransaction();
+            } else {
+                return true;
             }
-            return true;
         }
 
         if (!$this->isPushNeeded()) {
