@@ -139,7 +139,7 @@ class PayPerEmail extends AbstractMethod
         $services = [];
         $services[] = $this->getPayperemailService($payment);
 
-        $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, 'payperemail');
+        $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, $this->buckarooPaymentMethodCode);
         if (count($cmService) > 0) {
             $services[] = $cmService;
         }
