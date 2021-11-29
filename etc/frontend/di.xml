@@ -20,10 +20,10 @@
  */
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
+                <item name="buckaroo_config_provider" xsi:type="object">Buckaroo\Magento2\Model\Ui\ConfigProvider</item>
                 <item name="buckaroo_config_provider_idin" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Idin</item>
                 <item name="buckaroo_config_provider_ideal" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</item>
                 <item name="buckaroo_config_provider_idealprocessing" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing</item>
@@ -87,7 +87,7 @@
 
     <type name="Magento\Framework\Stdlib\Cookie\PhpCookieManager">
         <plugin name="fixSession" type="Buckaroo\Magento2\Plugin\FixSession" />
-    </type>
+    </type>    
 
     <type name="Magento\Quote\Model\ShippingMethodManagement">
         <plugin name="shippingMethodManagement" type="Buckaroo\Magento2\Plugin\ShippingMethodManagement"/>
