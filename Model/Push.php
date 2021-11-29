@@ -361,10 +361,6 @@ class Push implements PushInterface
         }
 
         switch ($transactionType) {
-            case self::BUCK_PUSH_TYPE_TRANSACTION:
-            case self::BUCK_PUSH_TYPE_DATAREQUEST:
-                $this->processPush($response);
-                break;
             case self::BUCK_PUSH_TYPE_INVOICE:
                 $this->processCm3Push();
                 break;
@@ -372,6 +368,11 @@ class Push implements PushInterface
                 throw new \Buckaroo\Magento2\Exception(
                     __('Skipped handling this invoice push because it is too soon.')
                 );
+            case self::BUCK_PUSH_TYPE_TRANSACTION:
+            case self::BUCK_PUSH_TYPE_DATAREQUEST:
+            default:
+                $this->processPush($response);
+                break;
         }
 
         $this->logging->addDebug(__METHOD__ . '|5|');
@@ -555,6 +556,14 @@ class Push implements PushInterface
                     $statusCode = $this->postData['brq_eventparameters_transactionstatuscode'];
                 }
                 break;
+        }
+
+        $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+        if (isset($this->postData['brq_statuscode'])
+            && ($this->postData['brq_statuscode'] == $statusCodeSuccess)
+            && !$statusCode
+        ) {
+            $statusCode = $statusCodeSuccess;
         }
 
         return $statusCode;
