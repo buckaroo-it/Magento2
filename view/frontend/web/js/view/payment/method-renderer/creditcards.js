@@ -51,7 +51,11 @@ define(
             $.mage.__('Please enter a valid creditcard number.')
         );
         $.validator.addMethod('validateCvc', function (value) {
-                return BuckarooClientSideEncryption.V001.validateCvc(value);
+                var cardService = null;
+                if ($('#buckaroo_magento2_creditcards_issuer').val() == 'amex') {
+                    cardService = $('#buckaroo_magento2_creditcards_issuer').val();
+                }
+                return BuckarooClientSideEncryption.V001.validateCvc(value, cardService);
             },
             $.mage.__('Please enter a valid Cvc number.')
         );
