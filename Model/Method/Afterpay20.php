@@ -263,6 +263,10 @@ class Afterpay20 extends AbstractMethod
                 continue;
             }
 
+            if (($item->getProductType() == 'configurable') && ($item->getTaxPercent() === null)) {
+                continue;
+            }
+
             if (!$item->getParentItemId()) {
                 $bundleProductQty = 0;
             }
