@@ -444,4 +444,5 @@
 "Age verification","Leeftijd verificatie"
 "Verify your age via iDIN","Verifiëren uw leeftijd via iDIN"
 "Select your bank","Selecteer uw bank"
-"Card number or pin not valid',"Kaartnummer of pin ongeldig"
+"Card number or pin not valid","Kaartnummer of pin ongeldig"
+"Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.","Controleer bij Buckaroo of Client Side Encryption is ingeschakeld, anders mislukken transacties. Bij twijfel, neem contact met ons op."
