@@ -235,11 +235,13 @@ class Push implements PushInterface
             }
         }
 
+        $this->loadOrder();
+
+        $this->handleAwaitingApprovalRefunds();
+
         if (!$this->isPushNeeded()) {
             return true;
         }
-
-        $this->loadOrder();
 
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->validator->validateSignature(
@@ -388,9 +390,17 @@ class Push implements PushInterface
         return true;
     }
 
-    private function receivePushCheckDuplicates()
+    private function receivePushCheckDuplicates($receivedStatusCode = null)
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->order->getPayment()->getMethod(), true));
+
+        if (!$receivedStatusCode) {
+            if (empty($this->postData['brq_statuscode'])) {
+                $this->logging->addDebug(__METHOD__ . '|3|');
+                return false;
+            }
+            $receivedStatusCode = $this->postData['brq_statuscode'];
+        }
         $payment               = $this->order->getPayment();
         $ignoredPaymentMethods = [
             Giftcards::PAYMENT_METHOD_CODE,
@@ -398,7 +408,7 @@ class Push implements PushInterface
         ];
         if ($payment
             && $payment->getMethod()
-            && !empty($this->postData['brq_statuscode'])
+            && $receivedStatusCode
             && ($this->getTransactionType() == self::BUCK_PUSH_TYPE_TRANSACTION)
             && (!in_array($payment->getMethod(), $ignoredPaymentMethods))
         ) {
@@ -408,18 +418,18 @@ class Push implements PushInterface
                 self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
             $this->logging->addDebug(__METHOD__ . '|10|' .
-                var_export([$receivedTrxStatuses, $this->postData['brq_statuscode']], true));
+                var_export([$receivedTrxStatuses, $receivedStatusCode], true));
             if ($receivedTrxStatuses
                 && is_array($receivedTrxStatuses)
                 && !empty($this->postData['brq_transactions'])
                 && isset($receivedTrxStatuses[$this->postData['brq_transactions']])
-                && ($receivedTrxStatuses[$this->postData['brq_transactions']] == $this->postData['brq_statuscode'])
+                && ($receivedTrxStatuses[$this->postData['brq_transactions']] == $receivedStatusCode)
             ) {
                 $orderStatus = $this->helper->getOrderStatusByState($this->order, Order::STATE_NEW);
                 $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
                 if (($this->order->getState() == Order::STATE_NEW)
                     && ($this->order->getStatus() == $orderStatus)
-                    && ($this->postData['brq_statuscode'] == $statusCode)
+                    && ($receivedStatusCode == $statusCode)
                 ) {
                     //allow duplicated pushes for 190 statuses in case if order stills to be new/pending
                     $this->logging->addDebug(__METHOD__ . '|13|');
@@ -465,7 +475,18 @@ class Push implements PushInterface
         if ($this->hasPostData('add_initiated_by_magento', 1)
             && $this->hasPostData('add_service_action_from_magento', ['refund'])
         ) {
+            $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+            if ($this->hasPostData('brq_statuscode', $statusCodeSuccess)) {
+                if ($this->receivePushCheckDuplicates(
+                    $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL')
+                )) {
+                    $this->logging->addDebug(__METHOD__ . '|4|');
+                    return true;
+                }
+            }
+            $this->logging->addDebug(__METHOD__ . '|5|');
             return false;
+
         }
 
         $types = ['capture', 'cancelauthorize', 'cancelreservation'];
@@ -1800,6 +1821,20 @@ class Push implements PushInterface
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->save();
             }
+        }
+    }
+
+    private function handleAwaitingApprovalRefunds()
+    {
+        $this->logging->addDebug(__METHOD__ . '|1|');
+        $pendingApprovalStatus = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL');
+        if ($this->hasPostData('add_initiated_by_magento', 1)
+            && $this->hasPostData('add_service_action_from_magento', ['refund'])
+            && $this->hasPostData('brq_statuscode', $pendingApprovalStatus)
+        ) {
+            $this->logging->addDebug(__METHOD__ . '|5|');
+            $this->setReceivedTransactionStatuses();
+            $this->order->getPayment()->save();
         }
     }
 }
