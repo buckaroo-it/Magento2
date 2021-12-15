@@ -546,7 +546,7 @@ class Afterpay20 extends AbstractMethod
                 'Group' => 'Article',
             ],
             [
-                '_'       => $articleVat,
+                '_'       => $articleVat ?? 0,
                 'Name'    => 'VatPercentage',
                 'GroupID' => $latestKey,
                 'Group' => 'Article',
