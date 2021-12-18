@@ -98,7 +98,7 @@ define([
             if (isOscMagePlaza() || isOsc()) {
                 quote.billingAddress.subscribe(
                     function (newAddress) {
-                        if (newAddress.countryId && (newAddress.countryId == 'NL')) {
+                        if (newAddress && newAddress.countryId && (newAddress.countryId == 'NL')) {
                             if (window.checkoutConfig.buckarooIdin.active > 0) {
                                 if (!window.checkoutConfig.buckarooIdin.verified) {
                                     this.hideSubmitButton();
