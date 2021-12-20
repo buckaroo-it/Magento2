@@ -23,6 +23,7 @@ class Categorylist implements \Magento\Framework\Option\ArrayInterface
 {
     protected $categoryFactory;
     protected $categoryCollectionFactory;
+    protected static $categoriesCache = [];
 
     public function __construct(
         \Magento\Catalog\Model\CategoryFactory $categoryFactory,
@@ -98,11 +99,14 @@ class Categorylist implements \Magento\Framework\Option\ArrayInterface
         array_pop($catTree);
 
         if ($catTree && (count($catTree) > count($rootCats))) {
+            $categoryObj = $this->categoryFactory->create();
             foreach ($catTree as $catId) {
                 if (!in_array($catId, $rootCats)) {
-                    $category     = $this->categoryFactory->create()->load($catId);
-                    $categoryName = $category->getName();
-                    $parentName .= $categoryName . ' -> ';
+                    if (!isset(self::$categoriesCache[$catId])) {
+                        $category = $categoryObj->load($catId);
+                        self::$categoriesCache[$catId] = $category->getName();
+                    }
+                    $parentName .= self::$categoriesCache[$catId] . ' -> ';
                 }
             }
         }
