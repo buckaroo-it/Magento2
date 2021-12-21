@@ -307,7 +307,7 @@
     background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
     margin-top: -7px;
     float: right;
-    margin-right: 10px;
+    margin-right: -3px;
     background-size: auto 37px;
     width: 62px;
     height: 37px;
@@ -829,7 +829,7 @@
         background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
         margin-top: -1px;
         float:left;
-        margin-right: 10px;
+        margin-right: -3px;
         background-size: auto 24px;
         width: 40px;
         height: 30px;
