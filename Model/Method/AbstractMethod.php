@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Model\Push;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
@@ -1060,7 +1061,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $transaction = $transactionBuilder->build();
 
-        $response = $this->refundTransaction($transaction);
+        $response = $this->refundTransaction($transaction, $payment);
 
         $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
         $this->afterRefund($payment, $response);
@@ -1100,9 +1101,37 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @return array|\StdClass
      * @throws \Buckaroo\Magento2\Exception
      */
-    public function refundTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
+    public function refundTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction, $payment = null)
     {
         $response = $this->gateway->refund($transaction);
+
+        $pendingApprovalStatus = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL');
+
+        if (
+            !empty($response[0]->Status->Code->Code)
+            && ($response[0]->Status->Code->Code == $pendingApprovalStatus)
+            && $payment
+            && !empty($response[0]->RelatedTransactions->RelatedTransaction->_)
+        ) {
+            $this->logger2->addDebug(__METHOD__ . '|10|');
+            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(
+                Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
+            );
+            $buckarooTransactionKeysArray[$response[0]->RelatedTransactions->RelatedTransaction->_] =
+                $response[0]->Status->Code->Code;
+            $payment->setAdditionalInformation(
+                Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
+                $buckarooTransactionKeysArray
+            );
+            $resource = $this->objectManager->get('Magento\Framework\App\ResourceConnection');
+            $connection = $resource->getConnection();
+            $connection->rollBack();
+            $messageManager = $this->objectManager->get('Magento\Framework\Message\ManagerInterface');
+            $messageManager->addError(
+                __("Refund has been initiated, but it needs to be approved, so you need to wait for an approval")
+            );
+            $payment->save();
+        }
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
             throw new \Buckaroo\Magento2\Exception(
