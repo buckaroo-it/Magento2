@@ -78,14 +78,6 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT'):
                 $success = false;
                 break;
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL'):
-                throw new \Buckaroo\Magento2\Exception(
-                    new \Magento\Framework\Phrase(
-                        "Refund has been initiated, but it needs to be approved, so you need to wait for an approval"
-                    )
-                );
-                //phpcs:ignore:Squiz.PHP.NonExecutableCode
-                break;
             default:
                 throw new \Buckaroo\Magento2\Exception(
                     new \Magento\Framework\Phrase(
