@@ -560,11 +560,6 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             $ip = $order->getPayment()->getMethodInstance()->getRemoteAddress();
         }
 
-        // Some of the plaza gateway requests do not support IPv6.
-        if (strpos($ip, ':') !== false) {
-            $ip = '127.0.0.' . rand(1, 100);
-        }
-
         return $ip;
     }
 
