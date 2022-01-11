@@ -2044,6 +2044,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             'vat_id',
             'address_type',
             'extension_attributes',
+            'quote_address_id'
         ]);
 
         $filteredAddressOne = array_diff_key($addressOne, $keysToExclude);
