@@ -317,6 +317,20 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_kbc>
 
+            <buckaroo_magento2_paylink>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\PayLink</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo PayLink</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>215</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>1</available_in_backend>
+            </buckaroo_magento2_paylink>
+
             <buckaroo_magento2_klarna>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Klarna\PayLater</model>
