@@ -80,6 +80,9 @@
     <type name="Buckaroo\Magento2\Model\Push">
         <plugin name="buckaroo_magento2_paypal_sellersprotection_push" type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\Push" />
         <plugin name="buckaroo_magento2_mpi_push" type="Buckaroo\Magento2\Model\Service\Plugin\Mpi\Push" />
+        <arguments>
+            <argument name="fileSystemDriver" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
     </type>
 
     <type name="Magento\Sales\Model\Order\Payment\State\OrderCommand">
