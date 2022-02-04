@@ -455,4 +455,12 @@
         <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
     </type>
 
+    <type name="Magento\Checkout\Api\PaymentInformationManagementInterface">
+        <plugin name="buckarooPaymentInformationManagement" type="Buckaroo\Magento2\Plugin\PaymentMethodManagement"/>
+    </type>
+
+    <type name="Magento\Checkout\Api\GuestPaymentInformationManagementInterface">
+        <plugin name="buckarooGuestPaymentInformationManagement" type="Buckaroo\Magento2\Plugin\GuestPaymentMethodManagement"/>
+    </type>
+
 </config>
