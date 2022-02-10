@@ -55,6 +55,7 @@ class Push implements PushInterface
     const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE = 'I014';
     const BUCK_PUSH_ACCEPT_AUTHORIZE_TYPE = 'I013';
     const BUCK_PUSH_GROUPTRANSACTION_TYPE = 'I150';
+    const BUCK_PUSH_IDEAL_PAY = 'C021';
 
     const BUCK_PUSH_TYPE_TRANSACTION        = 'transaction_push';
     const BUCK_PUSH_TYPE_INVOICE            = 'invoice_push';
@@ -224,7 +225,7 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->originalPostData, true));
 
         $this->logging->addDebug(__METHOD__ . '|1_2|');
-        $lockHandler = $this->lockPushProcessingPpe();
+        $lockHandler = $this->lockPushProcessing();
         $this->logging->addDebug(__METHOD__ . '|1_3|');
 
         if ($this->isGroupTransactionInfo()) {
@@ -287,6 +288,7 @@ class Push implements PushInterface
         }
 
         if ($this->receivePushCheckDuplicates()) {
+            $this->unlockPushProcessing($lockHandler);
             throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, duplicate'));
         }
 
@@ -381,7 +383,7 @@ class Push implements PushInterface
             $this->order->save();
         }
 
-        $this->unlockPushProcessingPpe($lockHandler);
+        $this->unlockPushProcessing($lockHandler);
 
         $this->logging->addDebug(__METHOD__ . '|6|');
 
@@ -445,6 +447,7 @@ class Push implements PushInterface
                 return true;
             }
             if ($save) {
+                $this->logging->addDebug(__METHOD__ . '|17|');
                 $this->setReceivedTransactionStatuses();
                 $payment->save();
             }
@@ -1772,7 +1775,7 @@ class Push implements PushInterface
         return $brqOrderId;
     }
 
-    private function getLockPushProcessingPpeFilePath()
+    private function getLockPushProcessingFilePath()
     {
         if ($brqOrderId = $this->getOrderIncrementId()) {
             return $this->dirList->getPath('tmp') . DIRECTORY_SEPARATOR . 'bk_push_ppe_' . sha1($brqOrderId);
@@ -1781,11 +1784,26 @@ class Push implements PushInterface
         }
     }
 
-    private function lockPushProcessingPpe()
+    private function lockPushProcessingCriteria()
     {
-        if (isset($this->postData['add_frompayperemail'])) {
+        $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+        if (isset($this->postData['add_frompayperemail'])
+            || (($this->hasPostData('brq_statuscode', $statusCodeSuccess))
+                && $this->hasPostData('brq_transaction_method', 'ideal')
+                && $this->hasPostData('brq_transaction_type', self::BUCK_PUSH_IDEAL_PAY)
+            )
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function lockPushProcessing()
+    {
+        if ($this->lockPushProcessingCriteria()) {
             $this->logging->addDebug(__METHOD__ . '|1|');
-            if ($path = $this->getLockPushProcessingPpeFilePath()) {
+            if ($path = $this->getLockPushProcessingFilePath()) {
                 if ($fp = $this->fileSystemDriver->fileOpen($path, "w+")) {
                     $this->fileSystemDriver->fileLock($fp, LOCK_EX);
                     $this->logging->addDebug(__METHOD__ . '|5|');
@@ -1795,12 +1813,12 @@ class Push implements PushInterface
         }
     }
 
-    private function unlockPushProcessingPpe($lockHandler)
+    private function unlockPushProcessing($lockHandler)
     {
-        if (isset($this->postData['add_frompayperemail'])) {
+        if ($this->lockPushProcessingCriteria()) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             $this->fileSystemDriver->fileClose($lockHandler);
-            if (($path = $this->getLockPushProcessingPpeFilePath()) && $this->fileSystemDriver->isExists($path)) {
+            if (($path = $this->getLockPushProcessingFilePath()) && $this->fileSystemDriver->isExists($path)) {
                 $this->fileSystemDriver->deleteFile($path);
                 $this->logging->addDebug(__METHOD__ . '|5|');
             }
