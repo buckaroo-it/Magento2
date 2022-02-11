@@ -39,7 +39,7 @@ class PushSend extends Command
     protected $encryptor;
 
     private $requests = 2;
-    private $url = 'https://magento24.buckaroo.vlad.hysdev.com/rest/V1/buckaroo/push';
+    private $url = 'https://example.com/rest/V1/buckaroo/push';
 
     public function __construct(
         State $appState,
