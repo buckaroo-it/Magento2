@@ -1443,7 +1443,10 @@ class Push implements PushInterface
          */
         $payment = $this->order->getPayment();
 
-        $invoiceAmount = floatval($this->postData['brq_amount']);
+        $invoiceAmount = 0;
+        if (!empty($this->postData['brq_amount'])) {
+            $invoiceAmount = floatval($this->postData['brq_amount']);
+        }
         if (($payment->getMethod() == Giftcards::PAYMENT_METHOD_CODE)
             && $invoiceAmount != $this->order->getGrandTotal()
         ) {
