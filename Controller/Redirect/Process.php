@@ -21,9 +21,11 @@
 namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -215,6 +217,10 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $payment = $this->order->getPayment();
 
+        if($payment) {
+            $this->setPaymentOutOfTransit($payment);
+        }
+
         if (!method_exists($payment->getMethodInstance(), 'canProcessPostData')) {
             return $this->_redirect('/');
         }
@@ -348,7 +354,25 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->logger->addDebug(__METHOD__ . '|9|');
         return $this->_response;
     }
+    /**
+     * Set flag if user is on the payment provider page
+     *
+     * @param OrderPaymentInterface $payment
+     *
+     * @return void
+     */
+    protected function setPaymentOutOfTransit(OrderPaymentInterface $payment)
+    {
+        $payment->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false);
 
+        //set in the payment session as well
+        $this->_objectManager->get(
+            \Magento\Checkout\Model\Session::class
+        )
+        ->getLastRealOrder()
+        ->getPayment()
+        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false);
+    }
     protected function handleFailed($statusCode)
     {
         $this->logger->addDebug(__METHOD__ . '|7|');
