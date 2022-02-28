@@ -363,18 +363,9 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment)
     {
-        $payment->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false);
-
-        try {
-            //set in the payment session as well
-            $this->checkoutSession
-            ->getLastRealOrder()
-            ->getPayment()
-            ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
-            ->save();
-        } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . $th->getMessage());
-        }
+        $payment
+        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
+        ->save();
     }
     protected function handleFailed($statusCode)
     {
