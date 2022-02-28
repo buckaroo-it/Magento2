@@ -1697,21 +1697,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if ($this->canRefundPartialPerInvoice() && $creditmemo) {
             $invoice = $creditmemo->getInvoice();
 
-            $transactionBuilder->setInvoiceId($this->getRefundTransactionBuilderInvoceId($invoice->getOrder()->getIncrementId(), $payment))
+            $transactionBuilder->setInvoiceId($invoice->getOrder()->getIncrementId())
                 ->setOriginalTransactionKey($payment->getParentTransactionId());
         }
     }
-
-    protected function getRefundTransactionBuilderInvoceId($invoiceIncrementId, $payment)
-    {
-        if (!$refundIncrementInvoceId = $payment->getAdditionalInformation('refundIncrementInvoceId')) {
-            $refundIncrementInvoceId = 0;
-        }
-        $refundIncrementInvoceId++;
-        $payment->setAdditionalInformation('refundIncrementInvoceId', $refundIncrementInvoceId);
-        return $invoiceIncrementId . '_R' . ($refundIncrementInvoceId > 1 ? $refundIncrementInvoceId : '');
-    }
-
     protected function getRefundTransactionBuilderVersion()
     {
         return 1;
