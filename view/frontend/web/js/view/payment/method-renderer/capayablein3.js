@@ -53,7 +53,7 @@ define(
                     lastname : '',
                     CustomerName : null,
                     BillingName : null,
-                    dateValidate : null,
+                    dateValidate : '',
                     selectedOrderAs : 1,
                     CocNumber : null,
                     CompanyName : null
