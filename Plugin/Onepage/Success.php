@@ -18,25 +18,45 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Controller\Onepage;
+namespace Buckaroo\Magento2\Plugin\Onepage;
 
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Magento\Framework\App\Action\Context;
 
 /**
  * Override Onepage checkout success controller class
  */
-class Success extends \Magento\Checkout\Controller\Onepage\Success {
+class Success {
 
+    /**
+     * @var \Magento\Framework\Controller\Result\RedirectFactory
+     */
+    protected $resultRedirectFactory;
+
+    // /**
+    //  * @var \Magento\Checkout\Model\Session
+    //  */
+    // protected $checkoutSession;
+
+    /**
+     * @param Context $context
+     */
+    public function __construct(
+        Context $context
+        // \Magento\Checkout\Model\Session $checkoutSession
+    ) {
+        $this->resultRedirectFactory = $context->getResultRedirectFactory();
+        // $this->checkoutSession = $checkoutSession;
+    }
     /** 
-     * @inheritDoc
      * If the user visits the payment complete page when doing a payment
      * or when the order is canceled redirect to cart
      */
-    public function execute() 
+    public function aroundExecute(\Magento\Checkout\Controller\Onepage\Success $checkoutSuccess, callable $proceed) 
     {
-        
-        $order = $this->getOnepage()->getCheckout()->getLastRealOrder();
+       
+        $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
 
         if(
@@ -48,7 +68,7 @@ class Success extends \Magento\Checkout\Controller\Onepage\Success {
         ) {
             return $this->resultRedirectFactory->create()->setPath('checkout/cart');
         }
-        return parent::execute();
+        return $proceed();
     }
 
     /**

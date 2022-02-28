@@ -365,13 +365,16 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $payment->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false);
 
-        //set in the payment session as well
-        $this->_objectManager->get(
-            \Magento\Checkout\Model\Session::class
-        )
-        ->getLastRealOrder()
-        ->getPayment()
-        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false);
+        try {
+            //set in the payment session as well
+            $this->checkoutSession
+            ->getLastRealOrder()
+            ->getPayment()
+            ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
+            ->save();
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__ . $th->getMessage());
+        }
     }
     protected function handleFailed($statusCode)
     {
