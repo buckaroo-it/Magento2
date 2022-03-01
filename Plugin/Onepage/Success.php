@@ -20,10 +20,11 @@
 
 namespace Buckaroo\Magento2\Plugin\Onepage;
 
+use Magento\Sales\Model\Order;
+use Magento\Framework\App\Action\Context;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
-use Magento\Framework\App\Action\Context;
-
+use Buckaroo\Magento2\Helper\Data as BuckarooDataHelper;
 /**
  * Override Onepage checkout success controller class
  */
@@ -34,21 +35,15 @@ class Success {
      */
     protected $resultRedirectFactory;
 
-    // /**
-    //  * @var \Magento\Checkout\Model\Session
-    //  */
-    // protected $checkoutSession;
-
     /**
      * @param Context $context
      */
     public function __construct(
         Context $context
-        // \Magento\Checkout\Model\Session $checkoutSession
     ) {
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
-        // $this->checkoutSession = $checkoutSession;
     }
+    
     /** 
      * If the user visits the payment complete page when doing a payment
      * or when the order is canceled redirect to cart
@@ -62,8 +57,8 @@ class Success {
         if(
             $this->isBuckarooPayment($payment) &&
             (
-                ($order->getStatus() === 'pending' &&  $this->paymentInTransit($payment)) ||
-                $order->getStatus() === 'canceled'
+                ($order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING &&  $this->paymentInTransit($payment)) ||
+                $order->getStatus() === Order::STATE_CANCELED
             )
         ) {
             return $this->resultRedirectFactory->create()->setPath('checkout/cart');

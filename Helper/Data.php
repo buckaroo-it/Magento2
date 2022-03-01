@@ -41,6 +41,8 @@ class Data extends AbstractHelper
     const MODE_TEST     = 1;
     const MODE_LIVE     = 2;
 
+    const M2_ORDER_STATE_PENDING = 'pending';
+
     /**
      * Buckaroo_Magento2 status codes
      *
