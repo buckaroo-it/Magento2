@@ -34,6 +34,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 {
     const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
     const BUCKAROO_ALL_TRANSACTIONS             = 'buckaroo_all_transactions';
+    const BUCKAROO_PAYMENT_IN_TRANSIT           = 'buckaroo_payment_in_transit';
 
     /**
      * The regex used to validate the entered BIC number
@@ -1447,6 +1448,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
              */
             $payment->setTransactionId($transactionKey);
 
+            $this->setPaymentInTransit($payment);
             /**
              * Save the payment's transaction key.
              */
@@ -1471,6 +1473,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         return $payment;
+    }
+    /**
+     * Set flag if user is on the payment provider page
+     *
+     * @param OrderPaymentInterface $payment
+     *
+     * @return void
+     */
+    public function setPaymentInTransit(OrderPaymentInterface $payment)
+    {
+        $payment->setAdditionalInformation(self::BUCKAROO_PAYMENT_IN_TRANSIT, true);
     }
 
     /**
