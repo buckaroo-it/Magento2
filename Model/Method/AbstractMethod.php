@@ -2431,7 +2431,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $requestData = $this->getRequestBillingData($payment);
 
         // If the shipping address is not the same as the billing it will be merged inside the data array.
-        if ($this->isAddressDataDifferent($payment) || is_null($payment->getOrder()->getShippingAddress())) {
+        if (
+            $this->isAddressDataDifferent($payment) ||
+            is_null($payment->getOrder()->getShippingAddress()) ||
+            $payment->getMethod() === \Buckaroo\Magento2\Plugin\Method\Klarna::KLARNA_METHOD_NAME //always add shipping for klarna
+        ) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
