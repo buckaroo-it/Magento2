@@ -83,7 +83,7 @@ class Idin extends \Magento\Framework\App\Action\Action
         } catch (\Throwable $th) {
             $this->logger->debug($th->getMessage());
             return $this->json(
-                ['error' => 'Unkown buckaroo error occurred']
+                ['error' => 'Unknown buckaroo error occurred']
             );
         }
 
