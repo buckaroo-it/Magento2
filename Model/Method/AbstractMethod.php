@@ -21,14 +21,15 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-use Buckaroo\Magento2\Model\Push;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
-use Magento\Payment\Model\InfoInterface;
-use Magento\Quote\Model\Quote\AddressFactory;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Model\Push;
+use Magento\Tax\Model\Calculation;
+use Magento\Payment\Model\InfoInterface;
+use Buckaroo\Magento2\Plugin\Method\Klarna;
+use Magento\Quote\Model\Quote\AddressFactory;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -2431,7 +2432,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $requestData = $this->getRequestBillingData($payment);
 
         // If the shipping address is not the same as the billing it will be merged inside the data array.
-        if ($this->isAddressDataDifferent($payment) || is_null($payment->getOrder()->getShippingAddress())) {
+        if (
+            $this->isAddressDataDifferent($payment) ||
+            is_null($payment->getOrder()->getShippingAddress()) ||
+            $payment->getMethod() === Klarna::KLARNA_METHOD_NAME //always add shipping for klarna
+        ) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
 
