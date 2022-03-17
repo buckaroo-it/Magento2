@@ -27,10 +27,7 @@ use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\ResourceModel\CustomerRepository;
 
 /**
- * @method int getPriceDisplayCart()
- * @method int getPriceDisplaySales()
- * @method int getPaymentFeeTax()
- * @method string getTaxClass()
+ * Idin config provider
  */
 class Idin extends AbstractConfigProvider
 {
@@ -133,6 +130,11 @@ class Idin extends AbstractConfigProvider
             ],
         ];
     }
+    /**
+     * Get list of issuers
+     *
+     * @return array
+     */
     public function getIssuers()
     {
         $all = $this->issuers;
@@ -167,6 +169,11 @@ class Idin extends AbstractConfigProvider
         return ['active' => $active, 'verified' => $verified];
     }
 
+    /**
+     * Check if idin is active for this user and cart
+     *
+     * @return array
+     */
     protected function isIDINActive()
     {
         return $this->getIdinStatus(
@@ -185,7 +192,7 @@ class Idin extends AbstractConfigProvider
      */
     protected function getCustomer($customerId)
     {
-        if(empty($customerId)) {
+        if (empty($customerId)) {
             return;
         }
         return $this->customerRepository->getById($customerId);
@@ -202,7 +209,9 @@ class Idin extends AbstractConfigProvider
         if ($customer === null) {
             return $this->checkoutSession->getCustomerIDINIsEighteenOrOlder() === true;
         }
-        return $customer->getCustomAttribute('buckaroo_idin_iseighteenorolder')->getValue() == 1;
+        return ($customer->getCustomAttribute('buckaroo_idin_iseighteenorolder') !== null &&
+            $customer->getCustomAttribute('buckaroo_idin_iseighteenorolder')->getValue() == 1
+        );
     }
     /**
      * Check if idin verification is required in cart/quote
