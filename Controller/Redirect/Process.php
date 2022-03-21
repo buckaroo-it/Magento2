@@ -27,7 +27,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
-class Process extends \Magento\Framework\App\Action\Action
+class Process extends \Magento\Framework\App\Action\Action implements ProcessInterface
 {
     /**
      * @var array
@@ -187,7 +187,7 @@ class Process extends \Magento\Framework\App\Action\Action
          * Check if there is a valid response. If not, redirect to home.
          */
         if (count($this->response) === 0 || !array_key_exists('brq_statuscode', $this->response)) {
-            return $this->_redirect('/');
+            return $this->handleProcessedResponse('/');
         }
 
         if ($this->hasPostData('brq_primary_service', 'IDIN')) {
@@ -222,11 +222,11 @@ class Process extends \Magento\Framework\App\Action\Action
         }
 
         if (!method_exists($payment->getMethodInstance(), 'canProcessPostData')) {
-            return $this->_redirect('/');
+            return $this->handleProcessedResponse('/');
         }
 
         if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->response)) {
-            return $this->_redirect('/');
+            return $this->handleProcessedResponse('/');
         }
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($statusCode, true));
@@ -310,7 +310,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     );
                     $this->logger->addDebug(__METHOD__ . '|5|');
 
-                    return $this->_redirect('/');
+                    return $this->handleProcessedResponse('/');
                 }
 
                 $this->logger->addDebug(__METHOD__ . '|51|' . var_export([
@@ -353,6 +353,39 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->logger->addDebug(__METHOD__ . '|9|');
         return $this->_response;
+    }
+    /**
+     * Handle final response
+     *
+     * @param string $path
+     * @param array $arguments
+     *
+     * @return ResponseInterface
+     */
+    public function handleProcessedResponse($path, $arguments = [])
+    {
+        return $this->_redirect($path, $arguments);
+    }
+    /**
+     * Get order
+     *
+     * @return \Magento\Sales\Api\Data\OrderInterface
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+    /**
+     * Get all messages set
+     *
+     * @param boolean $clear
+     * @param string $group
+     *
+     * @return Magento\Framework\Message\Collection
+     */
+    public function getMessages($clear = false, $group = null)
+    {
+        $this->messageManager->getMessages($clear, $group);
     }
     /**
      * Set flag if user is on the payment provider page
@@ -520,7 +553,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($url, true));
 
-        return $this->_redirect($url);
+        return $this->handleProcessedResponse($url);
     }
 
     protected function redirectSuccessApplePay()
@@ -567,7 +600,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 }
             }
             $this->logger->addDebug('ready for redirect');
-            return $this->_redirect('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
+            return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
         }
 
         /**
@@ -575,7 +608,7 @@ class Process extends \Magento\Framework\App\Action\Action
          */
         $url = $this->accountConfig->getFailureRedirect($store);
 
-        return $this->_redirect($url);
+        return $this->handleProcessedResponse($url);
     }
 
     protected function redirectToCheckout()
@@ -605,7 +638,7 @@ class Process extends \Magento\Framework\App\Action\Action
             }
         }
         $this->logger->addDebug('ready for redirect');
-        return $this->_redirect('checkout', ['_query' => ['bk_e' => 1]]);
+        return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);
     }
 
     /**
