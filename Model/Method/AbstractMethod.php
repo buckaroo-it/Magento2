@@ -36,7 +36,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
     const BUCKAROO_ALL_TRANSACTIONS             = 'buckaroo_all_transactions';
     const BUCKAROO_PAYMENT_IN_TRANSIT           = 'buckaroo_payment_in_transit';
-
+    const PAYMENT_FROM                          = 'buckaroo_payment_from';
     /**
      * The regex used to validate the entered BIC number
      */
@@ -354,6 +354,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
             if ($skipValidation === null && isset($additionalSkip['buckaroo_skip_validation'])) {
                 $skipValidation = $additionalSkip['buckaroo_skip_validation'];
+            }
+
+            if (isset($additionalSkip[self::PAYMENT_FROM])) {
+                $this->getInfoInstance()->setAdditionalInformation(self::PAYMENT_FROM, $additionalSkip[self::PAYMENT_FROM]);
             }
 
             $this->getInfoInstance()->setAdditionalInformation('buckaroo_skip_validation', $skipValidation);
