@@ -69,12 +69,15 @@ class Success {
     /**
      * Is one of our payment methods
      *
-     * @param OrderPaymentInterface $payment
+     * @param OrderPaymentInterface|null $payment
      *
      * @return boolean
      */
-    public function isBuckarooPayment(OrderPaymentInterface $payment)
+    public function isBuckarooPayment($payment)
     {
+        if (!$payment instanceof OrderPaymentInterface) {
+           return false;
+        }
         return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
     }
     /**
