@@ -280,6 +280,16 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $grandTotal = $payRemainder;
         }
 
+        $ip = 'unknown';
+
+        try {
+            $ip = $this->getIp(
+                $this->_checkoutSession->getQuote()
+            );
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__.$th->getMessage());
+        }
+
         $postArray = [
             "Currency" => $currency,
             "AmountDebit" => $grandTotal,
@@ -289,6 +299,10 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             "ReturnURLError" => $returnUrl,
             "ReturnURLReject" => $returnUrl,
             "PushURL" => $pushUrl,
+            'ClientIP' => (object)[
+                'Address' => $ip,
+                'Type' => strpos($ip, ':') === false ? '0' : '1',
+            ],
             "Services" => [
                 "ServiceList" => [
                     [
@@ -407,5 +421,26 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
         $originalTransactionKey[$orderId] = $transactionKey;
         $this->_checkoutSession->setOriginalTransactionKey($originalTransactionKey);
+    }
+    protected function getIp($quote)
+    {
+        $ip = $quote->getRemoteIp();
+        $store = $quote->getStore();
+
+        $ipHeaders = $this->_configProviderAccount->getIpHeader($store);
+
+        if ($ipHeaders) {
+            $ipHeaders = explode(',', strtoupper($ipHeaders));
+            foreach ($ipHeaders as &$ipHeader) {
+                $ipHeader = 'HTTP_' . str_replace('-', '_', $ipHeader);
+            }
+            $ip = $quote->getPayment()->getMethodInstance()->getRemoteAddress(false, $ipHeaders);
+        }
+
+        if (!$ip) {
+            $ip = $quote->getPayment()->getMethodInstance()->getRemoteAddress();
+        }
+
+        return $ip;
     }
 }
