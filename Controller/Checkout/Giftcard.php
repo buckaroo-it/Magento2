@@ -20,16 +20,17 @@
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
-use Magento\Framework\Controller\ResultInterface;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Sales\Api\Data\TransactionInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Controller\ResultInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Magento\Framework\Encryption\Encryptor;
-use Magento\Framework\Pricing\PriceCurrencyInterface;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
-
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
+
+use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 
 class Giftcard extends \Magento\Framework\App\Action\Action
 {
@@ -280,16 +281,10 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $grandTotal = $payRemainder;
         }
 
-        $ip = 'unknown';
-
-        try {
-            $ip = $this->getIp(
-                $this->_checkoutSession->getQuote()
-            );
-        } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__.$th->getMessage());
-        }
-
+        $ip = $this->getIp(
+            $this->_checkoutSession->getQuote()->getStore()
+        );
+      
         $postArray = [
             "Currency" => $currency,
             "AmountDebit" => $grandTotal,
@@ -300,7 +295,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             "ReturnURLReject" => $returnUrl,
             "PushURL" => $pushUrl,
             'ClientIP' => (object)[
-                'Address' => $ip,
+                'Address' => $ip !== false ? $ip : 'unknown',
                 'Type' => strpos($ip, ':') === false ? '0' : '1',
             ],
             "Services" => [
@@ -422,25 +417,23 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $originalTransactionKey[$orderId] = $transactionKey;
         $this->_checkoutSession->setOriginalTransactionKey($originalTransactionKey);
     }
-    protected function getIp($quote)
+    protected function getIp($store)
     {
-        $ip = $quote->getRemoteIp();
-        $store = $quote->getStore();
-
         $ipHeaders = $this->_configProviderAccount->getIpHeader($store);
 
+        $headers = [];
         if ($ipHeaders) {
             $ipHeaders = explode(',', strtoupper($ipHeaders));
-            foreach ($ipHeaders as &$ipHeader) {
-                $ipHeader = 'HTTP_' . str_replace('-', '_', $ipHeader);
+            foreach ($ipHeaders as $ipHeader) {
+                $headers[] = 'HTTP_' . str_replace('-', '_', $ipHeader);
             }
-            $ip = $quote->getPayment()->getMethodInstance()->getRemoteAddress(false, $ipHeaders);
         }
 
-        if (!$ip) {
-            $ip = $quote->getPayment()->getMethodInstance()->getRemoteAddress();
-        }
-
-        return $ip;
+        $remoteAddress = new RemoteAddress(
+            $this->getRequest(),
+            $headers
+        );
+        
+        return $remoteAddress->getRemoteAddress();
     }
 }
