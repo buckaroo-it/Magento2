@@ -39,6 +39,9 @@ define(
             },
 
             showQrCode: function() {
+                if (/iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    $('#buckaroo_magento2_mrcash_url').show();
+                }
                 BuckarooSdk.BancontactMobile.initiateSeparate(
                     "#buckaroo_magento2_mrcash_qr",
                     "#buckaroo_magento2_mrcash_url",
