@@ -658,6 +658,18 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
+     * Dispatch events
+     *
+     * @param string $name
+     * @param array $args
+     *
+     * @return void
+     */
+    protected function dispatchEvent(string $name, array $args)
+    {
+        $this->eventManager->dispatch($name, $args);
+    }
+    /**
      * @param OrderPaymentInterface|InfoInterface $payment
      * @param float                                                       $amount
      *
@@ -679,7 +691,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         parent::order($payment, $amount);
 
-        $this->eventManager->dispatch('buckaroo_order_before', ['payment' => $payment]);
+        $this->dispatchEvent('buckaroo_order_before', ['payment' => $payment]);
 
         $this->payment = $payment;
 
@@ -706,7 +718,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
-        $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
+        $this->dispatchEvent('buckaroo_order_after', ['order' => $order]);
 
         $this->afterOrder($payment, $response);
 
@@ -850,7 +862,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         parent::authorize($payment, $amount);
 
-        $this->eventManager->dispatch('buckaroo_authorize_before', ['payment' => $payment]);
+        $this->dispatchEvent('buckaroo_authorize_before', ['payment' => $payment]);
 
         $this->payment = $payment;
 
@@ -877,7 +889,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
-        $this->eventManager->dispatch('buckaroo_authorize_after', ['order' => $order]);
+        $this->dispatchEvent('buckaroo_authorize_after', ['order' => $order]);
 
         $this->afterAuthorize($payment, $response);
 

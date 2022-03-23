@@ -622,7 +622,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
     ) {
         $payment = $this->getFakeMock(Payment::class, true);
 
-        $stubbedMethods = [$methodTransactionBuilder];
+        $stubbedMethods = [$methodTransactionBuilder,'dispatchEvent'];
 
         if ($canMethod) {
             $stubbedMethods[] = $canMethod;
@@ -728,7 +728,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
             $configProviderMock->expects($this->once())->method('get')->with('account')->willReturn($accountConfigMock);
         }
 
-        $stubbedMethods = [$methodTransaction, $methodTransactionBuilder];
+        $stubbedMethods = [$methodTransaction, $methodTransactionBuilder, 'dispatchEvent'];
 
         if ($canMethod) {
             $stubbedMethods[] = $canMethod;
@@ -1058,9 +1058,12 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $payment->expects($this->once())->method('setTransactionId')->with($key);
 
         if ($saveId) {
-            $payment->expects($this->once())
+            $payment->expects($this->exactly(2))
                 ->method('setAdditionalInformation')
-                ->with(AbstractMethodMock::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, $key);
+                ->withConsecutive(
+                    [AbstractMethodMock::BUCKAROO_PAYMENT_IN_TRANSIT, true],
+                    [AbstractMethodMock::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, $key]
+                );
         }
 
         $methodInstanceMock = $this->getFakeMock(MethodInterface::class)
