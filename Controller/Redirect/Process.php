@@ -192,9 +192,9 @@ class Process extends \Magento\Framework\App\Action\Action implements ProcessInt
 
         if ($this->hasPostData('brq_primary_service', 'IDIN')) {
             if ($this->setCustomerIDIN()) {
-                $this->messageManager->addSuccessMessage(__('Your iDIN verified succesfully!'));
+                $this->addSuccessMessage(__('Your iDIN verified succesfully!'));
             } else {
-                $this->messageManager->addErrorMessage(
+                $this->addErrorMessage(
                     __(
                         'Unfortunately iDIN not verified!'
                     )
@@ -302,7 +302,7 @@ class Process extends \Magento\Framework\App\Action\Action implements ProcessInt
                 if (($statusCode == $pendingCode)
                     && !$this->hasPostData('brq_payment_method', 'sofortueberweisung')
                 ) {
-                    $this->messageManager->addErrorMessage(
+                    $this->addErrorMessage(
                         __(
                             'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                             ' error persists, please choose a different payment method.'
@@ -346,7 +346,7 @@ class Process extends \Magento\Framework\App\Action\Action implements ProcessInt
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-                $this->handleFailed($statusCode);
+                return $this->handleFailed($statusCode);
                 break;
                 //no default
         }
@@ -364,6 +364,7 @@ class Process extends \Magento\Framework\App\Action\Action implements ProcessInt
      */
     public function handleProcessedResponse($path, $arguments = [])
     {
+        $this->logger->addDebug(__METHOD__ . '|15|');
         return $this->_redirect($path, $arguments);
     }
     /**
@@ -376,16 +377,26 @@ class Process extends \Magento\Framework\App\Action\Action implements ProcessInt
         return $this->order;
     }
     /**
-     * Get all messages set
+     * Add error message to be displayed to the user
      *
-     * @param boolean $clear
-     * @param string $group
+     * @param string $message
      *
-     * @return Magento\Framework\Message\Collection
+     * @return void
      */
-    public function getMessages($clear = false, $group = null)
+    public function addErrorMessage(string $message)
     {
-        $this->messageManager->getMessages($clear, $group);
+        $this->messageManager->addErrorMessage($message);
+    }
+    /**
+     * Add success message to be displayed to the user
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    public function addSuccessMessage(string $message)
+    {
+        $this->messageManager->addSuccessMessage($message);
     }
     /**
      * Set flag if user is on the payment provider page
@@ -435,7 +446,7 @@ class Process extends \Magento\Framework\App\Action\Action implements ProcessInt
         ] = 'According to our system, you have canceled the payment. If this' .
             ' is not the case, please contact us.';
 
-        $this->messageManager->addErrorMessage(
+        $this->addErrorMessage(
             __(
                 $statusCodeAddErrorMessage[$statusCode]
             )
@@ -450,7 +461,7 @@ class Process extends \Magento\Framework\App\Action\Action implements ProcessInt
             $this->logger->addError('Could not cancel the order.');
         }
         $this->logger->addDebug(__METHOD__ . '|8|');
-        $this->redirectFailure();
+        return $this->redirectFailure();
     }
 
     /**
@@ -532,7 +543,7 @@ class Process extends \Magento\Framework\App\Action\Action implements ProcessInt
          */
         $url = $this->accountConfig->getSuccessRedirect($store);
 
-        $this->messageManager->addSuccessMessage(__('Your order has been placed succesfully.'));
+        $this->addSuccessMessage(__('Your order has been placed succesfully.'));
 
         $this->quote->setReservedOrderId(null);
 

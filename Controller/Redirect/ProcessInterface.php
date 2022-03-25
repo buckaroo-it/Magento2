@@ -45,12 +45,19 @@ interface ProcessInterface
      */
     public function getOrder();
     /**
-     * Get all messages set
+     * Add error message to be displayed to the user
      *
-     * @param boolean $clear
-     * @param string $group
+     * @param string $message
      *
-     * @return Magento\Framework\Message\Collection
+     * @return void
      */
-    public function getMessages($clear = false, $group = null);
+    public function addErrorMessage(string $message);
+    /**
+     * Add success message to be displayed to the user
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    public function addSuccessMessage(string $message);
 }
