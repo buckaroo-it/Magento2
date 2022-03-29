@@ -27,7 +27,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
-class Process extends \Magento\Framework\App\Action\Action implements ProcessInterface
+class Process extends \Magento\Framework\App\Action\Action
 {
     /**
      * @var array
@@ -543,7 +543,7 @@ class Process extends \Magento\Framework\App\Action\Action implements ProcessInt
          */
         $url = $this->accountConfig->getSuccessRedirect($store);
 
-        $this->addSuccessMessage(__('Your order has been placed succesfully.'));
+        $this->addSuccessMessage(__('Your order has been placed successfully.'));
 
         $this->quote->setReservedOrderId(null);
 
