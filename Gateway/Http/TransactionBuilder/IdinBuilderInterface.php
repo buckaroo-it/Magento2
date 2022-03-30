@@ -21,7 +21,9 @@
 
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
-interface IdinBuilderInterface
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface;
+
+interface IdinBuilderInterface extends TransactionBuilderInterface
 {
     /**
      * Get idin mode 

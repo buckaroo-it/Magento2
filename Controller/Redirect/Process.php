@@ -398,6 +398,16 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $this->messageManager->addSuccessMessage($message);
     }
+
+    /**
+     * Get response parameters
+     *
+     * @return array
+     */
+    public function getResponseParameters()
+    {
+        return $this->response;
+    }
     /**
      * Set flag if user is on the payment provider page
      *

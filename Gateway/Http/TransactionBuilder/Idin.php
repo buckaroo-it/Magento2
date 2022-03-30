@@ -119,6 +119,16 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
      */
     public function getBody()
     {
+        $additionalParameter = array_merge(
+            [
+                [
+                    '_'    =>  $this->customerId,
+                    'Name' => 'idin_cid',
+                ]
+            ],
+            $this->getAdditionalFormattedParameters()
+        );
+
         $body = [
             'ReturnURL' => $this->getReturnUrl(),
             'Services' => (object)[
@@ -135,12 +145,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
                 ]
             ],
             'AdditionalParameters' => (object)[
-                'AdditionalParameter' => [
-                    [
-                        '_'    =>  $this->customerId,
-                        'Name' => 'idin_cid',
-                    ]
-                ]
+                'AdditionalParameter' => $additionalParameter
             ],
         ];
 
@@ -189,5 +194,26 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
         $this->setMethod('DataRequest');
 
         return parent::build();
+    }
+    /**
+     * Get any additional formatted parameters
+     *
+     * @return void
+     */
+    private function getAdditionalFormattedParameters()
+    {
+        $parameters = [];
+
+        if (!is_array($this->getAllAdditionalParameters())) {
+            return $parameters;
+        }
+        
+        foreach ($this->getAllAdditionalParameters() as $key => $value) {
+            $parameters[] = [
+                '_'    =>  $value,
+                'Name' =>  $key,
+            ];
+        }
+        return $parameters;
     }
 }
