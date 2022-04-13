@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,68 +18,32 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Magento\Catalog\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
-use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
-use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Logging\Log;
 
 class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
-    /** @var ConfigProviderAccount */
-    protected $configProviderAccount;
-
-    /**
-     * @var Factory
-     */
-    protected $configProviderMethodFactory;
 
     /**
      * @var PriceCurrencyInterface
      */
     public $priceCurrency;
 
-    /**
-     * @var Data
-     */
-    public $catalogHelper;
-    
-    public $_checkoutSession;
-
     protected $groupTransaction;
-    protected $logger;
     protected $giftcardCollection;
 
-    /**
-     * @param ConfigProviderAccount     $configProviderAccount
-     * @param Factory                   $configProviderMethodFactory
-     * @param PriceCurrencyInterface    $priceCurrency
-     * @param Data                      $catalogHelper
-     */
+
     public function __construct(
-        ConfigProviderAccount $configProviderAccount,
-        Factory $configProviderMethodFactory,
         PriceCurrencyInterface $priceCurrency,
-        Data $catalogHelper,
-        \Magento\Checkout\Model\Session $checkoutSession,
         PaymentGroupTransaction $groupTransaction,
-        Log $logger,
         \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection
     ) {
         $this->setCode('buckaroo_already_paid');
-
-        $this->configProviderAccount = $configProviderAccount;
-        $this->configProviderMethodFactory = $configProviderMethodFactory;
-        $this->priceCurrency = $priceCurrency;
-        $this->catalogHelper = $catalogHelper;
-
-        $this->_checkoutSession = $checkoutSession;
-        $this->groupTransaction = $groupTransaction;
-        $this->logger             = $logger;
+        $this->priceCurrency      = $priceCurrency;
+        $this->groupTransaction   = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
     }
 
@@ -99,15 +64,6 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
     ) {
         parent::collect($quote, $shippingAssignment, $total);
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $total->setBuckarooAlreadyPay(0);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $total->setBaseBuckarooAlreadyPay(0);
-
         if (!$shippingAssignment->getItems()) {
             return $this;
         }
@@ -122,34 +78,11 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
             return $this;
         }
 
-        $orderId = $quote->getReservedOrderId();
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
-
-        if (!isset($alreadyPaid[$orderId]) || $alreadyPaid[$orderId] < 0.01) {
-            return $this;
-        }
-
-        $baseAlreadyPaid = $alreadyPaid[$orderId];
+        $baseAlreadyPaid = $this->groupTransaction->getAlreadyPaid($quote->getReservedOrderId());
         $alreadyPaid = $this->priceCurrency->convert($baseAlreadyPaid, $quote->getStore());
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $quote->setBuckarooAlreadyPaid($alreadyPaid);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $quote->setBaseBuckarooAlreadyPaid($baseAlreadyPaid);
-        $quote->save($quote);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $total->setBuckarooAlreadyPaid($alreadyPaid);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $total->setBaseBuckarooAlreadyPaid($baseAlreadyPaid);
+        $this->_addAmount(-$alreadyPaid);
+        $this->_addBaseAmount(-$baseAlreadyPaid);
 
         return $this;
     }
@@ -164,12 +97,11 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
     public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
     {
         $orderId = $quote->getReservedOrderId();
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
 
         $customTitle = [];
         if ($orderId) {
             $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
-            foreach ($items as $key => $giftcard) {
+            foreach ($items as $giftcard) {
                 if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
                     'servicecode',
                     $giftcard['servicecode']
@@ -191,7 +123,7 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         $totals = [
             'code' => $this->getCode(),
             'title' => $customTitle ? __(json_encode($customTitle)) : $this->getLabel(),
-            'value' => isset($alreadyPaid[$orderId]) && $alreadyPaid[$orderId] > 0 ? - $alreadyPaid[$orderId] : false,
+            'value' => $this->groupTransaction->getAlreadyPaid($orderId),
         ];
         return $totals;
     }

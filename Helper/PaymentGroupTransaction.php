@@ -101,6 +101,29 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return array_values($collection->getItems());
     }
 
+    /**
+     * Get already paid amount from db
+     *
+     * @param string|null $order_id
+     *
+     * @return float
+     */
+    public function getAlreadyPaid($order_id)
+    {
+        if ($order_id === null) {
+            return 0;
+        }
+        
+        $paidAmount = 0;
+        
+        $transactions = $this->getGroupTransactionItemsNotRefunded($order_id);
+        foreach ($transactions as $transaction) {
+            if ($transaction['status'] == '190') {
+                $paidAmount += $transaction['amount'];
+            }
+        }
+        return $paidAmount;
+    }
     public function getGroupTransactionItemsNotRefunded($order_id)
     {
         $collection = $this->groupTransactionFactory->create()

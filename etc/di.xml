@@ -35,6 +35,9 @@
     <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
+    <preference for="Buckaroo\Magento2\Api\PayWithGiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\Pay"/>
+    <preference for="Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard"/>
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayResponse"/>
 
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>
@@ -175,6 +178,10 @@
                 <item name="idin" xsi:type="array">
                     <item name="type" xsi:type="string">idin</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Idin</item>
+                </item>
+                <item name="giftcard" xsi:type="array">
+                    <item name="type" xsi:type="string">giftcard</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Giftcard</item>
                 </item>
             </argument>
         </arguments>
