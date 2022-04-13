@@ -113,16 +113,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         if ($order_id === null) {
             return 0;
         }
-        
-        $paidAmount = 0;
-        
-        $transactions = $this->getGroupTransactionItemsNotRefunded($order_id);
-        foreach ($transactions as $transaction) {
-            if ($transaction['status'] == '190') {
-                $paidAmount += $transaction['amount'];
-            }
-        }
-        return $paidAmount;
+        return $this->getGroupTransactionAmount($order_id);
     }
     public function getGroupTransactionItemsNotRefunded($order_id)
     {

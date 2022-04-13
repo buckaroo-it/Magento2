@@ -121,7 +121,7 @@ class Pay implements PayWithGiftcardInterface
     }
     protected function getResponse(Quote $quote, $response)
     {
-        $this->giftcardResponse->set($quote, $response);
+        $this->giftcardResponse->set($response);
 
         
         if ($this->giftcardResponse->getErrorMessage() !== null) {

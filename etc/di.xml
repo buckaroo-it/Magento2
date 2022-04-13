@@ -179,10 +179,6 @@
                     <item name="type" xsi:type="string">idin</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Idin</item>
                 </item>
-                <item name="giftcard" xsi:type="array">
-                    <item name="type" xsi:type="string">giftcard</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Giftcard</item>
-                </item>
             </argument>
         </arguments>
     </type>

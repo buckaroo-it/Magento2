@@ -2296,7 +2296,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $serviceAction = $newServiceAction;
             $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
 
-            if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())) {
+            /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction */
+            $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
+
+            $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($payment->getOrder()->getIncrementId());
+            if ($alreadyPaid > 0) {
                 $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
                 $transactionBuilder->setAmount($this->payRemainder);
             }

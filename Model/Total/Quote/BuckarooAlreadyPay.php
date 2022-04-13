@@ -48,46 +48,6 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
     }
 
     /**
-     * Collect grand total address amount
-     *
-     * @param  \Magento\Quote\Model\Quote                          $quote
-     * @param  \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-     * @param  \Magento\Quote\Model\Quote\Address\Total            $total
-     * @return $this
-     *
-     * @throws \LogicException
-     */
-    public function collect(
-        \Magento\Quote\Model\Quote $quote,
-        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
-        \Magento\Quote\Model\Quote\Address\Total $total
-    ) {
-        parent::collect($quote, $shippingAssignment, $total);
-
-        if (!$shippingAssignment->getItems()) {
-            return $this;
-        }
-
-        $paymentMethod = $quote->getPayment()->getMethod();
-        if (!$paymentMethod || strpos($paymentMethod, 'buckaroo_magento2_') !== 0) {
-            return $this;
-        }
-
-        $methodInstance = $quote->getPayment()->getMethodInstance();
-        if (!$methodInstance instanceof \Buckaroo\Magento2\Model\Method\AbstractMethod) {
-            return $this;
-        }
-
-        $baseAlreadyPaid = $this->groupTransaction->getAlreadyPaid($quote->getReservedOrderId());
-        $alreadyPaid = $this->priceCurrency->convert($baseAlreadyPaid, $quote->getStore());
-
-        $this->_addAmount(-$alreadyPaid);
-        $this->_addBaseAmount(-$baseAlreadyPaid);
-
-        return $this;
-    }
-
-    /**
      * Add buckaroo fee information to address
      *
      * @param  \Magento\Quote\Model\Quote               $quote

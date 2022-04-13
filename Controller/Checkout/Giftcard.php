@@ -275,7 +275,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $grand_total = $cartTotals['grand_total']->getData();
         $grandTotal =  $grand_total['value'];
 
-        if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($orderId)) {
+        $alreadyPaid = $this->groupTransaction->getAlreadyPaid($orderId);
+        if ($alreadyPaid > 0) {
             $payRemainder = $grandTotal - $alreadyPaid;
             $this->logger->addDebug(__METHOD__ . '|11|' . var_export([$orderId, $payRemainder], true));
             $grandTotal = $payRemainder;
@@ -360,7 +361,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             } else {
                 $message = __("Your paid successfully. Please finish your order");
             }
-            $this->setAlreadyPaid($orderId, $alreadyPaid);
             $res['alreadyPaid'] = $alreadyPaid;
             $res['message'] = $message;
 
@@ -396,21 +396,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         return $this->client->doRequest($data, $mode);
     }
-
-    private function setAlreadyPaid($orderId, $amount)
-    {
-        if ($orderId) {
-            $this->_checkoutSession->getQuote()->setBaseBuckarooAlreadyPaid($amount);
-            $this->_checkoutSession->getQuote()->setBuckarooAlreadyPaid(
-                $this->priceCurrency->convert($amount, $this->quote->getStore())
-            );
-        }
-
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
-        $alreadyPaid[$orderId] = $amount;
-        $this->_checkoutSession->setBuckarooAlreadyPaid($alreadyPaid);
-    }
-
     private function setOriginalTransactionKey($orderId, $transactionKey)
     {
         $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();

@@ -256,12 +256,6 @@ class Data extends AbstractHelper
         return isset($originalTransactionKey[$orderId]) ? $originalTransactionKey[$orderId] : false;
     }
 
-    public function getBuckarooAlreadyPaid($orderId)
-    {
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
-        return isset($alreadyPaid[$orderId]) ? $alreadyPaid[$orderId] : false;
-    }
-
     public function getOrderId()
     {
         $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();

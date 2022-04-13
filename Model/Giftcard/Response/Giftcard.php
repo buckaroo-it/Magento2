@@ -54,26 +54,16 @@ class Giftcard
      *
      * @return void
      */
-    public function set(CartInterface $quote, $response)
+    public function set($response)
     {
         $this->response = $response;
         if ($this->isSuccessful()) {
             $this->saveGroupTransaction();
-            $this->updateQuote($quote);
         }
     }
     protected function saveGroupTransaction()
     {
         $this->groupTransaction->saveGroupTransaction($this->response);
-    }
-    protected function updateQuote(CartInterface $quote)
-    {
-        $amount = $this->getAlreadyPaid($quote);
-
-        $quote->setBaseBuckarooAlreadyPaid($amount);
-        $quote->setBuckarooAlreadyPaid(
-            $this->priceCurrency->convert($amount, $quote->getStore())
-        );
     }
     /**
      * Get already paid amount
