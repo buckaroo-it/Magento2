@@ -113,12 +113,11 @@ class Pay implements PayWithGiftcardInterface
     {
         $this->giftcardResponse->set($response);
 
-
         if ($this->giftcardResponse->getErrorMessage() !== null) {
             throw new PayException($this->giftcardResponse->getErrorMessage());
         }
-
-        return $this->payResponseFactory->create([
+        
+        return $this->payResponseFactory->create()->setData([
             'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
             'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid($quote),
         ]);

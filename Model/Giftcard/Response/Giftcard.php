@@ -85,7 +85,7 @@ class Giftcard
     /**
      * Get reminder amount
      *
-     * @return string|null
+     * @return float
      */
     public function getRemainderAmount()
     {
