@@ -37,7 +37,7 @@
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
     <preference for="Buckaroo\Magento2\Api\PayWithGiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\Pay"/>
     <preference for="Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard"/>
-    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayResponse"/>
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayResponse"/>
 
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>

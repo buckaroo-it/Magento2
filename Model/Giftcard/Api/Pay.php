@@ -27,7 +27,8 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
-use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterfaceFactory;
+use Buckaroo\Magento2\Model\Giftcard\Api\PayException;
+use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface as GiftcardRequest;
 
@@ -54,20 +55,14 @@ class Pay implements PayWithGiftcardInterface
     protected $quoteIdMaskFactory;
 
     /**
-     * @var \Magento\Quote\Model\QuoteIdMaskFactory
+     * @var \Magento\Quote\Api\CartRepositoryInterface
      */
     protected $cartRepository;
 
     /**
-     * @var \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterfaceFactory`
+     * @var \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory
      */
-    protected $payErrorFactory;
-
-
-    /**
-     * @var \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface
-     */
-    protected $payResponse;
+    protected $payResponseFactory;
 
 
 
@@ -77,7 +72,7 @@ class Pay implements PayWithGiftcardInterface
         GiftcardResponse $giftcardResponse,
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
-        PayResponseInterfaceFactory $payResponseFactory,
+        PayResponseSetInterfaceFactory $payResponseFactory,
         Log $logger
     ) {
         $this->request = $request;
@@ -85,9 +80,8 @@ class Pay implements PayWithGiftcardInterface
         $this->giftcardResponse = $giftcardResponse;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;
-        $this->payResponse = $payResponseFactory->create();
+        $this->payResponseFactory = $payResponseFactory;
         $this->logger = $logger;
-        
     }
     /**
      * @inheritDoc
@@ -95,15 +89,11 @@ class Pay implements PayWithGiftcardInterface
     public function pay(string $cartId, string $giftcardId)
     {
         if ($this->request->getParam('card_number') === null) {
-            $this->payResponse->setError(__('Parameter `card_number` is required'));
+            throw new PayException(__('Parameter `card_number` is required'));
         }
 
         if ($this->request->getParam('card_pin') === null) {
-            $this->payResponse->setError(__('Parameter `card_pin` is required'));
-        }
-
-        if ($this->payResponse->hasError()) {
-            return $this->payResponse;
+            throw new PayException(__('Parameter `card_pin` is required'));
         }
 
         try {
@@ -113,28 +103,25 @@ class Pay implements PayWithGiftcardInterface
                 $quote,
                 $this->build($quote, $giftcardId)->send()
             );
+        } catch (NoQuoteException $th) {
+            throw $th;
         } catch (\Throwable $th) {
-            $this->logger->debug(__METHOD__ . $th->getMessage());
-            $this->payResponse->setError(__('Unknown buckaroo error has occurred'));
-            return $this->payResponse;
+            throw new PayException(__('Unknown buckaroo error has occurred'), 0, $th);
         }
     }
     protected function getResponse(Quote $quote, $response)
     {
         $this->giftcardResponse->set($response);
 
-        
+
         if ($this->giftcardResponse->getErrorMessage() !== null) {
-            $this->payResponse->setError($this->giftcardResponse->getErrorMessage());
-            return $this->payResponse;
+            throw new PayException($this->giftcardResponse->getErrorMessage());
         }
 
-        $this->payResponse->setData([
+        return $this->payResponseFactory->create([
             'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
             'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid($quote),
         ]);
-
-        return $this->payResponse;
     }
     /**
      * Build giftcard request
@@ -163,8 +150,12 @@ class Pay implements PayWithGiftcardInterface
      */
     protected function getQuote(string $cartId)
     {
-        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-        /** @var Quote $quote */
-        return $this->cartRepository->getActive($quoteIdMask->getQuoteId());
+        try {
+            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+            /** @var Quote $quote */
+            return $this->cartRepository->getActive($quoteIdMask->getQuoteId());
+        } catch (\Throwable $th) {
+            throw new NoQuoteException(__("The cart isn't active."), 0, $th);
+        }
     }
 }

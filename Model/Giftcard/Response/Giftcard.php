@@ -93,7 +93,7 @@ class Giftcard
             !isset($this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
             !is_scalar($this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
         ) {
-            return;
+            return 0;
         }
         return (float)$this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
     }

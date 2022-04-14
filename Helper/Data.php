@@ -252,8 +252,7 @@ class Data extends AbstractHelper
 
     public function getOriginalTransactionKey($orderId)
     {
-        $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
-        return isset($originalTransactionKey[$orderId]) ? $originalTransactionKey[$orderId] : false;
+        return $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId);
     }
 
     public function getOrderId()

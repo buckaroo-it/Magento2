@@ -30,7 +30,7 @@ interface PayResponseInterface
 {
     /**
      * Get RemainderAmount
-     *
+     * 
      * @api
      * @return string
      */
@@ -43,10 +43,4 @@ interface PayResponseInterface
      * @return string
      */
     public function getAlreadyPaid();
-
-    /**
-     * Get error
-     * @return string
-     */
-    public function getError();
 }

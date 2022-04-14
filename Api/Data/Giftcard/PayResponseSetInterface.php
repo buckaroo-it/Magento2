@@ -19,32 +19,20 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\Giftcard\Api;
+namespace Buckaroo\Magento2\Api\Data\Giftcard;
 
-use \Magento\Framework\DataObject;
-use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface;
-use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface;
+/**
+ * Interface PayResponseInterface
+ * @api
+ */
 
-class PayResponse extends DataObject implements PayResponseInterface, PayResponseSetInterface
+interface PayResponseSetInterface
 {
     /**
-     * Get RemainderAmount
+     * Set any other data
+     * @param array $data
      *
-     * @api
-     * @return string
+     * @return void
      */
-    public function getRemainderAmount()
-    {
-        return $this->getData('remainderAmount');
-    }
-    /**
-     * Get AlreadyPaid
-     *
-     * @api
-     * @return string
-     */
-    public function getAlreadyPaid()
-    {
-        return $this->getData('alreadyPaid');
-    }
+    public function setData(array $data);
 }

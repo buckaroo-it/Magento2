@@ -22,7 +22,6 @@
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
 use Magento\Quote\Model\Quote;
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Quote\Api\Data\CartInterface;
@@ -179,6 +178,11 @@ class Giftcard implements GiftcardInterface
     {
 
         $incrementId =  $this->getIncrementId();
+        $originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
+        if ($originalTransactionKey !== false) {
+            $this->action = 'PayRemainder';
+        }
+
         $ip = $this->getIp($this->store);
         $body = [
             "Currency" => $this->getCurrency(),
@@ -211,7 +215,6 @@ class Giftcard implements GiftcardInterface
                 ]
             ]
         ];
-        $originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
         if ($originalTransactionKey !== false) {
             $body['OriginalTransactionKey'] = $originalTransactionKey;
         }
@@ -278,7 +281,8 @@ class Giftcard implements GiftcardInterface
         if ($quote->getReservedOrderId() !== null) {
             return $quote->getReservedOrderId();
         }
-        return $quote->reserveOrderId()->getReservedOrderId();
+        $quote->reserveOrderId()->save();
+        return $quote->getReservedOrderId();
     }
     /**
      * Get quote grand total

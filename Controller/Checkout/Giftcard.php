@@ -341,11 +341,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $res['PayRemainingAmountButton'] = '';
             $t = 'A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4';
             if ($res['RemainderAmount'] > 0) {
-                $this->setOriginalTransactionKey(
-                    $orderId,
-                    $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']
-                );
-
                 $message = __(
                     $t,
                     $response['Currency'],
@@ -395,12 +390,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->client->setWebsiteKey($this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey()));
 
         return $this->client->doRequest($data, $mode);
-    }
-    private function setOriginalTransactionKey($orderId, $transactionKey)
-    {
-        $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
-        $originalTransactionKey[$orderId] = $transactionKey;
-        $this->_checkoutSession->setOriginalTransactionKey($originalTransactionKey);
     }
     protected function getIp($store)
     {
