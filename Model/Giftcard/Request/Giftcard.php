@@ -182,7 +182,7 @@ class Giftcard implements GiftcardInterface
         if ($originalTransactionKey !== false) {
             $this->action = 'PayRemainder';
         }
-
+        
         $ip = $this->getIp($this->store);
         $body = [
             "Currency" => $this->getCurrency(),
@@ -218,7 +218,6 @@ class Giftcard implements GiftcardInterface
         if ($originalTransactionKey !== false) {
             $body['OriginalTransactionKey'] = $originalTransactionKey;
         }
-
         return $body;
     }
     /**

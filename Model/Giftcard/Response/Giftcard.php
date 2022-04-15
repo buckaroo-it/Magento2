@@ -66,6 +66,15 @@ class Giftcard
         $this->groupTransaction->saveGroupTransaction($this->response);
     }
     /**
+     * Get created group transaction with giftcard name
+     *
+     * @return \Buckaroo\Magento2\Model\GroupTransaction
+     */
+    public function getCreatedTransaction()
+    {
+        return $this->groupTransaction->getByTransactionIdWithName($this->response['Key']);
+    }
+    /**
      * Get already paid amount
      *
      * @param CartInterface $quote

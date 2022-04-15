@@ -27,7 +27,7 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
-use Buckaroo\Magento2\Model\Giftcard\Api\PayException;
+use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface as GiftcardRequest;
@@ -89,11 +89,11 @@ class Pay implements PayWithGiftcardInterface
     public function pay(string $cartId, string $giftcardId)
     {
         if ($this->request->getParam('card_number') === null) {
-            throw new PayException(__('Parameter `card_number` is required'));
+            throw new ApiException(__('Parameter `card_number` is required'));
         }
 
         if ($this->request->getParam('card_pin') === null) {
-            throw new PayException(__('Parameter `card_pin` is required'));
+            throw new ApiException(__('Parameter `card_pin` is required'));
         }
 
         try {
@@ -106,20 +106,21 @@ class Pay implements PayWithGiftcardInterface
         } catch (NoQuoteException $th) {
             throw $th;
         } catch (\Throwable $th) {
-            throw new PayException(__('Unknown buckaroo error has occurred'), 0, $th);
+            throw new ApiException(__('Unknown buckaroo error has occurred'), 0, $th);
         }
     }
     protected function getResponse(Quote $quote, $response)
     {
-        $this->giftcardResponse->set($response);
-
-        if ($this->giftcardResponse->getErrorMessage() !== null) {
-            throw new PayException($this->giftcardResponse->getErrorMessage());
-        }
         
+        $this->giftcardResponse->set($response);
+        
+        if ($this->giftcardResponse->getErrorMessage() !== null) {
+            throw new ApiException($this->giftcardResponse->getErrorMessage());
+        }
         return $this->payResponseFactory->create()->setData([
             'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
             'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid($quote),
+            'transaction' => $this->giftcardResponse->getCreatedTransaction()
         ]);
     }
     /**

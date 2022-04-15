@@ -19,35 +19,8 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Api\Data\Giftcard;
+namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
-/**
- * Interface PayResponseInterface
- * @api
- */
-
-interface PayResponseInterface
+class ApiException extends \Exception
 {
-    /**
-     * Get RemainderAmount
-     * 
-     * @api
-     * @return float
-     */
-    public function getRemainderAmount();
-
-    /**
-     * Get AlreadyPaid
-     *
-     * @api
-     * @return float
-     */
-    public function getAlreadyPaid();
-
-    /**
-     * Get newly created transaction with giftcard name
-     *
-     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface
-     */
-    public function getTransaction();
 }

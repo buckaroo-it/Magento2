@@ -21,16 +21,20 @@
 
 namespace Buckaroo\Magento2\Api\Data\Giftcard;
 
-/**
- * Interface PayResponseInterface
- * @api
- */
 
-interface PayResponseInterface
+interface GetTransactionsResponseInterface
 {
     /**
+     * Get the list of transactions for this cart
+     *
+     * @param string $cartId
+     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
+     */
+    public function getTransactions();
+    
+    /**
      * Get RemainderAmount
-     * 
+     *
      * @api
      * @return float
      */
@@ -43,11 +47,4 @@ interface PayResponseInterface
      * @return float
      */
     public function getAlreadyPaid();
-
-    /**
-     * Get newly created transaction with giftcard name
-     *
-     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface
-     */
-    public function getTransaction();
 }

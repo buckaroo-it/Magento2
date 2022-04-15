@@ -19,8 +19,16 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\Giftcard\Api;
+namespace Buckaroo\Magento2\Api;
 
-class PayException extends \Exception
+
+interface GiftcardTransactionInterface
 {
+    /**
+     * Get the list of transactions for this cart
+     *
+     * @param string $cartId
+     * @return \Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface
+     */
+    public function get(string $cartId);
 }

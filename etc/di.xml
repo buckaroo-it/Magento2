@@ -35,10 +35,16 @@
     <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
+    
+    <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Api\PayWithGiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\Pay"/>
     <preference for="Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard"/>
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayResponse"/>
-
+    
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\TransactionResponse"/>
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactionsResponse"/>
+    <preference for="Buckaroo\Magento2\Api\GiftcardTransactionInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactions"/>
+    <!-- end gifcard rest api -->
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>
             <argument name="gateway" xsi:type="object">Buckaroo\Magento2\Gateway\GatewayInterface</argument>

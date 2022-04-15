@@ -24,27 +24,49 @@ namespace Buckaroo\Magento2\Model\Giftcard\Api;
 use \Magento\Framework\DataObject;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface;
+use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
 
 class PayResponse extends DataObject implements PayResponseInterface, PayResponseSetInterface
 {
     /**
+     * @var  \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory
+     */
+    protected $trResponseFactory;
+
+    public function __construct(
+        TransactionResponseInterfaceFactory $trResponseFactory
+    ) {
+        $this->trResponseFactory = $trResponseFactory;
+    }
+    /**
      * Get RemainderAmount
      *
      * @api
-     * @return string
+     * @return float
      */
     public function getRemainderAmount()
     {
-        return $this->getData('remainderAmount');
+        return (float)$this->getData('remainderAmount');
     }
     /**
      * Get AlreadyPaid
      *
      * @api
-     * @return string
+     * @return float
      */
     public function getAlreadyPaid()
     {
-        return $this->getData('alreadyPaid');
+        return (float)$this->getData('alreadyPaid');
+    }
+    /**
+     * Get newly created transaction with giftcard name
+     *
+     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface
+     */
+    public function getTransaction()
+    {
+        return $this->trResponseFactory->create()->addData(
+            $this->getData('transaction')->getData()
+        );
     }
 }

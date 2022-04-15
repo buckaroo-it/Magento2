@@ -44,11 +44,18 @@
         </data>
     </route>
 
+    <route url="/V1/buckaroo/:cartId/giftcard/transactions" method="GET">
+        <service class="Buckaroo\Magento2\Api\GiftcardTransactionInterface" method="get"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
     <route url="/V1/buckaroo/:cartId/giftcard/:giftcardId/pay" method="POST">
         <service class="Buckaroo\Magento2\Api\PayWithGiftcardInterface" method="pay"/>
         <resources>
             <resource ref="anonymous" />
         </resources>
     </route>
-
+    
 </routes>
