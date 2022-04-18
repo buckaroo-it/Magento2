@@ -43,6 +43,7 @@
     
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\TransactionResponse"/>
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactionsResponse"/>
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayRequest"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardTransactionInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactions"/>
     <!-- end gifcard rest api -->
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">

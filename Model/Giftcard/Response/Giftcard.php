@@ -135,14 +135,15 @@ class Giftcard
         if ($this->isSuccessful()) {
             return;
         }
-        if (isset($response['Status']['SubCode']['Description'])) {
-            return  $response['Status']['SubCode']['Description'];
+        if (isset($this->response['Status']['SubCode']['Description'])) {
+            return  $this->response['Status']['SubCode']['Description'];
         }
-        if (isset($response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'])) {
-            return $response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
+        
+        if (isset($this->response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'])) {
+            return $this->response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
         }
-        if (isset($response['Status']['Code']['Description'])) {
-            return $response['Status']['Code']['Description'];
+        if (isset($this->response['Status']['Code']['Description'])) {
+            return $this->response['Status']['Code']['Description'];
         }
         return '';
     }

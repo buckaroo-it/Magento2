@@ -23,22 +23,17 @@ namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\App\RequestInterface;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
 use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
+use Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface as GiftcardRequest;
 
 class Pay implements PayWithGiftcardInterface
 {
-    /**
-     * @var \Magento\Framework\App\RequestInterface
-     */
-    protected $request;
-
     /**
      * @var \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
      */
@@ -67,7 +62,6 @@ class Pay implements PayWithGiftcardInterface
 
 
     public function __construct(
-        RequestInterface $request,
         GiftcardRequest $giftcardRequest,
         GiftcardResponse $giftcardResponse,
         QuoteIdMaskFactory $quoteIdMaskFactory,
@@ -75,7 +69,6 @@ class Pay implements PayWithGiftcardInterface
         PayResponseSetInterfaceFactory $payResponseFactory,
         Log $logger
     ) {
-        $this->request = $request;
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
@@ -86,13 +79,13 @@ class Pay implements PayWithGiftcardInterface
     /**
      * @inheritDoc
      */
-    public function pay(string $cartId, string $giftcardId)
+    public function pay(string $cartId, string $giftcardId, PayRequestInterface $payment)
     {
-        if ($this->request->getParam('card_number') === null) {
+        if ($payment->getCardNumber() === null) {
             throw new ApiException(__('Parameter `card_number` is required'));
         }
 
-        if ($this->request->getParam('card_pin') === null) {
+        if ($payment->getCardPin() === null) {
             throw new ApiException(__('Parameter `card_pin` is required'));
         }
 
@@ -101,8 +94,10 @@ class Pay implements PayWithGiftcardInterface
 
             return $this->getResponse(
                 $quote,
-                $this->build($quote, $giftcardId)->send()
+                $this->build($quote, $giftcardId, $payment)->send()
             );
+        } catch (ApiException $th) {
+            throw $th;
         } catch (NoQuoteException $th) {
             throw $th;
         } catch (\Throwable $th) {
@@ -111,9 +106,9 @@ class Pay implements PayWithGiftcardInterface
     }
     protected function getResponse(Quote $quote, $response)
     {
-        
+
         $this->giftcardResponse->set($response);
-        
+
         if ($this->giftcardResponse->getErrorMessage() !== null) {
             throw new ApiException($this->giftcardResponse->getErrorMessage());
         }
@@ -131,13 +126,13 @@ class Pay implements PayWithGiftcardInterface
      *
      * @return GiftcardRequest
      */
-    protected function build(Quote $quote, string $giftcardId)
+    protected function build(Quote $quote, string $giftcardId, PayRequestInterface $payment)
     {
 
         return $this->giftcardRequest
             ->setCardId($giftcardId)
-            ->setCardNumber($this->request->getParam('card_number'))
-            ->setPin($this->request->getParam('card_pin'))
+            ->setCardNumber($payment->getCardNumber())
+            ->setPin($payment->getCardPin())
             ->setQuote($quote);
     }
 

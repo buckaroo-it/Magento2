@@ -19,20 +19,37 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Api;
+namespace Buckaroo\Magento2\Api\Data\Giftcard;
 
-use Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface;
-
-interface PayWithGiftcardInterface 
+interface PayRequestInterface
 {
     /**
-     * Rest method for paying with giftcards
+     * Giftcard number
      *
-     * @param string $cartId
-     * @param string $giftcardId
-     * @param \Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface $requestBody
-     *
-     * @return \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface
+     * @return string
      */
-    public function pay(string $cartId, string $giftcardId, PayRequestInterface $payment);
+    public function getCardNumber();
+
+    /**
+     * Giftcard pin
+     *
+     * @return string
+     */
+    public function getCardPin();
+
+    /**
+     * set giftcard number
+     *
+     * @param string $cardNumber
+     * @return void
+     */
+    public function setCardNumber(string $cardNumber);
+
+    /**
+     * set giftcard pin
+     *
+     * @param string $cardPin
+     * @return void
+     */
+    public function setCardPin(string $cardPin);
 }
