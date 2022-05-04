@@ -69,7 +69,7 @@ class Log extends Logger
     /**
      * {@inheritdoc}
      */
-    public function addRecord($level, $message, array $context = [])
+    public function addRecord(int $level, string $message, array $context = []): bool
     {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
