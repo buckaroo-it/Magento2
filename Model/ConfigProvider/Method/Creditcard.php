@@ -133,7 +133,7 @@ class Creditcard extends AbstractConfigProvider
      */
     public function formatIssuers()
     {
-        $sorted = explode(',', $this->scopeConfig->getValue(
+        $sorted = explode(',', (string)$this->scopeConfig->getValue(
             self::XPATH_CREDITCARD_SORT,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         ));
@@ -152,7 +152,7 @@ class Creditcard extends AbstractConfigProvider
             $allCreditcard[$item['code']] = $item;
         }
 
-        $allowed = explode(',', $this->scopeConfig->getValue(
+        $allowed = explode(',', (string)$this->scopeConfig->getValue(
             self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         ));

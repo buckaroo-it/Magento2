@@ -608,7 +608,7 @@ class Push implements PushInterface
     public function getTransactionType()
     {
         //If an order has an invoice key, then it should only be processed by invoice pushes
-        $savedInvoiceKey = $this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
+        $savedInvoiceKey = (string)$this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
         if (isset($this->postData['brq_invoicekey'])
             && isset($this->postData['brq_schemekey'])

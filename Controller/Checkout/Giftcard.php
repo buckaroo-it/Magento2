@@ -423,9 +423,9 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         $headers = [];
         if ($ipHeaders) {
-            $ipHeaders = explode(',', strtoupper($ipHeaders));
+            $ipHeaders = explode(',', strtoupper((string)$ipHeaders));
             foreach ($ipHeaders as $ipHeader) {
-                $headers[] = 'HTTP_' . str_replace('-', '_', $ipHeader);
+                $headers[] = 'HTTP_' . str_replace('-', '_', (string)$ipHeader);
             }
         }
 
