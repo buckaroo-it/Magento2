@@ -86,4 +86,13 @@ class Log extends Logger
 
         return parent::addRecord($level, $message, $context);
     }
+
+    /**
+     * @param string $message
+     * @return bool
+     */
+    public function addDebug(string $message): bool
+    {
+        return parent::addRecord(static::DEBUG, $message);
+    }
 }
