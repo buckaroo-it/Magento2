@@ -95,4 +95,9 @@ class Log extends Logger
     {
         return parent::addRecord(static::DEBUG, $message);
     }
+
+    public function addError(string $message): bool
+    {
+        return parent::addRecord(static::ERROR, $message);
+    }
 }
