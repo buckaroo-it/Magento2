@@ -19,7 +19,8 @@
 var config = {
     map: {
         '*': {
-            "BuckarooSDK": "//checkout.buckaroo.nl/api/buckaroosdk/script",
+            // "BuckarooSDK": "//checkout.buckaroo.nl/api/buckaroosdk/script",
+            "BuckarooSDK": "//testcheckout.buckaroo.nl/api/buckaroosdk/script",
             "buckaroo/applepay/catalog-product-view": "Buckaroo_Magento2/js/view/checkout/applepay/catalog-product-view",
             "buckaroo/applepay/checkout-cart": "Buckaroo_Magento2/js/view/checkout/applepay/checkout-cart",
             "buckaroo/applepay/pay": "Buckaroo_Magento2/js/view/checkout/applepay/pay",
@@ -30,6 +31,8 @@ var config = {
             "buckaroo/mrcash/pay": "Buckaroo_Magento2/js/view/checkout/mrcash/pay",
             "BuckarooClientSideEncryption": "//static.buckaroo.nl/script/ClientSideEncryption001.js",
             "buckaroo/checkout/common": "Buckaroo_Magento2/js/view/checkout/common",
+            "buckaroo/paypal-express/pay": "Buckaroo_Magento2/js/view/checkout/paypal-express/pay",
+            "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button"
         }
     },
     shim: {
