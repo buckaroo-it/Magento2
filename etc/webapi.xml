@@ -58,4 +58,10 @@
         </resources>
     </route>
     
+    <route url="/V1/buckaroo/applepaygetshippingmethods" method="POST">
+		<service class="Buckaroo\Magento2\Api\ApplePayGetShippingMethodsManagementInterface" method="postApplePayGetShippingMethods"/>
+		<resources>
+			<resource ref="anonymous"/>
+		</resources>
+	</route>    
 </routes>
