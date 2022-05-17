@@ -58,11 +58,17 @@ class PaypalExpress extends Template
     }
     public function canShowProductButton()
     {
-        return $this->canShowButtonForPage('Product');
+        return $this->paypalConfig->canShowButtonForPage(
+            'Product',
+            $this->_storeManager->getStore()
+        );
     }
     public function canShowCartButton()
     {
-        return $this->canShowButtonForPage('Cart');
+        return $this->paypalConfig->canShowButtonForPage(
+            'Cart',
+            $this->_storeManager->getStore()
+        );
     }
     /**
      * Get all data required
@@ -103,27 +109,6 @@ class PaypalExpress extends Template
             ->getCode();
     }
     /**
-     * Test if button was enabled for this page 
-     *
-     * @param string $page
-     *
-     * @return boolean
-     */
-    protected function canShowButtonForPage($page)
-    {
-        $buttons = $this->paypalConfig->getExpressButtons(
-            $this->_storeManager
-                ->getStore()
-                ->getId()
-        );
-        if ($buttons === null) {
-            return false;
-        }
-
-        $pages = explode(",", $buttons);
-        return in_array($page, $pages);
-    }
-    /**
      * Get merchant id
      *
      * @return string|null
@@ -131,9 +116,7 @@ class PaypalExpress extends Template
     protected function getMerchantId()
     {
         return $this->paypalConfig->getExpressMerchantId(
-            $this->_storeManager
-                ->getStore()
-                ->getId()
+            $this->_storeManager->getStore()
         );
     }
 }

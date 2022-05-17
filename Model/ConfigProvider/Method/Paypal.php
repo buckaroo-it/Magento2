@@ -93,12 +93,29 @@ class Paypal extends AbstractConfigProvider
 
         return $paymentFee ? $paymentFee : false;
     }
-    public function getExpressButtons($storeId = null)
+    public function getExpressButtons($store = null)
     {
-        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTONS, $storeId);
+        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTONS, $store);
     }
-    public function getExpressMerchantId($storeId = null)
+    public function getExpressMerchantId($store = null)
     {
-        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_MERCHANT_ID, $storeId);
+        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_MERCHANT_ID, $store);
+    }
+    /**
+     * Test if express button is enabled for the $page 
+     *
+     * @param string $page
+     *
+     * @return boolean
+     */
+    public function canShowButtonForPage($page, $store = null)
+    {
+        $buttons = $this->getExpressButtons($store);
+        if ($buttons === null) {
+            return false;
+        }
+
+        $pages = explode(",", $buttons);
+        return in_array($page, $pages);
     }
 }
