@@ -46,6 +46,24 @@
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayRequest"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardTransactionInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactions"/>
     <!-- end gifcard rest api -->
+
+    <!-- paypal-express -->
+    <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />
+
+    <preference for="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteCreate" />
+    
+    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\QuoteCreate" />
+    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\TotalBreakdown" />
+    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem" />
+    
+    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\OrderDataItem" />
+    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\ShippingAddress" />
+    
+    <preference for="Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\OrderCreate" />
+
+    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\OrderCreate" />
+    <!-- end paypal-express -->
+
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
         <arguments>
             <argument name="gateway" xsi:type="object">Buckaroo\Magento2\Gateway\GatewayInterface</argument>

@@ -6,12 +6,14 @@ list.xsd">
             <values>
                 <value id="buckaroo-static" type="host">https://static.buckaroo.nl</value>
                 <value id="buckaroo-checkout" type="host">https://checkout.buckaroo.nl</value>
+                <value id="buckaroo-checkout-test" type="host">https://testcheckout.buckaroo.nl</value>
                 <value id="buckaroo" type="host">https://buckaroo.nl</value>
             </values>
         </policy>
         <policy id="style-src">
             <values>
                 <value id="buckaroo-checkout" type="host">https://checkout.buckaroo.nl</value>
+                <value id="buckaroo-checkout-test" type="host">https://testcheckout.buckaroo.nl</value>
             </values>
         </policy>
         <policy id="img-src">
@@ -24,6 +26,7 @@ list.xsd">
                 <value id="buckaroo-static" type="host">https://static.buckaroo.nl</value>
                 <value id="buckaroo-ws" type="host">wss://websockets.buckaroo.io/</value>
                 <value id="buckaroo-checkout" type="host">https://checkout.buckaroo.nl</value>
+                <value id="buckaroo-checkout-test" type="host">https://testcheckout.buckaroo.nl</value>
             </values>
         </policy>
     </policies>

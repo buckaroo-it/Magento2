@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset name="Buckaroo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+    <rule ref="../../../vendor/magento/magento-coding-standard/Magento2/ruleset.xml"/>
+    <rule ref="PSR2"/>
+    <rule ref="PEAR.Commenting.FunctionComment.Missing"/>
+    <rule ref="Squiz.PHP.CommentedOutCode.Found"/>
+</ruleset>
