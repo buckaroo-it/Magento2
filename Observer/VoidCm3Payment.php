@@ -42,7 +42,7 @@ class VoidCm3Payment implements ObserverInterface
         $authTransaction = $payment->getAuthorizationTransaction();
         $invoiceKey = $payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
-        if ($authTransaction || strlen($invoiceKey) <= 0) {
+        if ($authTransaction || strlen((string)$invoiceKey) <= 0) {
             return;
         }
 

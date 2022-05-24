@@ -103,7 +103,7 @@ class Idin extends Template
                     break;
                 case 2:
                     foreach ($this->getProduct()->getCategoryIds() as $key => $cat) {
-                        if (in_array($cat, explode(',', $this->idinConfigProvider->getIdinCategory()))) {
+                        if (in_array($cat, explode(',', (string)$this->idinConfigProvider->getIdinCategory()))) {
                             $result = true;
                         }
                     }

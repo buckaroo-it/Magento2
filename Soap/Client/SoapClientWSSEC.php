@@ -28,7 +28,7 @@ class SoapClientWSSEC extends \SoapClient
 {
     private $pemdata = null;
 
-    public function __soapCall ($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null)
+    public function __soapCall (string $function_name, array $arguments, array $options = null, $input_headers = null, &$output_headers = null): mixed
     {
         $result = [parent::__soapCall($function_name,$arguments,$options,$input_headers,$output_headers)];
         $result['request_xml'] = $this->__getLastRequest();
@@ -36,7 +36,7 @@ class SoapClientWSSEC extends \SoapClient
         return $result;
     }
 
-    public function __call($name, $args)
+    public function __call(string $name, array $args): mixed
     {
         // buckaroo requires all numbers to have period notation, otherwise
         // an internal error will occur on the server.
@@ -47,7 +47,7 @@ class SoapClientWSSEC extends \SoapClient
         return $ret;
     }
 
-    public function __doRequest($request, $location, $action, $version, $one_way = 0)
+    public function __doRequest($request, $location, $action, $version, $one_way = 0): ?string
     {
 
         $domDOC = new \DOMDocument();

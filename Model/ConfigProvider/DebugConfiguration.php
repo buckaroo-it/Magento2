@@ -49,7 +49,7 @@ class DebugConfiguration extends AbstractConfigProvider
     public function getDebugEmails()
     {
         $debugEmails = $this->accountConfig->getDebugEmail();
-        $debugEmails = explode(',', $debugEmails);
+        $debugEmails = explode(',', (string)$debugEmails);
 
         return $debugEmails;
     }
@@ -61,7 +61,7 @@ class DebugConfiguration extends AbstractConfigProvider
      */
     public function canLog($level)
     {
-        $logTypes = explode(',', $this->getDebugTypes());
+        $logTypes = explode(',', (string)$this->getDebugTypes());
         return in_array($level, $logTypes);
     }
 }
