@@ -1791,15 +1791,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
                     $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
 
+                    
                     foreach ($groupTransaction as $item) {
-                        if (!empty(floatval($item['refunded_amount']))) {
-                            $item['refunded_amount'] += $amount_value;
-                        } else {
-                            $item['refunded_amount'] = $amount_value;
+                        $prevRefundAmount = $item->getData('refunded_amount');
+                        $newRefundAmount = $amount_value;
+
+                        if ($prevRefundAmount !== null) {
+                            $newRefundAmount += $prevRefundAmount;
                         }
-                        $paymentGroupTransaction->updateGroupTransaction($item->_data);
+                        $item->setData('refunded_amount', $newRefundAmount);
+                        $item->save();
                     }
-//                    $refundedAmount = $this->groupTransaction->getRefundedAmount();
 
                     $this->payRemainder = $amount;
                 }
@@ -2301,11 +2303,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay', $newServiceAction = 'PayRemainder')
     {
-        if ($originalTransactionKey = $this->helper->getOriginalTransactionKey($payment->getOrder()->getIncrementId())) {
+        /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction */
+        $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
+        $incrementId = $payment->getOrder()->getIncrementId();
+
+        $originalTransactionKey = $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
+        if ($originalTransactionKey !== false) {
             $serviceAction = $newServiceAction;
             $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
 
-            if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($payment->getOrder()->getIncrementId())) {
+            $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($incrementId);
+            if ($alreadyPaid > 0) {
                 $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
                 $transactionBuilder->setAmount($this->payRemainder);
             }

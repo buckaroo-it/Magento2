@@ -1496,16 +1496,8 @@ class Push implements PushInterface
 
             if (!empty($this->postData['brq_invoicenumber'])) {
                 if ($this->groupTransaction->isGroupTransaction($this->postData['brq_invoicenumber'])) {
-
                     $this->logging->addDebug(__METHOD__ . '|27|');
-
-                    $invoice->setGrandTotal($invoice->getGrandTotal() + $this->order->getBuckarooAlreadyPaid());
-                    $invoice->setBaseGrandTotal(
-                        $invoice->getBaseGrandTotal() + $this->order->getBaseBuckarooAlreadyPaid()
-                    );
                     $invoice->setState(2);
-                    $payment->setAmountPaid($payment->getAmountPaid() + $this->order->getBuckarooAlreadyPaid());
-                    $payment->save();
                 }
             }
 

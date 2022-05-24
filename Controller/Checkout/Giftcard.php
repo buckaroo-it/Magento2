@@ -275,7 +275,8 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $grand_total = $cartTotals['grand_total']->getData();
         $grandTotal =  $grand_total['value'];
 
-        if ($alreadyPaid = $this->helper->getBuckarooAlreadyPaid($orderId)) {
+        $alreadyPaid = $this->groupTransaction->getAlreadyPaid($orderId);
+        if ($alreadyPaid > 0) {
             $payRemainder = $grandTotal - $alreadyPaid;
             $this->logger->addDebug(__METHOD__ . '|11|' . var_export([$orderId, $payRemainder], true));
             $grandTotal = $payRemainder;
@@ -340,11 +341,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             $res['PayRemainingAmountButton'] = '';
             $t = 'A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4';
             if ($res['RemainderAmount'] > 0) {
-                $this->setOriginalTransactionKey(
-                    $orderId,
-                    $response['RequiredAction']['PayRemainderDetails']['GroupTransaction']
-                );
-
                 $message = __(
                     $t,
                     $response['Currency'],
@@ -360,7 +356,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             } else {
                 $message = __("Your paid successfully. Please finish your order");
             }
-            $this->setAlreadyPaid($orderId, $alreadyPaid);
             $res['alreadyPaid'] = $alreadyPaid;
             $res['message'] = $message;
 
@@ -395,27 +390,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->client->setWebsiteKey($this->_encryptor->decrypt($this->_configProviderAccount->getMerchantKey()));
 
         return $this->client->doRequest($data, $mode);
-    }
-
-    private function setAlreadyPaid($orderId, $amount)
-    {
-        if ($orderId) {
-            $this->_checkoutSession->getQuote()->setBaseBuckarooAlreadyPaid($amount);
-            $this->_checkoutSession->getQuote()->setBuckarooAlreadyPaid(
-                $this->priceCurrency->convert($amount, $this->quote->getStore())
-            );
-        }
-
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
-        $alreadyPaid[$orderId] = $amount;
-        $this->_checkoutSession->setBuckarooAlreadyPaid($alreadyPaid);
-    }
-
-    private function setOriginalTransactionKey($orderId, $transactionKey)
-    {
-        $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
-        $originalTransactionKey[$orderId] = $transactionKey;
-        $this->_checkoutSession->setOriginalTransactionKey($originalTransactionKey);
     }
     protected function getIp($store)
     {

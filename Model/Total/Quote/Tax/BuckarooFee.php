@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,13 +22,14 @@
 namespace Buckaroo\Magento2\Model\Total\Quote\Tax;
 
 use Magento\Catalog\Helper\Data;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Tax\Model\Calculation as TaxModelCalculation;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Tax\Model\Calculation as TaxModelCalculation;
 
 class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
 {
@@ -47,7 +49,7 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
         Factory $configProviderMethodFactory,
         PriceCurrencyInterface $priceCurrency,
         Data $catalogHelper,
-        \Magento\Checkout\Model\Session $checkoutSession,
+        PaymentGroupTransaction $groupTransaction,
         Log $logging,
         TaxModelCalculation $taxCalculation
     ) {
@@ -57,7 +59,7 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
             $configProviderMethodFactory,
             $priceCurrency,
             $catalogHelper,
-            $checkoutSession,
+            $groupTransaction,
             $logging,
             $taxCalculation
         );
@@ -92,9 +94,8 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
         }
 
         $orderId = $quote->getReservedOrderId();
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
 
-        if (isset($alreadyPaid[$orderId])) {
+        if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
             return $this;
         }
 

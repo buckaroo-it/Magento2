@@ -252,14 +252,7 @@ class Data extends AbstractHelper
 
     public function getOriginalTransactionKey($orderId)
     {
-        $originalTransactionKey = $this->_checkoutSession->getOriginalTransactionKey();
-        return isset($originalTransactionKey[$orderId]) ? $originalTransactionKey[$orderId] : false;
-    }
-
-    public function getBuckarooAlreadyPaid($orderId)
-    {
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
-        return isset($alreadyPaid[$orderId]) ? $alreadyPaid[$orderId] : false;
+        return $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId);
     }
 
     public function getOrderId()
