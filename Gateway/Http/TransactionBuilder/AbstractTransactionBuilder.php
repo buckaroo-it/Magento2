@@ -537,9 +537,9 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         $ipHeaders = $this->configProviderAccount->getIpHeader($store);
 
         if ($ipHeaders) {
-            $ipHeaders = explode(',', strtoupper($ipHeaders));
+            $ipHeaders = explode(',', (string)strtoupper($ipHeaders));
             foreach ($ipHeaders as &$ipHeader) {
-                $ipHeader = 'HTTP_' . str_replace('-', '_', $ipHeader);
+                $ipHeader = 'HTTP_' . str_replace('-', '_', (string)$ipHeader);
             }
             $ip = $order->getPayment()->getMethodInstance()->getRemoteAddress(false, $ipHeaders);
         }

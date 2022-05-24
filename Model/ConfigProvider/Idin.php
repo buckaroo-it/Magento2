@@ -262,7 +262,7 @@ class Idin extends AbstractConfigProvider
     protected function checkCategories($product)
     {
         foreach ($product->getCategoryIds() as $cat) {
-            if (in_array($cat, explode(',', $this->configProviderAccount->getIdinCategory()))) {
+            if (in_array($cat, explode(',', (string)$this->configProviderAccount->getIdinCategory()))) {
                 return true;
             }
         }
