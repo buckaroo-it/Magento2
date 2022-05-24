@@ -175,7 +175,7 @@ class Transfer extends AbstractMethod
         $services = [
             'Name'             => 'transfer',
             'Action'           => 'Pay',
-            'Version'          => 2,
+            'Version'          => 1,
             'RequestParameter' => [
                 [
                     '_'    => $billingAddress->getFirstname(),
