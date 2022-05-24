@@ -69,7 +69,7 @@ class Log extends Logger
     /**
      * {@inheritdoc}
      */
-    public function addRecord($level, $message, array $context = [])
+    public function addRecord(int $level, string $message, array $context = []): bool
     {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
@@ -85,5 +85,19 @@ class Log extends Logger
         $this->mail->addToMessage($message);
 
         return parent::addRecord($level, $message, $context);
+    }
+
+    /**
+     * @param string $message
+     * @return bool
+     */
+    public function addDebug(string $message): bool
+    {
+        return parent::addRecord(static::DEBUG, $message);
+    }
+
+    public function addError(string $message): bool
+    {
+        return parent::addRecord(static::ERROR, $message);
     }
 }

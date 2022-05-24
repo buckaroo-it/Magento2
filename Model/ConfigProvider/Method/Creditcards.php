@@ -129,7 +129,7 @@ class Creditcards extends AbstractConfigProvider
     public function formatIssuers()
     {
         $issuers = parent::formatIssuers();
-        $allowed = explode(',', $this->scopeConfig->getValue(
+        $allowed = explode(',', (string)$this->scopeConfig->getValue(
             self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
             ScopeInterface::SCOPE_STORE
         ));

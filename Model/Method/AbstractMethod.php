@@ -28,6 +28,7 @@ use Magento\Payment\Model\InfoInterface;
 use Buckaroo\Magento2\Plugin\Method\Klarna;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
@@ -538,7 +539,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected function isAvailableBasedOnCurrency(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         $allowedCurrenciesRaw = $this->getConfigData('allowed_currencies');
-        $allowedCurrencies    = explode(',', $allowedCurrenciesRaw);
+        $allowedCurrencies    = explode(',', (string)$allowedCurrenciesRaw);
 
         $currentCurrency = $quote->getCurrency()->getQuoteCurrencyCode();
 
@@ -703,6 +704,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
+        if (!(isset($response->RequiredAction->Type) && $response->RequiredAction->Type === 'Redirect')) {
+            $this->setPaymentInTransit($payment, false);
+        }
+     
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
@@ -874,6 +879,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
+        if (!(isset($response->RequiredAction->Type) && $response->RequiredAction->Type === 'Redirect')) {
+            $this->setPaymentInTransit($payment, false);
+        }
+        
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
@@ -1040,7 +1049,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->payment        = $payment;
         $paymentCm3InvoiceKey = $payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
-        if (strlen($paymentCm3InvoiceKey) > 0) {
+        if (strlen((string)$paymentCm3InvoiceKey) > 0) {
             $this->createCreditNoteRequest($payment);
         }
 
@@ -1486,9 +1495,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return void
      */
-    public function setPaymentInTransit(OrderPaymentInterface $payment)
+    public function setPaymentInTransit(OrderPaymentInterface $payment, $inTransit = true)
     {
-        $payment->setAdditionalInformation(self::BUCKAROO_PAYMENT_IN_TRANSIT, true);
+        $payment->setAdditionalInformation(self::BUCKAROO_PAYMENT_IN_TRANSIT, $inTransit);
     }
 
     /**
@@ -2439,11 +2448,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (
             $this->isAddressDataDifferent($payment) ||
             is_null($payment->getOrder()->getShippingAddress()) ||
-            $payment->getMethod() === Klarna::KLARNA_METHOD_NAME //always add shipping for klarna
+            $payment->getMethod() === Klarna::KLARNA_METHOD_NAME  ||
+            $payment->getMethod() === Klarnain::PAYMENT_METHOD_CODE 
         ) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
-
         $this->logger2->addDebug(__METHOD__ . '|1|');
         $this->logger2->addDebug(var_export($payment->getOrder()->getShippingMethod(), true));
 

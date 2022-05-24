@@ -133,7 +133,7 @@ class Applepay extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE
         );
         if ($availableButtons) {
-            $availableButtons = explode(',', $availableButtons);
+            $availableButtons = explode(',', (string)$availableButtons);
         } else {
             $availableButtons = false;
         }
