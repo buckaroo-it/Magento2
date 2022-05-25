@@ -41,6 +41,8 @@ class PushSend extends Command
     private $requests = 2;
     private $url = 'https://example.com/rest/V1/buckaroo/push';
 
+    const URL = 'url';
+
     public function __construct(
         State $appState,
         AsyncClientInterface $asyncHttpClient,
@@ -59,12 +61,20 @@ class PushSend extends Command
     protected function configure()
     {
         $this->setDescription('Buckaroo. Sign and send a push notitification.');
+        $this->addArgument(
+            self::URL,
+            InputOption::VALUE_REQUIRED,
+            'URL'
+        );
         parent::configure();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->appState->setAreaCode('global');
+        if ($url = $input->getArgument(self::URL)) {
+            $output->writeln('<error>Provided push url is `' . $url . '`</error>');
+        }
         $this->pushValidator = \Magento\Framework\App\ObjectManager::getInstance()->get(Push::class);
 
         $postData = [
@@ -105,7 +115,7 @@ class PushSend extends Command
 
         for ($i = 0; $i < $this->requests; $i++) {
             $request = new Request(
-                $this->url,
+                $url,
                 Request::METHOD_POST,
                 ['Content-Type' => 'application/x-www-form-urlencoded'],
                 http_build_query($postData)
