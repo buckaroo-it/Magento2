@@ -1857,9 +1857,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if (!$myparcelFetched) {
             $this->logger2->addDebug(__METHOD__ . '|10|');
-            if ((strpos($payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
+            if ((strpos((string)$payment->getOrder()->getShippingMethod(), 'myparcelnl') !== false)
                 &&
-                (strpos($payment->getOrder()->getShippingMethod(), 'pickup') !== false)
+                (strpos((string)$payment->getOrder()->getShippingMethod(), 'pickup') !== false)
             ) {
                 $this->logger2->addDebug(__METHOD__ . '|15|');
                 if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()) {
