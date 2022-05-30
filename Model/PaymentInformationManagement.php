@@ -76,6 +76,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         $this->registry = $registry;
         $this->logger = $logger;
         $this->configProviderMethodFactory  = $configProviderMethodFactory;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
