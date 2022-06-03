@@ -19,6 +19,9 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider;
 
+use Magento\Sales\Model\Order;
+use Magento\Store\Model\Store;
+use Magento\Sales\Model\Order\Item;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 
@@ -49,5 +52,48 @@ class AccountTest extends BaseTest
 
         $resultKeys = array_keys($result);
         $this->assertEmpty(array_merge(array_diff($expectedKeys, $resultKeys), array_diff($resultKeys, $expectedKeys)));
+    }
+    public function test_parsed_label_all()
+    {
+        $orderNumber = '000000099';
+        $productName = 'Product name';
+        $shopName = 'Shop Name';
+
+        $productMock = $this->getFakeMock(Item::class)
+        ->setMethods(['getName'])
+        ->getMock();
+
+        $productMock->expects($this->once())->method('getName')->willReturn($productName);
+
+        $products = [
+            $productMock
+        ];
+
+        $orderMock = $this->getFakeMock(Order::class)
+            ->setMethods(['getIncrementId', 'getItems'])
+            ->getMock();
+        $orderMock->expects($this->once())->method('getIncrementId')->willReturn($orderNumber);
+        $orderMock->expects($this->once())->method('getItems')->willReturn($products);
+
+        $storeMock = $this->getFakeMock(Store::class)
+        ->setMethods(['getName'])
+        ->getMock();
+
+        $storeMock->expects($this->once())->method('getName')->willReturn($shopName);
+
+        $account = $this->getFakeMock(Account::class)
+        ->setMethods(['getTransactionLabel'])
+        ->getMock();
+
+        $account->expects($this->once())
+        ->method('getTransactionLabel')
+        ->with($storeMock)
+        ->willReturn(
+            'Order {order_number} shop: {shop_name} product: {product_name}'
+        );
+        $this->assertEquals(
+            "Order {$orderNumber} shop: {$shopName} product: {$productName}",
+            $account->getParsedLabel($storeMock, $orderMock)
+        );
     }
 }
