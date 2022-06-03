@@ -51,6 +51,9 @@
 
         <field id="credentials_checker" translate="label comment" type="button" sortOrder="32" showInDefault="1" showInWebsite="1" showInStore="1">
             <frontend_model>Buckaroo\Magento2\Block\Adminhtml\System\Config\CredentialsChecker</frontend_model>
+            <depends>
+                <field id="active" separator=",">1,2</field>
+            </depends>
         </field>
 
         <field id="merchant_guid" translate="label comment tooltip" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
