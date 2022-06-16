@@ -24,7 +24,7 @@ use Monolog\Handler\HandlerInterface;
 use Buckaroo\Magento2\Logging\InternalLogger;
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 
-class Log
+class Log 
 {
     /** @var DebugConfiguration */
     private $debugConfiguration;
@@ -103,5 +103,12 @@ class Log
     public function addError(string $message): bool
     {
         return $this->addRecord(Logger::ERROR, $message);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function debug($message)
+    {
+        return $this->addRecord(Logger::DEBUG, $message);
     }
 }
