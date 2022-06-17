@@ -802,9 +802,23 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $message = $transactionResponse->Status->SubCode->_;
         }
 
+        $fraudMessage = $this->getFailureMessageOnFraud($transactionResponse);
+        if ($fraudMessage === null) {
+            return $fraudMessage;
+        }
+
         return $message;
     }
 
+    public function getFailureMessageOnFraud($transactionResponse)
+    {
+        if (
+        isset($transactionResponse->Status->SubCode->Code) &&
+        $transactionResponse->Status->SubCode->Code == 'S103'
+        ) {
+            return __('An anti-fraud rule has blocked this transaction automatically. Please contact the webshop.');
+        }
+    }
     /**
      * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
      *
