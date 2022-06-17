@@ -69,7 +69,7 @@ class Log extends Logger
     /**
      * {@inheritdoc}
      */
-    public function addRecord(int $level, string $message, array $context = []): bool
+    public function addRecord(int $level, string $message, array $context = [], \Monolog\DateTimeImmutable $datetime = null): bool
     {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
