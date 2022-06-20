@@ -32,11 +32,6 @@
             "Buckaroo\\Magento2\\": ""
         }
     },
-    "scripts": {
-        "post-update-cmd": [
-          "php composer-scripts\\run.php"
-        ]
-    },
     "require-dev": {
         "satooshi/php-coveralls": "^1.0",
         "php-webdriver/webdriver": "^1.1"
