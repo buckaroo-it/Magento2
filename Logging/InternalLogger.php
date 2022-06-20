@@ -24,8 +24,8 @@ use Monolog\Logger;
 
 class InternalLogger extends Logger {
 
-    public function __construct(string $name, array $handlers = [], array $processors = [], ?DateTimeZone $timezone = null)
+    public function __construct(string $name, array $handlers = [], array $processors = [])
     {
-        parent::__construct($name, $handlers, $processors, $timezone);
+        parent::__construct($name, $handlers, $processors);
     }
 }
