@@ -50,6 +50,8 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/ideal.xml"/>
 
+        <include path="Buckaroo_Magento2::system/payment_methods/ideal_gateway.xml"/>
+
         <include path="Buckaroo_Magento2::system/payment_methods/idealprocessing.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/creditcard.xml"/>
@@ -87,7 +89,7 @@
         <include path="Buckaroo_Magento2::system/payment_methods/emandate.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/afterpay20.xml"/>
-        
+
         <include path="Buckaroo_Magento2::system/payment_methods/billink.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/applepay.xml"/>
@@ -107,7 +109,7 @@
         <include path="Buckaroo_Magento2::system/payment_methods/pospayment.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/tinka.xml"/>
-        
+
         <include path="Buckaroo_Magento2::system/payment_methods/klarnas.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/belfius.xml"/>
