@@ -27,11 +27,11 @@
                             <ul id="Saluation">
                                 <li>
                                     <input type="radio" id="buckaroo_magento2_billink_genderSelectMan"
+                                           data-validate="{required:true}"
                                            data-bind="
                                            value: '1',
                                            event: { change: selectPaymentMethod },
                                            click: setSelectedGender.bind($data, '1'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                            checked: genderValidate
                                            "
                                            class="field"
@@ -40,10 +40,10 @@
                                 </li>
                                 <li>
                                     <input type="radio" id="buckaroo_magento2_billink_genderSelectWoman"
+                                           data-validate="{required:true}"
                                            data-bind="
                                            value: '2',
                                            click: setSelectedGender.bind($data, '2'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                            checked: genderValidate
                                             "
                                            class="field"
@@ -77,8 +77,8 @@
                             <input id="buckaroo_magento2_billink_Telephone"
                                    type="text"
                                    class="input-text field"
+                                   data-validate="{required:true}"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                    checked: phoneValidate
                                    valueUpdate: 'blur',
                                    value: phoneValidate"
@@ -98,6 +98,7 @@
                             <input id="buckaroo_magento2_billink_DoB"
                                    class="field"
                                    type="text"
+                                   data-validate="{required:true, 'validate-date-au':true}"
                                    data-bind="
                                    datepicker: {
                                         storage: dateValidate,
@@ -110,8 +111,7 @@
                                    },
                                    event: { change: selectPaymentMethod },
                                    valueUpdate: 'change',
-                                   value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
+                                   value: dateValidate"
                                    name="payment[buckaroo_magento2_billink][customer_DoB]">
                             <div for="buckaroo_magento2_billink_DoB" generated="true" class="mage-error" id="buckaroo_magento2_billink_DoB-error" style="display: none;"><span data-bind="i18n: 'You should be at least 18 years old.' "></span></div>
                         </div>
@@ -126,8 +126,8 @@
                                    class="input-text field"
                                    type="text"
                                    name="payment[buckaroo_magento2_billink][buckaroo_chamberOfCommerce]"
-                                   data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                   data-validate="{required:true}"
+                                   data-bind=",
                                    checked: chamberOfCommerceValidate
                                    valueUpdate: 'blur',
                                    value: chamberOfCommerceValidate
@@ -144,8 +144,8 @@
                                    class="input-text field"
                                    type="text"
                                    name="payment[buckaroo_magento2_billink][buckaroo_VATNumber]"
+                                   data-validate="{required:false}"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': false }) },
                                    valueUpdate: 'blur',
                                    value: VATNumberValidate
                                    ">
@@ -160,10 +160,10 @@
                             <input id="buckaroo_magento2_billink_TermsCondition"
                                    class="field"
                                    type="checkbox"
+                                   data-validate="{required:true}"
                                    data-bind="
                                    checked: termsValidate,
-                                   event: { change: selectPaymentMethod },
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true})}"
+                                   event: { change: selectPaymentMethod }"
                                    name="payment[buckaroo_magento2_billink][termsCondition]">
                             <span>
                                 <a target="_blank"

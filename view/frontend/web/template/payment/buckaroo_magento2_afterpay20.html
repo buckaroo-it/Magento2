@@ -27,11 +27,11 @@
                             <ul id="Saluation">
                                 <li>
                                     <input type="radio" id="buckaroo_magento2_afterpay20_genderSelectMan"
+                                           data-validate="{required:true}"
                                            data-bind="
                                            value: '1',
                                            event: { change: selectPaymentMethod },
                                            click: setSelectedGender.bind($data, '1'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                            checked: genderValidate
                                            "
                                            class="field"
@@ -40,10 +40,10 @@
                                 </li>
                                 <li>
                                     <input type="radio" id="buckaroo_magento2_afterpay20_genderSelectWoman"
+                                           data-validate="{required:true}"
                                            data-bind="
                                            value: '2',
                                            click: setSelectedGender.bind($data, '2'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                            checked: genderValidate
                                             "
                                            class="field"
@@ -64,8 +64,8 @@
                                    class="input-text field"
                                    type="text"
                                    name="payment[buckaroo_magento2_afterpay20][buckaroo_identification_number]"
+                                   data-validate="{required:true}"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                    checked: identificationValidate
                                    valueUpdate: 'blur',
                                    value: identificationValidate
@@ -95,8 +95,8 @@
                             <input id="buckaroo_magento2_afterpay20_Telephone"
                                    type="text"
                                    class="input-text field"
+                                   data-validate="{phoneValidation: true, required:true}"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'phoneValidation': true, 'required': true }) },
                                    checked: phoneValidate,
                                    valueUpdate: 'blur',
                                    value: phoneValidate"
@@ -113,6 +113,7 @@
                             <input id="buckaroo_magento2_afterpay20_DoB"
                                    class="field"
                                    type="text"
+                                   data-validate="{required:true, 'validate-date-au':true}"
                                    data-bind="
                                    datepicker: {
                                         storage: dateValidate,
@@ -125,8 +126,7 @@
                                    },
                                    event: { change: selectPaymentMethod },
                                    valueUpdate: 'change',
-                                   value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
+                                   value: dateValidate"
                                    name="payment[buckaroo_magento2_afterpay20][customer_DoB]">
                             <div for="buckaroo_magento2_afterpay20_DoB" generated="true" class="mage-error" id="buckaroo_magento2_afterpay20_DoB-error" style="display: none;"><span data-bind="i18n: 'You should be at least 18 years old.' "></span></div>
                         </div>
@@ -140,10 +140,10 @@
                             <input id="buckaroo_magento2_afterpay20_TermsCondition"
                                    class="field"
                                    type="checkbox"
+                                   data-validate="{required:true}"
                                    data-bind="
                                    checked: termsValidate,
-                                   event: { change: selectPaymentMethod },
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true})}"
+                                   event: { change: selectPaymentMethod }"
                                    name="payment[buckaroo_magento2_afterpay20][termsCondition]">
                             <span>
                                 <a target="_blank"

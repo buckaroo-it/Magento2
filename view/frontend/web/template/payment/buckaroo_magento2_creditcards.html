@@ -31,9 +31,9 @@
                         </div>
 
                         <select id="buckaroo_magento2_creditcards_issuer" class="field" style="display: none;"
+                                data-validate="{'required-entry':true}"
                                 data-bind="value: CardIssuer,
-                                event: { change: validateIssuer },
-                                attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                event: { change: validateIssuer }"
                                 name="payment[buckaroo_magento2_creditcards][issuer]">
                             <option data-bind="i18n: 'Select a card', 'value': ''"></option>
                             <!-- ko foreach: creditcards -->
@@ -50,11 +50,11 @@
                                        type="text"
                                        class="input-text field"
                                        name="payment[buckaroo_magento2_creditcards][cardholdername]"
+                                       data-validate="{required:true, validateCardHolderName:true}"
                                        data-bind="
                             valueUpdate: 'blur',
                             value: CardHolderName,
                             textInput: CardHolderName(),
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardHolderName': true }) },
                             event: { blur: encryptCardDetails }">
                             </div>
                         </div>
@@ -66,11 +66,11 @@
                                        type="text"
                                        class="input-text field"
                                        name="payment[buckaroo_magento2_creditcards][cardnumber]"
+                                       data-validate="{required:true, validateCardNumber:true}"
                                        data-bind="
                             valueUpdate: 'blur',
                             value: CardNumber,
                             textInput: CardNumber(),
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }) },
                             event: { blur: encryptCardDetails, change: processCard }">
                             </div>
                         </div>
@@ -79,8 +79,8 @@
                             <label class="label" for="buckaroo_magento2_creditcards_expirationmonth"><span data-bind="i18n: 'Month:'"></span></label>
                             <div class="control">
                                 <select id="buckaroo_magento2_creditcards_expirationmonth" class="field"
+                                        data-validate="{'required-entry':true}"
                                         data-bind="value: ExpirationMonth,
-                                        attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
                                         event: { change: validateMonth }"
                                         name="payment[buckaroo_magento2_creditcards][expirationmonth]">
                                     <!-- ko foreach: months -->
@@ -94,8 +94,8 @@
                             <label class="label" for="buckaroo_magento2_creditcards_expirationyear"><span data-bind="i18n: 'Year:'"></span></label>
                             <div class="control">
                                 <select id="buckaroo_magento2_creditcards_expirationyear" class="field"
+                                        data-validate="{'required-entry':true}"
                                         data-bind="value: ExpirationYear,
-                                                   attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
                                                    event: { change: validateYear },
                                                    foreach: getYears()"
                                         name="payment[buckaroo_magento2_creditcards][expirationyear]">
@@ -116,11 +116,11 @@
                                        type="text"
                                        class="input-text field"
                                        name="payment[buckaroo_magento2_creditcards][cvc]"
+                                       data-validate="{required:true, validateCvc:true}"
                                        data-bind="
                             valueUpdate: 'blur',
                             value: Cvc,
                             textInput: Cvc(),
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCvc': true }) },
                             event: { blur: encryptCardDetails }">
                             </div>
                             <div class="card_info width-10">

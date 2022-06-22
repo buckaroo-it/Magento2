@@ -10,10 +10,10 @@
          </div>
          <div class="buckaroo_idin_right">
             <form data-bind="submit: verificateIDIN" >
-                <select id="buckaroo_magento2_idin_issuer" class="field" 
+                <select id="buckaroo_magento2_idin_issuer" class="field"
+                        data-validate="{'required-entry':true}"
                         data-bind="value: idinIssuer,
-                                    event: { change: setSelectedBankDropDown },
-                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                    event: { change: setSelectedBankDropDown }"
                                     name="bank">
                     <option data-bind="i18n: 'Select a bank', 'value': ''"></option>
                     <!-- ko foreach: banktypes -->

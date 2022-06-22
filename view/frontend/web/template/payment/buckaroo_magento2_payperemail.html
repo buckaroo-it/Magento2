@@ -29,10 +29,10 @@
                             <ul id="Saluation">
                                 <li>
                                     <input type="radio" id="buckaroo_magento2_payperemail_genderSelectMan"
+                                           data-validate="{required:true}"
                                            data-bind="
                                                value: '1',
                                                click: setSelectedGender.bind($data, '1'),
-                                               attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                                checked: genderValidate
                                                "
                                            class="field"
@@ -41,10 +41,10 @@
                                 </li>
                                 <li>
                                     <input type="radio" id="buckaroo_magento2_payperemail_genderSelectWoman"
+                                           data-validate="{required:true}"
                                            data-bind="
                                                value: '2',
                                                click: setSelectedGender.bind($data, '2'),
-                                               attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                                checked: genderValidate
                                             "
                                            class="field"
@@ -62,9 +62,9 @@
                             <input id="buckaroo_magento2_payperemail_BillingFirstName"
                                    class="input-text field"
                                    type="text"
+                                   data-validate="{required:true}"
                                    data-bind="
                                        valueUpdate: 'keyup',
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                        value: BillingFirstName,
                                        textInput: CustomerFirstName()"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingFirstName]"
@@ -78,9 +78,9 @@
                             <input id="buckaroo_magento2_payperemail_BillingLastName"
                                    class="input-text field"
                                    type="text"
+                                   data-validate="{required:true}"
                                    data-bind="
                                        valueUpdate: 'keyup',
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                        value: BillingLastName,
                                        textInput: CustomerLastName()"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingLastName]"
@@ -94,9 +94,9 @@
                             <input id="buckaroo_magento2_payperemail_Email"
                                    type="text"
                                    class="input-text field"
+                                   data-validate="{required:true, 'validate-email':true}"
                                    data-bind="
                                        valueUpdate: 'keyup',
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-email': true })},
                                        value: BillingEmail,
                                        textInput: CustomerEmail()"
                                    name="payment[buckaroo_magento2_payperemail][customer_email]">

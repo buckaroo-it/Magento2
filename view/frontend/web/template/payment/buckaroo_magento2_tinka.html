@@ -27,10 +27,10 @@
                             <ul id="Saluation">
                                 <li>
                                     <input type="radio" id="buckaroo_magento2_tinka_genderSelectMan"
+                                           data-validate="{required:true}"
                                            data-bind="
                                            value: '1',
                                            click: setSelectedGender.bind($data, '1'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                            checked: genderValidate
                                            "
                                            class="field"
@@ -39,10 +39,10 @@
                                 </li>
                                 <li>
                                     <input type="radio" id="buckaroo_magento2_tinka_genderSelectWoman"
+                                           data-validate="{required:true}"
                                            data-bind="
                                            value: '2',
                                            click: setSelectedGender.bind($data, '2'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                            checked: genderValidate
                                             "
                                            class="field"
@@ -63,8 +63,8 @@
                                    class="input-text field"
                                    type="text"
                                    name="payment[buckaroo_magento2_tinka][buckaroo_identification_number]"
+                                   data-validate="{required:true}"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                    checked: identificationValidate
                                    valueUpdate: 'blur',
                                    value: identificationValidate
@@ -95,6 +95,7 @@
                             <input id="buckaroo_magento2_tinka_DoB"
                                    class="field"
                                    type="text"
+                                   data-validate="{required:true, 'validate-date-au': true}"
                                    data-bind="
                                    datepicker: {
                                         storage: dateValidate,
@@ -106,8 +107,7 @@
                                         }
                                    },
                                    valueUpdate: 'change',
-                                   value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
+                                   value: dateValidate"
                                    name="payment[buckaroo_magento2_tinka][customer_DoB]">
                             <div for="buckaroo_magento2_tinka_DoB" generated="true" class="mage-error" id="buckaroo_magento2_tinka_DoB-error" style="display: none;"><span data-bind="i18n: 'You should be at least 18 years old.' "></span></div>
                         </div>

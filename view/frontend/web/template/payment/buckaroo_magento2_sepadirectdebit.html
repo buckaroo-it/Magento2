@@ -46,12 +46,10 @@
                         </label>
                         <div class="control">
                             <input id="bankaccountnumber" class="input-text field" type="text"
+                                   data-validate="{required:true, IBAN: true}"
                                    data-bind="
                                     value: bankaccountnumber,
-                                    valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })
-                                    }
+                                    valueUpdate: 'keyup'
                                    "
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_iban]">
                         </div>
@@ -64,12 +62,10 @@
                         </label>
                         <div class="control">
                             <input id="bicnumber" class="input-text field" type="text"
+                                   data-validate="{required:true, BIC: true}"
                                    data-bind="
                                     value: bicnumber,
-                                    valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'BIC':true })
-                                    }
+                                    valueUpdate: 'keyup'
                                    "
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_bic]">
                         </div>
