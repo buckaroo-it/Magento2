@@ -51,6 +51,27 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_ideal>
 
+            <buckaroo_magento2_idealgateway>
+                <debug>1</debug>
+                <active>0</active>
+                <model>IdealPaymentGatewayFacade</model>
+                <order_status>pending</order_status>
+                <payment_action>order</payment_action>
+                <title>Buckaroo iDEAL Payment Provider Gateway</title>
+                <allowspecific>0</allowspecific>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+                <sort_order>20</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_idealgateway>
+
             <buckaroo_magento2_idealprocessing>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\IdealProcessing</model>
@@ -356,7 +377,7 @@
                 <payment_action>authorize</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_klarnakp>
-            
+
             <buckaroo_magento2_klarnain>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Klarna\Klarnain</model>
@@ -400,7 +421,7 @@
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_afterpay20>
-            
+
             <buckaroo_magento2_billink>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Billink</model>

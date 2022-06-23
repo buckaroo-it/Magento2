@@ -26,6 +26,7 @@
             <argument name="configProviders" xsi:type="array">
                 <item name="buckaroo_config_provider_idin" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Idin</item>
                 <item name="buckaroo_config_provider_ideal" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</item>
+                <item name="buckaroo_config_provider_idealgateway" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealGateway</item>
                 <item name="buckaroo_config_provider_idealprocessing" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing</item>
                 <item name="buckaroo_config_provider_transfer" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer</item>
                 <item name="buckaroo_config_provider_creditcard" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard</item>

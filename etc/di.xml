@@ -20,6 +20,7 @@
  */
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\Payment\Gateway\Data\Order\OrderAdapter" type="Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter"/>
     <preference for="Buckaroo\Magento2\Gateway\GatewayInterface" type="Buckaroo\Magento2\Gateway\Http\Bpe3"/>
     <preference for="Buckaroo\Magento2\Api\CertificateRepositoryInterface" type="Buckaroo\Magento2\Model\CertificateRepository"/>
     <preference for="Buckaroo\Magento2\Api\InvoiceRepositoryInterface" type="Buckaroo\Magento2\Model\InvoiceRepository"/>
@@ -214,6 +215,10 @@
                 <item name="ideal" xsi:type="array">
                     <item name="type" xsi:type="string">ideal</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</item>
+                </item>
+                <item name="idealgateway" xsi:type="array">
+                    <item name="type" xsi:type="string">idealgateway</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealGateway</item>
                 </item>
                 <item name="idealprocessing" xsi:type="array">
                     <item name="type" xsi:type="string">idealprocessing</item>
@@ -507,6 +512,114 @@
     </type>
 
     <!-- iDEAL Buckaroo using Payment Provider Gateway -->
+    <virtualType name="IdealPaymentGatewayFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealGateway::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="valueHandlerPool" xsi:type="object">IdealPaymentGatewayValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">IdealValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">IdealPaymentGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
 
+    <!-- iDEAL Buckaroo Gateway Payment Provider valueHandlerPool -->
+    <virtualType name="IdealPaymentGatewayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">IdealPaymentGatewayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="IdealPaymentGatewayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">IdealPaymentGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Configuration reader -->
+    <virtualType name="IdealPaymentGatewayConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealGateway::CODE
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- iDEAL Buckaroo Gateway Payment Provider validatorPool -->
+    <virtualType name="IdealValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">BuckarooCountryValidator</item>
+                <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Buckaroo\Magento2\Gateway\Validator\IssuerValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealGateway</argument>
+            <argument name="helper" xsi:type="object">Buckaroo\Magento2\Helper\Data</argument>
+            <argument name="request" xsi:type="object">Magento\Framework\App\RequestInterface</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="BuckarooCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">IdealPaymentGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- iDEAL Buckaroo Gateway Payment Provider commandPool -->
+    <virtualType name="IdealPaymentGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">IdealOrderCommand</item>
+                <item name="void" xsi:type="string">IdealVoidCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="IdealOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">IdealOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\IdealTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\Soap</argument>
+            <argument name="handler" xsi:type="object">IdealAuthorizationHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="IdealVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">IdealAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\Soap</argument>
+            <argument name="handler" xsi:type="object">IdealAuthorizationHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="IdealOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OrderDataBuilder</item>
+                <item name="services" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ServicesDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Response handlers -->
+    <virtualType name="IdealAuthorizationHandler"
+                 type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="txnid" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TxnIdHandler</item>
+                <item name="fraud" xsi:type="string">Buckaroo\Magento2\Gateway\Response\FraudHandler</item>
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ResponseHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
     <!-- iDEAL Buckaroo using Payment Provider Gateway -->
 </config>

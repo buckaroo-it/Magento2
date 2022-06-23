@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Logging;
 
+use Monolog\DateTimeImmutable;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
@@ -69,7 +70,7 @@ class Log extends Logger
     /**
      * {@inheritdoc}
      */
-    public function addRecord(int $level, string $message, array $context = []): bool
+    public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
     {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
