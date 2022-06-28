@@ -207,6 +207,8 @@ class Push implements ValidatorInterface
             case 'cust_customershippingtelephone':
             case 'cust_customershippinghousenumber':
             case 'cust_customershippinghouseadditionalnumber':
+            case 'cust_voornaam':
+            case 'cust_achternaam':
                 $decodedValue = $brq_value;
                 break;
             default:
