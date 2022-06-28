@@ -3,6 +3,7 @@
 namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\InfoInterface;
@@ -34,16 +35,23 @@ class ResponseHandler extends AbstractMethod implements HandlerInterface
             throw new \InvalidArgumentException('Payment data object should be provided');
         }
 
-        $payment = $handlingSubject['payment']->getPayment();
+        if (!isset($response['object'])
+            || !$response['object'] instanceof TransactionResponse
+        ) {
+            throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');
+        }
 
-        $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);
+        $payment = $handlingSubject['payment']->getPayment();
+        $responseData = json_decode(json_encode($response['object']->toArray()));
+
+        $this->saveTransactionData($responseData, $payment, $this->closeOrderTransaction, true);
 
         // SET REGISTRY BUCKAROO REDIRECT
         $this->_registry->unregister('buckaroo_response');
-        $this->_registry->register('buckaroo_response', $response);
+        $this->_registry->register('buckaroo_response', [0 => $response['object']->toArray()]);
 
-        if (!(isset($response->RequiredAction->Type) && $response->RequiredAction->Type === 'Redirect')) {
-            $this->setPaymentInTransit($payment, false);
+        if (!$response['object']->hasRedirect()) {
+            $this->setPaymentInTransit($response['object']->getTransactionKey(), false);
         }
 
         $order = $payment->getOrder();
