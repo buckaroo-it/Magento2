@@ -18,9 +18,9 @@ class IssuerDataBuilder implements BuilderInterface
         /** @var PaymentDataObjectInterface $payment */
         $payment = $buildSubject['payment']->getPayment();
 
-        return ['serviceParameters' => [
+        return [
             'issuer' => $payment->getAdditionalInformation('issuer'),
-        ]];
+        ];
 
     }
 }
