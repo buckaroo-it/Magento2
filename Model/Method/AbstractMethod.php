@@ -220,7 +220,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @var EventManager
      */
-    private $eventManager;
+    protected $eventManager;
 
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
@@ -707,7 +707,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!(isset($response->RequiredAction->Type) && $response->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
         }
-     
+
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
@@ -882,7 +882,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!(isset($response->RequiredAction->Type) && $response->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
         }
-        
+
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
@@ -1791,7 +1791,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
                     $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
 
-                    
+
                     foreach ($groupTransaction as $item) {
                         $prevRefundAmount = $item->getData('refunded_amount');
                         $newRefundAmount = $amount_value;
@@ -2457,7 +2457,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->isAddressDataDifferent($payment) ||
             is_null($payment->getOrder()->getShippingAddress()) ||
             $payment->getMethod() === Klarna::KLARNA_METHOD_NAME  ||
-            $payment->getMethod() === Klarnain::PAYMENT_METHOD_CODE 
+            $payment->getMethod() === Klarnain::PAYMENT_METHOD_CODE
         ) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }

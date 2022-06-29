@@ -56,5 +56,9 @@ class ResponseHandler extends AbstractMethod implements HandlerInterface
 
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
+
+        $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
+
+        $this->afterOrder($payment, $response);
     }
 }
