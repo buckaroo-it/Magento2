@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
 /**
  * @method getCm3DueDate()
  * @method getMaxStepIndex()
- * @method getPaymentMethod()
  * @method getPaymentMethodAfterExpiry()
  * @method getSchemeKey()
  * @method getActiveStatusCm3()
