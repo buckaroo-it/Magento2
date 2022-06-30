@@ -14,9 +14,10 @@ define(
         'mage/translate',
         'Magento_Ui/js/modal/alert',
         'ko',
-        'mage/url'
+        'mage/url',
+        'Magento_Checkout/js/model/cart/totals-processor/default'
     ],
-    function ($, Component, quote, totals, BuckarooFee, globalMessageList, $t, alert, ko, url) {
+    function ($, Component, quote, totals, BuckarooFee, globalMessageList, $t, alert, ko, url, totalsDefaultProvider) {
         'use strict';
 
         return Component.extend(
@@ -166,51 +167,43 @@ define(
                         false;
                 },
 
-                removeGiftcard: function (transaction_id, servicecode, amount) {
-                    self = this;
-                    if (confirm('Are you sure you want to remove?')) {
-
-                    $.ajax({
-                        url: url.build("buckaroo/checkout/giftcard"),
-                        type: 'POST',
-                        dataType: 'json',
-                        showLoader: true, //use for display loader 
-                        data: {
-                            refund: transaction_id,
-                            card: servicecode,
-                            amount: amount,
-                        }
-                   }).done(function (data) {
-                        if(data.error){
-                            alert({
-                                title: $t('Error'),
-                                content: $t(data.error),
-                                actions: {always: function(){} }
-                            });
-                        }else{
-                            alert({
-                                title: $t('Success'),
-                                content: $t(data.message),
-                                actions: {always: function(){} },
-                                buttons: [{
-                                text: $t(data.message),
-                                class: 'action primary accept',
-                                    click: function () {
-                                        this.closeModal(true);
+                removeGiftcard: function (transaction_id,) {
+                    console.log(transaction_id);
+                    alert({
+                        title: $t('Remove giftcard'),
+                        content: $t('By clicking the ok button you remove the giftcard from the order. The amount gets automatically refunded to your giftcard'),
+                        buttons: [{
+                        text: $t('Ok'),
+                        class: 'action primary accept',
+                            click: function () {
+                                let removeModal = this;
+                                $.ajax({
+                                    url: url.build("buckaroo/checkout/giftcardRemove"),
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    showLoader: true, //use for display loader 
+                                    data: { transaction_id },
+                                    success: function() {
+                                        totalsDefaultProvider.estimateTotals(quote.shippingAddress());
+                                        removeModal.closeModal(true);
+                                    },
+                                    error: function() {
+                                        console.log(removeModal);
+                                        removeModal.closeModal(true);
+                                        alert({
+                                            title: $t('Error'),
+                                            content: $t('Cannot remove the giftcard code, refresh the page and try again'),
+                                            class: 'action primary accept',
+                                            text: $t('Close'),
+                                            click: function () {
+                                                this.closeModal(true);
+                                            }
+                                        });
                                     }
-                                }]
-                            });
-                        }
-
-                        var deferred = $.Deferred();
-                        getTotalsAction([], deferred);
-                        // $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
-                    
+                                })
+                            }
+                        }]
                     });
-
-                    } else {
-                        console.log('no');
-                    }
                 }
 
             }

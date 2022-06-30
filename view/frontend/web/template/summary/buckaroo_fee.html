@@ -36,10 +36,11 @@
 <tr class="totals buckaroo_already_paid">
     <th class="mark">
         <span data-bind="{text: label}"></span>
+        <span 
+        data-bind="{click: $parent.removeGiftcard.bind($parent,transaction_id)}"
+        class="buckaroo-giftcard-delete">
     </th>
     <td class="amount" data-bind="{text: amount}">
-<!--         <span data-bind="{text: amount}"></span>
-        <span data-bind="{click: $parent.removeGiftcard.bind($parent,transaction_id,servicecode,amount)}" class="giftcard-delete"></span> -->
     </td>
 </tr>
 <!-- /ko -->
