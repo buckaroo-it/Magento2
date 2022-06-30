@@ -14,10 +14,22 @@ use Psr\Log\LoggerInterface;
 
 class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 {
+    const PAYMENT_FROM = 'buckaroo_payment_from';
+
     /**
      * @var bool
      */
     public bool $usesRedirect = true;
+
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
+     * @var \Magento\Framework\App\Request\Http
+     */
+    protected $request;
 
     public function __construct(
         ManagerInterface $eventManager,
@@ -26,11 +38,13 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         $code,
         $formBlockType,
         $infoBlockType,
-        bool $usesRedirect = true,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        \Magento\Framework\App\RequestInterface $request = null,
         CommandPoolInterface $commandPool = null,
         ValidatorPoolInterface $validatorPool = null,
         CommandManagerInterface $commandExecutor = null,
-        LoggerInterface $logger = null
+        LoggerInterface $logger = null,
+        bool $usesRedirect = true
     ) {
         parent::__construct(
             $eventManager,
@@ -45,6 +59,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
             $logger
         );
 
+        $this->objectManager = $objectManager;
+        $this->request = $request;
         $this->usesRedirect = $usesRedirect;
     }
 
@@ -68,4 +84,62 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         return;
     }
 
+    /**
+     * @param  \Magento\Framework\DataObject $data
+     *
+     * @return array
+     */
+    public function assignDataConvertToArray(\Magento\Framework\DataObject $data)
+    {
+        if (!is_array($data)) {
+            $data = $data->convertToArray();
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param \Magento\Framework\DataObject $data
+     *
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function assignData(\Magento\Framework\DataObject $data)
+    {
+        if ($data instanceof \Magento\Framework\DataObject) {
+            $additionalSkip = $data->getAdditionalData();
+            $skipValidation = $data->getBuckarooSkipValidation();
+
+            if ($skipValidation === null && isset($additionalSkip['buckaroo_skip_validation'])) {
+                $skipValidation = $additionalSkip['buckaroo_skip_validation'];
+            }
+
+            if (isset($additionalSkip[self::PAYMENT_FROM])) {
+                $this->getInfoInstance()->setAdditionalInformation(self::PAYMENT_FROM, $additionalSkip[self::PAYMENT_FROM]);
+            }
+
+            $this->getInfoInstance()->setAdditionalInformation('buckaroo_skip_validation', $skipValidation);
+        }
+        return $this;
+    }
+
+    protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay', $newServiceAction = 'PayRemainder')
+    {
+        /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction */
+        $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
+        $incrementId = $payment->getOrder()->getIncrementId();
+
+        $originalTransactionKey = $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
+        if ($originalTransactionKey !== false) {
+            $serviceAction = $newServiceAction;
+            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
+
+            $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($incrementId);
+            if ($alreadyPaid > 0) {
+                $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
+                $transactionBuilder->setAmount($this->payRemainder);
+            }
+        }
+        return $serviceAction;
+    }
 }
