@@ -29,6 +29,8 @@ use Buckaroo\Magento2\Model\Config\Source\Business;
  */
 class Afterpay2 extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_afterpay2';
+
     const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_afterpay2/allowed_currencies';
 
     const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_afterpay2/allowspecific';

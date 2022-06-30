@@ -142,4 +142,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         }
         return $serviceAction;
     }
+
+    protected function getPayRemainderAmount($payment, $alreadyPaid)
+    {
+        return $payment->getOrder()->getGrandTotal() - $alreadyPaid;
+    }
 }
