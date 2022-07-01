@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Tinka extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_tinka';
     const XPATH_TINKA_PAYMENT_FEE           = 'payment/buckaroo_magento2_tinka/payment_fee';
     const XPATH_TINKA_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_tinka/payment_fee_label';
     const XPATH_TINKA_ACTIVE                = 'payment/buckaroo_magento2_tinka/active';

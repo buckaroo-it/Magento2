@@ -26,36 +26,36 @@ use Magento\Quote\Api\Data\PaymentInterface;
 
 class DataAssignObserver extends AbstractDataAssignObserver
 {
-    private const SKIP_VALIDATION = 'buckaroo_skip_validation';
-    private const PAYMENT_FROM = 'buckaroo_payment_from';
-    private const PAYMENT_ISSUER = 'issuer';
-    private const TERMS_CONDITION = 'termsCondition';
-    private const CUSTOMER_GENDER = 'customer_gender';
-    private const CUSTOMER_BILLINGNAME = 'customer_billingName';
-    private const CUSTOMER_IDENTIFICATIONNUMBER = 'customer_identificationNumber';
-    private const CUSTOMER_DOB = 'customer_DoB';
-    private const CUSTOMER_TELEPHONE = 'customer_telephone';
-    private const CUSTOMER_BILLINGFIRSTNAME = 'customer_billingFirstName';
-    private const CUSTOMER_BILLINGLASTNAME = 'customer_billingLastName';
-    private const CUSTOMER_EMAIL = 'customer_email';
-    private const CUSTOMER_IBAN = 'customer_iban';
-    private const SELECTEDBUSINESS = 'selectedBusiness';
-    private const COCNUMBER = 'COCNumber';
-    private const COMPANYNAME = 'CompanyName';
-    private const APPLEPAYTRANSACTION = 'applepayTransaction';
-    private const BILLINGCONTACT = 'billingContact';
-    private const CUSTOMER_CHAMBEROFCOMMERCE = 'customer_chamberOfCommerce';
-    private const CUSTOMER_VATNUMBER = 'customer_VATNumber';
-    private const CUSTOMER_ORDERAS = 'customer_orderAs';
-    private const CUSTOMER_COCNUMBER = 'customer_cocnumber';
-    private const CUSTOMER_COMPANYNAME = 'customer_companyName';
-    private const CARD_TYPE = 'card_type';
-    private const CUSTOMER_ENCRYPTEDDATA = 'customer_encrypteddata';
-    private const CUSTOMER_CREDITCARDCOMPANY = 'customer_creditcardcompany';
-    private const GIFTCARD_METHOD = 'giftcard_method';
-    private const CUSTOMER_BIC = 'customer_bic';
-    private const CLIENT_SIDE_MODE = 'client_side_mode';
-    private const CUSTOMER_ACCOUNT_NAME = 'customer_account_name';
+    public const SKIP_VALIDATION = 'buckaroo_skip_validation';
+    public const PAYMENT_FROM = 'buckaroo_payment_from';
+    public const PAYMENT_ISSUER = 'issuer';
+    public const TERMS_CONDITION = 'termsCondition';
+    public const CUSTOMER_GENDER = 'customer_gender';
+    public const CUSTOMER_BILLINGNAME = 'customer_billingName';
+    public const CUSTOMER_IDENTIFICATIONNUMBER = 'customer_identificationNumber';
+    public const CUSTOMER_DOB = 'customer_DoB';
+    public const CUSTOMER_TELEPHONE = 'customer_telephone';
+    public const CUSTOMER_BILLINGFIRSTNAME = 'customer_billingFirstName';
+    public const CUSTOMER_BILLINGLASTNAME = 'customer_billingLastName';
+    public const CUSTOMER_EMAIL = 'customer_email';
+    public const CUSTOMER_IBAN = 'customer_iban';
+    public const SELECTEDBUSINESS = 'selectedBusiness';
+    public const COCNUMBER = 'COCNumber';
+    public const COMPANYNAME = 'CompanyName';
+    public const APPLEPAYTRANSACTION = 'applepayTransaction';
+    public const BILLINGCONTACT = 'billingContact';
+    public const CUSTOMER_CHAMBEROFCOMMERCE = 'customer_chamberOfCommerce';
+    public const CUSTOMER_VATNUMBER = 'customer_VATNumber';
+    public const CUSTOMER_ORDERAS = 'customer_orderAs';
+    public const CUSTOMER_COCNUMBER = 'customer_cocnumber';
+    public const CUSTOMER_COMPANYNAME = 'customer_companyName';
+    public const CARD_TYPE = 'card_type';
+    public const CUSTOMER_ENCRYPTEDDATA = 'customer_encrypteddata';
+    public const CUSTOMER_CREDITCARDCOMPANY = 'customer_creditcardcompany';
+    public const GIFTCARD_METHOD = 'giftcard_method';
+    public const CUSTOMER_BIC = 'customer_bic';
+    public const CLIENT_SIDE_MODE = 'client_side_mode';
+    public const CUSTOMER_ACCOUNT_NAME = 'customer_account_name';
 
     /**
      * @var array

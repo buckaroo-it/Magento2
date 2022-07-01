@@ -31,6 +31,7 @@ use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
  */
 class PayPerEmail extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_payperemail';
     const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_payperemail/allowed_currencies';
 
     const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_payperemail/allowspecific';

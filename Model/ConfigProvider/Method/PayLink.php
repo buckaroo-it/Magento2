@@ -32,6 +32,7 @@ use Buckaroo\Magento2\Model\Method\PayLink as MethodPayLink;
  */
 class PayLink extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_paylink';
     const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_paylink/allowed_currencies';
 
     const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_paylink/allowspecific';

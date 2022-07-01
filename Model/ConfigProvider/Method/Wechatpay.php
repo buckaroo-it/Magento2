@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Wechatpay extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_wechatpay';
     const XPATH_WECHATPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_wechatpay/payment_fee';
     const XPATH_WECHATPAY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_wechatpay/payment_fee_label';
     const XPATH_WECHATPAY_ACTIVE                = 'payment/buckaroo_magento2_wechatpay/active';

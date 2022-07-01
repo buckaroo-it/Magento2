@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Rtp extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_rtp';
     const XPATH_RTP_PAYMENT_FEE           = 'payment/buckaroo_magento2_rtp/payment_fee';
     const XPATH_RTP_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_rtp/payment_fee_label';
     const XPATH_RTP_ACTIVE                = 'payment/buckaroo_magento2_rtp/active';

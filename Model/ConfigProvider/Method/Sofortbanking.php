@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Sofortbanking extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_sofortbanking';
     const XPATH_SOFORTBANKING_PAYMENT_FEE           = 'payment/buckaroo_magento2_sofortbanking/payment_fee';
     const XPATH_SOFORTBANKING_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_sofortbanking/payment_fee_label';
     const XPATH_SOFORTBANKING_ACTIVE                = 'payment/buckaroo_magento2_sofortbanking/active';

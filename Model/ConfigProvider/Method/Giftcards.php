@@ -27,6 +27,7 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class Giftcards extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_giftcards';
     const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
     const XPATH_GIFTCARDS_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_giftcards/payment_fee_label';
     const XPATH_GIFTCARDS_ACTIVE               = 'payment/buckaroo_magento2_giftcards/active';

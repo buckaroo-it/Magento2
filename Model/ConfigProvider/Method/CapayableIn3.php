@@ -29,6 +29,7 @@ use Buckaroo\Magento2\Model\Method\Capayable\Installments as CapayableIn3Method;
  */
 class CapayableIn3 extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_capayablein3';
     const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
     const XPATH_CAPAYABLEIN3_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_capayablein3/payment_fee_label';
     const XPATH_CAPAYABLEIN3_ACTIVE               = 'payment/buckaroo_magento2_capayablein3/active';

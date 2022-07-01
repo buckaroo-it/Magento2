@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Model\Method\Capayable\Postpay as CapayablePostpayMethod;
  */
 class CapayablePostpay extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_capayablepostpay';
     const XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablepostpay/payment_fee';
     const XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_capayablepostpay/payment_fee_label';
     const XPATH_CAPAYABLEPOSTPAY_ACTIVE               = 'payment/buckaroo_magento2_capayablepostpay/active';
