@@ -58,17 +58,16 @@ class IssuerValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $isValid = true;
-        $paymentInfo = $validationSubject['payment']->getPayment();
+        $paymentInfo = $validationSubject['payment'];
 
         $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
         if ($skipValidation) {
-            return $this->createResult($isValid);
+            return $this->createResult(true);
         }
 
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
 
-        if (!$chosenIssuer) {
+        if ($chosenIssuer) {
             if ($content = $this->request->getContent()) {
                 $jsonDecode = $this->helper->getJson()->unserialize($content);
                 if (!empty($jsonDecode['paymentMethod']['additional_data']['issuer'])) {

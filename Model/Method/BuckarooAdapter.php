@@ -98,31 +98,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         return $data;
     }
 
-    /**
-     * @param \Magento\Framework\DataObject $data
-     *
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function assignData(\Magento\Framework\DataObject $data)
-    {
-        if ($data instanceof \Magento\Framework\DataObject) {
-            $additionalSkip = $data->getAdditionalData();
-            $skipValidation = $data->getBuckarooSkipValidation();
-
-            if ($skipValidation === null && isset($additionalSkip['buckaroo_skip_validation'])) {
-                $skipValidation = $additionalSkip['buckaroo_skip_validation'];
-            }
-
-            if (isset($additionalSkip[self::PAYMENT_FROM])) {
-                $this->getInfoInstance()->setAdditionalInformation(self::PAYMENT_FROM, $additionalSkip[self::PAYMENT_FROM]);
-            }
-
-            $this->getInfoInstance()->setAdditionalInformation('buckaroo_skip_validation', $skipValidation);
-        }
-        return $this;
-    }
-
     protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay', $newServiceAction = 'PayRemainder')
     {
         /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction */
