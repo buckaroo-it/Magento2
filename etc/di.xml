@@ -638,6 +638,18 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="IdealSdkRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
+                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <!-- Response handlers -->
     <virtualType name="IdealAuthorizationHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>

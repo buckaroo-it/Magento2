@@ -51,6 +51,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory
      */
     public $configProviderFactory;
+    protected $payRemainder = 0;
 
     public function __construct(
         ManagerInterface                                $eventManager,
