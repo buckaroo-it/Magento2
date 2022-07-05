@@ -84,7 +84,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
             $logger
         );
 
-        $this->buckarooPaymentMethodCode = $code;
+        $this->buckarooPaymentMethodCode = $this->setBuckarooPaymentMethodCode();
         $this->objectManager = $objectManager;
         $this->request = $request;
         $this->state = $state;
@@ -267,5 +267,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     protected function getPayRemainderAmount($payment, $alreadyPaid)
     {
         return $payment->getOrder()->getGrandTotal() - $alreadyPaid;
+    }
+
+    protected function setBuckarooPaymentMethodCode() {
+        return str_replace('buckaroo_magento2_', '', $this->getCode());
     }
 }

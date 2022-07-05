@@ -568,23 +568,7 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">BuckarooCountryValidator</item>
-<!--                <item name="availability" xsi:type="string">BuckarooDefaultAvailabilityValidator</item>-->
-                <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="BuckarooDefaultAvailabilityValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
-        <arguments>
-            <argument name="validators" xsi:type="array">
-                <item name="account_config" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\ActiveAccountValidator</item>
-                <item name="area_code" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
-<!--                <item name="based_on_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnIPValidator</item>-->
-<!--                <item name="based_on_amount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnAmountValidator</item>-->
-<!--                <item name="based_on_currency" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator</item>-->
-            </argument>
-            <argument name="chainBreakingValidators" xsi:type="array">
-                <item name="account_config" xsi:type="string">account_config</item>
+                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -608,7 +592,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">IdealOrderCommand</item>
-                <item name="void" xsi:type="string">IdealVoidCommand</item>
+                <item name="refund" xsi:type="string">IdealRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -623,12 +607,12 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="IdealVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+    <virtualType name="IdealRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
-            <argument name="requestBuilder" xsi:type="object">IdealAuthorizeRequest</argument>
-            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\TransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\Soap</argument>
-            <argument name="handler" xsi:type="object">IdealAuthorizationHandler</argument>
+            <argument name="requestBuilder" xsi:type="object">IdealSdkRefundRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="handler" xsi:type="object">IdealRefundHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeValidator</argument>
         </arguments>
     </virtualType>
@@ -655,8 +639,18 @@
     </virtualType>
 
     <!-- Response handlers -->
-    <virtualType name="IdealAuthorizationHandler"
-                 type="Magento\Payment\Gateway\Response\HandlerChain">
+    <virtualType name="IdealAuthorizationHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="txnid" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TxnIdHandler</item>
+                <item name="fraud" xsi:type="string">Buckaroo\Magento2\Gateway\Response\FraudHandler</item>
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ResponseHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Response handlers -->
+    <virtualType name="IdealRefundHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
             <argument name="handlers" xsi:type="array">
                 <item name="txnid" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TxnIdHandler</item>
