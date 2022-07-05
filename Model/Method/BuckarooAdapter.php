@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Payment\Gateway\Command\CommandManagerInterface;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
 use Magento\Payment\Gateway\Config\ValueHandlerPoolInterface;
@@ -61,12 +62,12 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         \Magento\Framework\ObjectManagerInterface       $objectManager,
         State                                           $state,
         \Magento\Developer\Helper\Data                  $developmentHelper,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Magento\Framework\App\RequestInterface         $request = null,
         CommandPoolInterface                            $commandPool = null,
         ValidatorPoolInterface                          $validatorPool = null,
         CommandManagerInterface                         $commandExecutor = null,
         LoggerInterface                                 $logger = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
         bool                                            $usesRedirect = true
     )
     {
@@ -104,7 +105,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
             return false;
         }
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig
+         * @var Account $accountConfig
          */
         $accountConfig = $this->configProviderFactory->get('account');
         if ($accountConfig->getActive() == 0) {
@@ -138,13 +139,13 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     /**
      * Check if this payment method is limited by IP.
      *
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig
+     * @param Account $accountConfig
      * @param \Magento\Quote\Api\Data\CartInterface $quote
      *
      * @return bool
      */
     protected function isAvailableBasedOnIp(
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
+        Account $accountConfig,
         \Magento\Quote\Api\Data\CartInterface           $quote = null
     )
     {
@@ -199,16 +200,15 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      *
      * @return bool
      */
-    protected function canUseForCurrency(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    protected function isAvailableBasedOnCurrency(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         $allowedCurrenciesRaw = $this->getConfigData('allowed_currencies');
-        $allowedCurrencies = explode(',', (string)$allowedCurrenciesRaw);
+        $allowedCurrencies    = explode(',', (string)$allowedCurrenciesRaw);
 
         $currentCurrency = $quote->getCurrency()->getQuoteCurrencyCode();
 
         return $allowedCurrenciesRaw === null || in_array($currentCurrency, $allowedCurrencies);
     }
-
 
     /**s
      * @param OrderPaymentInterface|InfoInterface $payment

@@ -514,9 +514,7 @@
     <type name="Magento\Payment\Model\MethodList">
         <arguments>
             <argument name="additionalChecks" xsi:type="array">
-                <item name="isAvailableBasedOnIp" xsi:type="string">your_custom_restriction</item>
-                isAvailableBasedOnAmount
-                isAvailableBasedOnCurrency
+                <item name="ip" xsi:type="string">ip</item>
             </argument>
         </arguments>
     </type>
@@ -524,7 +522,7 @@
     <type name="Magento\Payment\Model\Checks\SpecificationFactory">
         <arguments>
             <argument name="mapping" xsi:type="array">
-                <item name="your_custom_restriction" xsi:type="object">StackExchange\PaymentRestriction\Model\YourCustomRestriction</item>
+                <item name="ip" xsi:type="object">Buckaroo\Magento2\Model\Checks\CanUseForIP</item>
             </argument>
         </arguments>
     </type>
@@ -570,7 +568,7 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">BuckarooCountryValidator</item>
-                <item name="availability" xsi:type="string">BuckarooDefaultAvailabilityValidator</item>
+<!--                <item name="availability" xsi:type="string">BuckarooDefaultAvailabilityValidator</item>-->
                 <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>
