@@ -74,6 +74,24 @@
                     </div>
                     <!-- /ko -->
 
+                     <!-- ko if: showCOC -->
+                     <div class="field required">
+                        <legend class="label"> <span data-bind="i18n: 'CoC-number:'"> </span> </legend>
+                        <div class="control">
+                            <input id="buckaroo_magento2_afterpay20_coc"
+                                   class="input-text field"
+                                   type="text"
+                                   name="payment[buckaroo_magento2_afterpay20][customer_coc]"
+                                   data-bind="
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                   checked: customerCoc
+                                   valueUpdate: 'blur',
+                                   value: customerCoc
+                                   ">
+                        </div>
+                    </div>
+                    <!-- /ko -->
+
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_afterpay20_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
                         <div class="control">
