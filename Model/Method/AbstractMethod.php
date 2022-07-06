@@ -2094,7 +2094,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             1,
             1,
             round($diff, 2),
-            0
+            4
         );
 
         return $article;
