@@ -87,10 +87,67 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     }
 
     /**
-     * @return string
+     * @return float
      */
     public function getRefundedAmount()
     {
-        return $this->getData('refunded_amount');
+        return (float)$this->getData('refunded_amount');
+    }
+
+    /**
+     * Getter for currency
+     *
+     * @return string
+     */
+    public function getCurrency()
+    {
+        return $this->getData('currency');
+    }
+    /**
+     * Getter for amount
+     *
+     * @return float
+     */
+    public function getAmount()
+    {
+        return (float)$this->getData('amount');
+    }
+    /**
+     * Getter for order increment it
+     *
+     * @return string
+     */
+    public function getOrderIncrementId()
+    {
+        return $this->getData('order_id');
+    }
+    /**
+     * Get transaction id
+     *
+     * @return string
+     */
+    public function getTransactionId()
+    {
+        return $this->getData('transaction_id');
+    }
+
+    /**
+     * Transaction is fully refunded
+     *
+     * @return boolean
+     */
+    public function isFullyRefunded()
+    {
+        return abs($this->getRemainingAmount()) <= 0.001 ;
+    }
+
+    /**
+     * Get the amount - any refund made
+     *
+     * @return float
+     */
+    public function getRemainingAmount()
+    {
+        return $this->getAmount() - $this->getRefundedAmount();
     }
 }

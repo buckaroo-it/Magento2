@@ -167,8 +167,14 @@ define(
                         false;
                 },
 
+                displayRemoveButton() {
+                    return window.checkoutConfig.payment.buckaroo &&
+                    window.checkoutConfig.payment.buckaroo.giftcards &&
+                    window.checkoutConfig.payment.buckaroo.giftcards.enable_remove_button
+                },
+
                 removeGiftcard: function (transaction_id,) {
-                    console.log(transaction_id);
+                    let module = this;
                     alert({
                         title: $t('Remove giftcard'),
                         content: $t('By clicking the ok button you remove the giftcard from the order. The amount gets automatically refunded to your giftcard'),
@@ -176,33 +182,44 @@ define(
                         text: $t('Ok'),
                         class: 'action primary accept',
                             click: function () {
-                                let removeModal = this;
-                                $.ajax({
-                                    url: url.build("buckaroo/checkout/giftcardRemove"),
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    showLoader: true, //use for display loader 
-                                    data: { transaction_id },
-                                    success: function() {
-                                        totalsDefaultProvider.estimateTotals(quote.shippingAddress());
-                                        removeModal.closeModal(true);
-                                    },
-                                    error: function() {
-                                        console.log(removeModal);
-                                        removeModal.closeModal(true);
-                                        alert({
-                                            title: $t('Error'),
-                                            content: $t('Cannot remove the giftcard code, refresh the page and try again'),
-                                            class: 'action primary accept',
-                                            text: $t('Close'),
-                                            click: function () {
-                                                this.closeModal(true);
-                                            }
-                                        });
-                                    }
-                                })
+                                module.doRemoveRequest(transaction_id, this);
                             }
                         }]
+                    });
+                },
+                doRemoveRequest(transaction_id, removeModal) {
+                    let module = this;
+                    $.ajax({
+                        url: url.build("buckaroo/checkout/giftcardRemove"),
+                        type: 'POST',
+                        dataType: 'json',
+                        showLoader: true, //use for display loader 
+                        data: { transaction_id },
+                        success: function(response) {
+                            if (response && response.error === true) {
+                                module.renderErrorMessage(response.message);
+                            } else {
+                                totalsDefaultProvider.estimateTotals(quote.shippingAddress());
+                                removeModal.closeModal(true);
+                            }
+                        },
+                        error: function() {
+                            removeModal.closeModal(true);
+                            module.renderErrorMessage(
+                                $t('Cannot remove the giftcard code, refresh the page and try again')
+                            );
+                        }
+                    })
+                },
+                renderErrorMessage(message) {
+                    alert({
+                        title: $t('Error'),
+                        content: message,
+                        class: 'action primary accept',
+                        text: $t('Close'),
+                        click: function () {
+                            this.closeModal(true);
+                        }
                     });
                 }
 

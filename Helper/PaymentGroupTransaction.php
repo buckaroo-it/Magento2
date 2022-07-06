@@ -138,7 +138,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         $total = 0;
         foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
             if ($value['status'] == '190') {
-                $total += $value['amount'];
+                $total += $value['amount'] - (float)$value['refunded_amount'];
             }
         }
         return $total;

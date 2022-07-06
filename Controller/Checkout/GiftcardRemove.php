@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,11 +21,17 @@
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\ActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\ResultFactory;
+use Buckaroo\Magento2\Model\Giftcard\RemoveException;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
+use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemover;
+use Magento\Checkout\Model\Session;
 
-class GiftcardRemove implements ActionInterface {
+class GiftcardRemove implements ActionInterface
+{
 
     /**
      * @var \Magento\Framework\App\RequestInterface
@@ -35,13 +42,41 @@ class GiftcardRemove implements ActionInterface {
      * @var \Magento\Framework\Controller\ResultFactory
      */
     protected $resultFactory;
-    
+
+    /**
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards
+     */
+    protected $giftcardConfig;
+
+    /**
+     * @var \Buckaroo\Magento2\Logging\Log
+     */
+    protected $logger;
+
+    /**
+     * @var \Buckaroo\Magento2\Model\Giftcard\Remove
+     */
+    protected $giftcardRemover;
+
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $checkoutSession;
+
     public function __construct(
         RequestInterface $request,
-        ResultFactory $resultFactory
-        ) {
+        ResultFactory $resultFactory,
+        Giftcards $giftcardConfig,
+        Log $logger,
+        GiftcardRemover $giftcardRemover,
+        Session $checkoutSession
+    ) {
         $this->request = $request;
         $this->resultFactory = $resultFactory;
+        $this->giftcardConfig = $giftcardConfig;
+        $this->logger = $logger;
+        $this->giftcardRemover = $giftcardRemover;
+        $this->checkoutSession = $checkoutSession;
     }
 
     /**
@@ -52,8 +87,52 @@ class GiftcardRemove implements ActionInterface {
      */
     public function execute()
     {
-        $response = $this->request->getParams();
-        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($response);
+        if (!$this->giftcardConfig->isRemoveButtonEnabled()) {
+            return $this->renderError(
+                __('Cannot remove giftcard, function disabled')
+            );
+        }
+
+        if ($this->request->getParam('transaction_id') === null) {
+            return $this->renderError(
+                __('A `transaction_id` is required')
+            );
+        }
+
+        try {
+            $this->giftcardRemover->remove(
+                $this->request->getParam('transaction_id'),
+                $this->checkoutSession->getQuote()->getReservedOrderId()
+            );
+        } catch (RemoveException $th) {
+            return $this->renderError($th->getMessage());
+        } catch (\Throwable $th) {
+            $this->logger->addDebug((string)$th);
+            return $this->renderError(
+                __('Cannot remove giftcard, internal server error')
+            );
+        }
+
+        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData([
+            'error' => false,
+            'message' => __('Giftcard successfully removed')
+        ]);
+    }
+
+    /**
+     * Render any errors
+     *
+     * @param string $errorMessage
+     *
+     * @return \Magento\Framework\App\ResponseInterface
+     */
+    protected function renderError(string $errorMessage)
+    {
+        return $this->resultFactory
+            ->create(ResultFactory::TYPE_JSON)
+            ->setData([
+                'error' => true,
+                'message' => $errorMessage
+            ]);
     }
 }
-
