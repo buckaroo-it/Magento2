@@ -3,9 +3,11 @@
 namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Payment\Model\InfoInterface;
 
 class AmountCreditDataBuilder implements BuilderInterface
 {
@@ -33,17 +35,37 @@ class AmountCreditDataBuilder implements BuilderInterface
      */
     public $currency;
 
+    protected $logger2;
+
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
+     * @var \Magento\Framework\App\Request\Http
+     */
+    protected $request;
+
+    protected $payRemainder = 0;
+
     /**
      * Constructor
      *
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param Factory $configProviderMethodFactory
+     * @param BuckarooLog $buckarooLog
+     * @param \Magento\Framework\App\RequestInterface $request
      * @param null|int|float|double $amount
      * @param null|string $currency
      */
     public function __construct(
-        Factory $configProviderMethodFactory,
-                $amount = null,
-                $currency = null
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        Factory     $configProviderMethodFactory,
+        BuckarooLog $buckarooLog,
+        \Magento\Framework\App\RequestInterface $request,
+                    $amount = null,
+                    $currency = null
     )
     {
         if ($amount !== null) {
@@ -54,6 +76,9 @@ class AmountCreditDataBuilder implements BuilderInterface
             $this->currency = $currency;
         }
 
+        $this->objectManager               = $objectManager;
+        $this->logger2                     = $buckarooLog;
+        $this->request                     = $request;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
     }
 
@@ -72,6 +97,14 @@ class AmountCreditDataBuilder implements BuilderInterface
         /** @var PaymentDataObjectInterface $payment */
         $payment = $buildSubject['payment'];
         $this->setOrder($payment->getOrder()->getOrder());
+
+        $amount = $this->refundGroupTransactions($payment->getPayment(),  $buildSubject['amount']);
+
+        $this->setAmount($amount);
+
+        if ($amount <= 0) {
+            throw new \InvalidArgumentException('Credit Amount less than or equal to 0');
+        }
 
         if (!$this->getCurrency()) {
             $this->setRefundCurrencyAndAmount();
@@ -172,5 +205,41 @@ class AmountCreditDataBuilder implements BuilderInterface
         }
     }
 
+    public function refundGroupTransactions(InfoInterface $payment, $amount)
+    {
+        $this->logger2->addDebug(__METHOD__ . '|1|');
 
+        $order                   = $payment->getOrder();
+        $totalOrder              = $order->getBaseGrandTotal();
+        $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
+
+        $requestParams = $this->request->getParams();
+
+        $this->logger2->addDebug(__METHOD__ . '|20|' . var_export([$amount, $totalOrder, $amount >= 0.01], true));
+
+        if ($amount >= 0.01) {
+            $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
+            if (
+                ($groupTransactionAmount > 0.01)
+                &&
+                empty($requestParams['creditmemo']['buckaroo_already_paid'])
+                &&
+                !empty($requestParams['creditmemo']['adjustment_negative'])
+            ) {
+                $this->logger2->addDebug(__METHOD__ . '|22|');
+                $payment->getOrder()->setAdjustmentNegative(0);
+            }
+            if ($amount == $order->getBaseGrandTotal() && $groupTransactionAmount > 0) {
+                $this->logger2->addDebug(__METHOD__ . '|25|' . var_export($groupTransactionAmount, true));
+                $this->payRemainder = $amount - $groupTransactionAmount;
+                return $amount - $groupTransactionAmount;
+            }
+
+            if ($amount > $totalOrder) {
+                return $totalOrder;
+            }
+            return $amount;
+        }
+        return 0;
+    }
 }

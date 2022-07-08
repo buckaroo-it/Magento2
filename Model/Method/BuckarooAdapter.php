@@ -273,4 +273,18 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     protected function setBuckarooPaymentMethodCode() {
         return str_replace('buckaroo_magento2_', '', $this->getCode());
     }
+
+    /**
+     * @param $responseData
+     *
+     * @return bool
+     */
+    public function canPushInvoice($responseData)
+    {
+        if ($this->getConfigData('payment_action') == 'authorize') {
+            return false;
+        }
+
+        return true;
+    }
 }

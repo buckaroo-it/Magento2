@@ -613,7 +613,7 @@
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
             <argument name="handler" xsi:type="object">IdealRefundHandler</argument>
-            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeValidator</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
         </arguments>
     </virtualType>
 
@@ -645,7 +645,6 @@
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
                 <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
                 <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -667,7 +666,7 @@
             <argument name="handlers" xsi:type="array">
                 <item name="txnid" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TxnIdHandler</item>
                 <item name="fraud" xsi:type="string">Buckaroo\Magento2\Gateway\Response\FraudHandler</item>
-                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ResponseHandler</item>
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RefundHandler</item>
             </argument>
         </arguments>
     </virtualType>
