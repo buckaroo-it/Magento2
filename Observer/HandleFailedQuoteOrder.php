@@ -40,7 +40,7 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
         BuckarooSession $buckarooSession,
         Log $logging,
         Manager $moduleManager,
-        OrderManagementInterface $orderManagement,
+        OrderManagementInterface $orderManagement
     ) {
         $this->buckarooSession = $buckarooSession;
         $this->logging = $logging;

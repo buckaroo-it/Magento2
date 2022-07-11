@@ -446,3 +446,4 @@
 "Select your bank","Selecteer uw bank"
 "Card number or pin not valid","Kaartnummer of pin ongeldig"
 "Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.","Controleer bij Buckaroo of Client Side Encryption is ingeschakeld, anders mislukken transacties. Bij twijfel, neem contact met ons op."
+"An anti-fraud rule has blocked this transaction automatically. Please contact the webshop.","Een anti-fraude regel heeft deze transactie automatisch geblokkeerd. Gelieve contact op te nemen met de webshop."
