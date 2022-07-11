@@ -5,7 +5,6 @@ namespace Buckaroo\Magento2\Model\Adapter;
 use Buckaroo\Buckaroo;
 use Buckaroo\Config\Config;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Dotenv\Dotenv;
 
 class BuckarooAdapter
 {
@@ -21,8 +20,6 @@ class BuckarooAdapter
 
     public function __construct(Account $configProviderAccount)
     {
-        $dotenv = Dotenv::createImmutable(__DIR__ );
-        $dotenv->load();
         $this->configProviderAccount = $configProviderAccount;
         $websiteKey = $this->configProviderAccount->getMerchantKey();
         $secretKey = $this->configProviderAccount->getSecretKey();
