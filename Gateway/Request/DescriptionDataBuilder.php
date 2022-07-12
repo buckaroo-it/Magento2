@@ -2,11 +2,13 @@
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
 
-class InvoiceDataBuilder implements BuilderInterface
+class DescriptionDataBuilder implements BuilderInterface
 {
     /**
      * @var Order
@@ -14,15 +16,23 @@ class InvoiceDataBuilder implements BuilderInterface
     private $order;
 
     /**
-     * @var bool
+     * @var Account
      */
-    private $isCustomInvoiceId = false;
+    protected $configProviderAccount;
 
     /**
-     * @var string
+     * Constructor
+     *
+     * @param Factory $configProviderMethodFactory
+     * @param null|int|float|double $amount
+     * @param null|string $currency
      */
-    private $invoiceId;
-
+    public function __construct(
+        Account $configProviderAccount
+    )
+    {
+        $this->configProviderAccount = $configProviderAccount;
+    }
 
     public function build(array $buildSubject)
     {
@@ -35,38 +45,11 @@ class InvoiceDataBuilder implements BuilderInterface
         $payment = $buildSubject['payment'];
         $this->setOrder($payment->getOrder()->getOrder());
 
+        $store = $this->getOrder()->getStore();
+
         return [
-            'invoice' => $this->getInvoiceId(),
-            'order' => $this->getOrder()->getIncrementId()
+            'description' => $this->configProviderAccount->getParsedLabel($store, $this->getOrder())
         ];
-    }
-
-    /**
-     * @return int
-     */
-    public function getInvoiceId()
-    {
-        $order = $this->getOrder();
-
-        if (empty($this->invoiceId) || (!$this->isCustomInvoiceId && ($this->invoiceId != $order->getIncrementId()))
-        ) {
-            $this->setInvoiceId($order->getIncrementId(), false);
-        }
-
-        return $this->invoiceId;
-    }
-
-    /**
-     * @param string $invoiceId
-     *
-     * @return $this
-     */
-    public function setInvoiceId($invoiceId, $isCustomInvoiceId = true)
-    {
-        $this->invoiceId = $invoiceId;
-        $this->isCustomInvoiceId = $isCustomInvoiceId;
-
-        return $this;
     }
 
     /**
