@@ -34,7 +34,7 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     public function build(array $buildSubject)
     {
         return [
-            'AdditionalParameters' => $this->getAdditionalParameters()
+            'additionalParameters' => $this->getAdditionalParameters()
         ];
     }
 
@@ -82,12 +82,9 @@ class AdditionalParametersDataBuilder implements BuilderInterface
      */
     private function getParameterLine($name, $value)
     {
-        $line = [
-            '_'    => $value,
-            'Name' => $name,
+        return [
+            $name => $value,
         ];
-
-        return $line;
     }
 
     /**
