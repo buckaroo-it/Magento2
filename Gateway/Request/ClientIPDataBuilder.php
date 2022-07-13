@@ -6,6 +6,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
+use Buckaroo\Resources\Constants\IPProtocolVersion;
 
 class ClientIPDataBuilder implements BuilderInterface
 {
@@ -44,10 +45,10 @@ class ClientIPDataBuilder implements BuilderInterface
         $ip = $this->getIp($this->getOrder());
 
         return [
-            'ClientIP' => (object)[
-                '_' => $ip,
-                'Type' => strpos($ip, ':') === false ? 'IPv4' : 'IPv6',
-            ],
+            'clientIP' => [
+                'address' => $ip,
+                'type'    => strpos($ip, ':') === false ? IPProtocolVersion::IPV4 : IPProtocolVersion::IPV6
+            ]
         ];
     }
 

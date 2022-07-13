@@ -9,22 +9,22 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     /**
      * @var string
      */
-    private $action;
+    private string $action;
 
     /**
      * @var array
      */
-    private $additionalParameters;
+    private array $additionalParameters;
 
     /**
      * Constructor
      *
-     * @param $action
-     * @param $additionalParameters
+     * @param string $action
+     * @param array $additionalParameters
      */
     public function __construct(
-        $action,
-        $additionalParameters
+        string $action,
+        array $additionalParameters = []
     ) {
         $this->action = $action;
         $this->additionalParameters = $additionalParameters;
@@ -45,17 +45,14 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     {
         $parameterLine = [];
         if (!empty($this->getAction())) {
-            $parameterLine[] = $this->getParameterLine(
-                'service_action_from_magento',
-                strtolower($this->getAction())
-            );
+            $parameterLine['service_action_from_magento'] = strtolower($this->getAction());
         }
 
-        $parameterLine[] = $this->getParameterLine('initiated_by_magento', 1);
+        $parameterLine['initiated_by_magento'] =  1;
 
         if ($additionalParameters = $this->getAllAdditionalParameters()) {
             foreach ($additionalParameters as $key => $value) {
-                $parameterLine[] = $this->getParameterLine($key, $value);
+                $parameterLine[$key] = $value;
             }
         }
 
@@ -72,19 +69,6 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     public function getAdditionalParameter($key)
     {
         return $this->additionalParameters[$key];
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     *
-     * @return array
-     */
-    private function getParameterLine($name, $value)
-    {
-        return [
-            $name => $value,
-        ];
     }
 
     /**
