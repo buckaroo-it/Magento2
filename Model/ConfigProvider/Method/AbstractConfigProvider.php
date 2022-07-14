@@ -135,18 +135,15 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
-     * @param null $methodCode
      * @param string $pathPattern
      */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
-        PaymentFee $paymentFeeHelper,
-        $methodCode = null,
-        $pathPattern = self::DEFAULT_PATH_PATTERN
+        PaymentFee $paymentFeeHelper
     ) {
-        parent::__construct($scopeConfig, $methodCode, $pathPattern);
+        parent::__construct($scopeConfig, $this->methodCode);
 
         $this->assetRepo = $assetRepo;
         $this->paymentFeeHelper = $paymentFeeHelper;

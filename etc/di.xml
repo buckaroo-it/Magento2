@@ -551,7 +551,7 @@
 
     <virtualType name="IdealPaymentGatewayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
         <arguments>
-            <argument name="configInterface" xsi:type="object">IdealPaymentGatewayConfig</argument>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealGateway</argument>
         </arguments>
     </virtualType>
 

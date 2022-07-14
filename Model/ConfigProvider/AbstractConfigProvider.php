@@ -34,7 +34,7 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
     protected $xpathPrefix = 'XPATH_';
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
@@ -49,12 +49,12 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
     protected $pathPattern;
 
     /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param ScopeConfigInterface $scopeConfig
      * @param null $methodCode
      * @param string $pathPattern
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        ScopeConfigInterface $scopeConfig,
         $methodCode = null,
         $pathPattern = self::DEFAULT_PATH_PATTERN
     ) {
