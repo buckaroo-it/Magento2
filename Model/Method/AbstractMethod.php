@@ -28,8 +28,9 @@ use Magento\Payment\Model\InfoInterface;
 use Buckaroo\Magento2\Plugin\Method\Klarna;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
@@ -1825,7 +1826,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->logger2->addDebug(__METHOD__ . '|20|' . var_export([$amount, $totalOrder, $amount >= 0.01], true));
 
         if ($amount >= 0.01) {
-            $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
+            $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount(
+                $order->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ??
+                $order->getIncrementId()
+            );
             if (
                 ($groupTransactionAmount > 0.01)
                 &&
@@ -2315,22 +2319,32 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $format;
     }
 
+    /**
+     * If we have already paid some value we do a pay reminder request
+     *
+     * @param Payment $payment
+     * @param TransactionBuilderInterface $transactionBuilder
+     * @param string $serviceAction
+     * @param string $newServiceAction
+     *
+     * @return void
+     */
     protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay', $newServiceAction = 'PayRemainder')
     {
         /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction */
         $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
-        $incrementId = $payment->getOrder()->getIncrementId();
+        $incrementId = $payment->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $payment->getOrder()->getIncrementId();
 
-        $originalTransactionKey = $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
-        if ($originalTransactionKey !== false) {
+        $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($incrementId);
+
+        if ($alreadyPaid > 0) {
             $serviceAction = $newServiceAction;
-            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
 
-            $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($incrementId);
-            if ($alreadyPaid > 0) {
-                $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
-                $transactionBuilder->setAmount($this->payRemainder);
-            }
+            $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
+            $transactionBuilder->setAmount($this->payRemainder);
+            $transactionBuilder->setOriginalTransactionKey(
+                $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId)
+            );
         }
         return $serviceAction;
     }

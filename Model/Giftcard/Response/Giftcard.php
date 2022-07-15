@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Model\Giftcard\Response;
 use Magento\Quote\Api\Data\CartInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard as GiftcardRequest;
 
 class Giftcard
 {
@@ -84,7 +85,7 @@ class Giftcard
     public function getAlreadyPaid(CartInterface $quote)
     {
         return $this->groupTransaction->getGroupTransactionAmount(
-            $quote->getReservedOrderId()
+            $quote->getPayment()->getAdditionalInformation(GiftcardRequest::GIFTCARD_ORDER_ID_KEY) ?? $quote->getReservedOrderId()
         );
     }
     public function isSuccessful()
@@ -105,6 +106,21 @@ class Giftcard
             return 0;
         }
         return (float)$this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
+    }
+     /**
+     * Get debit amount
+     *
+     * @return float
+     */
+    public function getAmountDebit()
+    {
+        if (
+            !isset($this->response['AmountDebit']) ||
+            !is_scalar($this->response['AmountDebit'])
+        ) {
+            return 0;
+        }
+        return (float)$this->response['AmountDebit'];
     }
     /**
      * Get transaction key

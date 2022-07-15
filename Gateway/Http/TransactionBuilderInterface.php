@@ -71,7 +71,7 @@ interface TransactionBuilderInterface
     public function getMethod();
 
     /**
-     * @param string $key
+     * @param string|null $key
      *
      * @return TransactionBuilderInterface
      */

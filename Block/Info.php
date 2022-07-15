@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Block;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 
 class Info extends \Magento\Payment\Block\Info
@@ -53,7 +54,9 @@ class Info extends \Magento\Payment\Block\Info
         $result = [];
 
         if ($this->getInfo()->getOrder() && $this->getInfo()->getOrder()->getIncrementId()) {
-            $items = $this->groupTransaction->getGroupTransactionItems($this->getInfo()->getOrder()->getIncrementId());
+            $items = $this->groupTransaction->getGroupTransactionItems(
+                $this->getInfo()->getOrder()->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $this->getInfo()->getOrder()->getIncrementId()
+            );
             foreach ($items as $key => $giftcard) {
                 if ($foundGiftcard = $this->giftcardCollection
                     ->getItemByColumnValue('servicecode', $giftcard['servicecode'])

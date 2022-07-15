@@ -28,7 +28,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
 use Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
-
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
 
 class GetTransactionsResponse extends DataObject implements GetTransactionsResponseInterface
 {
@@ -87,7 +87,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     public function getAlreadyPaid()
     {
         return $this->groupTransaction->getGroupTransactionAmount(
-            $this->quote->getReservedOrderId()
+            $this->quote->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $this->quote->getReservedOrderId()
         );
     }
 
@@ -114,7 +114,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     {
         return $this->formatFound(
             $this->groupTransaction->getActiveItemsWithName(
-                $this->quote->getReservedOrderId()
+                $this->quote->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $this->quote->getReservedOrderId()
             )
         );
     }

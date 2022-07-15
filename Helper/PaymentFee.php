@@ -21,9 +21,10 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
-
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
+use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
 
 class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -251,13 +252,13 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
     public function getOrderIncrementId($dataObject)
     {
         if ($dataObject instanceof \Magento\Sales\Model\Order) {
-            return $dataObject->getIncrementId();
+            return $dataObject->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $dataObject->getIncrementId();
         }
         if (
             $dataObject instanceof \Magento\Sales\Model\Order\Invoice
             || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
         ) {
-            return $dataObject->getOrder()->getIncrementId();
+            return $dataObject->getOrder()->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $dataObject->getOrder()->getIncrementId();
         }
     }
     /**

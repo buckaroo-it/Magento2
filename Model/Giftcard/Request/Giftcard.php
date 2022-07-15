@@ -38,6 +38,7 @@ use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 class Giftcard implements GiftcardInterface
 {
 
+    public const GIFTCARD_ORDER_ID_KEY = 'giftcard_order_id';
     /**
      * @var \Magento\Store\Api\Data\StoreInterface
      */
@@ -177,9 +178,9 @@ class Giftcard implements GiftcardInterface
     protected function getBody()
     {
 
-        $incrementId =  $this->getIncrementId();
+        $incrementId =  $this->getOrderId();
         $originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
-        if ($originalTransactionKey !== false) {
+        if ($originalTransactionKey !== null) {
             $this->action = 'PayRemainder';
         }
         
@@ -213,9 +214,17 @@ class Giftcard implements GiftcardInterface
                         ]
                     ]
                 ]
-            ]
+            ],
+            'AdditionalParameters' => [
+                'AdditionalParameter' => [
+                   [
+                    "name"=> "quote_id",
+                    "value" => $this->quote->getId() //required for push transactions
+                   ]
+                ]
+            ],
         ];
-        if ($originalTransactionKey !== false) {
+        if ($originalTransactionKey !== null) {
             $body['OriginalTransactionKey'] = $originalTransactionKey;
         }
         return $body;
@@ -267,21 +276,6 @@ class Giftcard implements GiftcardInterface
     {
         $this->quote = $quote;
         return $this;
-    }
-    /**
-     * Get order increment id
-     *
-     * @return string
-     */
-    public function getIncrementId()
-    {
-        /**@var Quote */
-        $quote = $this->quote;
-        if ($quote->getReservedOrderId() !== null) {
-            return $quote->getReservedOrderId();
-        }
-        $quote->reserveOrderId()->save();
-        return $quote->getReservedOrderId();
     }
     /**
      * Get quote grand total
@@ -410,5 +404,38 @@ class Giftcard implements GiftcardInterface
         );
 
         return $remoteAddress->getRemoteAddress();
+    }
+
+    /**
+     * Generate new giftcard orderId, check the transaction table to be unique
+     *
+     * @return string
+     */
+    private function generateUniqueOrderId()
+    {
+        $orderId = "GCT".bin2hex(random_bytes(40));
+
+        if(
+            $this->groupTransaction->existsOrderId($orderId)
+        ) {
+            $orderId = $this->generateUniqueOrderId();
+        }
+        return $orderId;
+    }
+
+    /**
+     * Get order from payment flag, create new order id if payment flag is empty
+     *
+     * @return string
+     */
+    private function getOrderId()
+    {
+        $orderId = $this->quote->getPayment()->getAdditionalInformation(self::GIFTCARD_ORDER_ID_KEY);
+        if ($orderId === null) {
+            $orderId = $this->generateUniqueOrderId();
+            $this->quote->getPayment()->setAdditionalInformation(self::GIFTCARD_ORDER_ID_KEY, $orderId);
+            $this->quote->save();
+        }
+        return $orderId;
     }
 }

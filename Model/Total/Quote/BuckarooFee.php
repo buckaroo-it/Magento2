@@ -23,6 +23,7 @@ use Magento\Catalog\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
 use Magento\Tax\Model\Calculation as TaxModelCalculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
@@ -123,7 +124,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $total->setBaseBuckarooFee(0);
 
         $orderId = $quote->getReservedOrderId();
-        if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
+        if ($this->groupTransaction->getAlreadyPaid($quote->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $orderId) > 0) {
             return $this;
         }
 

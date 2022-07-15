@@ -19,15 +19,16 @@
  */
 namespace Buckaroo\Magento2\Observer;
 
-use Magento\Framework\Event\Observer;
-use Magento\Framework\Event\ObserverInterface;
-use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
-use Magento\Sales\Model\Order\Invoice;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\Data;
-
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Event\Observer;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Framework\Event\ObserverInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
+use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 
 class GroupTransactionRegister implements ObserverInterface
 {
@@ -74,7 +75,9 @@ class GroupTransactionRegister implements ObserverInterface
         
         $order = $invoice->getOrder();
 
-        $items = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
+        $items = $this->groupTransaction->getGroupTransactionItems(
+            $order->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $order->getIncrementId()
+        );
         foreach ($items as $key => $item) {
             $this->logger->addDebug(__METHOD__ . '|5|' . var_export([$order->getTotalPaid(), $item['amount']], true));
             $totalPaid = $order->getTotalPaid() + $item['amount'];

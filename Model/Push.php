@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Method\Afterpay;
 use Buckaroo\Magento2\Model\Method\Afterpay2;
@@ -156,6 +157,11 @@ class Push implements PushInterface
     private $fileSystemDriver;
 
     /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
+    protected $quoteRepository;
+
+    /**
      * @param Order $order
      * @param TransactionInterface $transaction
      * @param Request $request
@@ -188,7 +194,8 @@ class Push implements PushInterface
         \Magento\Framework\Filesystem\DirectoryList $dirList,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig,
-        File $fileSystemDriver
+        File $fileSystemDriver,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
     ) {
         $this->order                       = $order;
         $this->transaction                 = $transaction;
@@ -210,6 +217,7 @@ class Push implements PushInterface
         $this->klarnakpConfig     = $klarnakpConfig;
         $this->afterpayConfig     = $afterpayConfig;
         $this->fileSystemDriver   = $fileSystemDriver;
+        $this->quoteRepository = $quoteRepository;
     }
 
     /**
@@ -227,6 +235,15 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1_2|');
         $lockHandler = $this->lockPushProcessing();
         $this->logging->addDebug(__METHOD__ . '|1_3|');
+
+        if ($this->isFailedGroupTransaction()) {
+            $this->handleGroupTransactionFailed();
+            return true;
+        }
+
+        if ($this->skipHandlingForFailedGroupTransactions()) {
+            return true;
+        }
 
         if ($this->isGroupTransactionInfo()) {
             if ($this->isGroupTransactionFailed()) {
@@ -548,6 +565,11 @@ class Push implements PushInterface
     private function loadOrder()
     {
         $brqOrderId = $this->getOrderIncrementId();
+
+        $quoteOrderId = $this->getOrderIdFromQuote();
+        if ($quoteOrderId !== null) {
+            $brqOrderId = $quoteOrderId;
+        }
 
         //Check if the order can receive further status updates
         $this->order->loadByIncrementId((string) $brqOrderId);
@@ -1843,6 +1865,122 @@ class Push implements PushInterface
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->save();
             }
+        }
+    }
+
+    /**
+     * Handle push from main group transaction fail
+     *
+     * @return void
+     */
+    protected function handleGroupTransactionFailed()
+    {
+        try {
+            $this->groupTransaction->setGroupTransactionsStatus(
+                $this->postData['brq_transactions'],
+                $this->postData['brq_statuscode']
+            );
+        } catch (\Throwable $th) {
+            $this->logging->addDebug(__METHOD__ . '|'.(string)$th);
+        }
+    }
+
+    /**
+     * Check if is a failed transaction
+     *
+     * @return boolean
+     */
+    protected function isFailedGroupTransaction()
+    {
+        return $this->hasPostData(
+            'brq_transaction_type',
+            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+        ) &&
+        $this->hasPostData(
+            'brq_statuscode',
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
+        );
+    }
+
+    /**
+     * Get increment order id from quote
+     *
+     * @return string|null
+     */
+    protected function getOrderIdFromQuote()
+    {
+        $quote = $this->getQuoteByAddedQuoteId();
+        if ($quote !== null) {
+            return $quote->getReservedOrderId();
+        }
+ 
+    }
+    /**
+     * Get quote by custom paramenter `add_quote_id`
+     * 
+     * @return \Magento\Quote\Api\Data\CartInterface|null
+     */
+    protected function getQuoteByAddedQuoteId()
+    {
+        if (
+            isset($this->postData['add_quote_id']) &&
+            is_scalar($this->postData['add_quote_id'])
+            ) {
+                try {
+                    return $this->quoteRepository->get((int)$this->postData['add_quote_id']);
+                } catch (\Throwable $th) {
+                    $this->logging->addDebug(__METHOD__.(string)$th);
+                }
+           }
+    }
+
+    /**
+     * Ship push handling for a failed transaction
+     *
+     * @return void
+     */
+    protected function skipHandlingForFailedGroupTransactions()
+    {
+        $quote = $this->getQuoteByAddedQuoteId();
+        if ($quote !== null) {
+            $groupOrderId = $quote->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY);
+
+            $originalTransactionKey = null;
+
+            if (
+                $this->hasPostData(
+                    'brq_transaction_type',
+                    self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+                ) &&
+                isset($this->postData['brq_transactions'])
+            ) {
+                $originalTransactionKey = $this->postData['brq_transactions'];
+            }
+
+            if (
+                (
+                    $this->hasPostData(
+                        'brq_transaction_type',
+                        'V202'
+                    ) ||
+
+                    $this->hasPostData(
+                        'brq_transaction_type',
+                        'V203'
+                    ) ||
+                    $this->hasPostData(
+                        'brq_transaction_type',
+                        'V204'
+                    )
+                )  &&
+                isset($this->postData['brq_relatedtransaction_partialpayment'])
+            ) {
+                $originalTransactionKey = $this->postData['brq_relatedtransaction_partialpayment'];
+            }
+
+
+            return $originalTransactionKey !== null && 
+            $originalTransactionKey !== $this->groupTransaction->getGroupTransactionOriginalTransactionKey($groupOrderId);
         }
     }
 }

@@ -125,7 +125,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         $orderId          = $item['entity_id'];
         $order            = $this->orderRepository->get($orderId);
         $orderIncrementId = $order->getIncrementId();
-        if ($items = $this->groupTransaction->getGroupTransactionItems($orderIncrementId)) {
+        if ($items = $this->groupTransaction->getGroupTransactionItems($order->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $orderIncrementId)) {
             $result = [$document->getDataByKey('payment_method')];
             foreach ($items as $key => $giftcard) {
                 array_push($result, $giftcard['servicecode']);

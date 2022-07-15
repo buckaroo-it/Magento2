@@ -21,14 +21,15 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
-use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Tax\Model\Calculation;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Framework\Event\ManagerInterface as EventManager;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
 
 class Giftcards extends AbstractMethod
 {
@@ -212,7 +213,11 @@ class Giftcards extends AbstractMethod
             'ContinueOnIncomplete' => 'RedirectToHTML',
         ];
 
-        if ($this->groupTransaction->isGroupTransaction($payment->getOrder()->getIncrementId())) {
+        if (
+            $this->groupTransaction->isGroupTransaction(
+                $payment->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $payment->getOrder()->getIncrementId()
+            )
+        ) {
             return true;
         }
 

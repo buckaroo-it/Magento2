@@ -20,20 +20,21 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use Buckaroo\Magento2\Model\Config\Source\Business;
-use Magento\Customer\Api\CustomerRepositoryInterface;
-use \Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Helper\Context;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\App\State;
-use Magento\Customer\Model\Session;
-use Magento\Customer\Model\Group;
 use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
+use Magento\Customer\Model\Group;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Customer\Model\Session;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\App\Helper\Context;
+use Magento\Store\Model\StoreManagerInterface;
+use \Magento\Framework\App\Helper\AbstractHelper;
+use Buckaroo\Magento2\Model\Config\Source\Business;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class Data extends AbstractHelper
 {
@@ -270,10 +271,9 @@ class Data extends AbstractHelper
 
     public function isGroupTransaction()
     {
-        if ($this->groupTransaction->isGroupTransaction($orderId = $this->getOrderId())) {
-            return true;
-        }
-        return false;
+        $quote = $this->_checkoutSession->getQuote();
+        $orderId = $quote->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $quote->getOrderId();
+        return $this->groupTransaction->isGroupTransaction($orderId) != null;
     }
 
     public function getConfigCardSort()

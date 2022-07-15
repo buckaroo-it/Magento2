@@ -19,15 +19,16 @@
  */
 namespace Buckaroo\Magento2\Plugin;
 
+use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
-use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
 
 class CommandInterface
 {
@@ -114,7 +115,7 @@ class CommandInterface
                 (
                     preg_match('/afterpay/', $methodInstance->getCode())
                     &&
-                    $this->helper->getOriginalTransactionKey($order->getIncrementId())
+                    $this->helper->getOriginalTransactionKey($order->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $order->getIncrementId())
                 ) ||
                 (
                     preg_match('/eps/', $methodInstance->getCode())

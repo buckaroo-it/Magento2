@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
 
 class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
@@ -56,11 +57,11 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
      */
     public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
     {
-        $orderId = $quote->getReservedOrderId();
+        $orderId = $quote->getPayment()->getAdditionalInformation(Giftcard::GIFTCARD_ORDER_ID_KEY) ?? $quote->getReservedOrderId();
 
         $customTitle = [];
         if ($orderId) {
-            $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
+            $items = $this->groupTransaction->getGroupTransactionItems($orderId);
             foreach ($items as $giftcard) {
                 if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
                     'servicecode',
@@ -68,7 +69,7 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
                 )) {
                     $customTitle[] = [
                         'label' => __('Paid with') . ' ' . $foundGiftcard['label'],
-                        'amount' => -$giftcard['amount'],
+                        'amount' => -($giftcard['amount'] - (float)$giftcard['refunded_amount']),
                         'servicecode' => $giftcard['servicecode'],
                         'serviceamount' => $giftcard['amount'],
                         'transaction_id' => $giftcard['transaction_id'],
