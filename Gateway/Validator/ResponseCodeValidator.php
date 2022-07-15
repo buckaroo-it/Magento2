@@ -62,6 +62,13 @@ class ResponseCodeValidator extends AbstractValidator
             );
         }
 
+        if (empty($data['response_xml'])) {
+            return $this->createResult(
+                false,
+                [__('Data must contain the Buckaroo response XML.')]
+            );
+        }
+
         $this->transaction = $response[0];
         $statusCode = $this->getStatusCode();
 
