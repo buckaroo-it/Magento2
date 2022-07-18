@@ -462,7 +462,12 @@ class Push implements PushInterface
     private function getPostData()
     {
         $postData = $this->request->getPostValue();
+        if(strpos($this->request->getContentType(), 'application/json') !== false) {
+            $postData = $this->request->getRequestData();
+            $postData = $this->convertJsonRequest($postData);
+        }
 
+        $this->logging->addDebug(__METHOD__ . '|0|' . var_export($postData, true));
         /** Magento may adds the SID session parameter, depending on the store configuration.
          * We don't need or want to use this parameter, so remove it from the retrieved post data. */
         unset($postData['SID']);
@@ -473,6 +478,60 @@ class Push implements PushInterface
         //Create post data array, change key values to lower case.
         $postDataLowerCase = array_change_key_case($postData, CASE_LOWER);
         $this->postData    = $postDataLowerCase;
+    }
+
+    /**
+     * @throws \Buckaroo\Magento2\Exception
+     */
+    private function convertJsonRequest($postData): array
+    {
+        if(isset($postData['Transaction'])) {
+            $postData = $postData['Transaction'];
+        } else {
+            throw new \Buckaroo\Magento2\Exception(__('Json request could not be processed, please use httppost'));
+        }
+
+        $returnData =  [
+            'brq_amount' => $postData["AmountDebit"] ?? '',
+            'brq_currency' => $postData["Currency"] ?? '',
+            'brq_customer_name' => $postData["CustomerName"] ?? '',
+            'brq_description' => $postData["Description"] ?? '',
+            'brq_invoicenumber' => $postData["Invoice"] ?? '',
+            'brq_mutationtype' => $postData["MutationType"] ?? '', //Now is 1, before was 'Collecting'
+            'brq_ordernumber' => $postData["Order"] ?? '',
+            'brq_payer_hash' => $postData["PayerHash"] ?? '',
+            'brq_payment' => $postData["PaymentKey"] ?? '',
+            'brq_statuscode' => $postData["Status"]["Code"]["Code"] ?? '',
+            'brq_statuscode_detail' => $postData["Status"]["SubCode"]["Code"] ?? '',
+            'brq_statusmessage' => $postData["Status"]["SubCode"]["Description"] ?? '',
+            'brq_test' => $postData["IsTest"] ?? '',
+            'brq_transaction_method' => $postData["ServiceCode"] ?? '',
+            'brq_transaction_type' => $postData["TransactionType"] ?? '',
+            'brq_transactions' => $postData["Key"] ?? '',
+//            'brq_signature' => $this->validator->calculateSignature($postData)
+        ];
+
+        if(isset($postData['AdditionalParameters']['List']) && is_array($postData['AdditionalParameters']['List']))
+        {
+            foreach ($postData['AdditionalParameters']['List'] as $parameter) {
+                $key = 'ADD_' . $parameter['Name'];
+                $returnData[$key] = $parameter['Value'];
+            }
+        }
+
+        if(isset($postData['Services']) && is_array($postData['AdditionalParameters']))
+        {
+            foreach ($postData['Services'] as $service) {
+                if(isset($service["Parameters"]) && is_array($service["Parameters"])) {
+                    foreach ($service["Parameters"] as $parameter) {
+                        $key = 'brq_SERVICE_' . $service['Name'] . '_' . $parameter['Name'];
+                        $returnData[$key] = $parameter['Value'];
+                    }
+                }
+            }
+        }
+
+        return $returnData;
     }
 
     /**
@@ -1258,7 +1317,7 @@ class Push implements PushInterface
                             $baseTotalPaid > $this->order->getBaseGrandTotal() ?
                                 $this->order->getBaseGrandTotal() : $baseTotalPaid
                         );
-                        
+
                         $this->saveAndReloadOrder();
 
                         $connection = $this->resourceConnection->getConnection();
