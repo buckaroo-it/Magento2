@@ -106,6 +106,21 @@ class Giftcard
         }
         return (float)$this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
     }
+     /**
+     * Get debit amount
+     *
+     * @return float
+     */
+    public function getAmountDebit()
+    {
+        if (
+            !isset($this->response['AmountDebit']) ||
+            !is_scalar($this->response['AmountDebit'])
+        ) {
+            return 0;
+        }
+        return (float)$this->response['AmountDebit'];
+    }
     /**
      * Get transaction key
      *
