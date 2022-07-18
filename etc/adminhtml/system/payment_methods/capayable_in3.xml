@@ -42,13 +42,6 @@
             <config_path>payment/buckaroo_magento2_capayablein3/sort_order</config_path>
         </field>
 
-        <field id="version" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>In3 version</label>
-            <comment><![CDATA[The In3 version can be found in your Capayable contract.]]></comment>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\In3Version</source_model>
-            <config_path>payment/buckaroo_magento2_capayablein3/version</config_path>
-        </field>
-
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 
