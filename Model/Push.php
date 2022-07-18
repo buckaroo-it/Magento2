@@ -1317,7 +1317,7 @@ class Push implements PushInterface
                             $baseTotalPaid > $this->order->getBaseGrandTotal() ?
                                 $this->order->getBaseGrandTotal() : $baseTotalPaid
                         );
-
+                        
                         $this->saveAndReloadOrder();
 
                         $connection = $this->resourceConnection->getConnection();
