@@ -70,9 +70,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param ManagerInterface $eventManager
      * @param ValueHandlerPoolInterface $valueHandlerPool
      * @param PaymentDataObjectFactory $paymentDataObjectFactory
-     * @param $code
-     * @param $formBlockType
-     * @param $infoBlockType
+     * @param string $code
+     * @param string $formBlockType
+     * @param string $infoBlockType
      * @param ObjectManagerInterface $objectManager
      * @param State $state
      * @param \Magento\Developer\Helper\Data $developmentHelper
