@@ -19,7 +19,6 @@
  */
 namespace Buckaroo\Magento2\Model\Method\Capayable;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3 as CapayableIn3ConfigProvider;
 use Buckaroo\Magento2\Model\Method\Capayable;
 
 class Installments extends Capayable
@@ -45,11 +44,7 @@ class Installments extends Capayable
 
         $requestParameter = $services['RequestParameter'];
 
-        /** @var CapayableIn3ConfigProvider $capayableConfig */
-        $capayableConfig = $this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode);
-        $version = $capayableConfig->getVersion() ? 'true' : 'false';
-
-        $requestParameter[] = ['_' => $version, 'Name' => 'IsInThreeGuarantee'];
+        $requestParameter[] = ['_' => 'true', 'Name' => 'IsInThreeGuarantee'];
         $services['RequestParameter'] = $requestParameter;
 
         return $services;
