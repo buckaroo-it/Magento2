@@ -333,7 +333,7 @@ class Push implements PushInterface
                 $this->setOrderNotificationNote(__('push notification for refund has no success status, ignoring.'));
                 return true;
             }
-            return $this->refundPush->receiveRefundPush($this->postData, $validSignature, $this->order);
+            return $this->refundPush->receiveRefundPush($this->pushRequst, $validSignature, $this->order);
         }
 
         //Last validation before push can be completed
@@ -1688,9 +1688,9 @@ class Push implements PushInterface
             'BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'
         ];
         $status = $this->helper->getStatusByValue($this->pushRequst->getStatusCode() ?? '');
-        if ((isset($this->originalPostData['ADD_fromPayPerEmail'])
+        if ((!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
                 || ($payment->getMethod() == 'buckaroo_magento2_payperemail'))
-            && isset($this->originalPostData['brq_transaction_method'])
+            && !empty($this->pushRequst->getTransactionMethod())
             && ((in_array($response['status'], $failedStatuses))
                 || (in_array($status, $failedStatuses))
             ) && $validSignature

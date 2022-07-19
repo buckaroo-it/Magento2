@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Model\Refund;
 
+use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Helper\Data;
 use Magento\Sales\Api\CreditmemoManagementInterface;
 use Magento\Sales\Model\Order\CreditmemoFactory;
@@ -31,6 +32,9 @@ class Push
 {
     const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
+    /**
+     * @var PushRequestInterface
+     */
     public $postData;
 
     public $creditAmount;
@@ -99,7 +103,7 @@ class Push
      * This is called when a refund is made in Buckaroo Payment Plaza.
      * This Function will result in a creditmemo being created for the order in question.
      *
-     * @param array $postData
+     * @param PushRequestInterface $postData
      * @param bool  $signatureValidation
      * @param $order
      *
@@ -145,7 +149,7 @@ class Push
         $creditmemoCollection = $this->order->getCreditmemosCollection();
         $creditmemosByTransactionId = $creditmemoCollection->getItemsByColumnValue(
             'transaction_id',
-            $this->postData['brq_transactions']
+            $this->postData->getTransactions()
         );
         if (count($creditmemosByTransactionId) > 0) {
             $this->logging->addDebug(__METHOD__.'|15|The transaction has already been refunded.');
@@ -171,12 +175,11 @@ class Push
 
         try {
             if ($creditmemo) {
-                if (!empty($this->postData['add_service_action_from_magento'])
-                    && ($this->postData['add_service_action_from_magento'] == 'capture')
-                    && !empty($this->postData['brq_transaction_method'])
-                    && ($this->postData['brq_transaction_method'] == 'afterpay')
-                    && !empty($this->postData['brq_transaction_type'])
-                    && ($this->postData['brq_transaction_type'] == 'C041')
+                if ($this->postData->hasAdditionalInformation('service_action_from_magento', 'capture')
+                    && !empty($this->postData->getTransactionMethod())
+                    && ($this->postData->getTransactionMethod() == 'afterpay')
+                    && !empty($this->postData->getTransactionType())
+                    && ($this->postData->getTransactionType() == 'C041')
                 ) {
                     $this->logging->addDebug(__METHOD__.'|5|');
                     $creditmemo->setBaseGrandTotal($this->totalAmountToRefund());
@@ -188,7 +191,7 @@ class Push
                         __('The credit memo\'s total must be positive.')
                     );
                 }
-                $creditmemo->setTransactionId($this->postData['brq_transactions']);
+                $creditmemo->setTransactionId($this->postData->getTransactions());
 
                 $this->logging->addDebug(__METHOD__.'|20');
                 $this->creditmemoManagement->refund(
@@ -343,10 +346,10 @@ class Push
      */
     public function totalAmountToRefund()
     {
-        if ($this->postData['brq_currency'] == $this->order->getBaseCurrencyCode()) {
-            $amount = $this->postData['brq_amount_credit'];
+        if ($this->postData->getCurrency() == $this->order->getBaseCurrencyCode()) {
+            $amount = $this->postData->getAmountCredit();
         } else {
-            $amount = round($this->postData['brq_amount_credit'] / $this->order->getBaseToOrderRate(), 2);
+            $amount = round($this->postData->getAmountCredit() / $this->order->getBaseToOrderRate(), 2);
             if ($amount > $this->order->getBaseGrandTotal()) {
                 $amount = $this->order->getBaseGrandTotal();
             }
