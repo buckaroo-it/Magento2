@@ -470,26 +470,6 @@ class Push implements PushInterface
     }
 
     /**
-     * Get and store the postdata parameters
-     */
-    private function getPostData()
-    {
-        $postData = $this->request->getPostValue();
-
-        $this->logging->addDebug(__METHOD__ . '|0|' . var_export($postData, true));
-        /** Magento may adds the SID session parameter, depending on the store configuration.
-         * We don't need or want to use this parameter, so remove it from the retrieved post data. */
-        unset($postData['SID']);
-
-        //Set original postdata before setting it to case lower.
-        $this->originalPostData = $postData;
-
-        //Create post data array, change key values to lower case.
-        $postDataLowerCase = array_change_key_case($postData, CASE_LOWER);
-        $this->postData    = $postDataLowerCase;
-    }
-
-    /**
      * @throws \Buckaroo\Magento2\Exception
      */
     private function convertJsonRequest($postData): array
@@ -714,7 +694,7 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($response['status'], true));
         $payment = $this->order->getPayment();
 
-        if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->postData)) {
+        if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->pushRequst->getData())) {
             return;
         }
 
@@ -1189,7 +1169,7 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|2|');
 
-        if ($paymentMethod->canPushInvoice($this->postData)) {
+        if ($paymentMethod->canPushInvoice($this->pushRequst->getData())) {
             $this->logging->addDebug(__METHOD__ . '|3|');
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             if ($this->pushRequst->hasPostData('transaction_method', 'transfer')) {
@@ -1212,7 +1192,7 @@ class Push implements PushInterface
         }
 
         $this->dontSaveOrderUponSuccessPush = false;
-        if ($paymentMethod->canPushInvoice($this->postData)) {
+        if ($paymentMethod->canPushInvoice($this->pushRequst->getData())) {
             $this->logging->addDebug(__METHOD__ . '|4|');
 
             if (!$this->isPayPerEmailB2BModePushInitial && $this->isPayPerEmailB2BModePushPaid()) {
@@ -1573,7 +1553,7 @@ class Push implements PushInterface
         /**
          * Save the transaction's response as additional info for the transaction.
          */
-        $postData = $datas ? $datas : $this->postData;
+        $postData = $datas ?: $this->pushRequst->getData();
         $rawInfo  = $this->helper->getTransactionAdditionalInfo($postData);
 
         /**
@@ -1795,11 +1775,11 @@ class Push implements PushInterface
     {
         $brqOrderId = false;
 
-        if (strlen($this->pushRequst->getInvoiceNumber()) > 0) {
+        if (!empty($this->pushRequst->getInvoiceNumber()) &&  strlen($this->pushRequst->getInvoiceNumber()) > 0) {
             $brqOrderId = $this->pushRequst->getInvoiceNumber();
         }
 
-        if (strlen($this->pushRequst->getOrderNumber()) > 0) {
+        if (!empty($this->pushRequst->getOrderNumber()) && strlen($this->pushRequst->getOrderNumber()) > 0) {
             $brqOrderId = $this->pushRequst->getOrderNumber();
         }
 
