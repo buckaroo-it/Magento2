@@ -61,13 +61,16 @@ class Push
         $paymentMethodInstance = $payment->getMethodInstance();
         $card = $paymentMethodInstance->getInfoInstance()->getAdditionalInformation('card_type');
 
-        if (empty($push->postData["brq_service_{$card}_authentication"])
-            || empty($push->postData["brq_service_{$card}_enrolled"])
+        $authenticationFunction = 'getService' . ucfirst($card) . 'Authentication';
+        $enrolledFunction = 'getService' . ucfirst($card) . 'Enrolled';
+
+        if (empty($push->pushRequst->$authenticationFunction())
+            || empty($push->pushRequst->$enrolledFunction())
         ) {
             return $result;
         }
 
-        $authentication = $push->postData["brq_service_{$card}_authentication"];
+        $authentication = $push->pushRequst->$authenticationFunction();
 
         if ($authentication == 'U' || $authentication == 'N') {
             switch ($card) {
@@ -99,8 +102,8 @@ class Push
         $paymentMethodInstance->getInfoInstance()->setAdditionalInformation(
             'buckaroo_mpi_status',
             [
-                'enrolled'       => $push->postData["brq_service_{$card}_enrolled"],
-                'authentication' => $push->postData["brq_service_{$card}_authentication"],
+                'enrolled'       => $push->pushRequst->$enrolledFunction(),
+                'authentication' => $push->pushRequst->$authenticationFunction(),
             ]
         );
 

@@ -160,7 +160,7 @@ class Push implements PushInterface
     /**
      * @var PushRequestInterface
      */
-    private $pushRequst;
+    public PushRequestInterface $pushRequst;
 
     /**
      * @param Order $order

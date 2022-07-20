@@ -184,10 +184,10 @@ class PayPerEmail extends AbstractMethod
      */
     public function canProcessPostData($payment, PushRequestInterface $postData)
     {
-        // $transactionKey = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
-        // if ($transactionKey != $postData['brq_transactions']) {
-        //     return false;
-        // }
+//         $transactionKey = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+//         if ($transactionKey != $postData->getTransactions()) {
+//             return false;
+//         }
 
         $orderState = $payment->getOrder()->getState();
         if ($orderState == \Magento\Sales\Model\Order::STATE_PROCESSING && $postData->getStatusCode() == "792") {

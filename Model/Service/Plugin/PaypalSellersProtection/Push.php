@@ -60,15 +60,15 @@ class Push
         $result
     ) {
         if (!$this->configProviderPaypal->getSellersProtection()
-            || empty($push->postData['brq_service_paypal_protectioneligibility'])
-            || empty($push->postData['brq_service_paypal_protectioneligibilitytype'])
+            || empty($push->pushRequst->getServicePaypalProtectioneligibility())
+            || empty($push->pushRequst->getServicePaypalProtectioneligibilitytype())
         ) {
             return $result;
         }
 
         $eligibilityTypes =
-            static::ELIGIBILITY_INELIGIBLE !== $push->postData['brq_service_paypal_protectioneligibility']
-            ? $push->postData['brq_service_paypal_protectioneligibilitytype']
+            static::ELIGIBILITY_INELIGIBLE !== $push->pushRequst->getServicePaypalProtectioneligibility()
+            ? $push->pushRequst->getServicePaypalProtectioneligibilitytype()
             : static::ELIGIBILITY_TYPE_NONE;
 
         // Handle the given eligibility types separately,
