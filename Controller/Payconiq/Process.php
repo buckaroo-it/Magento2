@@ -31,6 +31,7 @@ use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
+use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 
 class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 {
@@ -64,7 +65,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         SearchCriteriaBuilder $searchCriteriaBuilder,
         TransactionRepositoryInterface $transactionRepository,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
+        RequestPushFactory $requestPushFactory
     ) {
         parent::__construct(
             $context,
@@ -85,7 +87,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $customerFactory,
             $orderService,
             $eventManager,
-            $quoteRecreate
+            $quoteRecreate,
+            $requestPushFactory
         );
 
         $this->searchCriteriaBuilder  = $searchCriteriaBuilder;

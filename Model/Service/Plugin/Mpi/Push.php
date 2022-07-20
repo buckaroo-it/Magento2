@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\Service\Plugin\Mpi;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
+use phpseclib3\Math\BigInteger\Engines\PHP\Reductions\MontgomeryMult;
 
 class Push
 {
@@ -60,6 +61,8 @@ class Push
          */
         $paymentMethodInstance = $payment->getMethodInstance();
         $card = $paymentMethodInstance->getInfoInstance()->getAdditionalInformation('card_type');
+
+        if(empty($card)) return $result;
 
         $authenticationFunction = 'getService' . ucfirst($card) . 'Authentication';
         $enrolledFunction = 'getService' . ucfirst($card) . 'Enrolled';
