@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\ObjectManagerInterface;
@@ -250,11 +251,11 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 
     /**s
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array $postData
+     * @param PushRequestInterface $postData
      *
      * @return bool
      */
-    public function canProcessPostData($payment, $postData)
+    public function canProcessPostData($payment, PushRequestInterface $postData)
     {
         return true;
     }

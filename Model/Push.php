@@ -694,7 +694,7 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($response['status'], true));
         $payment = $this->order->getPayment();
 
-        if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->pushRequst->getData())) {
+        if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->pushRequst)) {
             return;
         }
 

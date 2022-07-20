@@ -251,7 +251,7 @@ class HttppostPushRequest implements PushRequestInterface
                 case 'get':
                     $this->checkArguments($args, 0, 0, $methodName);
                     return $this->get($property);
-                case 'default':
+                default:
                     throw new \Exception('Method ' . $methodName . ' not exists');
             }
         }
