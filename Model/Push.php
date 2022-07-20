@@ -1169,7 +1169,7 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|2|');
 
-        if ($paymentMethod->canPushInvoice($this->pushRequst->getData())) {
+        if ($paymentMethod->canPushInvoice($this->pushRequst)) {
             $this->logging->addDebug(__METHOD__ . '|3|');
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             if ($this->pushRequst->hasPostData('transaction_method', 'transfer')) {
@@ -1192,7 +1192,7 @@ class Push implements PushInterface
         }
 
         $this->dontSaveOrderUponSuccessPush = false;
-        if ($paymentMethod->canPushInvoice($this->pushRequst->getData())) {
+        if ($paymentMethod->canPushInvoice($this->pushRequst)) {
             $this->logging->addDebug(__METHOD__ . '|4|');
 
             if (!$this->isPayPerEmailB2BModePushInitial && $this->isPayPerEmailB2BModePushPaid()) {

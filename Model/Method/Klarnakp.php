@@ -364,7 +364,7 @@ class Klarnakp extends AbstractMethod
         } else {
             $shippingSameAsBilling = $this->isAddressDataDifferent($payment) ? "false" : "true";
         }
-        
+
         $streetFormat = $this->addressFormatter->formatStreet($shippingAddress->getStreet());
 
         $rawPhoneNumber = $shippingAddress->getTelephone();
@@ -540,13 +540,13 @@ class Klarnakp extends AbstractMethod
     /**
      * {@inheritDoc}
      */
-    public function canPushInvoice($responseData)
+    public function canPushInvoice($responseData): bool
     {
-        if (isset($responseData['brq_datarequest'])) {
+        if (!empty($responseData->getDatarequest())) {
             return false;
         }
 
-        if (!isset($responseData['brq_datarequest']) && isset($responseData['brq_transactions'])) {
+        if (empty($responseData->getDatarequest()) && !empty($responseData->getTransactions())) {
             return true;
         }
 

@@ -314,11 +314,11 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     }
 
     /**
-     * @param $responseData
+     * @param PushRequestInterface $responseData
      *
      * @return bool
      */
-    public function canPushInvoice($responseData)
+    public function canPushInvoice(PushRequestInterface $responseData): bool
     {
         if ($this->getConfigData('payment_action') == 'authorize') {
             return false;
