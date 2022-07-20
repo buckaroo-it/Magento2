@@ -32,7 +32,6 @@ class RequestPushFactory
      * Create push request
      *
      * @return PushRequestInterface
-     * @throws \Magento\Framework\Exception\InputException
      */
     public function create(): PushRequestInterface
     {
