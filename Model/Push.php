@@ -235,8 +235,6 @@ class Push implements PushInterface
      */
     public function receivePush()
     {
-//        $this->getPostData();
-
         //Start debug mailing/logging with the postdata.
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->pushRequst->getOriginalRequest(), true));
 

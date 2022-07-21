@@ -69,4 +69,10 @@ interface PushRequestInterface
     public function setAmount($amount);
 
     public function getData(): array;
+
+    public function getAdditionalInformation($propertyName);
+
+    public function hasPostData($name, $value): bool;
+
+    public function hasAdditionalInformation($name, $value): bool;
 }

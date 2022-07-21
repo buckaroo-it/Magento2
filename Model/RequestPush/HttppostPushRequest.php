@@ -225,16 +225,6 @@ class HttppostPushRequest implements PushRequestInterface
         return false;
     }
 
-    public function __isset($name)
-    {
-        return isset($this->request[$name]);
-    }
-
-    public function __unset($name)
-    {
-        unset($this->request[$name]);
-    }
-
     /**
      * @throws \Exception
      */
