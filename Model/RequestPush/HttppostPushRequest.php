@@ -16,6 +16,8 @@ use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
  */
 class HttppostPushRequest extends AbstractPushRequest implements PushRequestInterface
 {
+    private array $request = [];
+    private array $originalRequest;
     /**
      * @var ValidatorPush $validator
      */
@@ -53,6 +55,16 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
             }
         }
         return null;
+    }
+
+    public function getData(): array
+    {
+        return $this->request;
+    }
+
+    public function getOriginalRequest()
+    {
+        return $this->originalRequest;
     }
 
     /**

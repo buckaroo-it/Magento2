@@ -4,8 +4,10 @@ namespace Buckaroo\Magento2\Model\Adapter;
 
 use Buckaroo\Buckaroo;
 use Buckaroo\Config\Config;
+use Buckaroo\Exceptions\SDKException;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\Encryption\Encryptor;
+use Buckaroo\Handlers\Reply\ReplyHandler;
 
 class BuckarooAdapter
 {
@@ -17,9 +19,12 @@ class BuckarooAdapter
     /**
      * @var Account
      */
-    private $configProviderAccount;
+    private Account $configProviderAccount;
 
-    protected $encryptor;
+    /**
+     * @var Encryptor
+     */
+    protected Encryptor $encryptor;
 
     public function __construct(Account $configProviderAccount, Encryptor $encryptor)
     {
@@ -37,5 +42,15 @@ class BuckarooAdapter
 
     public function refund($method, $data) {
         return $this->buckaroo->payment($method)->refund($data);
+    }
+
+    /**
+     * @throws SDKException
+     */
+    public function validate($post_data, $auth_header, $uri): bool
+    {
+        $reply_handler = new ReplyHandler($this->buckaroo->client()->config(), $post_data, $auth_header, $uri);
+        $reply_handler->validate();
+        return $reply_handler->isValid();
     }
 }

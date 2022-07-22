@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Model\RequestPush;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\Validator\PushSDK as Validator;
 
 /**
  * @method getDatarequest()
@@ -15,10 +16,16 @@ use Buckaroo\Magento2\Exception;
  */
 class JsonPushRequest extends AbstractPushRequest implements PushRequestInterface
 {
+    private array $request = [];
+    private array $originalRequest;
+    /**
+     * @var Validator $validator
+     */
+    private Validator $validator;
     /**
      * @throws Exception
      */
-    public function __construct(array $requestData)
+    public function __construct(array $requestData, Validator $validator)
     {
         $this->originalRequest = $requestData;
         if(isset($requestData['Transaction'])) {
@@ -26,12 +33,17 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
         } else {
             throw new Exception(__('Json request could not be processed, please use httppost'));
         }
+        $this->validator  = $validator;
 
     }
 
+    /**
+     * @param $store
+     * @return bool
+     */
     public function validate($store = null): bool
     {
-        return true;
+       return $this->validator->validate($this->getData());
     }
 
     public function get($name){
@@ -47,6 +59,16 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
             }
         }
         return null;
+    }
+
+    public function getData(): array
+    {
+        return $this->request;
+    }
+
+    public function getOriginalRequest()
+    {
+        return $this->originalRequest;
     }
 
     public function getAmount()

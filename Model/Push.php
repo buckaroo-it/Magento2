@@ -242,6 +242,14 @@ class Push implements PushInterface
         $lockHandler = $this->lockPushProcessing();
         $this->logging->addDebug(__METHOD__ . '|1_3|');
 
+//        $this->logging->addDebug(__METHOD__ . '|REQUEST_CONTENT|' . var_export($this->request->getContent(), true));
+//        $this->logging->addDebug(__METHOD__ . '|REQUEST_HEADERS|' . var_export($this->request->getHeaders(), true));
+//
+//
+//        $this->logging->addDebug(__METHOD__ . '|REQUEST_CONTENT_TYPE|' . var_export($this->request->getContentType(), true));
+//
+//        $this->logging->addDebug(__METHOD__ . '|REQUEST_DATA|' . var_export($this->request->getRequestData(), true));
+
         if ($this->isGroupTransactionInfo()) {
             if ($this->isGroupTransactionFailed()) {
                 $this->savePartGroupTransaction();
@@ -576,7 +584,7 @@ class Push implements PushInterface
         $this->order->loadByIncrementId((string) $brqOrderId);
 
         if (!$this->order->getId()) {
-            $this->logging->addDebug('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
+            $this->logging->addDebug('Order could not be loaded by Invoice Number or Order Number');
             // try to get order by transaction id on payment.
             $this->order = $this->getOrderByTransactionKey();
         }

@@ -4,9 +4,6 @@ namespace Buckaroo\Magento2\Model\RequestPush;
 
 class AbstractPushRequest
 {
-    private array $request = [];
-    private array $originalRequest;
-
     /**
      * @throws \Exception
      */
@@ -83,13 +80,5 @@ class AbstractPushRequest
         return false;
     }
 
-    public function getData(): array
-    {
-        return $this->request;
-    }
 
-    public function getOriginalRequest()
-    {
-        return $this->originalRequest;
-    }
 }
