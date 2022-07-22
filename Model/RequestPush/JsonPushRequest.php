@@ -13,11 +13,8 @@ use Buckaroo\Magento2\Exception;
  * @method getSchemekey()
  * @method getServiceCreditmanagement3Invoicekey()
  */
-class JsonPushRequest implements PushRequestInterface
+class JsonPushRequest extends AbstractPushRequest implements PushRequestInterface
 {
-    private array $request = [];
-    private array $originalRequest;
-
     /**
      * @throws Exception
      */
@@ -35,6 +32,21 @@ class JsonPushRequest implements PushRequestInterface
     public function validate($store = null): bool
     {
         return true;
+    }
+
+    public function get($name){
+        if(method_exists($this, $name)){
+            return $this->$name();
+        }
+        elseif(property_exists($this,$name)){
+            return $this->$name;
+        } else {
+            $propertyName = ucfirst($name);
+            if(isset($this->request[$propertyName])) {
+                return $this->request[$propertyName];
+            }
+        }
+        return null;
     }
 
     public function getAmount()
@@ -102,11 +114,6 @@ class JsonPushRequest implements PushRequestInterface
         return $this->request["Status"]["SubCode"]["Description"] ?? null;
     }
 
-    public function isTest()
-    {
-        return $this->request["IsTest"] ?? null;
-    }
-
     public function getTransactionMethod()
     {
         return $this->request["ServiceCode"] ?? null;
@@ -120,25 +127,6 @@ class JsonPushRequest implements PushRequestInterface
     public function getTransactions()
     {
         return $this->request["Key"] ?? null;
-    }
-
-    public function getOriginalRequest()
-    {
-        return $this->originalRequest;
-    }
-
-    public function setTransactions($transactions)
-    {
-        $this->request['Key'] = $transactions;
-    }
-
-    public function setAmount($amount) {
-        $this->request['AmountDebit'] = $amount;
-    }
-
-    public function getData(): array
-    {
-        return $this->request;
     }
 
     public function getAdditionalInformation($propertyName)
@@ -155,94 +143,18 @@ class JsonPushRequest implements PushRequestInterface
         return null;
     }
 
-    public function hasPostData($name, $value): bool
+    public function isTest()
     {
-        $getter = 'get' . str_replace('_', '', ucwords($name, '_'));
-        $fieldValue = $this->$getter();
-        if (is_array($value) &&
-            isset($fieldValue) &&
-            in_array($fieldValue, $value)
-        ) {
-            return true;
-        }
-
-        if (isset($fieldValue) &&
-            $fieldValue == $value
-        ) {
-            return true;
-        }
-
-        return false;
+        return $this->request["IsTest"] ?? null;
     }
 
-    /**
-     * @param $name
-     * @param $value
-     * @return bool
-     */
-    public function hasAdditionalInformation($name, $value): bool
+    public function setTransactions($transactions)
     {
-        $fieldValue = $this->getAdditionalInformation($name);
-        if (is_array($value) &&
-            isset($fieldValue) &&
-            in_array($fieldValue, $value)
-        ) {
-            return true;
-        }
-
-        if (isset($fieldValue) &&
-            $fieldValue == $value
-        ) {
-            return true;
-        }
-
-        return false;
+        $this->request['Key'] = $transactions;
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function __call($methodName, $args) {
-        if(method_exists($this, $methodName)) {
-            call_user_func_array([$this, $methodName], $args);
-        }
-        if (preg_match('~^(set|get)(.*)$~', $methodName, $matches)) {
-            $property = lcfirst($matches[2]);
-            switch($matches[1]) {
-                case 'set':
-                    $this->checkArguments($args, 1, 1, $methodName);
-                    return $this->set($property, $args[0]);
-                case 'get':
-                    $this->checkArguments($args, 0, 0, $methodName);
-                    return $this->get($property);
-                default:
-                    throw new \Exception('Method ' . $methodName . ' not exists');
-            }
-        }
+    public function setAmount($amount) {
+        $this->request['AmountDebit'] = $amount;
     }
 
-    /**
-     * @throws \Exception
-     */
-    protected function checkArguments(array $args, $min, $max, $methodName) {
-        $argc = count($args);
-        if ($argc < $min || $argc > $max) {
-            throw new \Exception('Method ' . $methodName . ' needs minimaly ' . $min . ' and maximaly ' . $max . ' arguments. ' . $argc . ' arguments given.');
-        }
-    }
-
-    public function get($name){
-        if(method_exists($this, $name)){
-            return $this->$name();
-        }
-        elseif(property_exists($this,$name)){
-            return $this->$name;
-        } else {
-            $propertyName = ucfirst($name);
-            if(isset($this->request[$propertyName])) {
-                return $this->request[$propertyName];
-            }
-        }
-        return null;
-    }
 }

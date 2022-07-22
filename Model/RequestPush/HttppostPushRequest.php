@@ -14,11 +14,8 @@ use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
  * @method getServiceCreditmanagement3Invoicekey()
  * @method getEventparametersStatuscode()
  */
-class HttppostPushRequest implements PushRequestInterface
+class HttppostPushRequest extends AbstractPushRequest implements PushRequestInterface
 {
-    private array $request = [];
-    private array $originalRequest;
-
     /**
      * @var ValidatorPush $validator
      */
@@ -41,6 +38,21 @@ class HttppostPushRequest implements PushRequestInterface
             $this->request,
             $store
         );
+    }
+
+    public function get($name){
+        if(method_exists($this, $name)){
+            return $this->$name();
+        }
+        elseif(property_exists($this,$name)){
+            return $this->$name;
+        } else {
+            $propertyName = 'brq_' . strtolower(preg_replace('~(?!^)(?=[A-Z])~', '_', $name));
+            if(isset($this->request[$propertyName])) {
+                return $this->request[$propertyName];
+            }
+        }
+        return null;
     }
 
     /**
@@ -114,11 +126,6 @@ class HttppostPushRequest implements PushRequestInterface
         return $this->request['brq_statusmessage'] ?? null;
     }
 
-    public function isTest()
-    {
-        return $this->request['brq_test'] ?? null;
-    }
-
     public function getTransactionMethod()
     {
         return $this->request['brq_transaction_method'] ?? null;
@@ -137,35 +144,6 @@ class HttppostPushRequest implements PushRequestInterface
         return $this->request['brq_transactions'] ?? null;
     }
 
-    public function getOriginalRequest(): array
-    {
-        return $this->originalRequest;
-    }
-
-    public function setTransactions($transactions)
-    {
-        $this->request['brq_transactions'] = $transactions;
-    }
-
-    public function setAmount($amount) {
-        $this->request['brq_amount'] = $amount;
-    }
-
-    public function get($name){
-        if(method_exists($this, $name)){
-            return $this->$name();
-        }
-        elseif(property_exists($this,$name)){
-            return $this->$name;
-        } else {
-            $propertyName = 'brq_' . strtolower(preg_replace('~(?!^)(?=[A-Z])~', '_', $name));
-            if(isset($this->request[$propertyName])) {
-                return $this->request[$propertyName];
-            }
-        }
-        return null;
-    }
-
     public function getAdditionalInformation($propertyName)
     {
         $propertyName = 'add_' . strtolower($propertyName);
@@ -176,89 +154,17 @@ class HttppostPushRequest implements PushRequestInterface
         return null;
     }
 
-    /**
-     * @param $name
-     * @param $value
-     * @return bool
-     */
-    public function hasPostData($name, $value): bool
+    public function isTest()
     {
-        $getter = 'get' . str_replace('_', '', ucwords($name, '_'));
-        $fieldValue = $this->$getter();
-        if (is_array($value) &&
-            isset($fieldValue) &&
-            in_array($fieldValue, $value)
-        ) {
-            return true;
-        }
-
-        if (isset($fieldValue) &&
-            $fieldValue == $value
-        ) {
-            return true;
-        }
-
-        return false;
+        return $this->request['brq_test'] ?? null;
     }
 
-    /**
-     * @param $name
-     * @param $value
-     * @return bool
-     */
-    public function hasAdditionalInformation($name, $value): bool
+    public function setTransactions($transactions)
     {
-        $fieldValue = $this->getAdditionalInformation($name);
-        if (is_array($value) &&
-            isset($fieldValue) &&
-            in_array($fieldValue, $value)
-        ) {
-            return true;
-        }
-
-        if (isset($fieldValue) &&
-            $fieldValue == $value
-        ) {
-            return true;
-        }
-
-        return false;
+        $this->request['brq_transactions'] = $transactions;
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function __call($methodName, $args) {
-        if(method_exists($this, $methodName)) {
-            call_user_func_array([$this, $methodName], $args);
-        }
-        if (preg_match('~^(set|get)(.*)$~', $methodName, $matches)) {
-            $property = lcfirst($matches[2]);
-            switch($matches[1]) {
-                case 'set':
-                    $this->checkArguments($args, 1, 1, $methodName);
-                    return $this->set($property, $args[0]);
-                case 'get':
-                    $this->checkArguments($args, 0, 0, $methodName);
-                    return $this->get($property);
-                default:
-                    throw new \Exception('Method ' . $methodName . ' not exists');
-            }
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    protected function checkArguments(array $args, $min, $max, $methodName) {
-        $argc = count($args);
-        if ($argc < $min || $argc > $max) {
-            throw new \Exception('Method ' . $methodName . ' needs minimaly ' . $min . ' and maximaly ' . $max . ' arguments. ' . $argc . ' arguments given.');
-        }
-    }
-
-    public function getData(): array
-    {
-        return $this->request;
+    public function setAmount($amount) {
+        $this->request['brq_amount'] = $amount;
     }
 }
