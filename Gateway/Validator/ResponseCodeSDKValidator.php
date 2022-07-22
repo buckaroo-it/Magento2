@@ -1,47 +1,47 @@
 <?php
-/**
- * Copyright © 2016 Magento. All rights reserved.
- * See COPYING.txt for license details.
- */
+
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Helper\Data;
+use Magento\Framework\App\Request\Http;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
-use Buckaroo\Magento2\Gateway\Http\Client\ClientMock;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
 class ResponseCodeSDKValidator extends AbstractValidator
 {
-    const RESULT_CODE = 'RESULT_CODE';
-
     /**
-     * @var \Buckaroo\Magento2\Helper\Data $helper
+     * @var Data $helper
      */
-    protected $helper;
+    protected Data $helper;
 
     /**
-     * @var \StdClass
+     * @var TransactionResponse
      */
-    protected $transaction;
-
-    protected $request;
+    protected TransactionResponse $transaction;
 
     /**
-     * @param \Buckaroo\Magento2\Helper\Data $helper
-     * @param \Magento\Framework\App\Request\Http $request
+     * @var Http
+     */
+    protected Http $request;
+
+    /**
+     * @param Data $helper
+     * @param Http $request
      * @param ResultInterfaceFactory $resultFactory
      */
     public function __construct(
-        \Buckaroo\Magento2\Helper\Data      $helper,
-        \Magento\Framework\App\Request\Http $request,
-        ResultInterfaceFactory              $resultFactory
+        Data                   $helper,
+        Http                   $request,
+        ResultInterfaceFactory $resultFactory
     ) {
         parent::__construct($resultFactory);
         $this->helper = $helper;
         $this->request = $request;
 
     }
+
     /**
      * Performs validation of result code
      *
