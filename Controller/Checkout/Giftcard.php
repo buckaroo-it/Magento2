@@ -122,7 +122,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     protected function getGiftcardResponse(Quote $quote, $response)
     {
 
-        $this->giftcardResponse->set($response);
+        $this->giftcardResponse->set($response, $quote);
 
         if ($this->giftcardResponse->getErrorMessage() !== null) {
             throw new ApiException($this->giftcardResponse->getErrorMessage());
@@ -150,7 +150,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData([
             'RemainderAmount' => $remainingAmount,
-            'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid($quote),
+            'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid(),
             'PayRemainingAmountButton' => $buttonMessage,
             'message' => $textMessage
         ]);

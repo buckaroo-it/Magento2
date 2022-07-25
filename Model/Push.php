@@ -1985,6 +1985,13 @@ class Push implements PushInterface
             $order->getState() !== Order::STATE_CANCELED
         ) {
             $orderManagement->cancel($order->getEntityId());
+
+            $order->addCommentToStatusHistory(
+                __('Giftcard has expired')
+            )
+            ->setIsCustomerNotified(false)
+            ->setEntityName('invoice')
+            ->save();
         }
     }
 
@@ -2011,7 +2018,14 @@ class Push implements PushInterface
             );
         }
 
-        return $this->createOrder($quote);
+        $order = $this->createOrder($quote);
+
+        //keep the quote active but remove the canceled order from it
+        $quote->setIsActive(true);
+        $quote->setOrigOrderId(null);
+        $quote->setReservedOrderId(null);
+        $quote->save();
+        return $order;
 
         
     }

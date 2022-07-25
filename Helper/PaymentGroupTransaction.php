@@ -177,6 +177,16 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
             return;
     }
 
+    public function getGroupTransactionItemsNotRefunded($order_id)
+    {
+        $collection = $this->groupTransactionFactory->create()
+            ->getCollection()
+            ->addFieldToFilter('order_id', ['eq' => $order_id])
+            ->addFieldToFilter('refunded_amount', ['null' => true]);
+        return array_values($collection->getItems());
+    }
+
+    
     public function getGroupTransactionById($entity_id)
     {
         $collection = $this->groupTransactionFactory->create()
