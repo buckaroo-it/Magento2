@@ -31,14 +31,12 @@ class PushSDK implements ValidatorInterface
      * @param BuckarooAdapter $sdkAdapter
      * @param Request $request
      * @param UrlInterface $urlBuilder
-     * @param Log $logging
      */
-    public function __construct(BuckarooAdapter $sdkAdapter, Request $request, UrlInterface $urlBuilder, Log $logging)
+    public function __construct(BuckarooAdapter $sdkAdapter, Request $request, UrlInterface $urlBuilder)
     {
         $this->sdkAdapter = $sdkAdapter;
         $this->request = $request;
         $this->urlBuilder = $urlBuilder;
-        $this->logging = $logging;
     }
 
     /**
@@ -49,11 +47,8 @@ class PushSDK implements ValidatorInterface
     {
         try {
             $post_data = $this->request->getContent();
-            $this->logging->addDebug(__METHOD__ . '|POST_DATA_VALIDATOR|' . var_export($post_data, true));
             $auth_header = $this->request->getHeader('Authorization');
-            $this->logging->addDebug(__METHOD__ . '|Authorization|' . var_export($auth_header, true));
             $uri = $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push');
-            $this->logging->addDebug(__METHOD__ . '|URL|' . var_export($uri, true));
 
             return $this->sdkAdapter->validate($post_data, $auth_header, $uri);
         } catch (SDKException $exception) {

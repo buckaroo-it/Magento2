@@ -10,23 +10,9 @@ use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
-class RefundHandler extends AbstractMethod implements HandlerInterface
+class RefundHandler extends AbstractResponseHandler implements HandlerInterface
 {
-
-    public function getOrderTransactionBuilder($payment)
-    {
-        // TODO: Implement getOrderTransactionBuilder() method.
-    }
-
-    public function getAuthorizeTransactionBuilder($payment)
-    {
-        // TODO: Implement getAuthorizeTransactionBuilder() method.
-    }
-
-    public function getVoidTransactionBuilder($payment)
-    {
-        // TODO: Implement getVoidTransactionBuilder() method.
-    }
+    public bool $closeRefundTransaction = true;
 
     public function handle(array $handlingSubject, array $response)
     {
@@ -42,12 +28,14 @@ class RefundHandler extends AbstractMethod implements HandlerInterface
             throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');
         }
 
+        $this->transactionResponse = $response['object'];
+
         $payment = $handlingSubject['payment']->getPayment();
-        $responseData = json_decode(json_encode($response['object']->toArray()));
+        $responseData = json_decode(json_encode($this->transactionResponse->toArray()));
 
         $response = $this->refundTransactionSdk($responseData, $payment);
 
-        $this->saveTransactionData($responseData, $payment, $this->closeRefundTransaction, false);
+        $this->saveTransactionData($this->transactionResponse, $payment, $this->closeRefundTransaction, false);
         $this->afterRefund($payment, $response);
     }
 
@@ -88,6 +76,17 @@ class RefundHandler extends AbstractMethod implements HandlerInterface
         }
 
         return $responseData;
+    }
+
+    /**
+     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param array|\StdCLass                                             $response
+     *
+     * @return $this
+     */
+    protected function afterRefund($payment, $response)
+    {
+        return $this->dispatchAfterEvent('buckaroo_magento2_method_refund_after', $payment, $response);
     }
 
 }

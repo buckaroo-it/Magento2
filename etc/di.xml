@@ -674,7 +674,7 @@
             <argument name="handlers" xsi:type="array">
                 <item name="txnid" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TxnIdHandler</item>
                 <item name="fraud" xsi:type="string">Buckaroo\Magento2\Gateway\Response\FraudHandler</item>
-                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ResponseHandler</item>
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
             </argument>
         </arguments>
     </virtualType>
