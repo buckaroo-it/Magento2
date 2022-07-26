@@ -2315,22 +2315,32 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $format;
     }
 
+    /**
+     * If we have already paid some value we do a pay reminder request
+     *
+     * @param Payment $payment
+     * @param TransactionBuilderInterface $transactionBuilder
+     * @param string $serviceAction
+     * @param string $newServiceAction
+     *
+     * @return void
+     */
     protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay', $newServiceAction = 'PayRemainder')
     {
         /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction */
         $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
         $incrementId = $payment->getOrder()->getIncrementId();
 
-        $originalTransactionKey = $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
-        if ($originalTransactionKey !== false) {
-            $serviceAction = $newServiceAction;
-            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
+        $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($incrementId);
 
-            $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($incrementId);
-            if ($alreadyPaid > 0) {
-                $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
-                $transactionBuilder->setAmount($this->payRemainder);
-            }
+        if ($alreadyPaid > 0) {
+            $serviceAction = $newServiceAction;
+
+            $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
+            $transactionBuilder->setAmount($this->payRemainder);
+            $transactionBuilder->setOriginalTransactionKey(
+                $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId)
+            );
         }
         return $serviceAction;
     }

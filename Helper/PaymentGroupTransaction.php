@@ -21,11 +21,12 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\GroupTransactionFactory;
-use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Buckaroo\Magento2\Model\GroupTransactionFactory;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory as GroupTransactionCollectionFactory;
 
 class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelper
@@ -51,6 +52,11 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     protected $grTrCollectionFactory;
 
     /**
+     * @var \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction
+     */
+    protected $resourceModel;
+
+    /**
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -59,7 +65,8 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         Order $order,
         TransactionInterface $transaction,
         Log $logging,
-        GroupTransactionCollectionFactory $grTrCollectionFactory
+        GroupTransactionCollectionFactory $grTrCollectionFactory,
+        GroupTransaction $resourceModel
     ) {
         parent::__construct($context);
 
@@ -70,6 +77,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         $this->transaction = $transaction;
         $this->logging     = $logging;
         $this->grTrCollectionFactory = $grTrCollectionFactory;
+        $this->resourceModel = $resourceModel;
     }
 
     public function saveGroupTransaction($response)
@@ -106,8 +114,19 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     {
         $collection = $this->groupTransactionFactory->create()
             ->getCollection()
-            ->addFieldToFilter('order_id', ['eq' => $order_id]);
-        return array_values($collection->getItems());
+            ->addFieldToFilter(
+                'order_id',
+                ['eq' => $order_id]
+            )
+            ->addFieldToFilter(
+                'status',
+                ['eq' => '190']
+            );
+        $items = array_values($collection->getItems());
+
+        return array_filter($items, function($item) {
+            return $item['amount'] - (float)$item['refunded_amount'] > 0;
+        });
     }
 
     /**
@@ -124,6 +143,40 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         }
         return $this->getGroupTransactionAmount($order_id);
     }
+
+    public function getGroupTransactionAmount($order_id)
+    {
+        $total = 0;
+        foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
+            if ($value['status'] == '190') {
+                $total += $value['amount'] - (float)$value['refunded_amount'];
+            }
+        }
+        return $total;
+    }
+
+    public function getGroupTransactionOriginalTransactionKey($order_id)
+    {
+        if($order_id === null) {
+            return;
+        }
+        $collection = $this->grTrCollectionFactory->create();
+        $groupTransaction = $collection
+            ->addFieldToFilter(
+                'order_id',
+                ['eq' => $order_id]
+            )
+            ->addFieldToFilter(
+                'status',
+                ['eq' => '190']
+            )->setOrder('entity_id','DESC')
+            ->getFirstItem();
+            if (!$groupTransaction->isEmpty()) {
+                return $groupTransaction->getData('relatedtransaction');
+            }
+            return;
+    }
+
     public function getGroupTransactionItemsNotRefunded($order_id)
     {
         $collection = $this->groupTransactionFactory->create()
@@ -133,27 +186,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return array_values($collection->getItems());
     }
 
-    public function getGroupTransactionAmount($order_id)
-    {
-        $total = 0;
-        foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
-            if ($value['status'] == '190') {
-                $total += $value['amount'];
-            }
-        }
-        return $total;
-    }
-
-    public function getGroupTransactionOriginalTransactionKey($order_id)
-    {
-        foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
-            if ($value['relatedtransaction']) {
-                return $value['relatedtransaction'];
-            }
-        }
-        return false;
-    }
-
+    
     public function getGroupTransactionById($entity_id)
     {
         $collection = $this->groupTransactionFactory->create()
@@ -223,5 +256,27 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
                 ['buckaroo_magento2_giftcard.label']
             );
         return $collection->getFirstItem();
+    }
+    /**
+     * Set status to all transactions in a group
+     *
+     * @param string $groupTransactionId
+     * @param string $status
+     *
+     * @return void
+     */
+    public function setGroupTransactionsStatus(string $groupTransactionId, string $status)
+    {
+        $this->resourceModel
+        ->getConnection()
+        ->update(
+            $this->resourceModel->getTable('buckaroo_magento2_group_transaction'),
+            [
+                'status' => $status
+            ],
+            [
+                'relatedtransaction = ?' => $groupTransactionId
+            ]
+        );
     }
 }
