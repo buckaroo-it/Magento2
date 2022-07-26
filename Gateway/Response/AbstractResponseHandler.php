@@ -11,6 +11,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Framework\Message\ManagerInterface as MessageManager;
 
 class AbstractResponseHandler
 {
@@ -40,20 +41,27 @@ class AbstractResponseHandler
      * @var BuckarooLog
      */
     protected BuckarooLog $buckarooLog;
+    /**
+     * @var MessageManager
+     */
+    protected MessageManager $messageManager;
+
 
     public function __construct(
         Registry           $registry,
         Data               $helper,
         ManagerInterface   $eventManager,
         BuckarooLog        $buckarooLog,
-        ResourceConnection $resourceConnection
-
-    ) {
+        ResourceConnection $resourceConnection,
+        MessageManager     $messageManager
+    )
+    {
         $this->registry = $registry;
         $this->helper = $helper;
         $this->eventManager = $eventManager;
         $this->buckarooLog = $buckarooLog;
         $this->resourceConnection = $resourceConnection;
+        $this->messageManager = $messageManager;
     }
 
     /**
@@ -74,9 +82,7 @@ class AbstractResponseHandler
     {
         if (!empty($response->getTransactionKey())) {
             $transactionKey = $response->getTransactionKey();
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
+
             $payment->setIsTransactionClosed($close);
 
             /**
@@ -89,9 +95,6 @@ class AbstractResponseHandler
              */
             $rawInfo = $this->getTransactionAdditionalInfo($arrayResponse);
 
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
             $payment->setTransactionAdditionalInfo(
                 \Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS,
                 $rawInfo

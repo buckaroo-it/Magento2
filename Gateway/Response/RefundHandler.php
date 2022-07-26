@@ -31,45 +31,41 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
         $this->transactionResponse = $response['object'];
 
         $payment = $handlingSubject['payment']->getPayment();
-        $responseData = json_decode(json_encode($this->transactionResponse->toArray()));
 
-        $response = $this->refundTransactionSdk($responseData, $payment);
+        $response = $this->refundTransactionSdk($this->transactionResponse, $payment);
 
         $this->saveTransactionData($this->transactionResponse, $payment, $this->closeRefundTransaction, false);
         $this->afterRefund($payment, $response);
     }
 
     /**
-     * @param $transaction
-     *
-     * @return array|\StdClass
-     * @throws \Buckaroo\Magento2\Exception
+     * @param TransactionResponse $responseData
+     * @param null $payment
+     * @return array|\StdClass|TransactionResponse
      */
-    public function refundTransactionSdk($responseData, $payment = null)
+    public function refundTransactionSdk(TransactionResponse $responseData, $payment = null)
     {
         $pendingApprovalStatus = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL');
 
         if (
-            !empty($responseData->Status->Code->Code)
-            && ($responseData->Status->Code->Code == $pendingApprovalStatus)
+            !empty($responseData->getStatusCode())
+            && ($responseData->getStatusCode() == $pendingApprovalStatus)
             && $payment
-            && !empty($responseData->RelatedTransactions->RelatedTransaction->_)
+            && !empty($responseData['RelatedTransactions'])
         ) {
-            $this->logger2->addDebug(__METHOD__ . '|10|');
+            $this->buckarooLog->addDebug(__METHOD__ . '|10|');
             $buckarooTransactionKeysArray = $payment->getAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
-            $buckarooTransactionKeysArray[$responseData->RelatedTransactions->RelatedTransaction->_] =
-                $responseData->Status->Code->Code;
+            $buckarooTransactionKeysArray[$responseData['RelatedTransactions'][0]['RelatedTransactionKey']] =
+                $responseData->getStatusCode();
             $payment->setAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
                 $buckarooTransactionKeysArray
             );
-            $resource = $this->objectManager->get('Magento\Framework\App\ResourceConnection');
-            $connection = $resource->getConnection();
+            $connection = $this->resourceConnection->getConnection();
             $connection->rollBack();
-            $messageManager = $this->objectManager->get('Magento\Framework\Message\ManagerInterface');
-            $messageManager->addError(
+            $this->messageManager->addErrorMessage(
                 __("Refund has been initiated, but it needs to be approved, so you need to wait for an approval")
             );
             $payment->save();
@@ -80,7 +76,7 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass                                             $response
+     * @param array|\StdCLass $response
      *
      * @return $this
      */
