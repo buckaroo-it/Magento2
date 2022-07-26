@@ -2556,6 +2556,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
     public function canUseForCountry($country)
     {
+        
+        
+        if ($this->getConfigData('allowspecific') != 1) {
+            return true;
+        }
+
         $specificCountries = $this->getConfigData('specificcountry');
         
         //if the country config is null in the store get the config value from the global('default') settings
@@ -2564,13 +2570,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 'payment/' . $this->getCode() . '/specificcountry',
             );
         }
+
+        $availableCountries = explode(',', $specificCountries);
+        return in_array($country, $availableCountries);
         
-        if ($this->getConfigData('allowspecific') == 1) {
-            $availableCountries = explode(',', $specificCountries);
-            if (!in_array($country, $availableCountries)) {
-                return false;
-            }
-        }
-        return true;
     }
 }
