@@ -51,14 +51,15 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
             !empty($responseData->getStatusCode())
             && ($responseData->getStatusCode() == $pendingApprovalStatus)
             && $payment
-            && !empty($responseData['RelatedTransactions'])
+            && !empty($responseData->getRelatedTransactions())
         ) {
             $this->buckarooLog->addDebug(__METHOD__ . '|10|');
             $buckarooTransactionKeysArray = $payment->getAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
-            $buckarooTransactionKeysArray[$responseData['RelatedTransactions'][0]['RelatedTransactionKey']] =
-                $responseData->getStatusCode();
+            foreach ($responseData->getRelatedTransactions() as $relatedTransaction) {
+                $buckarooTransactionKeysArray[$relatedTransaction['RelatedTransactionKey']] = $responseData->getStatusCode();
+            }
             $payment->setAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
                 $buckarooTransactionKeysArray
