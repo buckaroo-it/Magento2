@@ -399,6 +399,7 @@
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
+                <customer_type>both</customer_type>
             </buckaroo_magento2_afterpay20>
             
             <buckaroo_magento2_billink>

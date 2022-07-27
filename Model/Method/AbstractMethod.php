@@ -399,6 +399,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     $additionalData['customer_telephone']
                 );
             }
+
+            if (isset($data['additional_data']['customer_coc'])) {
+                $this->getInfoInstance()
+                    ->setAdditionalInformation('customer_coc', $data['additional_data']['customer_coc']);
+            }
         }
     }
 
@@ -2476,12 +2481,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // First data to set is the billing address data.
         $requestData = $this->getRequestBillingData($payment);
 
+        
         // If the shipping address is not the same as the billing it will be merged inside the data array.
         if (
             $this->isAddressDataDifferent($payment) ||
             is_null($payment->getOrder()->getShippingAddress()) ||
             $payment->getMethod() === Klarna::KLARNA_METHOD_NAME  ||
-            $payment->getMethod() === Klarnain::PAYMENT_METHOD_CODE 
+            $payment->getMethod() === Klarnain::PAYMENT_METHOD_CODE ||
+            $payment->getMethod() === Afterpay20::PAYMENT_METHOD_CODE 
         ) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
