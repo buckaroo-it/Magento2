@@ -61,4 +61,7 @@
         <observer name="buckaroo_magento2_order_cancel_after" instance="Buckaroo\Magento2\Observer\OrderCancelAfter" />
     </event>
     
+    <event name="sales_order_payment_transaction_html_txn_id">
+        <observer name="paypal_transaction_html" instance="Buckaroo\Magento2\Observer\HtmlTransactionIdObserver"/>
+    </event>
 </config>

@@ -228,6 +228,13 @@ class Push implements PushInterface
         $lockHandler = $this->lockPushProcessing();
         $this->logging->addDebug(__METHOD__ . '|1_3|');
 
+        if ($this->isFailedGroupTransaction()) {
+            $this->handleGroupTransactionFailed();
+            return true;
+        }
+
+       
+
         if ($this->isGroupTransactionInfo()) {
             if ($this->isGroupTransactionFailed()) {
                 $this->savePartGroupTransaction();
@@ -237,6 +244,10 @@ class Push implements PushInterface
         }
 
         $this->loadOrder();
+
+        if ($this->skipHandlingForFailedGroupTransactions()) {
+            return true;
+        }
 
         if (!$this->isPushNeeded()) {
             return true;
@@ -1844,5 +1855,178 @@ class Push implements PushInterface
                 $this->order->save();
             }
         }
+    }
+
+    /**
+     * Handle push from main group transaction fail
+     *
+     * @return void
+     */
+    protected function handleGroupTransactionFailed()
+    {
+        try {
+            $this->cancelOrder(
+                $this->postData['brq_invoicenumber']
+            );
+            $this->groupTransaction->setGroupTransactionsStatus(
+                $this->postData['brq_transactions'],
+                $this->postData['brq_statuscode']
+            );
+        } catch (\Throwable $th) {
+            $this->logging->addDebug(__METHOD__ . '|'.(string)$th);
+        }
+    }
+
+    /**
+     * Check if is a failed transaction
+     *
+     * @return boolean
+     */
+    protected function isFailedGroupTransaction()
+    {
+        return $this->hasPostData(
+            'brq_transaction_type',
+            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+        ) &&
+        $this->hasPostData(
+            'brq_statuscode',
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
+        );
+    }
+
+
+    /**
+     * Ship push handling for a failed transaction
+     *
+     * @return void
+     */
+    protected function skipHandlingForFailedGroupTransactions()
+    {
+        return 
+            $this->order !== null && 
+            $this->order->getId() !== null &&
+            $this->order->getState() == Order::STATE_CANCELED &&
+            (
+                $this->hasPostData(
+                    'brq_transaction_type',
+                    'V202'
+                ) ||
+
+                $this->hasPostData(
+                    'brq_transaction_type',
+                    'V203'
+                ) ||
+                $this->hasPostData(
+                    'brq_transaction_type',
+                    'V204'
+                )
+            );
+    }
+    /**
+     * Get quote by increment/reserved order id
+     *
+     * @param string $reservedOrderId
+     *
+     * @return \Magento\Quote\Model\Quote|null
+     */
+    protected function getQuoteByReservedOrderId(string $reservedOrderId)
+    {
+        /** @var \Magento\Quote\Model\QuoteFactory */
+        $quoteFactory = $this->objectManager->get('Magento\Quote\Model\QuoteFactory');
+        /** @var \Magento\Quote\Model\ResourceModel\Quote */
+        $quoteResourceModel = $this->objectManager->get('Magento\Quote\Model\ResourceModel\Quote');
+
+        $quote = $quoteFactory->create();
+
+        $quoteResourceModel->load($quote, $reservedOrderId, 'reserved_order_id');
+        if (!$quote->isEmpty()) {
+            return $quote;
+        }
+    }
+    
+    /**
+     * Create order from found quote by reserved order id
+     *
+     * @param  \Magento\Quote\Model\Quote $quote
+     * 
+     * @return \Magento\Framework\Model\AbstractExtensibleModel|\Magento\Sales\Api\Data\OrderInterface|object|null
+     * @throws \Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function createOrder(\Magento\Quote\Model\Quote $quote)
+    {
+        /** @var \Magento\Quote\Model\QuoteManagement */
+        $quoteManagement = $this->objectManager->get('Magento\Quote\Model\QuoteManagement');
+
+        return $quoteManagement->submit($quote);
+    }
+
+    /**
+     * Cancel order for failed group transaction
+     *
+     * @param string $reservedOrderId
+     *
+     * @return void
+     */
+    protected function cancelOrder(string $reservedOrderId)
+    {
+        $order = $this->order->loadByIncrementId($reservedOrderId);
+
+        if ($order->getEntityId() === null) {
+            $order = $this->createOrderFromQuote($reservedOrderId);
+        }
+
+        /** @var \Magento\Sales\Api\OrderManagementInterface */
+        $orderManagement = $this->objectManager->get('Magento\Sales\Api\OrderManagementInterface');
+
+        if(
+            $order instanceof \Magento\Sales\Api\Data\OrderInterface &&
+            $order->getEntityId() !== null &&
+            $order->getState() !== Order::STATE_CANCELED
+        ) {
+            $orderManagement->cancel($order->getEntityId());
+
+            $order->addCommentToStatusHistory(
+                __('Giftcard has expired')
+            )
+            ->setIsCustomerNotified(false)
+            ->setEntityName('invoice')
+            ->save();
+        }
+    }
+
+    /**
+     * Create order from quote
+     *
+     * @param string $reservedOrderId
+     * @return \Magento\Framework\Model\AbstractExtensibleModel|\Magento\Sales\Api\Data\OrderInterface|object|null
+     * @throws \Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function createOrderFromQuote(string $reservedOrderId)
+    {
+        $quote = $this->getQuoteByReservedOrderId($reservedOrderId);
+        if (!$quote instanceof \Magento\Quote\Model\Quote) {
+            return;
+        }
+
+        //fix missing email validation
+        if ($quote->getCustomerEmail() == null) {
+          
+            $quote->setCustomerEmail(
+                $quote->getBillingAddress()->getEmail()
+            );
+        }
+
+        $order = $this->createOrder($quote);
+
+        //keep the quote active but remove the canceled order from it
+        $quote->setIsActive(true);
+        $quote->setOrigOrderId(null);
+        $quote->setReservedOrderId(null);
+        $quote->save();
+        return $order;
+
+        
     }
 }

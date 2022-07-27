@@ -17,22 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Model\Config\Source\PaymentMethods;
+namespace Buckaroo\Magento2\Logging;
 
-use Magento\Framework\Data\OptionSourceInterface;
+use DateTimeZone;
+use Monolog\Logger;
 
-class In3Version implements OptionSourceInterface
-{
-    /**
-     * @return array
-     */
-    public function toOptionArray()
+class InternalLogger extends Logger {
+
+    public function __construct(string $name, array $handlers = [], array $processors = [])
     {
-        $options = [
-            ['value' => '0', 'label' => __('In3 Flexible')],
-            ['value' => '1', 'label' => __('In3 Garant')]
-        ];
-
-        return $options;
+        parent::__construct($name, $handlers, $processors);
     }
 }

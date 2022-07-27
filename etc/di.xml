@@ -394,7 +394,7 @@
         </arguments>
     </type>
 
-    <type name="Buckaroo\Magento2\Logging\Log">
+    <type name="Buckaroo\Magento2\Logging\InternalLogger">
         <arguments>
             <argument name="name" xsi:type="string">buckaroo_logging</argument>
             <argument name="handlers"  xsi:type="array">
