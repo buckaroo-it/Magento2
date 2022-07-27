@@ -647,11 +647,11 @@
 .buckaroo_magento2_tinka .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_tinka_title.svg) no-repeat;
     float: right;
-    margin-right: -15px;
-    margin-top: 0px;
-    background-size: auto 26px;
-    width: 105px;
-    height: 36px;
+    margin-right: 0px;
+    margin-top: -11px;
+    background-size: auto 42px;
+    width: 65px;
+    height: 42px;
     content: ' ';
 }
 
