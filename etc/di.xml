@@ -713,4 +713,101 @@
         </arguments>
     </virtualType>
     <!-- Message Mapper -->
+
+    <!-- Klarna Buckaroo using Payment Provider Gateway -->
+    <virtualType name="KlarnaFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">KlarnaValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">KlarnaValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">KlarnaGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Klarna Buckaroo Gateway Payment Provider valueHandlerPool -->
+    <virtualType name="KlarnaValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">KlarnaConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Klarna Buckaroo Gateway Payment Provider validatorPool -->
+    <virtualType name="KlarnaValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">KlarnaCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Klarna Buckaroo Gateway Payment Provider commandPool -->
+    <virtualType name="KlarnaGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">KlarnaOrderCommand</item>
+                <item name="refund" xsi:type="string">KlarnaRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Klarna Buckaroo Gateway Order Command Provider commandPool -->
+    <virtualType name="KlarnaOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">KlarnaOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">KlarnaAuthorizationHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
+                <item name="customer" xsi:type="string">CustomerDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CustomerDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="shipping" xsi:type="string">BraintreeAuthorizeRequest</item>
+                <item name="billing" xsi:type="string">Magento\Braintree\Gateway\Request\SettlementDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">KlarnaRefundRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="handler" xsi:type="object">KlarnaRefundHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
 </config>

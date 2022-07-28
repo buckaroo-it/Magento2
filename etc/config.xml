@@ -548,7 +548,7 @@
 
             <buckaroo_magento2_klarna>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Klarna\PayLater</model>
+                <model>KlarnaFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
