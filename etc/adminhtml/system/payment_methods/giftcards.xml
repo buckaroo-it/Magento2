@@ -65,6 +65,13 @@
             <config_path>payment/buckaroo_magento2_giftcards/group_giftcards</config_path>
         </field>
 
+         <field id="enable_remove_button" translate="label comment" type="select" sortOrder="41" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Remove giftcard</label>
+            <comment><![CDATA[Give consumers the option to remove the used giftcard during the checkout process.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/buckaroo_magento2_giftcards/enable_remove_button</config_path>
+        </field>
+
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 

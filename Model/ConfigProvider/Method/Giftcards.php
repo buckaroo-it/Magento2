@@ -38,6 +38,7 @@ class Giftcards extends AbstractConfigProvider
     const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS    = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
     const XPATH_GIFTCARDS_GROUP_GIFTCARDS      = 'payment/buckaroo_magento2_giftcards/group_giftcards';
     const XPATH_GIFTCARDS_SORT                 = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
+    const XPATH_GIFTCARDS_ENABLE_REMOVE_BUTTON = 'payment/buckaroo_magento2_giftcards/enable_remove_button';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
 
@@ -137,12 +138,28 @@ class Giftcards extends AbstractConfigProvider
                     'giftcards'        => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'enable_remove_button' => $this->isRemoveButtonEnabled()
                     ],
                 ],
             ],
         ];
     }
 
+    /**
+     * Get the status of the giftcard remove button
+     *
+     * @param null|int $storeId
+     *
+     * @return boolean
+     */
+    public function isRemoveButtonEnabled($storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_GIFTCARDS_ENABLE_REMOVE_BUTTON,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) == 1;
+    }
     /**
      * @param null|int $storeId
      *

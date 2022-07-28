@@ -99,8 +99,10 @@ class Pay implements PayWithGiftcardInterface
         } catch (ApiException $th) {
             throw $th;
         } catch (NoQuoteException $th) {
+            $this->logger->addDebug((string)$th);
             throw $th;
         } catch (\Throwable $th) {
+            $this->logger->addDebug((string)$th);
             throw new ApiException(__('Unknown buckaroo error has occurred'), 0, $th);
         }
     }

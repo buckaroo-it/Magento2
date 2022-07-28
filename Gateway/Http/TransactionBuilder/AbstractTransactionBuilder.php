@@ -125,7 +125,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     private $isCustomInvoiceId = false;
 
     /** @var Encryptor $encryptor */
-    private $encryptor;
+    protected $encryptor;
 
     /** @var Factory */
     protected $configProviderMethodFactory;

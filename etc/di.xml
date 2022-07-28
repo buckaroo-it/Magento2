@@ -45,6 +45,9 @@
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactionsResponse"/>
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayRequest"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardTransactionInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactions"/>
+
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\RemoveInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\Remove"/>
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\RemoveResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\Remove\RemoveResponse"/>
     <!-- end gifcard rest api -->
 
     <!-- paypal-express -->
@@ -203,6 +206,10 @@
                 <item name="idin" xsi:type="array">
                     <item name="type" xsi:type="string">idin</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Idin</item>
+                </item>
+                <item name="refund_giftcard" xsi:type="array">
+                    <item name="type" xsi:type="string">refund_giftcard</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\RefundGiftcard</item>
                 </item>
             </argument>
         </arguments>

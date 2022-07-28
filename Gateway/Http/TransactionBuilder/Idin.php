@@ -53,7 +53,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
     protected $issuer;
 
     /** @var Encryptor $encryptor */
-    private $encryptor;
+    protected $encryptor;
 
     /**
      * @var Account
