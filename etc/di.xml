@@ -762,7 +762,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">KlarnaOrderCommand</item>
-                <item name="refund" xsi:type="string">KlarnaRefundCommand</item>
+<!--                <item name="refund" xsi:type="string">KlarnaRefundCommand</item>-->
             </argument>
         </arguments>
     </virtualType>
@@ -786,28 +786,37 @@
                 <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
-                <item name="customer" xsi:type="string">CustomerDataBuilder</item>
+<!--                <item name="customer" xsi:type="string">CustomerDataBuilder</item>-->
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="CustomerDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <!-- Response handlers -->
+    <virtualType name="KlarnaAuthorizationHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="shipping" xsi:type="string">BraintreeAuthorizeRequest</item>
-                <item name="billing" xsi:type="string">Magento\Braintree\Gateway\Request\SettlementDataBuilder</item>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="KlarnaRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-        <arguments>
-            <argument name="requestBuilder" xsi:type="object">KlarnaRefundRequest</argument>
-            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
-            <argument name="handler" xsi:type="object">KlarnaRefundHandler</argument>
-            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
-        </arguments>
-    </virtualType>
+<!--    <virtualType name="CustomerDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">-->
+<!--        <arguments>-->
+<!--            <argument name="builders" xsi:type="array">-->
+<!--                <item name="shipping" xsi:type="string">BraintreeAuthorizeRequest</item>-->
+<!--                <item name="billing" xsi:type="string">Magento\Braintree\Gateway\Request\SettlementDataBuilder</item>-->
+<!--            </argument>-->
+<!--        </arguments>-->
+<!--    </virtualType>-->
+
+<!--    <virtualType name="KlarnaRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">-->
+<!--        <arguments>-->
+<!--            <argument name="requestBuilder" xsi:type="object">KlarnaRefundRequest</argument>-->
+<!--            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>-->
+<!--            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>-->
+<!--            <argument name="handler" xsi:type="object">KlarnaRefundHandler</argument>-->
+<!--            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>-->
+<!--            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>-->
+<!--        </arguments>-->
+<!--    </virtualType>-->
 </config>

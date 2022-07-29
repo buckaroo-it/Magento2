@@ -547,6 +547,7 @@
             </buckaroo_magento2_paylink>
 
             <buckaroo_magento2_klarna>
+                <debug>1</debug>
                 <active>0</active>
                 <model>KlarnaFacade</model>
                 <order_status>pending</order_status>

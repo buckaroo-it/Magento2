@@ -6,9 +6,11 @@ namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
@@ -27,9 +29,11 @@ class ArticlesDataBuilder implements BuilderInterface
      */
     const KLARNA_MAX_ARTICLE_COUNT = 99;
 
+    protected Order $order;
+
     protected ScopeConfigInterface $scopeConfig;
 
-    private BuckarooLog $buckarooLog;
+    protected BuckarooLog $buckarooLog;
 
     protected int $payRemainder = 0;
 
@@ -41,12 +45,16 @@ class ArticlesDataBuilder implements BuilderInterface
 
     protected BuckarooFee $configProviderBuckarooFee;
 
+    protected SoftwareData $softwareData;
+
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param BuckarooLog $buckarooLog
      * @param QuoteFactory $quoteFactory
      * @param Calculation $taxCalculation
      * @param Config $taxConfig
+     * @param BuckarooFee $configProviderBuckarooFee
+     * @param SoftwareData $softwareData
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -54,7 +62,8 @@ class ArticlesDataBuilder implements BuilderInterface
         QuoteFactory         $quoteFactory,
         Calculation          $taxCalculation,
         Config               $taxConfig,
-        BuckarooFee          $configProviderBuckarooFee
+        BuckarooFee          $configProviderBuckarooFee,
+        SoftwareData         $softwareData
     )
     {
         $this->scopeConfig = $scopeConfig;
@@ -63,11 +72,20 @@ class ArticlesDataBuilder implements BuilderInterface
         $this->taxCalculation = $taxCalculation;
         $this->taxConfig = $taxConfig;
         $this->configProviderBuckarooFee = $configProviderBuckarooFee;
+        $this->softwareData = $softwareData;
     }
 
     public function build(array $buildSubject)
     {
-        $payment = $buildSubject->getPayment();
+        if (!isset($buildSubject['payment'])
+            || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
+        ) {
+            throw new \InvalidArgumentException('Payment data object should be provided');
+        }
+
+        $payment = $buildSubject['payment'];
+        $this->setOrder($payment->getOrder()->getOrder());
+
         $this->buckarooLog->addDebug(__METHOD__ . '|1|');
 
         if ($this->payRemainder) {
@@ -79,7 +97,7 @@ class ArticlesDataBuilder implements BuilderInterface
             ScopeInterface::SCOPE_STORE
         );
 
-        $quote = $this->quoteFactory->create()->load($payment->getOrder()->getQuoteId());
+        $quote = $this->quoteFactory->create()->load($this->order->getQuoteId());
         $cartData = $quote->getAllItems();
 
         // Set loop variables
@@ -117,7 +135,7 @@ class ArticlesDataBuilder implements BuilderInterface
             break;
         }
 
-        $serviceLine = $this->getServiceCostLine($count, $payment->getOrder());
+        $serviceLine = $this->getServiceCostLine($count, $this->order);
 
         if (!empty($serviceLine)) {
             $articles = array_merge($articles, $serviceLine);
@@ -125,7 +143,7 @@ class ArticlesDataBuilder implements BuilderInterface
         }
 
         // Add additional shipping costs.
-        $shippingCosts = $this->getShippingCostsLine($payment->getOrder(), $count);
+        $shippingCosts = $this->getShippingCostsLine($this->order, $count);
 
         if (!empty($shippingCosts)) {
             $articles = array_merge($articles, $shippingCosts);
@@ -149,7 +167,7 @@ class ArticlesDataBuilder implements BuilderInterface
             1,
             1,
             round($this->payRemainder, 2),
-            $this->getTaxCategory($payment->getOrder())
+            $this->getTaxCategory($this->order)
         );
     }
 
@@ -209,12 +227,12 @@ class ArticlesDataBuilder implements BuilderInterface
     }
 
     /**
-     * @param \Magento\Quote\Model\Quote\Item $productItem
-     * @param                                 $includesTax
+     * @param Item $productItem
+     * @param $includesTax
      *
      * @return mixed
      */
-    public function calculateProductPrice($productItem, $includesTax)
+    public function calculateProductPrice(Item $productItem, $includesTax)
     {
         $productPrice = $productItem->getPriceInclTax();
 
@@ -362,7 +380,7 @@ class ArticlesDataBuilder implements BuilderInterface
         return $price;
     }
 
-    protected function getPriceFieldName()
+    protected function getPriceFieldName(): string
     {
         return 'GrossUnitPrice';
     }
@@ -373,26 +391,40 @@ class ArticlesDataBuilder implements BuilderInterface
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
      * @return float|int
      */
-    protected function getDiscountAmount($payment)
+    protected function getDiscountAmount()
     {
-        /** @var \Magento\Sales\Model\Order $order */
-        $order = $payment->getOrder();
-
         $discount = 0;
         $edition = $this->softwareData->getProductMetaData()->getEdition();
 
-        if ($order->getDiscountAmount() < 0) {
-            $discount -= abs((double)$order->getDiscountAmount());
+        if ($this->order->getDiscountAmount() < 0) {
+            $discount -= abs((double)$this->order->getDiscountAmount());
         }
 
-        if ($edition == 'Enterprise' && $order->getCustomerBalanceAmount() > 0) {
-            $discount -= abs((double)$order->getCustomerBalanceAmount());
+        if ($edition == 'Enterprise' && $this->order->getCustomerBalanceAmount() > 0) {
+            $discount -= abs((double)$this->order->getCustomerBalanceAmount());
         }
 
         return $discount;
+    }
+
+
+    /**
+     * @return Order
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setOrder($order)
+    {
+        $this->order = $order;
+
+        return $this;
     }
 }
