@@ -190,40 +190,13 @@ class ArticlesDataBuilder implements BuilderInterface
         $articleVat = ''
     )
     {
-        $article = [
-            [
-                '_' => $articleDescription,
-                'Name' => 'Description',
-                'GroupID' => $latestKey,
-                'Group' => 'Article',
-            ],
-            [
-                '_' => $articleId,
-                'Name' => 'Identifier',
-                'Group' => 'Article',
-                'GroupID' => $latestKey,
-            ],
-            [
-                '_' => $articleQuantity,
-                'Name' => 'Quantity',
-                'GroupID' => $latestKey,
-                'Group' => 'Article',
-            ],
-            [
-                '_' => $articleUnitPrice,
-                'Name' => 'GrossUnitPrice',
-                'GroupID' => $latestKey,
-                'Group' => 'Article',
-            ],
-            [
-                '_' => $articleVat,
-                'Name' => 'VatPercentage',
-                'GroupID' => $latestKey,
-                'Group' => 'Article',
-            ]
+        return [
+            'identifier' => $articleId,
+            'description' => $articleDescription,
+            'vatPercentage' => $articleVat,
+            'quantity' => $articleQuantity,
+            'grossUnitPrice' => $articleUnitPrice
         ];
-
-        return $article;
     }
 
     /**
