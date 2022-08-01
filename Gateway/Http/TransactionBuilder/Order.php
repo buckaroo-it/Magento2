@@ -108,7 +108,7 @@ class Order extends AbstractTransactionBuilder
         }
 
         if (!$this->emptyDescriptionFlag) {
-            $body['Description'] = $this->configProviderAccount->getTransactionLabel($store);
+            $body['Description'] = $this->configProviderAccount->getParsedLabel($store, $order);
         }
 
         $body = $this->filterBody($body);

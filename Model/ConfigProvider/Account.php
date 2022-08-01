@@ -20,8 +20,11 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Exception;
+use Magento\Store\Model\Store;
 
 /**
  * @method mixed getActive()
@@ -230,5 +233,31 @@ class Account extends AbstractConfigProvider
         $methodCode = $array[2];
 
         return $this->methodConfigProviderFactory->get($methodCode);
+    }
+
+    /**
+     * Get the parsed label, we replace the template variables with the values
+     *
+     * @param Store $store
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
+    public function getParsedLabel(Store $store, OrderInterface $order)
+    {
+        $label = $this->getTransactionLabel($store);
+
+        if ($label === null) {
+            return $store->getName();
+        }
+        
+        $label = preg_replace('/\{order_number\}/', $order->getIncrementId(), $label);
+        $label = preg_replace('/\{shop_name\}/', $store->getName(), $label);
+
+        $products = $order->getItems();
+        if (count($products)) {
+            $label = preg_replace('/\{product_name\}/', array_values($products)[0]->getName(), $label);
+        }
+        return mb_substr($label, 0, 244);
     }
 }

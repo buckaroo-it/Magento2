@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,22 +18,20 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Model\Config\Source\PaymentMethods;
 
-use Magento\Framework\Data\OptionSourceInterface;
+namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
 
-class In3Version implements OptionSourceInterface
+use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface;
+
+class OrderCreate implements OrderCreateResponseInterface
 {
-    /**
-     * @return array
-     */
-    public function toOptionArray()
+    protected $orderId;
+    
+    public function __construct(string $orderId) {
+        $this->orderId = $orderId;
+    }
+    public function getCartId()
     {
-        $options = [
-            ['value' => '0', 'label' => __('In3 Flexible')],
-            ['value' => '1', 'label' => __('In3 Garant')]
-        ];
-
-        return $options;
+        return $this->orderId;
     }
 }

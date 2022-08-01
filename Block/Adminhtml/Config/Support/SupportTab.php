@@ -29,9 +29,10 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     protected $_template = 'supportTab.phtml';
 
     /** @var array  */
-    private $phpVersionSupport = ['2.3' => ['7.3' => ['+'], '7.4' => ['+']],
-                                    '2.4' => ['7.4' => ['+']]
-                                ];
+    private $phpVersionSupport = [
+        '2.3' => ['7.3' => ['+'], '7.4' => ['+']],
+        '2.4' => ['7.4' => ['+'], '8.1' => ['+']],
+    ];
 
     /**
      * @var \Magento\Framework\Setup\ModuleContextInterface

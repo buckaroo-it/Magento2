@@ -25,8 +25,9 @@ define([
     'Magento_Checkout/js/model/step-navigator',
     'Magento_Ui/js/modal/alert',
     'mage/translate',
-    'Magento_Checkout/js/model/quote'
-], function ($, ko, Component, _, uiRegistry, stepNavigator, alert, $t, quote) {
+    'Magento_Checkout/js/model/quote',
+    'mage/url'
+], function ($, ko, Component, _, uiRegistry, stepNavigator, alert, $t, quote, url) {
     'use strict';
 
     function isOsc() {
@@ -97,7 +98,7 @@ define([
             if (isOscMagePlaza() || isOsc()) {
                 quote.billingAddress.subscribe(
                     function (newAddress) {
-                        if (newAddress.countryId && (newAddress.countryId == 'NL')) {
+                        if (newAddress && newAddress.countryId && (newAddress.countryId == 'NL')) {
                             if (window.checkoutConfig.buckarooIdin.active > 0) {
                                 if (!window.checkoutConfig.buckarooIdin.verified) {
                                     this.hideSubmitButton();
@@ -156,7 +157,7 @@ define([
                 }
 
                 $.ajax({
-                    url: "/buckaroo/checkout/idin",
+                    url: url.build("buckaroo/checkout/idin"),
                     type: 'POST',
                     dataType: 'json',
                     showLoader: true, //use for display loader 

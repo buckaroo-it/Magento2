@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Model\Method\Capayable\Installments as CapayableIn3Method;
 
 /**
  * @method getPaymentFeeLabel()
- * @method getVersion()
  */
 class CapayableIn3 extends AbstractConfigProvider
 {
@@ -41,8 +40,6 @@ class CapayableIn3 extends AbstractConfigProvider
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_capayablein3/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_capayablein3/allowspecific';
     const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_capayablein3/specificcountry';
-
-    const XPATH_CAPAYABLEIN3_VERSION = 'payment/buckaroo_magento2_capayablein3/version';
 
     const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_capayablein3/specificcustomergroup';
 

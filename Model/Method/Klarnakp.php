@@ -362,7 +362,7 @@ class Klarnakp extends AbstractMethod
         if ($isAbsentShippingAddress) {
             $shippingSameAsBilling = "true";
         } else {
-            $shippingSameAsBilling = $this->isAddressDataDifferent($payment) ? "true" : "false";
+            $shippingSameAsBilling = $this->isAddressDataDifferent($payment) ? "false" : "true";
         }
         
         $streetFormat = $this->addressFormatter->formatStreet($shippingAddress->getStreet());

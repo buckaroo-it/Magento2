@@ -139,7 +139,7 @@ class Push implements ValidatorInterface
      *
      * @return string
      */
-    protected function calculateSignature($postData, $store = null)
+    public function calculateSignature($postData, $store = null)
     {
         $copyData = $postData;
         unset($copyData['brq_signature']);

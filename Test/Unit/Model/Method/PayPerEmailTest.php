@@ -94,7 +94,6 @@ class PayPerEmailTest extends BaseTest
             ->setMethods(['getOrder', 'setAdditionalInformation'])
             ->getMock();
         $infoInstanceMock->expects($this->once())->method('getOrder');
-        $infoInstanceMock->expects($this->once())->method('setAdditionalInformation')->with('skip_push', 2);
 
         $orderTransactionMock = $this->getFakeMock(Order::class)->setMethods(['setMethod'])->getMock();
         $orderTransactionMock->expects($this->once())->method('setMethod')->with('TransactionRequest');

@@ -95,7 +95,7 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
     /**
      * @return int|null
      */
-    private function getStatusCode()
+    public function getStatusCode()
     {
         $statusCode = null;
 

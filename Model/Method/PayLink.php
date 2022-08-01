@@ -163,6 +163,8 @@ class PayLink extends AbstractMethod
          */
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
+            ->setAdditionalParameter('fromPayLink', 1)
+            ->setAdditionalParameter('fromPayPerEmail', 1)
             ->setMethod('TransactionRequest');
 
         return $transactionBuilder;
@@ -217,25 +219,27 @@ class PayLink extends AbstractMethod
         /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink $config */
         $config = $this->configProviderMethodFactory->get('paylink');
 
+        $order = $payment->getOrder();
+
         $services = [
             'Name'             => 'payperemail',
             'Action'           => 'PaymentInvitation',
             'Version'          => 1,
             'RequestParameter' => [
                 [
-                    '_'    => $payment->getAdditionalInformation('customer_gender'),
+                    '_'    => $order->getCustomerGender() ?? 1,
                     'Name' => 'customergender',
                 ],
                 [
-                    '_'    => $payment->getAdditionalInformation('customer_email'),
+                    '_'    => $order->getCustomerEmail(),
                     'Name' => 'CustomerEmail',
                 ],
                 [
-                    '_'    => $payment->getAdditionalInformation('customer_billingFirstName'),
+                    '_'    => $order->getCustomerFirstname(),
                     'Name' => 'CustomerFirstName',
                 ],
                 [
-                    '_'    => $payment->getAdditionalInformation('customer_billingLastName'),
+                    '_'    => $order->getCustomerLastname(),
                     'Name' => 'CustomerLastName',
                 ],
                 [
@@ -254,6 +258,20 @@ class PayLink extends AbstractMethod
 
     protected function afterOrder($payment, $response)
     {
+        if (!empty($response[0]->Services->Service->ResponseParameter)
+            && is_array($response[0]->Services->Service->ResponseParameter)
+        ) {
+            foreach ($response[0]->Services->Service->ResponseParameter as $parameter) {
+                if (!empty($parameter->Name)
+                    && ($parameter->Name == 'PayLink')
+                ) {
+                    $payment->getOrder()->addStatusHistoryComment(
+                        'PayLink: ' .$parameter->_
+                    );
+                }
+            }
+        }
+
         return $this->afterOrderCommon($payment, $response);
     }
 

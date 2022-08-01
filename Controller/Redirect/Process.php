@@ -21,9 +21,11 @@
 namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -185,14 +187,14 @@ class Process extends \Magento\Framework\App\Action\Action
          * Check if there is a valid response. If not, redirect to home.
          */
         if (count($this->response) === 0 || !array_key_exists('brq_statuscode', $this->response)) {
-            return $this->_redirect('/');
+            return $this->handleProcessedResponse('/');
         }
 
         if ($this->hasPostData('brq_primary_service', 'IDIN')) {
             if ($this->setCustomerIDIN()) {
-                $this->messageManager->addSuccessMessage(__('Your iDIN verified succesfully!'));
+                $this->addSuccessMessage(__('Your iDIN verified succesfully!'));
             } else {
-                $this->messageManager->addErrorMessage(
+                $this->addErrorMessage(
                     __(
                         'Unfortunately iDIN not verified!'
                     )
@@ -215,12 +217,16 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $payment = $this->order->getPayment();
 
+        if($payment) {
+            $this->setPaymentOutOfTransit($payment);
+        }
+
         if (!method_exists($payment->getMethodInstance(), 'canProcessPostData')) {
-            return $this->_redirect('/');
+            return $this->handleProcessedResponse('/');
         }
 
         if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->response)) {
-            return $this->_redirect('/');
+            return $this->handleProcessedResponse('/');
         }
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($statusCode, true));
@@ -296,7 +302,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 if (($statusCode == $pendingCode)
                     && !$this->hasPostData('brq_payment_method', 'sofortueberweisung')
                 ) {
-                    $this->messageManager->addErrorMessage(
+                    $this->addErrorMessage(
                         __(
                             'Unfortunately an error occurred while processing your payment. Please try again. If this' .
                             ' error persists, please choose a different payment method.'
@@ -304,7 +310,7 @@ class Process extends \Magento\Framework\App\Action\Action
                     );
                     $this->logger->addDebug(__METHOD__ . '|5|');
 
-                    return $this->_redirect('/');
+                    return $this->handleProcessedResponse('/');
                 }
 
                 $this->logger->addDebug(__METHOD__ . '|51|' . var_export([
@@ -340,7 +346,7 @@ class Process extends \Magento\Framework\App\Action\Action
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-                $this->handleFailed($statusCode);
+                return $this->handleFailed($statusCode);
                 break;
                 //no default
         }
@@ -348,7 +354,73 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->logger->addDebug(__METHOD__ . '|9|');
         return $this->_response;
     }
+    /**
+     * Handle final response
+     *
+     * @param string $path
+     * @param array $arguments
+     *
+     * @return ResponseInterface
+     */
+    public function handleProcessedResponse($path, $arguments = [])
+    {
+        $this->logger->addDebug(__METHOD__ . '|15|');
+        return $this->_redirect($path, $arguments);
+    }
+    /**
+     * Get order
+     *
+     * @return \Magento\Sales\Api\Data\OrderInterface
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+    /**
+     * Add error message to be displayed to the user
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    public function addErrorMessage(string $message)
+    {
+        $this->messageManager->addErrorMessage($message);
+    }
+    /**
+     * Add success message to be displayed to the user
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    public function addSuccessMessage(string $message)
+    {
+        $this->messageManager->addSuccessMessage($message);
+    }
 
+    /**
+     * Get response parameters
+     *
+     * @return array
+     */
+    public function getResponseParameters()
+    {
+        return $this->response;
+    }
+    /**
+     * Set flag if user is on the payment provider page
+     *
+     * @param OrderPaymentInterface $payment
+     *
+     * @return void
+     */
+    protected function setPaymentOutOfTransit(OrderPaymentInterface $payment)
+    {
+        $payment
+        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
+        ->save();
+    }
     protected function handleFailed($statusCode)
     {
         $this->logger->addDebug(__METHOD__ . '|7|');
@@ -384,7 +456,7 @@ class Process extends \Magento\Framework\App\Action\Action
         ] = 'According to our system, you have canceled the payment. If this' .
             ' is not the case, please contact us.';
 
-        $this->messageManager->addErrorMessage(
+        $this->addErrorMessage(
             __(
                 $statusCodeAddErrorMessage[$statusCode]
             )
@@ -399,7 +471,7 @@ class Process extends \Magento\Framework\App\Action\Action
             $this->logger->addError('Could not cancel the order.');
         }
         $this->logger->addDebug(__METHOD__ . '|8|');
-        $this->redirectFailure();
+        return $this->redirectFailure();
     }
 
     /**
@@ -481,7 +553,7 @@ class Process extends \Magento\Framework\App\Action\Action
          */
         $url = $this->accountConfig->getSuccessRedirect($store);
 
-        $this->messageManager->addSuccessMessage(__('Your order has been placed succesfully.'));
+        $this->addSuccessMessage(__('Your order has been placed successfully.'));
 
         $this->quote->setReservedOrderId(null);
 
@@ -502,7 +574,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($url, true));
 
-        return $this->_redirect($url);
+        return $this->handleProcessedResponse($url);
     }
 
     protected function redirectSuccessApplePay()
@@ -549,7 +621,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 }
             }
             $this->logger->addDebug('ready for redirect');
-            return $this->_redirect('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
+            return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
         }
 
         /**
@@ -557,7 +629,7 @@ class Process extends \Magento\Framework\App\Action\Action
          */
         $url = $this->accountConfig->getFailureRedirect($store);
 
-        return $this->_redirect($url);
+        return $this->handleProcessedResponse($url);
     }
 
     protected function redirectToCheckout()
@@ -587,7 +659,7 @@ class Process extends \Magento\Framework\App\Action\Action
             }
         }
         $this->logger->addDebug('ready for redirect');
-        return $this->_redirect('checkout', ['_query' => ['bk_e' => 1]]);
+        return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);
     }
 
     /**
