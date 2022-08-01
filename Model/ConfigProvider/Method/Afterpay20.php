@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
 use Buckaroo\Magento2\Model\Method\Afterpay20 as Afterpay20Method;
 
 /**
@@ -45,6 +46,11 @@ class Afterpay20 extends AbstractConfigProvider
     const XPATH_AFTERPAY20_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay20/allowed_currencies';
     const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP =
         'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
+    
+    const XPATH_AFTERPAY20_CUSTOMER_TYPE          = 'payment/buckaroo_magento2_afterpay20/customer_type';
+    const XPATH_AFTERPAY20_MIN_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/min_amount_b2b';
+    const XPATH_AFTERPAY20_MAX_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/max_amount_b2b';
+    
 
     const XPATH_SPECIFIC_CUSTOMER_GROUP           = 'payment/buckaroo_magento2_afterpay20/specificcustomergroup';
 
@@ -69,6 +75,7 @@ class Afterpay20 extends AbstractConfigProvider
                         'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'is_b2b'     => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C
                     ],
                     'response' => [],
                 ],
@@ -106,5 +113,21 @@ class Afterpay20 extends AbstractConfigProvider
         );
 
         return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
+    }
+
+    /**
+     * Get customer type
+     *
+     * @param null|int $storeId
+     *
+     * @return string
+     */
+    public function getCustomerType($storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY20_CUSTOMER_TYPE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 }

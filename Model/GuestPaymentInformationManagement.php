@@ -38,6 +38,11 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
     public $configProviderMethodFactory;
 
     /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
+    protected $orderRepository;
+
+    /**
      * @param \Magento\Quote\Api\GuestBillingAddressManagementInterface   $billingAddressManagement
      * @param \Magento\Quote\Api\GuestPaymentMethodManagementInterface    $paymentMethodManagement
      * @param \Magento\Quote\Api\GuestCartManagementInterface             $cartManagement
@@ -47,6 +52,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      * @param \Magento\Framework\Registry                                 $registry
      * @param \Psr\Log\LoggerInterface                                    $logger
      * @param Factory                                                     $configProviderMethodFactory
+     * @param \Magento\Sales\Api\OrderRepositoryInterface                 $orderRepository
      *
      * @codeCoverageIgnore
      */
@@ -59,7 +65,8 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
         \Magento\Framework\Registry $registry,
         \Psr\Log\LoggerInterface $logger,
-        Factory $configProviderMethodFactory
+        Factory $configProviderMethodFactory,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct(
             $billingAddressManagement,
@@ -72,6 +79,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         $this->registry = $registry;
         $this->logger = $logger;
         $this->configProviderMethodFactory  = $configProviderMethodFactory;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -98,18 +106,24 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         $quote->reserveOrderId();
 
-        $this->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
+        $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
 
         $this->logger->debug('-[RESULT]----------------------------------------');
         //phpcs:ignore:Magento2.Functions.DiscouragedFunction
         $this->logger->debug(print_r($this->registry->registry('buckaroo_response'), true));
         $this->logger->debug('-------------------------------------------------');
 
-        $response = [];
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
-            $response = $this->registry->registry('buckaroo_response')[0];
+            return json_encode($this->registry->registry('buckaroo_response')[0]);
         }
-        return json_encode($response);
+        return json_encode([
+            "order_number" => $this->getOrderIncrementId($orderId)
+        ]);
+    }
+    protected function getOrderIncrementId($orderId)
+    {
+        $order = $this->orderRepository->get($orderId);
+        return $order->getIncrementId();
     }
 
     /**

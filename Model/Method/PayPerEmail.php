@@ -139,6 +139,11 @@ class PayPerEmail extends AbstractMethod
         $services = [];
         $services[] = $this->getPayperemailService($payment);
 
+        $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, $this->buckarooPaymentMethodCode);
+        if (count($cmService) > 0) {
+            $services[] = $cmService;
+        }
+
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         /**
@@ -341,7 +346,7 @@ class PayPerEmail extends AbstractMethod
     private function getPaymentMethodsAllowed($config, $storeId)
     {
         if ($methods = $config->getPaymentMethod($storeId)) {
-            $methods = explode(',', $methods);
+            $methods = explode(',', (string)$methods);
             $activeCards = '';
             foreach ($methods as $key => $value) {
                 if ($value === 'giftcard') {
@@ -352,7 +357,7 @@ class PayPerEmail extends AbstractMethod
                 }
             }
             if ($activeCards) {
-                $methods = array_merge($methods, explode(',', $activeCards));
+                $methods = array_merge($methods, explode(',', (string)$activeCards));
             }
             $methods = join(',', $methods);
         }

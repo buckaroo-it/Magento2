@@ -247,7 +247,7 @@ define(
                     self = this;
 
                     $.ajax({
-                        url: "/buckaroo/checkout/giftcard",
+                        url: url.build('buckaroo/checkout/giftcard'),
                         type: 'POST',
                         dataType: 'json',
                         showLoader: true, //use for display loader 
@@ -264,7 +264,7 @@ define(
                         self.checkValidness();
 
                         if(data.alreadyPaid){
-                            if(data.RemainderAmount == null){
+                            if(data.RemainderAmount == 0){
                                 self.alreadyPayed = true;
                                 self.alreadyFullPayed(true);
                                 self.placeOrder(null, null);
@@ -285,7 +285,7 @@ define(
                                 });
                              self.messageContainer.addErrorMessage({'message': $t(data.error)});
                         }else{
-                            if(data.RemainderAmount != null){
+                            if(data.RemainderAmount != 0){
                                 alert({
                                     title: $t('Success'),
                                     content: $t(data.message),

@@ -53,6 +53,15 @@ class Paypal extends AbstractMethod
             'RequestParameter' => [],
         ];
 
+        $expressOrderId = $payment->getAdditionalInformation('express_order_id');
+        if ($expressOrderId !== null) {
+            $services['RequestParameter'][] = [
+                "Name" => "PayPalOrderId",
+                "_" => $expressOrderId
+            ];
+        }
+
+        
         /** @noinspection PhpUndefinedMethodInspection */
         $transactionBuilder->setOrder($payment->getOrder())
                            ->setServices($services)

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,13 +21,13 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Quote\Model\Quote;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Model\ResourceModel\CustomerRepository;
 
 /**
- * @method int getPriceDisplayCart()
- * @method int getPriceDisplaySales()
- * @method int getPaymentFeeTax()
- * @method string getTaxClass()
+ * Idin config provider
  */
 class Idin extends AbstractConfigProvider
 {
@@ -73,8 +74,6 @@ class Idin extends AbstractConfigProvider
 
     private $customerSession;
 
-    private $session;
-
     private $productFactory;
 
     protected $checkoutSession;
@@ -83,26 +82,29 @@ class Idin extends AbstractConfigProvider
 
     protected $addressFactory;
 
+    /**
+     * @var CustomerRepository
+     */
+    protected $customerRepository;
+
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface,
-        \Magento\Checkout\Model\Session $session,
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Customer\Model\AddressFactory $addressFactory
+        \Magento\Customer\Model\AddressFactory $addressFactory,
+        CustomerRepository $customerRepository
     ) {
         $this->storeManager = $storeManager;
         $this->configProviderAccount = $configProviderAccount;
         $this->customerSession = $customerSession;
-        $this->customerRepositoryInterface = $customerRepositoryInterface;
-        $this->session = $session;
         $this->productFactory = $productFactory;
         $this->checkoutSession = $checkoutSession;
         $this->scopeConfig = $scopeConfig;
         $this->addressFactory = $addressFactory;
+        $this->customerRepository = $customerRepository;
     }
 
     /**
@@ -121,91 +123,165 @@ class Idin extends AbstractConfigProvider
         );
         return [
             'buckarooIdin' => [
-                'issuers' => $this->formatIssuers(),
+                'issuers' => $this->getIssuers(),
                 'active' => $idin['active'],
                 'verified' => $idin['verified'],
                 'isOscEnabled' => $osc
             ],
         ];
     }
-
-    protected function isIDINActive()
-    {
-        $active = false;
-        $verified = false;
-        if ($this->configProviderAccount->getIdin($this->storeManager->getStore())) {
-            foreach ($this->session->getQuote()->getAllVisibleItems() as $item) {
-                $productId = $item->getProductId();
-                $product = $this->productFactory->create()->load($productId);
-
-                switch ($this->configProviderAccount->getIdinMode($this->storeManager->getStore())) {
-                    case 1:
-                        if (null !== $product->getCustomAttribute('buckaroo_product_idin')
-                            && $product->getCustomAttribute('buckaroo_product_idin')->getValue() == 1
-                        ) {
-                            $active = true;
-                        }
-                        break;
-                    case 2:
-                        $active = $this->checkCategories($product);
-                        break;
-                    default:
-                        $active = true;
-                        break;
-                }
-
-            }
-            if ($active === true && $customerId = $this->customerSession->getCustomer()->getId()) {
-                $customer = $this->customerRepositoryInterface->getById($customerId);
-                if (!$this->checkCountry($customer)) {
-                    return ['active' => false, 'verified' => false];
-                }
-                $customerAttributeData = $customer->__toArray();
-                $active = (isset($customerAttributeData['custom_attributes'])
-                    && isset($customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder'])
-                    && $customerAttributeData['custom_attributes']['buckaroo_idin_iseighteenorolder']['value'] == 1)
-                        ? false : 1;
-                $verified = !$active;
-            } elseif ($active === true) {
-                if ($this->checkoutSession->getCustomerIDINIsEighteenOrOlder()) {
-                    $active = false;
-                    $verified = true;
-                }
-            }
-        }
-
-        return ['active' => $active, 'verified' => $verified];
-    }
-
-    protected function formatIssuers()
+    /**
+     * Get list of issuers
+     *
+     * @return array
+     */
+    public function getIssuers()
     {
         $all = $this->issuers;
         if ($this->configProviderAccount->getIdin($this->storeManager->getStore()) == 1) {
             array_push($all, ['name' => 'TEST BANK', 'code' => 'BANKNL2Y']);
         }
+        return $all;
+    }
+    /**
+     * Get idin status for customer and Quote/Cart
+     *
+     * @param Quote $quote
+     * @param CustomerInterface $customer
+     *
+     * @return array
+     */
+    public function getIdinStatus(Quote $quote, CustomerInterface $customer = null)
+    {
+        if (
+            !$this->checkCountry($customer) ||
+            !$this->isIdinEnabled()
+        ) {
+            return ['active' => false, 'verified' => false];
+        }
+        $active = false;
 
-        $issuers = array_map(
-            function ($issuer) {
-                return $issuer;
-            },
-            $all
-        );
+        $verified = $this->isCustomerVerified($customer);
+        if (!$verified) {
+            $active = $this->isIdinActiveForQuote($quote);
+        }
 
-        return $issuers;
+        return ['active' => $active, 'verified' => $verified];
     }
 
+    /**
+     * Check if idin is active for this user and cart
+     *
+     * @return array
+     */
+    protected function isIDINActive()
+    {
+        return $this->getIdinStatus(
+            $this->checkoutSession->getQuote(),
+            $this->getCustomer(
+                $this->customerSession->getCustomerId()
+            )
+        );
+    }
+    /**
+     * Get customer by id
+     *
+     * @param mixed $customerId
+     *
+     * @return CustomerInterface|null
+     */
+    protected function getCustomer($customerId)
+    {
+        if (empty($customerId)) {
+            return;
+        }
+        return $this->customerRepository->getById($customerId);
+    }
+    /**
+     * Check if customer is verified
+     *
+     * @param CustomerInterface|null $customer
+     *
+     * @return boolean
+     */
+    protected function isCustomerVerified(CustomerInterface $customer = null)
+    {
+        if ($customer === null) {
+            return $this->checkoutSession->getCustomerIDINIsEighteenOrOlder() === true;
+        }
+        return ($customer->getCustomAttribute('buckaroo_idin_iseighteenorolder') !== null &&
+            $customer->getCustomAttribute('buckaroo_idin_iseighteenorolder')->getValue() == 1
+        );
+    }
+    /**
+     * Check if idin verification is required in cart/quote
+     *
+     * @param Quote $quote
+     *
+     * @return boolean
+     */
+    public function isIdinActiveForQuote(Quote $quote)
+    {
+        $active = false;
+        foreach ($quote->getAllVisibleItems() as $item) {
+            $productId = $item->getProductId();
+            $product = $this->productFactory->create()->load($productId);
+
+            switch ($this->configProviderAccount->getIdinMode($this->storeManager->getStore())) {
+                case 1:
+                    $active = $product->getCustomAttribute('buckaroo_product_idin')->getValue() == 1;
+                    break;
+                case 2:
+                    $active = $this->checkCategories($product);
+                    break;
+                default:
+                    $active = true;
+                    break;
+            }
+        }
+        return $active;
+    }
+
+    /**
+     * Check if idin is enabled
+     *
+     * @return boolean
+     */
+    protected function isIdinEnabled()
+    {
+        return $this->configProviderAccount->getIdin($this->storeManager->getStore()) != 0;
+    }
+
+    /**
+     * Check if idin is required in product categories
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     *
+     * @return boolean
+     */
     protected function checkCategories($product)
     {
-        foreach ($product->getCategoryIds() as $key => $cat) {
-            if (in_array($cat, explode(',', $this->configProviderAccount->getIdinCategory()))) {
+        foreach ($product->getCategoryIds() as $cat) {
+            if (in_array($cat, explode(',', (string)$this->configProviderAccount->getIdinCategory()))) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Enable idin only for netherland
+     *
+     * @param CustomerInterface|null $customer
+     *
+     * @return boolean
+     */
     protected function checkCountry($customer)
     {
+        if ($customer === null) {
+            return true;
+        }
+
         if ($customer->getDefaultBilling()) {
             if ($billingAddress = $this->addressFactory->create()->load($customer->getDefaultBilling())) {
                 if ($billingAddress->getCountryId()) {

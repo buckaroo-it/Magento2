@@ -19,11 +19,12 @@
  */
 namespace Buckaroo\Magento2\Logging;
 
-use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
+use Monolog\Handler\HandlerInterface;
+use Buckaroo\Magento2\Logging\InternalLogger;
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 
-class Log extends Logger
+class Log 
 {
     /** @var DebugConfiguration */
     private $debugConfiguration;
@@ -37,6 +38,11 @@ class Log extends Logger
     private static $processUid = 0;
 
     /**
+     * @var \Buckaroo\Magento2\Logging\InternalLogger
+     */
+    private $logger;
+
+    /**
      * Log constructor.
      *
      * @param string             $name
@@ -46,16 +52,14 @@ class Log extends Logger
      * @param callable[]         $processors
      */
     public function __construct(
-        $name,
         DebugConfiguration $debugConfiguration,
         Mail $mail,
-        array $handlers = [],
-        array $processors = []
+        InternalLogger $logger
     ) {
         $this->debugConfiguration = $debugConfiguration;
         $this->mail = $mail;
+        $this->logger = $logger;
 
-        parent::__construct($name, $handlers, $processors);
     }
 
     /**
@@ -69,7 +73,7 @@ class Log extends Logger
     /**
      * {@inheritdoc}
      */
-    public function addRecord($level, $message, array $context = [])
+    public function addRecord(int $level, string $message, array $context = []): bool
     {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
@@ -84,6 +88,27 @@ class Log extends Logger
         // Prepare the message to be send to the debug email
         $this->mail->addToMessage($message);
 
-        return parent::addRecord($level, $message, $context);
+        return $this->logger->addRecord($level, $message, $context);
+    }
+
+    /**
+     * @param string $message
+     * @return bool
+     */
+    public function addDebug(string $message): bool
+    {
+        return $this->addRecord(Logger::DEBUG, $message);
+    }
+
+    public function addError(string $message): bool
+    {
+        return $this->addRecord(Logger::ERROR, $message);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function debug($message)
+    {
+        return $this->addRecord(Logger::DEBUG, $message);
     }
 }

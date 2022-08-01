@@ -769,10 +769,10 @@ class Afterpay extends AbstractMethod
         $afterPayConfig = $this->configProviderMethodFactory
             ->get($this->_code);
 
-        $highClasses   = explode(',', $afterPayConfig->getHighTaxClasses($storeId));
-        $middleClasses = explode(',', $afterPayConfig->getMiddleTaxClasses($storeId));
-        $lowClasses    = explode(',', $afterPayConfig->getLowTaxClasses($storeId));
-        $zeroClasses   = explode(',', $afterPayConfig->getZeroTaxClasses($storeId));
+        $highClasses   = explode(',', (string)$afterPayConfig->getHighTaxClasses($storeId));
+        $middleClasses = explode(',', (string)$afterPayConfig->getMiddleTaxClasses($storeId));
+        $lowClasses    = explode(',', (string)$afterPayConfig->getLowTaxClasses($storeId));
+        $zeroClasses   = explode(',', (string)$afterPayConfig->getZeroTaxClasses($storeId));
 
         if (in_array($taxClassId, $highClasses)) {
             $taxCategory = 1;

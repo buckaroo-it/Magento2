@@ -152,7 +152,7 @@ class Common extends Action
             'fax' => '',
             'vat_id' => ''
         ];
-
+        $address['street'] = implode("\n",$address['street']);
         if ($type == 'shipping') {
             $address['email'] = isset($wallet['emailAddress']) ? $wallet['emailAddress'] : '';
         }

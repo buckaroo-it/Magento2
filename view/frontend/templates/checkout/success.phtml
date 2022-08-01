@@ -20,7 +20,9 @@
 ?>
 <script>
     window.onload = function(){
-        require(['Magento_Customer/js/customer-data'], function (customerData) {var sections = ['cart'];
+        require(['Magento_Customer/js/customer-data'], function (customerData) {
+            var sections = ['cart'];
+            customerData.initStorage();
             customerData.reload(sections, true);
             customerData.invalidate(sections);
             console.log('Reload shopping cart on success');});

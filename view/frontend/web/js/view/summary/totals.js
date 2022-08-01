@@ -13,9 +13,10 @@ define(
         'Magento_Ui/js/model/messageList',
         'mage/translate',
         'Magento_Ui/js/modal/alert',
-        'ko'
+        'ko',
+        'mage/url'
     ],
-    function ($, Component, quote, totals, BuckarooFee, globalMessageList, $t, alert, ko) {
+    function ($, Component, quote, totals, BuckarooFee, globalMessageList, $t, alert, ko, url) {
         'use strict';
 
         return Component.extend(
@@ -170,7 +171,7 @@ define(
                     if (confirm('Are you sure you want to remove?')) {
 
                     $.ajax({
-                        url: "/buckaroo/checkout/giftcard",
+                        url: url.build("buckaroo/checkout/giftcard"),
                         type: 'POST',
                         dataType: 'json',
                         showLoader: true, //use for display loader 
