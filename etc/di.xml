@@ -786,10 +786,31 @@
                 <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
-<!--                <item name="customer" xsi:type="string">CustomerDataBuilder</item>-->
+                <item name="customer" xsi:type="string">CustomerDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
+
+    <virtualType name="CustomerDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="shipping" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingDataBuilder</item>
+                <item name="billing" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Buckaroo\Magento2\Gateway\Request\AddressHandlerFactory">
+        <arguments>
+            <argument name="addressHandlers" xsi:type="array">
+                <item name="postnl_postnl" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\PostNLAddressHandler</item>
+                <item name="dpdpickup_dpdpickup" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\DPDPickupAddressHandler</item>
+                <item name="dhlparcel_servicepoint" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\DHLParcelAddressHandler</item>
+                <item name="sendcloud_sendcloud" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\SendCloudAddressHandler</item>
+                <item name="myparcel_myparcel" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\MyParcelAddressHandler</item>
+            </argument>
+        </arguments>
+    </type>
 
     <!-- Response handlers -->
     <virtualType name="KlarnaAuthorizationHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
@@ -800,14 +821,6 @@
         </arguments>
     </virtualType>
 
-<!--    <virtualType name="CustomerDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">-->
-<!--        <arguments>-->
-<!--            <argument name="builders" xsi:type="array">-->
-<!--                <item name="shipping" xsi:type="string">BraintreeAuthorizeRequest</item>-->
-<!--                <item name="billing" xsi:type="string">Magento\Braintree\Gateway\Request\SettlementDataBuilder</item>-->
-<!--            </argument>-->
-<!--        </arguments>-->
-<!--    </virtualType>-->
 
 <!--    <virtualType name="KlarnaRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">-->
 <!--        <arguments>-->
