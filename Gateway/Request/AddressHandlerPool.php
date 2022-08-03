@@ -38,10 +38,7 @@ class AddressHandlerPool
     }
 
     /**
-     * Create MethodList field
-     *
      * @param Order $order
-     * @return \Magento\Sales\Model\Order\Address|null
      * @throws Exception
      */
     public function updateShippingAddress(Order $order)
@@ -53,7 +50,5 @@ class AddressHandlerPool
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage(), 0, $th);
         }
-
-        return $order->getShippingAddress();
     }
 }

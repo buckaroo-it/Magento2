@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Magento2\Gateway\Request\AddressHandlerFactory;
+use Buckaroo\Magento2\Gateway\Request\AddressHandlerPool;
 use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
 use Buckaroo\Magento2\Plugin\Method\Klarna;
 
@@ -22,6 +22,7 @@ class ShippingDataBuilder extends AbstractDataBuilder
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
+
         // If the shipping address is not the same as the billing it will be merged inside the data array.
         if (
             $this->isAddressDataDifferent($this->getPayment()) ||
@@ -29,12 +30,11 @@ class ShippingDataBuilder extends AbstractDataBuilder
             $this->getPayment()->getMethod() === Klarna::KLARNA_METHOD_NAME ||
             $this->getPayment()->getMethod() === Klarnain::PAYMENT_METHOD_CODE
         ) {
-            $shippingAddress = $this->getOrder()->getShippingAddress();
+            $this->addressHandlerPool->updateShippingAddress($this->getOrder());
+            return $this->getShippingData($this->getOrder()->getShippingAddress(), $this->getPayment());
         }
 
-        $shippingAddress = $this->addressHandlerPool->updateShippingAddress($this->getOrder());
-
-        return $shippingDataBuilder->build($buildSubject);
+        return [];
     }
 
     /**
@@ -122,5 +122,54 @@ class ShippingDataBuilder extends AbstractDataBuilder
         }
 
         return $format;
+    }
+
+    protected function getShippingData($shippingAddress, $payment): array
+    {
+        $telephone = $payment->getAdditionalInformation('customer_telephone');
+        $telephone = (empty($telephone) ? $shippingAddress->getTelephone() : $telephone);
+        $streetFormat = $this->formatStreet($shippingAddress->getStreet());
+        $category = 'B2C';
+
+        $gender = 'female';
+        if ($payment->getAdditionalInformation('customer_gender') == '1') {
+            $gender = 'male';
+        }
+
+        $shippingData['recipient'] = [
+            'category' => $category,
+            'gender' => $gender,
+            'firstName' => $shippingAddress->getFirstname(),
+            'lastName' => $shippingAddress->getLastName(),
+            'birthDate' => $birthDayStamp ?? ''
+        ];
+
+        $shippingData['address'] = [
+            'street' => $streetFormat['street'],
+            'houseNumber' => '',
+            'houseNumberAdditional' => '',
+            'zipcode' => $shippingAddress->getPostcode(),
+            'city' => $shippingAddress->getCity(),
+            'country' => $shippingAddress->getCountryId()
+        ];
+
+        if (!empty($telephone)) {
+            $shippingData['phone'] = [
+                'mobile' => $telephone,
+                'landline' => $telephone
+            ];
+        }
+
+        $shippingData['email'] = $shippingAddress->getEmail();
+
+        if (!empty($streetFormat['house_number'])) {
+            $shippingData['address']['houseNumber'] = $streetFormat['house_number'];
+        }
+
+        if (!empty($streetFormat['number_addition'])) {
+            $shippingData['address']['houseNumberAdditional'] = $streetFormat['number_addition'];
+        }
+
+        return ['shipping' => $shippingData];
     }
 }

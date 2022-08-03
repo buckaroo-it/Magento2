@@ -800,14 +800,14 @@
         </arguments>
     </virtualType>
 
-    <type name="Buckaroo\Magento2\Gateway\Request\AddressHandlerFactory">
+    <type name="Buckaroo\Magento2\Gateway\Request\AddressHandlerPool">
         <arguments>
             <argument name="addressHandlers" xsi:type="array">
-                <item name="postnl_postnl" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\PostNLAddressHandler</item>
-                <item name="dpdpickup_dpdpickup" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\DPDPickupAddressHandler</item>
-                <item name="dhlparcel_servicepoint" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\DHLParcelAddressHandler</item>
-                <item name="sendcloud_sendcloud" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\SendCloudAddressHandler</item>
-                <item name="myparcel_myparcel" xsi:type="object">Buckaroo\Magento2\Api\AddressHandlerInterface\MyParcelAddressHandler</item>
+                <item name="postnl_postnl" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\PostNLAddressHandler</item>
+                <item name="dpdpickup_dpdpickup" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DPDPickupAddressHandler</item>
+                <item name="dhlparcel_servicepoint" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DHLParcelAddressHandler</item>
+                <item name="sendcloud_sendcloud" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\SendCloudAddressHandler</item>
+                <item name="myparcel_myparcel" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\MyParcelAddressHandler</item>
             </argument>
         </arguments>
     </type>

@@ -115,7 +115,6 @@ class ArticlesDataBuilder implements BuilderInterface
             }
 
             $article = $this->getArticleArrayLine(
-                $count,
                 $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
@@ -124,7 +123,7 @@ class ArticlesDataBuilder implements BuilderInterface
             );
 
             // @codingStandardsIgnoreStart
-            $articles = array_merge($articles, $article);
+            $articles[] = $article;
             // @codingStandardsIgnoreEnd
 
             if ($count < self::KLARNA_MAX_ARTICLE_COUNT) {
@@ -135,10 +134,10 @@ class ArticlesDataBuilder implements BuilderInterface
             break;
         }
 
-        $serviceLine = $this->getServiceCostLine($count, $this->order);
+        $serviceLine = $this->getServiceCostLine($this->order);
 
         if (!empty($serviceLine)) {
-            $articles = array_merge($articles, $serviceLine);
+            $articles[] = $serviceLine;
             $count++;
         }
 
@@ -146,23 +145,22 @@ class ArticlesDataBuilder implements BuilderInterface
         $shippingCosts = $this->getShippingCostsLine($this->order, $count);
 
         if (!empty($shippingCosts)) {
-            $articles = array_merge($articles, $shippingCosts);
+            $articles[] = $shippingCosts;
             $count++;
         }
 
-        $discountline = $this->getDiscountLine($count, $payment);
+        $discountline = $this->getDiscountLine($payment);
 
         if (!empty($discountline)) {
-            $articles = array_merge($articles, $discountline);
+            $articles[] = $discountline;
         }
 
-        return $articles;
+        return ['articles' => $articles];
     }
 
     protected function getRequestArticlesDataPayRemainder($payment)
     {
         return $this->getArticleArrayLine(
-            1,
             'PayRemainder',
             1,
             1,
@@ -182,7 +180,6 @@ class ArticlesDataBuilder implements BuilderInterface
      * @return array
      */
     public function getArticleArrayLine(
-        $latestKey,
         $articleDescription,
         $articleId,
         $articleQuantity,
@@ -190,40 +187,13 @@ class ArticlesDataBuilder implements BuilderInterface
         $articleVat = ''
     )
     {
-        $article = [
-            [
-                '_' => $articleDescription,
-                'Name' => 'Description',
-                'GroupID' => $latestKey,
-                'Group' => 'Article',
-            ],
-            [
-                '_' => $articleId,
-                'Name' => 'Identifier',
-                'Group' => 'Article',
-                'GroupID' => $latestKey,
-            ],
-            [
-                '_' => $articleQuantity,
-                'Name' => 'Quantity',
-                'GroupID' => $latestKey,
-                'Group' => 'Article',
-            ],
-            [
-                '_' => $articleUnitPrice,
-                'Name' => 'GrossUnitPrice',
-                'GroupID' => $latestKey,
-                'Group' => 'Article',
-            ],
-            [
-                '_' => $articleVat,
-                'Name' => 'VatPercentage',
-                'GroupID' => $latestKey,
-                'Group' => 'Article',
-            ]
+        return [
+            'identifier' => $articleId,
+            'description' => $articleDescription,
+            'vatPercentage' => $articleVat,
+            'quantity' => $articleQuantity,
+            'price' => $articleUnitPrice
         ];
-
-        return $article;
     }
 
     /**
@@ -250,7 +220,7 @@ class ArticlesDataBuilder implements BuilderInterface
         return $productPrice;
     }
 
-    public function getServiceCostLine($latestKey, $order, &$itemsTotalAmount = 0)
+    public function getServiceCostLine($order, &$itemsTotalAmount = 0)
     {
         $buckarooFeeLine = $order->getBuckarooFeeInclTax();
 
@@ -263,7 +233,6 @@ class ArticlesDataBuilder implements BuilderInterface
 
         if (false !== $buckarooFeeLine && (double)$buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
-                $latestKey,
                 'Servicekosten',
                 1,
                 1,
@@ -296,36 +265,11 @@ class ArticlesDataBuilder implements BuilderInterface
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
         $shippingCostsArticle = [
-            [
-                '_' => 'Shipping fee',
-                'Name' => 'Description',
-                'Group' => 'Article',
-                'GroupID' => $count,
-            ],
-            [
-                '_' => $this->formatPrice($shippingAmount),
-                'Name' => $this->getPriceFieldName(),
-                'Group' => 'Article',
-                'GroupID' => $count,
-            ],
-            [
-                '_' => $this->formatShippingCostsLineVatPercentage($percent),
-                'Name' => 'VatPercentage',
-                'Group' => 'Article',
-                'GroupID' => $count,
-            ],
-            [
-                '_' => '1',
-                'Name' => 'Quantity',
-                'Group' => 'Article',
-                'GroupID' => $count,
-            ],
-            [
-                '_' => '1',
-                'Name' => 'Identifier',
-                'Group' => 'Article',
-                'GroupID' => $count,
-            ],
+            'identifier' => 2,
+            'description' => 'Shipping fee',
+            'vatPercentage' => $this->formatShippingCostsLineVatPercentage($percent),
+            'quantity' => 1,
+            'price' => $this->formatPrice($shippingAmount)
         ];
 
         $itemsTotalAmount += $shippingAmount;
@@ -336,12 +280,11 @@ class ArticlesDataBuilder implements BuilderInterface
     /**
      * Get the discount cost lines
      *
-     * @param int $latestKey
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return array
      */
-    public function getDiscountLine($latestKey, $payment)
+    public function getDiscountLine($payment)
     {
         $article = [];
         $discount = $this->getDiscountAmount($payment);
@@ -351,7 +294,6 @@ class ArticlesDataBuilder implements BuilderInterface
         }
 
         $article = $this->getArticleArrayLine(
-            $latestKey,
             'Korting',
             1,
             1,
@@ -378,11 +320,6 @@ class ArticlesDataBuilder implements BuilderInterface
     protected function formatPrice($price)
     {
         return $price;
-    }
-
-    protected function getPriceFieldName(): string
-    {
-        return 'GrossUnitPrice';
     }
 
     protected function formatShippingCostsLineVatPercentage($percent)

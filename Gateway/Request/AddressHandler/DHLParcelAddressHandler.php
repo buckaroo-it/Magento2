@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\AddressHandler;
 
+use Magento\Sales\Api\Data\OrderAddressInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Model\Order;
 use Magento\Framework\HTTP\Client\Curl;
@@ -22,21 +23,23 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
     {
         if (($order->getShippingMethod() == 'dhlparcel_servicepoint')
             && $order->getDhlparcelShippingServicepointId()) {
-            $this->updateShippingAddressByDhlParcel(
-                $order->getDhlparcelShippingServicepointId(), $requestData
-            );
+            $this->updateShippingAddressByDhlParcel($order->getDhlparcelShippingServicepointId(), $order);
         }
 
         return $order;
     }
 
-    public function updateShippingAddressByDhlParcel($servicePointId, &$requestData)
+    /**
+     * @param string $servicePointId
+     * @param Order $order
+     * @return \Magento\Sales\Model\Order\Address|null
+     */
+    public function updateShippingAddressByDhlParcel(string $servicePointId, Order $order)
     {
         $this->buckarooLogger->addDebug(__METHOD__ . '|1|');
-
+        $shippingAddress = $order->getShippingAddress();
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
-            $this->curl = $this->objectManager->get('Magento\Framework\HTTP\Client\Curl');
             $this->curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/' . $matches[2] . '/' . $servicePointId);
             if (($response = $this->curl->getBody())
                 &&
@@ -45,30 +48,18 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
                 &&
                 !empty($parsedResponse->address)
             ) {
-                foreach ($requestData as $key => $value) {
-                    if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                        $mapping = [
-                            ['Street', 'street'],
-                            ['PostalCode', 'postalCode'],
-                            ['City', 'city'],
-                            ['Country', 'countryCode'],
-                            ['StreetNumber', 'number'],
-                            ['StreetNumberAdditional', 'addition'],
-                        ];
-                        foreach ($mapping as $mappingItem) {
-                            if (($requestData[$key]['Name'] == $mappingItem[0]) && (!empty($parsedResponse->address->{$mappingItem[1]}))) {
-                                if ($mappingItem[1] == 'addition') {
-                                    $parsedResponse->address->{$mappingItem[1]} =
-                                        $this->cleanStreetNumberAddition($parsedResponse->address->{$mappingItem[1]});
-                                }
-                                $requestData[$key]['_'] = $parsedResponse->address->{$mappingItem[1]};
-                            }
-                        }
-
-                    }
-                }
+                $shippingAddress->setStreet([
+                    $this->cleanStreetNumberAddition($parsedResponse->address->{'street'}),
+                    property_exists($parsedResponse->address, 'number') ? $parsedResponse->address->{'number'}: '',
+                    property_exists($parsedResponse->address, 'addition') ? $parsedResponse->address->{'addition'}: '',
+                ]);
+                $shippingAddress->setPostcode($parsedResponse->address->{'postalCode'});
+                $shippingAddress->setCity($parsedResponse->address->{'city'});
+                $shippingAddress->setCountryId($parsedResponse->address->{'countryCode'});
             }
         }
+
+        return $shippingAddress;
     }
 
     private function cleanStreetNumberAddition($addition)
