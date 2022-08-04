@@ -7,5 +7,5 @@ use Magento\Sales\Model\Order;
 
 interface AddressHandlerInterface
 {
-    public function handle(Order $order): Order;
+    public function handle(Order $order, OrderAddressInterface $shippingAddress): Order;
 }

@@ -19,7 +19,7 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
         parent::__construct($buckarooLogger);
     }
 
-    public function handle(Order $order): Order
+    public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         if ($order->getShippingMethod() == 'dpdpickup_dpdpickup') {
             $quote = $this->quoteRepository->get($order->getQuoteId());

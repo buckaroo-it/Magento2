@@ -5,6 +5,7 @@ namespace Buckaroo\Magento2\Gateway\Request\AddressHandler;
 use Buckaroo\Magento2\Api\AddressUpdaterInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\Quote\Address;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Model\Order;
 use Magento\Quote\Model\Quote\AddressFactory;
 
@@ -21,7 +22,7 @@ class PostNLAddressHandler extends AbstractAddressHandler
         parent::__construct($buckarooLogger);
     }
 
-    public function handle(Order $order): Order
+    public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 

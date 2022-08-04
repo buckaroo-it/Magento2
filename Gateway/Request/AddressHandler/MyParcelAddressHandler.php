@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Gateway\Request\AddressHandler;
 
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Model\Order;
 
 class MyParcelAddressHandler extends AbstractAddressHandler
@@ -16,7 +17,7 @@ class MyParcelAddressHandler extends AbstractAddressHandler
         parent::__construct($buckarooLogger);
     }
 
-    public function handle(Order $order): Order
+    public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         $this->buckarooLogger->addDebug(__METHOD__ . '|1|');
         $myparcelFetched = false;

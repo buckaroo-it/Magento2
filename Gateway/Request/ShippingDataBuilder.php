@@ -30,8 +30,8 @@ class ShippingDataBuilder extends AbstractDataBuilder
             $this->getPayment()->getMethod() === Klarna::KLARNA_METHOD_NAME ||
             $this->getPayment()->getMethod() === Klarnain::PAYMENT_METHOD_CODE
         ) {
-            $this->addressHandlerPool->updateShippingAddress($this->getOrder());
-            return $this->getShippingData($this->getOrder()->getShippingAddress(), $this->getPayment());
+            $shippingAddress = $this->addressHandlerPool->getShippingAddress($this->getOrder());
+            return $this->getShippingData($shippingAddress, $this->getPayment());
         }
 
         return [];

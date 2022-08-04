@@ -41,14 +41,18 @@ class AddressHandlerPool
      * @param Order $order
      * @throws Exception
      */
-    public function updateShippingAddress(Order $order)
+    public function getShippingAddress(Order $order)
     {
         try {
+            $shippingAddress = clone $order->getShippingAddress();
             foreach ($this->addressHandlers as $addressHandler) {
-                $order = $addressHandler->handle($order);
+                $order = $addressHandler->handle($order, $shippingAddress);
             }
+
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage(), 0, $th);
         }
+
+        return $shippingAddress;
     }
 }

@@ -785,7 +785,10 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
                 <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerDataBuilder</item>
             </argument>
         </arguments>

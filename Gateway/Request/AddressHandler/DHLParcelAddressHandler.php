@@ -19,11 +19,11 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
         parent::__construct($buckarooLogger);
     }
 
-    public function handle(Order $order): Order
+    public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         if (($order->getShippingMethod() == 'dhlparcel_servicepoint')
             && $order->getDhlparcelShippingServicepointId()) {
-            $this->updateShippingAddressByDhlParcel($order->getDhlparcelShippingServicepointId(), $order);
+            $this->updateShippingAddressByDhlParcel($order->getDhlparcelShippingServicepointId(), $shippingAddress);
         }
 
         return $order;
@@ -31,13 +31,11 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
 
     /**
      * @param string $servicePointId
-     * @param Order $order
      * @return \Magento\Sales\Model\Order\Address|null
      */
-    public function updateShippingAddressByDhlParcel(string $servicePointId, Order $order)
+    public function updateShippingAddressByDhlParcel(string $servicePointId, $shippingAddress)
     {
         $this->buckarooLogger->addDebug(__METHOD__ . '|1|');
-        $shippingAddress = $order->getShippingAddress();
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $this->curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/' . $matches[2] . '/' . $servicePointId);

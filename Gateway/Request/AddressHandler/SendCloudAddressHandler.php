@@ -9,7 +9,7 @@ use Magento\Sales\Model\Order;
 
 class SendCloudAddressHandler extends AbstractAddressHandler
 {
-    public function handle(Order $order): Order
+    public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         if (
             ($order->getShippingMethod() == 'sendcloud_sendcloud')
