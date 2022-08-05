@@ -40,6 +40,10 @@ class BuckarooAdapter
         return $this->buckaroo->payment($method)->pay($data);
     }
 
+    public function payInInstallments($method, $data) {
+        return $this->buckaroo->payment($method)->payInInstallments($data);
+    }
+
     public function refund($method, $data) {
         return $this->buckaroo->payment($method)->refund($data);
     }

@@ -595,7 +595,7 @@
 
             <buckaroo_magento2_klarnain>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Klarna\Klarnain</model>
+                <model>KlarnaFacadeIn</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Klarna: Slice it</title>
                 <sort_oder>220</sort_oder>
