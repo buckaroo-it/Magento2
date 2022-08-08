@@ -910,7 +910,7 @@
     <!-- END Klarna validators infrastructure -->
 
     <!-- Klarna Commands infrastructure -->
-    <virtualType name="KlarnaGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+    <virtualType name="KlarnaInGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">KlarnaInOrderCommand</item>

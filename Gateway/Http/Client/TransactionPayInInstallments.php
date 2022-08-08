@@ -11,6 +11,6 @@ class TransactionPayInInstallments extends AbstractTransaction
      */
     protected function process(string $paymentMethod,  array $data)
     {
-        return $this->adapter->pay($paymentMethod, $data);
+        return $this->adapter->payInInstallments($paymentMethod, $data);
     }
 }
