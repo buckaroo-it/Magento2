@@ -57,10 +57,6 @@ class Tinka extends AbstractMethod
             $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $data['additional_data']['customer_billingName']);
         }
 
-        if (isset($data['additional_data']['customer_gender'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_gender', $data['additional_data']['customer_gender']);
-        }
-
         if (isset($data['additional_data']['customer_DoB'])) {
             $additionalData = $data['additional_data'];
 
@@ -321,8 +317,6 @@ class Tinka extends AbstractMethod
             );
         }
 
-        $gender = $payment->getAdditionalInformation('customer_gender');
-
         $dateOfBirth = $payment->getAdditionalInformation('customer_DoB') ?? '01-01-1990';
 
         $services = [
@@ -353,12 +347,6 @@ class Tinka extends AbstractMethod
 //                    "GroupID"=> "",
 //                    "_"=> $billingAddress->get
 //                ],
-                [
-                    "Name"=> "Gender",
-                    "GroupType"=> "",
-                    "GroupID"=> "",
-                    "_"=> $gender
-                ],
             ],
         ];
 

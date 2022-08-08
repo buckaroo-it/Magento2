@@ -382,10 +382,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function assignDataCommon(array $data)
     {
-        if (isset($data['additional_data']['termsCondition'])) {
-            $additionalData = $data['additional_data'];
-            $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
+        $additionalData = $data['additional_data'];
+        if (isset($data['additional_data']['customer_gender'])) {
             $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
+        }
+        
+        if (isset($data['additional_data']['termsCondition'])) {            
+            $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
             $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
             $this->getInfoInstance()->setAdditionalInformation('customer_identificationNumber', $additionalData['customer_identificationNumber']);
 

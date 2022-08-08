@@ -132,8 +132,7 @@ class Transfer extends AbstractMethod
         $services[] = $this->getTransferService($payment);
 
         $filterParameter = [
-            ['Name' => 'AllowedServices'],
-            ['Name' => 'Gender', 'Group' => 'Person']
+            ['Name' => 'AllowedServices']
         ];
 
         $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, 'transfer', $filterParameter);

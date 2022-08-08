@@ -107,7 +107,6 @@ class Afterpay extends AbstractMethod
         if (isset($data['additional_data']['termsCondition'])) {
             $additionalData = $data['additional_data'];
             $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
-            $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
             $this->getInfoInstance()->setAdditionalInformation(
                 'customer_billingName',
                 $additionalData['customer_billingName']
@@ -821,10 +820,6 @@ class Afterpay extends AbstractMethod
                 'Name' => 'BillingTitle',
             ],
             [
-                '_'    => $payment->getAdditionalInformation('customer_gender'),
-                'Name' => 'BillingGender',
-            ],
-            [
                 '_'    => strtoupper(substr($billingAddress->getFirstname(), 0, 1)),
                 'Name' => 'BillingInitials',
             ],
@@ -917,10 +912,6 @@ class Afterpay extends AbstractMethod
             [
                 '_'    => $shippingAddress->getFirstname(),
                 'Name' => 'ShippingTitle',
-            ],
-            [
-                '_'    => $payment->getAdditionalInformation('customer_gender'),
-                'Name' => 'ShippingGender',
             ],
             [
                 '_'    => strtoupper(substr($shippingAddress->getFirstname(), 0, 1)),

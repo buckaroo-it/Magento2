@@ -82,6 +82,12 @@ class PayPerEmail extends AbstractConfigProvider
                     'payperemail' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'genderList' => [
+                            ['genderType' => 1, 'genderTitle' => 'He/him'],
+                            ['genderType' => 2, 'genderTitle' => 'She/her'],
+                            ['genderType' => 0, 'genderTitle' => 'They/them'],
+                            ['genderType' => 9, 'genderTitle' => 'I prefer not to say']
+                        ]
                     ],
                     'response' => [],
                 ],
