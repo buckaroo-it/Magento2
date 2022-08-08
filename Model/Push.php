@@ -1898,11 +1898,11 @@ class Push implements PushInterface
      */
     protected function isFailedGroupTransaction()
     {
-        return $this->hasPostData(
+        return $this->pushRequst->hasPostData(
             'brq_transaction_type',
             self::BUCK_PUSH_GROUPTRANSACTION_TYPE
         ) &&
-        $this->hasPostData(
+        $this->pushRequst->hasPostData(
             'brq_statuscode',
             $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
         );
@@ -1912,7 +1912,7 @@ class Push implements PushInterface
     /**
      * Ship push handling for a failed transaction
      *
-     * @return void
+     * @return bool
      */
     protected function skipHandlingForFailedGroupTransactions()
     {
@@ -1921,16 +1921,16 @@ class Push implements PushInterface
             $this->order->getId() !== null &&
             $this->order->getState() == Order::STATE_CANCELED &&
             (
-                $this->hasPostData(
+                $this->pushRequst->hasPostData(
                     'brq_transaction_type',
                     'V202'
                 ) ||
 
-                $this->hasPostData(
+                $this->pushRequst->hasPostData(
                     'brq_transaction_type',
                     'V203'
                 ) ||
-                $this->hasPostData(
+                $this->pushRequst->hasPostData(
                     'brq_transaction_type',
                     'V204'
                 )

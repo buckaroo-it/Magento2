@@ -511,6 +511,70 @@
         </arguments>
     </type>
 
+    <!-- Buckaroo Payment Provider Gateway -->
+
+    <!-- Buckaroo AddressHandlerPool - Change Shipping Request by Delivery Methods-->
+    <type name="Buckaroo\Magento2\Gateway\Request\AddressHandlerPool">
+        <arguments>
+            <argument name="addressHandlers" xsi:type="array">
+                <item name="postnl_postnl" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\PostNLAddressHandler</item>
+                <item name="dpdpickup_dpdpickup" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DPDPickupAddressHandler</item>
+                <item name="dhlparcel_servicepoint" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DHLParcelAddressHandler</item>
+                <item name="sendcloud_sendcloud" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\SendCloudAddressHandler</item>
+                <item name="myparcel_myparcel" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\MyParcelAddressHandler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Buckaroo Order Command - Response Handler -->
+    <virtualType name="OrderResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Buckaroo Refund Command -->
+    <virtualType name="BuckarooRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BuckarooRefundRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <!-- Buckaroo Refund Command - Request Builder -->
+    <virtualType name="BuckarooRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
+                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Buckaroo Refund Command - Response Handler -->
+    <virtualType name="RefundResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RefundHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Alipay Refund Command -->
+
+
+
+    <!-- END Buckaroo Payment Provider Gateway -->
+
     <type name="Magento\Payment\Model\MethodList">
         <arguments>
             <argument name="additionalChecks" xsi:type="array">
@@ -764,7 +828,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">KlarnaOrderCommand</item>
-                <item name="refund" xsi:type="string">KlarnaRefundCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -775,7 +839,7 @@
             <argument name="requestBuilder" xsi:type="object">KlarnaOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
-            <argument name="handler" xsi:type="object">KlarnaAuthorizationHandler</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
         </arguments>
@@ -804,66 +868,8 @@
             </argument>
         </arguments>
     </virtualType>
-    <type name="Buckaroo\Magento2\Gateway\Request\AddressHandlerPool">
-        <arguments>
-            <argument name="addressHandlers" xsi:type="array">
-                <item name="postnl_postnl" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\PostNLAddressHandler</item>
-                <item name="dpdpickup_dpdpickup" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DPDPickupAddressHandler</item>
-                <item name="dhlparcel_servicepoint" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DHLParcelAddressHandler</item>
-                <item name="sendcloud_sendcloud" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\SendCloudAddressHandler</item>
-                <item name="myparcel_myparcel" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\MyParcelAddressHandler</item>
-            </argument>
-        </arguments>
-    </type>
 
-    <!-- Klarna Order Command - Gateway Client -->
-    <!-- Klarna Order Command - Response Validator -->
-    <!-- Klarna Order Command - Response Handler -->
-    <virtualType name="KlarnaAuthorizationHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Klarna Order Command - Error Code Mapping -->
     <!-- END Klarna Order Command -->
-
-    <!-- Klarna Refund Command -->
-    <virtualType name="KlarnaRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-        <arguments>
-            <argument name="requestBuilder" xsi:type="object">KlarnaRefundRequest</argument>
-            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
-            <argument name="handler" xsi:type="object">KlarnaRefundHandler</argument>
-            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
-        </arguments>
-    </virtualType>
-    <!-- Klarna Refund Command - Request Builder -->
-    <virtualType name="KlarnaRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
-                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Klarna Refund Command - Response Handler -->
-    <virtualType name="KlarnaRefundHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RefundHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- END Klarna Refund Command -->
     <!-- END Klarna Commands infrastructure -->
     <!-- END Payment Method: Klarna -->
 
@@ -878,7 +884,7 @@
         </arguments>
     </virtualType>
 
-    <!-- Klarna Value handlers infrastructure -->
+    <!-- KlarnaIn Value handlers infrastructure -->
     <virtualType name="KlarnaInValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
         <arguments>
             <argument name="handlers" xsi:type="array">
@@ -892,9 +898,9 @@
             <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain</argument>
         </arguments>
     </virtualType>
-    <!-- END Klarna Value handlers infrastructure -->
+    <!-- END KlarnaIn Value handlers infrastructure -->
 
-    <!-- Klarna validators infrastructure -->
+    <!-- KlarnaIn validators infrastructure -->
     <virtualType name="KlarnaInValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
@@ -907,25 +913,106 @@
             <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain</argument>
         </arguments>
     </virtualType>
-    <!-- END Klarna validators infrastructure -->
+    <!-- END KlarnaIn validators infrastructure -->
 
-    <!-- Klarna Commands infrastructure -->
+    <!-- KlarnaIn Commands infrastructure -->
     <virtualType name="KlarnaInGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">KlarnaInOrderCommand</item>
-                <item name="refund" xsi:type="string">KlarnaRefundCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
-
-
-    <!-- Klarna Order Command -->
+    <!-- KlarnaIn Order Command -->
     <virtualType name="KlarnaInOrderCommand" type="KlarnaOrderCommand">
         <arguments>
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayInInstallments</argument>
         </arguments>
     </virtualType>
+    <!-- END KlarnaIn Order Command -->
+    <!-- END KlarnaIn Commands infrastructure -->
+    <!-- END Payment Method: KlarnaIn -->
 
-    <!-- END Payment Method: Klarna -->
+    <!-- Payment Method: Alipay -->
+    <!-- Alipay Payment Method Facade configuration -->
+    <virtualType name="AlipayFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Alipay::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">AlipayValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">AlipayValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">AlipayGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+    <!-- Alipay Value handlers infrastructure -->
+    <virtualType name="AlipayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">AlipayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="AlipayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Alipay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Alipay Value handlers infrastructure -->
+
+    <!-- Alipay validators infrastructure -->
+    <virtualType name="AlipayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">AlipayCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AlipayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Alipay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Alipay validators infrastructure -->
+
+    <!-- Alipay Commands infrastructure -->
+    <virtualType name="AlipayGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">AlipayOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Alipay Order Command -->
+    <virtualType name="AlipayOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AlipayOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <!-- Alipay Order Command - Request Builder -->
+    <virtualType name="AlipayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="use_mobile_view" xsi:type="string">Buckaroo\Magento2\Gateway\Request\UseMobileViewDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Alipay Order Command -->
+    <!-- END Alipay Commands infrastructure -->
+    <!-- END Payment Method: Alipay -->
+
 </config>

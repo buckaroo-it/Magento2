@@ -740,7 +740,7 @@
 
             <buckaroo_magento2_alipay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Alipay</model>
+                <model>AlipayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Alipay</title>
                 <allowspecific>0</allowspecific>
