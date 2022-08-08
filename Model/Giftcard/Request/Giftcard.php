@@ -179,7 +179,7 @@ class Giftcard implements GiftcardInterface
 
         $incrementId =  $this->getIncrementId();
         $originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
-        if ($originalTransactionKey !== false) {
+        if ($originalTransactionKey !== null) {
             $this->action = 'PayRemainder';
         }
         
@@ -215,7 +215,7 @@ class Giftcard implements GiftcardInterface
                 ]
             ]
         ];
-        if ($originalTransactionKey !== false) {
+        if ($originalTransactionKey !== null) {
             $body['OriginalTransactionKey'] = $originalTransactionKey;
         }
         return $body;

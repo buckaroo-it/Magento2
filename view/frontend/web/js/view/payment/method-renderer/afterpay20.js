@@ -105,6 +105,7 @@ define(
                     CustomerName: null,
                     BillingName: null,
                     country: '',
+                    customerCoc:'',
                     dateValidate: null,
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
                     termsValidate: false,
@@ -115,6 +116,7 @@ define(
                     showIdentificationValue: null,
                     showFrenchTosValue: null,
                     showPhoneValue: null,
+                    showCOC: false,
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
@@ -122,7 +124,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,
                 isCustomerLoggedIn: customer.isLoggedIn,
-
+                isB2B: window.checkoutConfig.payment.buckaroo.afterpay20.is_b2b,
                 /**
                  * @override
                  */
@@ -155,6 +157,8 @@ define(
                             'showIdentificationValue',
                             'showFrenchTosValue',
                             'showPhoneValue',
+                            'customerCoc',
+                            'showCOC',
                         ]
                     );
 
@@ -287,6 +291,20 @@ define(
                             this.updateShowFields();
                         }.bind(this)
                     );
+                    this.showCOC = ko.computed(
+                        function() {
+
+                            let shipping = quote.shippingAddress();
+                            let billing = quote.billingAddress();
+
+                            return this.isB2B && (
+                                (shipping && shipping.countryId == 'NL' && shipping.company && shipping.company.trim().length > 0) ||
+                                (billing && billing.countryId == 'NL' && billing.company && billing.company.trim().length > 0)
+                            )
+                            
+                        },
+                        this
+                    )
 
                     /**
                      * observe radio buttons
@@ -493,6 +511,7 @@ define(
                             "customer_billingName": this.BillingName(),
                             "customer_DoB": this.dateValidate(),
                             "termsCondition": this.termsValidate(),
+                            "customer_coc": this.customerCoc(),
                         }
                     };
                 },

@@ -165,26 +165,11 @@ class Capayable extends AbstractMethod
      */
     private function assignCapayableData($data)
     {
-        if (isset($data['customer_gender'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_gender', $data['customer_gender']);
-        }
-
         if (isset($data['customer_DoB'])) {
             $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $this->formatDob($data['customer_DoB']));
         }
-
-        if (isset($data['customer_orderAs'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_orderAs', $data['customer_orderAs']);
-        }
-
-        if (isset($data['customer_cocnumber'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_cocnumber', $data['customer_cocnumber']);
-        }
-
-        if (isset($data['customer_companyName'])) {
-            $this->getInfoInstance()->setAdditionalInformation('customer_companyName', $data['customer_companyName']);
-        }
     }
+
 
     /**
      * @param string $dob
@@ -279,7 +264,7 @@ class Capayable extends AbstractMethod
         );
 
         $customerData = [
-            $this->getRequestParameterRow($this->getCustomerType($payment), 'CustomerType'),
+            $this->getRequestParameterRow('Debtor', 'CustomerType'),
             $this->getRequestParameterRow($now->format('Y-m-d'), 'InvoiceDate'),
             $this->getRequestParameterRow($phoneData['clean'], 'Phone', 'Phone'),
             $this->getRequestParameterRow($billingAddress->getEmail(), 'Email', 'Email')
@@ -287,7 +272,6 @@ class Capayable extends AbstractMethod
 
         $customerData = array_merge($customerData, $this->getPersonGroupData($payment));
         $customerData = array_merge($customerData, $this->getAddressGroupData($billingAddress));
-        $customerData = array_merge($customerData, $this->getCompanyGroupData($payment));
 
         return $customerData;
     }
@@ -306,7 +290,6 @@ class Capayable extends AbstractMethod
             $this->getRequestParameterRow($this->getInitials($billingAddress->getFirstname()), 'Initials', 'Person'),
             $this->getRequestParameterRow($billingAddress->getLastname(), 'LastName', 'Person'),
             $this->getRequestParameterRow('nl-NL', 'Culture', 'Person'),
-            $this->getRequestParameterRow($payment->getAdditionalInformation('customer_gender'), 'Gender', 'Person'),
             $this->getRequestParameterRow($payment->getAdditionalInformation('customer_DoB'), 'BirthDate', 'Person')
         ];
 
@@ -336,30 +319,6 @@ class Capayable extends AbstractMethod
         }
 
         return $addressGroupData;
-    }
-
-    /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     *
-     * @return array
-     */
-    private function getCompanyGroupData($payment)
-    {
-        $companyGroupData = [];
-        $orderAs = $payment->getAdditionalInformation('customer_orderAs');
-        $companyName = $payment->getAdditionalInformation('customer_companyName');
-        $cocNumber = $payment->getAdditionalInformation('customer_cocnumber');
-
-        if ($orderAs != 2 && $orderAs != 3) {
-            return $companyGroupData;
-        }
-
-        $companyGroupData = [
-            $this->getRequestParameterRow($companyName, 'Name', 'Company'),
-            $this->getRequestParameterRow($cocNumber, 'ChamberOfCommerce', 'Company'),
-        ];
-
-        return $companyGroupData;
     }
 
     /**
@@ -494,33 +453,6 @@ class Capayable extends AbstractMethod
         $shippingCostsArticle[] = $this->getRequestParameterRow($shippingAmount, 'Value', 'SubtotalLine', $groupId);
 
         return $shippingCostsArticle;
-    }
-
-    /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     *
-     * @return string
-     */
-    private function getCustomerType($payment)
-    {
-        $orderAs = $payment->getAdditionalInformation('customer_orderAs');
-
-        switch ($orderAs) {
-            case 1:
-                $customerType = 'Debtor';
-                break;
-            case 2:
-                $customerType = 'Company';
-                break;
-            case 3:
-                $customerType = 'SoleProprietor';
-                break;
-            default:
-                $customerType = '';
-                break;
-        }
-
-        return $customerType;
     }
 
     /**

@@ -400,6 +400,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     $additionalData['customer_telephone']
                 );
             }
+
+            if (isset($data['additional_data']['customer_coc'])) {
+                $this->getInfoInstance()
+                    ->setAdditionalInformation('customer_coc', $data['additional_data']['customer_coc']);
+            }
         }
     }
 
@@ -2316,22 +2321,32 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $format;
     }
 
+    /**
+     * If we have already paid some value we do a pay reminder request
+     *
+     * @param Payment $payment
+     * @param TransactionBuilderInterface $transactionBuilder
+     * @param string $serviceAction
+     * @param string $newServiceAction
+     *
+     * @return void
+     */
     protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay', $newServiceAction = 'PayRemainder')
     {
         /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction */
         $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
         $incrementId = $payment->getOrder()->getIncrementId();
 
-        $originalTransactionKey = $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
-        if ($originalTransactionKey !== false) {
-            $serviceAction = $newServiceAction;
-            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
+        $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($incrementId);
 
-            $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($incrementId);
-            if ($alreadyPaid > 0) {
-                $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
-                $transactionBuilder->setAmount($this->payRemainder);
-            }
+        if ($alreadyPaid > 0) {
+            $serviceAction = $newServiceAction;
+
+            $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
+            $transactionBuilder->setAmount($this->payRemainder);
+            $transactionBuilder->setOriginalTransactionKey(
+                $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId)
+            );
         }
         return $serviceAction;
     }
@@ -2467,12 +2482,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // First data to set is the billing address data.
         $requestData = $this->getRequestBillingData($payment);
 
+
         // If the shipping address is not the same as the billing it will be merged inside the data array.
         if (
             $this->isAddressDataDifferent($payment) ||
             is_null($payment->getOrder()->getShippingAddress()) ||
             $payment->getMethod() === Klarna::KLARNA_METHOD_NAME  ||
-            $payment->getMethod() === Klarnain::PAYMENT_METHOD_CODE
+            $payment->getMethod() === Klarnain::PAYMENT_METHOD_CODE ||
+            $payment->getMethod() === Afterpay20::PAYMENT_METHOD_CODE
         ) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
@@ -2553,6 +2570,27 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         return $requestData;
+
+    }
+    public function canUseForCountry($country)
+    {
+
+
+        if ($this->getConfigData('allowspecific') != 1) {
+            return true;
+        }
+
+        $specificCountries = $this->getConfigData('specificcountry');
+
+        //if the country config is null in the store get the config value from the global('default') settings
+        if ($specificCountries === null) {
+            $specificCountries = $this->_scopeConfig->getValue(
+                'payment/' . $this->getCode() . '/specificcountry',
+            );
+        }
+
+        $availableCountries = explode(',', $specificCountries);
+        return in_array($country, $availableCountries);
 
     }
 }

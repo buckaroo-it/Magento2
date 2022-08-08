@@ -20,11 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Magento\Sales\Model\Order\Payment;
 use Magento\Catalog\Model\Product\Type;
-use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Config;
-use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
 
 class Afterpay20 extends AbstractMethod
 {
@@ -576,6 +575,14 @@ class Afterpay20 extends AbstractMethod
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
         $category = 'Person';
 
+        if (
+            $this->isCustomerB2B($order->getStoreId()) &&
+            $billingAddress->getCountryId() === 'NL' &&
+            !$this->isCompanyEmpty($billingAddress->getCompany())
+        ) {
+            $category = 'Company';
+        }
+
         $gender = 'Mrs';
 
         if ($payment->getAdditionalInformation('customer_gender') === '1') {
@@ -691,6 +698,27 @@ class Afterpay20 extends AbstractMethod
             ];
         }
 
+        if (
+            $this->isCustomerB2B($order->getStoreId()) &&
+            $billingAddress->getCountryId() === 'NL' &&
+            !$this->isCompanyEmpty($billingAddress->getCompany())
+        ) {
+            $billingData = array_merge($billingData,[
+                [
+                    '_'    => $billingAddress->getCompany(),
+                    'Name' => 'CompanyName',
+                    'Group' => 'BillingCustomer',
+                    'GroupID' => '',
+                ],
+                [
+                    '_'    => $payment->getAdditionalInformation('customer_coc'),
+                    'Name' => 'IdentificationNumber',
+                    'Group' => 'BillingCustomer',
+                    'GroupID' => '',
+                ]
+            ]);
+        }
+
         return $billingData;
     }
 
@@ -702,6 +730,7 @@ class Afterpay20 extends AbstractMethod
     public function getRequestShippingData($payment)
     {
         $order = $payment->getOrder();
+
         /**
          * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
          */
@@ -715,6 +744,15 @@ class Afterpay20 extends AbstractMethod
 
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
         $category = 'Person';
+
+        if (
+            $this->isCustomerB2B($order->getStoreId()) &&
+            $shippingAddress->getCountryId() === 'NL' &&
+            !$this->isCompanyEmpty($shippingAddress->getCompany())
+        ) {
+            $category = 'Company';
+        }
+
 
         $gender = 'Mrs';
         if ($payment->getAdditionalInformation('customer_gender') == '1') {
@@ -790,6 +828,28 @@ class Afterpay20 extends AbstractMethod
             ];
         }
 
+        if (
+            $this->isCustomerB2B($order->getStoreId()) &&
+            $shippingAddress->getCountryId() === 'NL' &&
+            !$this->isCompanyEmpty($shippingAddress->getCompany())
+        ) {
+            $shippingData = array_merge($shippingData,[
+                [
+                    '_'    => $shippingAddress->getCompany(),
+                    'Name' => 'CompanyName',
+                    'Group' => 'ShippingCustomer',
+                    'GroupID' => '',
+                ],
+                [
+                    '_'    => $payment->getAdditionalInformation('customer_coc'),
+                    'Name' => 'IdentificationNumber',
+                    'Group' => 'ShippingCustomer',
+                    'GroupID' => '',
+                ]
+            ]);
+        }
+
+    
         return $shippingData;
     }
 
@@ -801,5 +861,110 @@ class Afterpay20 extends AbstractMethod
     protected function getFailureMessageFromMethod($transactionResponse)
     {
         return $this->getFailureMessageFromMethodCommon($transactionResponse);
+    }
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        return parent::isAvailable($quote) &&  $this->isAvailableB2B($quote);
+    }
+    /**
+     * Check to see if payment is available when b2b enabled
+     *
+     * @param \Magento\Quote\Api\Data\CartInterface $quote
+     *
+     * @return boolean
+     */
+    public function isAvailableB2B(\Magento\Quote\Api\Data\CartInterface $quote)
+    {
+        $storeId = $quote->getStoreId();
+        $b2bMin = $this->getConfigData('min_amount_b2b', $storeId);
+        $b2bMax = $this->getConfigData('max_amount_b2b', $storeId);
+       /**
+         * @var \Magento\Quote\Model\Quote $quote
+         */
+        $total = $quote->getGrandTotal();
+
+        //skip if b2c
+        if (!$this->isCustomerB2B()) {
+            return true;
+        }
+
+        //b2b available ony to NL
+        if (
+            $quote->getBillingAddress()->getCountryId() !== 'NL' ||
+            $quote->getShippingAddress()->getCountryId() !== 'NL'
+            ) {
+            return true;
+        }
+
+        if ($b2bMax !== null && $total > $b2bMax) {
+            return false;
+        }
+
+        if ($b2bMin !== null && $total < $b2bMin) {
+            return false;
+        }
+
+        return true;
+    }
+    public function isCustomerB2B($storeId = null)
+    {
+        return $this->getConfigData('customer_type', $storeId) !== AfterpayCustomerType::CUSTOMER_TYPE_B2C;
+    }
+    public function isOnlyCustomerB2B($storeId = null)
+    {
+        return $this->getConfigData('customer_type', $storeId) === AfterpayCustomerType::CUSTOMER_TYPE_B2B;
+    }
+
+     /**
+     * Validate that we received a company.
+     *
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function validate()
+    {
+        parent::validate();
+
+        $paymentInfo = $this->getInfoInstance();
+
+        if ($paymentInfo instanceof Payment) {
+            $storeId = $paymentInfo->getOrder()->getStoreId();
+            $billingCompany = $paymentInfo->getOrder()->getBillingAddress()->getCompany();
+            $shippingCompany = $paymentInfo->getOrder()->getShippingAddress()->getCompany();
+            
+        } else {
+            $storeId = $paymentInfo->getQuote() !== null? $paymentInfo->getQuote()->getStoreId(): null;
+            $billingCompany = $paymentInfo->getQuote()->getBillingAddress()->getCompany();
+            $shippingCompany = $paymentInfo->getQuote()->getShippingAddress()->getCompany();
+        }
+
+        if (
+            $this->isOnlyCustomerB2B($storeId) && 
+            (
+                $this->isCompanyEmpty($billingCompany) &&
+                $this->isCompanyEmpty($shippingCompany)
+            )
+        ) {
+            throw new \LogicException(
+                __('Company name is required for this payment method')
+            );
+        }
+        return $this;
+    }
+
+    /**
+     * Check if company is empty
+     *
+     * @param string $company
+     *
+     * @return boolean
+     */
+    public function isCompanyEmpty(string $company = null)
+    {
+        if (null === $company) {
+            return true;
+        }
+        
+        return strlen(trim($company)) === 0;
     }
 }

@@ -47,16 +47,11 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_capayablein3',
-                    selectedGender : null,
-                    genderValidate : null,
                     firstname : '',
                     lastname : '',
                     CustomerName : null,
                     BillingName : null,
                     dateValidate : '',
-                    selectedOrderAs : 1,
-                    CocNumber : null,
-                    CompanyName : null
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablein3.paymentFeeLabel,
@@ -76,24 +71,14 @@ define(
 
                 initObservable: function () {
                     this._super().observe([
-                        'selectedGender',
-                        'genderValidate',
                         'firstname',
                         'lastname',
                         'CustomerName',
                         'BillingName',
                         'dateValidate',
-                        'selectedOrderAs',
-                        'CocNumber',
-                        'CompanyName'
                     ]);
 
-                    // Observe and store the selected gender
-                    var self = this;
-                    this.setSelectedGender = function (value) {
-                        self.selectedGender(value);
-                        return true;
-                    };
+                   
 
                     /**
                      * Observe customer first & lastname and bind them together, so they could appear in the frontend
@@ -136,20 +121,13 @@ define(
                         this.selectPaymentMethod();
                     };
 
-                    this.genderValidate.subscribe(runValidation,this);
                     this.dateValidate.subscribe(runValidation,this);
-                    this.CocNumber.subscribe(runValidation,this);
-                    this.CompanyName.subscribe(runValidation,this);
 
                     this.buttoncheck = ko.computed(function () {
-                        var validation = this.selectedGender() !== null &&
-                            this.genderValidate() !== null &&
+                        var validation = 
                             this.BillingName() !== null &&
                             this.dateValidate() !== null;
 
-                        if (this.selectedOrderAs() == 2 || this.selectedOrderAs() == 3) {
-                            validation = validation && this.CocNumber() !== null && this.CompanyName() !== null;
-                        }
 
                         return (validation && this.validate());
                     }, this);
@@ -217,19 +195,19 @@ define(
                 },
 
                 validate: function () {
-                    return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
+                    let fieldsToValidate = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
+                    if (fieldsToValidate.length) {
+                        return fieldsToValidate.valid();
+                    }
+                    return true;
                 },
 
                 getData : function() {
                     return {
                         "method" : this.item.method,
                         "additional_data": {
-                            "customer_gender" : this.genderValidate(),
                             "customer_billingName" : this.BillingName(),
                             "customer_DoB" : this.dateValidate(),
-                            "customer_orderAs" : this.selectedOrderAs(),
-                            "customer_cocnumber" : this.CocNumber(),
-                            "customer_companyName" : this.CompanyName()
                         }
                     };
                 }

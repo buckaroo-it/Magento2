@@ -17,22 +17,26 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Model\Config\Source\PaymentMethods;
 
-use Magento\Framework\Data\OptionSourceInterface;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
-class In3Version implements OptionSourceInterface
+class AfterpayCustomerType implements \Magento\Framework\Data\OptionSourceInterface
 {
+    public const CUSTOMER_TYPE_B2C = 'b2c';
+    public const CUSTOMER_TYPE_B2B = 'b2b';
+    public const CUSTOMER_TYPE_BOTH = 'both';
+
     /**
+     * Options getter
+     *
      * @return array
      */
     public function toOptionArray()
     {
-        $options = [
-            ['value' => '0', 'label' => __('In3 Flexible')],
-            ['value' => '1', 'label' => __('In3 Garant')]
+        return [
+            ['value' => self::CUSTOMER_TYPE_BOTH, 'label' => __('Both')],
+            ['value' => self::CUSTOMER_TYPE_B2C, 'label' => __('B2C (Business-to-consumer)')],
+            ['value' => self::CUSTOMER_TYPE_B2B, 'label' => __('B2B ((Business-to-Business)')]
         ];
-
-        return $options;
     }
 }

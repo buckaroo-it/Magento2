@@ -4,6 +4,18 @@
 
 # Buckaroo Magento 2 Payments Plugin
 
+### Index
+- [About](#about)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Upgrade](#upgrade)
+- [Configuration](#configuration)
+- [Additional Plugins](#additional-plugins)
+- [Contribute](#contribute)
+- [Versioning](#versioning)
+- [Additional information](#additional-information)
+---
+
 ### About
 
 Magento is an e-commerce platform owned by Adobe. There are two versions: Magento Open Source, the free, open source version written in PHP, and Magento Commerce, the paid cloud version.
