@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Magento2\Model\Adapter;
 
-use Buckaroo\Buckaroo;
+use Buckaroo\BuckarooClient;
 use Buckaroo\Config\Config;
 use Buckaroo\Exceptions\SDKException;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -12,9 +12,9 @@ use Buckaroo\Handlers\Reply\ReplyHandler;
 class BuckarooAdapter
 {
     /**
-     * @var Buckaroo
+     * @var BuckarooClient
      */
-    private Buckaroo $buckaroo;
+    private BuckarooClient $buckaroo;
 
     /**
      * @var Account
@@ -33,19 +33,19 @@ class BuckarooAdapter
         $websiteKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
         $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
         $envMode = $this->configProviderAccount->getActive() == 2 ? Config::LIVE_MODE : Config::TEST_MODE;
-        $this->buckaroo = new Buckaroo($websiteKey, $secretKey, $envMode);
+        $this->buckaroo = new BuckarooClient($websiteKey, $secretKey, $envMode);
     }
 
     public function pay($method, $data) {
-        return $this->buckaroo->payment($method)->pay($data);
+        return $this->buckaroo->method($method)->pay($data);
     }
 
     public function payInInstallments($method, $data) {
-        return $this->buckaroo->payment($method)->payInInstallments($data);
+        return $this->buckaroo->method($method)->payInInstallments($data);
     }
 
     public function refund($method, $data) {
-        return $this->buckaroo->payment($method)->refund($data);
+        return $this->buckaroo->method($method)->refund($data);
     }
 
     /**
