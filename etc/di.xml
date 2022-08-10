@@ -513,6 +513,37 @@
 
     <!-- Buckaroo Payment Provider Gateway -->
 
+
+    <virtualType name="AdditionalParametersOrderDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">order</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AdditionalParametersRefundDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">refund</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AdditionalParametersPayDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">pay</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AdditionalParametersPayInInstallmentsDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">payininstallments</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AdditionalParametersReserveDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">reserve</argument>
+        </arguments>
+    </virtualType>
+
     <!-- Buckaroo AddressHandlerPool - Change Shipping Request by Delivery Methods-->
     <type name="Buckaroo\Magento2\Gateway\Request\AddressHandlerPool">
         <arguments>
@@ -531,6 +562,15 @@
         <arguments>
             <argument name="handlers" xsi:type="array">
                 <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Buckaroo Authorize Command - Response Handler -->
+    <virtualType name="AuthorizeResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\AuthorizeHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -722,17 +762,8 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="AdditionalParametersOrderDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
-        <arguments>
-            <argument name="action" xsi:type="string">order</argument>
-        </arguments>
-    </virtualType>
 
-    <virtualType name="AdditionalParametersRefundDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
-        <arguments>
-            <argument name="action" xsi:type="string">refund</argument>
-        </arguments>
-    </virtualType>
+
 
     <!-- Response handlers -->
     <virtualType name="IdealAuthorizationHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
@@ -857,6 +888,7 @@
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -875,7 +907,7 @@
 
     <!-- Payment Method: KlarnaIn (Klarna Slice It) -->
     <!-- KlarnaIn Payment Method Facade configuration -->
-    <virtualType name="KlarnaFacadeIn" type="KlarnaFacade">
+    <virtualType name="KlarnaInFacade" type="KlarnaFacade">
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain::CODE</argument>
             <argument name="valueHandlerPool" xsi:type="object">KlarnaInValueHandlerPool</argument>
@@ -927,12 +959,112 @@
     <!-- KlarnaIn Order Command -->
     <virtualType name="KlarnaInOrderCommand" type="KlarnaOrderCommand">
         <arguments>
+            <argument name="requestBuilder" xsi:type="object">KlarnaInOrderRequest</argument>
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayInInstallments</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- KlarnaIn Order Command - Request Builder -->
+    <virtualType name="KlarnaInOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="klarna_order_request" xsi:type="string">KlarnaOrderRequest</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersPayInInstallmentsDataBuilder</item>
+            </argument>
         </arguments>
     </virtualType>
     <!-- END KlarnaIn Order Command -->
     <!-- END KlarnaIn Commands infrastructure -->
     <!-- END Payment Method: KlarnaIn -->
+
+    <!-- Payment Method: KlarnaKp -->
+    <!-- KlarnaKp Payment Method Facade configuration -->
+    <virtualType name="KlarnaKpFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">KlarnaKpValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">KlarnaKpValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">KlarnaKpGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+    <!-- KlarnaKp Value handlers infrastructure -->
+    <virtualType name="KlarnaKpValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">KlarnaKpConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="KlarnaKpConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp</argument>
+        </arguments>
+    </virtualType>
+    <!-- END KlarnaKp Value handlers infrastructure -->
+
+    <!-- KlarnaKp validators infrastructure -->
+    <virtualType name="KlarnaKpValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">KlarnaKpCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="KlarnaKpCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp</argument>
+        </arguments>
+    </virtualType>
+    <!-- END KlarnaKp validators infrastructure -->
+
+    <!-- KlarnaKp Commands infrastructure -->
+    <virtualType name="KlarnaKpGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">KlarnaKpAuthorizeCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- KlarnaKp Authorize Command -->
+    <virtualType name="KlarnaKpAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">KlarnaKpAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve</argument>
+            <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <!-- KlarnaKp Authorize Command - Request Builder -->
+    <virtualType name="KlarnaKpAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="klarnakp_reserve_request" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReserveDataBuilder</item>
+                <item name="klarna_order_request" xsi:type="string">KlarnaOrderRequest</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersReserveDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- KlarnaKp Authorize Command - Gateway Client -->
+    <!-- KlarnaKp Authorize Command - Response Validator -->
+    <!-- KlarnaKp Authorize Command - Response Handler -->
+    <!-- KlarnaKp Authorize Command - Error Code Mapping -->
+    <!-- END KlarnaKp Authorize Command -->
+
+    <!-- KlarnaKp Refund Command -->
+    <!-- KlarnaKp Refund Command - Request Builder -->
+    <!-- KlarnaKp Refund Command - Response Handler -->
+    <!-- END KlarnaKp Refund Command -->
+
+    <!-- END KlarnaKp Commands infrastructure -->
+    <!-- END Payment Method: KlarnaKp -->
+
 
     <!-- Payment Method: Alipay -->
     <!-- Alipay Payment Method Facade configuration -->
@@ -1008,6 +1140,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="use_mobile_view" xsi:type="string">Buckaroo\Magento2\Gateway\Request\UseMobileViewDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>

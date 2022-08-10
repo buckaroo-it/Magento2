@@ -144,24 +144,13 @@ class AbstractResponseHandler
     /**
      * Set flag if user is on the payment provider page
      *
-     * @param OrderPaymentInterface $payment
-     *
+     * @param InfoInterface $payment
+     * @param bool $inTransit
      * @return void
      */
-    public function setPaymentInTransit(OrderPaymentInterface $payment, $inTransit = true)
+    public function setPaymentInTransit(InfoInterface $payment, $inTransit = true)
     {
         $payment->setAdditionalInformation(self::BUCKAROO_PAYMENT_IN_TRANSIT, $inTransit);
-    }
-
-    /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass $response
-     *
-     * @return $this
-     */
-    protected function afterOrder($payment, $response)
-    {
-        return $this->dispatchAfterEvent('buckaroo_magento2_method_order_after', $payment, $response);
     }
 
     /**

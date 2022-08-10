@@ -124,6 +124,12 @@ class ShippingDataBuilder extends AbstractDataBuilder
         return $format;
     }
 
+    /**
+     * @param \Magento\Sales\Model\Order\Address $shippingAddress
+     * @param $payment
+     * @return array[]
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     protected function getShippingData($shippingAddress, $payment): array
     {
         $telephone = $payment->getAdditionalInformation('customer_telephone');
@@ -136,13 +142,27 @@ class ShippingDataBuilder extends AbstractDataBuilder
             $gender = 'male';
         }
 
-        $shippingData['recipient'] = [
-            'category' => $category,
-            'gender' => $gender,
-            'firstName' => $shippingAddress->getFirstname(),
-            'lastName' => $shippingAddress->getLastName(),
-            'birthDate' => $birthDayStamp ?? ''
-        ];
+        if($this->getPayment()->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp') {
+            if(empty($shippingAddress->getCompany())) {
+                $careOf = 'Person';
+            } else {
+                $careOf = 'Company';
+            }
+            $shippingData['recipient'] = [
+                'careOf' => $careOf,
+                'firstName' => $shippingAddress->getFirstname(),
+                'lastName' => $shippingAddress->getLastName(),
+            ];
+        } else {
+            $shippingData['recipient'] = [
+                'category' => $category,
+                'gender' => $gender,
+                'firstName' => $shippingAddress->getFirstname(),
+                'lastName' => $shippingAddress->getLastName(),
+                'birthDate' => $birthDayStamp ?? ''
+            ];
+        }
+
 
         $shippingData['address'] = [
             'street' => $streetFormat['street'],

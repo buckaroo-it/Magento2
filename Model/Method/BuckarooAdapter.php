@@ -23,6 +23,7 @@ use Magento\Framework\Exception\LocalizedException;
 
 class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 {
+    public static bool $requestOnVoid = true;
     /**
      * @var bool
      */
