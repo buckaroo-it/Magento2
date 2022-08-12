@@ -18,34 +18,6 @@
             <!--/ko-->
         </div>
 
-        <div class="payment-method-second-col billing-address-form">
-            <form data-bind="mageInit: { 'validation': [] },
-                  attr: {'data-hasrequired': $t('* Required Fields')}">
-                <fieldset class="fieldset payment">
-
-                    <div class="field required">
-                        <label for="bicnumber" class="label">
-                            <span data-bind="i18n: 'BIC Number'"> </span>
-
-                        </label>
-                        <div class="control">
-                            <input id="bicnumber" class="input-text field _error" type="text"
-                                   data-bind="
-                                    value: bicnumber,
-                                    valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true,  'BIC':true  })
-                                    }
-                                   "
-                                   name="payment[buckaroo_magento2_giropay][customer_bic]">
-                        </div>
-                    </div>
-
-
-                </fieldset>
-            </form>
-        </div>
-
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() --><!-- /ko -->
@@ -61,7 +33,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck()}
+                        css: {disabled: !isPlaceOrderActionAllowed()}
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

@@ -274,7 +274,7 @@
 
             <buckaroo_magento2_giropay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Giropay</model>
+                <model>GiropayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Giropay</title>
                 <allowspecific>0</allowspecific>
