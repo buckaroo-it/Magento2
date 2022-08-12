@@ -512,6 +512,15 @@
     </type>
 
     <!-- Buckaroo Payment Provider Gateway -->
+    <type name="Buckaroo\Magento2\Model\Adapter\BuckarooAdapter">
+        <arguments>
+            <argument name="mapPaymentMethods" xsi:type="array">
+                <item name="klaranain" xsi:type="string">klarna</item>
+                <item name="p24" xsi:type="string">przelewy24</item>
+            </argument>
+        </arguments>
+    </type>
+
     <virtualType name="AdditionalParametersOrderDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">order</argument>
@@ -576,7 +585,6 @@
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
             </argument>
         </arguments>
@@ -1175,88 +1183,6 @@
     <!-- END Alipay Commands infrastructure -->
     <!-- END Payment Method: Alipay -->
 
-
-    <!-- Payment Method: Giropay -->
-    <!-- Giropay Payment Method Facade configuration -->
-    <virtualType name="GiropayFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
-        <arguments>
-            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay::CODE</argument>
-            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
-            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
-            <argument name="valueHandlerPool" xsi:type="object">GiropayValueHandlerPool</argument>
-            <argument name="validatorPool" xsi:type="object">GiropayValidatorPool</argument>
-            <argument name="commandPool" xsi:type="object">GiropayGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
-        </arguments>
-    </virtualType>
-    <!-- Giropay Value handlers infrastructure -->
-    <virtualType name="GiropayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="default" xsi:type="string">GiropayConfigValueHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Configuration reader -->
-    <virtualType name="GiropayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
-        <arguments>
-            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</argument>
-        </arguments>
-    </virtualType>
-    <!-- END Giropay Value handlers infrastructure -->
-
-    <!-- Giropay validators infrastructure -->
-    <virtualType name="GiropayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
-        <arguments>
-            <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">GiropayCountryValidator</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="GiropayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</argument>
-        </arguments>
-    </virtualType>
-    <!-- END Giropay validators infrastructure -->
-
-    <!-- Giropay Commands infrastructure -->
-    <virtualType name="GiropayGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
-        <arguments>
-            <argument name="commands" xsi:type="array">
-                <item name="order" xsi:type="string">GiropayOrderCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Giropay Order Command -->
-    <virtualType name="GiropayOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-        <arguments>
-            <argument name="requestBuilder" xsi:type="object">GiropayOrderRequest</argument>
-            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
-            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
-            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
-        </arguments>
-    </virtualType>
-    <!-- Giropay Order Command - Request Builder -->
-    <virtualType name="GiropayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- END Giropay Order Command -->
-    <!-- END Giropay Commands infrastructure -->
-    <!-- END Payment Method: Giropay -->
-
-
     <!-- Payment Method: Trustly -->
     <!-- Trustly Payment Method Facade configuration -->
     <virtualType name="TrustlyFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
@@ -1330,6 +1256,80 @@
     <!-- END Trustly Order Command -->
     <!-- END Trustly Commands infrastructure -->
     <!-- END Payment Method: Trustly -->
+
+    <!-- Payment Method: Przelewy24 -->
+    <!-- Przelewy24 Payment Method Facade configuration -->
+    <virtualType name="Przelewy24Facade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\P24::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">Przelewy24ValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">Przelewy24ValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">Przelewy24GatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+    <!-- Przelewy24 Value handlers infrastructure -->
+    <virtualType name="Przelewy24ValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">Przelewy24ConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="Przelewy24ConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Przelewy24 Value handlers infrastructure -->
+
+    <!-- Przelewy24 validators infrastructure -->
+    <virtualType name="Przelewy24ValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">Przelewy24CountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Przelewy24CountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Przelewy24 validators infrastructure -->
+
+    <!-- Przelewy24 Commands infrastructure -->
+    <virtualType name="Przelewy24GatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">Przelewy24OrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Przelewy24 Order Command -->
+    <virtualType name="Przelewy24OrderCommand" type="BuckarooOrderCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Przelewy24OrderRequest</argument>
+        </arguments>
+    </virtualType>
+    <!-- Przelewy24 Order Command - Request Builder -->
+    <virtualType name="Przelewy24OrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
+                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Przelewy24 Order Command -->
+    <!-- END Przelewy24 Commands infrastructure -->
+    <!-- END Payment Method: Przelewy24 -->
 
 
     <!-- Payment Method: Belfius -->
