@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Ideal extends AbstractConfigProvider
 {
     const CODE = 'buckaroo_magento2_ideal';
-    protected $methodCode = self::CODE;
+
 
     const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
     const XPATH_IDEAL_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_ideal/payment_fee_label';

@@ -512,8 +512,6 @@
     </type>
 
     <!-- Buckaroo Payment Provider Gateway -->
-
-
     <virtualType name="AdditionalParametersOrderDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">order</argument>
@@ -578,6 +576,7 @@
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
             </argument>
         </arguments>
@@ -1256,6 +1255,8 @@
     <!-- END Giropay Order Command -->
     <!-- END Giropay Commands infrastructure -->
     <!-- END Payment Method: Giropay -->
+
+
     <!-- Payment Method: Trustly -->
     <!-- Trustly Payment Method Facade configuration -->
     <virtualType name="TrustlyFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
@@ -1329,4 +1330,61 @@
     <!-- END Trustly Order Command -->
     <!-- END Trustly Commands infrastructure -->
     <!-- END Payment Method: Trustly -->
+
+
+    <!-- Payment Method: Belfius -->
+    <!-- Belfius Payment Method Facade configuration -->
+    <virtualType name="BelfiusFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">BelfiusValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">BelfiusValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">BelfiusGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+    <!-- Belfius Value handlers infrastructure -->
+    <virtualType name="BelfiusValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">BelfiusConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="BelfiusConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Belfius Value handlers infrastructure -->
+
+    <!-- Belfius validators infrastructure -->
+    <virtualType name="BelfiusValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">BelfiusCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BelfiusCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Belfius validators infrastructure -->
+
+    <!-- Belfius Commands infrastructure -->
+    <virtualType name="BelfiusGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">BuckarooOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Belfius Commands infrastructure -->
+    <!-- END Payment Method: Belfius -->
 </config>

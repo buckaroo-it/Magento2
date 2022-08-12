@@ -25,7 +25,7 @@ use Magento\Store\Model\ScopeInterface;
 class IdealGateway extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_idealgateway';
-    protected $methodCode = self::CODE;
+
 
     public const XPATH_IDEAL_PAYMENT_FEE           = 'payment/' . self::CODE . '/payment_fee';
     public const XPATH_IDEAL_PAYMENT_FEE_LABEL     = 'payment/' . self::CODE . '/payment_fee_label';
