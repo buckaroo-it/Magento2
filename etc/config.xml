@@ -809,7 +809,7 @@
 
             <buckaroo_magento2_trustly>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Trustly</model>
+                <model>TrustlyFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Trustly</title>
                 <allowspecific>0</allowspecific>

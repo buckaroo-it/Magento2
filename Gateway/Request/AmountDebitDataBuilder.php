@@ -13,6 +13,7 @@ class AmountDebitDataBuilder implements BuilderInterface
      * and must match the currency format of the merchant account.
      */
     const AMOUNT_DEBIT = 'amountDebit';
+    const CURRENCY = 'currency';
 
     /** @var Factory */
     protected $configProviderMethodFactory;
@@ -74,7 +75,8 @@ class AmountDebitDataBuilder implements BuilderInterface
         }
 
         return [
-            self::AMOUNT_DEBIT => $this->getAmount()
+            self::AMOUNT_DEBIT => $this->getAmount(),
+            self::CURRENCY => $this->getCurrency()
         ];
     }
 
