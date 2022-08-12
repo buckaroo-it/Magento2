@@ -572,7 +572,7 @@
 
             <buckaroo_magento2_klarnakp>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Klarnakp</model>
+                <model>KlarnaKpFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
@@ -595,7 +595,7 @@
 
             <buckaroo_magento2_klarnain>
                 <active>0</active>
-                <model>KlarnaFacadeIn</model>
+                <model>KlarnaInFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Klarna: Slice it</title>
                 <sort_oder>220</sort_oder>
@@ -809,7 +809,7 @@
 
             <buckaroo_magento2_trustly>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Trustly</model>
+                <model>TrustlyFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Trustly</title>
                 <allowspecific>0</allowspecific>

@@ -103,9 +103,12 @@ class ResponseCodeSDKValidator extends AbstractValidator
                 [$statusCode]
             );
         } else {
+            $message = isset($this->transaction->getFirstError()['ErrorMessage']) ?
+                $this->transaction->getFirstError()['ErrorMessage']
+                : 'Gateway rejected the transaction.';
             return $this->createResult(
                 false,
-                [__('Gateway rejected the transaction.')],
+                [__($message)],
                 [$statusCode]
             );
         }
@@ -129,5 +132,10 @@ class ResponseCodeSDKValidator extends AbstractValidator
         }
 
         return $statusCode;
+    }
+
+    private function getErrorMessage()
+    {
+
     }
 }

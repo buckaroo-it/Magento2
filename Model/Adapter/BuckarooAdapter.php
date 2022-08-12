@@ -4,10 +4,11 @@ namespace Buckaroo\Magento2\Model\Adapter;
 
 use Buckaroo\BuckarooClient;
 use Buckaroo\Config\Config;
-use Buckaroo\Exceptions\SDKException;
+use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\Encryption\Encryptor;
 use Buckaroo\Handlers\Reply\ReplyHandler;
+use Buckaroo\Transaction\Response\TransactionResponse;
 
 class BuckarooAdapter
 {
@@ -36,20 +37,29 @@ class BuckarooAdapter
         $this->buckaroo = new BuckarooClient($websiteKey, $secretKey, $envMode);
     }
 
-    public function pay($method, $data) {
+    public function pay($method, $data): TransactionResponse
+    {
         return $this->buckaroo->method($method)->pay($data);
     }
 
-    public function payInInstallments($method, $data) {
+    public function payInInstallments($method, $data): TransactionResponse
+    {
         return $this->buckaroo->method($method)->payInInstallments($data);
     }
 
-    public function refund($method, $data) {
+    public function reserve($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($method)->reserve($data);
+    }
+
+
+    public function refund($method, $data): TransactionResponse
+    {
         return $this->buckaroo->method($method)->refund($data);
     }
 
     /**
-     * @throws SDKException
+     * @throws BuckarooException
      */
     public function validate($post_data, $auth_header, $uri): bool
     {

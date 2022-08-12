@@ -12,12 +12,12 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Framework\Event\ManagerInterface;
 
-class OrderHandler extends AbstractResponseHandler implements HandlerInterface
+class AuthorizeHandler extends AbstractResponseHandler implements HandlerInterface
 {
     /**
      * @var bool
      */
-    public bool $closeOrderTransaction = true;
+    public bool $closeAuthorizeTransaction = false;
 
     /**
      * @throws LocalizedException
@@ -41,7 +41,7 @@ class OrderHandler extends AbstractResponseHandler implements HandlerInterface
         $payment = $handlingSubject['payment']->getPayment();
         $arrayResponse = $this->transactionResponse->toArray();
 
-        $this->saveTransactionData($this->transactionResponse, $payment, $this->closeOrderTransaction, true);
+        $this->saveTransactionData($this->transactionResponse, $payment, $this->closeAuthorizeTransaction, true);
 
         // SET REGISTRY BUCKAROO REDIRECT
         $this->registry->unregister('buckaroo_response');
@@ -54,9 +54,9 @@ class OrderHandler extends AbstractResponseHandler implements HandlerInterface
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
-        $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
+        $this->eventManager->dispatch('buckaroo_authorize_after', ['order' => $order]);
 
-        $this->afterOrder($payment, $arrayResponse);
+        $this->afterAuthorize($payment, $arrayResponse);
     }
 
     /**
@@ -65,8 +65,8 @@ class OrderHandler extends AbstractResponseHandler implements HandlerInterface
      *
      * @return $this
      */
-    protected function afterOrder($payment, $response)
+    protected function afterAuthorize($payment, $response)
     {
-        return $this->dispatchAfterEvent('buckaroo_magento2_method_order_after', $payment, $response);
+        return $this->dispatchAfterEvent('buckaroo_magento2_method_authorize_after', $payment, $response);
     }
 }
