@@ -27,10 +27,13 @@ class BuckarooAdapter
      */
     protected Encryptor $encryptor;
 
-    public function __construct(Account $configProviderAccount, Encryptor $encryptor)
+    private array $mapPaymentMethods;
+
+    public function __construct(Account $configProviderAccount, Encryptor $encryptor, array $mapPaymentMethods = null)
     {
         $this->encryptor = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
+        $this->mapPaymentMethods = $mapPaymentMethods;
         $websiteKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
         $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
         $envMode = $this->configProviderAccount->getActive() == 2 ? Config::LIVE_MODE : Config::TEST_MODE;
@@ -39,23 +42,23 @@ class BuckarooAdapter
 
     public function pay($method, $data): TransactionResponse
     {
-        return $this->buckaroo->method($method)->pay($data);
+        return $this->buckaroo->method($this->getMethodName($method))->pay($data);
     }
 
     public function payInInstallments($method, $data): TransactionResponse
     {
-        return $this->buckaroo->method($method)->payInInstallments($data);
+        return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
     }
 
     public function reserve($method, $data): TransactionResponse
     {
-        return $this->buckaroo->method($method)->reserve($data);
+        return $this->buckaroo->method($this->getMethodName($method))->reserve($data);
     }
 
 
     public function refund($method, $data): TransactionResponse
     {
-        return $this->buckaroo->method($method)->refund($data);
+        return $this->buckaroo->method($this->getMethodName($method))->refund($data);
     }
 
     /**
@@ -66,5 +69,10 @@ class BuckarooAdapter
         $reply_handler = new ReplyHandler($this->buckaroo->client()->config(), $post_data, $auth_header, $uri);
         $reply_handler->validate();
         return $reply_handler->isValid();
+    }
+
+    private function getMethodName($method)
+    {
+        return isset($this->mapPaymentMethods) ? $this->mapPaymentMethods[$method] : $method;
     }
 }

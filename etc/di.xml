@@ -512,7 +512,14 @@
     </type>
 
     <!-- Buckaroo Payment Provider Gateway -->
-
+    <type name="Buckaroo\Magento2\Model\Adapter\BuckarooAdapter">
+        <arguments>
+            <argument name="mapPaymentMethods" xsi:type="array">
+                <item name="klaranain" xsi:type="string">klarna</item>
+                <item name="p24" xsi:type="string">przelewy24</item>
+            </argument>
+        </arguments>
+    </type>
 
     <virtualType name="AdditionalParametersOrderDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
         <arguments>
@@ -1254,7 +1261,7 @@
     <!-- Przelewy24 Payment Method Facade configuration -->
     <virtualType name="Przelewy24Facade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
         <arguments>
-            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Przelewy24::CODE</argument>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\P24::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
             <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
             <argument name="valueHandlerPool" xsi:type="object">Przelewy24ValueHandlerPool</argument>
@@ -1274,7 +1281,7 @@
     <!-- Configuration reader -->
     <virtualType name="Przelewy24ConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
         <arguments>
-            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Przelewy24</argument>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</argument>
         </arguments>
     </virtualType>
     <!-- END Przelewy24 Value handlers infrastructure -->
@@ -1289,7 +1296,7 @@
     </virtualType>
     <virtualType name="Przelewy24CountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
         <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Przelewy24</argument>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</argument>
         </arguments>
     </virtualType>
     <!-- END Przelewy24 validators infrastructure -->
