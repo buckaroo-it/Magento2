@@ -564,6 +564,16 @@
         </arguments>
     </type>
 
+    <!-- Buckaroo Commands infrastructure -->
+    <virtualType name="EpsGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">BuckarooOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <!-- Buckaroo Order Command -->
     <virtualType name="BuckarooOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
@@ -583,6 +593,7 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
                 <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
@@ -598,9 +609,6 @@
         </arguments>
     </virtualType>
     <!-- END Buckaroo Order Command -->
-
-
-
     <!-- Buckaroo Authorize Command - Response Handler -->
     <virtualType name="AuthorizeResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
@@ -644,7 +652,16 @@
             </argument>
         </arguments>
     </virtualType>
-    <!-- END Alipay Refund Command -->
+    <!-- END Buckaroo Refund Command -->
+
+
+    <!-- END Buckaroo Commands infrastructure -->
+
+
+
+
+
+
 
 
 
@@ -1183,6 +1200,88 @@
     <!-- END Alipay Commands infrastructure -->
     <!-- END Payment Method: Alipay -->
 
+
+    <!-- Payment Method: Giropay -->
+    <!-- Giropay Payment Method Facade configuration -->
+    <virtualType name="GiropayFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">GiropayValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">GiropayValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">GiropayGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+    <!-- Giropay Value handlers infrastructure -->
+    <virtualType name="GiropayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">GiropayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="GiropayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Giropay Value handlers infrastructure -->
+
+    <!-- Giropay validators infrastructure -->
+    <virtualType name="GiropayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">GiropayCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="GiropayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- END Giropay validators infrastructure -->
+
+    <!-- Giropay Commands infrastructure -->
+    <virtualType name="GiropayGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">GiropayOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Giropay Order Command -->
+    <virtualType name="GiropayOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">GiropayOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <!-- Giropay Order Command - Request Builder -->
+    <virtualType name="GiropayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Giropay Order Command -->
+    <!-- END Giropay Commands infrastructure -->
+    <!-- END Payment Method: Giropay -->
+
     <!-- Payment Method: Trustly -->
     <!-- Trustly Payment Method Facade configuration -->
     <virtualType name="TrustlyFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
@@ -1387,4 +1486,60 @@
     </virtualType>
     <!-- END Belfius Commands infrastructure -->
     <!-- END Payment Method: Belfius -->
+
+    <!-- Payment Method: Eps -->
+    <!-- Eps Payment Method Facade configuration -->
+    <virtualType name="EpsFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Eps::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">EpsValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">EpsValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">EpsGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <!-- Eps Value handlers infrastructure -->
+    <virtualType name="EpsValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">EpsConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="EpsConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Eps</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Eps Value handlers infrastructure -->
+
+    <!-- Eps validators infrastructure -->
+    <virtualType name="EpsValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">EpsCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="EpsCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Eps</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Eps validators infrastructure -->
+
+    <!-- Eps Commands infrastructure -->
+    <virtualType name="EpsGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">BuckarooOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Eps Commands infrastructure -->
+    <!-- END Payment Method: Eps -->
 </config>

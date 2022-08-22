@@ -453,7 +453,7 @@
 
             <buckaroo_magento2_eps>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Eps</model>
+                <model>EpsFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo EPS</title>
                 <allowspecific>0</allowspecific>
