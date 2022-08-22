@@ -349,7 +349,7 @@
 
             <buckaroo_magento2_belfius>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Belfius</model>
+                <model>BelfiusFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Belfius</title>
                 <allowspecific>0</allowspecific>

@@ -143,7 +143,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper
     ) {
-        parent::__construct($scopeConfig, $this->methodCode);
+        parent::__construct($scopeConfig, static::CODE);
 
         $this->assetRepo = $assetRepo;
         $this->paymentFeeHelper = $paymentFeeHelper;
