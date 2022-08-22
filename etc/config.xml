@@ -167,7 +167,7 @@
 
             <buckaroo_magento2_payconiq>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Payconiq</model>
+                <model>PayconiqFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Payconiq</title>
                 <allowspecific>0</allowspecific>
