@@ -565,6 +565,16 @@
         </arguments>
     </type>
 
+    <!-- Buckaroo Commands infrastructure -->
+    <virtualType name="BuckarooGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">BuckarooOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <!-- Buckaroo Order Command -->
     <virtualType name="BuckarooOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
@@ -584,6 +594,7 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
                 <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
@@ -599,8 +610,6 @@
         </arguments>
     </virtualType>
     <!-- END Buckaroo Order Command -->
-
-
 
     <!-- Buckaroo Authorize Command - Response Handler -->
     <virtualType name="AuthorizeResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
@@ -645,10 +654,9 @@
             </argument>
         </arguments>
     </virtualType>
-    <!-- END Alipay Refund Command -->
+    <!-- END Buckaroo Refund Command -->
 
-
-
+    <!-- END Buckaroo Commands infrastructure -->
     <!-- END Buckaroo Payment Provider Gateway -->
 
     <type name="Magento\Payment\Model\MethodList">
@@ -1264,6 +1272,7 @@
     <!-- END Giropay Order Command -->
     <!-- END Giropay Commands infrastructure -->
     <!-- END Payment Method: Giropay -->
+
     <!-- Payment Method: Trustly -->
     <!-- Trustly Payment Method Facade configuration -->
     <virtualType name="TrustlyFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
