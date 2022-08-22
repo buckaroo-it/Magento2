@@ -1543,7 +1543,7 @@
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="additional_parameters" xsi:type="string">AdditionalParametersPayInInstallmentsDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
                 <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
                 <item name="phone" xsi:type="string">CapayablePhone</item>
                 <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerType</item>
@@ -1552,7 +1552,7 @@
                 <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Customer</item>
                 <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Address</item>
                 <item name="sub_totals" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\SubTotals</item>
-
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>

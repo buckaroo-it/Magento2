@@ -41,7 +41,7 @@ class Articles extends AbstractDataBuilder
                 continue;
             }
 
-            $articles = [
+            $articles[] = [
                 'identifier'        => $item->getSku(),
                 'description'       => $item->getName(),
                 'quantity'          => $item->getQtyOrdered(),
