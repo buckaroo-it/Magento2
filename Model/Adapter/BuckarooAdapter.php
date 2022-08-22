@@ -73,6 +73,6 @@ class BuckarooAdapter
 
     private function getMethodName($method)
     {
-        return isset($this->mapPaymentMethods[$method]) ? $this->mapPaymentMethods[$method] : $method;
+        return $this->mapPaymentMethods[$method] ?? $method;
     }
 }
