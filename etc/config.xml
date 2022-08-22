@@ -500,7 +500,7 @@
 
             <buckaroo_magento2_kbc>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Kbc</model>
+                <model>KbcFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo KBC</title>
                 <allowspecific>0</allowspecific>
