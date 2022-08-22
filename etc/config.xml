@@ -786,7 +786,7 @@
 
             <buckaroo_magento2_p24>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\P24</model>
+                <model>Przelewy24Facade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Przelewy24</title>
                 <allowspecific>0</allowspecific>
