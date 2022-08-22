@@ -565,7 +565,7 @@
     </type>
 
     <!-- Buckaroo Commands infrastructure -->
-    <virtualType name="EpsGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+    <virtualType name="BuckarooGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">BuckarooOrderCommand</item>
@@ -609,6 +609,7 @@
         </arguments>
     </virtualType>
     <!-- END Buckaroo Order Command -->
+
     <!-- Buckaroo Authorize Command - Response Handler -->
     <virtualType name="AuthorizeResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
@@ -654,17 +655,7 @@
     </virtualType>
     <!-- END Buckaroo Refund Command -->
 
-
     <!-- END Buckaroo Commands infrastructure -->
-
-
-
-
-
-
-
-
-
     <!-- END Buckaroo Payment Provider Gateway -->
 
     <type name="Magento\Payment\Model\MethodList">
@@ -1243,7 +1234,6 @@
             <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</argument>
         </arguments>
     </virtualType>
-
     <!-- END Giropay validators infrastructure -->
 
     <!-- Giropay Commands infrastructure -->
@@ -1496,7 +1486,7 @@
             <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
             <argument name="valueHandlerPool" xsi:type="object">EpsValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">EpsValidatorPool</argument>
-            <argument name="commandPool" xsi:type="object">EpsGatewayCommandPool</argument>
+            <argument name="commandPool" xsi:type="object">BuckarooGatewayCommandPool</argument>
             <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
@@ -1531,15 +1521,6 @@
     </virtualType>
     <!-- END Eps validators infrastructure -->
 
-    <!-- Eps Commands infrastructure -->
-    <virtualType name="EpsGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
-        <arguments>
-            <argument name="commands" xsi:type="array">
-                <item name="order" xsi:type="string">BuckarooOrderCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
-            </argument>
-        </arguments>
-    </virtualType>
     <!-- END Eps Commands infrastructure -->
     <!-- END Payment Method: Eps -->
 </config>
