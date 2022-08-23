@@ -517,7 +517,7 @@
             <argument name="mapPaymentMethods" xsi:type="array">
                 <item name="klaranain" xsi:type="string">klarna</item>
                 <item name="p24" xsi:type="string">przelewy24</item>
-                <item name="capayablein3" xsi:type="string">in3</item>
+                <item name="Capayable" xsi:type="string">in3</item>
             </argument>
         </arguments>
     </type>
