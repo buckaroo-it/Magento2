@@ -49,7 +49,7 @@ class Articles extends AbstractDataBuilder
             ];
         }
         return [
-            'articles' => $articles
+            'articles' => array_slice($articles, 0, 99)
         ];
     }
 }

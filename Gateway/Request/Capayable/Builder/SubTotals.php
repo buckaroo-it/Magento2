@@ -63,6 +63,11 @@ class SubTotals extends AbstractDataBuilder
     }
 
 
+    /**
+     * Get discount
+     *
+     * @return float
+     */
     protected function getDiscount()
     {
         $discount = abs((float)$this->getOrder()->getDiscountAmount());
@@ -70,6 +75,11 @@ class SubTotals extends AbstractDataBuilder
     }
 
 
+    /**
+     * Get buckaroo fee
+     *
+     * @return float
+     */
     protected function getFee()
     {
         return round((float)$this->getOrder()->getBuckarooFee() + (float)$this->getOrder()->getBuckarooFeeTaxAmount(), 2);
@@ -78,7 +88,7 @@ class SubTotals extends AbstractDataBuilder
     /**
      * Get shipping amount
      *
-     * @return float|null
+     * @return float
      */
     protected function getShipping()
     {

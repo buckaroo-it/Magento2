@@ -36,6 +36,7 @@ class Phone extends AbstractDataBuilder
     public function __construct(PhoneFormatter $phoneFormatter) {
         $this->phoneFormatter = $phoneFormatter;
     }
+    
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
