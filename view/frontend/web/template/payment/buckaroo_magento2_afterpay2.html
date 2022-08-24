@@ -21,39 +21,6 @@
                 <fieldset class="fieldset payment">
 
                     <div class="field required">
-                        <legend class="label"> <span data-bind="i18n: 'Salutation:'"> </span> </legend>
-                        <div class="control">
-                            <ul id="Saluation">
-                                <li>
-                                    <input type="radio" id="buckaroo_magento2_afterpay2_genderSelectMan"
-                                           data-bind="
-                                           value: '1',
-                                           click: setSelectedGender.bind($data, '1'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                           checked: genderValidate
-                                           "
-                                           class="field"
-                                           name="payment[buckaroo_magento2_afterpay2][customer_gender]">
-                                    <label for="buckaroo_magento2_afterpay2_genderSelectMan"> <span data-bind="i18n: 'Mr.' "> </span> </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="buckaroo_magento2_afterpay2_genderSelectWoman"
-                                           data-bind="
-                                           value: '2',
-                                           click: setSelectedGender.bind($data, '2'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                           checked: genderValidate
-                                            "
-                                           class="field"
-                                           name="payment[buckaroo_magento2_afterpay2][customer_gender]">
-                                    <label for="buckaroo_magento2_afterpay2_genderSelectWoman"> <span data-bind="i18n: 'Mrs.' "> </span> </label>
-                                </li>
-                            </ul>
-                            <div for="gender" generated="true" class="mage-error" id="gender-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
-                        </div>
-                    </div>
-
-                    <div class="field required">
                         <label class="label" for="buckaroo_magento2_afterpay2_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_afterpay2_BillingName"

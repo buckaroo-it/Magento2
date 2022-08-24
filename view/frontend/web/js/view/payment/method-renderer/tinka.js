@@ -51,7 +51,6 @@ define(
                 defaults                : {
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_tinka',
                     telephoneNumber: null,
-                    selectedGender: null,
                     identificationNumber: null,
                     firstName: '',
                     lastName: '',
@@ -61,7 +60,6 @@ define(
                     dateValidate: null,
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
                     termsValidate: false,
-                    genderValidate: null,
                     showNLBEFieldsValue: true,
                     showIdentificationValue: null,
                     showFrenchTosValue: null,
@@ -86,7 +84,6 @@ define(
                     this._super().observe(
                         [
                             'telephoneNumber',
-                            'selectedGender',
                             'firstname',
                             'lastname',
                             'CustomerName',
@@ -95,7 +92,6 @@ define(
                             'dateValidate',
                             // 'termsUrl',
                             'termsValidate',
-                            'genderValidate',
                             'dummy',
                             'showNLBEFieldsValue',
                             'showIdentificationValue',
@@ -193,16 +189,6 @@ define(
                     );
 
                     /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedGender = function (value) {
-                        self.selectedGender(value);
-                        return true;
-                    };
-
-                    /**
                      * Check if TelephoneNumber is filled in. If not - show field
                      */
                     this.hasTelephoneNumber = ko.computed(
@@ -218,9 +204,6 @@ define(
 
                     var runValidation = function () {
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
-                        if (this.country != 'NL' && this.country != 'BE') {
-                            elements = elements.filter(':not([name*="customer_gender"])');
-                        }
                         elements.valid();
 
                         if (this.calculateAge(this.dateValidate()) >= 18) {
@@ -237,8 +220,6 @@ define(
                     this.telephoneNumber.subscribe(runValidation,this);
                     this.dateValidate.subscribe(runValidation,this);
                     this.termsValidate.subscribe(runValidation,this);
-                    this.genderValidate.subscribe(runValidation,this);
-
                     this.dummy.subscribe(runValidation,this);
 
                     this.calculateAge = function (specifiedDate) {
@@ -258,12 +239,12 @@ define(
                     }
 
                     /**
-                     * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
+                     * Check if the required fields are filled. If so: enable plasce order button (true) | if not: disable place order button (false)
                      */
                     this.buttoncheck = ko.computed(
                         function () {
                             return (this.telephoneNumber() !== null || this.hasTelephoneNumber) &&
-                                (!this.showNLBEFields() || this.selectedGender() !== null) &&
+                                (!this.showNLBEFields()) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
                                 (
@@ -361,9 +342,6 @@ define(
                         return true;
                     }
                     var elements = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
-                    if (this.country != 'NL' && this.country != 'BE') {
-                        elements = elements.filter(':not([name*="customer_gender"])');
-                    }
                     return elements.valid();
                 },
 
@@ -373,7 +351,6 @@ define(
                         "po_number": null,
                         "additional_data": {
                             "customer_telephone" : this.telephoneNumber(),
-                            "customer_gender" : this.genderValidate(),
                             "customer_billingName" : this.BillingName(),
                             "customer_DoB" : this.dateValidate(),
                             "termsCondition" : this.termsValidate(),

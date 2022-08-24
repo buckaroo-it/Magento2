@@ -9,6 +9,25 @@
 
         <div class="payment-method-content">
 
+            <div class="field required">
+                <label class="label" for="buckaroo_magento2_klarnain_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
+                <div class="control">
+                    <ul id="Saluation">
+                        <li>            
+                            <select id="buckaroo_magento2_klarnain_genderSelect" name="payment[buckaroo_magento2_klarnain][customer_gender]" class="select"
+                            data-bind="options: gendersList(),
+                             optionsText: $t('genderTitle'),
+                             optionsValue: 'genderType',
+                             optionsCaption: $t('-- Please Select Your Gender--'),
+                             value: getSelectedGender,
+                             event: { change: setSelectedGender }, attr: { 'data-validate': JSON.stringify({ 'required': true })}">
+                             </select>
+                        </li>
+                    </ul>
+                    <div for="gender" generated="true" class="mage-error" id="gender-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
+                </div>
+            </div>
+
             <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
@@ -23,7 +42,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() }
+                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
                         "
                         disabled
                         type="submit">

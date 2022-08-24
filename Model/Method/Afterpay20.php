@@ -583,12 +583,6 @@ class Afterpay20 extends AbstractMethod
             $category = 'Company';
         }
 
-        $gender = 'Mrs';
-
-        if ($payment->getAdditionalInformation('customer_gender') === '1') {
-            $gender = 'Mr';
-        }
-
         $billingData = [
             [
                 '_'    => $category,
@@ -683,12 +677,6 @@ class Afterpay20 extends AbstractMethod
         }
 
         if ($billingAddress->getCountryId() == 'NL' || $billingAddress->getCountryId() == 'BE') {
-            $billingData[] = [
-                '_'    => $gender,
-                'Name' => 'Salutation',
-                'Group' => 'BillingCustomer',
-                'GroupID' => '',
-            ];
 
             $billingData[] = [
                 '_'    => $birthDayStamp,
@@ -753,22 +741,10 @@ class Afterpay20 extends AbstractMethod
             $category = 'Company';
         }
 
-
-        $gender = 'Mrs';
-        if ($payment->getAdditionalInformation('customer_gender') == '1') {
-            $gender = 'Mr';
-        }
-
         $shippingData = [
             [
                 '_'    => $category,
                 'Name' => 'Category',
-                'Group' => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'    => $gender,
-                'Name' => 'Salutation',
                 'Group' => 'ShippingCustomer',
                 'GroupID' => '',
             ],
