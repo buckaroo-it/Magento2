@@ -27,7 +27,7 @@ use Magento\Sales\Api\Data\OrderAddressInterface;
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
 
-class Phone extends AbstractDataBuilder
+class PhoneDataBuilder extends AbstractDataBuilder
 {
 
     protected $phoneFormatter;

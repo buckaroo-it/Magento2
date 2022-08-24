@@ -26,7 +26,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
-class Customer extends AbstractDataBuilder
+class CustomerDataBuilder extends AbstractDataBuilder
 {
 
     public function build(array $buildSubject): array

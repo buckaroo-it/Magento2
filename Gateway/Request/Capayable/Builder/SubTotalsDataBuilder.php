@@ -25,7 +25,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
-class SubTotals extends AbstractDataBuilder
+class SubTotalsDataBuilder extends AbstractDataBuilder
 {
     public function build(array $buildSubject): array
     {

@@ -1546,17 +1546,17 @@
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
                 <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
                 <item name="phone" xsi:type="string">CapayablePhone</item>
-                <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerType</item>
-                <item name="invoice_date" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\InvoiceDate</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Articles</item>
-                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Customer</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Address</item>
-                <item name="sub_totals" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\SubTotals</item>
+                <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerTypeDataBuilder</item>
+                <item name="invoice_date" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\InvoiceDateDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\ArticlesDataBuilder</item>
+                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\AddressDataBuilder</item>
+                <item name="sub_totals" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\SubTotalsDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CapayablePhone" type="Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Phone">
+    <virtualType name="CapayablePhone" type="Buckaroo\Magento2\Gateway\Request\Capayable\Builder\PhoneDataBuilder">
         <arguments>
             <argument name="phoneFormatter" xsi:type="object">Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter</argument>
         </arguments>
