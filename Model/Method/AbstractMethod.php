@@ -1163,6 +1163,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $resource = $this->objectManager->get('Magento\Framework\App\ResourceConnection');
             $connection = $resource->getConnection();
             $connection->rollBack();
+
+            $payment->getOrder()->addStatusHistoryComment(
+                __("The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.")
+            )->setIsCustomerNotified(false)->save();
+            
             $messageManager = $this->objectManager->get('Magento\Framework\Message\ManagerInterface');
             $messageManager->addError(
                 __("Refund has been initiated, but it needs to be approved, so you need to wait for an approval")

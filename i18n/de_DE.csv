@@ -446,3 +446,4 @@
 "Select your bank","Wählen Sie Ihre Bank aus"
 "Card number or pin not valid","Kartennummer oder PIN ungültig"
 "Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.","Erkundigen Sie sich bei Buckaroo, ob Client Side Encryption aktiviert ist, andernfalls schlagen Transaktionen fehl. Im Zweifelsfall kontaktieren Sie uns bitte."
+"The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.","Die Rückerstattung wurde eingeleitet, wartet jedoch auf eine Genehmigung. Melden Sie sich auf der Buckaroo Plaza an, um die Rückerstattung abzuschließen, indem Sie sie genehmigen."
