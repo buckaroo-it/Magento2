@@ -561,16 +561,17 @@ class Afterpay extends AbstractMethod
             }
 
             $prodPrice = $this->calculateProductPrice($item, $includesTax);
+            $prodPriceWithoutDiscount = round($prodPrice - $item->getDiscountAmount() / $item->getQty(), 2);
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
                 $item->getProductId(),
                 (int) $item->getQty(),
-                $prodPrice - round($item->getDiscountAmount() / $item->getQty(), 2),
+                $prodPriceWithoutDiscount,
                 $this->getTaxCategory($payment->getOrder())
             );
 
-            $itemsTotalAmount += $item->getQty() * ($prodPrice - $item->getDiscountAmount());
+            $itemsTotalAmount += $item->getQty() * $prodPriceWithoutDiscount;
 
             // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
