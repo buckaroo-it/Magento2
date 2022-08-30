@@ -233,7 +233,7 @@ class Push implements PushInterface
             return true;
         }
 
-       
+
 
         if ($this->isGroupTransactionInfo()) {
             if ($this->isGroupTransactionFailed()) {
@@ -523,6 +523,7 @@ class Push implements PushInterface
         if ($this->hasPostData('add_initiated_by_magento', 1)
             && $this->hasPostData('brq_transaction_method', ['klarnakp', 'KlarnaKp'])
             && $this->hasPostData('add_service_action_from_magento', 'pay')
+            && isset($this->postData['brq_service_klarnakp_captureid'])
         ) {
             return false;
         }
@@ -1269,7 +1270,7 @@ class Push implements PushInterface
                             $baseTotalPaid > $this->order->getBaseGrandTotal() ?
                                 $this->order->getBaseGrandTotal() : $baseTotalPaid
                         );
-                        
+
                         $this->saveAndReloadOrder();
 
                         $connection = $this->resourceConnection->getConnection();
@@ -1902,8 +1903,8 @@ class Push implements PushInterface
      */
     protected function skipHandlingForFailedGroupTransactions()
     {
-        return 
-            $this->order !== null && 
+        return
+            $this->order !== null &&
             $this->order->getId() !== null &&
             $this->order->getState() == Order::STATE_CANCELED &&
             (
@@ -1943,12 +1944,12 @@ class Push implements PushInterface
             return $quote;
         }
     }
-    
+
     /**
      * Create order from found quote by reserved order id
      *
      * @param  \Magento\Quote\Model\Quote $quote
-     * 
+     *
      * @return \Magento\Framework\Model\AbstractExtensibleModel|\Magento\Sales\Api\Data\OrderInterface|object|null
      * @throws \Exception
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -2012,7 +2013,7 @@ class Push implements PushInterface
 
         //fix missing email validation
         if ($quote->getCustomerEmail() == null) {
-          
+
             $quote->setCustomerEmail(
                 $quote->getBillingAddress()->getEmail()
             );
@@ -2027,6 +2028,6 @@ class Push implements PushInterface
         $quote->save();
         return $order;
 
-        
+
     }
 }
