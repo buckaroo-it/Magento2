@@ -15,7 +15,7 @@ class BuckarooAdapter
     /**
      * @var BuckarooClient
      */
-    private BuckarooClient $buckaroo;
+    protected BuckarooClient $buckaroo;
 
     /**
      * @var Account
@@ -71,7 +71,7 @@ class BuckarooAdapter
         return $reply_handler->isValid();
     }
 
-    private function getMethodName($method)
+    protected function getMethodName($method)
     {
         return isset($this->mapPaymentMethods) ? $this->mapPaymentMethods[$method] : $method;
     }
