@@ -671,7 +671,7 @@
 
             <buckaroo_magento2_billink>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Billink</model>
+                <model>BillinkFacade</model>
                 <order_status>pending</order_status>
                 <title>Billink - achteraf betalen</title>
                 <allowspecific>0</allowspecific>
