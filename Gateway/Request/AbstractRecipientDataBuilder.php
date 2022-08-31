@@ -19,19 +19,19 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
-        return [$this->addressType => $this->buildData()];
+        return ['recipient' => $this->buildData()];
     }
 
     protected function buildData(): array
     {
-        return ['recipient' =>
+        return
             [
                 'category' => $this->getCategory(),
                 'gender' => $this->getGender(),
                 'firstName' => $this->getFirstname(),
                 'lastName' => $this->getLastName(),
                 'birthDate' => $this->getBirthDate()
-            ]];
+            ];
     }
 
     protected function getAddress(): OrderAddressInterface

@@ -20,16 +20,15 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
 
     protected function buildData(): array
     {
-        return ['recipient' =>
-            [
-                'category' => $this->getCategory(),
-                'careOf' => $this->getCareOf(),
-                'title' => $this->getGender(),
-                'initials' => $this->getInitials(),
-                'firstName' => $this->getFirstname(),
-                'lastName' => $this->getLastName(),
-                'birthDate' => $this->getBirthDate()
-            ]];
+        return [
+            'category' => $this->getCategory(),
+            'careOf' => $this->getCareOf(),
+            'title' => $this->getGender(),
+            'initials' => $this->getInitials(),
+            'firstName' => $this->getFirstname(),
+            'lastName' => $this->getLastName(),
+            'birthDate' => $this->getBirthDate()
+        ];
     }
 
     protected function getCategory(): string

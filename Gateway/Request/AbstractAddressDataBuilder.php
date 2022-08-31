@@ -32,7 +32,7 @@ abstract class AbstractAddressDataBuilder extends AbstractDataBuilder
             $addressData['houseNumberAdditional'] = $streetFormat['number_addition'];
         }
 
-        return $addressData;
+        return ['address' => $addressData];
     }
 
     /**

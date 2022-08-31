@@ -1663,7 +1663,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="BillinkBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="BillinkBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\BillinkDataBuilder</item>
@@ -1674,7 +1674,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="BillinkShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="BillinkShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">BillinkShippingRecipientDataBuilder</item>

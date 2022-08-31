@@ -26,20 +26,15 @@ class PhoneDataBuilder extends AbstractDataBuilder
         $telephone = $this->getPayment()->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $address->getTelephone() : $telephone);
 
-        $data = [];
-        if (!empty($telephone)) {
-            $data['phone'] = [
-                'mobile' => $telephone,
-                'landline' => $telephone
-            ];
-        }
-
-        return $data;
+        return ['phone' => [
+            'mobile' => $telephone ?? '',
+            'landline' => $telephone ?? ''
+        ]];
     }
 
     private function getAddress()
     {
-        if($this->addressType == 'shipping') {
+        if ($this->addressType == 'shipping') {
             return $this->getOrder()->getShippingAddress();
         } else {
             return $this->getOrder()->getBillingAddress();
