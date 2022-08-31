@@ -1649,8 +1649,8 @@
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
 <!--                <item name="track_trace" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TrackAndTraceDataBuilder</item>-->
 <!--                <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\VatNumberDataBuilder</item>-->
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1663,15 +1663,25 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="BillinkBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BillingDataBuilder">
+    <virtualType name="BillinkBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
-            <argument name="dataBuilderAdapter" xsi:type="object">Buckaroo\Magento2\Gateway\Request\Adapter\Billing\BillinkBillingInformationAdapter</argument>
+            <argument name="builders" xsi:type="array">
+                <item name="recipient" xsi:type="string">BillinkBillingDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">BillinkShippingDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
+            </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="BillinkShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\ShippingDataBuilder">
+    <virtualType name="BillinkShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
-            <argument name="dataBuilderAdapter" xsi:type="object">Buckaroo\Magento2\Gateway\Request\Adapter\Shipping\BillinkShippingInformationAdapter</argument>
+            <argument name="builders" xsi:type="array">
+                <item name="recipient" xsi:type="string">BillinkBillingDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">BillinkShippingDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
+            </argument>
         </arguments>
     </virtualType>
     <!-- END Billink Order Command -->
