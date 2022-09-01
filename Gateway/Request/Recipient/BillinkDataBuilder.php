@@ -20,8 +20,10 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
 
     protected function buildData(): array
     {
-        return [
-            'category' => $this->getCategory(),
+        $category = $this->getCategory();
+
+        $data = [
+            'category' => $category,
             'careOf' => $this->getCareOf(),
             'title' => $this->getGender(),
             'initials' => $this->getInitials(),
@@ -29,6 +31,12 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
             'lastName' => $this->getLastName(),
             'birthDate' => $this->getBirthDate()
         ];
+
+        if($category == 'B2B') {
+            $data['chamberOfCommerce'] = $this->getChamberOfCommerce();
+        }
+
+        return $data;
     }
 
     protected function getCategory(): string

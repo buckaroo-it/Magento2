@@ -92,9 +92,4 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     {
         return $this->payment->getAdditionalInformation('customer_chamberOfCommerce');
     }
-
-    protected function getVatNumber()
-    {
-        return $this->payment->getAdditionalInformation('customer_VATNumber');
-    }
 }

@@ -1648,7 +1648,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
 <!--                <item name="track_trace" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TrackAndTraceDataBuilder</item>-->
-<!--                <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\VatNumberDataBuilder</item>-->
+                <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\VATNumberDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
             </argument>
@@ -1702,8 +1702,9 @@
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
     </virtualType>
-
     <!-- END Billink Order Command -->
+
+
     <!-- END Billink Commands infrastructure -->
     <!-- END Payment Method: Billink -->
 
