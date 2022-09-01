@@ -45,6 +45,16 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->pay($data);
     }
 
+    public function authorize($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->authorize($data);
+    }
+
+    public function capture($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->capture($data);
+    }
+
     public function payInInstallments($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
