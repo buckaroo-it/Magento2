@@ -632,18 +632,27 @@
         </arguments>
     </virtualType>
 
+    <!-- Buckaroo Capture Command - Response Handler -->
+    <virtualType name="CaptureResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CaptureHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <!-- Buckaroo Capture Command - Request Builder -->
     <virtualType name="BuckarooCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
-                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceCaptureDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OrderNumberDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoicedArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1752,39 +1761,20 @@
             </argument>
         </arguments>
     </virtualType>
-    <!-- Billink Authorize Command - Gateway Client -->
-    <!-- Billink Authorize Command - Response Validator -->
-    <!-- Billink Authorize Command - Response Handler -->
-    <!-- Billink Authorize Command - Error Code Mapping -->
     <!-- END Billink Authorize Command -->
 
     <!-- Billink Capture Command -->
     <virtualType name="BillinkCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
-            <argument name="requestBuilder" xsi:type="object">BillinkCaptureRequest</argument>
+            <argument name="requestBuilder" xsi:type="object">BuckarooCaptureRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize</argument>
-            <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCapture</argument>
+            <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
         </arguments>
     </virtualType>
-    <!-- Billink Authorize Command - Request Builder -->
-    <virtualType name="BillinkCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="originalTransactionKey" xsi:type="string">BuckarooCaptureRequest</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Billink Authorize Command - Gateway Client -->
-    <!-- Billink Authorize Command - Response Validator -->
-    <!-- Billink Authorize Command - Response Handler -->
-    <!-- Billink Authorize Command - Error Code Mapping -->
-    <!-- END Billink Authorize Command -->
-
-
+    <!-- END Billink Capture Command -->
 
     <!-- END Billink Commands infrastructure -->
     <!-- END Payment Method: Billink -->
