@@ -461,8 +461,8 @@ class Afterpay20 extends AbstractMethod
         }
 
         //Add diff line
-        if (abs($creditmemo->getBaseGrandTotal() - $itemsTotalAmount) > 0.01) {
-            $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
+        if (abs($creditmemo->getGrandTotal() - $itemsTotalAmount) > 0.01) {
+            $diff = $creditmemo->getGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
 
