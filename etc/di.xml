@@ -1190,22 +1190,51 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="klarnakp_reserve_request" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReserveDataBuilder</item>
-                <item name="klarna_order_request" xsi:type="string">KlarnaOrderRequest</item>
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="customer" xsi:type="string">CustomerKlarnaKpDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersReserveDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <!-- KlarnaKp Authorize Command - Gateway Client -->
-    <!-- KlarnaKp Authorize Command - Response Validator -->
-    <!-- KlarnaKp Authorize Command - Response Handler -->
-    <!-- KlarnaKp Authorize Command - Error Code Mapping -->
+
+    <virtualType name="CustomerKlarnaKpDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="shipping" xsi:type="string">KlarnaKpBillingDataBuilder</item>
+                <item name="billing" xsi:type="string">KlarnaKpShippingDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaKpBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaKpDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaKpShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="recipient" xsi:type="string">KlarnaKpShippingRecipientDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
+                <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaKpShippingRecipientDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaKpDataBuilder">
+        <arguments>
+            <argument name="addressType" xsi:type="string">shipping</argument>
+        </arguments>
+    </virtualType>
     <!-- END KlarnaKp Authorize Command -->
-
-    <!-- KlarnaKp Refund Command -->
-    <!-- KlarnaKp Refund Command - Request Builder -->
-    <!-- KlarnaKp Refund Command - Response Handler -->
-    <!-- END KlarnaKp Refund Command -->
-
     <!-- END KlarnaKp Commands infrastructure -->
     <!-- END Payment Method: KlarnaKp -->
 

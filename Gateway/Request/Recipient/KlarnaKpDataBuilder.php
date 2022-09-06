@@ -9,16 +9,9 @@ class KlarnaKpDataBuilder extends AbstractRecipientDataBuilder
     protected function buildData(): array
     {
         return [
-            'category' => $this->getCategory(),
-            'gender' => $this->getGender(),
+            'careOf' => $this->getCareOf(),
             'firstName' => $this->getFirstname(),
             'lastName' => $this->getLastName(),
-            'birthDate' => $this->getBirthDate()
         ];
-    }
-
-    protected function getFormatDate(): string
-    {
-        return 'Y-m-d';
     }
 }

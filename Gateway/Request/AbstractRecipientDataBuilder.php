@@ -77,9 +77,14 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
 
     protected function getBirthDate()
     {
+        $customerDoB = (string)$this->payment->getAdditionalInformation('customer_DoB');
+        if (empty($customerDoB)) {
+            $customerDoB = $this->getOrder()->getCustomerDob() ?? '1990-01-01';
+        }
+
         return date(
             $this->getFormatDate(),
-            strtotime(str_replace('/', '-', (string)$this->payment->getAdditionalInformation('customer_DoB')))
+            strtotime(str_replace('/', '-', $customerDoB))
         );
     }
 
