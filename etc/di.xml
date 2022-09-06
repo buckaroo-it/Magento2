@@ -1002,24 +1002,46 @@
     <virtualType name="KlarnaOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="customer" xsi:type="string">CustomerKlarnaDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="customer" xsi:type="string">CustomerDataBuilder</item>
-                <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CustomerKlarnaDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="shipping" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingDataBuilder</item>
-                <item name="billing" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingDataBuilder</item>
+                <item name="shipping" xsi:type="string">KlarnaBillingDataBuilder</item>
+                <item name="billing" xsi:type="string">KlarnaShippingDataBuilder</item>
             </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="recipient" xsi:type="string">KlarnaShippingRecipientDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
+                <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaShippingRecipientDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaDataBuilder">
+        <arguments>
+            <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
     </virtualType>
 
@@ -1728,12 +1750,12 @@
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
 <!--                <item name="track_trace" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TrackAndTraceDataBuilder</item>-->
                 <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\VATNumberDataBuilder</item>
-                <item name="customer" xsi:type="string">CustomerDataBuilder</item>
+                <item name="customer" xsi:type="string">CustomerBillinkDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerBillinkDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">BillinkBillingDataBuilder</item>
