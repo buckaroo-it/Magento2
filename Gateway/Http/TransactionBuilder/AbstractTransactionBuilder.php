@@ -34,6 +34,9 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface
 {
+
+    public const ADDITIONAL_RETURN_URL = 'buckaroo_return_url';
+
     /**
      * @var \Magento\Sales\Model\Order
      */
@@ -418,6 +421,14 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      */
     public function getReturnUrl()
     {
+        
+        $returnUrl = $this->getReturnUrlFromPayment();
+        if($returnUrl !== null) {
+            $this->setReturnUrl($returnUrl);
+            return $returnUrl;
+        }
+
+        
         if ($this->returnUrl === null) {
             $url = $this->urlBuilder->setScope($this->order->getStoreId());
             $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
@@ -426,6 +437,24 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         }
 
         return $this->returnUrl;
+    }
+
+    public function getReturnUrlFromPayment()
+    {
+        if(
+            $this->getOrder() === null || 
+            $this->getOrder()->getPayment() === null ||
+            $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL) === null
+        ) {
+            return;
+        }
+        $returnUrl = $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL);
+        if(
+            !filter_var($returnUrl, FILTER_VALIDATE_URL) === false && 
+            in_array(parse_url($returnUrl, PHP_URL_SCHEME), ['http','https'])
+        ) {
+            return $returnUrl;
+        }
     }
 
     /**
