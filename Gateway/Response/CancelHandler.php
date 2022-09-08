@@ -43,8 +43,10 @@ class CancelHandler extends AbstractResponseHandler implements HandlerInterface
 
         $this->saveTransactionData($this->transactionResponse, $payment, $this->closeCancelTransaction, true);
 
+        $payment->setAdditionalInformation('voided_by_buckaroo', true);
+
         // SET REGISTRY BUCKAROO REDIRECT
-        $this->addToRegistry('buckaroo_response', $response);
+        $this->addToRegistry('buckaroo_response', $arrayResponse);
 
         $this->afterVoid($payment, $response);
     }
