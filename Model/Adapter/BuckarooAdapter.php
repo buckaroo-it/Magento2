@@ -15,7 +15,7 @@ class BuckarooAdapter
     /**
      * @var BuckarooClient
      */
-    private BuckarooClient $buckaroo;
+    protected BuckarooClient $buckaroo;
 
     /**
      * @var Account
@@ -50,11 +50,15 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
     }
 
+    public function payEncrypted($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payEncrypted($data);
+    }
+
     public function reserve($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->reserve($data);
     }
-
 
     public function refund($method, $data): TransactionResponse
     {
@@ -71,7 +75,7 @@ class BuckarooAdapter
         return $reply_handler->isValid();
     }
 
-    private function getMethodName($method)
+    protected function getMethodName($method)
     {
         return $this->mapPaymentMethods[$method] ?? $method;
     }

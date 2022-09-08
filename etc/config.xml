@@ -500,7 +500,7 @@
 
             <buckaroo_magento2_kbc>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Kbc</model>
+                <model>KbcFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo KBC</title>
                 <allowspecific>0</allowspecific>
@@ -717,7 +717,7 @@
 
             <buckaroo_magento2_capayablein3>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Capayable\Installments</model>
+                <model>CapayableFacade</model>
                 <order_status>pending</order_status>
                 <title>In3 - betaal in 3 keer, 0% rente</title>
                 <allowspecific>0</allowspecific>
