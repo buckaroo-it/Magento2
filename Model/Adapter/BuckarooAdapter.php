@@ -70,6 +70,11 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->reserve($data);
     }
 
+    public function cancelReserve($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->cancelReserve($data);
+    }
+
     public function refund($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->refund($data);
