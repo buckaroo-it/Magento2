@@ -1356,6 +1356,7 @@
     <!-- END Payment Method: Giropay -->
 
 
+
     <!-- Payment Method: Trustly -->
     <!-- Trustly Payment Method Facade configuration -->
     <virtualType name="TrustlyFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
