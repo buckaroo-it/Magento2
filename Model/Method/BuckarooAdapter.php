@@ -267,7 +267,20 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      */
     public function processCustomPostData($payment, $postData)
     {
-        return;
+        if($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
+            $order = $payment->getOrder();
+
+            if ($order->getBuckarooReservationNumber()) {
+                return;
+            }
+
+            if (isset($postData['brq_service_klarnakp_reservationnumber'])) {
+                $order->setBuckarooReservationNumber($postData['brq_service_klarnakp_reservationnumber']);
+                $order->save();
+            }
+        } else {
+            return;
+        }
     }
 
     /**

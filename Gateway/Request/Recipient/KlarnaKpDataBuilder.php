@@ -9,7 +9,6 @@ class KlarnaKpDataBuilder extends AbstractRecipientDataBuilder
     protected function buildData(): array
     {
         return [
-            'careOf' => $this->getCareOf(),
             'firstName' => $this->getFirstname(),
             'lastName' => $this->getLastName(),
         ];
