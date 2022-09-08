@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
@@ -14,17 +13,6 @@ abstract class AbstractDataBuilder implements BuilderInterface
 {
     protected Order $order;
     protected InfoInterface $payment;
-
-    /**
-     * Core store config
-     *
-     * @var ScopeConfigInterface
-     */
-    protected ScopeConfigInterface $scopeConfig;
-
-    public function __construct(ScopeConfigInterface $scopeConfig) {
-        $this->scopeConfig = $scopeConfig;
-    }
 
     public function initialize(array $buildSubject): array
     {
@@ -76,20 +64,5 @@ abstract class AbstractDataBuilder implements BuilderInterface
         $this->payment = $payment;
 
         return $this;
-    }
-
-    /**
-     * Retrieve information from payment configuration
-     *
-     * @param string $field
-     * @param int|string|null|\Magento\Store\Model\Store $storeId
-     */
-    public function getConfigData(string $field, $storeId = null)
-    {
-        if (null === $storeId) {
-            $storeId = $this->getOrder()->getStoreId();
-        }
-        $path = 'payment/' . $this->getPayment()->getMethodInstance()->getCode() . '/' . $field;
-        return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
     }
 }
