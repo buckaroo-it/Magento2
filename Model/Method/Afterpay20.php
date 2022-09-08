@@ -415,16 +415,17 @@ class Afterpay20 extends AbstractMethod
             // @codingStandardsIgnoreEnd
 
             $prodPrice = $this->calculateProductPrice($item, $includesTax);
+            $prodPriceWithoutDiscount = round($prodPrice - $item->getDiscountAmount() / $item->getQty(), 2);
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
                 $item->getSku(),
                 $item->getQty(),
-                $prodPrice - round($item->getDiscountAmount() / $item->getQty(), 2),
+                $prodPriceWithoutDiscount,
                 $item->getOrderItem()->getTaxPercent()
             );
 
-            $itemsTotalAmount += $item->getQty() * ($prodPrice - $item->getDiscountAmount());
+            $itemsTotalAmount += $item->getQty() * $prodPriceWithoutDiscount;
 
             // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
@@ -460,8 +461,8 @@ class Afterpay20 extends AbstractMethod
         }
 
         //Add diff line
-        if (abs($creditmemo->getBaseGrandTotal() - $itemsTotalAmount) > 0.01) {
-            $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
+        if (abs($creditmemo->getGrandTotal() - $itemsTotalAmount) > 0.01) {
+            $diff = $creditmemo->getGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
 
@@ -583,12 +584,6 @@ class Afterpay20 extends AbstractMethod
             $category = 'Company';
         }
 
-        $gender = 'Mrs';
-
-        if ($payment->getAdditionalInformation('customer_gender') === '1') {
-            $gender = 'Mr';
-        }
-
         $billingData = [
             [
                 '_'    => $category,
@@ -683,12 +678,6 @@ class Afterpay20 extends AbstractMethod
         }
 
         if ($billingAddress->getCountryId() == 'NL' || $billingAddress->getCountryId() == 'BE') {
-            $billingData[] = [
-                '_'    => $gender,
-                'Name' => 'Salutation',
-                'Group' => 'BillingCustomer',
-                'GroupID' => '',
-            ];
 
             $billingData[] = [
                 '_'    => $birthDayStamp,
@@ -753,22 +742,10 @@ class Afterpay20 extends AbstractMethod
             $category = 'Company';
         }
 
-
-        $gender = 'Mrs';
-        if ($payment->getAdditionalInformation('customer_gender') == '1') {
-            $gender = 'Mr';
-        }
-
         $shippingData = [
             [
                 '_'    => $category,
                 'Name' => 'Category',
-                'Group' => 'ShippingCustomer',
-                'GroupID' => '',
-            ],
-            [
-                '_'    => $gender,
-                'Name' => 'Salutation',
                 'Group' => 'ShippingCustomer',
                 'GroupID' => '',
             ],

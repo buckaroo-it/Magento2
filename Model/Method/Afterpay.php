@@ -107,7 +107,6 @@ class Afterpay extends AbstractMethod
         if (isset($data['additional_data']['termsCondition'])) {
             $additionalData = $data['additional_data'];
             $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
-            $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
             $this->getInfoInstance()->setAdditionalInformation(
                 'customer_billingName',
                 $additionalData['customer_billingName']
@@ -562,16 +561,17 @@ class Afterpay extends AbstractMethod
             }
 
             $prodPrice = $this->calculateProductPrice($item, $includesTax);
+            $prodPriceWithoutDiscount = round($prodPrice - $item->getDiscountAmount() / $item->getQty(), 2);
             $article = $this->getArticleArrayLine(
                 $count,
                 $item->getName(),
                 $item->getProductId(),
                 (int) $item->getQty(),
-                $prodPrice - round($item->getDiscountAmount() / $item->getQty(), 2),
+                $prodPriceWithoutDiscount,
                 $this->getTaxCategory($payment->getOrder())
             );
 
-            $itemsTotalAmount += $item->getQty() * ($prodPrice - $item->getDiscountAmount());
+            $itemsTotalAmount += $item->getQty() * $prodPriceWithoutDiscount;
 
             // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
@@ -598,8 +598,8 @@ class Afterpay extends AbstractMethod
         $articles = array_merge($articles, $shippingCosts);
 
         //Add diff line
-        if (!$this->helper->areEqualAmounts($creditmemo->getBaseGrandTotal(), $itemsTotalAmount)) {
-            $diff = $creditmemo->getBaseGrandTotal() - $itemsTotalAmount;
+        if (!$this->helper->areEqualAmounts($creditmemo->getGrandTotal(), $itemsTotalAmount)) {
+            $diff = $creditmemo->getGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($count, $diff);
             $articles = array_merge($articles, $diffLine);
         }
@@ -821,10 +821,6 @@ class Afterpay extends AbstractMethod
                 'Name' => 'BillingTitle',
             ],
             [
-                '_'    => $payment->getAdditionalInformation('customer_gender'),
-                'Name' => 'BillingGender',
-            ],
-            [
                 '_'    => strtoupper(substr($billingAddress->getFirstname(), 0, 1)),
                 'Name' => 'BillingInitials',
             ],
@@ -917,10 +913,6 @@ class Afterpay extends AbstractMethod
             [
                 '_'    => $shippingAddress->getFirstname(),
                 'Name' => 'ShippingTitle',
-            ],
-            [
-                '_'    => $payment->getAdditionalInformation('customer_gender'),
-                'Name' => 'ShippingGender',
             ],
             [
                 '_'    => strtoupper(substr($shippingAddress->getFirstname(), 0, 1)),

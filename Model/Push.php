@@ -217,6 +217,7 @@ class Push implements PushInterface
         $this->logging                     = $logging;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderStatusFactory          = $orderStatusFactory;
+
         $this->groupTransaction   = $groupTransaction;
         $this->objectManager      = $objectManager;
         $this->resourceConnection = $resourceConnection;

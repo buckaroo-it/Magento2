@@ -58,6 +58,7 @@ define(
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_billink',
                     businessMethod: null,
                     selectedGender: null,
+                    genderList: null,
                     chamberOfCommerce: null,
                     firstName: '',
                     lastName: '',
@@ -98,6 +99,7 @@ define(
                         [
                             'businessMethod',
                             'selectedGender',
+                            'genderList',
                             'firstname',
                             'lastname',
                             'CustomerName',
@@ -233,16 +235,27 @@ define(
                             this.updateShowFields();
                         }.bind(this)
                     );
+                    
+                    this.gendersList = function() {
 
+                        return window.checkoutConfig.payment.buckaroo.billink.genderList;
+                    }
+                    
                     /**
                      * observe radio buttons
                      * check if selected
                      */
                     var self = this;
-                    this.setSelectedGender = function (value) {
-                        self.selectedGender(value);
+                    this.setSelectedGender = function () {
+                        var el = document.getElementById("buckaroo_magento2_bilink_genderSelect");
+                        this.selectedGender = el.options[el.selectedIndex].value;
+                        this.selectPaymentMethod();
                         return true;
                     };
+
+                    this.getSelectedGender = function () {
+                        return this.selectedGender;
+                    }
 
                     this.validatePhone = function() {
 
@@ -353,7 +366,7 @@ define(
                     this.buttoncheck = ko.computed(
                         function () {
                             var result =
-                                (!this.showNLBEFields() || this.selectedGender() !== null) &&
+                                (!this.showNLBEFields() || this.selectedGender !== null) &&
                                 (!this.showСhamberOfCommerce() || this.chamberOfCommerceValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
@@ -445,7 +458,7 @@ define(
                         "po_number": null,
                         "additional_data": {
                             "customer_telephone" : this.phoneValidate(),
-                            "customer_gender" : this.genderValidate(),
+                            "customer_gender" : this.selectedGender,
                             "customer_chamberOfCommerce" : this.chamberOfCommerceValidate(),
                             "customer_VATNumber" : this.VATNumberValidate(),
                             "customer_billingName" : this.BillingName(),
