@@ -97,4 +97,18 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     {
         return $this->payment->getAdditionalInformation('customer_chamberOfCommerce');
     }
+
+    /**
+     * Required if Billing country is NL or BE.
+     * Possible values: Mr, Mrs, Miss.
+     * @return string
+     */
+    protected function getTitle(): string
+    {
+        if ($this->getGender() === 'male') {
+            return 'Mr';
+        }
+
+        return 'Mrs';
+    }
 }
