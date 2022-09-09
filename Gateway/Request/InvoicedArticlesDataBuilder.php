@@ -7,6 +7,7 @@ namespace Buckaroo\Magento2\Gateway\Request;
 use Buckaroo\Magento2\Exception;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder;
 
 class InvoicedArticlesDataBuilder extends ArticlesDataBuilder
 {

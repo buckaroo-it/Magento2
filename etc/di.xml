@@ -1748,7 +1748,6 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-<!--                <item name="track_trace" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TrackAndTraceDataBuilder</item>-->
                 <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\VATNumberDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerBillinkDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
