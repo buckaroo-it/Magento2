@@ -25,21 +25,14 @@ class InvoicedArticlesDataBuilder extends ArticlesDataBuilder
         return ['articles' => $articles];
     }
 
-    /**
-     * @throws Exception
-     */
-    private function getInvoicedArticles()
+    private function getInvoicedArticles(): array
     {
         $invoiceCollection = $this->getOrder()->getInvoiceCollection();
         $numberOfInvoices = $invoiceCollection->count();
         /**
          * @var Invoice $currentInvoice
          */
-        $currentInvoice = $invoiceCollection
-            ->addAttributeToSort('created_at', 'DSC')
-            ->setPage(1, 1)
-            ->getFirstItem();
-
+        $currentInvoice = $invoiceCollection->getLastItem();
 
         if (isset($currentInvoice)) {
             $articles = $this->getInvoiceArticleData($currentInvoice);
