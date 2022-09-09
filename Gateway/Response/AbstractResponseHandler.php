@@ -172,4 +172,23 @@ class AbstractResponseHandler
 
         return $this;
     }
+
+    /**
+     * @param string $key
+     * @param        $value
+     */
+    protected function addToRegistry(string $key, $value)
+    {
+        // if the key doesn't exist or is empty, the data can be directly added and registered
+        if (!$this->registry->registry($key)) {
+            $this->registry->register($key, [$value]);
+            return;
+        }
+
+        $registryValue   = $this->registry->registry($key);
+        $registryValue[] = $value;
+
+        $this->registry->unregister($key);
+        $this->registry->register($key, $registryValue);
+    }
 }

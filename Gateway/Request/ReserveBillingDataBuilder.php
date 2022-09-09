@@ -6,7 +6,7 @@ namespace Buckaroo\Magento2\Gateway\Request;
 
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
-class BillingDataBuilder extends AbstractDataBuilder
+class ReserveBillingDataBuilder extends AbstractDataBuilder
 {
     public function build(array $buildSubject): array
     {

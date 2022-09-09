@@ -17,7 +17,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 
-class ArticlesDataBuilder implements BuilderInterface
+class ArticlesDataBuilder extends AbstractDataBuilder
 {
     /**
      * Check if the tax calculation includes tax.
@@ -28,8 +28,6 @@ class ArticlesDataBuilder implements BuilderInterface
      * Max articles that can be handled by klarna
      */
     const KLARNA_MAX_ARTICLE_COUNT = 99;
-
-    protected Order $order;
 
     protected ScopeConfigInterface $scopeConfig;
 
@@ -77,19 +75,12 @@ class ArticlesDataBuilder implements BuilderInterface
 
     public function build(array $buildSubject)
     {
-        if (!isset($buildSubject['payment'])
-            || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
-
-        $payment = $buildSubject['payment'];
-        $this->setOrder($payment->getOrder()->getOrder());
+        parent::initialize($buildSubject);
 
         $this->buckarooLog->addDebug(__METHOD__ . '|1|');
 
         if ($this->payRemainder) {
-            return $this->getRequestArticlesDataPayRemainder($payment);
+            return $this->getRequestArticlesDataPayRemainder();
         }
 
         $includesTax = $this->scopeConfig->getValue(
@@ -97,7 +88,7 @@ class ArticlesDataBuilder implements BuilderInterface
             ScopeInterface::SCOPE_STORE
         );
 
-        $quote = $this->quoteFactory->create()->load($this->order->getQuoteId());
+        $quote = $this->quoteFactory->create()->load($this->getOrder()->getQuoteId());
         $cartData = $quote->getAllItems();
 
         // Set loop variables
@@ -149,7 +140,7 @@ class ArticlesDataBuilder implements BuilderInterface
             $count++;
         }
 
-        $discountline = $this->getDiscountLine($payment);
+        $discountline = $this->getDiscountLine();
 
         if (!empty($discountline)) {
             $articles[] = $discountline;
@@ -158,14 +149,14 @@ class ArticlesDataBuilder implements BuilderInterface
         return ['articles' => $articles];
     }
 
-    protected function getRequestArticlesDataPayRemainder($payment)
+    protected function getRequestArticlesDataPayRemainder(): array
     {
         return $this->getArticleArrayLine(
             'PayRemainder',
             1,
             1,
             round($this->payRemainder, 2),
-            $this->getTaxCategory($this->order)
+            $this->getTaxCategory($this->getOrder())
         );
     }
 
@@ -197,12 +188,12 @@ class ArticlesDataBuilder implements BuilderInterface
     }
 
     /**
-     * @param Item $productItem
+     * @param Item|\Magento\Sales\Model\Order\Invoice\Item $productItem
      * @param $includesTax
      *
      * @return mixed
      */
-    public function calculateProductPrice(Item $productItem, $includesTax)
+    public function calculateProductPrice($productItem, $includesTax)
     {
         $productPrice = $productItem->getPriceInclTax();
 
@@ -280,28 +271,24 @@ class ArticlesDataBuilder implements BuilderInterface
     /**
      * Get the discount cost lines
      *
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
      * @return array
      */
-    public function getDiscountLine($payment)
+    public function getDiscountLine()
     {
         $article = [];
-        $discount = $this->getDiscountAmount($payment);
+        $discount = $this->getDiscountAmount();
 
         if ($discount >= 0) {
             return $article;
         }
 
-        $article = $this->getArticleArrayLine(
+        return $this->getArticleArrayLine(
             'Korting',
             1,
             1,
             round($discount, 2),
             0
         );
-
-        return $article;
     }
 
     protected function getTaxCategory($order)
@@ -344,24 +331,5 @@ class ArticlesDataBuilder implements BuilderInterface
         }
 
         return $discount;
-    }
-
-
-    /**
-     * @return Order
-     */
-    public function getOrder()
-    {
-        return $this->order;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setOrder($order)
-    {
-        $this->order = $order;
-
-        return $this;
     }
 }

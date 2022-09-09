@@ -671,7 +671,7 @@
 
             <buckaroo_magento2_billink>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Billink</model>
+                <model>BillinkFacade</model>
                 <order_status>pending</order_status>
                 <title>Billink - achteraf betalen</title>
                 <allowspecific>0</allowspecific>
@@ -687,6 +687,7 @@
                 <can_capture_partial>1</can_capture_partial>
                 <can_order>1</can_order>
                 <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>0</can_use_internal>
