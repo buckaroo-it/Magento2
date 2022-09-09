@@ -172,6 +172,9 @@ class Order extends AbstractTransactionBuilder
         $this->setStreetData('CustomerBillingStreet', $customerBillingArray);
         $customerBillingArray = $this->getNotEmptyCustomData($customerBillingArray);
 
+        if ($shippingData === null) {
+            $shippingData = $billingData;
+        }
         foreach ($customerShippingArray as $key => $value) {
             if ($value != 'housenumber' && $value != 'houseadditionalnumber') {
                 $customerShippingArray[$key] = '';

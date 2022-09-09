@@ -167,7 +167,7 @@
 
             <buckaroo_magento2_payconiq>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Payconiq</model>
+                <model>PayconiqFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Payconiq</title>
                 <allowspecific>0</allowspecific>
@@ -719,7 +719,7 @@
 
             <buckaroo_magento2_capayablein3>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Capayable\Installments</model>
+                <model>CapayableFacade</model>
                 <order_status>pending</order_status>
                 <title>In3 - betaal in 3 keer, 0% rente</title>
                 <allowspecific>0</allowspecific>

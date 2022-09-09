@@ -65,6 +65,11 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
     }
 
+    public function payEncrypted($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payEncrypted($data);
+    }
+
     public function reserve($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->reserve($data);

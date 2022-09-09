@@ -217,6 +217,7 @@ class Push implements PushInterface
         $this->logging                     = $logging;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderStatusFactory          = $orderStatusFactory;
+
         $this->groupTransaction   = $groupTransaction;
         $this->objectManager      = $objectManager;
         $this->resourceConnection = $resourceConnection;
@@ -567,8 +568,9 @@ class Push implements PushInterface
         }
 
         if ($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1)
-            && $this->pushRequst->hasPostData('transaction_method', ['klarnakp'])
+            && $this->pushRequst->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
             && $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'pay')
+            && !empty($this->pushRequst->getServiceKlarnakpCaptureid())
         ) {
             return false;
         }

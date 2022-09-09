@@ -100,6 +100,45 @@ class Json
         return $response;
     }
 
+    /**
+     * Do a status request on transaction by transaction_id
+     *
+     * @param string $transaction_id
+     * @param int $mode
+     *
+     * @return void
+     */
+    public function doStatusRequest($transaction_id, $mode)
+    {
+        $url  = $mode == \Buckaroo\Magento2\Helper\Data::MODE_LIVE ?
+            'checkout.buckaroo.nl' : 'testcheckout.buckaroo.nl';
+        $uri  = 'https://' . $url . '/json/Transaction/status/' . $transaction_id;
+        $uri2 = strtolower(rawurlencode($url . '/json/Transaction/status/' . $transaction_id));
+
+        $options = $this->getOptions($uri, $uri2, [], 'GET');
+        $this->client->setOptions($options);
+
+        $this->logger->addDebug(__METHOD__ . '|10|' . var_export($options, true));
+        
+        try {
+            $this->client->get($uri);
+            $response = json_decode($this->client->getBody(), true);
+        } catch (\Exception $e) {
+            $this->logger->addDebug(__METHOD__ . '|10|' . var_export($e->getMessage(), true));
+            return false;
+        }
+
+        $this->logger->addDebug(__METHOD__ . '|15|' . var_export(
+            [
+                $response,
+                $this->client->getStatus(),
+            ],
+            true
+        ));
+
+        return $response;
+    }
+
     public function getOptions($uri, $uri2, $data, $httpMethod)
     {
         $timeStamp = time();

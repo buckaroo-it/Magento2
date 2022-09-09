@@ -44,7 +44,9 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_klarna'
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_klarna',
+                    selectedGender: null,
+                    genderList: null
                 },
                 redirectAfterPlaceOrder: true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarna.paymentFeeLabel,
@@ -60,6 +62,49 @@ define(
                     }
 
                     return this._super(options);
+                },
+
+                initObservable: function () {
+                    this._super().observe(
+                        [
+                            'selectedGender',
+                            'genderList'
+                        ]
+                    );
+
+                    this.gendersList = function() {
+
+                        return window.checkoutConfig.payment.buckaroo.klarna.genderList;
+                    }
+                    
+                    /**
+                     * observe radio buttons
+                     * check if selected
+                     */
+                    var self = this;
+                    this.setSelectedGender = function () {
+                        var el = document.getElementById("buckaroo_magento2_klarna_genderSelect");
+                        this.selectedGender(el.options[el.selectedIndex].value);
+                        this.selectPaymentMethod();
+                        return true;
+                    };
+
+                    this.getSelectedGender = function () {
+                        return this.selectedGender();
+                    }
+                                       
+                    /**
+                     * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
+                     */
+                    this.buttoncheck = ko.computed(
+                    function () {
+                        var result = (this.selectedGender != null);
+                        return result;
+                        },
+                        this
+                    );
+
+                    return this;
                 },
 
                 /**
@@ -114,6 +159,16 @@ define(
                     var text = $.mage.__('The transaction will be processed using %s.');
 
                     return text.replace('%s', this.baseCurrencyCode);
+                },             
+
+                getData: function () {
+                    return {
+                        "method": this.item.method,
+                        "po_number": null,
+                        "additional_data": {
+                            "customer_gender" : this.selectedGender()
+                        }
+                    };
                 }
             }
         );
