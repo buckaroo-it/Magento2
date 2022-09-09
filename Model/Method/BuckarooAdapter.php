@@ -278,8 +278,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
                 $order->setBuckarooReservationNumber($postData['brq_service_klarnakp_reservationnumber']);
                 $order->save();
             }
-        } else {
-            return;
         }
     }
 

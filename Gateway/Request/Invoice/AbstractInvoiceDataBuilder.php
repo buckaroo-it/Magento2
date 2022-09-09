@@ -31,15 +31,9 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
 
         // loop through invoices to get the last one (=current invoice)
         if ($this->numberOfInvoices) {
-            $oInvoiceCollection = $order->getInvoiceCollection();
-
-            $i = 0;
-            foreach ($oInvoiceCollection as $oInvoice) {
-                if (++$i !== $this->numberOfInvoices) {
-                    continue;
-                }
-                $this->currentInvoiceTotal = $oInvoice->getGrandTotal();
-            }
+            $invoiceCollection = $order->getInvoiceCollection();
+            $currentInvoice = $invoiceCollection->getLastItem();
+            $this->currentInvoiceTotal = $currentInvoice->getGrandTotal();
         }
 
         if ($this->buckarooHelper->areEqualAmounts($totalOrder, $this->currentInvoiceTotal) && $this->numberOfInvoices == 1) {
