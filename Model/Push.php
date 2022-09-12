@@ -365,7 +365,15 @@ class Push implements PushInterface
         }
 
         if (isset($this->postData['brq_statusmessage'])) {
-            $this->order->addStatusHistoryComment($this->postData['brq_statusmessage']);
+            if ($this->order->getState() === Order::STATE_NEW) {
+                $this->order->setState(Order::STATE_PROCESSING);
+                $this->order->addStatusHistoryComment(
+                    $this->postData['brq_statusmessage'],
+                    $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
+                );
+            } else {
+                $this->order->addStatusHistoryComment($this->postData['brq_statusmessage']);
+            }
         }
 
         if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
