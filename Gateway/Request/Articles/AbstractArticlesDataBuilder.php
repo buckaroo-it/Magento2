@@ -2,32 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\Articles;
 
+use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
-use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\QuoteFactory;
-use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 
-class ArticlesDataBuilder extends AbstractDataBuilder
+abstract class AbstractArticlesDataBuilder extends AbstractDataBuilder
 {
-    /**
-     * Check if the tax calculation includes tax.
-     */
     const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
     const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
     /**
-     * Max articles that can be handled by klarna
+     * Max articles that can be handled by payment method
      */
-    const KLARNA_MAX_ARTICLE_COUNT = 99;
+    const MAX_ARTICLE_COUNT = 99;
 
     protected ScopeConfigInterface $scopeConfig;
 
@@ -73,81 +68,6 @@ class ArticlesDataBuilder extends AbstractDataBuilder
         $this->softwareData = $softwareData;
     }
 
-    public function build(array $buildSubject)
-    {
-        parent::initialize($buildSubject);
-
-        $this->buckarooLog->addDebug(__METHOD__ . '|1|');
-
-        if ($this->payRemainder) {
-            return $this->getRequestArticlesDataPayRemainder();
-        }
-
-        $includesTax = $this->scopeConfig->getValue(
-            static::TAX_CALCULATION_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
-
-        $quote = $this->quoteFactory->create()->load($this->getOrder()->getQuoteId());
-        $cartData = $quote->getAllItems();
-
-        // Set loop variables
-        $articles = [];
-        $count = 1;
-
-        /** @var \Magento\Sales\Model\Order\Item $item */
-        foreach ($cartData as $item) {
-
-            if (empty($item)
-                || $item->hasParentItemId()
-                || $item->getRowTotalInclTax() == 0
-            ) {
-                continue;
-            }
-
-            $article = $this->getArticleArrayLine(
-                $item->getName(),
-                $item->getSku(),
-                $item->getQty(),
-                $this->calculateProductPrice($item, $includesTax),
-                $item->getTaxPercent() ?? 0
-            );
-
-            // @codingStandardsIgnoreStart
-            $articles[] = $article;
-            // @codingStandardsIgnoreEnd
-
-            if ($count < self::KLARNA_MAX_ARTICLE_COUNT) {
-                $count++;
-                continue;
-            }
-
-            break;
-        }
-
-        $serviceLine = $this->getServiceCostLine($this->order);
-
-        if (!empty($serviceLine)) {
-            $articles[] = $serviceLine;
-            $count++;
-        }
-
-        // Add additional shipping costs.
-        $shippingCosts = $this->getShippingCostsLine($this->order, $count);
-
-        if (!empty($shippingCosts)) {
-            $articles[] = $shippingCosts;
-            $count++;
-        }
-
-        $discountline = $this->getDiscountLine();
-
-        if (!empty($discountline)) {
-            $articles[] = $discountline;
-        }
-
-        return ['articles' => $articles];
-    }
 
     protected function getRequestArticlesDataPayRemainder(): array
     {

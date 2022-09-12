@@ -642,6 +642,17 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="BuckarooCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BuckarooCaptureRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCapture</argument>
+            <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
     <!-- Buckaroo Capture Command - Response Handler -->
     <virtualType name="CaptureResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
@@ -664,7 +675,7 @@
                 <item name="amountDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\AmountInvoicedDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
                 <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OrderNumberDataBuilder</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoicedArticlesDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1010,7 +1021,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="customer" xsi:type="string">CustomerKlarnaDataBuilder</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1201,7 +1212,7 @@
                 <item name="klarnakp_reserve_request" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReserveDataBuilder</item>
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="customer" xsi:type="string">CustomerKlarnaKpDataBuilder</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersReserveDataBuilder</item>
             </argument>
         </arguments>
@@ -1231,7 +1242,7 @@
                 <item name="amountDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\AmountInvoicedDataBuilder</item>
                 <item name="reservation_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReservationNumberDataBuilder</item>
                 <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OrderNumberDataBuilder</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoicedArticlesDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2031,7 +2042,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">BillinkOrderCommand</item>
                 <item name="authorize" xsi:type="string">BillinkAuthorizeCommand</item>
-                <item name="capture" xsi:type="string">BillinkCaptureCommand</item>
+                <item name="capture" xsi:type="string">BuckarooCaptureCommand</item>
                 <item name="cancel" xsi:type="string">BuckarooCancelCommand</item>
                 <item name="void" xsi:type="string">BuckarooCancelCommand</item>
                 <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
@@ -2058,7 +2069,7 @@
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\VATNumberDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerBillinkDataBuilder</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2133,19 +2144,6 @@
         </arguments>
     </virtualType>
     <!-- END Billink Authorize Command -->
-
-    <!-- Billink Capture Command -->
-    <virtualType name="BillinkCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
-        <arguments>
-            <argument name="requestBuilder" xsi:type="object">BuckarooCaptureRequest</argument>
-            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCapture</argument>
-            <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
-            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
-        </arguments>
-    </virtualType>
-    <!-- END Billink Capture Command -->
     <!-- END Billink Commands infrastructure -->
     <!-- END Payment Method: Billink -->
 
@@ -2200,10 +2198,10 @@
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">AfterpayOrderCommand</item>
                 <item name="authorize" xsi:type="string">AfterpayAuthorizeCommand</item>
-                <item name="capture" xsi:type="string">AfterpayCaptureCommand</item>
+                <item name="capture" xsi:type="string">BuckarooCaptureCommand</item>
                 <item name="cancel" xsi:type="string">BuckarooCancelCommand</item>
                 <item name="void" xsi:type="string">BuckarooCancelCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+                <item name="refund" xsi:type="string">AfterpayRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2226,7 +2224,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="customer" xsi:type="string">CustomerAfterpayDataBuilder</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2302,10 +2300,10 @@
     </virtualType>
     <!-- END Afterpay Authorize Command -->
 
-    <!-- Afterpay Capture Command -->
-    <virtualType name="AfterpayCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+    <!-- Afterpay Refund Command -->
+    <virtualType name="AfterpayRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
-            <argument name="requestBuilder" xsi:type="object">BuckarooCaptureRequest</argument>
+            <argument name="requestBuilder" xsi:type="object">AfterpayRefundRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCapture</argument>
             <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
@@ -2313,7 +2311,21 @@
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
         </arguments>
     </virtualType>
-    <!-- END Afterpay Capture Command -->
+    <!-- Afterpay Refund Command - Request Builder -->
+    <virtualType name="AfterpayRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="creditmemmo_articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\CreditmemoArticlesDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Afterpay Refund Command - Gateway Client -->
+    <!-- Afterpay Refund Command - Response Validator -->
+    <!-- Afterpay Refund Command - Response Handler -->
+    <!-- Afterpay Refund Command - Error Code Mapping -->
+    <!-- END Afterpay Refund Command -->
+
     <!-- END Afterpay Commands infrastructure -->
     <!-- END Payment Method: Afterpay -->
 

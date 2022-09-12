@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
+use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class AbstractRecipientDataBuilder extends AbstractDataBuilder

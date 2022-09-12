@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
-use Buckaroo\Magento2\Gateway\Request\AbstractRecipientDataBuilder;
+use Buckaroo\Magento2\Gateway\Request\Recipient\AbstractRecipientDataBuilder;
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
 use Buckaroo\Resources\Constants\RecipientCategory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
