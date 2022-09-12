@@ -53,7 +53,7 @@ class ArticlesDataBuilder extends AbstractArticlesDataBuilder
             $articles[] = $article;
             // @codingStandardsIgnoreEnd
 
-            if ($count < self::KLARNA_MAX_ARTICLE_COUNT) {
+            if ($count < self::MAX_ARTICLE_COUNT) {
                 $count++;
                 continue;
             }
@@ -61,7 +61,7 @@ class ArticlesDataBuilder extends AbstractArticlesDataBuilder
             break;
         }
 
-        $serviceLine = $this->getServiceCostLine($this->order);
+        $serviceLine = $this->getServiceCostLine($this->getOrder());
 
         if (!empty($serviceLine)) {
             $articles[] = $serviceLine;
@@ -69,7 +69,7 @@ class ArticlesDataBuilder extends AbstractArticlesDataBuilder
         }
 
         // Add additional shipping costs.
-        $shippingCosts = $this->getShippingCostsLine($this->order, $count);
+        $shippingCosts = $this->getShippingCostsLine($this->getOrder(), $count);
 
         if (!empty($shippingCosts)) {
             $articles[] = $shippingCosts;

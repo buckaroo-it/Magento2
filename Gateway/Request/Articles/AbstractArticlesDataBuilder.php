@@ -133,16 +133,16 @@ abstract class AbstractArticlesDataBuilder extends AbstractDataBuilder
 
     public function getServiceCostLine($order, &$itemsTotalAmount = 0)
     {
-        $buckarooFeeLine = $order->getBuckarooFeeInclTax();
+        $buckarooFeeLine = (double)$order->getBuckarooFeeInclTax();
 
         if (!$buckarooFeeLine && ($order->getBuckarooFee() >= 0.01)) {
             $this->buckarooLog->addDebug(__METHOD__ . '|5|');
-            $buckarooFeeLine = $order->getBuckarooFee();
+            $buckarooFeeLine = (double)$order->getBuckarooFee();
         }
 
         $article = [];
 
-        if (false !== $buckarooFeeLine && (double)$buckarooFeeLine > 0) {
+        if ($buckarooFeeLine && $buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
                 'Servicekosten',
                 1,

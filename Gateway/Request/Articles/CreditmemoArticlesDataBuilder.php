@@ -32,12 +32,8 @@ class CreditmemoArticlesDataBuilder extends AbstractArticlesDataBuilder
         $articles = [];
 
 
-        if ($paymentMethod->canRefundPartialPerInvoice() && $creditmemo && $creditmemo->getBaseGrandTotal() !== $this->getOrder()->getBaseTotalInvoiced()) {
+        if ($paymentMethod->canRefundPartialPerInvoice() && $creditmemo && $creditmemo->getBaseGrandTotal() != $this->getOrder()->getBaseTotalInvoiced()) {
             $articles = $this->getCreditmemoArticleData($this->getPayment());
-        }
-
-        if (isset($services['RequestParameter'])) {
-            $articles = array_merge($services['RequestParameter'], $articles);
         }
 
         return $articles;
@@ -95,7 +91,7 @@ class CreditmemoArticlesDataBuilder extends AbstractArticlesDataBuilder
 
         // hasCreditmemos returns since 2.2.6 true or false.
         // The current creditmemo is still "in progress" and thus has yet to be saved.
-        $serviceLine = $this->getServiceCostLine($count, $creditmemo, $itemsTotalAmount);
+        $serviceLine = $this->getServiceCostLine($creditmemo, $itemsTotalAmount);
         if (!empty($serviceLine)) {
             $articles[] = $serviceLine;
             $count++;
