@@ -167,7 +167,7 @@ class CreditmemoArticlesDataBuilder extends AbstractArticlesDataBuilder
     )
     {
         return [
-            'type' => 'Refund',
+            'refundType' => 'Refund',
             'identifier' => $articleId,
             'description' => $articleDescription,
             'vatPercentage' => $articleVat,

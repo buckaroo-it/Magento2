@@ -175,13 +175,13 @@ abstract class AbstractArticlesDataBuilder extends AbstractDataBuilder
         $taxClassId = $this->taxConfig->getShippingTaxClass();
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
-        $shippingCostsArticle = [
-            'identifier' => 2,
-            'description' => 'Shipping fee',
-            'vatPercentage' => $this->formatShippingCostsLineVatPercentage($percent),
-            'quantity' => 1,
-            'price' => $this->formatPrice($shippingAmount)
-        ];
+        $shippingCostsArticle  = $this->getArticleArrayLine(
+            'Shipping fee',
+            2,
+            1,
+            $this->formatPrice($shippingAmount),
+            $this->formatShippingCostsLineVatPercentage($percent)
+        );
 
         $itemsTotalAmount += $shippingAmount;
 
