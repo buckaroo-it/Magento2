@@ -117,7 +117,6 @@ class CreditmemoArticlesDataBuilder extends AbstractArticlesDataBuilder
     protected function getCreditmemoArticleDataPayRemainder($payment, $addRefundType = true)
     {
         $article = $this->getArticleArrayLine(
-            1,
             'PayRemainder',
             1,
             1,
@@ -139,7 +138,7 @@ class CreditmemoArticlesDataBuilder extends AbstractArticlesDataBuilder
     {
         $article = $this->getArticleArrayLine(
             'Discount/Fee',
-            1,
+            4,
             1,
             round($diff, 2),
             4
