@@ -587,6 +587,15 @@
         </arguments>
     </type>
 
+    <type name="Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory">
+        <arguments>
+            <argument name="articlesHandlers" xsi:type="array">
+                <item name="default" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\Default</item>
+                <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayOld</item>
+            </argument>
+        </arguments>
+    </type>
+
     <!-- Buckaroo Commands infrastructure -->
     <virtualType name="BuckarooGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
@@ -2482,7 +2491,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
-                <item name="creditmemmo_articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\CreditmemoArticlesDataBuilder</item>
+                <item name="creditmemmo_articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\AftepayOldCreditmemoArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
