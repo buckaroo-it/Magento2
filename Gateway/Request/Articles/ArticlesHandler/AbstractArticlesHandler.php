@@ -326,12 +326,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
-     * @param \Magento\Quote\Model\Quote\Item $item
+     * @param Item $item
      * @return float
      */
     protected function getItemTax(Item $item): float
     {
-        return $item->getTaxPercent() ?? 0;
+        return (float)$item->getTaxPercent() ?? 0;
     }
 
     /**
@@ -370,7 +370,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    ) {
+    )
+    {
         return [
             'identifier' => $articleId,
             'description' => $articleDescription,

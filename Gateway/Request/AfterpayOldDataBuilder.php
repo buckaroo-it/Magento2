@@ -21,7 +21,7 @@ class AfterpayOldDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
-        $category = $this->recipientAfterpay->getCategory();
+        $category = $this->recipientAfterpay->getCategory($this->getOrder(), $this->getPayment());
         $accept = 'false';
         if ($this->getPayment()->getAdditionalInformation('termsCondition')) {
             $accept = 'true';

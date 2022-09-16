@@ -31,17 +31,20 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
     protected function buildData(): array
     {
         $data = [
-            'title' => $this->getFirstname(),
-            'gender' => $this->getGender(),
-            'initials' => $this->getInitials(),
+//            'title' => $this->getFirstname(),
+//            'gender' => $this->getGender(),
+//            'initials' => $this->getInitials(),
             'lastName' => $this->getLastName(),
             'birthDate' => $this->getBirthDate(),
-            'culture' => $this->getOrder()->getBillingAddress()->getCountryId()
+//            'culture' => $this->getOrder()->getBillingAddress()->getCountryId()
         ];
 
         if ($this->getCategory() == RecipientCategory::COMPANY) {
+            $data['category'] = RecipientCategory::COMPANY;
             $data['chamberOfCommerce'] = $this->getPayment()->getAdditionalInformation('COCNumber');
             $data['companyName'] = $this->getPayment()->getAdditionalInformation('CompanyName');
+        } else {
+            $data['category'] = RecipientCategory::PERSON;
         }
 
         return $data;
@@ -55,15 +58,21 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
         return (string)Gender::FEMALE;
     }
 
-    public function getCategory(): string
+    public function getCategory($order = null, $payment = null): string
     {
         $category = RecipientCategory::PERSON;
-        $billingAddress = $this->getOrder()->getBillingAddress();
-        if ($this->getPayment()->getAdditionalInformation('selectedBusiness') == self::BUSINESS_METHOD_B2B) {
+        if (is_null($order)) {
+            $order = $this->getOrder();
+        }
+        if (is_null($payment)) {
+            $payment = $this->getPayment();
+        }
+        $billingAddress = $order->getBillingAddress();
+        if ($payment->getAdditionalInformation('selectedBusiness') == self::BUSINESS_METHOD_B2B) {
             $category = RecipientCategory::COMPANY;
         } else {
             if (
-                $this->isCustomerB2B($this->getOrder()->getStoreId()) &&
+                $this->isCustomerB2B($order->getStoreId()) &&
                 !$this->isCompanyEmpty($billingAddress->getCompany())
             ) {
                 $category = RecipientCategory::COMPANY;

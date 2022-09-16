@@ -590,8 +590,8 @@
     <type name="Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory">
         <arguments>
             <argument name="articlesHandlers" xsi:type="array">
-                <item name="default" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\Default</item>
-                <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayOld</item>
+                <item name="default" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\DefaultHandler</item>
+                <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayOldHandler</item>
             </argument>
         </arguments>
     </type>
@@ -2409,7 +2409,6 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpayOldDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerAfterpayOldDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
@@ -2454,7 +2453,7 @@
     <!-- END Afterpay Old Order Command -->
 
     <!-- Afterpay Old Authorize Command -->
-    <virtualType name="AfterpayAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+    <virtualType name="AfterpayOldAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AfterpayOldAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>

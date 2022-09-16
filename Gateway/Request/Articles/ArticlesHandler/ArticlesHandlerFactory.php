@@ -52,23 +52,32 @@ class ArticlesHandlerFactory
      */
     public function create($payment)
     {
-        if (empty($this->articlesHandlers)) {
-            throw new \LogicException('There is no articles handler.');
-        }
+        try {
+            if (empty($this->articlesHandlers)) {
+                throw new \LogicException('There is no articles handler.');
+            }
 
-        $paymentMethodName = str_replace('buckaroo_magento2_', '', $payment);
+            $paymentMethodName = str_replace('buckaroo_magento2_', '', $payment);
 
-        $articleHandlerClass = $this->articlesHandlers[$paymentMethodName] ?? $this->articlesHandlers['default'];
+            $articleHandlerClass = $this->articlesHandlers[$paymentMethodName] ?? $this->articlesHandlers['default'];
 
-        if (empty($articleHandlerClass)) {
+            if (empty($articleHandlerClass)) {
+                throw new \Buckaroo\Magento2\Exception(
+                    new \Magento\Framework\Phrase(
+                        'Unknown Articles Handler type requested: %1.',
+                        [$paymentMethodName]
+                    )
+                );
+            }
+
+            return $this->objectManager->get($articleHandlerClass);
+        } catch (\Exception $exception) {
             throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(
-                    'Unknown Articles Handler type requested: %1.',
-                    [$paymentMethodName]
+                    'Unknown Articles Handler type requested: %1.'
                 )
             );
         }
 
-        return $this->objectManager->get($articleHandlerClass);
     }
 }
