@@ -7,10 +7,10 @@ use Magento\Quote\Model\Quote\Item;
 class AfterpayOldHandler extends AbstractArticlesHandler
 {
     /**
-     * @param Item $item
+     * @param Item|\Magento\Sales\Model\Order\Item $item
      * @return float
      */
-    protected function getItemTax(Item $item): float
+    protected function getItemTax($item): float
     {
         return $this->getTaxCategory($this->getOrder());
     }
@@ -72,12 +72,12 @@ class AfterpayOldHandler extends AbstractArticlesHandler
     }
 
     /**
-     * @param Item $item
+     * @param Item|\Magento\Sales\Model\Order\Invoice\Item|\Magento\Sales\Model\Order\Creditmemo\Item $item
      * @return mixed|string|null
      */
-    protected function getIdentifier(Item $item)
+    protected function getIdentifier($item)
     {
-        return $item->getId();
+        return $item->getProductId();
     }
 
     /**
