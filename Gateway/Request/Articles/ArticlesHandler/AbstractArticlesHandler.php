@@ -167,7 +167,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $prodPriceWithoutDiscount = round($prodPrice - $item->getDiscountAmount() / $item->getQty(), 2);
             $article = $this->getArticleRefundArrayLine(
                 $item->getName(),
-                $item->getSku(),
+                $this->getIdentifier($item),
                 $item->getQty(),
                 $prodPriceWithoutDiscount,
                 $item->getOrderItem()->getTaxPercent()
@@ -228,7 +228,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
             $article = $this->getArticleArrayLine(
                 $item->getName(),
-                $item->getSku(),
+                $this->getIdentifier($item),
                 $bundleProductQty ?: $item->getQty(),
                 $this->calculateProductPrice($item),
                 $this->getItemTax($item)
@@ -265,7 +265,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
             $article = $this->getArticleArrayLine(
                 $item->getName(),
-                $item->getSku(),
+                $this->getIdentifier($item),
                 $item->getQty(),
                 $this->calculateProductPrice($item),
                 $item->getOrderItem()->getTaxPercent()
@@ -332,6 +332,15 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected function getItemTax(Item $item): float
     {
         return (float)$item->getTaxPercent() ?? 0;
+    }
+
+    /**
+     * @param Item|\Magento\Sales\Model\Order\Invoice\Item|\Magento\Sales\Model\Order\Creditmemo\Item $item
+     * @return mixed|string|null
+     */
+    protected function getIdentifier(Item $item)
+    {
+        return $item->getSku();
     }
 
     /**

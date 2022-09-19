@@ -11,10 +11,12 @@ use Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayOldDataBuilder as Recipi
 class AfterpayOldDataBuilder extends AbstractDataBuilder
 {
     private RecipientAfterpayOld $recipientAfterpay;
+    private ClientIPDataBuilder $clientIPDataBuilder;
 
-    public function __construct(RecipientAfterpayOld $recipientAfterpay)
+    public function __construct(RecipientAfterpayOld $recipientAfterpay, ClientIPDataBuilder $clientIPDataBuilder)
     {
         $this->recipientAfterpay = $recipientAfterpay;
+        $this->clientIPDataBuilder = $clientIPDataBuilder;
     }
 
     public function build(array $buildSubject): array
@@ -28,8 +30,9 @@ class AfterpayOldDataBuilder extends AbstractDataBuilder
         }
 
         return [
+            'customerIPAddress' => $this->clientIPDataBuilder->getIp($this->getOrder()),
             'addressesDiffer' => $this->isAddressDataDifferent(),
-            'shippingCosts' => $this->getOrder()->getShippingAmount(),
+            'shippingCosts' => $this->getOrder()->getShippingInclTax(),
             'b2b' => $category == RecipientCategory::COMPANY,
             'accept' => $accept
         ];

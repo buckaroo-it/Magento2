@@ -31,20 +31,17 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
     protected function buildData(): array
     {
         $data = [
-//            'title' => $this->getFirstname(),
-//            'gender' => $this->getGender(),
-//            'initials' => $this->getInitials(),
+            'title' => $this->getFirstname(),
+            'gender' => $this->getGender(),
+            'initials' => $this->getInitials(),
             'lastName' => $this->getLastName(),
             'birthDate' => $this->getBirthDate(),
-//            'culture' => $this->getOrder()->getBillingAddress()->getCountryId()
+            'culture' => $this->getOrder()->getBillingAddress()->getCountryId()
         ];
 
         if ($this->getCategory() == RecipientCategory::COMPANY) {
-            $data['category'] = RecipientCategory::COMPANY;
             $data['chamberOfCommerce'] = $this->getPayment()->getAdditionalInformation('COCNumber');
             $data['companyName'] = $this->getPayment()->getAdditionalInformation('CompanyName');
-        } else {
-            $data['category'] = RecipientCategory::PERSON;
         }
 
         return $data;
@@ -63,10 +60,15 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
         $category = RecipientCategory::PERSON;
         if (is_null($order)) {
             $order = $this->getOrder();
+        } else {
+            $this->setOrder($order);
         }
         if (is_null($payment)) {
             $payment = $this->getPayment();
+        } else {
+            $this->setPayment($payment);
         }
+
         $billingAddress = $order->getBillingAddress();
         if ($payment->getAdditionalInformation('selectedBusiness') == self::BUSINESS_METHOD_B2B) {
             $category = RecipientCategory::COMPANY;

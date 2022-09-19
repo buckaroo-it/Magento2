@@ -522,6 +522,7 @@
                 <item name="kbc" xsi:type="string">kbcpaymentbutton</item>
                 <item name="Capayable" xsi:type="string">in3</item>
                 <item name="afterpay20" xsi:type="string">afterpay</item>
+                <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
             </argument>
         </arguments>
     </type>
@@ -2409,6 +2410,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="afterpayold" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpayOldDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerAfterpayOldDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
