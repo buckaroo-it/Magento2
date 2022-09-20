@@ -87,7 +87,38 @@ class AfterpayOldHandler extends AbstractArticlesHandler
      */
     protected function getShippingCostsLine($order, &$itemsTotalAmount = 0)
     {
-        return [];
+        $shippingCostsArticle = [];
+
+        $shippingAmount = $this->getShippingAmount($order);
+        if ($shippingAmount <= 0) {
+            return $shippingCostsArticle;
+        }
+
+        $shippingCostsArticle = ['shippingCosts' => $shippingAmount];
+
+        $itemsTotalAmount += $shippingAmount;
+
+        return $shippingCostsArticle;
+    }
+
+    /**
+     * @return array
+     */
+    public function getArticleRefundArrayLine(
+        $articleDescription,
+        $articleId,
+        $articleQuantity,
+        $articleUnitPrice,
+        $articleVat = ''
+    ): array
+    {
+        return [
+            'identifier' => $articleId,
+            'description' => $articleDescription,
+            'vatCategory' => $articleVat ?: 4,
+            'quantity' => $articleQuantity,
+            'price' => $articleUnitPrice
+        ];
     }
 
 }

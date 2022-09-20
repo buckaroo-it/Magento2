@@ -2505,16 +2505,16 @@
         </arguments>
     </virtualType>
     <!-- Afterpay Old Refund Command - Request Builder -->
-    <virtualType name="AfterpayRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
-                <item name="creditmemmo_articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\AftepayOldCreditmemoArticlesDataBuilder</item>
+                <item name="creditmemmo_articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\CreditmemoArticlesDataBuilder</item>
+                <item name="afterpayold" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpayOldDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
     <!-- END Afterpay Old Refund Command -->
     <!-- END Afterpay Old Commands infrastructure -->
     <!-- END Payment Method: Afterpay Old -->
-
 </config>

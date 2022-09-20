@@ -25,8 +25,6 @@ class ArticlesDataBuilder extends AbstractDataBuilder
 
         $this->articleHandler = $this->articlesHandlerFactory->create($this->getPayment()->getMethod());
 
-        $articles = $this->articleHandler->getOrderArticlesData($this->getOrder(), $this->getPayment());
-
-        return ['articles' => $articles];
+        return $this->articleHandler->getOrderArticlesData($this->getOrder(), $this->getPayment());
     }
 }

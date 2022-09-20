@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Resources\Constants\RecipientCategory;
-use Magento\Sales\Api\Data\OrderAddressInterface;
 use Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayOldDataBuilder as RecipientAfterpayOld;
 
 class AfterpayOldDataBuilder extends AbstractDataBuilder
@@ -32,7 +31,6 @@ class AfterpayOldDataBuilder extends AbstractDataBuilder
         return [
             'customerIPAddress' => $this->clientIPDataBuilder->getIp($this->getOrder()),
             'addressesDiffer' => $this->isAddressDataDifferent(),
-            'shippingCosts' => $this->getOrder()->getShippingInclTax(),
             'b2b' => $category == RecipientCategory::COMPANY,
             'accept' => $accept
         ];

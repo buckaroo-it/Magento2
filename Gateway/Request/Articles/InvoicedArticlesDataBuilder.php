@@ -25,8 +25,6 @@ class InvoicedArticlesDataBuilder extends AbstractDataBuilder
 
         $this->articleHandler = $this->articlesHandlerFactory->create($this->getPayment()->getMethod());
 
-        $articles = $this->articleHandler->getInvoiceArticlesData($this->getOrder(), $this->getPayment());
-
-        return ['articles' => $articles];
+        return $this->articleHandler->getInvoiceArticlesData($this->getOrder(), $this->getPayment());
     }
 }

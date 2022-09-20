@@ -373,7 +373,8 @@
 
             <buckaroo_magento2_afterpay>
                 <active>0</active>
-                <model>AfterpayOldFacade</model>
+                <model>Buckaroo\Magento2\Model\Method\Afterpay</model>
+<!--                <model>AfterpayOldFacade</model>-->
                 <order_status>pending</order_status>
                 <title>Buckaroo Afterpay</title>
                 <allowspecific>0</allowspecific>

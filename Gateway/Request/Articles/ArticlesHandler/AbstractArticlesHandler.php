@@ -85,25 +85,22 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return $this->getRequestArticlesDataPayRemainder();
         }
 
-        $articles = $this->getItemsLines();
+        $articles['articles'] = $this->getItemsLines();
 
         $serviceLine = $this->getServiceCostLine($this->getOrder());
-
         if (!empty($serviceLine)) {
-            $articles[] = $serviceLine;
+            $articles = array_merge_recursive($articles, $serviceLine);
         }
 
         // Add additional shipping costs.
         $shippingCosts = $this->getShippingCostsLine($this->getOrder());
-
         if (!empty($shippingCosts)) {
-            $articles[] = $shippingCosts;
+            $articles = array_merge_recursive($articles, $shippingCosts);
         }
 
         $discountline = $this->getDiscountLine();
-
         if (!empty($discountline)) {
-            $articles[] = $discountline;
+            $articles['articles'][] = $discountline;
         }
 
         return $articles;
@@ -124,19 +121,15 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
          */
         $currentInvoice = $invoiceCollection->getLastItem();
 
-        $articles = $this->getInvoiceItemsLines($currentInvoice);
+        $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice);
 
         if (is_array($articles) && $numberOfInvoices == 1) {
             $serviceLine = $this->getServiceCostLine($currentInvoice);
-            if (!empty($serviceLine)) $articles[] = $serviceLine;
+            if (!empty($serviceLine)) $articles = array_merge_recursive($articles, $serviceLine);;
         }
 
         $shippingCosts = $this->getShippingCostsLine($currentInvoice);
-        if (!empty($shippingCosts)) $articles[] = $shippingCosts;
-
-        if (!empty($shippingCosts)) {
-            $articles[] = $shippingCosts;
-        }
+        if (!empty($shippingCosts)) $articles = array_merge_recursive($articles, $shippingCosts);
 
         return $articles;
     }
@@ -146,6 +139,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         if ($this->payRemainder) {
             return $this->getCreditmemoArticleDataPayRemainder($payment);
         }
+
+        $this->setPayment($payment);
+        $this->setOrder($order);
 
         /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
@@ -172,7 +168,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
             $itemsTotalAmount += $item->getQty() * $prodPriceWithoutDiscount;
 
-            $articles[] = $article;
+            $articles['articles'][] = $article;
 
             if ($count < self::MAX_ARTICLE_COUNT) {
                 $count++;
@@ -185,19 +181,19 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
             $serviceLine = $this->getServiceCostLine($creditmemo, $itemsTotalAmount);
             if (!empty($serviceLine)) {
-                $articles[] = $serviceLine;
+                $articles = array_merge_recursive($articles, $serviceLine);
             }
         }
 
         $shippingCosts = $this->getShippingCostsLine($creditmemo, $itemsTotalAmount);
         if (!empty($shippingCosts)) {
-            $articles[] = $shippingCosts;
+            $articles = array_merge_recursive($articles, $shippingCosts);
         }
 
         if (abs($creditmemo->getGrandTotal() - $itemsTotalAmount) > 0.01) {
             $diff = $creditmemo->getGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($diff);
-            $articles[] = $diffLine;
+            $articles = array_merge_recursive($articles, $diffLine);
         }
 
         return $articles;
@@ -441,7 +437,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $itemsTotalAmount += round($buckarooFeeLine, 2);
         }
 
-        return $article;
+        return !empty($article) ? ['articles' => [$article]] : [];
     }
 
     protected function getDiscountDescription($item): string
@@ -486,7 +482,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         $itemsTotalAmount += $shippingAmount;
 
-        return $shippingCostsArticle;
+        return !empty($shippingCostsArticle) ? ['articles' => [$shippingCostsArticle]] : [];
     }
 
     /**
@@ -576,7 +572,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             4
         );
 
-        return $article;
+        return ['articles' => [$article]];
     }
 
     /**
