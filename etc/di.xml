@@ -2385,7 +2385,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">AfterpayOldOrderCommand</item>
                 <item name="authorize" xsi:type="string">AfterpayOldAuthorizeCommand</item>
-                <item name="capture" xsi:type="string">BuckarooCaptureCommand</item>
+                <item name="capture" xsi:type="string">AfterpayOldCaptureCommand</item>
                 <item name="cancel" xsi:type="string">BuckarooCancelCommand</item>
                 <item name="void" xsi:type="string">BuckarooCancelCommand</item>
                 <item name="refund" xsi:type="string">AfterpayOldRefundCommand</item>
@@ -2471,6 +2471,23 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">AfterpayOldOrderRequest</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersAuthorizeDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Afterpay Old Authorize Command -->
+
+    <!-- Afterpay Old Capture Command -->
+    <virtualType name="AfterpayOldCaptureCommand" type="BuckarooCaptureCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AfterpayOldCaptureRequest</argument>
+        </arguments>
+    </virtualType>
+    <!-- Afterpay Old Capture Command - Request Builder -->
+    <virtualType name="AfterpayOldCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="capture_request" xsi:type="string">BuckarooCaptureRequest</item>
+                <item name="afterpayold" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpayOldDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
