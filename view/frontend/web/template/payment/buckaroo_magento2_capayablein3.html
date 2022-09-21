@@ -77,6 +77,24 @@
                         <div for="buckaroo_magento2_capayablein3_DoB" generated="true" class="mage-error" id="dob-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
                     </div>
 
+                    <!-- Default | Hide this field if phone number is already filled in. Show this field if phone number is empty -->
+
+                    <!-- ko ifnot: hasTelephoneNumber -->
+                    <div class="field required" >
+                        <label class="label" for="buckaroo_magento2_capayablein3_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
+                        <div class="control">
+                            <input id="buckaroo_magento2_capayablein3_Telephone"
+                                   type="text"
+                                   class="input-text field"
+                                   data-bind="
+                                   valueUpdate: 'keyup',
+                                   value: telephoneNumber,
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true })}"
+                                   name="payment[buckaroo_magento2_capayablein3][customer_telephone]">
+                        </div>
+                    </div>
+                    <!-- /ko -->
+
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>

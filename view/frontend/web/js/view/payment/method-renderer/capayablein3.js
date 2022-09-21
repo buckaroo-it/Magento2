@@ -52,6 +52,8 @@ define(
                     CustomerName : null,
                     BillingName : null,
                     dateValidate : '',
+                    telephoneNumber: null,
+                    
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablein3.paymentFeeLabel,
@@ -76,6 +78,7 @@ define(
                         'CustomerName',
                         'BillingName',
                         'dateValidate',
+                        'telephoneNumber',
                     ]);
 
                    
@@ -114,6 +117,16 @@ define(
                     );
 
                     /**
+                     * Check if TelephoneNumber is filled in. If not - show field
+                     */
+                    this.hasTelephoneNumber = ko.computed(
+                        function () {
+                            var telephone = quote.billingAddress() ? quote.billingAddress().telephone : null;
+                            return telephone != '' && telephone != '-';
+                        }
+                    );
+
+                    /**
                      * Validation on the input fields
                      */
                     var runValidation = function () {
@@ -122,11 +135,13 @@ define(
                     };
 
                     this.dateValidate.subscribe(runValidation,this);
+                    this.telephoneNumber.subscribe(runValidation,this);
 
                     this.buttoncheck = ko.computed(function () {
                         var validation = 
                             this.BillingName() !== null &&
-                            this.dateValidate() !== null;
+                            this.dateValidate() !== null &&
+                            (this.telephoneNumber() !== null || this.hasTelephoneNumber);
 
 
                         return (validation && this.validate());
@@ -208,6 +223,7 @@ define(
                         "additional_data": {
                             "customer_billingName" : this.BillingName(),
                             "customer_DoB" : this.dateValidate(),
+                            "customer_telephone" : this.telephoneNumber(),
                         }
                     };
                 }

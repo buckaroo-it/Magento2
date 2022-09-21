@@ -168,6 +168,10 @@ class Capayable extends AbstractMethod
         if (isset($data['customer_DoB'])) {
             $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $this->formatDob($data['customer_DoB']));
         }
+
+        if (isset($data['customer_telephone'])) {
+            $this->getInfoInstance()->setAdditionalInformation('customer_telephone', $data['customer_telephone']);
+        }
     }
 
 
@@ -258,8 +262,10 @@ class Capayable extends AbstractMethod
         /**@var Address $billingAddress */
         $billingAddress = $payment->getOrder()->getBillingAddress();
         $now = new \DateTime();
+        $telephone = $payment->getAdditionalInformation('customer_telephone');
+
         $phoneData = $this->addressFormatter->formatTelephone(
-            $billingAddress->getTelephone(),
+            (empty($telephone) ? $billingAddress->getTelephone() : $telephone),
             $billingAddress->getCountryId()
         );
 
