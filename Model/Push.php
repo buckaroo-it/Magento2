@@ -424,11 +424,14 @@ class Push implements PushInterface
             Giftcards::PAYMENT_METHOD_CODE,
             Transfer::PAYMENT_METHOD_CODE
         ];
+        
+        $isRefund = $this->hasPostData('add_service_action_from_magento', ['refund']);
+
         if ($payment
             && $payment->getMethod()
             && $receivedStatusCode
             && ($this->getTransactionType() == self::BUCK_PUSH_TYPE_TRANSACTION)
-            && (!in_array($payment->getMethod(), $ignoredPaymentMethods))
+            && (!in_array($payment->getMethod(), $ignoredPaymentMethods) || $isRefund)
         ) {
             $this->logging->addDebug(__METHOD__ . '|5|');
 
