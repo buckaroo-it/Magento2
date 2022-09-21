@@ -52,6 +52,7 @@ define(
                     CustomerName : null,
                     BillingName : null,
                     dateValidate : '',
+                    value: ''
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablein3.paymentFeeLabel,
@@ -76,6 +77,7 @@ define(
                         'CustomerName',
                         'BillingName',
                         'dateValidate',
+                        'value'
                     ]);
 
                    
