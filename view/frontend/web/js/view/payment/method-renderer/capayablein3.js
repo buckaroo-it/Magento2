@@ -100,6 +100,7 @@ define(
                     CustomerName : null,
                     BillingName : null,
                     dateValidate : '',
+                    value: '',
                     phone: null
                 },
                 redirectAfterPlaceOrder: false,
@@ -125,6 +126,7 @@ define(
                         'CustomerName',
                         'BillingName',
                         'dateValidate',
+                        'value',
                         'phone'
                     ]);
 

@@ -105,7 +105,6 @@
                                             dateFormat: 'dd/MM/yy'
                                         }
                                    },
-                                   event: { change: selectPaymentMethod },
                                    valueUpdate: 'change',
                                    value: dateValidate,
                                    attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
@@ -158,7 +157,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !(isPlaceOrderActionAllowed() || buttoncheck()) }
+                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>
