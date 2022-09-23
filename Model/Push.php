@@ -921,7 +921,9 @@ class Push implements PushInterface
                 [$this->postData['brq_transactions'] => $this->postData['brq_statuscode']]
             );
         } else {
-            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
+            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(
+                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
+            );
             $buckarooTransactionKeysArray[$this->postData['brq_transactions']] = $this->postData['brq_statuscode'];
             $payment->setAdditionalInformation(
                 self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
