@@ -115,6 +115,7 @@ define(
                     showFrenchTosValue: null,
                     showPhoneValue: null,
                     showCOC: false,
+                    value:""
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
@@ -155,6 +156,7 @@ define(
                             'showPhoneValue',
                             'customerCoc',
                             'showCOC',
+                            'value'
                         ]
                     );
 
@@ -309,6 +311,7 @@ define(
                     var runValidation = function () {
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
 
+                        let self = this;
                         if(elements !== undefined){
                             elements.valid();
                         }
@@ -352,7 +355,6 @@ define(
                     this.buttoncheck = ko.computed(
                         function () {
                             var result =
-                                (!this.showNLBEFields()) &&
                                 (!this.showIdentification() || this.identificationValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
