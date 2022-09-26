@@ -101,10 +101,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'code' => 'FVLBNL22',
         ],
         [
-            'name' => 'Handelsbanken',
-            'code' => 'HANDNL2A',
-        ],
-        [
             'name' => 'Revolut',
             'code' => 'REVOLT21',
         ],
