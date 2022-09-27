@@ -883,7 +883,7 @@
 
             <buckaroo_magento2_tinka>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Tinka</model>
+                <model>TinkaFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Tinka</title>
                 <allowspecific>0</allowspecific>
