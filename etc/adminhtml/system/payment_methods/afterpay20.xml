@@ -45,8 +45,8 @@
         </field>
 
         <field id="customer_type" translate="label comment" type="select" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>AfterPay customer type</label>
-            <comment><![CDATA[This setting determines whether you accept AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.]]></comment>
+            <label>Riverty | Afterpay customer type</label>
+            <comment><![CDATA[This setting determines whether you accept Riverty | Afterpay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType</source_model>
             <config_path>payment/buckaroo_magento2_afterpay20/customer_type</config_path>
         </field>
