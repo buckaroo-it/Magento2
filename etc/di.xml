@@ -2689,6 +2689,7 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">GiftcardsCountryValidator</item>
+                <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AllowedGiftcardsValidator</item>
             </argument>
         </arguments>
     </virtualType>
