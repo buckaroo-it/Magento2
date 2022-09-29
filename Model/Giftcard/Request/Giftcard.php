@@ -121,12 +121,12 @@ class Giftcard implements GiftcardInterface
      */
     protected $cardTypes = [
         'fashioncheque' => [
-            'number' => 'FashionChequeCardNumber',
-            'pin' => 'FashionChequePin',
+            'number' => 'fashionChequeCardNumber',
+            'pin' => 'fashionChequePIN',
         ],
         'tcs' => [
-            'number' => 'TCSCardnumber',
-            'pin' => 'TCSValidationCode',
+            'number' => 'tcsCardnumber',
+            'pin' => 'tcsValidationCode',
         ]
     ];
 
@@ -225,12 +225,13 @@ class Giftcard implements GiftcardInterface
             "currency" => $this->getCurrency(),
             'amountDebit' => $this->getAmount(),
             "invoice" => $incrementId,
+            "order" => $incrementId,
             "returnURL" => $this->getReturnUrl(),
             "returnURLCancel" => $this->getReturnUrl(),
             "returnURLError" => $this->getReturnUrl(),
             "returnURLReject" => $this->getReturnUrl(),
             "pushURL" => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
-            'clientIP' => (object)[
+            'clientIP' => [
                 'address' => $ip !== false ? $ip : 'unknown',
                 'type' => strpos($ip, ':') === false ? '0' : '1',
             ],
@@ -393,10 +394,10 @@ class Giftcard implements GiftcardInterface
         }
 
         if ($this->isCustom()) {
-            return 'IntersolveCardnumber';
+            return 'intersolveCardnumber';
         }
 
-        return 'Cardnumber';
+        return 'cardnumber';
     }
 
     /**
@@ -412,10 +413,10 @@ class Giftcard implements GiftcardInterface
         }
 
         if ($this->isCustom()) {
-            return 'IntersolvePin';
+            return 'intersolvePIN';
         }
 
-        return 'Pin';
+        return 'pin';
     }
 
     /**
