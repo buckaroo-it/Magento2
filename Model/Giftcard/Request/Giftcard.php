@@ -197,10 +197,12 @@ class Giftcard implements GiftcardInterface
 
         try {
             if ($this->action == 'PayRemainder') {
-                return $this->clientPayRemainder->placeRequest($transferO);
+                $response = $this->clientPayRemainder->placeRequest($transferO);
             } else {
-                return $this->clientPay->placeRequest($transferO);
+                $response = $this->clientPay->placeRequest($transferO);
             }
+
+            return $response['object'] ?? [];
 
         } catch (ClientException $e) {
             throw new GiftcardException($e->getMessage());
