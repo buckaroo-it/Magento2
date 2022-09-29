@@ -478,7 +478,7 @@
 
             <buckaroo_magento2_giftcards>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Giftcards</model>
+                <model>GiftcardsFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Giftcards</title>
                 <sort_order>190</sort_order>

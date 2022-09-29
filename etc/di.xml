@@ -523,6 +523,7 @@
                 <item name="Capayable" xsi:type="string">in3</item>
                 <item name="afterpay20" xsi:type="string">afterpay</item>
                 <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
+                <item name="giftcards" xsi:type="string">giftcard</item>
             </argument>
         </arguments>
     </type>
@@ -2652,4 +2653,102 @@
     <!-- END Tinka Order Command -->
     <!-- END Tinka Commands infrastructure -->
     <!-- END Payment Method: Tinka -->
+
+    <!-- Payment Method: Giftcards -->
+    <!-- Giftcards Payment Method Facade configuration -->
+    <virtualType name="GiftcardsFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">GiftcardsValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">GiftcardsValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">GiftcardsGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Giftcards Value handlers infrastructure -->
+    <virtualType name="GiftcardsValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">GiftcardsConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="GiftcardsConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Giftcards Value handlers infrastructure -->
+
+    <!-- Giftcards validators infrastructure -->
+    <virtualType name="GiftcardsValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">GiftcardsCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="GiftcardsCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Giftcards validators infrastructure -->
+
+    <!-- Giftcards Commands infrastructure -->
+    <virtualType name="GiftcardsGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">GiftcardsOrderCommand</item>
+                <item name="refund" xsi:type="string">GiftcardsRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Giftcards Order Command -->
+    <virtualType name="GiftcardsOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">GiftcardsOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Giftcards Order Command - Request Builder -->
+    <virtualType name="GiftcardsOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="giftcards" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GiftcardsDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Giftcards Order Command -->
+
+    <!-- Giftcards Refund Command -->
+    <virtualType name="GiftcardsRefundCommand" type="BuckarooRefundCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">GiftcardsRefundRequest</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Giftcards Refund Command - Request Builder -->
+    <virtualType name="GiftcardsRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="giftcard_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GiftcardNameDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Giftcards Refund Command -->
+    <!-- END Giftcards Commands infrastructure -->
+    <!-- END Payment Method: Giftcards -->
 </config>
