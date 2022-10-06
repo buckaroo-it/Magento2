@@ -427,6 +427,8 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
 
+        $this->removeAmastyGiftcardOnFailed();
+
         if (!$this->getSkipHandleFailedRecreate()) {
             if (!$this->quoteRecreate->recreate($this->quote)) {
                 $this->logging->addError('Could not recreate the quote.');
@@ -711,11 +713,34 @@ class Process extends \Magento\Framework\App\Action\Action
 
     public function getSkipHandleFailedRecreate()
     {
-        return false;
+        return false;  
     }
 
     public function setSkipHandleFailedRecreate($value)
     {
         return true;
+    }
+
+    /**
+     * Remove amasty giftcard from failed order
+     *
+     * @return void
+     */
+    protected function removeAmastyGiftcardOnFailed()
+    {
+        $class = \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class;
+        if (class_exists($class)) {
+
+            $giftcardAccountRepository = $this->_objectManager->get($class);
+            $giftcards = $this->order->getExtensionAttributes()->getAmGiftcardOrder()->getGiftCards();
+
+            foreach ($giftcards as $giftcardObj) {
+                /** @var \Amasty\GiftCardAccount\Api\Data\GiftCardAccountInterface */
+                $giftcard = $giftcardAccountRepository->getByCode($giftcardObj['code']);
+                $giftcard->setStatus(1);
+                $giftcard->setCurrentValue($giftcard->getInitialValue());
+                $giftcardAccountRepository->save($giftcard);
+            }
+        }
     }
 }
