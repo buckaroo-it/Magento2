@@ -10,7 +10,6 @@ class PayReminderService
     private float $payRemainder;
     private string $serviceAction;
     private float $alreadyPaid;
-    private Order $order;
 
     private PaymentGroupTransaction $paymentGroupTransaction;
 
@@ -21,11 +20,9 @@ class PayReminderService
      * @param Order|null $order
      */
     public function __construct(
-        PaymentGroupTransaction $paymentGroupTransaction,
-        Order                   $order = null
+        PaymentGroupTransaction $paymentGroupTransaction
     )
     {
-        if($order instanceof Order) $this->setOrder($order);
         $this->paymentGroupTransaction = $paymentGroupTransaction;
     }
 
@@ -36,9 +33,6 @@ class PayReminderService
     public function getAlreadyPaid($incrementId = null): float
     {
         if (empty($this->alreadyPaid)) {
-            if (empty($incrementId) && isset($this->order) && $this->order instanceof Order) {
-                $incrementId = $this->order->getIncrementId();
-            }
             $this->setAlreadyPaid($this->paymentGroupTransaction->getAlreadyPaid($incrementId));
         }
 
@@ -145,21 +139,5 @@ class PayReminderService
     public function setServiceAction(string $serviceAction): void
     {
         $this->serviceAction = $serviceAction;
-    }
-
-    /**
-     * @return Order
-     */
-    public function getOrder(): Order
-    {
-        return $this->order;
-    }
-
-    /**
-     * @param Order $order
-     */
-    public function setOrder(Order $order): void
-    {
-        $this->order = $order;
     }
 }
