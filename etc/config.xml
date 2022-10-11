@@ -191,7 +191,7 @@
 
             <buckaroo_magento2_creditcard>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Creditcard</model>
+                <model>CreditcardFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Creditcard and Debit Card</title>
                 <allowspecific>0</allowspecific>
