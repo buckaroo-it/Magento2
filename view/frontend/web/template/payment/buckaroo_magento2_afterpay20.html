@@ -20,42 +20,6 @@
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
 
-                    <!-- ko if: showNLBEFields -->
-                    <div class="field required">
-                        <legend class="label"> <span data-bind="i18n: 'Salutation:'"> </span> </legend>
-                        <div class="control">
-                            <ul id="Saluation">
-                                <li>
-                                    <input type="radio" id="buckaroo_magento2_afterpay20_genderSelectMan"
-                                           data-bind="
-                                           value: '1',
-                                           event: { change: selectPaymentMethod },
-                                           click: setSelectedGender.bind($data, '1'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                           checked: genderValidate
-                                           "
-                                           class="field"
-                                           name="payment[buckaroo_magento2_afterpay20][customer_gender]">
-                                    <label for="buckaroo_magento2_afterpay20_genderSelectMan"> <span data-bind="i18n: 'Mr.' "> </span> </label>
-                                </li>
-                                <li>
-                                    <input type="radio" id="buckaroo_magento2_afterpay20_genderSelectWoman"
-                                           data-bind="
-                                           value: '2',
-                                           click: setSelectedGender.bind($data, '2'),
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                           checked: genderValidate
-                                            "
-                                           class="field"
-                                           name="payment[buckaroo_magento2_afterpay20][customer_gender]">
-                                    <label for="buckaroo_magento2_afterpay20_genderSelectWoman"> <span data-bind="i18n: 'Mrs.' "> </span> </label>
-                                </li>
-                            </ul>
-                            <div for="gender" generated="true" class="mage-error" id="gender-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
-                        </div>
-                    </div>
-                    <!-- /ko -->
-
                     <!-- ko if: showIdentification -->
                     <div class="field required">
                         <legend class="label"> <span data-bind="i18n: 'Identification number:'"> </span> </legend>
@@ -141,7 +105,6 @@
                                             dateFormat: 'dd/MM/yy'
                                         }
                                    },
-                                   event: { change: selectPaymentMethod },
                                    valueUpdate: 'change',
                                    value: dateValidate,
                                    attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
@@ -166,7 +129,7 @@
                             <span>
                                 <a target="_blank"
                                    data-bind="
-                                       i18n: 'Yes, I accept the terms and condition for the use of Afterpay.',
+                                       i18n: 'Yes, I accept the terms and condition for the use of Riverty | Afterpay.',
                                        attr: { 'href': termsUrl }
                                    ">
                                 </a>

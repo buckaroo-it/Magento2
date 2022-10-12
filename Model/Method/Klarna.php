@@ -341,10 +341,7 @@ class Klarna extends AbstractMethod
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
         $category = 'B2C';
 
-        $gender = 'female';
-        if ($payment->getAdditionalInformation('customer_gender') === '1') {
-            $gender = 'male';
-        }
+        $gender = $payment->getAdditionalInformation('customer_gender');
 
         $billingData = [
             [
@@ -475,11 +472,8 @@ class Klarna extends AbstractMethod
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
         $category = 'B2C';
 
-        $gender = 'female';
-        if ($payment->getAdditionalInformation('customer_gender') == '1') {
-            $gender = 'male';
-        }
 
+        $gender = $payment->getAdditionalInformation('customer_gender');
         $shippingData = [
             [
                 '_'    => $category,
