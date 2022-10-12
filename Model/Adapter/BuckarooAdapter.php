@@ -85,6 +85,11 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->refund($data);
     }
 
+    public function createMandate($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->createMandate($data);
+    }
+
     /**
      * @throws BuckarooException
      */

@@ -619,7 +619,7 @@
 
             <buckaroo_magento2_emandate>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Emandate</model>
+                <model>EmandateFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Digitale Incassomachtiging</title>
                 <sequence_type>1</sequence_type>
