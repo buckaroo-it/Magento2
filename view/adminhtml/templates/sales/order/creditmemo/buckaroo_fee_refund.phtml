@@ -21,58 +21,40 @@
  */
 
 // @codingStandardsIgnoreFile
-
 ?>
-<?php foreach ($block->getTotals() as $_code => $_total): ?>
-    <?php if (isset($_total['block_name']) && $_total['block_name'] == 'buckaroo_fee'): ?>
+<?php foreach ($block->getTotals() as $_code => $_total): 
+?>
+    <?php if (isset($_total['block_name']) && $_total['block_name'] == 'buckaroo_fee'): 
+        $isSelected = isset($_total['is_selected']) && $_total['is_selected'] === true;        
+    ?>
         <tr>
             <td class="label">Refund <?= $_total['label'] ?>
-                <input type="checkbox" name="creditmemo[buckaroo_fee_refundable]" id="isRefund" checked>
+                <input
+                type="checkbox"
+                name="creditmemo[buckaroo_fee_refundable]"
+                class="bk-fee" <?= $isSelected? 'checked':'' ?>
+                data-bk-fee-value="<?= abs($_total['value']) ?>"
+                >
                 <div id="buckaroo_fee_adv">
                 </div>
             </td>
             <td>
                 <input type="text"
                        name="creditmemo[buckaroo_fee]"
-                       value="<?= abs($_total['value']) ?>"
+                       value="<?= $isSelected ? abs($_total['value']): 0 ?>"
                        disabled
-                       class="input-text admin__control-text not-negative-amount"
+                       class="input-text admin__control-text not-negative-amount bk-fee-value"
                        id="buckaroo_fee" />
             </td>
         </tr>
     <?php endif?>
 <?php endforeach?>
 <script>
-    require(['prototype'], function() {
-        let inclTax = <?php echo empty($_total['extra_info']['incl_tax']) ? 0 : 1;  ?>;
-        let feeElement = document.getElementById('buckaroo_fee');
-        let feeElementValue = feeElement.value;
-        let feeElementValue2 = feeElementValue;
-        <?php if (!empty($_total['extra_info']['fee_with_tax'])) { ?>
-            feeElementValue2 = <?php echo $_total['extra_info']['fee_with_tax'];  ?>;
-        <?php } ?>
-
-        let isFeeRefund = document.getElementById('isRefund');
-        let grandTotalElement = document.querySelector(
-            inclTax ? '.order-subtotal-table tr:last-child td strong span.price' : 'tfoot span.price'
-        );
-        let grandTotalElementValue = grandTotalElement.innerHTML;
-
-        isFeeRefund.addEventListener('change', function () {
-            if (!this.checked) {
-                feeElement.value = 0;
-                let regExp = /[0-9\.,]{3,}/;
-                let currentGrandTotalPrice = grandTotalElement.innerHTML.match(regExp);
-                let priceWithoutFee = currentGrandTotalPrice - feeElementValue2;
-
-                let grandTotalPrice = grandTotalElement.innerHTML.replace(regExp, priceWithoutFee.toFixed(2).toString());
-                grandTotalElement.innerHTML = grandTotalPrice;
-
-            } else {
-                feeElement.value = feeElementValue;
-                grandTotalElement.innerHTML = grandTotalElementValue;
-
-            }
-        });
+    require(["jquery",'prototype'], function() {
+        jQuery('.bk-fee').on('change', function() {
+            const feeValue = jQuery(this).data('bk-fee-value');
+            jQuery(this).closest('tr').find('.bk-fee-value').val(this.checked ? feeValue: 0);
+            jQuery('.update-button, .update-totals-button').removeClass('disabled').prop('disabled', false);
+        })
     });
 </script>

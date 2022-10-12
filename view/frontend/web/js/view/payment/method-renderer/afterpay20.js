@@ -98,7 +98,6 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay20',
-                    selectedGender: null,
                     identificationNumber: null,
                     firstName: '',
                     lastName: '',
@@ -109,7 +108,6 @@ define(
                     dateValidate: null,
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
                     termsValidate: false,
-                    genderValidate: null,
                     identificationValidate: null,
                     phoneValidate: null,
                     showNLBEFieldsValue: true,
@@ -117,6 +115,7 @@ define(
                     showFrenchTosValue: null,
                     showPhoneValue: null,
                     showCOC: false,
+                    value:""
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
@@ -140,7 +139,6 @@ define(
                 initObservable: function () {
                     this._super().observe(
                         [
-                            'selectedGender',
                             'firstname',
                             'lastname',
                             'CustomerName',
@@ -149,7 +147,6 @@ define(
                             'dateValidate',
                             'termsUrl',
                             'termsValidate',
-                            'genderValidate',
                             'identificationValidate',
                             'phoneValidate',
                             'dummy',
@@ -159,6 +156,7 @@ define(
                             'showPhoneValue',
                             'customerCoc',
                             'showCOC',
+                            'value'
                         ]
                     );
 
@@ -251,7 +249,7 @@ define(
                     if (quote.billingAddress()) {
                         this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
                         this.updateTermsUrl(quote.billingAddress().countryId);
-                        this.phoneValidate();
+                        this.phoneValidate(quote.billingAddress().telephone);
                         this.updateShowFields();
                     }
 
@@ -307,26 +305,14 @@ define(
                     )
 
                     /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedGender = function (value) {
-                        self.selectedGender(value);
-                        return true;
-                    };
-
-                    /**
                      * Validation on the input fields
                      */
 
                     var runValidation = function () {
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
-                        
+
+                        let self = this;
                         if(elements !== undefined){
-                            if (this.country != 'NL' && this.country != 'BE') {
-                                elements = elements.filter(':not([name*="customer_gender"])');
-                            }
                             elements.valid();
                         }
 
@@ -343,7 +329,6 @@ define(
 
                     this.dateValidate.subscribe(runValidation, this);
                     this.termsValidate.subscribe(runValidation, this);
-                    this.genderValidate.subscribe(runValidation, this);
                     this.identificationValidate.subscribe(runValidation, this);
                     this.phoneValidate.subscribe(runValidation, this);
                     this.dummy.subscribe(runValidation, this);
@@ -370,7 +355,6 @@ define(
                     this.buttoncheck = ko.computed(
                         function () {
                             var result =
-                                (!this.showNLBEFields() || this.selectedGender() !== null) &&
                                 (!this.showIdentification() || this.identificationValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
@@ -494,9 +478,6 @@ define(
                         return true;
                     }
                     var elements = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
-                    if (this.country != 'NL' && this.country != 'BE') {
-                        elements = elements.filter(':not([name*="customer_gender"])');
-                    }
                     return elements.valid();
                 },
 
@@ -506,7 +487,6 @@ define(
                         "po_number": null,
                         "additional_data": {
                             "customer_telephone": this.phoneValidate(),
-                            "customer_gender": this.genderValidate(),
                             "customer_identificationNumber": this.identificationValidate(),
                             "customer_billingName": this.BillingName(),
                             "customer_DoB": this.dateValidate(),

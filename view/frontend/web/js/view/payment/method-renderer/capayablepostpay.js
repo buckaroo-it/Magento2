@@ -56,7 +56,8 @@ define(
                     dateValidate : null,
                     selectedOrderAs : 1,
                     CocNumber : null,
-                    CompanyName : null
+                    CompanyName : null,
+                    value:''
                 },
                 redirectAfterPlaceOrder: true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablepostpay.paymentFeeLabel,
@@ -85,7 +86,8 @@ define(
                         'dateValidate',
                         'selectedOrderAs',
                         'CocNumber',
-                        'CompanyName'
+                        'CompanyName',
+                        'value'
                     ]);
 
                     // Observe and store the selected gender

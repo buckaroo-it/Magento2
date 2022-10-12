@@ -583,7 +583,6 @@ class Klarnakp extends AbstractMethod
         if (isset($data['additional_data']['termsCondition'])) {
             $additionalData = $data['additional_data'];
             $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
-            $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
             $this->getInfoInstance()->setAdditionalInformation(
                 'customer_billingName',
                 $additionalData['customer_billingName']
