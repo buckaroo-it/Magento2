@@ -60,7 +60,6 @@ class OrderHandler extends AbstractResponseHandler implements HandlerInterface
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
      * @param array|\StdCLass|TransactionResponse $response
      *
      * @return $this

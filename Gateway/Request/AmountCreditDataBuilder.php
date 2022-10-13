@@ -98,7 +98,9 @@ class AmountCreditDataBuilder implements BuilderInterface
         $payment = $buildSubject['payment'];
         $this->setOrder($payment->getOrder()->getOrder());
 
-        $amount = $this->refundGroupTransactions($payment->getPayment(),  $buildSubject['amount']);
+        $amount =  $buildSubject['amount'] ?? $this->getOrder()->getBaseGrandTotal();
+
+        $amount = $this->refundGroupTransactions($payment->getPayment(), $amount);
 
         $this->setAmount($amount);
 

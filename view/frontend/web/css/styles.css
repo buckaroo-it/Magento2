@@ -519,12 +519,12 @@
 .buckaroo_magento2_afterpay2 .buckaroo_magento2_image_title:after,
 .buckaroo_magento2_afterpay20 .buckaroo_magento2_image_title:after{
     background: url(../images/buckaroo_magento2_afterpay_title.png) no-repeat;
+    margin-top: -7px;
     float: right;
-    margin-right: 10px;
-    margin-top: 5px;
-    background-size: auto 16px;
-    width: 83px;
-    height: 25px;
+    margin-right: -3px;
+    background-size: auto 37px;
+    width: 62px;
+    height: 37px;
     content: ' ';
 }
 
