@@ -88,12 +88,12 @@
 .buckaroo_magento2_payment_afterpay:before,
 .buckaroo_magento2_payment_afterpay2:before {
     background: url(../images/buckaroo_magento2_afterpay_title.png) no-repeat;
+    margin-top: -7px;
     float: left;
     margin-right: 10px;
-    margin-top: -1px;
-    background-size: auto 20px;
-    width: 100px;
-    height: 30px;
+    background-size: auto 37px;
+    width: 55px;
+    height: 37px;
     content: ' ';
 }
 
