@@ -60,6 +60,11 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->authorize($data);
     }
 
+    public function authorizeEncrypted(string $method, array $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->authorizeEncrypted($data);
+    }
+
     public function capture($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->capture($data);

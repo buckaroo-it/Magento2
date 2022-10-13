@@ -524,6 +524,7 @@
                 <item name="afterpay20" xsi:type="string">afterpay</item>
                 <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
                 <item name="giftcards" xsi:type="string">giftcard</item>
+                <item name="creditcards" xsi:type="string">creditcard</item>
             </argument>
         </arguments>
     </type>
@@ -2890,7 +2891,7 @@
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
-            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info\Creditcard</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
             <argument name="valueHandlerPool" xsi:type="object">CreditcardEncryptedValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">CreditcardEncryptedValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">CreditcardEncryptedGatewayCommandPool</argument>
@@ -2971,7 +2972,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CreditcardEncryptedAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorizeEncrypted</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
@@ -3007,7 +3008,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
-                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardTypeDataBuilder</item>
+                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardEncryptedDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>

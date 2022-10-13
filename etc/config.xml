@@ -221,7 +221,7 @@
 
             <buckaroo_magento2_creditcards>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Creditcards</model>
+                <model>CreditcardEncryptedFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Creditcards</title>
                 <sort_order>35</sort_order>
@@ -231,9 +231,9 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-                <can_authorize>0</can_authorize>
-                <can_capture>0</can_capture>
-                <can_capture_partial>0</can_capture_partial>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
                 <can_order>1</can_order>
                 <can_void>1</can_void>
                 <can_refund>1</can_refund>

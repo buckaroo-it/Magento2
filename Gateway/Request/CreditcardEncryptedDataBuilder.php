@@ -4,23 +4,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
-use Buckaroo\Magento2\Service\PayReminderService;
-
 class CreditcardEncryptedDataBuilder extends AbstractDataBuilder
 {
-    /** @var ServiceParameters */
-    private ServiceParameters $serviceParameters;
-    private PayReminderService $payReminderService;
-
-    public function __construct(
-        ServiceParameters  $serviceParameters,
-        PayReminderService $payReminderService)
-    {
-        $this->serviceParameters = $serviceParameters;
-        $this->payReminderService = $payReminderService;
-    }
-
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
