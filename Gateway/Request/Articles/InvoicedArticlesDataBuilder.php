@@ -2,20 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\Articles;
 
-use Buckaroo\Magento2\Exception;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Gateway\Request\ArticlesDataBuilder;
 
-class InvoicedArticlesDataBuilder extends ArticlesDataBuilder
+class InvoicedArticlesDataBuilder extends AbstractArticlesDataBuilder
 {
-    /**
-     * Max articles that can be handled by payment method
-     */
-    const MAX_ARTICLE_COUNT = 99;
-
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);

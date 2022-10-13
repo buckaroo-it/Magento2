@@ -645,7 +645,7 @@
 
             <buckaroo_magento2_afterpay20>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Afterpay20</model>
+                <model>AfterpayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>

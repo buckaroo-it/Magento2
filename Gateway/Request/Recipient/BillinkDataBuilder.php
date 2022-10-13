@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
-use Buckaroo\Magento2\Gateway\Request\AbstractRecipientDataBuilder;
+use Buckaroo\Magento2\Gateway\Request\Recipient\AbstractRecipientDataBuilder;
 use Buckaroo\Magento2\Helper\Data;
 
 class BillinkDataBuilder extends AbstractRecipientDataBuilder

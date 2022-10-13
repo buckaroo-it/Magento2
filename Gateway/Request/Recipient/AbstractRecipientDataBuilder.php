@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
+use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class AbstractRecipientDataBuilder extends AbstractDataBuilder
@@ -96,5 +97,19 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     protected function getChamberOfCommerce()
     {
         return $this->payment->getAdditionalInformation('customer_chamberOfCommerce');
+    }
+
+    /**
+     * Required if Billing country is NL or BE.
+     * Possible values: Mr, Mrs, Miss.
+     * @return string
+     */
+    protected function getTitle(): string
+    {
+        if ($this->getGender() === 'male') {
+            return 'Mr';
+        }
+
+        return 'Mrs';
     }
 }
