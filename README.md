@@ -28,7 +28,7 @@ Start accepting payments within a few minutes.
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- Magento version Magento 2.3.x up to 2.4.4
+- Magento version Magento 2.4.x up to 2.4.5
 - PHP 7.4 , 8.0 , 8.1
 
 ### Installation
