@@ -375,7 +375,7 @@
                 <active>0</active>
                 <model>AfterpayOldFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Afterpay</title>
+                <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -401,7 +401,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Afterpay2</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Afterpay 2</title>
+                <title>Buckaroo Riverty | Afterpay 2</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
@@ -649,7 +649,7 @@
                 <active>0</active>
                 <model>AfterpayFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Afterpay</title>
+                <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
