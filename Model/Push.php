@@ -377,7 +377,16 @@ class Push implements PushInterface
         }
 
         if (!empty($this->pushRequst->getStatusmessage())) {
-            $this->order->addStatusHistoryComment($this->pushRequst->getStatusmessage());
+            if ($this->order->getState() === Order::STATE_NEW
+                && !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))) {
+                $this->order->setState(Order::STATE_PROCESSING);
+                $this->order->addStatusHistoryComment(
+                    $this->pushRequst->getStatusmessage(),
+                    $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
+                );
+            } else {
+                $this->order->addStatusHistoryComment($this->pushRequst->getStatusmessage());
+            }
         }
 
         if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
@@ -923,27 +932,27 @@ class Push implements PushInterface
         }
     }
 
-    protected function setReceivedTransactionStatuses()
+    /**
+     * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
+     * with the current received tx status.
+     *
+     * @return void
+     */
+    protected function setReceivedTransactionStatuses(): void
     {
-        if (empty($this->pushRequst->getTransactions()) || empty($this->pushRequst->getStatusCode())) {
+        $txId = $this->pushRequst->getTransactions();
+        $statusCode = $this->pushRequst->getStatusCode();
+
+        if (empty($txId) || empty($statusCode)) {
             return;
         }
 
         $payment = $this->order->getPayment();
 
-        if (!$payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES)) {
-            $payment->setAdditionalInformation(
-                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
-                [$this->pushRequst->getTransactions() => $this->pushRequst->getStatusCode()]
-            );
-        } else {
-            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
-            $buckarooTransactionKeysArray[$this->pushRequst->getTransactions()] = $this->pushRequst->getStatusCode();
-            $payment->setAdditionalInformation(
-                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
-                $buckarooTransactionKeysArray
-            );
-        }
+        $receivedTxStatuses = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES) ?? [];
+        $receivedTxStatuses[$txId] = $statusCode;
+
+        $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES, $receivedTxStatuses);
     }
 
     /**

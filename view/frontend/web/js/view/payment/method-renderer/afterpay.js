@@ -111,7 +111,8 @@ define(
                     CompanyName:null,
                     bankaccountnumber: '',
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
-                    termsValidate: false
+                    termsValidate: false,
+                    value:""
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay.paymentFeeLabel,
@@ -147,7 +148,8 @@ define(
                             'bankaccountnumber',
                             'termsUrl',
                             'termsValidate',
-                            'dummy'
+                            'dummy',
+                            'value'
                         ]
                     );
 
@@ -280,6 +282,8 @@ define(
                      */
 
                     var runValidation = function () {
+
+                        let self = this;
                         $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
                         this.selectPaymentMethod();
 

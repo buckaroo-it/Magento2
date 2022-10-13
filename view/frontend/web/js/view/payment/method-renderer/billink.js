@@ -76,6 +76,7 @@ define(
                     showFrenchTosValue: null,
                     showPhoneValue: null,
                     termsValidate: false,
+                    value:""
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.billink.paymentFeeLabel,
@@ -117,6 +118,7 @@ define(
                             'showFrenchTosValue',
                             'showPhoneValue',
                             'termsValidate',
+                            'value'
                         ]
                     );
 

@@ -63,6 +63,7 @@ define(
                     showNLBEFieldsValue: true,
                     showIdentificationValue: null,
                     showFrenchTosValue: null,
+                    value:''
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.tinka.paymentFeeLabel,
@@ -96,6 +97,7 @@ define(
                             'showNLBEFieldsValue',
                             'showIdentificationValue',
                             'showFrenchTosValue',
+                            'value'
                         ]
                     );
 
@@ -203,6 +205,7 @@ define(
                      */
 
                     var runValidation = function () {
+                        let self = this;
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
                         elements.valid();
 
@@ -243,8 +246,7 @@ define(
                      */
                     this.buttoncheck = ko.computed(
                         function () {
-                            return (this.telephoneNumber() !== null || this.hasTelephoneNumber) &&
-                                (!this.showNLBEFields()) &&
+                            return (this.telephoneNumber() !== null || this.hasTelephoneNumber()) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
                                 (
