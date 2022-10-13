@@ -112,4 +112,9 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
 
         return 'Mrs';
     }
+
+    protected function getInitials(): string
+    {
+        return strtoupper(substr($this->getFirstname(), 0, 1));
+    }
 }

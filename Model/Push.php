@@ -932,27 +932,27 @@ class Push implements PushInterface
         }
     }
 
-    /**
-     * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
-     * with the current received tx status.
-     *
-     * @return void
-     */
-    protected function setReceivedTransactionStatuses(): void
+    protected function setReceivedTransactionStatuses()
     {
-        $txId = $this->pushRequst->getTransactions();
-        $statusCode = $this->pushRequst->getStatusCode();
-
-        if (empty($txId) || empty($statusCode)) {
+        if (empty($this->pushRequst->getTransactions()) || empty($this->pushRequst->getStatusCode())) {
             return;
         }
 
         $payment = $this->order->getPayment();
 
-        $receivedTxStatuses = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES) ?? [];
-        $receivedTxStatuses[$txId] = $statusCode;
-
-        $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES, $receivedTxStatuses);
+        if (!$payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES)) {
+            $payment->setAdditionalInformation(
+                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
+                [$this->pushRequst->getTransactions() => $this->pushRequst->getStatusCode()]
+            );
+        } else {
+            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
+            $buckarooTransactionKeysArray[$this->pushRequst->getTransactions()] = $this->pushRequst->getStatusCode();
+            $payment->setAdditionalInformation(
+                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
+                $buckarooTransactionKeysArray
+            );
+        }
     }
 
     /**

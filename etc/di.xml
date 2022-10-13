@@ -522,6 +522,7 @@
                 <item name="kbc" xsi:type="string">kbcpaymentbutton</item>
                 <item name="Capayable" xsi:type="string">in3</item>
                 <item name="afterpay20" xsi:type="string">afterpay</item>
+                <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
             </argument>
         </arguments>
     </type>
@@ -583,6 +584,15 @@
                 <item name="dhlparcel_servicepoint" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DHLParcelAddressHandler</item>
                 <item name="sendcloud_sendcloud" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\SendCloudAddressHandler</item>
                 <item name="myparcel_myparcel" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\MyParcelAddressHandler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory">
+        <arguments>
+            <argument name="articlesHandlers" xsi:type="array">
+                <item name="default" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\DefaultHandler</item>
+                <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayOldHandler</item>
             </argument>
         </arguments>
     </type>
@@ -706,6 +716,21 @@
             </argument>
         </arguments>
     </virtualType>
+    <!-- Buckaroo Partial Refund Command - Request Builder -->
+    <virtualType name="BuckarooPartialRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\RefundOriginalTransactionKeyDataBuilder</item>
+                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
     <!-- Buckaroo Refund Command - Response Handler -->
     <virtualType name="RefundResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
@@ -734,7 +759,7 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
                 <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
-                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
+                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
@@ -2315,14 +2340,196 @@
     <virtualType name="AfterpayRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
                 <item name="creditmemmo_articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\CreditmemoArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
     <!-- END Afterpay Refund Command -->
-
     <!-- END Afterpay Commands infrastructure -->
     <!-- END Payment Method: Afterpay -->
 
+    <!-- Payment Method: Afterpay Old -->
+    <!-- Afterpay Old Payment Method Facade configuration -->
+    <virtualType name="AfterpayOldFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">AfterpayOldValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">AfterpayOldValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">AfterpayOldGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Afterpay Old Value handlers infrastructure -->
+    <virtualType name="AfterpayOldValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">AfterpayOldConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="AfterpayOldConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Afterpay Old Value handlers infrastructure -->
+
+    <!-- Afterpay Old validators infrastructure -->
+    <virtualType name="AfterpayOldValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">AfterpayOldCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AfterpayOldCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Afterpay Old validators infrastructure -->
+
+    <!-- Afterpay Old Commands infrastructure -->
+    <virtualType name="AfterpayOldGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">AfterpayOldOrderCommand</item>
+                <item name="authorize" xsi:type="string">AfterpayOldAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">AfterpayOldCaptureCommand</item>
+                <item name="cancel" xsi:type="string">BuckarooCancelCommand</item>
+                <item name="void" xsi:type="string">BuckarooCancelCommand</item>
+                <item name="refund" xsi:type="string">AfterpayOldRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Afterpay Old Order Command -->
+    <virtualType name="AfterpayOldOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AfterpayOldOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Afterpay Old Order Command - Request Builder -->
+    <virtualType name="AfterpayOldOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="afterpayold" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpayOldDataBuilder</item>
+                <item name="customer" xsi:type="string">CustomerAfterpayOldDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="CustomerAfterpayOldDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="billing" xsi:type="string">AfterpayOldBillingDataBuilder</item>
+                <item name="shipping" xsi:type="string">AfterpayOldShippingDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AfterpayOldBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayOldDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AfterpayOldShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="recipient" xsi:type="string">AfterpayOldShippingRecipientDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
+                <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AfterpayOldShippingRecipientDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayOldDataBuilder">
+        <arguments>
+            <argument name="addressType" xsi:type="string">shipping</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Afterpay Old Order Command -->
+
+    <!-- Afterpay Old Authorize Command -->
+    <virtualType name="AfterpayOldAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AfterpayOldAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <!-- Afterpay Old Authorize Command - Request Builder -->
+    <virtualType name="AfterpayOldAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">AfterpayOldOrderRequest</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersAuthorizeDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Afterpay Old Authorize Command -->
+
+    <!-- Afterpay Old Capture Command -->
+    <virtualType name="AfterpayOldCaptureCommand" type="BuckarooCaptureCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AfterpayOldCaptureRequest</argument>
+        </arguments>
+    </virtualType>
+    <!-- Afterpay Old Capture Command - Request Builder -->
+    <virtualType name="AfterpayOldCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="capture_request" xsi:type="string">BuckarooCaptureRequest</item>
+                <item name="afterpayold" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpayOldDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Afterpay Old Authorize Command -->
+
+    <!-- Afterpay Old Refund Command -->
+    <virtualType name="AfterpayOldRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">AfterpayOldRefundRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <!-- Afterpay Old Refund Command - Request Builder -->
+    <virtualType name="AfterpayOldRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
+                <item name="creditmemmo_articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\CreditmemoArticlesDataBuilder</item>
+                <item name="afterpayold" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpayOldDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Afterpay Old Refund Command -->
+    <!-- END Afterpay Old Commands infrastructure -->
+    <!-- END Payment Method: Afterpay Old -->
 </config>

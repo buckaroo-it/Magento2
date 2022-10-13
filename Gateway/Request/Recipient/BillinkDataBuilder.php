@@ -53,9 +53,4 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     {
         return ucfirst(parent::getGender());
     }
-
-    protected function getInitials(): string
-    {
-        return strtoupper(substr($this->getFirstname(), 0, 1));
-    }
 }
