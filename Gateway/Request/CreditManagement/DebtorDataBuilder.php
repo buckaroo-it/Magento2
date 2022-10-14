@@ -11,8 +11,14 @@ class DebtorDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
+        $address = $this->getOrder()->getBillingAddress();
+
+        if ($address === null) {
+            return [];
+        }
+        
         return [
-            'code' => $this->getOrder()->getBillingAddress()->getEmail()
+            'code' => $address->getEmail()
         ];
     }
 }

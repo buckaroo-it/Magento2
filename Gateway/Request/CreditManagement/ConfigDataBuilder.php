@@ -25,7 +25,6 @@ class ConfigDataBuilder extends AbstractDataBuilder
         );
 
         $data = [
-            'code'            =>'Debtor',
             'dueDate'         => $this->getDueDate(),
             'schemeKey'       => $this->config->getSchemeKey(),
             'maxStepIndex'    => $this->config->getMaxStepIndex(),
@@ -38,7 +37,7 @@ class ConfigDataBuilder extends AbstractDataBuilder
 
     }
 
-    protected function getPaymentMethodsAfterExpiry()
+    protected function getPaymentMethodsAfterExpiry(): string
     {
         $methods = $this->config->getPaymentMethodsAfterExpiry();
         if(is_array($methods)) {

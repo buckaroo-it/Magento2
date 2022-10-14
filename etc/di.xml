@@ -2242,28 +2242,22 @@
     <virtualType name="BuckarooDefaultCreditManagment" type="Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="user" xsi:type="string">BuckarooCreditManagmentDefaultUser</item>
                 <item name="group" xsi:type="string">BuckarooCreditManagmentGroup</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
                 <item name="config" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\ConfigDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="BuckarooCreditManagmentDefaultUser" type="Magento\Payment\Gateway\Request\BuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
     <virtualType name="BuckarooCreditManagmentGroup" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
+                <item name="person" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\PersonDataBuilder</item>
                 <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\AddressDataBuilder</item>
-                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
                 <item name="company" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\CompanyDataBuilder</item>
+                <item name="debtor" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\DebtorDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
