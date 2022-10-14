@@ -25,17 +25,26 @@ class ConfigDataBuilder extends AbstractDataBuilder
         );
 
         $data = [
+            'code'            =>'Debtor',
             'dueDate'         => $this->getDueDate(),
-            'schemeKey'       => $this->configProvider->getSchemeKey(),
-            'maxStepIndex'    => $this->configProvider->getMaxStepIndex(),
-            'allowedServices' => $this->configProvider->getAllowedServices(),
+            'schemeKey'       => $this->config->getSchemeKey(),
+            'maxStepIndex'    => $this->config->getMaxStepIndex(),
         ];
 
-        if ($this->config->getPaymentMethodAfterExpiry()) {
-            $data['allowedServicesAfterDueDate'] = $this->configProvider->getPaymentMethodAfterExpiry();
+        if ($this->config->getPaymentMethodAfterExpiry() != null) {
+            $data['allowedServicesAfterDueDate'] = $this->getPaymentMethodAfterExpiry();
         }
         return $data;
 
+    }
+
+    protected function getPaymentMethodsAfterExpiry()
+    {
+        $methods = $this->config->getPaymentMethodsAfterExpiry();
+        if(is_array($methods)) {
+            return implode(',', $methods);
+        }
+        return "";
     }
     /**
      * Get transfer due date

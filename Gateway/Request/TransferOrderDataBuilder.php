@@ -21,6 +21,7 @@ class TransferOrderDataBuilder extends AbstractDataBuilder
 
     public function build(array $buildSubject): array
     {
+        parent::initialize($buildSubject);
         return [
             'dateDue' => $this->getDueDate(),
             'sendMail' => (bool)$this->getSendEmail(),
