@@ -46,7 +46,7 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditclick'
                 },
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.eps.paymentFeeLabel,
+                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditclick.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 
@@ -104,7 +104,7 @@ define(
                 },
 
                 payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.eps.allowedCurrencies;
+                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.creditclick.allowedCurrencies;
 
                     return allowedCurrencies.indexOf(this.currencyCode) < 0;
                 },
