@@ -112,6 +112,7 @@
 
             <buckaroo_magento2_sepadirectdebit>
                 <active>0</active>
+<!--                <model>SepaDirectDebitFacade</model>-->
                 <model>Buckaroo\Magento2\Model\Method\SepaDirectDebit</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo SEPA Direct Debit</title>
