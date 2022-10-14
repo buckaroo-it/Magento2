@@ -2,13 +2,14 @@
 
 namespace Buckaroo\Magento2\Model\Adapter;
 
-use Buckaroo\BuckarooClient;
 use Buckaroo\Config\Config;
-use Buckaroo\Exceptions\BuckarooException;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Magento\Framework\Encryption\Encryptor;
+use Buckaroo\BuckarooClient;
 use Buckaroo\Handlers\Reply\ReplyHandler;
+use Buckaroo\Exceptions\BuckarooException;
+use Magento\Framework\Encryption\Encryptor;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
 
 class BuckarooAdapter
 {
@@ -31,58 +32,23 @@ class BuckarooAdapter
 
     public function __construct(Account $configProviderAccount, Encryptor $encryptor, array $mapPaymentMethods = null)
     {
-        $this->encryptor = $encryptor;
-        $this->configProviderAccount = $configProviderAccount;
         $this->mapPaymentMethods = $mapPaymentMethods;
-        $websiteKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
-        $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
-        $envMode = $this->configProviderAccount->getActive() == 2 ? Config::LIVE_MODE : Config::TEST_MODE;
-        $this->buckaroo = new BuckarooClient($websiteKey, $secretKey, $envMode);
+  
+        $this->buckaroo = new BuckarooClient(
+            $encryptor->decrypt($configProviderAccount->getMerchantKey()),
+            $encryptor->decrypt($configProviderAccount->getSecretKey()),
+            $configProviderAccount->getActive() == 2 ? Config::LIVE_MODE : Config::TEST_MODE
+        );
     }
 
-    public function pay($method, $data): TransactionResponse
+    public function execute(string $action, string $method, array $data): TransactionResponse
     {
-        return $this->buckaroo->method($this->getMethodName($method))->pay($data);
-    }
+        $payment = $this->buckaroo->method($this->getMethodName($method));
 
-    public function authorize($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->authorize($data);
-    }
-
-    public function capture($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->capture($data);
-    }
-
-    public function cancelAuthorize($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->cancelAuthorize($data);
-    }
-
-    public function payInInstallments($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
-    }
-
-    public function payEncrypted($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payEncrypted($data);
-    }
-
-    public function reserve($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->reserve($data);
-    }
-
-    public function cancelReserve($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->cancelReserve($data);
-    }
-
-    public function refund($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->refund($data);
+        if ($this->hasCreditManagement($data)) {
+            $payment = $payment->combine($this->getCreditManagementBody($data));
+        }
+        return $payment->{$action}($data);
     }
 
     /**
@@ -98,5 +64,30 @@ class BuckarooAdapter
     protected function getMethodName($method)
     {
         return $this->mapPaymentMethods[$method] ?? $method;
+    }
+
+    /**
+     * Check if has credit management
+     * @param array $data
+     * @return bool
+     */
+    protected function hasCreditManagement(array $data): bool
+    {
+        return isset($data[BuilderComposite::KEY]) &&
+            is_array($data[BuilderComposite::KEY]) &&
+            count($data[BuilderComposite::KEY]) > 0;
+    }
+
+    /**
+     * Get credit management body
+     * @param array $data
+     */
+    protected function getCreditManagementBody(array $data)
+    {
+        return $this->buckaroo->method('credit_management')
+        ->manually()
+        ->createCombinedInvoice(
+            $data[BuilderComposite::KEY]
+        );
     }
 }
