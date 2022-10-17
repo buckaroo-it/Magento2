@@ -768,7 +768,7 @@
 
             <buckaroo_magento2_wechatpay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Wechatpay</model>
+                <model>WechatpayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo WeChatPay</title>
                 <allowspecific>0</allowspecific>
@@ -903,7 +903,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_tinka>
-            
+
              <buckaroo_magento2_creditclick>
                 <active>0</active>
                 <model>CreditClickFacade</model>
