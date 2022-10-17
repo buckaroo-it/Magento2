@@ -51,7 +51,7 @@ class BuckarooAdapter
         }
 
         if($this->isCreditManagementRefund($data)) {
-            return $this->getCreditNoteBody($data);
+            $this->createCreditNote($data);
         }
 
         return $payment->{$action}($data);
@@ -103,7 +103,7 @@ class BuckarooAdapter
      *
      * @param array $data
      */
-    protected function getCreditNoteBody(array $data)
+    protected function createCreditNote(array $data)
     {
         return $this->buckaroo->method('credit_management')
         ->createCreditNote(
