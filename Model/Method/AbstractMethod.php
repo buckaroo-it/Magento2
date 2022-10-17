@@ -823,17 +823,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
+     * @param $transactionResponse
+     * @param $errorType
      * @return bool
      */
-    public function hasError($transactionResponse): bool
+    public function hasError($transactionResponse, $errorType): bool
     {
-        return !empty($transactionResponse->RequestErrors) && (
-                !empty($transactionResponse->RequestErrors->ChannelError) ||
-                !empty($transactionResponse->RequestErrors->ServiceError) ||
-                !empty($transactionResponse->RequestErrors->ActionError) ||
-                !empty($transactionResponse->RequestErrors->ParameterError) ||
-                !empty($transactionResponse->RequestErrors->CustomParameterError)
-            );
+        if(!empty($transactionResponse->RequestErrors) && !empty($transactionResponse->RequestErrors->$errorType)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -844,12 +844,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         $errorTypes = ['ChannelError', 'ServiceError', 'ActionError', 'ParameterError', 'CustomParameterError'];
 
-        if ($this->hasError($transactionResponse)) {
+        foreach ($errorTypes as $errorType) {
+            if ($this->hasError($transactionResponse, $errorType)) {
+                return $transactionResponse->RequestErrors->$errorType->_;
 
-            foreach ($errorTypes as $errorType) {
-                if (!empty($transactionResponse->RequestErrors->$errorType)) {
-                    return $transactionResponse->RequestErrors->$errorType->_;
-                }
             }
         }
 
