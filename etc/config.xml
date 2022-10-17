@@ -424,7 +424,7 @@
 
             <buckaroo_magento2_payperemail>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\PayPerEmail</model>
+                <model>PayPerEmailFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo PayPerEmail</title>
                 <allowspecific>0</allowspecific>
@@ -903,7 +903,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_tinka>
-            
+
              <buckaroo_magento2_creditclick>
                 <active>0</active>
                 <model>CreditClickFacade</model>
