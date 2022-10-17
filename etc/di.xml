@@ -804,14 +804,6 @@
         </arguments>
     </virtualType>
 
-    <type name="Buckaroo\Magento2\Gateway\Validator\IssuerValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealGateway</argument>
-            <argument name="helper" xsi:type="object">Buckaroo\Magento2\Helper\Data</argument>
-            <argument name="request" xsi:type="object">Magento\Framework\App\RequestInterface</argument>
-        </arguments>
-    </type>
-
     <virtualType name="BuckarooCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
         <arguments>
             <argument name="config" xsi:type="object">IdealPaymentGatewayConfig</argument>
@@ -2184,17 +2176,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">EmandateCountryValidator</item>
-                <item name="global" xsi:type="string">VirtualEmandateIssuerValidator</item>
+                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="VirtualEmandateIssuerValidator" type="Buckaroo\Magento2\Gateway\Validator\EmandateIssuerValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate</argument>
-        </arguments>
-    </virtualType>
-
     <virtualType name="EmandateCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
         <arguments>
             <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate</argument>
