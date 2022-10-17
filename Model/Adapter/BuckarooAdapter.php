@@ -9,6 +9,7 @@ use Buckaroo\Exceptions\BuckarooException;
 use Magento\Framework\Encryption\Encryptor;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Magento2\Gateway\Http\Client\TransactionType;
 use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
 
 class BuckarooAdapter
@@ -48,6 +49,11 @@ class BuckarooAdapter
         if ($this->hasCreditManagement($data)) {
             $payment = $payment->combine($this->getCreditManagementBody($data));
         }
+
+        if($this->isCreditManagementRefund($data)) {
+            return $this->getCreditNoteBody($data);
+        }
+
         return $payment->{$action}($data);
     }
 
@@ -73,13 +79,14 @@ class BuckarooAdapter
      */
     protected function hasCreditManagement(array $data): bool
     {
-        return isset($data[BuilderComposite::KEY]) &&
-            is_array($data[BuilderComposite::KEY]) &&
-            count($data[BuilderComposite::KEY]) > 0;
+        return isset($data[BuilderComposite::TYPE_ORDER]) &&
+            is_array($data[BuilderComposite::TYPE_ORDER]) &&
+            count($data[BuilderComposite::TYPE_ORDER]) > 0;
     }
 
     /**
      * Get credit management body
+     * 
      * @param array $data
      */
     protected function getCreditManagementBody(array $data)
@@ -87,7 +94,27 @@ class BuckarooAdapter
         return $this->buckaroo->method('credit_management')
         ->manually()
         ->createCombinedInvoice(
-            $data[BuilderComposite::KEY]
+            $data[BuilderComposite::TYPE_ORDER]
         );
+    }
+
+    /**
+     * Get credit note body
+     *
+     * @param array $data
+     */
+    protected function getCreditNoteBody(array $data)
+    {
+        return $this->buckaroo->method('credit_management')
+        ->createCreditNote(
+            $data[BuilderComposite::TYPE_REFUND]
+        );
+    }
+
+    protected function isCreditManagementRefund(array $data): bool
+    {
+        return isset($data[BuilderComposite::TYPE_REFUND]) &&
+            is_array($data[BuilderComposite::TYPE_REFUND]) &&
+            count($data[BuilderComposite::TYPE_REFUND]) > 0;
     }
 }

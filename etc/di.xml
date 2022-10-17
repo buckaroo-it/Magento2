@@ -2199,7 +2199,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">TransferOrderCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundWithCreditManagementCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2210,7 +2210,7 @@
             <argument name="requestBuilder" xsi:type="object">TransferOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
-            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="handler" xsi:type="object">OrderWithCreditManagementResponseHandler</argument>
             <argument name="validator" xsi:type="object">
                 Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator
             </argument>
@@ -2229,7 +2229,7 @@
                 <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CountryDataBuilder</item>
                 <item name="transfer_config_params" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TransferOrderDataBuilder</item>
-                <item name="credit_managment" xsi:type="string">BuckarooDefaultCreditManagment</item>
+                <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2239,6 +2239,44 @@
     <!-- END Payment Method: Transfer -->
 
     <!-- Credit Managment -->
+    <!-- Buckaroo Order Command - Response Handler -->
+    <virtualType name="OrderWithCreditManagementResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+                <item name="credit_management" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Buckaroo Order Command -->
+
+     <virtualType name="BuckarooDefaultRefundCreditManagment" type="Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite">
+        <arguments>
+            <argument name="type" xsi:type="const">Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite::TYPE_REFUND</argument>
+            <argument name="builders" xsi:type="array">
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceDataBuilder</item>
+                <item name="invoice_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceKeyDataBuilder</item>
+                <item name="invoice_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceNumberDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Buckaroo Refund Command -->
+    <virtualType name="BuckarooRefundWithCreditManagementCommand" type="BuckarooRefundCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BuckarooRefundWithCreditManagementRequest</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooRefundWithCreditManagementRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="credit_management" xsi:type="string">BuckarooDefaultRefundCreditManagment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <virtualType name="BuckarooDefaultCreditManagment" type="Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">

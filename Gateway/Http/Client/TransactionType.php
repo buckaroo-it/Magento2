@@ -1,15 +1,17 @@
 <?php
+
 namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 class TransactionType
 {
-    const AUTHORIZE = 'authorize';
-    const CANCEL = 'cancelAuthorize';
-    const CANCEL_RESERVE = 'cancelReserve';
-    const CAPTURE = 'capture';
-    const PAY = 'pay';
-    const PAY_IN_INSTALLMENTS = 'payInInstallments';
-    const REFUND = 'refund';
-    const RESERVE = 'reserve';
-    const PAY_ENCRYPTED = 'payEncrypted';
+    public const AUTHORIZE = 'authorize';
+    public const CANCEL = 'cancelAuthorize';
+    public const CANCEL_RESERVE = 'cancelReserve';
+    public const CAPTURE = 'capture';
+    public const PAY = 'pay';
+    public const PAY_IN_INSTALLMENTS = 'payInInstallments';
+    public const REFUND = 'refund';
+    public const RESERVE = 'reserve';
+    public const PAY_ENCRYPTED = 'payEncrypted';
+    public const CREATE_CREDIT_NOTE = 'createCreditNote';
 }

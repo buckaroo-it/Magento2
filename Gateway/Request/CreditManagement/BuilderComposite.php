@@ -11,7 +11,10 @@ use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 class BuilderComposite implements BuilderInterface
 {
 
-    public const KEY = 'buckaroo_credit_management';
+    public const TYPE_ORDER = 'buckaroo_credit_management';
+    public const TYPE_REFUND = 'buckaroo_credit_management_refund';
+
+    protected $type = self::TYPE_ORDER;
 
     /**
      * @var BuilderInterface[] | TMap
@@ -28,7 +31,8 @@ class BuilderComposite implements BuilderInterface
     public function __construct(
         TMapFactory $tmapFactory,
         Factory $configProvider,
-        array       $builders = []
+        array       $builders = [],
+        string $type = self::TYPE_ORDER
     ) {
         $this->builders = $tmapFactory->create(
             [
@@ -37,6 +41,7 @@ class BuilderComposite implements BuilderInterface
             ]
         );
         $this->configProvider = $configProvider;
+        $this->type = $type;
     }
     /**
      * Builds ENV request
@@ -51,7 +56,7 @@ class BuilderComposite implements BuilderInterface
         if ($this->isCreditManagementActive($buildSubject)) {
             foreach ($this->builders as $builder) {
                 // @TODO implement exceptions catching
-                $result = $this->merge($result, [self::KEY => $builder->build($buildSubject)]);
+                $result = $this->merge($result, [$this->type => $builder->build($buildSubject)]);
             }
         }
 
