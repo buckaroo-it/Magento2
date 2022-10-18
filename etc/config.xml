@@ -374,6 +374,7 @@
             <buckaroo_magento2_afterpay>
                 <active>0</active>
                 <model>AfterpayOldFacade</model>
+<!--                <model>Buckaroo\Magento2\Model\Method\Afterpay</model>-->
                 <order_status>pending</order_status>
                 <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>
@@ -424,7 +425,7 @@
 
             <buckaroo_magento2_payperemail>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\PayPerEmail</model>
+                <model>PayPerEmailFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo PayPerEmail</title>
                 <allowspecific>0</allowspecific>
@@ -478,7 +479,8 @@
 
             <buckaroo_magento2_giftcards>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Giftcards</model>
+                <model>GiftcardsFacade</model>
+<!--                <model>Buckaroo\Magento2\Model\Method\Giftcards</model>-->
                 <order_status>pending</order_status>
                 <title>Buckaroo Giftcards</title>
                 <sort_order>190</sort_order>
@@ -620,7 +622,7 @@
 
             <buckaroo_magento2_emandate>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Emandate</model>
+                <model>EmandateFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Digitale Incassomachtiging</title>
                 <sequence_type>1</sequence_type>
@@ -700,7 +702,7 @@
 
             <buckaroo_magento2_applepay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Applepay</model>
+                <model>ApplepayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Apple Pay</title>
                 <allowspecific>0</allowspecific>
