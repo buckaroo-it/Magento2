@@ -45,6 +45,31 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->pay($data);
     }
 
+    public function payInInstallments($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
+    }
+
+    public function payEncrypted($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payEncrypted($data);
+    }
+
+    public function paymentInvitation($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->paymentInvitation($data);
+    }
+
+    public function payRemainder($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payRemainder($data);
+    }
+
+    public function payRedirect($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payRedirect($data);
+    }
+
     public function authorize($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->authorize($data);
@@ -60,16 +85,6 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->cancelAuthorize($data);
     }
 
-    public function payInInstallments($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
-    }
-
-    public function payEncrypted($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payEncrypted($data);
-    }
-
     public function reserve($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->reserve($data);
@@ -83,6 +98,11 @@ class BuckarooAdapter
     public function refund($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->refund($data);
+    }
+
+    public function createMandate($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->createMandate($data);
     }
 
     /**
