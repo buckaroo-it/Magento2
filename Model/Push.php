@@ -377,7 +377,8 @@ class Push implements PushInterface
         }
 
         if (!empty($this->pushRequst->getStatusmessage())) {
-            if ($this->order->getState() === Order::STATE_NEW) {
+            if ($this->order->getState() === Order::STATE_NEW
+                && !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addStatusHistoryComment(
                     $this->pushRequst->getStatusmessage(),

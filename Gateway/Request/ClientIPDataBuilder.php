@@ -52,7 +52,7 @@ class ClientIPDataBuilder implements BuilderInterface
         ];
     }
 
-    protected function getIp($order)
+    public function getIp($order)
     {
         $ip = $order->getRemoteIp();
         $store = $order->getStore();
