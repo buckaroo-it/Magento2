@@ -373,9 +373,10 @@
 
             <buckaroo_magento2_afterpay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Afterpay</model>
+                <model>AfterpayOldFacade</model>
+<!--                <model>Buckaroo\Magento2\Model\Method\Afterpay</model>-->
                 <order_status>pending</order_status>
-                <title>Buckaroo Afterpay</title>
+                <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -389,6 +390,7 @@
                 <can_capture_partial>1</can_capture_partial>
                 <can_order>1</can_order>
                 <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
@@ -400,7 +402,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Afterpay2</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Afterpay 2</title>
+                <title>Buckaroo Riverty | Afterpay 2</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
@@ -423,7 +425,7 @@
 
             <buckaroo_magento2_payperemail>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\PayPerEmail</model>
+                <model>PayPerEmailFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo PayPerEmail</title>
                 <allowspecific>0</allowspecific>
@@ -477,7 +479,8 @@
 
             <buckaroo_magento2_giftcards>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Giftcards</model>
+                <model>GiftcardsFacade</model>
+<!--                <model>Buckaroo\Magento2\Model\Method\Giftcards</model>-->
                 <order_status>pending</order_status>
                 <title>Buckaroo Giftcards</title>
                 <sort_order>190</sort_order>
@@ -619,7 +622,7 @@
 
             <buckaroo_magento2_emandate>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Emandate</model>
+                <model>EmandateFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Digitale Incassomachtiging</title>
                 <sequence_type>1</sequence_type>
@@ -636,6 +639,7 @@
                 <can_capture_partial>0</can_capture_partial>
                 <can_order>1</can_order>
                 <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
                 <can_refund>0</can_refund>
                 <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
@@ -645,9 +649,9 @@
 
             <buckaroo_magento2_afterpay20>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Afterpay20</model>
+                <model>AfterpayFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Afterpay</title>
+                <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -662,6 +666,7 @@
                 <can_capture_partial>1</can_capture_partial>
                 <can_order>1</can_order>
                 <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
@@ -697,7 +702,7 @@
 
             <buckaroo_magento2_applepay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Applepay</model>
+                <model>ApplepayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Apple Pay</title>
                 <allowspecific>0</allowspecific>
@@ -880,7 +885,7 @@
 
             <buckaroo_magento2_tinka>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Tinka</model>
+                <model>TinkaFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Tinka</title>
                 <allowspecific>0</allowspecific>
@@ -900,6 +905,30 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_tinka>
+
+             <buckaroo_magento2_creditclick>
+                <active>0</active>
+                <model>CreditClickFacade</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo CreditClick</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>330</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_creditclick>
         </payment>
 
         <buckaroo_magento2>

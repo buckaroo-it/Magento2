@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
-use Buckaroo\Magento2\Gateway\Request\AbstractRecipientDataBuilder;
+use Buckaroo\Magento2\Gateway\Request\Recipient\AbstractRecipientDataBuilder;
 use Buckaroo\Magento2\Helper\Data;
 
 class BillinkDataBuilder extends AbstractRecipientDataBuilder
@@ -52,10 +52,5 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     protected function getGender(): string
     {
         return ucfirst(parent::getGender());
-    }
-
-    protected function getInitials(): string
-    {
-        return strtoupper(substr($this->getFirstname(), 0, 1));
     }
 }

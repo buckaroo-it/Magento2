@@ -93,7 +93,7 @@ class BuckarooAdapter
 
     /**
      * Get credit management body
-     * 
+     *
      * @param array $data
      */
     protected function getCreditManagementBody(array $data)

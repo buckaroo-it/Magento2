@@ -180,6 +180,10 @@ define(
             {
                 type: 'buckaroo_magento2_tinka',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/tinka'
+            },
+            {
+                type: 'buckaroo_magento2_creditclick',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditclick'
             }
         );
         /**
