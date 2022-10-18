@@ -527,6 +527,7 @@
                 <item name="Capayable" xsi:type="string">in3</item>
                 <item name="afterpay20" xsi:type="string">afterpay</item>
                 <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
+                <item name="rtp" xsi:type="string">requesttopay</item>
             </argument>
         </arguments>
     </type>
@@ -2830,44 +2831,8 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\LocaleDataBuilder</item>
+                <item name="name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\NameDataBuilder</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="CustomerRtpDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="billing" xsi:type="string">RtpBillingDataBuilder</item>
-                <item name="shipping" xsi:type="string">RtpShippingDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="RtpBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\RtpDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="RtpShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="recipient" xsi:type="string">RtpShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
-                <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="RtpShippingRecipientDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Recipient\RtpDataBuilder">
-        <arguments>
-            <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
     </virtualType>
     <!-- END Rtp Order Command -->
