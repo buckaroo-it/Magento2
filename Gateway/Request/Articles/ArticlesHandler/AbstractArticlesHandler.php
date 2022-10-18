@@ -86,7 +86,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $this->setOrder($order);
 
         if ($this->payReminderService->isPayRemainder($order)) {
-            return $this->getRequestArticlesDataPayRemainder();
+            return ['articles' => [0 => $this->getRequestArticlesDataPayRemainder()]];
         }
 
         $articles['articles'] = $this->getItemsLines();
@@ -141,7 +141,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     public function getCreditMemoArticlesData(Order $order, \Magento\Payment\Model\InfoInterface $payment): array
     {
         if ($this->payReminderService->isPayRemainder($order)) {
-            return $this->getCreditmemoArticleDataPayRemainder();
+            return ['articles' => [0 => $this->getCreditmemoArticleDataPayRemainder()]];
         }
 
         $this->setPayment($payment);
