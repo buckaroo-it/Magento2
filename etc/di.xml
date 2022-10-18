@@ -2753,8 +2753,87 @@
             </argument>
         </arguments>
     </virtualType>
-     <!-- END CreditClick Order Command -->
-
+    <!-- END CreditClick Order Command -->
     <!-- END CreditClick Commands infrastructure -->
     <!-- END Payment Method: CreditClick -->
+
+    <!-- Payment Method: Applepay-->
+    <!-- Applepay Payment Method Facade configuration -->
+    <virtualType name="ApplepayFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">ApplepayValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">ApplepayValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">ApplepayGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <!-- Applepay Value handlers infrastructure -->
+    <virtualType name="ApplepayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">ApplepayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="ApplepayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Applepay Value handlers infrastructure -->
+
+    <!-- Applepay validators infrastructure -->
+    <virtualType name="ApplepayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">ApplepayCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ApplepayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Applepay validators infrastructure -->
+    <!-- Applepay Commands infrastructure -->
+    <virtualType name="ApplepayGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">ApplepayOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Applepay Order Command -->
+    <virtualType name="ApplepayOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">ApplepayOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Applepay Order Command - Request Builder -->
+    <virtualType name="ApplepayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="applepay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ApplepayDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Applepay Order Command -->
+
+    <!-- END Applepay Commands infrastructure -->
+    <!-- END Payment Method: Applepay -->
+
 </config>

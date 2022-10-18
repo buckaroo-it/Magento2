@@ -700,7 +700,7 @@
 
             <buckaroo_magento2_applepay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Applepay</model>
+                <model>ApplepayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Apple Pay</title>
                 <allowspecific>0</allowspecific>
