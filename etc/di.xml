@@ -2200,6 +2200,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">TransferOrderCommand</item>
                 <item name="refund" xsi:type="string">BuckarooRefundWithCreditManagementCommand</item>
+                <item name="void" xsi:type="string">BuckarooVoidCreditManagementCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2249,22 +2250,36 @@
         </arguments>
     </virtualType>
     <!-- END Buckaroo Order Command -->
-
-     <virtualType name="BuckarooDefaultRefundCreditManagment" type="Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite">
+    
+    
+    <!-- Buckaroo Refund Command -->
+    <virtualType name="BuckarooVoidCreditManagementCommand" type="BuckarooRefundCommand">
         <arguments>
-            <argument name="type" xsi:type="const">Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite::TYPE_REFUND</argument>
+            <argument name="requestBuilder" xsi:type="object">BuckarooVoidCreditManagementRequest</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooVoidCreditManagementRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceDataBuilder</item>
-                <item name="invoice_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceKeyDataBuilder</item>
-                <item name="invoice_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceNumberDataBuilder</item>
+                <item name="payment_method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="credit_management" xsi:type="string">BuckarooDefaultVoidCreditManagment</item>
             </argument>
         </arguments>
     </virtualType>
+    <virtualType name="BuckarooDefaultVoidCreditManagment" type="BuckarooDefaultRefundCreditManagment">
+      <arguments>
+            <argument name="type" xsi:type="const">Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite::TYPE_VOID</argument>
+        </arguments>
+    </virtualType>
+    <!-- End Buckaroo Refund Command -->
+
 
     <!-- Buckaroo Refund Command -->
     <virtualType name="BuckarooRefundWithCreditManagementCommand" type="BuckarooRefundCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">BuckarooRefundWithCreditManagementRequest</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
         </arguments>
     </virtualType>
 
@@ -2276,6 +2291,21 @@
             </argument>
         </arguments>
     </virtualType>
+
+    <virtualType name="BuckarooDefaultRefundCreditManagment" type="Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite">
+        <arguments>
+            <argument name="type" xsi:type="const">Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite::TYPE_REFUND</argument>
+            <argument name="builders" xsi:type="array">
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceDataBuilder</item>
+                <item name="invoice_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceKeyDataBuilder</item>
+                <item name="invoice_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceNumberDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- End Buckaroo Refund Command -->
 
     <virtualType name="BuckarooDefaultCreditManagment" type="Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite">
         <arguments>
@@ -2337,10 +2367,21 @@
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::REFUND</argument>
         </arguments>
     </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCreditManagmentVoid" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_CREDIT_NOTE</argument>
+        </arguments>
+    </virtualType>
     <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::RESERVE</argument>
         </arguments>
     </virtualType>
     
+    <type name="Buckaroo\Magento2\Observer\VoidCm3Payment">
+        <arguments>
+            <argument name="voidCommand" xsi:type="object">BuckarooVoidCreditManagementCommand</argument>
+        </arguments>
+    </type>
+
 </config>

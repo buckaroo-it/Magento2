@@ -39,11 +39,10 @@ class BuckarooAdapter
         Encryptor $encryptor,
         array $mapPaymentMethods = null,
         Log $logger
-        )
-    {
+    ) {
         $this->mapPaymentMethods = $mapPaymentMethods;
         $this->logger = $logger;
-  
+
         $this->buckaroo = new BuckarooClient(
             $encryptor->decrypt($configProviderAccount->getMerchantKey()),
             $encryptor->decrypt($configProviderAccount->getSecretKey()),
@@ -55,16 +54,22 @@ class BuckarooAdapter
     {
         $payment = $this->buckaroo->method($this->getMethodName($method));
 
-        if ($this->hasCreditManagement($data)) {
-            $payment = $payment->combine($this->getCreditManagementBody($data));
-        }
-
         try {
-            if($this->isCreditManagementRefund($data)) {
+
+            if ($this->isCreditManagementOfType($data, BuilderComposite::TYPE_ORDER)) {
+                $payment = $payment->combine($this->getCreditManagementBody($data));
+            }
+
+            if ($this->isCreditManagementOfType($data, BuilderComposite::TYPE_REFUND)) {
                 $this->createCreditNote($data);
             }
-       
+
+            if ($this->isCreditManagementOfType($data, BuilderComposite::TYPE_VOID)) {
+                return $this->createCreditNote($data, BuilderComposite::TYPE_VOID);
+            }
+
             return $payment->{$action}($data);
+
         } catch (\Throwable $th) {
             $this->logger->addDebug(__METHOD__ . (string)$th);
             throw $th;
@@ -87,18 +92,6 @@ class BuckarooAdapter
     }
 
     /**
-     * Check if has credit management
-     * @param array $data
-     * @return bool
-     */
-    protected function hasCreditManagement(array $data): bool
-    {
-        return isset($data[BuilderComposite::TYPE_ORDER]) &&
-            is_array($data[BuilderComposite::TYPE_ORDER]) &&
-            count($data[BuilderComposite::TYPE_ORDER]) > 0;
-    }
-
-    /**
      * Get credit management body
      * 
      * @param array $data
@@ -106,29 +99,38 @@ class BuckarooAdapter
     protected function getCreditManagementBody(array $data)
     {
         return $this->buckaroo->method('credit_management')
-        ->manually()
-        ->createCombinedInvoice(
-            $data[BuilderComposite::TYPE_ORDER]
-        );
+            ->manually()
+            ->createCombinedInvoice(
+                $data[BuilderComposite::TYPE_ORDER]
+            );
     }
 
     /**
      * Get credit note body
      *
      * @param array $data
+     * @param string $type
      */
-    protected function createCreditNote(array $data)
+    protected function createCreditNote(array $data, $type = BuilderComposite::TYPE_REFUND)
     {
         return $this->buckaroo->method('credit_management')
-        ->createCreditNote(
-            $data[BuilderComposite::TYPE_REFUND]
-        );
+            ->createCreditNote(
+                $data[$type]
+            );
     }
 
-    protected function isCreditManagementRefund(array $data): bool
+    /**
+     * Check if we have credit management information of type
+     *
+     * @param array $data
+     * @param string $type
+     *
+     * @return boolean
+     */
+    protected function isCreditManagementOfType(array $data, string $type): bool
     {
-        return isset($data[BuilderComposite::TYPE_REFUND]) &&
-            is_array($data[BuilderComposite::TYPE_REFUND]) &&
-            count($data[BuilderComposite::TYPE_REFUND]) > 0;
+        return isset($data[$type]) &&
+            is_array($data[$type]) &&
+            count($data[$type]) > 0;
     }
 }

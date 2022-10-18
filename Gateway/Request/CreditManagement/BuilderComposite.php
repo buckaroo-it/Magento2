@@ -7,12 +7,14 @@ use Magento\Framework\ObjectManager\TMapFactory;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler;
 
 class BuilderComposite implements BuilderInterface
 {
 
     public const TYPE_ORDER = 'buckaroo_credit_management';
     public const TYPE_REFUND = 'buckaroo_credit_management_refund';
+    public const TYPE_VOID = 'buckaroo_credit_management_void';
 
     protected $type = self::TYPE_ORDER;
 
@@ -53,7 +55,7 @@ class BuilderComposite implements BuilderInterface
     {
         $result = [];
 
-        if ($this->isCreditManagementActive($buildSubject)) {
+        if ($this->isCreditManagementActive($buildSubject) || $this->hasCreditManagementTransaction($buildSubject)) {
             foreach ($this->builders as $builder) {
                 // @TODO implement exceptions catching
                 $result = $this->merge($result, [$this->type => $builder->build($buildSubject)]);
@@ -74,19 +76,34 @@ class BuilderComposite implements BuilderInterface
         return array_replace_recursive($result, $builder);
     }
 
-    public function isCreditManagementActive(array $buildSubject)
+    protected function isCreditManagementActive(array $buildSubject)
     {
+        $this->validateBuildSubject($buildSubject);
 
+
+        return $this->configProvider->get(
+            $buildSubject['payment']
+                ->getPayment()
+                ->getMethod()
+        )->getActiveStatusCm3() == true;
+    }
+
+    protected function hasCreditManagementTransaction(array $buildSubject)
+    {
+        $this->validateBuildSubject($buildSubject);
+
+        $buildSubject['payment']
+            ->getPayment()
+            ->getAdditionalInformation(CreditManagementOrderHandler::INVOICE_KEY) != null;
+    }
+
+    private function validateBuildSubject(array $buildSubject)
+    {
         if (
             !isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
         }
-
-        return $this->configProvider->get(
-            $buildSubject['payment']->getPayment()->getMethod()
-        )
-            ->getActiveStatusCm3() == true;
     }
 }
