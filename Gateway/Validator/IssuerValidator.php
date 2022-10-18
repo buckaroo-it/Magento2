@@ -3,12 +3,11 @@
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Magento\Framework\Exception\NotFoundException;
-use Magento\Payment\Gateway\ConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Gateway\Validator\ResultInterface;
-use Buckaroo\Magento2\Helper\Data;
-use Magento\Framework\App\RequestInterface;
+
 /**
  * Class IssuerValidator
  * @package Magento\Payment\Gateway\Validator
@@ -17,36 +16,17 @@ use Magento\Framework\App\RequestInterface;
  */
 class IssuerValidator extends AbstractValidator
 {
-    /**
-     * @var ConfigInterface
-     */
-    private ConfigInterface $config;
+    /** @var Factory */
+    private $configProvider;
 
     /**
-     * @var Data
-     */
-    public ?Data $helper;
-
-    /**
-     * @var RequestInterface
-     */
-    protected ?RequestInterface $request;
-
-    /**
-     * @param ResultInterfaceFactory $resultFactory
      * @param ConfigInterface $config
-     * @param Data|null $helper
-     * @param RequestInterface|null $request
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        ConfigInterface $config,
-        Data $helper = null,
-        RequestInterface $request = null
+        Factory $configProvider
     ) {
-        $this->config = $config;
-        $this->helper = $helper;
-        $this->request = $request;
+        $this->configProvider = $configProvider;
         parent::__construct($resultFactory);
     }
 
@@ -67,29 +47,20 @@ class IssuerValidator extends AbstractValidator
 
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
 
-        if ($chosenIssuer) {
-            if ($content = $this->request->getContent()) {
-                $jsonDecode = $this->helper->getJson()->unserialize($content);
-                if (!empty($jsonDecode['paymentMethod']['additional_data']['issuer'])) {
-                    $chosenIssuer = $jsonDecode['paymentMethod']['additional_data']['issuer'];
-                    $paymentInfo->setAdditionalInformation('issuer', $chosenIssuer);
-                }
-            }
-        }
-
-        $isValid = false;
-        foreach ($this->config->getIssuers() as $issuer) {
+        foreach ($this->getConfig($paymentInfo)->getIssuers() as $issuer) {
             if ($issuer['code'] == $chosenIssuer) {
-                $isValid = true;
-                break;
+                return $this->createResult(true);
             }
         }
 
-        $fails = [];
-        if (!$isValid) {
-            $fails[] = __('Please select a issuer from the list');
-        }
+        
+        return $this->createResult(false, [__('Please select a issuer from the list')]);
+    }
 
-        return $this->createResult($isValid, $fails);
+    protected function getConfig($paymentInfo)
+    {
+        return $this->config = $this->configProvider->get(
+            $paymentInfo->getMethod()
+        );
     }
 }
