@@ -2939,6 +2939,11 @@
     <!-- END Payment Method: Emandate -->
 
     <!-- Payment Method: Giftcards -->
+    <type name="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard">
+        <arguments>
+            <argument name="clientInterface" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
+        </arguments>
+    </type>
     <!-- Giftcards Payment Method Facade configuration -->
     <virtualType name="GiftcardsFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
         <arguments>
@@ -3344,6 +3349,21 @@
     <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::RESERVE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_MANDATE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAYMENT_INVITATION</argument>
         </arguments>
     </virtualType>
 

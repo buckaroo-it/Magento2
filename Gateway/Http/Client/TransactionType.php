@@ -13,5 +13,9 @@ class TransactionType
     public const REFUND = 'refund';
     public const RESERVE = 'reserve';
     public const PAY_ENCRYPTED = 'payEncrypted';
+    public const PAY_REDIRECT = 'payRedirect';
     public const CREATE_CREDIT_NOTE = 'createCreditNote';
+    public const CREATE_MANDATE = 'createMandate';
+    public const PAYMENT_INVITATION = 'paymentInvitation';
+
 }
