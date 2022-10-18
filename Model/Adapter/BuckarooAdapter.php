@@ -11,6 +11,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionType;
 use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
+use Buckaroo\Magento2\Logging\Log;
 
 class BuckarooAdapter
 {
@@ -31,9 +32,17 @@ class BuckarooAdapter
 
     private array $mapPaymentMethods;
 
-    public function __construct(Account $configProviderAccount, Encryptor $encryptor, array $mapPaymentMethods = null)
+    protected $logger;
+
+    public function __construct(
+        Account $configProviderAccount,
+        Encryptor $encryptor,
+        array $mapPaymentMethods = null,
+        Log $logger
+        )
     {
         $this->mapPaymentMethods = $mapPaymentMethods;
+        $this->logger = $logger;
   
         $this->buckaroo = new BuckarooClient(
             $encryptor->decrypt($configProviderAccount->getMerchantKey()),
@@ -50,11 +59,16 @@ class BuckarooAdapter
             $payment = $payment->combine($this->getCreditManagementBody($data));
         }
 
-        if($this->isCreditManagementRefund($data)) {
-            $this->createCreditNote($data);
+        try {
+            if($this->isCreditManagementRefund($data)) {
+                $this->createCreditNote($data);
+            }
+       
+            return $payment->{$action}($data);
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__ . (string)$th);
+            throw $th;
         }
-
-        return $payment->{$action}($data);
     }
 
     /**
