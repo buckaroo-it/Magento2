@@ -45,6 +45,21 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->pay($data);
     }
 
+    public function payInInstallments($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
+    }
+
+    public function payEncrypted($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payEncrypted($data);
+    }
+
+    public function paymentInvitation($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->paymentInvitation($data);
+    }
+
     public function payRemainder($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->payRemainder($data);
@@ -73,16 +88,6 @@ class BuckarooAdapter
     public function cancelAuthorize($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->cancelAuthorize($data);
-    }
-
-    public function payInInstallments($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
-    }
-
-    public function payEncrypted($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payEncrypted($data);
     }
 
     public function reserve($method, $data): TransactionResponse
