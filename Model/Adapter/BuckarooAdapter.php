@@ -60,6 +60,16 @@ class BuckarooAdapter
         return $this->buckaroo->method($this->getMethodName($method))->paymentInvitation($data);
     }
 
+    public function payRemainder($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payRemainder($data);
+    }
+
+    public function payRedirect($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->payRedirect($data);
+    }
+
     public function authorize($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->authorize($data);
@@ -88,6 +98,11 @@ class BuckarooAdapter
     public function refund($method, $data): TransactionResponse
     {
         return $this->buckaroo->method($this->getMethodName($method))->refund($data);
+    }
+
+    public function createMandate($method, $data): TransactionResponse
+    {
+        return $this->buckaroo->method($this->getMethodName($method))->createMandate($data);
     }
 
     /**
