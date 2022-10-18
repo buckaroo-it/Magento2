@@ -8,6 +8,7 @@ use Buckaroo\Magento2\Api\ArticleHandlerInterface;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
+use Buckaroo\Magento2\Service\PayReminderService;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -41,6 +42,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected Order $order;
     protected InfoInterface $payment;
     protected float $itemsTotalAmount = 0;
+    private PayReminderService $payReminderService;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -60,7 +62,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         Config                      $taxConfig,
         BuckarooFee                 $configProviderBuckarooFee,
         SoftwareData                $softwareData,
-        ConfigProviderMethodFactory $configProviderMethodFactory
+        ConfigProviderMethodFactory $configProviderMethodFactory,
+        PayReminderService $payReminderService
     )
     {
         $this->scopeConfig = $scopeConfig;
@@ -71,6 +74,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $this->configProviderBuckarooFee = $configProviderBuckarooFee;
         $this->softwareData = $softwareData;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
+        $this->payReminderService = $payReminderService;
     }
 
 
@@ -81,8 +85,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $this->setPayment($payment);
         $this->setOrder($order);
 
-        if ($this->payRemainder) {
-            return $this->getRequestArticlesDataPayRemainder();
+        if ($this->payReminderService->isPayRemainder($order)) {
+            return ['articles' => [0 => $this->getRequestArticlesDataPayRemainder()]];
         }
 
         $articles['articles'] = $this->getItemsLines();
@@ -136,8 +140,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
     public function getCreditMemoArticlesData(Order $order, \Magento\Payment\Model\InfoInterface $payment): array
     {
-        if ($this->payRemainder) {
-            return $this->getCreditmemoArticleDataPayRemainder($payment);
+        if ($this->payReminderService->isPayRemainder($order)) {
+            return ['articles' => [0 => $this->getCreditmemoArticleDataPayRemainder()]];
         }
 
         $this->setPayment($payment);
@@ -410,7 +414,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             'PayRemainder',
             1,
             1,
-            round($this->payRemainder, 2),
+            round($this->payReminderService->getPayRemainder($this->getOrder()), 2),
             $this->getTaxCategory($this->getOrder())
         );
     }
@@ -542,24 +546,15 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         return $percent;
     }
 
-    protected function getCreditmemoArticleDataPayRemainder($payment, $addRefundType = true)
+    protected function getCreditmemoArticleDataPayRemainder()
     {
-        $article = $this->getArticleArrayLine(
+        return $this->getArticleRefundArrayLine(
             'PayRemainder',
             1,
             1,
-            round($this->payRemainder, 2),
-            $this->getTaxCategory($payment->getOrder())
+            round($this->payReminderService->getPayRemainder($this->getOrder()), 2),
+            $this->getTaxCategory($this->getOrder())
         );
-        if ($addRefundType) {
-            $article[] = [
-                '_' => 'Refund',
-                'Name' => 'RefundType',
-                'GroupID' => 1,
-                'Group' => 'Article',
-            ];
-        }
-        return $article;
     }
 
     protected function getDiffLine($diff)
