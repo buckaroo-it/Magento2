@@ -78,13 +78,15 @@ class AllowedCountries implements OptionSourceInterface
         $translatedCountries = $this->regionBundle->get($locale)['Countries'] ?: [];
 
         $output = [];
-        foreach ($countries as $country) {
-            $output[] = [
-                'value' => $country,
-                'label' => $translatedCountries[$country],
-            ];
-        }
 
+        if(is_array($countries)) {
+            foreach ($countries as $country) {
+                $output[] = [
+                    'value' => $country,
+                    'label' => $translatedCountries[$country],
+                ];
+            }
+        }
         asort($output);
 
         return $output;

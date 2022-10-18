@@ -358,6 +358,10 @@
                     <item name="type" xsi:type="string">tinka</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Tinka</item>
                 </item>
+                <item name="creditclick" xsi:type="array">
+                    <item name="type" xsi:type="string">creditclick</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</item>
+                </item>
             </argument>
         </arguments>
     </type>
@@ -842,14 +846,6 @@
             </argument>
         </arguments>
     </virtualType>
-
-    <type name="Buckaroo\Magento2\Gateway\Validator\IssuerValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealGateway</argument>
-            <argument name="helper" xsi:type="object">Buckaroo\Magento2\Helper\Data</argument>
-            <argument name="request" xsi:type="object">Magento\Framework\App\RequestInterface</argument>
-        </arguments>
-    </type>
 
     <virtualType name="BuckarooCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
         <arguments>
@@ -2653,6 +2649,275 @@
     <!-- END Tinka Order Command -->
     <!-- END Tinka Commands infrastructure -->
     <!-- END Payment Method: Tinka -->
+
+    <!-- Payment Method: CreditClick-->
+    <!-- CreditClick Payment Method Facade configuration -->
+    <virtualType name="CreditClickFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">CreditClickValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">CreditClickValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">CreditClickGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <!-- CreditClick Value handlers infrastructure -->
+    <virtualType name="CreditClickValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">CreditClickConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="CreditClickConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</argument>
+        </arguments>
+    </virtualType>
+    <!-- END CreditClick Value handlers infrastructure -->
+
+    <!-- CreditClick validators infrastructure -->
+    <virtualType name="CreditClickValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">CreditClickCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="CreditClickCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</argument>
+        </arguments>
+    </virtualType>
+    <!-- END CreditClick validators infrastructure -->
+    <!-- CreditClick Commands infrastructure -->
+    <virtualType name="CreditClickGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">CreditClickOrderCommand</item>
+                <item name="refund" xsi:type="string">CreditClickRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditClick Order Command -->
+    <virtualType name="CreditClickOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CreditClickOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditClick Order Command - Request Builder -->
+    <virtualType name="CreditClickOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END CreditClick Order Command -->
+
+     <!-- CreditClick Refund Command -->
+    <virtualType name="CreditClickRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CreditClickRefundRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <!-- CreditClick Refund Command - Request Builder -->
+    <virtualType name="CreditClickRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="refund_reason" xsi:type="string">Buckaroo\Magento2\Gateway\Request\RefundReasonDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END CreditClick Order Command -->
+    <!-- END CreditClick Commands infrastructure -->
+    <!-- END Payment Method: CreditClick -->
+
+    <!-- Payment Method: Applepay-->
+    <!-- Applepay Payment Method Facade configuration -->
+    <virtualType name="ApplepayFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">ApplepayValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">ApplepayValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">ApplepayGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <!-- Applepay Value handlers infrastructure -->
+    <virtualType name="ApplepayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">ApplepayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="ApplepayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Applepay Value handlers infrastructure -->
+
+    <!-- Applepay validators infrastructure -->
+    <virtualType name="ApplepayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">ApplepayCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ApplepayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Applepay validators infrastructure -->
+    <!-- Applepay Commands infrastructure -->
+    <virtualType name="ApplepayGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">ApplepayOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Applepay Order Command -->
+    <virtualType name="ApplepayOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">ApplepayOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Applepay Order Command - Request Builder -->
+    <virtualType name="ApplepayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="applepay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ApplepayDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Applepay Order Command -->
+
+    <!-- END Applepay Commands infrastructure -->
+    <!-- END Payment Method: Applepay -->
+
+    <!-- Payment Method: Emandate-->
+    <!-- Emandate Payment Method Facade configuration -->
+    <virtualType name="EmandateFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">EmandateValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">EmandateValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">EmandateGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <!-- Emandate Value handlers infrastructure -->
+    <virtualType name="EmandateValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">EmandateConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="EmandateConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Emandate Value handlers infrastructure -->
+
+    <!-- Emandate validators infrastructure -->
+    <virtualType name="EmandateValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">EmandateCountryValidator</item>
+                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="EmandateCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Emandate validators infrastructure -->
+    <!-- Emandate Commands infrastructure -->
+    <virtualType name="EmandateGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">EmandateOrderCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Emandate Order Command -->
+    <virtualType name="EmandateOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">EmandateOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCreateMandate</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator
+            </argument>
+            <argument name="errorMessageMapper" xsi:type="object">
+                Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Emandate Order Command - Request Builder -->
+    <virtualType name="EmandateOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="emandate" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmandateDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+
+    <type name="Buckaroo\Magento2\Gateway\Request\EmandateDataBuilder">
+        <arguments>
+             <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate</argument>
+        </arguments>
+    </type>
+    <!-- END Emandate Order Command -->
+
+    <!-- END Emandate Commands infrastructure -->
+    <!-- END Payment Method: Emandate -->
 
     <!-- Payment Method: Giftcards -->
     <!-- Giftcards Payment Method Facade configuration -->
