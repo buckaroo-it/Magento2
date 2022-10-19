@@ -829,7 +829,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function hasError($transactionResponse, $errorType): bool
     {
-        return !empty($transactionResponse->RequestErrors) && !empty($transactionResponse->RequestErrors->$errorType)
+        return !empty($transactionResponse->RequestErrors) && !empty($transactionResponse->RequestErrors->$errorType);
     }
 
     /**
