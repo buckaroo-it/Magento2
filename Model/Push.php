@@ -233,7 +233,7 @@ class Push implements PushInterface
             return true;
         }
 
-       
+
 
         if ($this->isGroupTransactionInfo()) {
             if ($this->isGroupTransactionFailed()) {
@@ -365,7 +365,10 @@ class Push implements PushInterface
         }
 
         if (isset($this->postData['brq_statusmessage'])) {
-            if ($this->order->getState() === Order::STATE_NEW) {
+            if (
+                $this->order->getState() === Order::STATE_NEW &&
+                !isset($this->postData['add_frompayperemail'])
+            ) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addStatusHistoryComment(
                     $this->postData['brq_statusmessage'],
@@ -531,6 +534,7 @@ class Push implements PushInterface
         if ($this->hasPostData('add_initiated_by_magento', 1)
             && $this->hasPostData('brq_transaction_method', ['klarnakp', 'KlarnaKp'])
             && $this->hasPostData('add_service_action_from_magento', 'pay')
+            && isset($this->postData['brq_service_klarnakp_captureid'])
         ) {
             return false;
         }
@@ -907,27 +911,27 @@ class Push implements PushInterface
         }
     }
 
-    protected function setReceivedTransactionStatuses()
+    /**
+     * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
+     * with the current received tx status.
+     *
+     * @return void
+     */
+    protected function setReceivedTransactionStatuses(): void
     {
-        if (empty($this->postData['brq_transactions']) || empty($this->postData['brq_statuscode'])) {
+        $txId = $this->postData['brq_transactions'];
+        $statusCode = $this->postData['brq_statuscode'];
+
+        if (empty($txId) || empty($statusCode)) {
             return;
         }
 
         $payment = $this->order->getPayment();
 
-        if (!$payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES)) {
-            $payment->setAdditionalInformation(
-                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
-                [$this->postData['brq_transactions'] => $this->postData['brq_statuscode']]
-            );
-        } else {
-            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
-            $buckarooTransactionKeysArray[$this->postData['brq_transactions']] = $this->postData['brq_statuscode'];
-            $payment->setAdditionalInformation(
-                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
-                $buckarooTransactionKeysArray
-            );
-        }
+        $receivedTxStatuses = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES) ?? [];
+        $receivedTxStatuses[$txId] = $statusCode;
+
+        $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES, $receivedTxStatuses);
     }
 
     /**
@@ -1277,7 +1281,7 @@ class Push implements PushInterface
                             $baseTotalPaid > $this->order->getBaseGrandTotal() ?
                                 $this->order->getBaseGrandTotal() : $baseTotalPaid
                         );
-                        
+
                         $this->saveAndReloadOrder();
 
                         $connection = $this->resourceConnection->getConnection();
@@ -1910,8 +1914,8 @@ class Push implements PushInterface
      */
     protected function skipHandlingForFailedGroupTransactions()
     {
-        return 
-            $this->order !== null && 
+        return
+            $this->order !== null &&
             $this->order->getId() !== null &&
             $this->order->getState() == Order::STATE_CANCELED &&
             (
@@ -1951,12 +1955,12 @@ class Push implements PushInterface
             return $quote;
         }
     }
-    
+
     /**
      * Create order from found quote by reserved order id
      *
      * @param  \Magento\Quote\Model\Quote $quote
-     * 
+     *
      * @return \Magento\Framework\Model\AbstractExtensibleModel|\Magento\Sales\Api\Data\OrderInterface|object|null
      * @throws \Exception
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -2020,7 +2024,7 @@ class Push implements PushInterface
 
         //fix missing email validation
         if ($quote->getCustomerEmail() == null) {
-          
+
             $quote->setCustomerEmail(
                 $quote->getBillingAddress()->getEmail()
             );
@@ -2035,6 +2039,6 @@ class Push implements PushInterface
         $quote->save();
         return $order;
 
-        
+
     }
 }
