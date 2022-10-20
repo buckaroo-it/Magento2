@@ -20,6 +20,7 @@ class PersonDataBuilder extends AbstractDataBuilder
         return [
             'culture' =>  strtolower($address->getCountryId()),
             'name' => $address->getFirstname() . ' ' .$address->getLastname(),
+            'firstName' => $address->getFirstname(),
             'lastName' => $address->getLastname()
         ];
     }
