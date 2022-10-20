@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Resources\Constants\Gender;
 use Magento\Sales\Api\Data\OrderAddressInterface;
+use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
 class CountryDataBuilder extends AbstractDataBuilder
 {
