@@ -27,10 +27,14 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Buckaroo\Transaction\Response\TransactionResponse;
 
 class Giftcard
 {
-    protected $response;
+    /**
+     * @var TransactionResponse
+     */
+    protected TransactionResponse $response;
 
     /**
      * @var \Magento\Framework\Pricing\PriceCurrencyInterface
@@ -52,6 +56,8 @@ class Giftcard
      */
     protected $orderManagement;
 
+    private CartInterface $quote;
+
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
@@ -64,18 +70,20 @@ class Giftcard
         $this->quoteManagement = $quoteManagement;
         $this->orderManagement = $orderManagement;
     }
+
     /**
      * Set raw response data
      *
-     * @param mixed $response
-     *
+     * @param TransactionResponse $response
+     * @param CartInterface $quote
      * @return void
      */
-    public function set($response, CartInterface $quote)
+    public function set(TransactionResponse $response, CartInterface $quote)
     {
         $this->quote = $quote;
         $this->response = $response;
-        if ($this->isSuccessful()) {
+
+        if ($this->response->isSuccess()) {
             $this->saveGroupTransaction();
         } else {
             $this->cancelOrder();
@@ -83,7 +91,7 @@ class Giftcard
     }
     protected function saveGroupTransaction()
     {
-        $this->groupTransaction->saveGroupTransaction($this->response);
+        $this->groupTransaction->saveGroupTransaction($this->response->data());
     }
     /**
      * Get created group transaction with giftcard name
@@ -92,7 +100,7 @@ class Giftcard
      */
     public function getCreatedTransaction()
     {
-        return $this->groupTransaction->getByTransactionIdWithName($this->response['Key']);
+        return $this->groupTransaction->getByTransactionIdWithName($this->response->getTransactionKey());
     }
     /**
      * Get already paid amount
@@ -107,7 +115,7 @@ class Giftcard
     }
     public function isSuccessful()
     {
-        return isset($this->response['Status']['Code']['Code']) && $this->response['Status']['Code']['Code'] == '190';
+        return $this->response->isSuccess();
     }
     /**
      * Get reminder amount
@@ -117,12 +125,12 @@ class Giftcard
     public function getRemainderAmount()
     {
         if (
-            !isset($this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
-            !is_scalar($this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
+            !isset($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
+            !is_scalar($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
         ) {
             return 0;
         }
-        return (float)$this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
+        return (float)$this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
     }
      /**
      * Get debit amount
@@ -132,12 +140,12 @@ class Giftcard
     public function getAmountDebit()
     {
         if (
-            !isset($this->response['AmountDebit']) ||
-            !is_scalar($this->response['AmountDebit'])
+            empty($this->response->getAmount()) ||
+            !is_scalar($this->response->getAmount())
         ) {
             return 0;
         }
-        return (float)$this->response['AmountDebit'];
+        return (float)$this->response->getAmount();
     }
     /**
      * Get transaction key
@@ -146,37 +154,37 @@ class Giftcard
      */
     public function getTransactionKey()
     {
-        if (!isset($this->response['RequiredAction']['PayRemainderDetails']['GroupTransaction'])) {
+        if (!isset($this->response->data()['RequiredAction']['PayRemainderDetails']['GroupTransaction'])) {
             return;
         }
-        return $this->response['RequiredAction']['PayRemainderDetails']['GroupTransaction'];
+        return $this->response->data()['RequiredAction']['PayRemainderDetails']['GroupTransaction'];
     }
     /**
-     * Get currency 
+     * Get currency
      *
      * @return string|null
      */
     public function getCurrency()
     {
-        if (!isset($this->response['RequiredAction']['PayRemainderDetails']['Currency'])) {
+        if (!isset($this->response->data()['RequiredAction']['PayRemainderDetails']['Currency'])) {
             return;
         }
-        return $this->response['RequiredAction']['PayRemainderDetails']['Currency'];
+        return $this->response->data()['RequiredAction']['PayRemainderDetails']['Currency'];
     }
     public function getErrorMessage()
     {
-        if ($this->isSuccessful()) {
+        if ($this->response->isSuccess()) {
             return;
         }
-        if (isset($this->response['Status']['SubCode']['Description'])) {
-            return  $this->response['Status']['SubCode']['Description'];
+        if (!empty($this->response->getSubCodeMessage())) {
+            return  $this->response->getSubCodeMessage();
         }
-        
-        if (isset($this->response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'])) {
-            return $this->response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
+
+        if (!empty($this->response->getFirstError())) {
+            return $this->response->getFirstError();
         }
-        if (isset($this->response['Status']['Code']['Description'])) {
-            return $this->response['Status']['Code']['Description'];
+        if (isset($this->response->data()['Status']['Code']['Description'])) {
+            return $this->response->data()['Status']['Code']['Description'];
         }
         return '';
     }
@@ -215,7 +223,7 @@ class Giftcard
     {
         //fix missing email validation
         if ($this->quote->getCustomerEmail() == null) {
-          
+
             $this->quote->setCustomerEmail(
                 $this->quote->getBillingAddress()->getEmail()
             );
@@ -230,6 +238,6 @@ class Giftcard
         $this->quote->save();
         return $order;
 
-        
+
     }
 }

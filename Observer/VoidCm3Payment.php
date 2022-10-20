@@ -21,9 +21,21 @@ namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Payment\Gateway\CommandInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
 
 class VoidCm3Payment implements ObserverInterface
 {
+
+    /**
+     * @var PaymentDataObjectFactory
+     */
+    private $paymentDataObjectFactory;
+
+    public function __construct(PaymentDataObjectFactory $paymentDataObjectFactory, CommandInterface $voidCommand) {
+        $this->paymentDataObjectFactory = $paymentDataObjectFactory;
+        $this->voidCommand = $voidCommand;
+    }
     /**
      * A CM3 payment doesn't always use the Authorize payment flow.
      * Perform the payment void() call when in those cases so the necessary SOAP calls are been made.
@@ -46,6 +58,6 @@ class VoidCm3Payment implements ObserverInterface
             return;
         }
 
-        $payment->getMethodInstance()->createCreditNoteRequest($payment);
+        $this->voidCommand->execute(['payment' => $this->paymentDataObjectFactory->create($payment)]);
     }
 }

@@ -21,6 +21,12 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
+use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
+use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Payment\Gateway\Http\ClientException;
+use Magento\Payment\Gateway\Http\ClientInterface;
+use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Data\Form\FormKey;
@@ -28,12 +34,12 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Store\Model\StoreManagerInterface;
-use Buckaroo\Magento2\Gateway\Http\Client\Json;
 use Buckaroo\Magento2\Helper\Data as HelperData;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
+use Buckaroo\Magento2\Gateway\Http\Client\TransactionPay;
 
 class Giftcard implements GiftcardInterface
 {
@@ -43,7 +49,7 @@ class Giftcard implements GiftcardInterface
      */
     protected $store;
 
-    /** 
+    /**
      * @var Encryptor $encryptor
      */
     private $encryptor;
@@ -64,9 +70,14 @@ class Giftcard implements GiftcardInterface
     protected $quote;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\Http\Client\Json
+     * @var ClientInterface
      */
-    protected $client;
+    protected ClientInterface $clientInterface;
+
+    /**
+     * @var SDKTransferFactory
+     */
+    protected $transferFactory;
 
     /**
      * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
@@ -106,46 +117,54 @@ class Giftcard implements GiftcardInterface
      */
     protected $cardTypes = [
         'fashioncheque' => [
-            'number' => 'FashionChequeCardNumber',
-            'pin' => 'FashionChequePin',
+            'number' => 'fashionChequeCardNumber',
+            'pin' => 'fashionChequePIN',
         ],
         'tcs' => [
-            'number' => 'TCSCardnumber',
-            'pin' => 'TCSValidationCode',
+            'number' => 'tcsCardnumber',
+            'pin' => 'tcsValidationCode',
         ]
     ];
+
     /**
-     *
      * @param ScopeConfigInterface $scopeConfig
      * @param Account $configProviderAccount
      * @param UrlInterface $urlBuilder
      * @param FormKey $formKey
      * @param Encryptor $encryptor
      * @param StoreManagerInterface $storeManager
-     * @param Json $client
+     * @param SDKTransferFactory $transferFactory
+     * @param ClientInterface $clientInterface
+     * @param TransactionPayRemainder $clientPayRemainder
      * @param RequestInterface $httpRequest
+     * @param PaymentGroupTransaction $groupTransaction
+     * @throws NoSuchEntityException
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        Account $configProviderAccount,
-        UrlInterface $urlBuilder,
-        FormKey $formKey,
-        Encryptor $encryptor,
-        StoreManagerInterface $storeManager,
-        Json $client,
-        RequestInterface $httpRequest,
+        ScopeConfigInterface    $scopeConfig,
+        Account                 $configProviderAccount,
+        UrlInterface            $urlBuilder,
+        FormKey                 $formKey,
+        Encryptor               $encryptor,
+        StoreManagerInterface   $storeManager,
+        SDKTransferFactory      $transferFactory,
+        ClientInterface         $clientInterface,
+        RequestInterface        $httpRequest,
         PaymentGroupTransaction $groupTransaction
-    ) {
+    )
+    {
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
         $this->encryptor = $encryptor;
         $this->store = $storeManager->getStore();
-        $this->client = $client;
+        $this->transferFactory = $transferFactory;
+        $this->clientInterface = $clientInterface;
         $this->httpRequest = $httpRequest;
         $this->groupTransaction = $groupTransaction;
     }
+
     /**
      * Send giftcard request
      *
@@ -166,60 +185,58 @@ class Giftcard implements GiftcardInterface
             throw new GiftcardException("Quote is required");
         }
 
-        $this->client->setSecretKey($this->getSecretKey());
-        $this->client->setWebsiteKey($this->getMerchantKey());
+        $transferO = $this->transferFactory->create(
+            $this->getBody()
+        );
 
-        return $this->client->doRequest($this->getBody(), $this->getMode());
+        try {
+            $response = $this->clientInterface->placeRequest($transferO);
+            return $response['object'] ?? [];
+        } catch (ClientException $e) {
+            throw new GiftcardException($e->getMessage());
+        } catch (ConverterException $e) {
+            throw new GiftcardException($e->getMessage());
+        }
     }
+
     /**
      * @return array
      */
     protected function getBody()
     {
-
-        $incrementId =  $this->getIncrementId();
+        $incrementId = $this->getIncrementId();
         $originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
         if ($originalTransactionKey !== null) {
             $this->action = 'PayRemainder';
         }
-        
+
         $ip = $this->getIp($this->store);
         $body = [
-            "Currency" => $this->getCurrency(),
-            'AmountDebit' => $this->getAmount(),
-            "Invoice" => $incrementId,
-            "ReturnURL" => $this->getReturnUrl(),
-            "ReturnURLCancel" => $this->getReturnUrl(),
-            "ReturnURLError" => $this->getReturnUrl(),
-            "ReturnURLReject" => $this->getReturnUrl(),
-            "PushURL" => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
-            'ClientIP' => (object)[
-                'Address' => $ip !== false ? $ip : 'unknown',
-                'Type' => strpos($ip, ':') === false ? '0' : '1',
+            "currency" => $this->getCurrency(),
+            'amountDebit' => $this->getAmount(),
+            "invoice" => $incrementId,
+            "order" => $incrementId,
+            "returnURL" => $this->getReturnUrl(),
+            "returnURLCancel" => $this->getReturnUrl(),
+            "returnURLError" => $this->getReturnUrl(),
+            "returnURLReject" => $this->getReturnUrl(),
+            "pushURL" => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
+            'clientIP' => [
+                'address' => $ip !== false ? $ip : 'unknown',
+                'type' => strpos($ip, ':') === false ? '0' : '1',
             ],
-            "Services" => [
-                "ServiceList" => [
-                    [
-                        "Action" => $this->action,
-                        "Name" => $this->cardId,
-                        "Parameters" => [
-                            [
-                                "Name" => $this->getParameterNameCardNumber(),
-                                "Value" => $this->cardNumber
-                            ], [
-                                "Name" => $this->getParameterNameCardPin(),
-                                "Value" => $this->pin
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+            $this->getParameterNameCardNumber() => $this->cardNumber,
+            $this->getParameterNameCardPin() => $this->pin,
+            "name" => $this->cardId
         ];
         if ($originalTransactionKey !== null) {
-            $body['OriginalTransactionKey'] = $originalTransactionKey;
+            $body['originalTransactionKey'] = $originalTransactionKey;
         }
+        $body['payment_method'] = 'giftcard';
+
         return $body;
     }
+
     /**
      * Set card number
      *
@@ -232,6 +249,7 @@ class Giftcard implements GiftcardInterface
         $this->cardNumber = trim(preg_replace('/([\s-]+)/', '', $cardNumber));
         return $this;
     }
+
     /**
      * Set card pin
      *
@@ -244,6 +262,7 @@ class Giftcard implements GiftcardInterface
         $this->pin = trim($pin);
         return $this;
     }
+
     /**
      * Set card type
      *
@@ -256,6 +275,7 @@ class Giftcard implements GiftcardInterface
         $this->cardId = $cardId;
         return $this;
     }
+
     /**
      * Set quote
      *
@@ -268,6 +288,7 @@ class Giftcard implements GiftcardInterface
         $this->quote = $quote;
         return $this;
     }
+
     /**
      * Get order increment id
      *
@@ -283,6 +304,7 @@ class Giftcard implements GiftcardInterface
         $quote->reserveOrderId()->save();
         return $quote->getReservedOrderId();
     }
+
     /**
      * Get quote grand total
      *
@@ -294,11 +316,13 @@ class Giftcard implements GiftcardInterface
         $quote = $this->quote;
         return $quote->getGrandTotal();
     }
+
     protected function getCurrency()
     {
         $currency = $this->quote->getCurrency();
-        if ($currency !== null)  return $currency->getBaseCurrencyCode();
+        if ($currency !== null) return $currency->getBaseCurrencyCode();
     }
+
     /**
      * Get merchant key for store
      *
@@ -310,6 +334,7 @@ class Giftcard implements GiftcardInterface
             $this->configProviderAccount->getMerchantKey($this->store)
         );
     }
+
     /**
      * Get merchant secret for store
      *
@@ -321,8 +346,9 @@ class Giftcard implements GiftcardInterface
             $this->configProviderAccount->getSecretKey($this->store)
         );
     }
+
     /**
-     * Get request mode 
+     * Get request mode
      *
      * @return int
      */
@@ -334,6 +360,7 @@ class Giftcard implements GiftcardInterface
         );
         return ($active == HelperData::MODE_LIVE) ? HelperData::MODE_LIVE : HelperData::MODE_TEST;
     }
+
     /**
      * Get return url
      * @return string
@@ -341,9 +368,10 @@ class Giftcard implements GiftcardInterface
     protected function getReturnUrl()
     {
         return $this->urlBuilder
-            ->setScope($this->store->getId())
-            ->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->formKey->getFormKey();
+                ->setScope($this->store->getId())
+                ->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->formKey->getFormKey();
     }
+
     /**
      * Determine parameter name for Card number
      *
@@ -356,11 +384,12 @@ class Giftcard implements GiftcardInterface
         }
 
         if ($this->isCustom()) {
-            return 'IntersolveCardnumber';
+            return 'intersolveCardnumber';
         }
 
-        return 'Cardnumber';
+        return 'cardnumber';
     }
+
     /**
      * Determine parameter name for Pin
      *
@@ -374,11 +403,12 @@ class Giftcard implements GiftcardInterface
         }
 
         if ($this->isCustom()) {
-            return 'IntersolvePin';
+            return 'intersolvePIN';
         }
 
-        return 'Pin';
+        return 'pin';
     }
+
     /**
      * Check if is custom giftcard
      *
@@ -388,6 +418,7 @@ class Giftcard implements GiftcardInterface
     {
         return stristr($this->cardId, 'customgiftcard') === false;
     }
+
     protected function getIp($store)
     {
         if (!$this->httpRequest instanceof RequestInterface) {
