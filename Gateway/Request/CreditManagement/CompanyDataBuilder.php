@@ -14,10 +14,10 @@ class CompanyDataBuilder extends AbstractDataBuilder
         if($billingAddress === null) {
             return [];
         }
-        
+
         return [
             'culture'       => strtolower($billingAddress->getCountryId()),
-            'name'          => $billingAddress->getCompany()
+            'name'          => $billingAddress->getCompany()  ?? 'Person'
         ];
     }
 

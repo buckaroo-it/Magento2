@@ -36,7 +36,7 @@ class InvoiceDataBuilder implements BuilderInterface
         $this->setOrder($payment->getOrder()->getOrder());
 
         return [
-            'invoice' => $this->getInvoiceId(),
+            'invoice' => $this->getInvoiceId() . '8923489982349802349',
             'order' => $this->getOrder()->getIncrementId()
         ];
     }

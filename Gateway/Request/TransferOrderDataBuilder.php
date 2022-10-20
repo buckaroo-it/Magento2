@@ -43,12 +43,12 @@ class TransferOrderDataBuilder extends AbstractDataBuilder
     }
     /**
      * Get transfer due date
-     * @return string 
+     * @return string
      */
     protected function getDueDate(): string
     {
         $dueDays = abs(
-            $this->scopeConfig->getValue(
+            (float)$this->scopeConfig->getValue(
                 Transfer::XPATH_TRANSFER_DUE_DATE,
                 ScopeInterface::SCOPE_STORE,
                 $this->getOrder()->getStore()
