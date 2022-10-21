@@ -90,7 +90,6 @@ define(
                             self.code(null);
                             self.selectPaymentMethod();
 
-                            console.log(data, data.remainder_amount == 0);
                             if (data.remainder_amount == 0) {
                                 self.placeOrder(null, null);
                             }
