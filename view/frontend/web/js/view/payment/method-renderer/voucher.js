@@ -28,7 +28,6 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'Magento_Ui/js/modal/alert',
-        'Magento_Checkout/js/model/quote',
         'mage/url',
         'mage/translate'
     ],
@@ -41,7 +40,6 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         alert,
-        quote,
         url,
         $t
     ) {
@@ -80,11 +78,10 @@ define(
 
                 applyVoucher: function () {
                     if (this.isFormValid()) {
-
                         const voucherCode = this.code();
                         let self = this;
                         $.ajax({
-                            url: url.build(`rest/default/V1/buckaroo/${quote.getQuoteId()}/voucher/apply`),
+                            url: url.build(`rest/default/V1/buckaroo/voucher/apply`),
                             type: 'POST',
                             dataType: 'json',
                             showLoader: true, //use for display loader 

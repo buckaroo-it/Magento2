@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Model\Voucher;
 
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Session;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Api\ApplyVoucherInterface;
@@ -33,11 +34,16 @@ class ApplyVoucher implements ApplyVoucherInterface
      */
     protected $payResponseFactory;
 
-     /**
+    /**
      * @var \Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface
      */
     protected $voucherRequest;
 
+
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $checkoutSession;
 
     public function __construct(
         ApplyVoucherRequestInterface $voucherRequest,
@@ -45,6 +51,7 @@ class ApplyVoucher implements ApplyVoucherInterface
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
         PayResponseSetInterfaceFactory $payResponseFactory,
+        Session $checkoutSession,
         Log $logger
     ) {
         $this->voucherRequest = $voucherRequest;
@@ -52,13 +59,15 @@ class ApplyVoucher implements ApplyVoucherInterface
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;
         $this->payResponseFactory = $payResponseFactory;
+        $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
     }
 
-    public function apply(string $cartId, string $voucherCode)
+    public function apply(string $voucherCode)
     {
         try {
-            $quote = $this->getQuote($cartId);
+            $quote = $this->getQuote();
+
             return $this->getResponse(
                 $quote,
                 $this->build($quote, $voucherCode)->send()
@@ -139,18 +148,14 @@ class ApplyVoucher implements ApplyVoucherInterface
     }
 
     /**
-     * Get quote from masked cart id
-     *
-     * @param string $cartId
+     * Get quote from session
      *
      * @return Quote
      */
-    protected function getQuote(string $cartId)
+    protected function getQuote()
     {
         try {
-            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-            /** @var Quote $quote */
-            return $this->cartRepository->getActive($quoteIdMask->getQuoteId());
+            return $this->checkoutSession->getQuote();
         } catch (\Throwable $th) {
             throw new NoQuoteException(__("The cart isn't active."), 0, $th);
         }

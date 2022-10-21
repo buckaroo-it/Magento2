@@ -26,10 +26,9 @@ interface ApplyVoucherInterface
     /**
      * Rest method for applying vouchers
      *
-     * @param string $cartId
      * @param string $voucherCode
      *
      * @return \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface
      */
-    public function apply(string $cartId, string $voucherCode);
+    public function apply(string $voucherCode);
 }
