@@ -20,7 +20,6 @@
 
 // @codingStandardsIgnoreFile
 $post = $block->getRequest()->getPost('creditmemo');
-
 ?>
 <?php foreach ($block->getTotals() as $_code => $_total): ?>
     <?php if (isset($_total['block_name']) && $_total['block_name'] == 'buckaroo_already_paid'): ?>

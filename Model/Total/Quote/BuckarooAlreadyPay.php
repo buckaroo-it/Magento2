@@ -61,13 +61,24 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         $customTitle = [];
         if ($orderId) {
             $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
+            
             foreach ($items as $giftcard) {
-                if ($foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
                     'servicecode',
                     $giftcard['servicecode']
-                )) {
+                );
+
+                if ($foundGiftcard !== null || $giftcard['servicecode'] === 'buckaroovoucher') {
+
+                    
+                    if ($giftcard['servicecode'] === 'buckaroovoucher') {
+                        $label = __('Voucher');
+                    } else {
+                        $label = $foundGiftcard['label'];
+                    }
+
                     $customTitle[] = [
-                        'label' => __('Paid with') . ' ' . $foundGiftcard['label'],
+                        'label' => __('Paid with') . ' ' . $label,
                         'amount' => -$giftcard['amount'],
                         'servicecode' => $giftcard['servicecode'],
                         'serviceamount' => $giftcard['amount'],
