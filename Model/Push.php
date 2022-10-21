@@ -367,7 +367,9 @@ class Push implements PushInterface
         if (isset($this->postData['brq_statusmessage'])) {
             if (
                 $this->order->getState() === Order::STATE_NEW &&
-                !isset($this->postData['add_frompayperemail'])
+                !isset($this->postData['add_frompayperemail']) &&
+                (isset($this->postData['brq_statuscode']) && $this->postData['brq_statuscode'] == 190)
+
             ) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addStatusHistoryComment(
