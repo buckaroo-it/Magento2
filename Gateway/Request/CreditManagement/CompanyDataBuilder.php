@@ -11,7 +11,9 @@ class CompanyDataBuilder extends AbstractDataBuilder
         parent::initialize($buildSubject);
 
         $billingAddress = $this->getOrder()->getBillingAddress();
-        if($billingAddress === null) {
+        $company = $billingAddress->getCompany();
+
+        if(empty($company) || strlen($company) <= 0) {
             return [];
         }
 
