@@ -732,9 +732,13 @@ class Process extends \Magento\Framework\App\Action\Action
         if (class_exists($class)) {
 
             $giftcardAccountRepository = $this->_objectManager->get($class);
-            $giftcards = $this->order->getExtensionAttributes()->getAmGiftcardOrder()->getGiftCards();
+            $giftcardOrder = $this->order->getExtensionAttributes()->getAmGiftcardOrder();
+           
+            if($giftcardOrder === null) {
+                return;
+            }
 
-            foreach ($giftcards as $giftcardObj) {
+            foreach ($giftcardOrder ->getGiftCards() as $giftcardObj) {
                 /** @var \Amasty\GiftCardAccount\Api\Data\GiftCardAccountInterface */
                 $giftcard = $giftcardAccountRepository->getByCode($giftcardObj['code']);
                 $giftcard->setStatus(1);
