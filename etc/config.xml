@@ -138,7 +138,7 @@
 
             <buckaroo_magento2_paypal>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Paypal</model>
+                <model>PaypalFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo PayPal</title>
                 <allowspecific>0</allowspecific>
