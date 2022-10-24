@@ -741,7 +741,8 @@ class Process extends \Magento\Framework\App\Action\Action
                     /** @var \Amasty\GiftCardAccount\Api\Data\GiftCardAccountInterface */
                     $giftcard = $giftcardAccountRepository->getByCode($giftcardObj['code']);
                     $giftcard->setStatus(1);
-                    $giftcard->setCurrentValue($giftcard->getInitialValue());
+
+                    $giftcard->setCurrentValue($giftcard->getCurrentValue() + (float)$giftcardObj['amount']);
                     $giftcardAccountRepository->save($giftcard);
                 }
             } catch (\Throwable $th) {
