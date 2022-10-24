@@ -380,7 +380,7 @@ class Push implements PushInterface
         if (!empty($this->pushRequst->getStatusmessage())) {
             if (
                 $this->order->getState() === Order::STATE_NEW &&
-                !empty($this->pushRequst->getAdditionalInformation('frompayperemail')) &&
+                empty($this->pushRequst->getAdditionalInformation('frompayperemail')) &&
                 $this->pushRequst->getStatusCode() == 190
                 ) {
                 $this->order->setState(Order::STATE_PROCESSING);
