@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © 2013-2017 Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
@@ -7,15 +8,18 @@
 namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Exception;
-use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
+use Psr\Log\LoggerInterface;
+use Magento\Payment\Model\Method\Logger;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
-use Magento\Payment\Model\Method\Logger;
-use Psr\Log\LoggerInterface;
+use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
+use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Magento2\Gateway\Http\Client\TransactionType;
 
 /**/
-abstract class AbstractTransaction implements ClientInterface
+
+class DefaultTransaction implements ClientInterface
 {
     /**
      * @var LoggerInterface
@@ -32,6 +36,8 @@ abstract class AbstractTransaction implements ClientInterface
      */
     protected $adapter;
 
+    protected string $action;
+
     /**
      * Constructor
      *
@@ -39,11 +45,16 @@ abstract class AbstractTransaction implements ClientInterface
      * @param Logger $customLogger
      * @param BuckarooAdapter $adapter
      */
-    public function __construct(LoggerInterface $logger, Logger $customLogger, BuckarooAdapter $adapter)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        Logger $customLogger,
+        BuckarooAdapter $adapter,
+        $action = TransactionType::PAY
+    ) {
         $this->logger = $logger;
         $this->customLogger = $customLogger;
         $this->adapter = $adapter;
+        $this->action = $action;
     }
 
     /**
@@ -79,5 +90,11 @@ abstract class AbstractTransaction implements ClientInterface
      * @param string $paymentMethod
      * @param array $data
      */
-    abstract protected function process(string $paymentMethod, array $data);
+    protected function process(string $paymentMethod, array $data): TransactionResponse
+    {
+        if (isset($data['encryptedCardData'])) {
+            $this->action = TransactionType::PAY_ENCRYPTED;
+        }
+        return $this->adapter->execute($this->action, $paymentMethod, $data);
+    }
 }

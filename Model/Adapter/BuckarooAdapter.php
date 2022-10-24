@@ -2,13 +2,16 @@
 
 namespace Buckaroo\Magento2\Model\Adapter;
 
-use Buckaroo\BuckarooClient;
 use Buckaroo\Config\Config;
-use Buckaroo\Exceptions\BuckarooException;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Magento\Framework\Encryption\Encryptor;
+use Buckaroo\BuckarooClient;
 use Buckaroo\Handlers\Reply\ReplyHandler;
+use Buckaroo\Exceptions\BuckarooException;
+use Magento\Framework\Encryption\Encryptor;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Magento2\Gateway\Http\Client\TransactionType;
+use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
+use Buckaroo\Magento2\Logging\Log;
 
 class BuckarooAdapter
 {
@@ -29,85 +32,48 @@ class BuckarooAdapter
 
     private array $mapPaymentMethods;
 
-    public function __construct(Account $configProviderAccount, Encryptor $encryptor, array $mapPaymentMethods = null)
-    {
-        $this->encryptor = $encryptor;
-        $this->configProviderAccount = $configProviderAccount;
+    protected $logger;
+
+    public function __construct(
+        Account $configProviderAccount,
+        Encryptor $encryptor,
+        array $mapPaymentMethods = null,
+        Log $logger
+    ) {
         $this->mapPaymentMethods = $mapPaymentMethods;
-        $websiteKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
-        $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
-        $envMode = $this->configProviderAccount->getActive() == 2 ? Config::LIVE_MODE : Config::TEST_MODE;
-        $this->buckaroo = new BuckarooClient($websiteKey, $secretKey, $envMode);
+        $this->logger = $logger;
+
+        $this->buckaroo = new BuckarooClient(
+            $encryptor->decrypt($configProviderAccount->getMerchantKey()),
+            $encryptor->decrypt($configProviderAccount->getSecretKey()),
+            $configProviderAccount->getActive() == 2 ? Config::LIVE_MODE : Config::TEST_MODE
+        );
     }
 
-    public function pay($method, $data): TransactionResponse
+    public function execute(string $action, string $method, array $data): TransactionResponse
     {
-        return $this->buckaroo->method($this->getMethodName($method))->pay($data);
-    }
+        $payment = $this->buckaroo->method($this->getMethodName($method));
 
-    public function payInInstallments($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payInInstallments($data);
-    }
+        try {
 
-    public function payEncrypted($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payEncrypted($data);
-    }
+            if ($this->isCreditManagementOfType($data, BuilderComposite::TYPE_ORDER)) {
+                $payment = $payment->combine($this->getCreditManagementBody($data));
+            }
 
-    public function paymentInvitation($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->paymentInvitation($data);
-    }
+            if ($this->isCreditManagementOfType($data, BuilderComposite::TYPE_REFUND)) {
+                $this->createCreditNote($data);
+            }
 
-    public function payRemainder($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payRemainder($data);
-    }
+            if ($this->isCreditManagementOfType($data, BuilderComposite::TYPE_VOID)) {
+                return $this->createCreditNote($data, BuilderComposite::TYPE_VOID);
+            }
 
-    public function payRedirect($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->payRedirect($data);
-    }
+            return $payment->{$action}($data);
 
-    public function authorize($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->authorize($data);
-    }
-
-    public function authorizeEncrypted(string $method, array $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->authorizeEncrypted($data);
-    }
-
-    public function capture($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->capture($data);
-    }
-
-    public function cancelAuthorize($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->cancelAuthorize($data);
-    }
-
-    public function reserve($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->reserve($data);
-    }
-
-    public function cancelReserve($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->cancelReserve($data);
-    }
-
-    public function refund($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->refund($data);
-    }
-
-    public function createMandate($method, $data): TransactionResponse
-    {
-        return $this->buckaroo->method($this->getMethodName($method))->createMandate($data);
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__ . (string)$th);
+            throw $th;
+        }
     }
 
     /**
@@ -123,5 +89,48 @@ class BuckarooAdapter
     protected function getMethodName($method)
     {
         return $this->mapPaymentMethods[$method] ?? $method;
+    }
+
+    /**
+     * Get credit management body
+     *
+     * @param array $data
+     */
+    protected function getCreditManagementBody(array $data)
+    {
+        return $this->buckaroo->method('credit_management')
+            ->manually()
+            ->createCombinedInvoice(
+                $data[BuilderComposite::TYPE_ORDER]
+            );
+    }
+
+    /**
+     * Get credit note body
+     *
+     * @param array $data
+     * @param string $type
+     */
+    protected function createCreditNote(array $data, $type = BuilderComposite::TYPE_REFUND)
+    {
+        return $this->buckaroo->method('credit_management')
+            ->createCreditNote(
+                $data[$type]
+            );
+    }
+
+    /**
+     * Check if we have credit management information of type
+     *
+     * @param array $data
+     * @param string $type
+     *
+     * @return boolean
+     */
+    protected function isCreditManagementOfType(array $data, string $type): bool
+    {
+        return isset($data[$type]) &&
+            is_array($data[$type]) &&
+            count($data[$type]) > 0;
     }
 }
