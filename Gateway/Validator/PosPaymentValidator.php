@@ -13,6 +13,7 @@ class PosPaymentValidator extends AbstractValidator
     private \Magento\Framework\HTTP\Header $header;
     private CookieManagerInterface $cookieManager;
     private BuckarooLog $buckarooLog;
+    private array $errorMessages = [];
 
     /**
      * @param ResultInterfaceFactory $resultFactory
@@ -22,7 +23,8 @@ class PosPaymentValidator extends AbstractValidator
         CookieManagerInterface         $cookieManager,
         BuckarooLog                    $buckarooLog,
         \Magento\Framework\HTTP\Header $header
-    ) {
+    )
+    {
         $this->header = $header;
         $this->cookieManager = $cookieManager;
         $this->buckarooLog = $buckarooLog;
@@ -31,35 +33,18 @@ class PosPaymentValidator extends AbstractValidator
 
     public function validate(array $validationSubject): ResultInterface
     {
-        if (!isset($validationSubject['payment'])) {
+        $this->validatePayment($validationSubject);
+        $this->validateTerminalId();
+        $this->validateUserAgent($validationSubject);
+
+        if (empty($this->errorMessages)) {
+            return $this->createResult(true);
+        } else {
             return $this->createResult(
                 false,
-                [__('Payment method instance does not exist')]
+                $this->errorMessages
             );
         }
-
-        $paymentMethodInstance = $validationSubject['payment'];
-
-        if (!$this->getPosPaymentTerminalId()) {
-            return $this->createResult(
-                false,
-                [__('POS Terminal Id it is not set.')]
-            );
-        }
-
-        $userAgent = $this->header->getHttpUserAgent();
-        $userAgentConfiguration = trim((string)$paymentMethodInstance->getConfigData('user_agent'));
-
-        $this->buckarooLog->addDebug(var_export([$userAgent, $userAgentConfiguration], true));
-
-        if (strlen($userAgentConfiguration) > 0 && $userAgent != $userAgentConfiguration) {
-            return $this->createResult(
-                false,
-                [__('Wrong User Agent configuration')]
-            );
-        }
-
-        return $this->createResult(true);
     }
 
     /**
@@ -71,5 +56,33 @@ class PosPaymentValidator extends AbstractValidator
         $this->buckarooLog->addDebug(__METHOD__ . '|1|');
         $this->buckarooLog->addDebug(var_export($terminalId, true));
         return $terminalId;
+    }
+
+    private function validatePayment($validationSubject)
+    {
+        if (!isset($validationSubject['payment'])) {
+            $this->errorMessages[] = __('Payment method instance does not exist');
+        }
+    }
+
+    private function validateTerminalId()
+    {
+        if (!$this->getPosPaymentTerminalId()) {
+            $this->errorMessages[] = __('POS Terminal Id it is not set.');
+        }
+    }
+
+    private function validateUserAgent($validationSubject)
+    {
+        $paymentMethodInstance = $validationSubject['payment'];
+
+        $userAgent = $this->header->getHttpUserAgent();
+        $userAgentConfiguration = trim((string)$paymentMethodInstance->getConfigData('user_agent'));
+
+        $this->buckarooLog->addDebug(var_export([$userAgent, $userAgentConfiguration], true));
+
+        if (strlen($userAgentConfiguration) > 0 && $userAgent != $userAgentConfiguration) {
+            $this->errorMessages[] = __('Wrong User Agent configuration');
+        }
     }
 }
