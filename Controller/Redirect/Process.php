@@ -738,7 +738,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 return;
             }
 
-            foreach ($giftcardOrder ->getGiftCards() as $giftcardObj) {
+            foreach ($giftcardOrder->getGiftCards() as $giftcardObj) {
                 /** @var \Amasty\GiftCardAccount\Api\Data\GiftCardAccountInterface */
                 $giftcard = $giftcardAccountRepository->getByCode($giftcardObj['code']);
                 $giftcard->setStatus(1);
