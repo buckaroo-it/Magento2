@@ -10,8 +10,6 @@ class CreditcardTypeDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
-        $cardType = $this->getPayment()->getAdditionalInformation('card_type');
-
-        return ['name' => $cardType];
+        return ['name' => $this->getPayment()->getAdditionalInformation('card_type')];
     }
 }
