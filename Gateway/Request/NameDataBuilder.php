@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request;
 
 use Magento\Sales\Api\Data\OrderAddressInterface;
-use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
-class CountryDataBuilder extends AbstractDataBuilder
+class NameDataBuilder extends AbstractDataBuilder
 {
     public function build(array $buildSubject): array
     {
@@ -17,8 +16,6 @@ class CountryDataBuilder extends AbstractDataBuilder
          */
         $billingAddress = $this->getOrder()->getBillingAddress();
 
-        return [
-            'country' => $billingAddress->getCountryId(),
-        ];
+        return ['name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastName()];
     }
 }

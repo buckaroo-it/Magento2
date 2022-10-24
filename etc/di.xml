@@ -528,6 +528,7 @@
                 <item name="afterpay20" xsi:type="string">afterpay</item>
                 <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
                 <item name="giftcards" xsi:type="string">giftcard</item>
+                <item name="rtp" xsi:type="string">requesttopay</item>
                 <item name="sofortbanking" xsi:type="string">sofortueberweisung</item>
             </argument>
         </arguments>
@@ -1959,7 +1960,7 @@
     <virtualType name="MrcashOrderCommand" type="BuckarooOrderCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">MrcashOrderRequest</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayOrPayEncrypted</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
         </arguments>
     </virtualType>
     <!-- Mrcash Order Command - Request Builder -->
@@ -2174,6 +2175,19 @@
         </arguments>
     </virtualType>
     <!-- END Billink Authorize Command -->
+
+    <!-- Billink Capture Command -->
+    <virtualType name="BillinkCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BuckarooCaptureRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCapture</argument>
+            <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Billink Capture Command -->
     <!-- END Billink Commands infrastructure -->
     <!-- END Payment Method: Billink -->
 
@@ -2927,6 +2941,11 @@
     <!-- END Payment Method: Emandate -->
 
     <!-- Payment Method: Giftcards -->
+    <type name="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard">
+        <arguments>
+            <argument name="clientInterface" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
+        </arguments>
+    </type>
     <!-- Giftcards Payment Method Facade configuration -->
     <virtualType name="GiftcardsFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
         <arguments>
@@ -3105,6 +3124,336 @@
     <!-- END PayPerEmail Order Command -->
     <!-- END PayPerEmail Commands infrastructure -->
     <!-- END Payment Method: PayPerEmail -->
+
+    <!-- Payment Method: Transfer-->
+    <!-- Transfer Payment Method Facade configuration -->
+    <virtualType name="TransferFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">TransferValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">TransferValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">TransferGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <!-- Transfer Value handlers infrastructure -->
+    <virtualType name="TransferValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">TransferConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="TransferConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Transfer Value handlers infrastructure -->
+
+    <!-- Transfer validators infrastructure -->
+    <virtualType name="TransferValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">TransferCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="TransferCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Transfer validators infrastructure -->
+    <!-- Transfer Commands infrastructure -->
+    <virtualType name="TransferGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">TransferOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundWithCreditManagementCommand</item>
+                <item name="void" xsi:type="string">BuckarooVoidCreditManagementCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Transfer Order Command -->
+    <virtualType name="TransferOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">TransferOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderWithCreditManagementResponseHandler</argument>
+            <argument name="validator" xsi:type="object">
+                Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator
+            </argument>
+            <argument name="errorMessageMapper" xsi:type="object">
+                Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Transfer Order Command - Request Builder -->
+    <virtualType name="TransferOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CountryDataBuilder</item>
+                <item name="transfer_config_params" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TransferOrderDataBuilder</item>
+                <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Transfer Order Command -->
+
+    <!-- END Transfer Commands infrastructure -->
+    <!-- END Payment Method: Transfer -->
+
+    <!-- Credit Managment -->
+    <!-- Buckaroo Order Command - Response Handler -->
+    <virtualType name="OrderWithCreditManagementResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+                <item name="credit_management" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Buckaroo Order Command -->
+
+
+    <!-- Buckaroo Refund Command -->
+    <virtualType name="BuckarooVoidCreditManagementCommand" type="BuckarooRefundCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BuckarooVoidCreditManagementRequest</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooVoidCreditManagementRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment_method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="credit_management" xsi:type="string">BuckarooDefaultVoidCreditManagment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BuckarooDefaultVoidCreditManagment" type="BuckarooDefaultRefundCreditManagment">
+        <arguments>
+            <argument name="type" xsi:type="const">Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite::TYPE_VOID</argument>
+        </arguments>
+    </virtualType>
+    <!-- End Buckaroo Refund Command -->
+
+
+    <!-- Buckaroo Refund Command -->
+    <virtualType name="BuckarooRefundWithCreditManagementCommand" type="BuckarooRefundCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BuckarooRefundWithCreditManagementRequest</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooRefundWithCreditManagementRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="credit_management" xsi:type="string">BuckarooDefaultRefundCreditManagment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooDefaultRefundCreditManagment" type="Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite">
+        <arguments>
+            <argument name="type" xsi:type="const">Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite::TYPE_REFUND</argument>
+            <argument name="builders" xsi:type="array">
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceDataBuilder</item>
+                <item name="invoice_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceKeyDataBuilder</item>
+                <item name="invoice_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceNumberDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- End Buckaroo Refund Command -->
+
+    <virtualType name="BuckarooDefaultCreditManagment" type="Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="group" xsi:type="string">BuckarooCreditManagmentGroup</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="config" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\ConfigDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BuckarooCreditManagmentGroup" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
+                <item name="person" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\PersonDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\AddressDataBuilder</item>
+                <item name="company" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\CompanyDataBuilder</item>
+                <item name="debtor" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\DebtorDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- END Credit Managment -->
+
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCancel" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CANCEL</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCancelReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CANCEL_RESERVE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCapture" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CAPTURE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPay" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayInInstallments" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_IN_INSTALLMENTS</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::REFUND</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCreditManagmentVoid" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_CREDIT_NOTE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::RESERVE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_MANDATE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAYMENT_INVITATION</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Buckaroo\Magento2\Observer\VoidCm3Payment">
+        <arguments>
+            <argument name="voidCommand" xsi:type="object">BuckarooVoidCreditManagementCommand</argument>
+        </arguments>
+    </type>
+
+    <!-- Payment Method: Rtp -->
+    <!-- Rtp Payment Method Facade configuration -->
+    <virtualType name="RtpFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Rtp::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">RtpValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">RtpValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">RtpGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Rtp Value handlers infrastructure -->
+    <virtualType name="RtpValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">RtpConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="RtpConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Rtp</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Rtp Value handlers infrastructure -->
+
+    <!-- Rtp validators infrastructure -->
+    <virtualType name="RtpValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">RtpCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="RtpCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Rtp</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Rtp validators infrastructure -->
+
+    <!-- Rtp Commands infrastructure -->
+    <virtualType name="RtpGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">RtpOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Rtp Order Command -->
+    <virtualType name="RtpOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">RtpOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Rtp Order Command - Request Builder -->
+    <virtualType name="RtpOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\NameDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Rtp Order Command -->
+    <!-- END Rtp Commands infrastructure -->
+    <!-- END Payment Method: Rtp -->
 
     <!-- Payment Method: Sofortbanking -->
     <!-- Sofortbanking Payment Method Facade configuration -->
