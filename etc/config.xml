@@ -325,7 +325,7 @@
 
             <buckaroo_magento2_sofortbanking>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Sofortbanking</model>
+                <model>SofortbankingFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Sofort</title>
                 <allowspecific>0</allowspecific>
@@ -839,7 +839,7 @@
 
             <buckaroo_magento2_rtp>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Rtp</model>
+                <model>RtpFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Request To Pay</title>
                 <allowspecific>0</allowspecific>
