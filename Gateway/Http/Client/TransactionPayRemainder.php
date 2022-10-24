@@ -38,6 +38,6 @@ class TransactionPayRemainder extends DefaultTransaction
     {
         $orderIncrementId = $data['invoice'] ?? $data['order'] ?? '';
         $serviceAction = $this->payReminderService->getServiceAction($orderIncrementId);
-        return $this->adapter->$serviceAction($paymentMethod, $data);
+        return $this->adapter->execute($serviceAction, $paymentMethod, $data);
     }
 }
