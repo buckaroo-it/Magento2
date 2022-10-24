@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Http\ClientException;
+use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\UrlInterface;
@@ -69,14 +70,9 @@ class Giftcard implements GiftcardInterface
     protected $quote;
 
     /**
-     * @var TransactionPay
+     * @var ClientInterface
      */
-    protected $clientPay;
-
-    /**
-     * @var TransactionPayRemainder
-     */
-    protected $clientPayRemainder;
+    protected ClientInterface $clientInterface;
 
     /**
      * @var SDKTransferFactory
@@ -138,7 +134,7 @@ class Giftcard implements GiftcardInterface
      * @param Encryptor $encryptor
      * @param StoreManagerInterface $storeManager
      * @param SDKTransferFactory $transferFactory
-     * @param TransactionPay $clientPay
+     * @param ClientInterface $clientInterface
      * @param TransactionPayRemainder $clientPayRemainder
      * @param RequestInterface $httpRequest
      * @param PaymentGroupTransaction $groupTransaction
@@ -152,8 +148,7 @@ class Giftcard implements GiftcardInterface
         Encryptor               $encryptor,
         StoreManagerInterface   $storeManager,
         SDKTransferFactory      $transferFactory,
-        TransactionPay          $clientPay,
-        TransactionPayRemainder $clientPayRemainder,
+        ClientInterface         $clientInterface,
         RequestInterface        $httpRequest,
         PaymentGroupTransaction $groupTransaction
     )
@@ -165,8 +160,7 @@ class Giftcard implements GiftcardInterface
         $this->encryptor = $encryptor;
         $this->store = $storeManager->getStore();
         $this->transferFactory = $transferFactory;
-        $this->clientPay = $clientPay;
-        $this->clientPayRemainder = $clientPayRemainder;
+        $this->clientInterface = $clientInterface;
         $this->httpRequest = $httpRequest;
         $this->groupTransaction = $groupTransaction;
     }
@@ -196,14 +190,8 @@ class Giftcard implements GiftcardInterface
         );
 
         try {
-            if ($this->action == 'PayRemainder') {
-                $response = $this->clientPayRemainder->placeRequest($transferO);
-            } else {
-                $response = $this->clientPay->placeRequest($transferO);
-            }
-
+            $response = $this->clientInterface->placeRequest($transferO);
             return $response['object'] ?? [];
-
         } catch (ClientException $e) {
             throw new GiftcardException($e->getMessage());
         } catch (ConverterException $e) {
