@@ -63,6 +63,7 @@
                 <item name="buckaroo_config_provider_pospayment" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment</item>
                 <item name="buckaroo_config_provider_tinka" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Tinka</item>
                 <item name="buckaroo_config_provider_creditclick" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</item>
+                <item name="buckaroo_config_provider_voucher" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
             </argument>
         </arguments>
     </type>
