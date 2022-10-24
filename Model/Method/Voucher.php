@@ -44,22 +44,7 @@ class Voucher extends AbstractMethod
      */
     public $usesRedirect                = false;
 
-
-    /**
-     * {@inheritdoc}
-     */
-    public function assignData(\Magento\Framework\DataObject $data)
-    {
-        parent::assignData($data);
-        $data = $this->assignDataConvertToArray($data);
-
-        if (isset($data['additional_data']['buckaroo_voucher_code'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'buckaroo_voucher_code',
-                $data['additional_data']['buckaroo_voucher_code']
-            );
-        }
-    }
+ 
     /**
      * {@inheritdoc}
      */
