@@ -691,7 +691,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
     public function getSkipHandleFailedRecreate()
     {
-        return false;  
+        return false;
     }
 
     public function setSkipHandleFailedRecreate($value)
@@ -710,18 +710,22 @@ class Process extends \Magento\Framework\App\Action\Action
         if (class_exists($class)) {
 
             $giftcardAccountRepository = $this->_objectManager->get($class);
-            $giftcardOrder = $this->order->getExtensionAttributes()->getAmGiftcardOrder();
-           
-            if($giftcardOrder === null) {
-                return;
-            }
+            $giftcardOrderRepository = $this->_objectManager->get(\Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class);
 
-            foreach ($giftcardOrder ->getGiftCards() as $giftcardObj) {
-                /** @var \Amasty\GiftCardAccount\Api\Data\GiftCardAccountInterface */
-                $giftcard = $giftcardAccountRepository->getByCode($giftcardObj['code']);
-                $giftcard->setStatus(1);
-                $giftcard->setCurrentValue($giftcard->getInitialValue());
-                $giftcardAccountRepository->save($giftcard);
+            try {
+                $giftcardOrder = $giftcardOrderRepository->getByOrderId($this->order->getId());
+
+                foreach ($giftcardOrder->getGiftCards() as $giftcardObj) {
+                    /** @var \Amasty\GiftCardAccount\Api\Data\GiftCardAccountInterface */
+                    $giftcard = $giftcardAccountRepository->getByCode($giftcardObj['code']);
+                    $giftcard->setStatus(1);
+
+                    $giftcard->setCurrentValue($giftcard->getCurrentValue() + (float)$giftcardObj['amount']);
+                    $giftcardAccountRepository->save($giftcard);
+                }
+            } catch (\Throwable $th) {
+                $this->logger->addDebug($th->getMessage());
+                return;
             }
         }
     }

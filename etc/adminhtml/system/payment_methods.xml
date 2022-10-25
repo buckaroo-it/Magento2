@@ -115,7 +115,7 @@
         <include path="Buckaroo_Magento2::system/payment_methods/belfius.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/creditclick.xml"/>
-        
+
         <include path="Buckaroo_Magento2::system/payment_methods/voucher.xml"/>
     </group>
 </include>

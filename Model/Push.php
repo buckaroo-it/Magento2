@@ -377,12 +377,13 @@ class Push implements PushInterface
             $this->setTransactionKey();
         }
 
+        $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         if (!empty($this->pushRequst->getStatusmessage())) {
-            if (
-                $this->order->getState() === Order::STATE_NEW &&
-                empty($this->pushRequst->getAdditionalInformation('frompayperemail')) &&
-                $this->pushRequst->getStatusCode() == 190
-                ) {
+            if ($this->order->getState() === Order::STATE_NEW
+                && !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
+                && (!empty($this->pushRequst->getStatusCode())
+                    && $this->pushRequst->hasPostData('statuscode', $statusCodeSuccess))
+            ) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addStatusHistoryComment(
                     $this->pushRequst->getStatusmessage(),
@@ -398,7 +399,7 @@ class Push implements PushInterface
             return true;
         }
 
-        
+
         switch ($transactionType) {
             case self::BUCK_PUSH_TYPE_INVOICE:
                 $this->processCm3Push();

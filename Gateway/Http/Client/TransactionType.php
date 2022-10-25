@@ -5,6 +5,7 @@ namespace Buckaroo\Magento2\Gateway\Http\Client;
 class TransactionType
 {
     public const AUTHORIZE = 'authorize';
+    public const AUTHORIZE_ENCRYPTED = 'authorizeEncrypted';
     public const CANCEL = 'cancelAuthorize';
     public const CANCEL_RESERVE = 'cancelReserve';
     public const CAPTURE = 'capture';
