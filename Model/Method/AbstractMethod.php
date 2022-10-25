@@ -386,8 +386,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (isset($data['additional_data']['customer_gender'])) {
             $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
         }
-        
-        if (isset($data['additional_data']['termsCondition'])) {            
+
+        if (isset($data['additional_data']['termsCondition'])) {
             $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
             $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
             $this->getInfoInstance()->setAdditionalInformation('customer_identificationNumber', $additionalData['customer_identificationNumber']);
@@ -715,7 +715,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!(isset($response->RequiredAction->Type) && $response->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
         }
-     
+
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
@@ -789,6 +789,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $responseCode        = $transactionResponse->Status->Code->Code;
         $billingCountry      = $this->payment->getOrder()->getBillingAddress()->getCountryId();
 
+        if($responseCode == 491) {
+            return $this->getFirstError($transactionResponse);
+        }
+
         $method = null;
         if ($this->payment->getMethodInstance() && !empty($this->payment->getMethodInstance()->buckarooPaymentMethodCode)) {
             $method = $this->payment->getMethodInstance()->buckarooPaymentMethodCode;
@@ -816,6 +820,34 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         return $message;
+    }
+
+    /**
+     * @param $transactionResponse
+     * @param $errorType
+     * @return bool
+     */
+    public function hasError($transactionResponse, $errorType): bool
+    {
+        return !empty($transactionResponse->RequestErrors) && !empty($transactionResponse->RequestErrors->$errorType);
+    }
+
+    /**
+     * @param $transactionResponse
+     * @return string
+     */
+    public function getFirstError($transactionResponse): string
+    {
+        $errorTypes = ['ChannelError', 'ServiceError', 'ActionError', 'ParameterError', 'CustomParameterError'];
+
+        foreach ($errorTypes as $errorType) {
+            if ($this->hasError($transactionResponse, $errorType)) {
+                return $transactionResponse->RequestErrors->$errorType->_;
+
+            }
+        }
+
+        return '';
     }
 
     public function getFailureMessageOnFraud($transactionResponse)
@@ -904,7 +936,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!(isset($response->RequiredAction->Type) && $response->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
         }
-        
+
         $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
@@ -1167,7 +1199,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $payment->getOrder()->addStatusHistoryComment(
                 __("The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.")
             )->setIsCustomerNotified(false)->save();
-            
+
             $messageManager = $this->objectManager->get('Magento\Framework\Message\ManagerInterface');
             $messageManager->addError(
                 __("Refund has been initiated, but it needs to be approved, so you need to wait for an approval")
@@ -1818,7 +1850,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
                     $this->saveTransactionData($response[0], $payment, $this->closeRefundTransaction, false);
 
-                    
+
                     foreach ($groupTransaction as $item) {
                         $prevRefundAmount = $item->getData('refunded_amount');
                         $newRefundAmount = $amount_value;
@@ -2489,14 +2521,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // First data to set is the billing address data.
         $requestData = $this->getRequestBillingData($payment);
 
-        
+
         // If the shipping address is not the same as the billing it will be merged inside the data array.
         if (
             $this->isAddressDataDifferent($payment) ||
             is_null($payment->getOrder()->getShippingAddress()) ||
             $payment->getMethod() === Klarna::KLARNA_METHOD_NAME  ||
             $payment->getMethod() === Klarnain::PAYMENT_METHOD_CODE ||
-            $payment->getMethod() === Afterpay20::PAYMENT_METHOD_CODE 
+            $payment->getMethod() === Afterpay20::PAYMENT_METHOD_CODE
         ) {
             $requestData = array_merge($requestData, $this->getRequestShippingData($payment));
         }
@@ -2581,14 +2613,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
     public function canUseForCountry($country)
     {
-        
-        
+
+
         if ($this->getConfigData('allowspecific') != 1) {
             return true;
         }
 
         $specificCountries = $this->getConfigData('specificcountry');
-        
+
         //if the country config is null in the store get the config value from the global('default') settings
         if ($specificCountries === null) {
             $specificCountries = $this->_scopeConfig->getValue(
@@ -2598,6 +2630,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $availableCountries = explode(',', $specificCountries);
         return in_array($country, $availableCountries);
-        
+
     }
 }
