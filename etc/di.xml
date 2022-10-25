@@ -531,6 +531,7 @@
                 <item name="rtp" xsi:type="string">requesttopay</item>
                 <item name="sofortbanking" xsi:type="string">sofortueberweisung</item>
                 <item name="creditcards" xsi:type="string">creditcard</item>
+                <item name="idealgateway" xsi:type="string">ideal</item>
             </argument>
         </arguments>
     </type>
@@ -3312,6 +3313,11 @@
     <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorizeEncrypted" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE_ENCRYPTED</argument>
         </arguments>
     </virtualType>
     <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCancel" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
