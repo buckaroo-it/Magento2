@@ -50,4 +50,21 @@ interface PayResponseInterface
      * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface
      */
     public function getTransaction();
+
+    /**
+     * Get user message
+     *
+     * @api
+     * @return string|null
+     */
+    public function getMessage();
+
+
+     /**
+     * Get user remaining amount message
+     *
+     * @api
+     * @return string|null
+     */
+    public function getRemainingAmountMessage();
 }

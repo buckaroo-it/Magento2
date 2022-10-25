@@ -713,7 +713,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
     public function getSkipHandleFailedRecreate()
     {
-        return false;  
+        return false;
     }
 
     public function setSkipHandleFailedRecreate($value)
