@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Http\Client;
 
-use Buckaroo\Magento2\Gateway\Http\Client\AbstractTransaction;
+use Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction;
 use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Magento2\Service\PayReminderService;
 use Buckaroo\Transaction\Response\TransactionResponse;
