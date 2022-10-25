@@ -862,7 +862,7 @@
 
             <buckaroo_magento2_pospayment>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Pospayment</model>
+                <model>PospaymentFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Point of Sale</title>
                 <allowspecific>0</allowspecific>
