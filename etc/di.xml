@@ -3939,4 +3939,87 @@
     <!-- END Pospayment Order Command -->
     <!-- END Pospayment Commands infrastructure -->
     <!-- END Payment Method: Pospayment -->
+
+    <!-- Payment Method: SepaDirectDebit -->
+    <!-- SepaDirectDebit Payment Method Facade configuration -->
+    <virtualType name="SepaDirectDebitFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">SepaDirectDebitValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">SepaDirectDebitValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">SepaDirectDebitGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- SepaDirectDebit Value handlers infrastructure -->
+    <virtualType name="SepaDirectDebitValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">SepaDirectDebitConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="SepaDirectDebitConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</argument>
+        </arguments>
+    </virtualType>
+    <!-- END SepaDirectDebit Value handlers infrastructure -->
+
+    <!-- SepaDirectDebit validators infrastructure -->
+    <virtualType name="SepaDirectDebitValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">SepaDirectDebitCountryValidator</item>
+                <item name="bankAccount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\BankAccountValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SepaDirectDebitCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</argument>
+        </arguments>
+    </virtualType>
+    <!-- END SepaDirectDebit validators infrastructure -->
+
+    <!-- SepaDirectDebit Commands infrastructure -->
+    <virtualType name="SepaDirectDebitGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">SepaDirectDebitOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundWithCreditManagementCommand</item>
+                <item name="void" xsi:type="string">BuckarooVoidCreditManagementCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- SepaDirectDebit Order Command -->
+    <virtualType name="SepaDirectDebitOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SepaDirectDebitOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderWithCreditManagementResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- SepaDirectDebit Order Command - Request Builder -->
+    <virtualType name="SepaDirectDebitOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="orderRequest" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="sepaDirectDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SepaDirectDebitDataBuilder</item>
+                <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END SepaDirectDebit Order Command -->
+    <!-- END SepaDirectDebit Commands infrastructure -->
+    <!-- END Payment Method: SepaDirectDebit -->
 </config>
