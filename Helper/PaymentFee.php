@@ -175,7 +175,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 'buckaroo_already_paid',
                 $alreadyPayed,
                 $alreadyPayed,
-                __('Paid with Giftcard')
+                __('Paid with Giftcard / Voucher')
             );
             return;
         } 
@@ -197,7 +197,11 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                     'servicecode',
                     $giftcard['servicecode']
                 );
-                $label = __('Paid with ' . $foundGiftcard['label']);
+
+                $label = __('Paid with Voucher');
+                if ($foundGiftcard) {
+                    $label = __('Paid with ' . $foundGiftcard['label']);
+                }
 
                 $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0;
                 $amountValue = $giftcard['amount'];
@@ -220,7 +224,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                         && floatval($refundedAlreadyPaidSaved) === floatval($amountValue))) {
                         $amountBaseValue = 0;
                         $amountValue = 0;
-                    } elseif (array_key_exists($foundGiftcard['servicecode'], $giftcards)) {
+                    } elseif (is_array($foundGiftcard) && array_key_exists($foundGiftcard['servicecode'], $giftcards)) {
                         if (empty(floatval($giftcards[$foundGiftcard['servicecode']]))) {
                             $amountBaseValue = 0;
                             $amountValue = 0;

@@ -69,4 +69,25 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
             $this->getData('transaction')->getData()
         );
     }
+
+    /**
+     * Get user message
+     *
+     * @api
+     * @return string|null
+     */
+    public function getMessage() {
+        return $this->getData('message');
+    }
+
+
+     /**
+     * Get user remaining amount message
+     *
+     * @api
+     * @return string|null
+     */
+    public function getRemainingAmountMessage() {
+        return $this->getData('remainingAmountMessage');
+    }
 }

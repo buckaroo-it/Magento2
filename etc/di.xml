@@ -37,6 +37,12 @@
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
 
+
+      <!-- giftcard rest api -->
+    <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
+    <preference for="Buckaroo\Magento2\Api\ApplyVoucherInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucher"/>
+    <!-- end gifcard rest api -->
+
     <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Api\PayWithGiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\Pay"/>
     <preference for="Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard"/>
@@ -361,6 +367,10 @@
                 <item name="creditclick" xsi:type="array">
                     <item name="type" xsi:type="string">creditclick</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</item>
+                </item>
+                <item name="voucher" xsi:type="array">
+                    <item name="type" xsi:type="string">voucher</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
                 </item>
             </argument>
         </arguments>

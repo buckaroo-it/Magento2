@@ -40,6 +40,7 @@ use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\SepaDirectDebit;
 use Buckaroo\Magento2\Model\Method\Sofortbanking;
 use Buckaroo\Magento2\Model\Method\Transfer;
+use Buckaroo\Magento2\Model\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
@@ -376,9 +377,15 @@ class Push implements PushInterface
             $this->setTransactionKey();
         }
 
+        $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+        if ($this->pushRequst->hasPostData('statuscode', $statusCodeSuccess)
+
         if (!empty($this->pushRequst->getStatusmessage())) {
             if ($this->order->getState() === Order::STATE_NEW
-                && !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))) {
+                && !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
+                && (!empty($this->pushRequst->getStatusCode())
+                    && $this->pushRequst->hasPostData('statuscode', $statusCodeSuccess) == 190)
+            ) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addStatusHistoryComment(
                     $this->pushRequst->getStatusmessage(),
@@ -389,7 +396,7 @@ class Push implements PushInterface
             }
         }
 
-        if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
+        if ((!in_array($payment->getMethod() ,[Giftcards::PAYMENT_METHOD_CODE, Voucher::PAYMENT_METHOD_CODE])) && $this->isGroupTransactionPart()) {
             $this->savePartGroupTransaction();
             return true;
         }

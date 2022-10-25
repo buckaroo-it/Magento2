@@ -48,7 +48,7 @@ class Totals extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * Initialize gbuckaroo fee totals for order/invoice/creditmemo
+     * Initialize buckaroo fee totals for order/invoice/creditmemo
      *
      * @return $this
      */
@@ -116,11 +116,30 @@ class Totals extends \Magento\Framework\View\Element\Template
                 return $saleTotal;
             }, $saleTotals);
 
-            return $saleTotals;
+            
+            return array_merge(
+                $this->getTotalsByCode($creditTotals, 'buckaroo_already_paid'),
+                $this->getTotalsExceptCode($saleTotals, 'buckaroo_already_paid')
+            );
+            
         }
         return $this->helper->getTotals($source);
     }
 
+    private function getTotalsByCode($totals, $code)
+    {
+        return array_filter($totals, function ($total) use ($code) {
+            return $total['code'] === $code;
+        });
+    }
+
+
+    private function getTotalsExceptCode($totals, $code)
+    {
+        return array_filter($totals, function ($total) use ($code) {
+            return $total['code'] !== $code;
+        });
+    }
     /**
      * Check if fee is in creditmemo
      *
