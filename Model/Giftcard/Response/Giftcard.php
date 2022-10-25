@@ -180,8 +180,8 @@ class Giftcard
             return  $this->response->getSubCodeMessage();
         }
 
-        if (!empty($this->response->getFirstError())) {
-            return $this->response->getFirstError();
+        if (isset($this->response->getFirstError()['ErrorMessage'])) {
+            return $this->response->getFirstError()['ErrorMessage'];
         }
         if (isset($this->response->data()['Status']['Code']['Description'])) {
             return $this->response->data()['Status']['Code']['Description'];
