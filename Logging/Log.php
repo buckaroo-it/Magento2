@@ -100,7 +100,7 @@ class Log
         $trace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS);
         $logTrace = [];
         $depth = $this->debugConfiguration->getDebugBacktraceDepth();
-        if (trim($depth)=='') {
+        if (empty($depth) || trim($depth) == '') {
             $depth = self::BUCKAROO_LOG_TRACE_DEPTH_DEFAULT;
         }
 
