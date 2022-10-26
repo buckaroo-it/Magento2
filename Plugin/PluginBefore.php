@@ -19,6 +19,8 @@
  */
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Model\Method\PayLink;
+
 class PluginBefore
 {
     protected $urlBuider;
@@ -50,7 +52,8 @@ class PluginBefore
             $this->_request = $context->getRequest();
             if ($config->getActive() != '0' &&
                 $this->_request->getFullActionName() == 'sales_order_view' &&
-                $state == 'new'
+                $state == 'new' &&
+                ($order->getPayment()->getMethod() != PayLink::PAYMENT_METHOD_CODE)
             ) {
                 $buttonList->add(
                     'payLinkButton',

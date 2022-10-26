@@ -27,6 +27,7 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/checkout/common',
         'BuckarooClientSideEncryption'
     ],
     function (
@@ -36,7 +37,8 @@ define(
         placeOrderAction,
         ko,
         checkoutData,
-        selectPaymentMethodAction
+        selectPaymentMethodAction,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -49,7 +51,11 @@ define(
             $.mage.__('Please enter a valid creditcard number.')
         );
         $.validator.addMethod('validateCvc', function (value) {
-                return BuckarooClientSideEncryption.V001.validateCvc(value);
+                var cardService = null;
+                if ($('#buckaroo_magento2_creditcards_issuer').val() == 'amex') {
+                    cardService = $('#buckaroo_magento2_creditcards_issuer').val();
+                }
+                return BuckarooClientSideEncryption.V001.validateCvc(value, cardService);
             },
             $.mage.__('Please enter a valid Cvc number.')
         );
@@ -260,9 +266,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
                 },
 
                 /** Encrypt the creditcard details using Buckaroo's encryption system. **/

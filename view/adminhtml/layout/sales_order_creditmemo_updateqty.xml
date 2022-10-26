@@ -32,6 +32,5 @@
                    template="Buckaroo_Magento2::sales/order/creditmemo/buckaroo_already_paid.phtml"
                 />
         </referenceBlock>
-         <move element="buckaroo_already_paid" destination="creditmemo_totals" after="creditmemo_totals" />
     </body>
 </page>

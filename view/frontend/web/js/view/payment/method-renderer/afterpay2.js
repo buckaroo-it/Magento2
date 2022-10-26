@@ -28,6 +28,7 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/checkout/common',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
         /*,
          'jquery/validate'*/
@@ -40,7 +41,8 @@ define(
         quote,
         ko,
         checkoutData,
-        selectPaymentMethodAction
+        selectPaymentMethodAction,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -98,7 +100,6 @@ define(
                     businessMethod: null,
                     paymentMethod: null,
                     telephoneNumber: null,
-                    selectedGender: null,
                     selectedBusiness: 1,
                     firstName: '',
                     lastName: '',
@@ -111,7 +112,7 @@ define(
                     bankaccountnumber: '',
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
                     termsValidate: false,
-                    genderValidate: null
+                    value:""
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay2.paymentFeeLabel,
@@ -135,7 +136,6 @@ define(
                             'businessMethod',
                             'paymentMethod',
                             'telephoneNumber',
-                            'selectedGender',
                             'selectedBusiness',
                             'firstname',
                             'lastname',
@@ -148,8 +148,8 @@ define(
                             'bankaccountnumber',
                             'termsUrl',
                             'termsValidate',
-                            'genderValidate',
-                            'dummy'
+                            'dummy',
+                            'value'
                         ]
                     );
 
@@ -256,16 +256,6 @@ define(
                         }.bind(this)
                     );
 
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedGender = function (value) {
-                        self.selectedGender(value);
-                        return true;
-                    };
-
                     var updateSelectedBusiness = function () {
                         this.updateTermsUrl(this.country);
                     };
@@ -292,6 +282,8 @@ define(
                      */
 
                     var runValidation = function () {
+
+                        let self = this;
                         $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
                         this.selectPaymentMethod();
 
@@ -312,7 +304,6 @@ define(
                     this.CompanyName.subscribe(runValidation,this);
                     this.bankaccountnumber.subscribe(runValidation,this);
                     this.termsValidate.subscribe(runValidation,this);
-                    this.genderValidate.subscribe(runValidation,this);
                     this.dummy.subscribe(runValidation,this);
 
                     /**
@@ -324,11 +315,9 @@ define(
                     var checkB2C = function () {
                         return (
                         (this.telephoneNumber() !== null || this.hasTelephoneNumber) &&
-                        this.selectedGender() !== null &&
                         this.BillingName() !== null &&
                         this.dateValidate() !== null &&
                         this.termsValidate() !== false &&
-                        this.genderValidate() !== null &&
                         (
                         (
                         this.paymentMethod == PAYMENT_METHOD_ACCEPTGIRO &&
@@ -343,13 +332,11 @@ define(
                     var checkB2B = function () {
                         return (
                         (this.telephoneNumber() !== null || this.hasTelephoneNumber) &&
-                        this.selectedGender() !== null &&
                         this.BillingName() !== null &&
                         this.dateValidate() !== null &&
                         this.CocNumber() !== null &&
                         this.CompanyName() !== null &&
                         this.termsValidate() !== false &&
-                        this.genderValidate() !== null &&
                         this.validate()
                         );
                     };
@@ -375,14 +362,12 @@ define(
                     this.buttoncheck = ko.computed(
                         function () {
                             this.telephoneNumber();
-                            this.selectedGender();
                             this.BillingName();
                             this.dateValidate();
                             this.bankaccountnumber();
                             this.termsValidate();
                             this.CocNumber();
                             this.CompanyName();
-                            this.genderValidate();
                             this.dummy();
 
                             if((this.calculateAge(this.dateValidate()) < 18)){
@@ -460,9 +445,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
                 },
 
                 selectPaymentMethod: function () {
@@ -499,7 +482,6 @@ define(
                         "po_number": null,
                         "additional_data": {
                             "customer_telephone" : this.telephoneNumber(),
-                            "customer_gender" : this.genderValidate(),
                             "customer_billingName" : this.BillingName(),
                             "customer_DoB" : this.dateValidate(),
                             "customer_iban": this.bankaccountnumber(),

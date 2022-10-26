@@ -133,6 +133,10 @@ class CommandInterface
             return false;
         }
 
+        //skip setting the status here for applepay 
+        if (preg_match('/applepay/', $methodInstance->getCode())) {
+            return;
+        }
         $order->setState($orderState);
         $order->setStatus($orderStatus);
     }

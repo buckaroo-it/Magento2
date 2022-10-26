@@ -48,7 +48,7 @@ class Totals extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * Initialize gbuckaroo fee totals for order/invoice/creditmemo
+     * Initialize buckaroo fee totals for order/invoice/creditmemo
      *
      * @return $this
      */
@@ -59,7 +59,7 @@ class Totals extends \Magento\Framework\View\Element\Template
         * @noinspection PhpUndefinedMethodInspection
         */
         $source = $parent->getSource();
-        $totals = $this->helper->getTotals($source);
+        $totals = $this->getTotalsForCreditmemo($source);
         foreach ($totals as $total) {
             /**
             * @noinspection PhpUndefinedMethodInspection
@@ -76,7 +76,9 @@ class Totals extends \Magento\Framework\View\Element\Template
         * @noinspection PhpUndefinedMethodInspection
         */
         $source = $parent->getSource();
-        return $this->helper->getTotals($source);
+
+        
+        return $this->getTotalsForCreditmemo($source);
     }
 
     /**
@@ -87,5 +89,74 @@ class Totals extends \Magento\Framework\View\Element\Template
     public function getCurrentCurrencySymbol()
     {
         return $this->_currency->getCurrency()->getCurrencySymbol();
+    }
+
+    /**
+     * For credit memo display the fees from invoice/order, 
+     * check if invoice has that fee and set selected
+     *
+     * @param mixed $source
+     *
+     * @return array
+     */
+    protected function getTotalsForCreditmemo($source)
+    {
+        if ($source instanceof \Magento\Sales\Model\Order\Creditmemo) {
+            $creditTotals = $this->helper->getTotals($source);
+            $order = $source->getOrder();
+            $invoice = $source->getInvoice();
+            $salesModel = ($invoice != null? $invoice : $order);
+            $saleTotals = $this->helper->getTotals($salesModel);
+            
+            $saleTotals = array_map(function($saleTotal) use($creditTotals) {
+                if (in_array($saleTotal['code'],['buckaroo_fee', 'buckaroo_fee_excl'] )) {
+                    $saleTotal['block_name'] = "buckaroo_fee";
+                    $saleTotal['is_selected'] = $this->isCreditmemoTotalSelected($creditTotals, $saleTotal);
+                }
+                return $saleTotal;
+            }, $saleTotals);
+
+            
+            return array_merge(
+                $this->getTotalsByCode($creditTotals, 'buckaroo_already_paid'),
+                $this->getTotalsExceptCode($saleTotals, 'buckaroo_already_paid')
+            );
+            
+        }
+        return $this->helper->getTotals($source);
+    }
+
+    private function getTotalsByCode($totals, $code)
+    {
+        return array_filter($totals, function ($total) use ($code) {
+            return $total['code'] === $code;
+        });
+    }
+
+
+    private function getTotalsExceptCode($totals, $code)
+    {
+        return array_filter($totals, function ($total) use ($code) {
+            return $total['code'] !== $code;
+        });
+    }
+    /**
+     * Check if fee is in creditmemo
+     *
+     * @param array $creditTotals
+     * @param array $saleTotal
+     *
+     * @return boolean
+     */
+    private function isCreditmemoTotalSelected($creditTotals, $saleTotal)
+    {
+        foreach ($creditTotals as $creditTotal) {
+            if (
+                isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
+            ) {
+               return true;
+            }
+        }
+        return false;
     }
 }

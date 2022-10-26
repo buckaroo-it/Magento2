@@ -83,7 +83,7 @@ class Refund extends AbstractTransactionBuilder
             'AmountCredit' => $this->getAmount(),
             'Invoice' => $this->getInvoiceId(),
             'Order' => $order->getIncrementId(),
-            'Description' => $this->configProviderAccount->getTransactionLabel($store),
+            'Description' => $this->configProviderAccount->getParsedLabel($store, $order),
             'ClientIP' => (object)[
                 '_' => $ip,
                 'Type' => strpos($ip, ':') === false ? 'IPv4' : 'IPv6',

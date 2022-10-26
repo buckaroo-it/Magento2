@@ -27,7 +27,8 @@ define(
         'Magento_Checkout/js/model/quote',
         'ko',
         'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method'
+        'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -37,7 +38,8 @@ define(
         quote,
         ko,
         checkoutData,
-        selectPaymentMethodAction
+        selectPaymentMethodAction,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -46,6 +48,7 @@ define(
                 defaults                : {
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_payperemail',
                     selectedGender: null,
+                    genderList: null,
                     firstName: null,
                     lastName: null,
                     email: null,
@@ -77,6 +80,7 @@ define(
                     this._super().observe(
                         [
                             'selectedGender',
+                            'genderList',
                             'firstName',
                             'lastName',
                             'email',
@@ -124,15 +128,27 @@ define(
                     );
                     this.BillingEmail(this.CustomerEmail());
 
+                    this.gendersList = function() {
+
+                        return window.checkoutConfig.payment.buckaroo.payperemail.genderList;
+                    }
+                    
                     /**
                      * observe radio buttons
                      * check if selected
                      */
                     var self = this;
-                    this.setSelectedGender = function (value) {
-                        self.selectedGender(value);
+                    this.setSelectedGender = function () {
+                        var el = document.getElementById("buckaroo_magento2_payperemail_genderSelect");
+                        this.selectedGender(el.options[el.selectedIndex].value);
+                        this.selectPaymentMethod();
                         return true;
                     };
+                    
+
+                    this.getSelectedGender = function () {
+                        return this.selectedGender();
+                    }
 
                     /**
                      * Validation on the input fields
@@ -145,7 +161,6 @@ define(
                     this.BillingFirstName.subscribe(runValidation,this);
                     this.BillingLastName.subscribe(runValidation,this);
                     this.BillingEmail.subscribe(runValidation,this);
-                    this.genderValidate.subscribe(runValidation,this);
 
                     var check = function ()
                     {
@@ -154,7 +169,6 @@ define(
                             this.BillingFirstName() !== null &&
                             this.BillingLastName() !== null &&
                             this.BillingEmail() !== null &&
-                            this.genderValidate() !== null &&
                             this.validate()
                         );
                     };
@@ -162,13 +176,12 @@ define(
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
-                    this.buttoncheck = ko.computed(
+                     this.buttoncheck = ko.computed(
                         function () {
                             this.selectedGender();
                             this.BillingFirstName();
                             this.BillingLastName();
                             this.BillingEmail();
-                            this.genderValidate();
                             this.dummy();
                             return check.bind(this)();
                         },
@@ -212,9 +225,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
                 },
 
                 selectPaymentMethod: function () {
@@ -238,7 +249,7 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_gender" : this.genderValidate(),
+                            "customer_gender" : this.selectedGender(),
                             "customer_billingFirstName" : this.BillingFirstName(),
                             "customer_billingLastName" : this.BillingLastName(),
                             "customer_email" : this.BillingEmail()

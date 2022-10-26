@@ -20,13 +20,14 @@
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Magento\Catalog\Helper\Data;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Tax\Model\Calculation as TaxModelCalculation;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Tax\Model\Calculation as TaxModelCalculation;
 
 class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
@@ -51,7 +52,10 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      */
     public $catalogHelper;
 
-    public $_checkoutSession;
+    /**
+     * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
+     */
+    public $groupTransaction;
 
     /**
      * @var Calculation
@@ -76,7 +80,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         Factory $configProviderMethodFactory,
         PriceCurrencyInterface $priceCurrency,
         Data $catalogHelper,
-        \Magento\Checkout\Model\Session $checkoutSession,
+        PaymentGroupTransaction $groupTransaction,
         Log $logging,
         TaxModelCalculation $taxCalculation
     ) {
@@ -88,7 +92,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $this->priceCurrency = $priceCurrency;
         $this->catalogHelper = $catalogHelper;
 
-        $this->_checkoutSession = $checkoutSession;
+        $this->groupTransaction = $groupTransaction;
         $this->logging = $logging;
         $this->taxCalculation = $taxCalculation;
     }
@@ -119,8 +123,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $total->setBaseBuckarooFee(0);
 
         $orderId = $quote->getReservedOrderId();
-        $alreadyPaid = $this->_checkoutSession->getBuckarooAlreadyPaid();
-        if (isset($alreadyPaid[$orderId])) {
+        if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
             return $this;
         }
 

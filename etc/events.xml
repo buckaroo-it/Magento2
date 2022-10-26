@@ -26,7 +26,6 @@
     </event>
     <event name="sales_model_service_quote_submit_before">
         <observer name="buckaroo_magento2_fee_set" instance="Buckaroo\Magento2\Observer\SetBuckarooFee" />
-        <observer name="buckaroo_magento2_already_paid_set" instance="Buckaroo\Magento2\Observer\SetBuckarooAlreadyPaid" />
     </event>
     <event name="sales_model_service_quote_submit_failure">
         <observer name="buckaroo_failed_quote_order" instance="Buckaroo\Magento2\Observer\HandleFailedQuoteOrder"/>
@@ -60,5 +59,9 @@
     
     <event name="order_cancel_after">
         <observer name="buckaroo_magento2_order_cancel_after" instance="Buckaroo\Magento2\Observer\OrderCancelAfter" />
+    </event>
+    
+    <event name="sales_order_payment_transaction_html_txn_id">
+        <observer name="paypal_transaction_html" instance="Buckaroo\Magento2\Observer\HtmlTransactionIdObserver"/>
     </event>
 </config>

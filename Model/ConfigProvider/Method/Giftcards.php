@@ -79,7 +79,7 @@ class Giftcards extends AbstractConfigProvider
             return [];
         }
 
-        $sorted = explode(',', $this->scopeConfig->getValue(
+        $sorted = explode(',', (string)$this->scopeConfig->getValue(
             self::XPATH_GIFTCARDS_SORT,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         ));
@@ -114,7 +114,7 @@ class Giftcards extends AbstractConfigProvider
             \Magento\Framework\UrlInterface::URL_TYPE_MEDIA
         );
 
-        foreach (explode(',', $availableCards) as $key => $value) {
+        foreach (explode(',', (string)$availableCards) as $key => $value) {
             $cards[] = [
                 'code'  => $value,
                 'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',

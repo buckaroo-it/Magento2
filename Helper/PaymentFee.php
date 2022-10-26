@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -80,9 +81,10 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
         $totals = [];
         $displayBothPrices = false;
         $displayIncludeTaxPrice = false;
-        $requestParams = $this->_request->getParams();
+        
 
-        if ($dataObject instanceof \Magento\Sales\Model\Order
+        if (
+            $dataObject instanceof \Magento\Sales\Model\Order
             || $dataObject instanceof \Magento\Sales\Model\Order\Invoice
             || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
         ) {
@@ -122,11 +124,11 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount(),
                 $dataObject->getBaseBuckarooFee() + $dataObject->getBuckarooFeeBaseTaxAmount(),
                 $label . __(' (Incl. Tax)'),
-                ($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) ? 'buckaroo_fee': false,
+                ($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) ? 'buckaroo_fee' : false,
                 false,
                 [
                     'incl_tax' => true,
-                    'fee_with_tax'=> $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount()
+                    'fee_with_tax' => $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount()
                 ]
             );
         } else {
@@ -139,36 +141,49 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 $dataObject->getBuckarooFee(),
                 $dataObject->getBaseBuckarooFee(),
                 $label,
-                ($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) ? 'buckaroo_fee': false,
+                ($dataObject instanceof \Magento\Sales\Model\Order\Creditmemo) ? 'buckaroo_fee' : false,
                 false,
                 [
                     'incl_tax' => false,
-                    'fee_with_tax'=> $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount()
+                    'fee_with_tax' => $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount()
                 ]
             );
         }
 
-        if ($dataObject instanceof \Magento\Sales\Model\Order) {
-            $order_id = $dataObject->getIncrementId();
-        } elseif ($dataObject instanceof \Magento\Sales\Model\Order\Invoice
-            || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
-        ) {
-            $order = $dataObject->getOrder();
-            $order_id = $order->getIncrementId();
-        }
+        $this->addAlreadyPayedTotals($dataObject, $totals);
 
-        $order = $dataObject->getOrder();
-        if ($dataObject->getBaseBuckarooAlreadyPaid()) {
+        //Set public object data
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $this->buckarooFee    = $dataObject->getBuckarooFee();
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $this->buckarooFeeTax = $dataObject->getBuckarooFeeTaxAmount();
+        return $totals;
+    }
+    public function addAlreadyPayedTotals($dataObject, &$totals)
+    {
+        $order_id = $this->getOrderIncrementId($dataObject);
+        $alreadyPayed = $this->groupTransaction->getAlreadyPaid($order_id);
+        
+        if (!$dataObject instanceof \Magento\Sales\Model\Order\Creditmemo && $alreadyPayed > 0) {
             unset($totals['buckaroo_fee']);
             $this->addTotalToTotals(
                 $totals,
                 'buckaroo_already_paid',
-                $dataObject->getBuckarooAlreadyPaid(),
-                $dataObject->getBaseBuckarooAlreadyPaid(),
-                __('Paid with Giftcard')
+                $alreadyPayed,
+                $alreadyPayed,
+                __('Paid with Giftcard / Voucher')
             );
-        } elseif (isset($order) && $order->getBuckarooAlreadyPaid()) {
-            $items = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
+            return;
+        } 
+
+        if ($order_id !== null && $alreadyPayed > 0) {
+
+            $requestParams = $this->_request->getParams();
+            $items = $this->groupTransaction->getGroupTransactionItems($order_id);
             $giftcards = [];
 
             if (isset($requestParams['creditmemo']['buckaroo_already_paid'])) {
@@ -182,7 +197,11 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                     'servicecode',
                     $giftcard['servicecode']
                 );
-                $label = __('Paid with ' . $foundGiftcard['label']);
+
+                $label = __('Paid with Voucher');
+                if ($foundGiftcard) {
+                    $label = __('Paid with ' . $foundGiftcard['label']);
+                }
 
                 $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0;
                 $amountValue = $giftcard['amount'];
@@ -190,7 +209,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
 
                 if (!empty($foundGiftcard['is_partial_refundable'])) {
                     $residual = floatval($giftcard['amount']) - floatval($refundedAlreadyPaidSaved);
-                    if (array_key_exists($foundGiftcard['servicecode'], $giftcards)
+                    if (
+                        array_key_exists($foundGiftcard['servicecode'], $giftcards)
                         && floatval($giftcards[$foundGiftcard['servicecode']]) <= $residual
                     ) {
                         $amountValue = floatval($giftcards[$foundGiftcard['servicecode']]);
@@ -201,11 +221,10 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                     }
                 } else {
                     if ((!empty(floatval($refundedAlreadyPaidSaved))
-                        && floatval($refundedAlreadyPaidSaved) === floatval($amountValue))
-                    ) {
+                        && floatval($refundedAlreadyPaidSaved) === floatval($amountValue))) {
                         $amountBaseValue = 0;
                         $amountValue = 0;
-                    } elseif (array_key_exists($foundGiftcard['servicecode'], $giftcards)) {
+                    } elseif (is_array($foundGiftcard) && array_key_exists($foundGiftcard['servicecode'], $giftcards)) {
                         if (empty(floatval($giftcards[$foundGiftcard['servicecode']]))) {
                             $amountBaseValue = 0;
                             $amountValue = 0;
@@ -216,27 +235,35 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 $this->addTotalToTotals(
                     $totals,
                     'buckaroo_already_paid',
-                    - $amountValue,
-                    - $amountBaseValue,
+                    -$amountValue,
+                    -$amountBaseValue,
                     $label,
                     'buckaroo_already_paid',
-                    $giftcard['transaction_id'].'|'.$giftcard['servicecode'].'|'.$giftcard['amount']
+                    $giftcard['transaction_id'] . '|' . $giftcard['servicecode'] . '|' . $giftcard['amount']
                 );
             }
         }
-
-        //Set public object data
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->buckarooFee    = $dataObject->getBuckarooFee();
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->buckarooFeeTax = $dataObject->getBuckarooFeeTaxAmount();
-        return $totals;
     }
 
+    /**
+     * Get order increment id from data object
+     *
+     * @param mixed $dataObject
+     *
+     * @return string|null
+     */
+    public function getOrderIncrementId($dataObject)
+    {
+        if ($dataObject instanceof \Magento\Sales\Model\Order) {
+            return $dataObject->getIncrementId();
+        }
+        if (
+            $dataObject instanceof \Magento\Sales\Model\Order\Invoice
+            || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
+        ) {
+            return $dataObject->getOrder()->getIncrementId();
+        }
+    }
     /**
      * @return mixed
      */
@@ -270,7 +297,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
          */
         if ($dataObject instanceof \Magento\Sales\Model\Order) {
             $method = $dataObject->getPayment()->getMethod();
-        } elseif ($dataObject instanceof \Magento\Sales\Model\Order\Invoice
+        } elseif (
+            $dataObject instanceof \Magento\Sales\Model\Order\Invoice
             || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
         ) {
             $method = $dataObject->getOrder()->getPayment()->getMethod();

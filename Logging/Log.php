@@ -19,11 +19,12 @@
  */
 namespace Buckaroo\Magento2\Logging;
 
-use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
-use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
+use Monolog\Handler\HandlerInterface;
+use Buckaroo\Magento2\Logging\InternalLogger;
+use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 
-class Log extends Logger
+class Log
 {
 
     public const BUCKAROO_LOG_TRACE_DEPTH_DEFAULT = 10;
@@ -31,10 +32,18 @@ class Log extends Logger
     /** @var DebugConfiguration */
     private $debugConfiguration;
 
+    /** @var Mail */
+    private $mail;
+
     /** @var array */
     protected $message = [];
 
     private static $processUid = 0;
+
+    /**
+     * @var \Buckaroo\Magento2\Logging\InternalLogger
+     */
+    private $logger;
 
     protected $checkoutSession;
 
@@ -52,26 +61,33 @@ class Log extends Logger
      * @param callable[]         $processors
      */
     public function __construct(
-        $name,
         DebugConfiguration $debugConfiguration,
+        Mail $mail,
+        InternalLogger $logger,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Session\SessionManager $sessionManager,
-        \Magento\Customer\Model\Session $customerSession,
-        array $handlers = [],
-        array $processors = []
+        \Magento\Customer\Model\Session $customerSession
     ) {
         $this->debugConfiguration = $debugConfiguration;
+        $this->mail = $mail;
+        $this->logger = $logger;
         $this->checkoutSession   = $checkoutSession;
         $this->session           = $sessionManager;
         $this->customerSession    = $customerSession;
+    }
 
-        parent::__construct($name, $handlers, $processors);
+    /**
+     * Make sure the debug information is always send to the debug email
+     */
+    public function __destruct()
+    {
+        $this->mail->mailMessage();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addRecord($level, $message, array $context = [])
+    public function addRecord(int $level, string $message, array $context = []): bool
     {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
@@ -92,8 +108,8 @@ class Log extends Logger
             if (isset($trace[$cnt])) {
                 try {
                     $logTrace[] = str_replace(BP, '', $trace[$cnt]['file']) . ": " .$trace[$cnt]['line']. " ".
-                    $trace[$cnt]['class'] . '->' .
-                    $trace[$cnt]['function'] . '()';
+                        $trace[$cnt]['class'] . '->' .
+                        $trace[$cnt]['function'] . '()';
                 } catch (\Exception $e) {
                     $logTrace[] = json_encode($trace[$cnt]);
                 }
@@ -113,6 +129,30 @@ class Log extends Logger
             'trace' => $logTrace
         ], $flags);
 
-        return parent::addRecord($level, $message, $context);
+        // Prepare the message to be send to the debug email
+        $this->mail->addToMessage($message);
+
+        return $this->logger->addRecord($level, $message, $context);
+    }
+
+    /**
+     * @param string $message
+     * @return bool
+     */
+    public function addDebug(string $message): bool
+    {
+        return $this->addRecord(Logger::DEBUG, $message);
+    }
+
+    public function addError(string $message): bool
+    {
+        return $this->addRecord(Logger::ERROR, $message);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function debug($message)
+    {
+        return $this->addRecord(Logger::DEBUG, $message);
     }
 }

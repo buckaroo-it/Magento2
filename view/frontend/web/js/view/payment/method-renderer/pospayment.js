@@ -30,7 +30,8 @@ define(
         'mage/storage',
         'mage/url',
         'mage/translate',
-        'Magento_Ui/js/modal/alert'
+        'Magento_Ui/js/modal/alert',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -43,7 +44,8 @@ define(
         storage,
         urlBuilder,
         $t,
-        alert
+        alert,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -116,9 +118,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
                     if (typeof response.Order !== "undefined") {
                         alert({
                             title: $t('Follow the instructions on the payment terminal'),

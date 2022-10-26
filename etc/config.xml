@@ -230,7 +230,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Afterpay</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Afterpay</title>
+                <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -245,7 +245,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Afterpay2</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Afterpay 2</title>
+                <title>Buckaroo Riverty | Afterpay 2</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
@@ -317,6 +317,20 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_kbc>
 
+            <buckaroo_magento2_paylink>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\PayLink</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo PayLink</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>215</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>1</available_in_backend>
+            </buckaroo_magento2_paylink>
+
             <buckaroo_magento2_klarna>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Klarna\PayLater</model>
@@ -376,7 +390,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Afterpay20</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Afterpay</title>
+                <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -385,6 +399,7 @@
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
+                <customer_type>both</customer_type>
             </buckaroo_magento2_afterpay20>
             
             <buckaroo_magento2_billink>
@@ -526,6 +541,21 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_tinka>
+
+
+            <buckaroo_magento2_voucher>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Voucher</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Voucher</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>340</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_voucher>
         </payment>
 
         <buckaroo_magento2>
@@ -550,10 +580,6 @@
                 <log_retention>604800</log_retention>
                 <cart_keep_alive>1</cart_keep_alive>
                 <selection_type>1</selection_type>
-                <second_chance_template>buckaroo_second_chance</second_chance_template>
-                <second_chance_template2>buckaroo_second_chance2</second_chance_template2>
-                <second_chance_email>1</second_chance_email>
-                <second_chance_email2>1</second_chance_email2>
             </account>
 
             <refund>

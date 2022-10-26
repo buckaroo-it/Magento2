@@ -28,6 +28,7 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/checkout/common',
         'Magento_Customer/js/model/customer',
         'Magento_Ui/js/lib/knockout/bindings/datepicker',
         'Magento_Checkout/js/action/select-billing-address',
@@ -42,6 +43,7 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
+        checkoutCommon,
         customer,
         selectBillingAddress
     ) {
@@ -96,23 +98,24 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay20',
-                    selectedGender: null,
                     identificationNumber: null,
                     firstName: '',
                     lastName: '',
                     CustomerName: null,
                     BillingName: null,
                     country: '',
+                    customerCoc:'',
                     dateValidate: null,
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
                     termsValidate: false,
-                    genderValidate: null,
                     identificationValidate: null,
                     phoneValidate: null,
                     showNLBEFieldsValue: true,
                     showIdentificationValue: null,
                     showFrenchTosValue: null,
                     showPhoneValue: null,
+                    showCOC: false,
+                    value:""
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
@@ -120,7 +123,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,
                 isCustomerLoggedIn: customer.isLoggedIn,
-
+                isB2B: window.checkoutConfig.payment.buckaroo.afterpay20.is_b2b,
                 /**
                  * @override
                  */
@@ -136,7 +139,6 @@ define(
                 initObservable: function () {
                     this._super().observe(
                         [
-                            'selectedGender',
                             'firstname',
                             'lastname',
                             'CustomerName',
@@ -145,7 +147,6 @@ define(
                             'dateValidate',
                             'termsUrl',
                             'termsValidate',
-                            'genderValidate',
                             'identificationValidate',
                             'phoneValidate',
                             'dummy',
@@ -153,6 +154,9 @@ define(
                             'showIdentificationValue',
                             'showFrenchTosValue',
                             'showPhoneValue',
+                            'customerCoc',
+                            'showCOC',
+                            'value'
                         ]
                     );
 
@@ -285,16 +289,20 @@ define(
                             this.updateShowFields();
                         }.bind(this)
                     );
+                    this.showCOC = ko.computed(
+                        function() {
 
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedGender = function (value) {
-                        self.selectedGender(value);
-                        return true;
-                    };
+                            let shipping = quote.shippingAddress();
+                            let billing = quote.billingAddress();
+
+                            return this.isB2B && (
+                                (shipping && shipping.countryId == 'NL' && shipping.company && shipping.company.trim().length > 0) ||
+                                (billing && billing.countryId == 'NL' && billing.company && billing.company.trim().length > 0)
+                            )
+                            
+                        },
+                        this
+                    )
 
                     /**
                      * Validation on the input fields
@@ -303,10 +311,8 @@ define(
                     var runValidation = function () {
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
 
+                        let self = this;
                         if(elements !== undefined){
-                            if (this.country != 'NL' && this.country != 'BE') {
-                                elements = elements.filter(':not([name*="customer_gender"])');
-                            }
                             elements.valid();
                         }
 
@@ -323,7 +329,6 @@ define(
 
                     this.dateValidate.subscribe(runValidation, this);
                     this.termsValidate.subscribe(runValidation, this);
-                    this.genderValidate.subscribe(runValidation, this);
                     this.identificationValidate.subscribe(runValidation, this);
                     this.phoneValidate.subscribe(runValidation, this);
                     this.dummy.subscribe(runValidation, this);
@@ -350,7 +355,6 @@ define(
                     this.buttoncheck = ko.computed(
                         function () {
                             var result =
-                                (!this.showNLBEFields() || this.selectedGender() !== null) &&
                                 (!this.showIdentification() || this.identificationValidate() !== null) &&
                                 this.BillingName() !== null &&
                                 (!this.showNLBEFields() || this.dateValidate() !== null) &&
@@ -443,9 +447,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
                 },
 
                 selectPaymentMethod: function () {
@@ -476,9 +478,6 @@ define(
                         return true;
                     }
                     var elements = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
-                    if (this.country != 'NL' && this.country != 'BE') {
-                        elements = elements.filter(':not([name*="customer_gender"])');
-                    }
                     return elements.valid();
                 },
 
@@ -488,11 +487,11 @@ define(
                         "po_number": null,
                         "additional_data": {
                             "customer_telephone": this.phoneValidate(),
-                            "customer_gender": this.genderValidate(),
                             "customer_identificationNumber": this.identificationValidate(),
                             "customer_billingName": this.BillingName(),
                             "customer_DoB": this.dateValidate(),
                             "termsCondition": this.termsValidate(),
+                            "customer_coc": this.customerCoc(),
                         }
                     };
                 },

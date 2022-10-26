@@ -38,11 +38,6 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     protected $accountConfig;
 
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceFactory
-     */
-    protected $secondChanceFactory;
-
-    /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime
      */
     protected $dateTime;
@@ -83,24 +78,20 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
     private $quoteRecreate;
 
-    /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
-     */
-    protected $secondChanceRepository;
-
     protected $quoteRepository;
+
+    /* @var EventManager */
+    private $eventManager;
 
     /**
      * @param \Magento\Checkout\Model\Session                      $checkoutSession
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
-     * @param \Buckaroo\Magento2\Model\SecondChanceFactory         $secondChanceFactory
      * @param \Magento\Framework\Stdlib\DateTime\DateTime          $dateTime
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Customer\Model\Session $customerSession,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Buckaroo\Magento2\Model\SecondChanceFactory $secondChanceFactory,
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\Math\Random $mathRandom,
         \Magento\Framework\Controller\ResultFactory $resultFactory,
@@ -115,29 +106,28 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Buckaroo\Magento2\Helper\Data $helper,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         QuoteRecreate $quoteRecreate,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Framework\Event\ManagerInterface $eventManager
     ) {
-        $this->checkoutSession     = $checkoutSession;
-        $this->customerSession     = $customerSession;
-        $this->accountConfig       = $accountConfig;
-        $this->secondChanceFactory = $secondChanceFactory;
-        $this->request             = $request;
-        $this->mathRandom          = $mathRandom;
-        $this->resultFactory       = $resultFactory;
-        $this->responseFactory     = $responseFactory;
-        $this->url                 = $url;
-        $this->orderFactory        = $orderFactory;
-        $this->quote               = $quote;
-        $this->quoteFactory        = $quoteFactory;
-        $this->productFactory      = $productFactory;
-        $this->_messageManager     = $messageManager;
-        $this->cart                = $cart;
-        $this->dateTime            = $dateTime;
-        $this->helper              = $helper;
-        $this->quoteRecreate       = $quoteRecreate;
-        $this->secondChanceRepository = $secondChanceRepository;
-        $this->quoteRepository     = $quoteRepository;
+        $this->checkoutSession        = $checkoutSession;
+        $this->customerSession        = $customerSession;
+        $this->accountConfig          = $accountConfig;
+        $this->request                = $request;
+        $this->mathRandom             = $mathRandom;
+        $this->resultFactory          = $resultFactory;
+        $this->responseFactory        = $responseFactory;
+        $this->url                    = $url;
+        $this->orderFactory           = $orderFactory;
+        $this->quote                  = $quote;
+        $this->quoteFactory           = $quoteFactory;
+        $this->productFactory         = $productFactory;
+        $this->_messageManager        = $messageManager;
+        $this->cart                   = $cart;
+        $this->dateTime               = $dateTime;
+        $this->helper                 = $helper;
+        $this->quoteRecreate          = $quoteRecreate;
+        $this->quoteRepository        = $quoteRepository;
+        $this->eventManager           = $eventManager;
     }
 
     /**
@@ -147,16 +137,14 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $this->helper->addDebug(__METHOD__ . '|RestoreQuote|1|');
-
-        if ($quoteId = $this->customerSession->getSecondChanceRecreate()) {
-            $this->quoteRecreate->recreateById($quoteId);
-            $this->customerSession->setSecondChanceRecreate(false);
-            return true;
-        }
+        $this->helper->addDebug(__METHOD__ . '|1|');
 
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         if ($payment = $lastRealOrder->getPayment()) {
+            if ($this->shouldSkipFurtherEventHandling()) {
+                $this->helper->addDebug(__METHOD__ . '|10|');
+                return;
+            }
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
                 return;
             }
@@ -166,14 +154,16 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             $order = $payment->getOrder();
 
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
-                $this->helper->addDebug(__METHOD__ . '|cartKeepAlive enabled|');
+                $this->helper->addDebug(__METHOD__ . '|20|');
 
                 if ($this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
+                    $this->helper->addDebug(__METHOD__ . '|25|');
                     if ($shippingAddress = $quote->getShippingAddress()) {
                         if (!$shippingAddress->getShippingMethod()) {
+                            $this->helper->addDebug(__METHOD__ . '|35|');
                             $shippingAddress->load($shippingAddress->getAddressId());
                         }
                     }
@@ -184,14 +174,19 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     && ($lastRealOrder->getData('status') === 'pending')
                     && $payment->getMethodInstance()->usesRedirect
                 ) {
-                    $this->helper->addDebug(__METHOD__ . '|restoreQuote for cartKeepAlive|');
+                    $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
                 }
             }
-            $this->helper->addDebug(__METHOD__ . '|setRestoreQuoteLastOrder for cartKeepAlive|');
+            $this->helper->addDebug(__METHOD__ . '|50|');
             $this->helper->setRestoreQuoteLastOrder(false);
         }
-        $this->helper->addDebug(__METHOD__ . '|RestoreQuote|end|');
+        $this->helper->addDebug(__METHOD__ . '|55|');
+        return true;
+    }
+
+    public function shouldSkipFurtherEventHandling()
+    {
         return true;
     }
 }

@@ -27,7 +27,8 @@ define(
         'Magento_Checkout/js/model/quote',
         'ko',
         'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method'
+        'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -37,24 +38,70 @@ define(
         quote,
         ko,
         checkoutData,
-        selectPaymentMethodAction
+        selectPaymentMethodAction,
+        checkoutCommon
     ) {
         'use strict';
+
+        const validPhone = function (value, countryId = null) {
+           if (countryId === null) {
+               countryId = quote.billingAddress().countryId;
+           }
+            var lengths = {
+                'NL': {
+                    min: 10,
+                    max: 12
+                },
+                'BE': {
+                    min: 9,
+                    max: 12
+                },
+                'DE': {
+                    min: 11,
+                    max: 14
+                }
+            };
+            if (!value) {
+                return false;
+            }
+
+            value = value.replace(/^\+|(00)/, '');
+            value = value.replace(/\(0\)|\s|-/g, '');
+
+            if (value.match(/\+/)) {
+                return false;
+            }
+
+            if (value.match(/[^0-9]/)) {
+                return false;
+            }
+
+            if (lengths.hasOwnProperty(countryId)) {
+                if (lengths[countryId].min && (value.length < lengths[countryId].min)) {
+                    return false;
+                }
+                if (lengths[countryId].max && (value.length > lengths[countryId].max)) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+        $.validator.addMethod('phoneValidation', validPhone ,
+        $.mage.__('Phone number should be correct.')
+    );
 
         return Component.extend(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_capayablein3',
-                    selectedGender : null,
-                    genderValidate : null,
                     firstname : '',
                     lastname : '',
                     CustomerName : null,
                     BillingName : null,
-                    dateValidate : null,
-                    selectedOrderAs : 1,
-                    CocNumber : null,
-                    CompanyName : null
+                    dateValidate : '',
+                    value: '',
+                    phone: null
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablein3.paymentFeeLabel,
@@ -74,24 +121,23 @@ define(
 
                 initObservable: function () {
                     this._super().observe([
-                        'selectedGender',
-                        'genderValidate',
                         'firstname',
                         'lastname',
                         'CustomerName',
                         'BillingName',
                         'dateValidate',
-                        'selectedOrderAs',
-                        'CocNumber',
-                        'CompanyName'
+                        'value',
+                        'phone'
                     ]);
 
-                    // Observe and store the selected gender
-                    var self = this;
-                    this.setSelectedGender = function (value) {
-                        self.selectedGender(value);
-                        return true;
-                    };
+                    this.showPhone = ko.computed(
+                        function () {
+                            return quote.shippingAddress() === undefined ||
+                            quote.shippingAddress() === null ||
+                            validPhone(quote.shippingAddress().telephone, quote.shippingAddress().countryId) === false
+                        },
+                        this
+                    );
 
                     /**
                      * Observe customer first & lastname and bind them together, so they could appear in the frontend
@@ -134,20 +180,13 @@ define(
                         this.selectPaymentMethod();
                     };
 
-                    this.genderValidate.subscribe(runValidation,this);
                     this.dateValidate.subscribe(runValidation,this);
-                    this.CocNumber.subscribe(runValidation,this);
-                    this.CompanyName.subscribe(runValidation,this);
 
                     this.buttoncheck = ko.computed(function () {
-                        var validation = this.selectedGender() !== null &&
-                            this.genderValidate() !== null &&
+                        var validation = 
                             this.BillingName() !== null &&
                             this.dateValidate() !== null;
 
-                        if (this.selectedOrderAs() == 2 || this.selectedOrderAs() == 3) {
-                            validation = validation && this.CocNumber() !== null && this.CompanyName() !== null;
-                        }
 
                         return (validation && this.validate());
                     }, this);
@@ -168,7 +207,6 @@ define(
                     if (event) {
                         event.preventDefault();
                     }
-
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
                         placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
@@ -186,9 +224,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
                 },
 
                 selectPaymentMethod: function () {
@@ -217,19 +253,24 @@ define(
                 },
 
                 validate: function () {
-                    return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
+                    let fieldsToValidate = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
+                    if (fieldsToValidate.length) {
+                        return fieldsToValidate.valid();
+                    }
+                    return true;
                 },
 
                 getData : function() {
+                    let telephone = quote.shippingAddress().telephone;
+                    if (validPhone(this.phone(), quote.shippingAddress().countryId)) {
+                        telephone = this.phone();
+                    }
                     return {
                         "method" : this.item.method,
                         "additional_data": {
-                            "customer_gender" : this.genderValidate(),
                             "customer_billingName" : this.BillingName(),
                             "customer_DoB" : this.dateValidate(),
-                            "customer_orderAs" : this.selectedOrderAs(),
-                            "customer_cocnumber" : this.CocNumber(),
-                            "customer_companyName" : this.CompanyName()
+                            "customer_telephone" : telephone
                         }
                     };
                 }

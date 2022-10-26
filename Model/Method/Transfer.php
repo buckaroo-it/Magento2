@@ -72,7 +72,7 @@ class Transfer extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -103,7 +103,7 @@ class Transfer extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
-            $secondChanceRepository,
+            $eventManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -132,8 +132,7 @@ class Transfer extends AbstractMethod
         $services[] = $this->getTransferService($payment);
 
         $filterParameter = [
-            ['Name' => 'AllowedServices'],
-            ['Name' => 'Gender', 'Group' => 'Person']
+            ['Name' => 'AllowedServices']
         ];
 
         $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, 'transfer', $filterParameter);
@@ -175,7 +174,7 @@ class Transfer extends AbstractMethod
         $services = [
             'Name'             => 'transfer',
             'Action'           => 'Pay',
-            'Version'          => 2,
+            'Version'          => 1,
             'RequestParameter' => [
                 [
                     '_'    => $billingAddress->getFirstname(),

@@ -67,7 +67,8 @@
     .buckaroo_magento2_capayablein3 .payment-method-second-col,
     .buckaroo_magento2_capayablepostpay .payment-method-second-col,
     .buckaroo_magento2_tinka .payment-method-second-col,
-    .buckaroo_magento2_mrcash .payment-method-second-col
+    .buckaroo_magento2_mrcash .payment-method-second-col,
+    .buckaroo_magento2_voucher .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -95,7 +96,8 @@
     .buckaroo_magento2_capayablein3 .payment-method-billing-address,
     .buckaroo_magento2_capayablepostpay .payment-method-billing-address,
     .buckaroo_magento2_tinka .payment-method-billing-address,
-    .buckaroo_magento2_mrcash .payment-method-billing-address
+    .buckaroo_magento2_mrcash .payment-method-billing-address,
+    .buckaroo_magento2_voucher .payment-method-billing-address
     {
         float:left;
         width: 50%;
@@ -307,7 +309,7 @@
     background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
     margin-top: -7px;
     float: right;
-    margin-right: 10px;
+    margin-right: -3px;
     background-size: auto 37px;
     width: 62px;
     height: 37px;
@@ -519,12 +521,12 @@
 .buckaroo_magento2_afterpay2 .buckaroo_magento2_image_title:after,
 .buckaroo_magento2_afterpay20 .buckaroo_magento2_image_title:after{
     background: url(../images/buckaroo_magento2_afterpay_title.png) no-repeat;
+    margin-top: -7px;
     float: right;
-    margin-right: 10px;
-    margin-top: 5px;
-    background-size: auto 16px;
-    width: 83px;
-    height: 25px;
+    margin-right: -3px;
+    background-size: auto 37px;
+    width: 62px;
+    height: 37px;
     content: ' ';
 }
 
@@ -647,11 +649,11 @@
 .buckaroo_magento2_tinka .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_tinka_title.svg) no-repeat;
     float: right;
-    margin-right: -15px;
-    margin-top: 0px;
-    background-size: auto 26px;
-    width: 105px;
-    height: 36px;
+    margin-right: 0px;
+    margin-top: -11px;
+    background-size: auto 42px;
+    width: 65px;
+    height: 42px;
     content: ' ';
 }
 
@@ -829,7 +831,7 @@
         background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
         margin-top: -1px;
         float:left;
-        margin-right: 10px;
+        margin-right: -3px;
         background-size: auto 24px;
         width: 40px;
         height: 30px;

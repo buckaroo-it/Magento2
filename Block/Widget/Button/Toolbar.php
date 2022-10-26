@@ -133,7 +133,7 @@ class Toolbar
 
         $orderKeyCM3 = $orderPayment->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
-        if (isset($orderKeyCM3) && strlen($orderKeyCM3) > 0) {
+        if (isset($orderKeyCM3) && strlen((string)$orderKeyCM3) > 0) {
             $message = __(
                 'Cannot refund this order via Magento Backend for now, we are working on a solution! ' .
                 'Credit Management orders can only be refunded via the Buckaroo Payment Plaza.' .

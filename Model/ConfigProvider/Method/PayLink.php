@@ -119,18 +119,11 @@ class PayLink extends AbstractConfigProvider
      */
     public function isVisibleForAreaCode($areaCode)
     {
-        if (null === $this->getVisibleFrontBack()) {
-            return false;
+        if ($areaCode == 'adminhtml') {
+            return true;
         }
 
-        $forFrontend = ('frontend' === $this->getVisibleFrontBack() || 'both' === $this->getVisibleFrontBack());
-        $forBackend = ('backend' === $this->getVisibleFrontBack() || 'both' === $this->getVisibleFrontBack());
-
-        if (($areaCode == 'adminhtml' && !$forBackend) || ($areaCode != 'adminhtml' && !$forFrontend)) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
 

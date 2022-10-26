@@ -153,7 +153,7 @@ class Klarnakp extends AbstractMethod
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -184,7 +184,7 @@ class Klarnakp extends AbstractMethod
             $buckarooLog,
             $softwareData,
             $addressFactory,
-            $secondChanceRepository,
+            $eventManager,
             $resource,
             $resourceCollection,
             $gateway,
@@ -362,7 +362,7 @@ class Klarnakp extends AbstractMethod
         if ($isAbsentShippingAddress) {
             $shippingSameAsBilling = "true";
         } else {
-            $shippingSameAsBilling = $this->isAddressDataDifferent($payment) ? "true" : "false";
+            $shippingSameAsBilling = $this->isAddressDataDifferent($payment) ? "false" : "true";
         }
         
         $streetFormat = $this->addressFormatter->formatStreet($shippingAddress->getStreet());
@@ -583,7 +583,6 @@ class Klarnakp extends AbstractMethod
         if (isset($data['additional_data']['termsCondition'])) {
             $additionalData = $data['additional_data'];
             $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
-            $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
             $this->getInfoInstance()->setAdditionalInformation(
                 'customer_billingName',
                 $additionalData['customer_billingName']

@@ -670,9 +670,16 @@ class Billink extends AbstractMethod
 
         $category = $this->helper->checkCustomerGroup('buckaroo_magento2_billink') ? 'B2B' : 'B2C'; //1
 
-        $gender = 'Female';
-        if ($payment->getAdditionalInformation('customer_gender') === '1') {
-            $gender = 'Male';
+        switch ($payment->getAdditionalInformation('customer_gender')) {
+            case 'male':
+                $gender = 'Male';
+                break;
+            case 'female':
+                $gender = 'Female';
+                break;
+            case 'unknown':
+                $gender = 'Unknown';
+                break;
         }
 
         $GroupID = 1;

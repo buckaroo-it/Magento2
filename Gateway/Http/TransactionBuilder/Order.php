@@ -108,7 +108,7 @@ class Order extends AbstractTransactionBuilder
         }
 
         if (!$this->emptyDescriptionFlag) {
-            $body['Description'] = $this->configProviderAccount->getTransactionLabel($store);
+            $body['Description'] = $this->configProviderAccount->getParsedLabel($store, $order);
         }
 
         $body = $this->filterBody($body);
@@ -172,6 +172,9 @@ class Order extends AbstractTransactionBuilder
         $this->setStreetData('CustomerBillingStreet', $customerBillingArray);
         $customerBillingArray = $this->getNotEmptyCustomData($customerBillingArray);
 
+        if ($shippingData === null) {
+            $shippingData = $billingData;
+        }
         foreach ($customerShippingArray as $key => $value) {
             if ($value != 'housenumber' && $value != 'houseadditionalnumber') {
                 $customerShippingArray[$key] = '';

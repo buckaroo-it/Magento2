@@ -20,10 +20,36 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Exception;
+use Magento\Store\Model\Store;
 use Magento\Store\Model\ScopeInterface;
 
+/**
+ * @method mixed getActive()
+ * @method mixed getSecretKey()
+ * @method mixed getMerchantKey()
+ * @method mixed getMerchantGuid()
+ * @method mixed getTransactionLabel()
+ * @method mixed getCertificateFile()
+ * @method mixed getOrderConfirmationEmail()
+ * @method mixed getInvoiceEmail()
+ * @method mixed getSuccessRedirect()
+ * @method mixed getFailureRedirect()
+ * @method mixed getCancelOnFailed()
+ * @method mixed getDigitalSignature()
+ * @method mixed getDebugTypes()
+ * @method mixed getDebugEmail()
+ * @method mixed getLimitByIp()
+ * @method mixed getFeePercentageMode()
+ * @method mixed getOrderStatusPending()
+ * @method mixed getOrderStatusNew()
+ * @method mixed getPaymentFeeLabel()
+ * @method mixed getCreateOrderBeforeTransaction()
+ * @method mixed getCustomerAdditionalInfo()
+ */
 class Account extends AbstractConfigProvider
 {
     /**
@@ -231,6 +257,32 @@ class Account extends AbstractConfigProvider
         $methodCode = $array[2];
 
         return $this->methodConfigProviderFactory->get($methodCode);
+    }
+
+    /**
+     * Get the parsed label, we replace the template variables with the values
+     *
+     * @param Store $store
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
+    public function getParsedLabel(Store $store, OrderInterface $order)
+    {
+        $label = $this->getTransactionLabel($store);
+
+        if ($label === null) {
+            return $store->getName();
+        }
+
+        $label = preg_replace('/\{order_number\}/', $order->getIncrementId(), $label);
+        $label = preg_replace('/\{shop_name\}/', $store->getName(), $label);
+
+        $products = $order->getItems();
+        if (count($products)) {
+            $label = preg_replace('/\{product_name\}/', array_values($products)[0]->getName(), $label);
+        }
+        return mb_substr($label, 0, 244);
     }
 
 

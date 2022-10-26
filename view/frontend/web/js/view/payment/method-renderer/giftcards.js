@@ -34,7 +34,8 @@ define(
         'Magento_Checkout/js/action/get-totals',
         'Magento_Customer/js/customer-data',
         'Magento_Checkout/js/model/payment-service',
-        'Magento_Ui/js/modal/alert'
+        'Magento_Ui/js/modal/alert',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -51,7 +52,8 @@ define(
         getTotalsAction,
         customerData,
         paymentService,
-        alert
+        alert,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -175,9 +177,7 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
-                        window.location.replace(response.RequiredAction.RedirectURL);
-                    }
+                    checkoutCommon.redirectHandle(response);
 
                     if(this.alreadyPayed){
                         window.location.replace(url.build('checkout/onepage/success/'));
@@ -247,7 +247,7 @@ define(
                     self = this;
 
                     $.ajax({
-                        url: "/buckaroo/checkout/giftcard",
+                        url: url.build('buckaroo/checkout/giftcard'),
                         type: 'POST',
                         dataType: 'json',
                         showLoader: true, //use for display loader 
@@ -264,7 +264,7 @@ define(
                         self.checkValidness();
 
                         if(data.alreadyPaid){
-                            if(data.RemainderAmount == null){
+                            if(data.RemainderAmount == 0){
                                 self.alreadyPayed = true;
                                 self.alreadyFullPayed(true);
                                 self.placeOrder(null, null);
@@ -285,7 +285,7 @@ define(
                                 });
                              self.messageContainer.addErrorMessage({'message': $t(data.error)});
                         }else{
-                            if(data.RemainderAmount != null){
+                            if(data.RemainderAmount != 0){
                                 alert({
                                     title: $t('Success'),
                                     content: $t(data.message),

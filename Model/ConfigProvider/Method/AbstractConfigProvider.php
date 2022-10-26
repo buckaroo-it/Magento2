@@ -94,10 +94,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'code' => 'FVLBNL22',
         ],
         [
-            'name' => 'Handelsbanken',
-            'code' => 'HANDNL2A',
-        ],
-        [
             'name' => 'Revolut',
             'code' => 'REVOLT21',
         ],
@@ -201,7 +197,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getAllowedCurrencies($store = null)
     {
-        $configuredAllowedCurrencies = trim($this->getConfigFromXpath(static::XPATH_ALLOWED_CURRENCIES, $store));
+        $configuredAllowedCurrencies = trim((string)$this->getConfigFromXpath(static::XPATH_ALLOWED_CURRENCIES, $store));
         if (empty($configuredAllowedCurrencies)) {
             return $this->getBaseAllowedCurrencies();
         }
@@ -234,7 +230,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSpecificCountry($store = null)
     {
-        $configuredSpecificCountry = trim($this->getConfigFromXpath(static::XPATH_SPECIFIC_COUNTRY, $store));
+        $configuredSpecificCountry = trim((string)$this->getConfigFromXpath(static::XPATH_SPECIFIC_COUNTRY, $store));
         $configuredSpecificCountry = explode(',', $configuredSpecificCountry);
 
         return $configuredSpecificCountry;

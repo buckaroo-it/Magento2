@@ -26,6 +26,14 @@ use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
+/**
+ * @method getPaymentFeeLabel()
+ * @method getSellersProtection()
+ * @method getSellersProtectionEligible()
+ * @method getSellersProtectionIneligible()
+ * @method getSellersProtectionItemnotreceivedEligible()
+ * @method getSellersProtectionUnauthorizedpaymentEligible()
+ */
 class Creditcards extends AbstractConfigProvider
 {
     const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
@@ -121,7 +129,7 @@ class Creditcards extends AbstractConfigProvider
     public function formatIssuers()
     {
         $issuers = parent::formatIssuers();
-        $allowed = explode(',', $this->scopeConfig->getValue(
+        $allowed = explode(',', (string)$this->scopeConfig->getValue(
             static::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
             ScopeInterface::SCOPE_STORE
         ));
@@ -286,7 +294,7 @@ class Creditcards extends AbstractConfigProvider
             $store
         );
     }
-    
+
     /**
      * get Active Status Cm3
      */

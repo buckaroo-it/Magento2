@@ -124,7 +124,7 @@ class Pospayment extends AbstractMethod
 
             $header = $this->objectManager->get(\Magento\Framework\HTTP\Header::class);
             $userAgent = $header->getHttpUserAgent();
-            $userAgentConfiguration = trim($this->getConfigData('user_agent'));
+            $userAgentConfiguration = trim((string)$this->getConfigData('user_agent'));
 
             $this->logger2->addDebug(var_export([$userAgent, $userAgentConfiguration], true));
 
