@@ -52,7 +52,7 @@ class DbHandler extends Base
     /**
      * {@inheritdoc}
      */
-    public function write(array $record)
+    public function write(array $record): void
     {
         $now = new \DateTime();
         $logFactory = $this->logFactory->create();

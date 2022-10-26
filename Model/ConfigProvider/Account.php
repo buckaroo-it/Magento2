@@ -23,33 +23,9 @@ namespace Buckaroo\Magento2\Model\ConfigProvider;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
-use Exception;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * @method mixed getActive()
- * @method mixed getSecretKey()
- * @method mixed getMerchantKey()
- * @method mixed getMerchantGuid()
- * @method mixed getTransactionLabel()
- * @method mixed getCertificateFile()
- * @method mixed getOrderConfirmationEmail()
- * @method mixed getInvoiceEmail()
- * @method mixed getSuccessRedirect()
- * @method mixed getFailureRedirect()
- * @method mixed getCancelOnFailed()
- * @method mixed getDigitalSignature()
- * @method mixed getDebugTypes()
- * @method mixed getDebugEmail()
- * @method mixed getLimitByIp()
- * @method mixed getFeePercentageMode()
- * @method mixed getOrderStatusPending()
- * @method mixed getOrderStatusNew()
- * @method mixed getPaymentFeeLabel()
- * @method mixed getCreateOrderBeforeTransaction()
- * @method mixed getCustomerAdditionalInfo()
- */
 class Account extends AbstractConfigProvider
 {
     /**
@@ -86,15 +62,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
     const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
     const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
-    const XPATH_ACCOUNT_SECOND_CHANCE                   = 'buckaroo_magento2/account/second_chance';
-    const XPATH_ACCOUNT_SECOND_CHANCE_EMAIL             = 'buckaroo_magento2/account/second_chance_email';
-    const XPATH_ACCOUNT_SECOND_CHANCE_EMAIL2            = 'buckaroo_magento2/account/second_chance_email2';
-    const XPATH_ACCOUNT_SECOND_CHANCE_TIMING            = 'buckaroo_magento2/account/second_chance_timing';
-    const XPATH_ACCOUNT_SECOND_CHANCE_TIMING2           = 'buckaroo_magento2/account/second_chance_timing2';
-    const XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE          = 'buckaroo_magento2/account/second_chance_template';
-    const XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE2         = 'buckaroo_magento2/account/second_chance_template2';
-    const XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE           = 'buckaroo_magento2/account/no_send_second_chance';
-    const XPATH_ACCOUNT_SECOND_CHANCE_PRUNE_DAYS        = 'buckaroo_magento2/account/second_chance_prune_days';
+
     const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
     const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
     const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
@@ -157,15 +125,6 @@ class Account extends AbstractConfigProvider
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
-            'second_chance'                     => $this->getSecondChance($store),
-            'second_chance_email'               => $this->getSecondChanceEmail($store),
-            'second_chance_email2'              => $this->getSecondChanceEmail2($store),
-            'second_chance_template'            => $this->getSecondChanceTemplate($store),
-            'second_chance_template2'           => $this->getSecondChanceTemplate2($store),
-            'second_chance_timing'              => $this->getSecondChanceTiming($store),
-            'second_chance_timing2'             => $this->getSecondChanceTiming2($store),
-            'second_chance_prune_days'          => $this->getSecondChancePruneDays($store),
-            'no_send_second_chance'             => $this->getNoSendSecondChance($store),
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
             'idin'                              => $this->getIdin($store),
@@ -284,7 +243,6 @@ class Account extends AbstractConfigProvider
         }
         return mb_substr($label, 0, 244);
     }
-
 
     /**
      * get Active
@@ -649,78 +607,6 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance
-     */
-    public function getSecondChance($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance Timing
-     */
-    public function getSecondChanceTiming($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE_TIMING,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance Timing2
-     */
-    public function getSecondChanceTiming2($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE_TIMING2,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance Template
-     */
-    public function getSecondChanceTemplate($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Second Chance Template2
-     */
-    public function getSecondChanceTemplate2($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SECOND_CHANCE_TEMPLATE2,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get No Send Second Chance
-     */
-    public function getNoSendSecondChance($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_NO_SEND_SECOND_CHANCE,
             ScopeInterface::SCOPE_STORE,
             $store
         );

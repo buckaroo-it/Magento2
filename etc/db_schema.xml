@@ -31,27 +31,6 @@
                 <column name="entity_id"/>
             </index>
         </table>
-        <table name="buckaroo_magento2_second_chance" resource="default" engine="innodb" comment="Buckaroo Second Chance">
-            <column name="entity_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
-            <column name="order_id" xsi:type="text" nullable="true" comment="orderId"/>
-            <column name="store_id" xsi:type="smallint" padding="5" nullable="true" comment="storeId"/>
-            <column xsi:type="varchar" name="token" nullable="false" length="255" comment="Token"/>
-            <column name="status" xsi:type="text" nullable="false" comment="Status"/>
-            <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
-            <column name="last_order_id" xsi:type="text" nullable="true" comment="Last orderId"/>
-            <index referenceId="BUCKAROO_MAGENTO2_SECOND_CHANCE_ENTITY_ID" indexType="btree">
-                <column name="entity_id"/>
-            </index>
-            <index referenceId="BUCKAROO_MAGENTO2_SECOND_CHANCE_TOKEN" indexType="btree">
-                <column name="token"/>
-            </index>
-            <index referenceId="BUCKAROO_MAGENTO2_SECOND_CREATED_AT" indexType="btree">
-                <column name="created_at"/>
-            </index>
-            <index referenceId="BUCKAROO_MAGENTO2_SECOND_STORE_ID" indexType="btree">
-                <column name="store_id"/>
-            </index>
-        </table>
         <table name="buckaroo_magento2_log" resource="default" engine="innodb" comment="Buckaroo Log">
             <column name="log_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Log id"/>
             <column name="channel" xsi:type="varchar" length="255" nullable="true" comment="Channel"/>

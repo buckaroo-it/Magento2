@@ -19,9 +19,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
-    <menu>
-        <add id="Buckaroo_Magento2::buckaroo_giftcards"
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Buckaroo_Magento2::buckaroo_giftcards"
              title="Buckaroo Giftcards"
              module="Buckaroo_Magento2"
              sortOrder="100"
@@ -30,13 +31,12 @@
              action="buckaroo/giftcard"
         />
         <add id="Buckaroo_Magento2::buckaroo_magento2_log"
-                title="Buckaroo Log"
-                module="Buckaroo_Magento2"
-                sortOrder="9999"
-                resource="Magento_Backend::content"
-                parent="Magento_Backend::other_settings"
-                action="buckaroo_magento2/log/index"
+             title="Buckaroo Log"
+             module="Buckaroo_Magento2"
+             sortOrder="9999"
+             resource="Magento_Backend::content"
+             parent="Magento_Backend::other_settings"
+             action="buckaroo_magento2/log/index"
         />
-
-    </menu>
+    </menu>
 </config>
