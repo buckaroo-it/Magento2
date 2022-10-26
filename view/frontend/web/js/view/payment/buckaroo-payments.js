@@ -185,6 +185,11 @@ define(
                 type: 'buckaroo_magento2_creditclick',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditclick'
             }
+            ,
+            {
+                type: 'buckaroo_magento2_voucher',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/voucher'
+            }
         );
         /**
          * Add view logic here if needed
