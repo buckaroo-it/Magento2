@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Plugin\Method;
 
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use \Magento\Sales\Model\Order;
 
 class Klarnakp
@@ -27,18 +28,16 @@ class Klarnakp
     const KLARNAKP_METHOD_NAME = 'buckaroo_magento2_klarnakp';
 
     /**
-     * \Buckaroo\Magento2\Model\Method\Klarnakp
-     *
      * @var bool
      */
     public $klarnakpMethod = false;
 
     /**
-     * @param \Buckaroo\Magento2\Model\Method\Klarnakp $klarnakp
+     * @param BuckarooAdapter $klarnakpMethod
      */
-    public function __construct(\Buckaroo\Magento2\Model\Method\Klarnakp $klarnakp)
+    public function __construct(BuckarooAdapter $klarnakpMethod)
     {
-        $this->klarnakpMethod = $klarnakp;
+        $this->klarnakpMethod = $klarnakpMethod;
     }
 
     /**

@@ -36,7 +36,7 @@
     <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
-    
+
 
       <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
@@ -122,6 +122,13 @@
         <plugin name="buckaroo_magento2_plugin_klarnakp" type="Buckaroo\Magento2\Plugin\Method\Klarnakp"/>
         <plugin name="buckaroo_magento2_plugin_klarnain" type="Buckaroo\Magento2\Plugin\Method\Klarnain"/>
     </type>
+
+    <type name="Buckaroo\Magento2\Plugin\Method\Klarnakp">
+        <arguments>
+            <argument name="klarnakpMethod" xsi:type="object">KlarnaKpFacade</argument>
+        </arguments>
+    </type>
+
 
     <type name="Buckaroo\Magento2\Model\Push">
         <plugin name="buckaroo_magento2_paypal_sellersprotection_push" type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\Push" />
@@ -373,10 +380,6 @@
                 <item name="creditclick" xsi:type="array">
                     <item name="type" xsi:type="string">creditclick</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</item>
-                </item> 
-                <item name="voucher" xsi:type="array">
-                    <item name="type" xsi:type="string">voucher</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
                 </item>
                 <item name="voucher" xsi:type="array">
                     <item name="type" xsi:type="string">voucher</item>

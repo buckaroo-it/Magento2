@@ -62,7 +62,7 @@ class Klarnakp extends AbstractConfigProvider
         }
 
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Klarnakp::PAYMENT_METHOD_CODE
+            \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp::CODE
         );
 
         return [
