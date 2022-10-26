@@ -198,7 +198,7 @@
             <field id="debug_types" translate="label comment" type="multiselect" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                 <label>Debugging</label>
                 <comment><![CDATA[Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\DebugTypes</source_model>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\LogLevel</source_model>
                 <config_path>buckaroo_magento2/account/debug_types</config_path>
             </field>
 
