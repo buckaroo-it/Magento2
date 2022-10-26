@@ -770,7 +770,7 @@
 
             <buckaroo_magento2_wechatpay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Wechatpay</model>
+                <model>WechatpayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo WeChatPay</title>
                 <allowspecific>0</allowspecific>
