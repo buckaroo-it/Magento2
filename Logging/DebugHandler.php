@@ -34,14 +34,14 @@ class DebugHandler extends Base
 
     protected $filesystem;
 
-    protected $dir;
+    protected DirectoryList $dir;
 
     public function __construct(
         DriverInterface $filesystem,
         DirectoryList $dir
     ) {
         $this->dir      = $dir;
-        $this->fileName = $this->dir->getPath('log') . '/Buckaroo/' . date('Y-m-d') . '.log';
+        $this->fileName = '/var/log/Buckaroo/' . date('Y-m-d') . '.log';
 
         parent::__construct($filesystem);
     }
