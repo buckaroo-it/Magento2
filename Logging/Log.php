@@ -19,75 +19,64 @@
  */
 namespace Buckaroo\Magento2\Logging;
 
-use Monolog\Logger;
-use Monolog\Handler\HandlerInterface;
-use Buckaroo\Magento2\Logging\InternalLogger;
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\Session\SessionManager;
+use Monolog\DateTimeImmutable;
+use Monolog\Handler\HandlerInterface;
+use Monolog\Logger;
 
-class Log
+class Log extends Logger
 {
 
     public const BUCKAROO_LOG_TRACE_DEPTH_DEFAULT = 10;
 
     /** @var DebugConfiguration */
-    private $debugConfiguration;
-
-    /** @var Mail */
-    private $mail;
+    private DebugConfiguration $debugConfiguration;
 
     /** @var array */
-    protected $message = [];
+    protected array $message = [];
 
     private static $processUid = 0;
 
-    /**
-     * @var \Buckaroo\Magento2\Logging\InternalLogger
-     */
-    private $logger;
+    protected Session $checkoutSession;
 
-    protected $checkoutSession;
+    protected SessionManager $session;
 
-    protected $session;
-
-    protected $customerSession;
+    protected \Magento\Customer\Model\Session $customerSession;
 
     /**
      * Log constructor.
      *
-     * @param string             $name
+     * @param string $name
      * @param DebugConfiguration $debugConfiguration
-     * @param Mail               $mail
-     * @param HandlerInterface[] $handlers
-     * @param callable[]         $processors
+     * @param Session $checkoutSession
+     * @param SessionManager $sessionManager
+     * @param \Magento\Customer\Model\Session $customerSession
+     * @param array $handlers
+     * @param callable[] $processors
      */
     public function __construct(
+        string $name,
         DebugConfiguration $debugConfiguration,
-        Mail $mail,
-        InternalLogger $logger,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Session\SessionManager $sessionManager,
-        \Magento\Customer\Model\Session $customerSession
+        \Magento\Customer\Model\Session $customerSession,
+        array $handlers = [],
+        array $processors = []
     ) {
         $this->debugConfiguration = $debugConfiguration;
-        $this->mail = $mail;
-        $this->logger = $logger;
         $this->checkoutSession   = $checkoutSession;
         $this->session           = $sessionManager;
         $this->customerSession    = $customerSession;
-    }
 
-    /**
-     * Make sure the debug information is always send to the debug email
-     */
-    public function __destruct()
-    {
-        $this->mail->mailMessage();
+        parent::__construct($name, $handlers, $processors);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addRecord(int $level, string $message, array $context = []): bool
+    public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
     {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
@@ -129,10 +118,7 @@ class Log
             'trace' => $logTrace
         ], $flags);
 
-        // Prepare the message to be send to the debug email
-        $this->mail->addToMessage($message);
-
-        return $this->logger->addRecord($level, $message, $context);
+        return parent::addRecord($level, $message, $context);
     }
 
     /**
@@ -151,8 +137,8 @@ class Log
     /**
      * {@inheritdoc}
      */
-    public function debug($message)
+    public function debug($message, array $context = []): void
     {
-        return $this->addRecord(Logger::DEBUG, $message);
+        $this->addRecord(Logger::DEBUG, (string) $message, $context);
     }
 }
