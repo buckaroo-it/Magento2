@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\Method\IdealProcessing as IdealProcessingMethod;
 
 class IdealProcessing extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_idealprocessing';
     const XPATH_IDEALPROCESSING_PAYMENT_FEE          = 'payment/buckaroo_magento2_idealprocessing/payment_fee';
     const XPATH_IDEALPROCESSING_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_idealprocessing/payment_fee_label';
     const XPATH_IDEALPROCESSING_ACTIVE               = 'payment/buckaroo_magento2_idealprocessing/active';

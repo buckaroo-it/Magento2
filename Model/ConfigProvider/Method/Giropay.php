@@ -24,6 +24,8 @@ use Magento\Store\Model\ScopeInterface;
 
 class Giropay extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_giropay';
+
     const XPATH_GIROPAY_PAYMENT_FEE             = 'payment/buckaroo_magento2_giropay/payment_fee';
     const XPATH_GIROPAY_PAYMENT_FEE_LABEL       = 'payment/buckaroo_magento2_giropay/payment_fee_label';
     const XPATH_GIROPAY_ACTIVE                  = 'payment/buckaroo_magento2_giropay/active';

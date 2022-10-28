@@ -40,6 +40,7 @@
 
 .buckaroo_magento2_payment_paypal,
 .buckaroo_magento2_payment_ideal,
+.buckaroo_magento2_payment_idealgateway,
 .buckaroo_magento2_payment_idealprocessing,
 .buckaroo_magento2_payment_creditcard,
 .buckaroo_magento2_payment_sepadirectdebit,
@@ -78,9 +79,23 @@
 .buckaroo_magento2_payment_capayablepostpay,
 .buckaroo_magento2_payment_pospayment
 .buckaroo_magento2_payment_tinka
+.buckaroo_magento2_payment_creditclick
 {
     float:left;
     width: 100%;
+}
+
+
+/* Creditclick */
+.buckaroo_magento2_payment_creditclick:before {
+    background: url(../images/buckaroo_magento2_creditclick_title.png) no-repeat;
+    margin-top: 0;
+    float: left;
+    margin-right: 10px;
+    background-size: auto 23px;
+    width: 36px;
+    height: 35px;
+    content: ' ';
 }
 
 /* Afterpay */
@@ -110,6 +125,7 @@
 
 /* iDeal */
 .buckaroo_magento2_payment_ideal:before,
+.buckaroo_magento2_payment_idealgateway:before,
 .buckaroo_magento2_payment_idealprocessing:before {
     background: url(../images/buckaroo_magento2_ideal_title.png) no-repeat;
     float: left;

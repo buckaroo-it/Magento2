@@ -32,6 +32,7 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Transfer extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_transfer';
     const XPATH_TRANSFER_ACTIVE                 = 'payment/buckaroo_magento2_transfer/active';
     const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
     const XPATH_TRANSFER_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_transfer/payment_fee_label';

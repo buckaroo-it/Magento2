@@ -24,6 +24,7 @@ use \Magento\Store\Model\ScopeInterface;
 
 class Emandate extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_emandate';
     const XPATH_EMANDATE_PAYMENT_FEE           = 'payment/buckaroo_magento2_emandate/payment_fee';
     const XPATH_EMANDATE_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_emandate/payment_fee_label';
     const XPATH_EMANDATE_ACTIVE                = 'payment/buckaroo_magento2_emandate/active';

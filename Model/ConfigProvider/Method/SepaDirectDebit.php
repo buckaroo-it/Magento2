@@ -24,6 +24,7 @@ use Magento\Store\Model\ScopeInterface;
 
 class SepaDirectDebit extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_sepadirectdebit';
     const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee';
     const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee_label';
     const XPATH_SEPADIRECTDEBIT_ACTIVE = 'payment/buckaroo_magento2_sepadirectdebit/active';

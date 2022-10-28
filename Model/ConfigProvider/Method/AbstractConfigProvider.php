@@ -120,10 +120,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     protected $paymentFeeHelper;
 
     /**
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param string $pathPattern
      */
     public function __construct(
         Repository $assetRepo,
@@ -131,7 +132,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper
     ) {
-        parent::__construct($scopeConfig);
+        parent::__construct($scopeConfig, static::CODE);
 
         $this->assetRepo = $assetRepo;
         $this->paymentFeeHelper = $paymentFeeHelper;

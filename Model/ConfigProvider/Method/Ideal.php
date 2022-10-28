@@ -24,6 +24,9 @@ use Magento\Store\Model\ScopeInterface;
 
 class Ideal extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_ideal';
+
+
     const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
     const XPATH_IDEAL_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_ideal/payment_fee_label';
     const XPATH_IDEAL_ACTIVE                = 'payment/buckaroo_magento2_ideal/active';

@@ -28,6 +28,9 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Klarna extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_klarna';
+
+
     const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarna/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC                = 'payment/buckaroo_magento2_klarna/allowspecific';
     const XPATH_SPECIFIC_COUNTRY              = 'payment/buckaroo_magento2_klarna/specificcountry';

@@ -34,6 +34,7 @@ use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
  */
 class Billink extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_billink';
     const XPATH_ALLOWED_CURRENCIES = 'buckaroo/buckaroo_magento2_billink/allowed_currencies';
 
     const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_billink/allowspecific';

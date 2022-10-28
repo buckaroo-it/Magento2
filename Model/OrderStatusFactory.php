@@ -70,7 +70,12 @@ class OrderStatusFactory
          * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $paymentMethodInstance
          */
         $paymentMethodInstance = $order->getPayment()->getMethodInstance();
-        $paymentMethod = $paymentMethodInstance->buckarooPaymentMethodCode;
+        if($paymentMethodInstance instanceof \Buckaroo\Magento2\Model\Method\BuckarooAdapter) {
+            $paymentMethod = $paymentMethodInstance->getCode();
+        } else {
+            $paymentMethod = $paymentMethodInstance->buckarooPaymentMethodCode;
+        }
+
 
         if ($this->configProviderMethodFactory->has($paymentMethod)) {
             /**

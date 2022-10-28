@@ -24,6 +24,8 @@ use Magento\Store\Model\ScopeInterface;
 
 class Alipay extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_alipay';
+
     const XPATH_ALIPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_alipay/payment_fee';
     const XPATH_ALIPAY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_alipay/payment_fee_label';
     const XPATH_ALIPAY_ACTIVE                = 'payment/buckaroo_magento2_alipay/active';

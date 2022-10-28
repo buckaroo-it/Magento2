@@ -23,25 +23,18 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * @method getCm3DueDate()
- * @method getMaxStepIndex()
- * @method getPaymentMethod()
- * @method getPaymentMethodAfterExpiry()
- * @method getSchemeKey()
- * @method getActiveStatusCm3()
- */
 class PayPerEmail extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES = 'buckaroo/buckaroo_magento2_payperemail/allowed_currencies';
+    const CODE = 'buckaroo_magento2_payperemail';
+    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_payperemail/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_payperemail/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_payperemail/specificcountry';
-    
-    const XPATH_PAYPEREMAIL_ACTIVE = 'payment/buckaroo_magento2_payperemail/active';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE = 'payment/buckaroo_magento2_payperemail/payment_fee';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_payperemail/payment_fee_label';
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS = 'payment/buckaroo_magento2_payperemail/active_status';
+    const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_payperemail/allowspecific';
+    const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_payperemail/specificcountry';
+
+    const XPATH_PAYPEREMAIL_ACTIVE               = 'payment/buckaroo_magento2_payperemail/active';
+    const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
+    const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_payperemail/payment_fee_label';
+    const XPATH_PAYPEREMAIL_ACTIVE_STATUS        = 'payment/buckaroo_magento2_payperemail/active_status';
     const XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_payperemail/order_status_success';
     const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_payperemail/order_status_failed';
 

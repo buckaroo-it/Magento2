@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Applepay extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_applepay';
     const XPATH_APPLEPAY_ACTIVE                = 'payment/buckaroo_magento2_applepay/active';
     const XPATH_APPLEPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_applepay/active_status';
     const XPATH_APPLEPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_applepay/order_status_success';

@@ -36,6 +36,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
  */
 class Creditcards extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_creditcards';
     const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
     const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
     const XPATH_CREDITCARDS_ACTIVE = 'payment/buckaroo_magento2_creditcards/active';

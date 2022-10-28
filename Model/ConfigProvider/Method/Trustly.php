@@ -24,6 +24,8 @@ use Magento\Store\Model\ScopeInterface;
 
 class Trustly extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_trustly';
+
     const XPATH_TRUSTLY_PAYMENT_FEE           = 'payment/buckaroo_magento2_trustly/payment_fee';
     const XPATH_TRUSTLY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_trustly/payment_fee_label';
     const XPATH_TRUSTLY_ACTIVE                = 'payment/buckaroo_magento2_trustly/active';

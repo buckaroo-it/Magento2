@@ -28,6 +28,7 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Eps extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_eps';
     const XPATH_EPS_ACTIVE                 = 'payment/buckaroo_magento2_eps/active';
     const XPATH_EPS_PAYMENT_FEE            = 'payment/buckaroo_magento2_eps/payment_fee';
     const XPATH_EPS_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_eps/payment_fee_label';

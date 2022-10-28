@@ -23,6 +23,7 @@ use Magento\Store\Model\ScopeInterface;
 
 class Kbc extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_kbc';
     const XPATH_KBC_PAYMENT_FEE           = 'payment/buckaroo_magento2_kbc/payment_fee';
     const XPATH_KBC_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_kbc/payment_fee_label';
     const XPATH_KBC_ACTIVE                = 'payment/buckaroo_magento2_kbc/active';

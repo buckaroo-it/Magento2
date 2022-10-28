@@ -657,6 +657,18 @@
     content: ' ';
 }
 
+/* ======================= CreditClick ======================== */
+.buckaroo_magento2_creditclick .buckaroo_magento2_image_title:after {
+    background: url(../images/buckaroo_magento2_creditclick_title.png) no-repeat;
+    float: right;
+    margin-right: 0px;
+    margin-top: -11px;
+    background-size: auto 42px;
+    width: 62px;
+    height: 42px;
+    content: ' ';
+}
+
 /* ======================= Klarna ======================== */
 .buckaroo_magento2_klarna .buckaroo_magento2_image_title:after, 
 .buckaroo_magento2_klarnakp .buckaroo_magento2_image_title:after, 
@@ -837,6 +849,7 @@
         height: 30px;
         content: ' ';
     }
+
 
     /* Belfius */
     .buckaroo_magento2_belfius .buckaroo_magento2_image_title:before {

@@ -20,7 +20,9 @@
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
+use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -102,6 +104,11 @@ class Process extends \Magento\Framework\App\Action\Action
     private $quoteRecreate;
 
     /**
+     * @var PushRequestInterface
+     */
+    private PushRequestInterface $pushRequst;
+
+    /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param \Buckaroo\Magento2\Helper\Data                           $helper
      * @param \Magento\Checkout\Model\Cart                        $cart
@@ -134,7 +141,8 @@ class Process extends \Magento\Framework\App\Action\Action
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
         OrderService $orderService,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
+        RequestPushFactory $requestPushFactory
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -167,6 +175,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 $request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
             }
         }
+        $this->pushRequst = $requestPushFactory->create();
         // @codingStandardsIgnoreEnd
     }
 
@@ -178,19 +187,16 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__ . '|' . var_export($this->getRequest()->getParams(), true));
-
-        $this->response = $this->getRequest()->getParams();
-        $this->response = array_change_key_case($this->response, CASE_LOWER);
+        $this->logger->addDebug(__METHOD__ . '|' . var_export($this->pushRequst->getOriginalRequest(), true));
 
         /**
          * Check if there is a valid response. If not, redirect to home.
          */
-        if (count($this->response) === 0 || !array_key_exists('brq_statuscode', $this->response)) {
+        if (count($this->pushRequst->getData()) === 0 || empty($this->pushRequst->getStatusCode())) {
             return $this->handleProcessedResponse('/');
         }
 
-        if ($this->hasPostData('brq_primary_service', 'IDIN')) {
+        if ($this->pushRequst->hasPostData('primary_service', 'IDIN')) {
             if ($this->setCustomerIDIN()) {
                 $this->addSuccessMessage(__('Your iDIN verified succesfully!'));
             } else {
@@ -204,7 +210,7 @@ class Process extends \Magento\Framework\App\Action\Action
             return $this->redirectToCheckout();
         }
 
-        $statusCode = (int) $this->response['brq_statuscode'];
+        $statusCode = (int) $this->pushRequst->getStatusCode();
 
         $this->loadOrder();
         $this->helper->setRestoreQuoteLastOrder(false);
@@ -225,7 +231,7 @@ class Process extends \Magento\Framework\App\Action\Action
             return $this->handleProcessedResponse('/');
         }
 
-        if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->response)) {
+        if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->pushRequst)) {
             return $this->handleProcessedResponse('/');
         }
 
@@ -271,7 +277,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
                 }
 
-                $payment->getMethodInstance()->processCustomPostData($payment, $this->response);
+                $payment->getMethodInstance()->processCustomPostData($payment, $this->pushRequst->getData());
 
                 /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
                 $paymentMethod = $this->order->getPayment()->getMethodInstance();
@@ -286,10 +292,10 @@ class Process extends \Magento\Framework\App\Action\Action
                         || $paymentMethod->getConfigData('order_email', $store) === "1"
                     )
                 ) {
-                    if (!($this->hasPostData('add_initiated_by_magento', 1) &&
-                        $this->hasPostData('brq_primary_service', 'KlarnaKp') &&
-                        $this->hasPostData('add_service_action_from_magento', 'reserve') &&
-                        !empty($this->response['brq_service_klarnakp_reservationnumber'])
+                    if (!($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1) &&
+                        $this->pushRequst->hasPostData('primary_service', 'KlarnaKp') &&
+                        $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'reserve') &&
+                        !empty($this->pushRequst->getServiceKlarnakpReservationnumber())
                     )) {
                         if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                             $this->logger->addDebug(__METHOD__ . '|sendemail|');
@@ -300,7 +306,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
                 $pendingCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING');
                 if (($statusCode == $pendingCode)
-                    && !$this->hasPostData('brq_payment_method', 'sofortueberweisung')
+                    && !$this->pushRequst->hasPostData('brq_payment_method', 'sofortueberweisung')
                 ) {
                     $this->addErrorMessage(
                         __(
@@ -354,6 +360,11 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->logger->addDebug(__METHOD__ . '|9|');
         return $this->_response;
     }
+
+    public function getResponseParameters()
+    {
+        return  $this->pushRequst->getData();
+    }
     /**
      * Handle final response
      *
@@ -399,15 +410,6 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->messageManager->addSuccessMessage($message);
     }
 
-    /**
-     * Get response parameters
-     *
-     * @return array
-     */
-    public function getResponseParameters()
-    {
-        return $this->response;
-    }
     /**
      * Set flag if user is on the payment provider page
      *
@@ -465,7 +467,7 @@ class Process extends \Magento\Framework\App\Action\Action
         );
 
         //skip cancel order for PPE
-        if (isset($this->response['add_frompayperemail'])) {
+        if (!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))) {
             return $this->redirectFailure();
         }
 
@@ -483,12 +485,12 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $brqOrderId = false;
 
-        if (isset($this->response['brq_invoicenumber']) && !empty($this->response['brq_invoicenumber'])) {
-            $brqOrderId = $this->response['brq_invoicenumber'];
+        if (!empty($this->pushRequst->getInvoiceNumber())) {
+            $brqOrderId = $this->pushRequst->getInvoiceNumber();
         }
 
-        if (isset($this->response['brq_ordernumber']) && !empty($this->response['brq_ordernumber'])) {
-            $brqOrderId = $this->response['brq_ordernumber'];
+        if (!empty($this->pushRequst->getOrderNumber())) {
+            $brqOrderId = $this->pushRequst->getOrderNumber();
         }
 
         $this->order->loadByIncrementId($brqOrderId);
@@ -507,12 +509,12 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $trxId = '';
 
-        if (isset($this->response['brq_transactions']) && !empty($this->response['brq_transactions'])) {
-            $trxId = $this->response['brq_transactions'];
+        if (!empty($this->pushRequst->getTransactions())) {
+            $trxId = $this->pushRequst->getTransactions();
         }
 
-        if (isset($this->response['brq_datarequest']) && !empty($this->response['brq_datarequest'])) {
-            $trxId = $this->response['brq_datarequest'];
+        if (!empty($this->pushRequst->getDatarequest())) {
+            $trxId = $this->pushRequst->getDatarequest();
         }
 
         $this->transaction->load($trxId, 'txn_id');
@@ -559,17 +561,17 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->quote->setReservedOrderId(null);
 
-        if (!empty($this->response['brq_payment_method'])
+        if (!empty($this->pushRequst->getPaymentMethod())
             &&
-            ($this->response['brq_payment_method'] == 'applepay')
+            ($this->pushRequst->getPaymentMethod() == 'applepay')
             &&
-            !empty($this->response['brq_statuscode'])
+            !empty($this->pushRequst->getStatusCode())
             &&
-            ($this->response['brq_statuscode'] == '190')
+            ($this->pushRequst->getStatusCode() == '190')
             &&
-            !empty($this->response['brq_test'])
+            !empty($this->pushRequst->getTest())
             &&
-            ($this->response['brq_test'] == 'true')
+            ($this->pushRequst->getTest() == 'true')
         ) {
             $this->redirectSuccessApplePay();
         }
@@ -664,42 +666,18 @@ class Process extends \Magento\Framework\App\Action\Action
         return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);
     }
 
-    /**
-     * @param $name
-     * @param $value
-     * @return bool
-     */
-    private function hasPostData($name, $value)
-    {
-        if (is_array($value) &&
-            isset($this->response[$name]) &&
-            in_array($this->response[$name], $value)
-        ) {
-            return true;
-        }
-
-        if (isset($this->response[$name]) &&
-            $this->response[$name] == $value
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
     private function setCustomerIDIN()
     {
-        if (isset($this->response['brq_service_idin_consumerbin'])
-            && !empty($this->response['brq_service_idin_consumerbin'])
-            && isset($this->response['brq_service_idin_iseighteenorolder'])
-            && $this->response['brq_service_idin_iseighteenorolder'] == 'True'
+        if (!empty($this->pushRequst->getServiceIdinConsumerbin())
+            && !empty($this->pushRequst->getServiceIdinIseighteenorolder())
+            && $this->pushRequst->getServiceIdinIseighteenorolder() == 'True'
         ) {
-            $this->checkoutSession->setCustomerIDIN($this->response['brq_service_idin_consumerbin']);
+            $this->checkoutSession->setCustomerIDIN($this->pushRequst->getServiceIdinConsumerbin());
             $this->checkoutSession->setCustomerIDINIsEighteenOrOlder(true);
-            if (isset($this->response['add_idin_cid']) && !empty($this->response['add_idin_cid'])) {
-                $customerNew  = $this->customerModel->load((int) $this->response['add_idin_cid']);
+            if (!empty($this->pushRequst->getAdditionalInformation('idin_cid'))) {
+                $customerNew  = $this->customerModel->load((int) $this->pushRequst->getAdditionalInformation('idin_cid'));
                 $customerData = $customerNew->getDataModel();
-                $customerData->setCustomAttribute('buckaroo_idin', $this->response['brq_service_idin_consumerbin']);
+                $customerData->setCustomAttribute('buckaroo_idin', $this->pushRequst->getServiceIdinConsumerbin());
                 $customerData->setCustomAttribute('buckaroo_idin_iseighteenorolder', 1);
                 $customerNew->updateData($customerData);
                 $customerResource = $this->customerResourceFactory->create();

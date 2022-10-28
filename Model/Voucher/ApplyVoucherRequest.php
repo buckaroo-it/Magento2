@@ -26,12 +26,13 @@ use Magento\Framework\UrlInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Encryption\Encryptor;
 use Magento\Store\Model\StoreManagerInterface;
-use Buckaroo\Magento2\Gateway\Http\Client\Json;
-use Buckaroo\Magento2\Helper\Data as HelperData;
+use Magento\Payment\Gateway\Http\ClientException;
+use Magento\Payment\Gateway\Http\ClientInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Payment\Gateway\Http\ConverterException;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardException;
@@ -40,16 +41,10 @@ use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface;
 class ApplyVoucherRequest implements ApplyVoucherRequestInterface
 {
 
-    protected $action = 'Pay';
     /**
      * @var \Magento\Store\Api\Data\StoreInterface
      */
     protected $store;
-
-    /** 
-     * @var Encryptor $encryptor
-     */
-    private $encryptor;
 
     /**
      * @var Account
@@ -67,9 +62,14 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     protected $quote;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\Http\Client\Json
+     * @var SDKTransferFactory
      */
-    protected $client;
+    protected $transferFactory;
+
+    /**
+     * @var ClientInterface
+     */
+    protected ClientInterface $clientInterface;
 
     /**
      * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
@@ -85,12 +85,11 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      *
      * @param ScopeConfigInterface $scopeConfig
-     * @param Account $configProviderAccount
      * @param UrlInterface $urlBuilder
      * @param FormKey $formKey
-     * @param Encryptor $encryptor
      * @param StoreManagerInterface $storeManager
-     * @param Json $client
+     * @param SDKTransferFactory $transferFactory
+     * @param ClientInterface $clientInterface
      * @param RequestInterface $httpRequest
      */
     public function __construct(
@@ -98,9 +97,9 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         Account $configProviderAccount,
         UrlInterface $urlBuilder,
         FormKey $formKey,
-        Encryptor $encryptor,
         StoreManagerInterface $storeManager,
-        Json $client,
+        SDKTransferFactory $transferFactory,
+        ClientInterface $clientInterface,
         RequestInterface $httpRequest,
         PaymentGroupTransaction $groupTransaction
     ) {
@@ -108,9 +107,9 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         $this->configProviderAccount = $configProviderAccount;
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
-        $this->encryptor = $encryptor;
         $this->store = $storeManager->getStore();
-        $this->client = $client;
+        $this->transferFactory = $transferFactory;
+        $this->clientInterface = $clientInterface;
         $this->httpRequest = $httpRequest;
         $this->groupTransaction = $groupTransaction;
     }
@@ -124,12 +123,19 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         if ($this->voucherCode === null) {
             throw new GiftcardException("Field `voucherCode` is required");
         }
-      
 
-        $this->client->setSecretKey($this->getSecretKey());
-        $this->client->setWebsiteKey($this->getMerchantKey());
+        $transferO = $this->transferFactory->create(
+            $this->getBody()
+        );
 
-        return $this->client->doRequest($this->getBody(), $this->getMode());
+        try {
+            $response = $this->clientInterface->placeRequest($transferO);
+            return $response['object'] ?? [];
+        } catch (ClientException $e) {
+            throw new GiftcardException($e->getMessage(), 0, $e);
+        } catch (ConverterException $e) {
+            throw new GiftcardException($e->getMessage(), 0, $e);
+        }
     }
     /**
      * @return array
@@ -138,41 +144,27 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     {
         $incrementId =  $this->getIncrementId();
         $originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
-        if ($originalTransactionKey !== null) {
-            $this->action = 'PayRemainder';
-        }
-        
+
         $ip = $this->getIp($this->store);
         $body = [
-            "Currency" => $this->getCurrency(),
-            'AmountDebit' => $this->getAmount(),
-            "Invoice" => $incrementId,
-            "ReturnURL" => $this->getReturnUrl(),
-            "ReturnURLCancel" => $this->getReturnUrl(),
-            "ReturnURLError" => $this->getReturnUrl(),
-            "ReturnURLReject" => $this->getReturnUrl(),
-            "PushURL" => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
-            'ClientIP' => (object)[
-                'Address' => $ip !== false ? $ip : 'unknown',
-                'Type' => strpos($ip, ':') === false ? '0' : '1',
+            "payment_method" => "buckaroovoucher",
+            "currency" => $this->getCurrency(),
+            'amountDebit' => $this->getAmount(),
+            "invoice" => $incrementId,
+            "order" => $incrementId,
+            "returnURL" => $this->getReturnUrl(),
+            "returnURLCancel" => $this->getReturnUrl(),
+            "returnURLError" => $this->getReturnUrl(),
+            "returnURLReject" => $this->getReturnUrl(),
+            "pushURL" => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
+            'clientIP' => [
+                'address' => $ip !== false ? $ip : 'unknown',
+                'type' => strpos($ip, ':') === false ? '0' : '1',
             ],
-            "Services" => [
-                "ServiceList" => [
-                    [
-                        "Action" => $this->action,
-                        "Name" => "buckaroovoucher",
-                        "Parameters" => [
-                            [
-                                "Name" => 'vouchercode',
-                                "Value" => $this->voucherCode
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+            'vouchercode' => $this->voucherCode
         ];
         if ($originalTransactionKey !== null) {
-            $body['OriginalTransactionKey'] = $originalTransactionKey;
+            $body['originalTransactionKey'] = $originalTransactionKey;
         }
         return $body;
     }
@@ -232,41 +224,6 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     {
         $currency = $this->quote->getCurrency();
         if ($currency !== null)  return $currency->getBaseCurrencyCode();
-    }
-    /**
-     * Get merchant key for store
-     *
-     * @return mixed
-     */
-    protected function getMerchantKey()
-    {
-        return $this->encryptor->decrypt(
-            $this->configProviderAccount->getMerchantKey($this->store)
-        );
-    }
-    /**
-     * Get merchant secret for store
-     *
-     * @return mixed
-     */
-    protected function getSecretKey()
-    {
-        return $this->encryptor->decrypt(
-            $this->configProviderAccount->getSecretKey($this->store)
-        );
-    }
-    /**
-     * Get request mode 
-     *
-     * @return int
-     */
-    protected function getMode()
-    {
-        $active = $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_voucher/active',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-        return ($active == HelperData::MODE_LIVE) ? HelperData::MODE_LIVE : HelperData::MODE_TEST;
     }
     /**
      * Get return url

@@ -24,6 +24,8 @@ use Magento\Store\Model\ScopeInterface;
 
 class P24 extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_p24';
+    protected $methodCode = self::CODE;
     const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
     const XPATH_P24_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_p24/payment_fee_label';
     const XPATH_P24_ACTIVE                = 'payment/buckaroo_magento2_p24/active';
@@ -81,7 +83,8 @@ class P24 extends AbstractConfigProvider
     public function getBaseAllowedCurrencies()
     {
         return [
-            'PLN'
+            'PLN',
+            'EUR'
         ];
     }
 

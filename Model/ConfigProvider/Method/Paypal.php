@@ -32,6 +32,7 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Paypal extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_paypal';
     const XPATH_PAYPAL_PAYMENT_FEE                      = 'payment/buckaroo_magento2_paypal/payment_fee';
     const XPATH_PAYPAL_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_paypal/payment_fee_label';
     const XPATH_PAYPAL_ACTIVE                           = 'payment/buckaroo_magento2_paypal/active';

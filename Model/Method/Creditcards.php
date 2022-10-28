@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Api\PushRequestInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
@@ -207,10 +208,10 @@ class Creditcards extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function canProcessPostData($payment, $postData)
+    public function canProcessPostData($payment, PushRequestInterface $postData)
     {
         $orderState = $payment->getOrder()->getState();
-        if ($orderState == \Magento\Sales\Model\Order::STATE_PROCESSING && $postData['brq_statuscode'] == "792") {
+        if ($orderState == \Magento\Sales\Model\Order::STATE_PROCESSING && $postData->getStatusCode() == "792") {
             return false;
         }
 

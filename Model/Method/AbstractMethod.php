@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Api\PushRequestInterface;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Model\Push;
 use Magento\Tax\Model\Calculation;
@@ -220,7 +221,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @var EventManager
      */
-    private $eventManager;
+    protected $eventManager;
 
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
@@ -556,11 +557,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array                               $postData
+     * @param PushRequestInterface $postData
      *
      * @return bool
      */
-    public function canProcessPostData($payment, $postData)
+    public function canProcessPostData($payment, PushRequestInterface $postData)
     {
         return true;
     }
@@ -575,11 +576,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param $responseData
+     * @param PushRequestInterface $responseData
      *
      * @return bool
      */
-    public function canPushInvoice($responseData)
+    public function canPushInvoice(PushRequestInterface $responseData): bool
     {
         if ($this->getConfigData('payment_action') == 'authorize') {
             return false;

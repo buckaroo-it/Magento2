@@ -24,6 +24,7 @@ use Magento\Store\Model\ScopeInterface;
 
 class Belfius extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_belfius';
     const XPATH_BELFIUS_PAYMENT_FEE           = 'payment/buckaroo_magento2_belfius/payment_fee';
     const XPATH_BELFIUS_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_belfius/payment_fee_label';
     const XPATH_BELFIUS_ACTIVE                = 'payment/buckaroo_magento2_belfius/active';

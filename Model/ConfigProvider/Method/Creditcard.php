@@ -31,6 +31,7 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Creditcard extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_creditcard';
     /**#@+
      * Creditcard service codes.
      */

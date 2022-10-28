@@ -37,6 +37,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
  */
 class Payconiq extends AbstractConfigProvider
 {
+    const CODE = 'buckaroo_magento2_payconiq';
     const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
     const XPATH_PAYCONIQ_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_payconiq/payment_fee_label';
     const XPATH_PAYCONIQ_ACTIVE                           = 'payment/buckaroo_magento2_payconiq/active';
