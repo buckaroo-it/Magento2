@@ -71,4 +71,10 @@
         </resources>
     </route>
 
+    <route url="/V1/buckaroo/voucher/apply" method="POST">
+        <service class="Buckaroo\Magento2\Api\ApplyVoucherInterface" method="apply"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
 </routes>

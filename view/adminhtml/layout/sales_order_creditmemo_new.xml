@@ -36,7 +36,6 @@
                    template="Buckaroo_Magento2::sales/order/creditmemo/buckaroo_already_paid.phtml"
             />
         </referenceContainer>
-        <move element="buckaroo_already_paid" destination="order_items" after="creditmemo_totals" />
         <referenceContainer name="submit_before">
             <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create\RoundingWarning" name="buckaroo_rounding_warning" template="Buckaroo_Magento2::sales/order/creditmemo/create/rounding_warning.phtml"/>
         </referenceContainer>
