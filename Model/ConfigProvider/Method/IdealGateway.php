@@ -62,9 +62,7 @@ class IdealGateway extends AbstractConfigProvider
         }
 
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            self::CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         $selectionType = $this->scopeConfig->getValue(
             \Buckaroo\Magento2\Model\ConfigProvider\Account::XPATH_ACCOUNT_SELECTION_TYPE,

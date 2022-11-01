@@ -18,31 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Api\Data\Giftcard;
+namespace Buckaroo\Magento2\Plugin\Method;
 
-interface GetTransactionsResponseInterface
+class Afterpay2 extends CancelOrder
 {
-    /**
-     * Get the list of transactions for this cart
-     *
-     * @param string $cartId
-     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
-     */
-    public function getTransactions();
 
-    /**
-     * Get RemainderAmount
-     *
-     * @api
-     * @return float
-     */
-    public function getRemainderAmount();
-
-    /**
-     * Get AlreadyPaid
-     *
-     * @api
-     * @return float
-     */
-    public function getAlreadyPaid();
 }

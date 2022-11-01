@@ -91,9 +91,7 @@ class Giftcards extends AbstractConfigProvider
             }
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $resource      = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);

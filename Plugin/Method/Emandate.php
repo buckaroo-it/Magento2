@@ -1,5 +1,4 @@
 <?php
-// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -20,43 +19,36 @@
  */
 namespace Buckaroo\Magento2\Plugin\Method;
 
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use \Magento\Sales\Model\Order;
 
-/**
- * Class Emandate
- *
- *
- */
 class Emandate
 {
-    const EMANDATE_METHOD_NAME = 'buckaroo_magento2_emandate';
+    /**
+     * @var BuckarooAdapter
+     */
+    private BuckarooAdapter $paymentMethod;
 
     /**
-     * \Buckaroo\Magento2\Model\Method\Emandate
-     *
-     * @var bool
+     * @param BuckarooAdapter $paymentMethod
      */
-    public $emandateMethod = false;
-
-    /**
-     * @param \Buckaroo\Magento2\Model\Method\Emandate $emandate
-     */
-    public function __construct(\Buckaroo\Magento2\Model\Method\Emandate $emandate)
+    public function __construct(BuckarooAdapter $paymentMethod)
     {
-        $this->emandateMethod = $emandate;
+        $this->paymentMethod = $paymentMethod;
     }
 
     /**
-     * @param Order $subject
+     * Set CanCreditmemo true for Emandate
      *
+     * @param Order $subject
      * @return Order
      */
     public function beforeCanCreditmemo(Order $subject)
     {
         $payment = $subject->getPayment();
 
-        if ($payment->getMethod() === self::EMANDATE_METHOD_NAME) {
-            $subject->setForcedCanCreditmemo($this->emandateMethod->canRefund());
+        if ($payment->getMethod() === $this->paymentMethod->getCode()) {
+            $subject->setForcedCanCreditmemo($this->paymentMethod->canRefund());
         }
 
         return $subject;

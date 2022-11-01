@@ -47,11 +47,11 @@ class Afterpay20 extends AbstractConfigProvider
     const XPATH_AFTERPAY20_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay20/allowed_currencies';
     const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP =
         'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
-    
+
     const XPATH_AFTERPAY20_CUSTOMER_TYPE          = 'payment/buckaroo_magento2_afterpay20/customer_type';
     const XPATH_AFTERPAY20_MIN_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/min_amount_b2b';
     const XPATH_AFTERPAY20_MAX_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/max_amount_b2b';
-    
+
 
     const XPATH_SPECIFIC_CUSTOMER_GROUP           = 'payment/buckaroo_magento2_afterpay20/specificcustomergroup';
 
@@ -67,7 +67,7 @@ class Afterpay20 extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(Afterpay20Method::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [

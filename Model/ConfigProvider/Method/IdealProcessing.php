@@ -58,7 +58,7 @@ class IdealProcessing extends AbstractConfigProvider
         }
 
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(IdealProcessingMethod::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         $selectionType = $this->scopeConfig->getValue(
             self::XPATH_SELECTION_TYPE,
