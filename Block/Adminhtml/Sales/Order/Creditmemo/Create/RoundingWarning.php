@@ -103,7 +103,7 @@ class RoundingWarning extends \Magento\Backend\Block\Template
         }
 
         /**
-         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $paymentMethodInstance
+         * @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $paymentMethodInstance
          */
         $paymentMethodInstance = $payment->getMethodInstance();
 

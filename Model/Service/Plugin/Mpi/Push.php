@@ -57,7 +57,7 @@ class Push
         }
 
         /**
-         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $paymentMethodInstance
+         * @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $paymentMethodInstance
          */
         $paymentMethodInstance = $payment->getMethodInstance();
         $card = $paymentMethodInstance->getInfoInstance()->getAdditionalInformation('card_type');

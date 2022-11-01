@@ -72,7 +72,7 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
 
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
-            // Buckaroo/Model/Method/AbstractMethod.php:880
+            // Buckaroo/Model/Method/BuckarooAdapter.php:880
             $payment = $order->getPayment();
             if (in_array(
                 $payment->getMethodInstance()->getCode(),

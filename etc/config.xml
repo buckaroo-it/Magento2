@@ -39,7 +39,7 @@
         <payment>
             <buckaroo_magento2_ideal>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Ideal</model>
+                <model>IdealPaymentGatewayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo iDEAL</title>
                 <allowspecific>0</allowspecific>
@@ -85,30 +85,6 @@
                 <group>buckaroo_magento2</group>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_idealgateway>
-
-            <buckaroo_magento2_idealprocessing>
-                <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\IdealProcessing</model>
-                <order_status>pending</order_status>
-                <title>Buckaroo iDEAL Processing</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>10</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-                <can_authorize>0</can_authorize>
-                <can_capture>0</can_capture>
-                <can_capture_partial>0</can_capture_partial>
-                <can_order>1</can_order>
-                <can_void>1</can_void>
-                <can_refund>0</can_refund>
-                <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
-                <can_use_internal>1</can_use_internal>
-                <can_use_checkout>1</can_use_checkout>
-                <is_gateway>1</is_gateway>
-            </buckaroo_magento2_idealprocessing>
 
             <buckaroo_magento2_sepadirectdebit>
                 <active>0</active>

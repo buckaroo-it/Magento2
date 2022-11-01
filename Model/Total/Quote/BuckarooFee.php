@@ -137,8 +137,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         }
 
         $methodInstance = $quote->getPayment()->getMethodInstance();
-        if (!$methodInstance instanceof \Buckaroo\Magento2\Model\Method\AbstractMethod
-            && !$methodInstance instanceof \Buckaroo\Magento2\Model\Method\BuckarooAdapter) {
+        if (!$methodInstance instanceof \Buckaroo\Magento2\Model\Method\BuckarooAdapter) {
             return $this;
         }
 
@@ -208,7 +207,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     }
 
     /**
-     * @param \Buckaroo\Magento2\Model\Method\AbstractMethod|\Buckaroo\Magento2\Model\Method\BuckarooAdapter $methodInstance
+     * @param \Buckaroo\Magento2\Model\Method\BuckarooAdapter $methodInstance
      * @param \Magento\Quote\Model\Quote                $quote
      * @param bool                                      $inclTax
      *

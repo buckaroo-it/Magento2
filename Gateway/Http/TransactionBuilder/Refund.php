@@ -38,7 +38,7 @@ class Refund extends AbstractTransactionBuilder
     protected function setRefundCurrencyAndAmount()
     {
         /**
-         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance
+         * @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $methodInstance
          */
         $methodInstance = $this->order->getPayment()->getMethodInstance();
         $method = $methodInstance->buckarooPaymentMethodCode;

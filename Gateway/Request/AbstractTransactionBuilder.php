@@ -149,7 +149,7 @@ abstract class AbstractTransactionBuilder implements BuilderInterface
      * @param UrlInterface $urlBuilder
      * @param FormKey $formKey
      * @param Encryptor $encryptor
-     * @param AbstractMethod $abstractMethod
+     * @param BuckarooAdapter $abstractMethod
      * @param Factory $configProviderMethodFactory
      * @param null|int|float|double $amount
      * @param null|string $currency

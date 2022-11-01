@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -76,13 +76,13 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
          * @noinspection PhpUndefinedMethodInspection
          */
         /**
-         * @var $quote \Magento\Quote\Model\Quote $quote
+         * @var $quote \Magento\Quote\Model\Quote
          */
         $quote = $observer->getEvent()->getQuote();
 
         $payment = $order->getPayment();
 
-        $originalKey = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+        $originalKey = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
 
         $cancel_ppe = $this->configProviderPPE->getCancelPpe();
 

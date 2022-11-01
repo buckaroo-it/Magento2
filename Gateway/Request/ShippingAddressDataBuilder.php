@@ -2,14 +2,20 @@
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
-use Buckaroo\Magento2\Plugin\Method\Klarna;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
 use Magento\Sales\Model\Order\Address;
 
 class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
 {
+    /**
+     * @var AddressHandlerPool
+     */
     private AddressHandlerPool $addressHandlerPool;
 
+    /**
+     * @param AddressHandlerPool $addressHandlerPool
+     */
     public function __construct(
         AddressHandlerPool $addressHandlerPool
     ) {
@@ -17,16 +23,17 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
     }
 
     /**
+     * Get Shipping Address
+     *
      * @return Address
      * @throws \Exception
      */
     protected function getAddress(): Address
     {
-        if (
-            $this->isAddressDataDifferent($this->getPayment()) ||
-            is_null($this->getOrder()->getShippingAddress()) ||
-            $this->getPayment()->getMethod() === Klarna::KLARNA_METHOD_NAME ||
-            $this->getPayment()->getMethod() === Klarnain::PAYMENT_METHOD_CODE
+        if ($this->isAddressDataDifferent($this->getPayment()) ||
+            $this->getOrder()->getShippingAddress() === null ||
+            $this->getPayment()->getMethod() === Klarna::CODE ||
+            $this->getPayment()->getMethod() === Klarnain::CODE
         ) {
             return $this->addressHandlerPool->getShippingAddress($this->getOrder());
         } else {
@@ -36,6 +43,7 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
 
     /**
      * Method to compare two addresses from the payment.
+     *
      * Returns true if they are the same.
      *
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
@@ -60,6 +68,8 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
     }
 
     /**
+     * Calculate differences between Billing and Shipping Address
+     *
      * @param array $addressOne
      * @param array $addressTwo
      *

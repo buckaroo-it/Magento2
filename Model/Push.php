@@ -28,7 +28,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Method\Afterpay;
 use Buckaroo\Magento2\Model\Method\Afterpay2;
 use Buckaroo\Magento2\Model\Method\Afterpay20;
@@ -809,7 +809,7 @@ class Push implements PushInterface
         }
 
         if ($isPaid && $canInvoice) {
-            $originalKey = AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
+            $originalKey = BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
             $this->pushRequst->setTransactions($this->order->getPayment()->getAdditionalInformation($originalKey));
             $this->pushRequst->setAmount($this->pushRequst->getAmountDebit());
 
@@ -862,7 +862,7 @@ class Push implements PushInterface
 
         if (!$this->isGroupTransactionInfoType()) {
             $payment->setAdditionalInformation(
-                AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+                BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
                 $this->pushRequst->getRelatedtransactionPartialpayment()
             );
 
@@ -880,7 +880,7 @@ class Push implements PushInterface
         $transactionKey    = $this->pushRequst->getTransactions();
         $transactionMethod = $this->pushRequst->getTransactionMethod();
 
-        $transactionData = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_ALL_TRANSACTIONS);
+        $transactionData = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS);
 
         $transactionArray = [];
         if (is_array($transactionData) && count($transactionData) > 0) {
@@ -891,7 +891,7 @@ class Push implements PushInterface
             $transactionArray[$transactionKey] = [$transactionMethod, $transactionAmount];
 
             $payment->setAdditionalInformation(
-                AbstractMethod::BUCKAROO_ALL_TRANSACTIONS,
+                BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS,
                 $transactionArray
             );
         }
@@ -903,7 +903,7 @@ class Push implements PushInterface
     protected function setTransactionKey()
     {
         $payment        = $this->order->getPayment();
-        $originalKey    = AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
+        $originalKey    = BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
         $transactionKey = $this->getTransactionKey();
 
         if (!$payment->getAdditionalInformation($originalKey) && strlen($transactionKey) > 0) {
@@ -1105,7 +1105,7 @@ class Push implements PushInterface
 
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
-            // Buckaroo/Model/Method/AbstractMethod.php:880
+            // Buckaroo/Model/Method/BuckarooAdapter.php:880
             $methods = [
                 'buckaroo_magento2_afterpay',
                 'buckaroo_magento2_afterpay2',
@@ -1606,7 +1606,7 @@ class Push implements PushInterface
          */
         $payment->setParentTransactionId($transactionKey);
         $payment->setAdditionalInformation(
-            \Buckaroo\Magento2\Model\Method\AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+            \Buckaroo\Magento2\Model\Method\BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
         );
 
@@ -1729,7 +1729,7 @@ class Push implements PushInterface
                     if (($item['value'] == $brq_transaction_method) && isset($item['code'])) {
                         $payment->setMethod($item['code']);
                         $payment->setAdditionalInformation(
-                            AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+                            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
                             $this->getTransactionKey()
                         );
                         if ($item['code'] == 'buckaroo_magento2_creditcards') {

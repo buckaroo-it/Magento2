@@ -79,22 +79,6 @@
 
     <preference for="Buckaroo\Magento2\Api\TransactionResponseInterface" type="Buckaroo\Magento2\Model\Transaction\Status\Response" />
 
-    <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
-        <arguments>
-            <argument name="gateway" xsi:type="object">Buckaroo\Magento2\Gateway\GatewayInterface</argument>
-            <argument name="transactionBuilderFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory</argument>
-            <argument name="validatorFactory" xsi:type="object">Buckaroo\Magento2\Model\ValidatorFactory</argument>
-            <argument name="messageManager" xsi:type="object">Magento\Framework\Message\ManagerInterface</argument>
-            <argument name="helper" xsi:type="object">Buckaroo\Magento2\Helper\Data</argument>
-            <argument name="request" xsi:type="object">Magento\Framework\App\RequestInterface</argument>
-            <argument name="refundFieldsFactory" xsi:type="object">Buckaroo\Magento2\Model\RefundFieldsFactory</argument>
-            <argument name="configProviderFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Factory</argument>
-            <argument name="configProviderMethodFactory" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Factory</argument>
-            <argument name="priceHelper" xsi:type="object">Magento\Framework\Pricing\Helper\Data</argument>
-            <argument name="quoteFactory" xsi:type="object">Magento\Quote\Model\QuoteFactory</argument>
-            <argument name="logger2" xsi:type="object">Buckaroo\Magento2\Logging\Log</argument>
-        </arguments>
-    </type>
     <type name="Magento\Checkout\Controller\Onepage\Success">
         <plugin name="buckaroo_magento2_checkout_success" type="Buckaroo\Magento2\Plugin\Onepage\Success" />
     </type>
@@ -114,6 +98,36 @@
         <plugin name="buckaroo_magento2_add_creditmemo_extension_attributes" type="Buckaroo\Magento2\Plugin\CreditmemoExtensionAttribute" />
     </type>
 
+    <virtualType name="Buckaroo\Magento2\Plugin\Method\Afterpay" type="Buckaroo\Magento2\Plugin\Method\CancelOrder">
+        <arguments>
+            <argument name="paymentMethod" xsi:type="object">AfterpayOldFacade</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Buckaroo\Magento2\Plugin\Method\Afterpay2" type="Buckaroo\Magento2\Plugin\Method\CancelOrder">
+        <arguments>
+            <argument name="paymentMethod" xsi:type="object">AfterpayFacade</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Buckaroo\Magento2\Plugin\Method\Klarna" type="Buckaroo\Magento2\Plugin\Method\CancelOrder">
+        <arguments>
+            <argument name="paymentMethod" xsi:type="object">KlarnaFacade</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Buckaroo\Magento2\Plugin\Method\Klarnakp" type="Buckaroo\Magento2\Plugin\Method\CancelOrder">
+        <arguments>
+            <argument name="paymentMethod" xsi:type="object">KlarnaKpFacade</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Buckaroo\Magento2\Plugin\Method\Klarnain" type="Buckaroo\Magento2\Plugin\Method\CancelOrder">
+        <arguments>
+            <argument name="paymentMethod" xsi:type="object">KlarnaInFacade</argument>
+        </arguments>
+    </virtualType>
+
     <type name="Magento\Sales\Model\Order">
         <plugin name="buckaroo_magento2_plugin_afterpay" type="Buckaroo\Magento2\Plugin\Method\Afterpay"/>
         <plugin name="buckaroo_magento2_plugin_afterpay2" type="Buckaroo\Magento2\Plugin\Method\Afterpay2"/>
@@ -122,13 +136,6 @@
         <plugin name="buckaroo_magento2_plugin_klarnakp" type="Buckaroo\Magento2\Plugin\Method\Klarnakp"/>
         <plugin name="buckaroo_magento2_plugin_klarnain" type="Buckaroo\Magento2\Plugin\Method\Klarnain"/>
     </type>
-
-    <type name="Buckaroo\Magento2\Plugin\Method\Klarnakp">
-        <arguments>
-            <argument name="klarnakpMethod" xsi:type="object">KlarnaKpFacade</argument>
-        </arguments>
-    </type>
-
 
     <type name="Buckaroo\Magento2\Model\Push">
         <plugin name="buckaroo_magento2_paypal_sellersprotection_push" type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\Push" />

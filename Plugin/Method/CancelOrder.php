@@ -1,5 +1,4 @@
 <?php
-// @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
  *
@@ -21,50 +20,44 @@
 
 namespace Buckaroo\Magento2\Plugin\Method;
 
-use \Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Magento\Sales\Model\Order;
 
-/**
- * Class Klarnain
- *
- *
- */
-class Klarnain
+class CancelOrder
 {
-    const KLARNAIN_METHOD_NAME = 'buckaroo_magento2_klarnain';
+    /**
+     * @var BuckarooAdapter
+     */
+    private BuckarooAdapter $paymentMethod;
 
     /**
-     * \Buckaroo\Magento2\Model\Method\Klarnain
-     *
-     * @var bool
+     * @param BuckarooAdapter $paymentMethod
      */
-    public $klarnainMethod = false;
-
-    /**
-     * @param \Buckaroo\Magento2\Model\Method\Klarna\Klarnain $klarnain
-     */
-    public function __construct(\Buckaroo\Magento2\Model\Method\Klarna\Klarnain $klarnain)
+    public function __construct(BuckarooAdapter $paymentMethod)
     {
-        $this->klarnainMethod = $klarnain;
+        $this->paymentMethod = $paymentMethod;
     }
 
     /**
-     * @param Order $subject
+     * Check if the order was canceled, if not call again the function cancel.
      *
-     * @return Klarnain|Order
-     * @throws \Buckaroo\Magento2\Exception
+     * @param Order $subject
+     * @return Order
      */
-    public function afterCancel(
-        Order $subject
-    ) {
+    public function afterCancel(Order $subject): Order
+    {
         $payment = $subject->getPayment();
         $orderIsCanceled = $payment->getOrder()->getOrigData('state');
-        $orderIsVoided = ($payment->getAdditionalInformation('voided_by_buckaroo') === true);
+        $orderIsVoided = ((bool)$payment->getAdditionalInformation('voided_by_buckaroo') === true);
 
-        if ($payment->getMethod() !== self::KLARNAIN_METHOD_NAME || $orderIsVoided || $orderIsCanceled == Order::STATE_CANCELED) {
+        if ($payment->getMethod() !== $this->paymentMethod->getCode()
+            || $orderIsVoided
+            || $orderIsCanceled == Order::STATE_CANCELED
+        ) {
             return $subject;
         }
 
-        $this->klarnainMethod->cancel($payment);
+        $this->paymentMethod->cancel($payment);
 
         return $subject;
     }
