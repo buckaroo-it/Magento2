@@ -31,7 +31,7 @@ class ConfigDataBuilder extends AbstractDataBuilder
         ];
 
         if ($this->config->getPaymentMethodAfterExpiry() != null) {
-            $data['allowedServicesAfterDueDate'] = $this->getPaymentMethodAfterExpiry();
+            $data['allowedServicesAfterDueDate'] = $this->getPaymentMethodsAfterExpiry();
         }
         return $data;
 
@@ -47,7 +47,7 @@ class ConfigDataBuilder extends AbstractDataBuilder
     }
     /**
      * Get transfer due date
-     * @return string 
+     * @return string
      */
     protected function getDueDate(): string
     {
