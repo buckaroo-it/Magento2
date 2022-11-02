@@ -3423,6 +3423,11 @@
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_IN_INSTALLMENTS</argument>
         </arguments>
     </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRedirect" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
+        </arguments>
+    </virtualType>
     <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::REFUND</argument>

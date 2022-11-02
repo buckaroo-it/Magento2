@@ -29,7 +29,6 @@ use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
 
 class Giftcard extends \Magento\Framework\App\Action\Action
 {
-
     /**
      * @var Log
      */
@@ -40,7 +39,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
      */
     protected $jsonResultFactory;
 
-     /**
+    /**
      * @var \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
      */
     protected $giftcardRequest;
@@ -60,13 +59,14 @@ class Giftcard extends \Magento\Framework\App\Action\Action
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\App\Action\Context            $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        GiftcardInterface $giftcardRequest,
-        GiftcardResponse $giftcardResponse,
-        Log $logger
-    ) {
+        \Magento\Checkout\Model\Session                  $checkoutSession,
+        GiftcardInterface                                $giftcardRequest,
+        GiftcardResponse                                 $giftcardResponse,
+        Log                                              $logger
+    )
+    {
         parent::__construct($context);
         $this->jsonResultFactory = $jsonResultFactory;
         $this->checkoutSession = $checkoutSession;
@@ -89,11 +89,11 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             return $this->displayError(__('A card number is required'));
         }
 
-        if ($this->getRequest()->getParam('pin')  === null) {
+        if ($this->getRequest()->getParam('pin') === null) {
             return $this->displayError(__('A card pin is required'));
         }
 
-        if ($this->getRequest()->getParam('card')  === null) {
+        if ($this->getRequest()->getParam('card') === null) {
             return $this->displayError(__('A card type is required'));
         }
 
@@ -105,10 +105,10 @@ class Giftcard extends \Magento\Framework\App\Action\Action
                 $this->build($quote)->send()
             );
         } catch (ApiException $th) {
-            $this->logger->addDebug(__METHOD__.(string)$th);
+            $this->logger->addDebug(__METHOD__ . (string)$th);
             return $this->displayError($th->getMessage());
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__.(string)$th);
+            $this->logger->addDebug(__METHOD__ . (string)$th);
             return $this->displayError(__('Unknown buckaroo error has occurred'));
         }
     }
@@ -119,6 +119,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             "error" => $message
         ]);
     }
+
     protected function getGiftcardResponse(Quote $quote, $response)
     {
 
@@ -144,7 +145,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             );
 
             $buttonMessage = __(
-                'Pay remaining amount: %1 %2',$remainingAmount, $this->giftcardResponse->getCurrency()
+                'Pay remaining amount: %1 %2', $remainingAmount, $this->giftcardResponse->getCurrency()
             );
         }
 
@@ -155,12 +156,13 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             'message' => $textMessage
         ]);
     }
+
     /**
      * Build giftcard request
      *
      * @param Quote $quote
      *
-     * @return GiftcardRequest
+     * @return GiftcardInterface
      */
     protected function build(Quote $quote)
     {
