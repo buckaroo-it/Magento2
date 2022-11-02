@@ -3454,22 +3454,17 @@
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::RESERVE</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCreateMandate" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_MANDATE</argument>
-        </arguments>
-    </virtualType>
     <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRedirect" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCreateMandate" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_MANDATE</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPaymentInvitation" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAYMENT_INVITATION</argument>
         </arguments>
