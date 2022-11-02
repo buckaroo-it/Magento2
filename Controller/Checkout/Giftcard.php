@@ -55,8 +55,12 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     protected $checkoutSession;
 
     /**
-     *
-     * @throws \Buckaroo\Magento2\Exception
+     * @param \Magento\Framework\App\Action\Context $context
+     * @param \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param GiftcardInterface $giftcardRequest
+     * @param GiftcardResponse $giftcardResponse
+     * @param Log $logger
      */
     public function __construct(
         \Magento\Framework\App\Action\Context            $context,
