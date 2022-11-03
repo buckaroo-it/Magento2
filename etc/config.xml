@@ -375,7 +375,7 @@
 
             <buckaroo_magento2_afterpay2>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Afterpay2</model>
+                <model>AfterpayOldFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Riverty | Afterpay 2</title>
                 <allowspecific>0</allowspecific>
@@ -501,7 +501,7 @@
 
             <buckaroo_magento2_paylink>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\PayLink</model>
+                <model>PayPerEmailFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo PayLink</title>
                 <allowspecific>0</allowspecific>

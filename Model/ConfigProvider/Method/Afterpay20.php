@@ -21,7 +21,6 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
-use Buckaroo\Magento2\Model\Method\Afterpay20 as Afterpay20Method;
 
 /**
  * @method getDueDate()

@@ -23,7 +23,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
-use Buckaroo\Magento2\Model\Method\Transfer;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
@@ -106,7 +106,7 @@ class Order
                         'main_table.entity_id = p.parent_id',
                         ['method']
                     )
-                    ->where('p.method = ?', Transfer::PAYMENT_METHOD_CODE);
+                    ->where('p.method = ?', Transfer::CODE);
 
                 $this->logging->addDebug(__METHOD__ . '|10|' . var_export($orderCollection->count(), true));
 

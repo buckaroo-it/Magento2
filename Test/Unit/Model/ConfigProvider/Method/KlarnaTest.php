@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\Klarnakp as KlarnakpMethod;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -80,7 +79,7 @@ class KlarnakpTest extends BaseTest
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(KlarnakpMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Klarnakp::CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();

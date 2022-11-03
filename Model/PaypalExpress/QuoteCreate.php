@@ -25,7 +25,7 @@ use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\Quote\Address;
 use Magento\Quote\Model\QuoteRepository;
-use Buckaroo\Magento2\Model\Method\Paypal;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -136,8 +136,8 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      */
     protected function calculateQuoteTotals()
     {
-        $this->quote->setStoreId($this->quote->getStore()->getId());   
-        
+        $this->quote->setStoreId($this->quote->getStore()->getId());
+
         if ($this->quote->getCustomerEmail() === null) {
             $this->quote->setCustomerEmail('no-reply@example.com');
         }
@@ -171,7 +171,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $this->quoteRepository->save($this->quote);
         $this->addFirstShippingMethod($address);
     }
-    
+
     /**
      * Add first found shipping method to the shipping address &
      * recalculate shipping totals
@@ -187,7 +187,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
                 $this->quote->getId(),
                 $this->quote->getShippingAddress()
             );
-    
+
             if (count($shippingMethods)) {
                 $shippingMethod = array_shift($shippingMethods);
                 $address->setShippingMethod($shippingMethod->getCarrierCode(). '_' .$shippingMethod->getMethodCode());
@@ -211,7 +211,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     }
 
     /**
-     * If we didn't find any default shipping address we fill the empty fields 
+     * If we didn't find any default shipping address we fill the empty fields
      * required for quote validation
      *
      * @return void
@@ -229,7 +229,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     }
 
     /**
-     * If we didn't find any default billing address we fill the empty fields 
+     * If we didn't find any default billing address we fill the empty fields
      * required for quote validation
      *
      * @param ShippingAddressRequestInterface $shipping_address
@@ -260,7 +260,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     protected function setPaymentMethod()
     {
         $payment = $this->quote->getPayment();
-        $payment->setMethod(Paypal::PAYMENT_METHOD_CODE);
+        $payment->setMethod(Paypal::CODE);
         $this->quote->setPayment($payment);
     }
 

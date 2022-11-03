@@ -27,7 +27,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Model\Method\PayPerEmail;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 
 class CommandInterface
 {
@@ -86,8 +86,8 @@ class CommandInterface
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export([$methodInstance->getCode(), $paymentAction], true));
 
         if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
-            if (($methodInstance->getCode() == 'buckaroo_magento2_payperemail') && ($paymentAction == 'order')) {
-                $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
+            if (($methodInstance->getCode() == PayPerEmail::CODE) && ($paymentAction == 'order')) {
+                $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
                 if ($config->getEnabledB2B()) {
                     $this->logging->addDebug(__METHOD__ . '|5|');
                     return $message;
@@ -133,7 +133,7 @@ class CommandInterface
             return false;
         }
 
-        //skip setting the status here for applepay 
+        //skip setting the status here for applepay
         if (preg_match('/applepay/', $methodInstance->getCode())) {
             return;
         }

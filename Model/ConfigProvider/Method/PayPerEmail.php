@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
-
 /**
  * @method getCm3DueDate()
  * @method getMaxStepIndex()

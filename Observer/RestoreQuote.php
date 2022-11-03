@@ -19,8 +19,8 @@
  */
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Model\Method\Giftcards;
-use Buckaroo\Magento2\Model\Method\Payconiq;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 
 class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
@@ -148,7 +148,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
                 return;
             }
-            if (in_array($payment->getMethod(), [Giftcards::PAYMENT_METHOD_CODE, Payconiq::PAYMENT_METHOD_CODE])) {
+            if (in_array($payment->getMethod(), [Giftcards::CODE, Payconiq::CODE])) {
                 return true;
             }
             $order = $payment->getOrder();

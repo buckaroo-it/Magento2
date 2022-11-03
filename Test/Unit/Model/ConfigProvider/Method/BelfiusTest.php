@@ -23,7 +23,6 @@ use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius;
-use Buckaroo\Magento2\Model\Method\Belfius as BelfiusMethod;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 
 class BelfiusTest extends BaseTest
@@ -71,7 +70,7 @@ class BelfiusTest extends BaseTest
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
         $paymentFeeMock->method('getBuckarooPaymentFeeLabel')
-            ->with(BelfiusMethod::PAYMENT_METHOD_CODE)->willReturn('Belfius Fee');
+            ->with(Belfius::CODE)->willReturn('Belfius Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
 

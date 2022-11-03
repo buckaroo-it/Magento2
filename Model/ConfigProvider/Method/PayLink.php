@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Model\Method\PayLink as MethodPayLink;
-
 /**
  * @method getCm3DueDate()
  * @method getMaxStepIndex()

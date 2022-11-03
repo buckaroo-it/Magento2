@@ -29,18 +29,18 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use Buckaroo\Magento2\Model\Method\Afterpay;
-use Buckaroo\Magento2\Model\Method\Afterpay2;
-use Buckaroo\Magento2\Model\Method\Afterpay20;
-use Buckaroo\Magento2\Model\Method\Creditcard;
-use Buckaroo\Magento2\Model\Method\Klarnakp;
-use Buckaroo\Magento2\Model\Method\Giftcards;
-use Buckaroo\Magento2\Model\Method\Paypal;
-use Buckaroo\Magento2\Model\Method\PayPerEmail;
-use Buckaroo\Magento2\Model\Method\SepaDirectDebit;
-use Buckaroo\Magento2\Model\Method\Sofortbanking;
-use Buckaroo\Magento2\Model\Method\Transfer;
-use Buckaroo\Magento2\Model\Method\Voucher;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
@@ -201,8 +201,8 @@ class Push implements PushInterface
         \Magento\Framework\ObjectManagerInterface $objectManager,
         ResourceConnection $resourceConnection,
         \Magento\Framework\Filesystem\DirectoryList $dirList,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig,
+        Klarnakp $klarnakpConfig,
+        Afterpay20 $afterpayConfig,
         File $fileSystemDriver,
         RequestPushFactory $requestPushFactory
     ) {
@@ -356,7 +356,7 @@ class Push implements PushInterface
             $this->logging->addDebug('Order can not receive updates');
             if ($receivePushCheckPayPerEmailResult) {
                 $config = $this->configProviderMethodFactory->get(
-                    PayPerEmail::PAYMENT_METHOD_CODE
+                    PayPerEmail::CODE
                 );
                 if ($config->getEnabledB2B()) {
                     $this->logging->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
@@ -394,7 +394,7 @@ class Push implements PushInterface
             }
         }
 
-        if ((!in_array($payment->getMethod() ,[Giftcards::PAYMENT_METHOD_CODE, Voucher::PAYMENT_METHOD_CODE])) && $this->isGroupTransactionPart()) {
+        if ((!in_array($payment->getMethod(), [Giftcards::CODE, Voucher::CODE])) && $this->isGroupTransactionPart()) {
             $this->savePartGroupTransaction();
             return true;
         }
@@ -448,8 +448,8 @@ class Push implements PushInterface
         }
         $payment               = $this->order->getPayment();
         $ignoredPaymentMethods = [
-            Giftcards::PAYMENT_METHOD_CODE,
-            Transfer::PAYMENT_METHOD_CODE
+            Giftcards::CODE,
+            Transfer::CODE
         ];
         if ($payment
             && $payment->getMethod()
@@ -749,9 +749,9 @@ class Push implements PushInterface
                 $this->processFailedPush($newStatus, $response['message']);
                 break;
             case 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS':
-                if ($this->order->getPayment()->getMethod() == Paypal::PAYMENT_METHOD_CODE) {
+                if ($this->order->getPayment()->getMethod() == Paypal::CODE) {
                     $paypalConfig = $this->configProviderMethodFactory
-                        ->get(Paypal::PAYMENT_METHOD_CODE);
+                        ->get(Paypal::CODE);
 
                     /**
                      * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal $paypalConfig
@@ -849,7 +849,7 @@ class Push implements PushInterface
     {
         $payment = $this->order->getPayment();
 
-        if ($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE
+        if ($payment->getMethod() != Giftcards::CODE
             || (!empty($this->pushRequst->getAmount()) && $this->pushRequst->getAmount() >= $this->order->getGrandTotal())
             || empty($this->pushRequst->getRelatedtransactionPartialpayment())
         ) {
@@ -1379,10 +1379,10 @@ class Push implements PushInterface
 
         // Transfer has a slightly different flow where a successful order has a 792 status code instead of an 190 one
         if (!$this->order->getEmailSent()
-            && in_array($payment->getMethod(), [Transfer::PAYMENT_METHOD_CODE,
-                SepaDirectDebit::PAYMENT_METHOD_CODE,
-                Sofortbanking::PAYMENT_METHOD_CODE,
-                PayPerEmail::PAYMENT_METHOD_CODE,
+            && in_array($payment->getMethod(), [Transfer::CODE,
+                SepaDirectDebit::CODE,
+                Sofortbanking::CODE,
+                PayPerEmail::CODE,
             ])
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
@@ -1489,7 +1489,7 @@ class Push implements PushInterface
         if (!empty($this->pushRequst->getAmount())) {
             $invoiceAmount = floatval($this->pushRequst->getAmount());
         }
-        if (($payment->getMethod() == Giftcards::PAYMENT_METHOD_CODE)
+        if (($payment->getMethod() == Giftcards::CODE)
             && $invoiceAmount != $this->order->getGrandTotal()
         ) {
             $this->setReceivedPaymentFromBuckaroo();
@@ -1701,7 +1701,7 @@ class Push implements PushInterface
                 || (in_array($status, $failedStatuses))
             ) && $validSignature
         ) {
-            $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
+            $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
             if ($config->getEnabledCronCancelPPE()) {
                 return true;
             }
@@ -1752,7 +1752,7 @@ class Push implements PushInterface
             && ($this->pushRequst->getTransactionMethod() == 'payperemail')
         ) {
             $this->logging->addDebug(__METHOD__ . '|1|');
-            $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
+            $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
             if ($config->getEnabledB2B()) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
                 return true;
@@ -1768,7 +1768,7 @@ class Push implements PushInterface
             && ($this->pushRequst->getTransactionMethod() == 'payperemail')
         ) {
             $this->logging->addDebug(__METHOD__ . '|1|');
-            $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
+            $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
             if (!$config->getEnabledB2B()) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
                 return true;
@@ -1865,15 +1865,15 @@ class Push implements PushInterface
     private function processSucceededPushAuth($payment)
     {
         $authPpaymentMethods = [
-            Afterpay::PAYMENT_METHOD_CODE,
-            Afterpay2::PAYMENT_METHOD_CODE,
-            Afterpay20::PAYMENT_METHOD_CODE,
-            Creditcard::PAYMENT_METHOD_CODE,
-            Klarnakp::PAYMENT_METHOD_CODE
+            Afterpay::CODE,
+            Afterpay2::CODE,
+            Afterpay20::CODE,
+            Creditcard::CODE,
+            Klarnakp::CODE
         ];
 
         if (in_array($payment->getMethod(), $authPpaymentMethods)) {
-            if ((($payment->getMethod() == Klarnakp::PAYMENT_METHOD_CODE)
+            if ((($payment->getMethod() == Klarnakp::CODE)
                     || (
                         !empty($this->pushRequst->getTransactionType())
                         && in_array($this->pushRequst->getTransactionType(), ['I038', 'I880'])

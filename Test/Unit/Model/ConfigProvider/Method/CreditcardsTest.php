@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
-use Buckaroo\Magento2\Model\Method\Creditcards as CreditcardsMethod;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -73,7 +72,7 @@ class CreditcardsTest extends BaseTest
             ->willReturnOnConsecutiveCalls('', '1', 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(CreditcardsMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Creditcards::CODE)->willReturn('Fee');
 
         $creditcardMock = $this->getFakeMock(Creditcard::class)->setMethods(['getIssuers'])->getMock();
         $creditcardMock->expects($this->once())->method('getIssuers')->willReturn([]);

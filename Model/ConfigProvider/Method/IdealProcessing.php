@@ -21,7 +21,6 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Model\Method\IdealProcessing as IdealProcessingMethod;
 
 class IdealProcessing extends AbstractConfigProvider
 {

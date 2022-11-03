@@ -21,12 +21,13 @@ namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Model\Method\Afterpay20;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 
 class SendInvoiceMail implements ObserverInterface
 {
@@ -61,6 +62,7 @@ class SendInvoiceMail implements ObserverInterface
 
     /**
      * @param Observer $observer
+     * @throws LocalizedException
      */
     public function execute(Observer $observer)
     {
@@ -89,7 +91,7 @@ class SendInvoiceMail implements ObserverInterface
             }
         }
         if ($invoice->getIsPaid() && $canCapture) {
-            if (($payment->getMethod() == Afterpay20::PAYMENT_METHOD_CODE)
+            if (($payment->getMethod() == Afterpay20::CODE)
                 && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
                 && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
             ) {
