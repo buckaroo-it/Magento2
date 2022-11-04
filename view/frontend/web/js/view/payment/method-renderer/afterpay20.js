@@ -110,7 +110,6 @@ define(
                     termsValidate: false,
                     identificationValidate: null,
                     phoneValidate: null,
-                    showNLBEFieldsValue: true,
                     showIdentificationValue: null,
                     showFrenchTosValue: null,
                     showPhoneValue: null,
@@ -150,7 +149,6 @@ define(
                             'identificationValidate',
                             'phoneValidate',
                             'dummy',
-                            'showNLBEFieldsValue',
                             'showIdentificationValue',
                             'showFrenchTosValue',
                             'showPhoneValue',
@@ -171,9 +169,24 @@ define(
 
                     this.showNLBEFields = ko.computed(
                         function () {
-                            if (this.showNLBEFieldsValue() !== null) {
-                                return this.showNLBEFieldsValue();
+                            const billingAddress = quote.billingAddress();
+                            let showDob = false;
+                            let country;
+                            if(billingAddress !== null) {
+                                country =  billingAddress.countryId;
                             }
+
+                            if (this.isCustomerLoggedIn() && !this.isOsc() && (country === undefined)) {
+                                showDob = true;
+                            }
+
+                            
+                            if ((!this.isCustomerLoggedIn() && this.isOsc()) || ((country === 'NL' || country === 'BE'))) {
+                                showDob = true;
+                            }
+
+                            return showDob && !this.showCOC();
+
                         },
                         this
                     );
@@ -201,13 +214,9 @@ define(
                             return;
                         }
 
-                        this.showNLBEFieldsValue(false);
                         this.showIdentificationValue(false);
                         this.showPhoneValue(false);
 
-                        if ((!this.isCustomerLoggedIn() && this.isOsc()) || ((this.country === 'NL' || this.country === 'BE'))) {
-                            this.showNLBEFieldsValue(true);
-                        }
 
                         if (this.country === 'FI') {
                             this.showIdentificationValue(true);
@@ -295,11 +304,11 @@ define(
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
 
-                            return this.isB2B && (
-                                (shipping && shipping.countryId == 'NL' && shipping.company && shipping.company.trim().length > 0) ||
-                                (billing && billing.countryId == 'NL' && billing.company && billing.company.trim().length > 0)
+                            const res =  this.isB2B && (
+                                (shipping !== null && shipping.countryId == 'NL' && shipping.company !== undefined && shipping.company.trim().length > 0) ||
+                                (billing !== null && billing.countryId == 'NL' && billing.company !== undefined && billing.company.trim().length > 0)
                             )
-                            
+                           return res;
                         },
                         this
                     )
@@ -362,8 +371,8 @@ define(
                                 this.termsValidate() !== false &&
                                 this.validate() &&
                                 (
-                                    (this.country != 'NL' && this.country != 'BE')
-                                    ||
+                                    (this.country != 'NL' && this.country != 'BE') ||
+                                    this.showCOC() ||
                                     (this.calculateAge(this.dateValidate()) >= 18)
                                 )
                             return result;
@@ -478,7 +487,10 @@ define(
                         return true;
                     }
                     var elements = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
-                    return elements.valid();
+                    if (elements.length) {
+                        return elements.valid();
+                    }
+                    return true;
                 },
 
                 getData: function () {
