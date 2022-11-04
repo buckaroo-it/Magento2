@@ -304,11 +304,10 @@ define(
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
 
-                            const res =  this.isB2B && (
+                            return this.isB2B && (
                                 (shipping !== null && shipping.countryId == 'NL' && shipping.company !== undefined && shipping.company.trim().length > 0) ||
                                 (billing !== null && billing.countryId == 'NL' && billing.company !== undefined && billing.company.trim().length > 0)
                             )
-                           return res;
                         },
                         this
                     )
