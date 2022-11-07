@@ -23,13 +23,26 @@ namespace Buckaroo\Magento2\Plugin\Method;
 class SepaDirectDebit
 {
     /**
-     * @param \Buckaroo\Magento2\Model\Method\SepaDirectDebit $payment
+     * @var BuckarooAdapter
+     */
+    private BuckarooAdapter $paymentMethod;
+
+    /**
+     * @param BuckarooAdapter $paymentMethod
+     */
+    public function __construct(BuckarooAdapter $paymentMethod)
+    {
+        $this->paymentMethod = $paymentMethod;
+    }
+
+    /**
+     * @param BuckarooAdapter $paymentMethod
      * @param array|\StdCLass                            $response
      *
      * @return $this
      */
     public function afterOrderTransaction(
-        \Buckaroo\Magento2\Model\Method\SepaDirectDebit $payment,
+        BuckarooAdapter $paymentMethod,
         $response
     ) {
         if (!empty($response[0]->ConsumerMessage) && $response[0]->ConsumerMessage->MustRead == 1) {

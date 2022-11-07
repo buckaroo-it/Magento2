@@ -21,7 +21,6 @@
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Magento\Payment\Gateway\Data\Order\OrderAdapter" type="Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter"/>
-    <preference for="Buckaroo\Magento2\Gateway\GatewayInterface" type="Buckaroo\Magento2\Gateway\Http\Bpe3"/>
     <preference for="Buckaroo\Magento2\Api\CertificateRepositoryInterface" type="Buckaroo\Magento2\Model\CertificateRepository"/>
     <preference for="Buckaroo\Magento2\Api\InvoiceRepositoryInterface" type="Buckaroo\Magento2\Model\InvoiceRepository"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
@@ -84,10 +83,6 @@
     </type>
     <type name="Buckaroo\Magento2\Model\Method\Paypal">
         <plugin name="buckaroo_magento2_paypal_sellersprotection_order" type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\Order" />
-    </type>
-
-    <type name="Buckaroo\Magento2\Model\Method\SepaDirectDebit">
-        <plugin name="buckaroo_magento2_sepadirectdebit" type="Buckaroo\Magento2\Plugin\Method\SepaDirectDebit" />
     </type>
 
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
@@ -213,33 +208,6 @@
     <type name="Buckaroo\Magento2\Model\ResourceModel\Certificate">
         <arguments>
             <argument name="dateTime" xsi:type="object">Magento\Framework\Stdlib\DateTime\DateTime</argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory">
-        <arguments>
-            <argument name="transactionBuilders" xsi:type="array">
-                <item name="order" xsi:type="array">
-                    <item name="type" xsi:type="string">order</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order</item>
-                </item>
-                <item name="refund" xsi:type="array">
-                    <item name="type" xsi:type="string">refund</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Refund</item>
-                </item>
-                <item name="cancel" xsi:type="array">
-                    <item name="type" xsi:type="string">cancel</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Cancel</item>
-                </item>
-                <item name="datarequest" xsi:type="array">
-                    <item name="type" xsi:type="string">datarequest</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\DataRequest</item>
-                </item>
-                <item name="idin" xsi:type="array">
-                    <item name="type" xsi:type="string">idin</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Idin</item>
-                </item>
-            </argument>
         </arguments>
     </type>
 
@@ -970,15 +938,10 @@
         </arguments>
     </virtualType>
 
-
-
-
     <!-- Response handlers -->
     <virtualType name="IdealAuthorizationHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
             <argument name="handlers" xsi:type="array">
-                <item name="txnid" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TxnIdHandler</item>
-                <item name="fraud" xsi:type="string">Buckaroo\Magento2\Gateway\Response\FraudHandler</item>
                 <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
             </argument>
         </arguments>
@@ -988,8 +951,6 @@
     <virtualType name="IdealRefundHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
             <argument name="handlers" xsi:type="array">
-                <item name="txnid" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TxnIdHandler</item>
-                <item name="fraud" xsi:type="string">Buckaroo\Magento2\Gateway\Response\FraudHandler</item>
                 <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RefundHandler</item>
             </argument>
         </arguments>
@@ -4120,6 +4081,17 @@
                 <item name="orderRequest" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="sepaDirectDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SepaDirectDebitDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- SepaDirectDebit Order Command - Response Handler -->
+    <virtualType name="SepaDirectDebitOrderHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+                <item name="credit_management" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler</item>
+                <item name="consumer_message" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ConsumerMessageHandler</item>
             </argument>
         </arguments>
     </virtualType>
