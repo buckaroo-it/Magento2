@@ -16,6 +16,6 @@ class NameDataBuilder extends AbstractDataBuilder
          */
         $billingAddress = $this->getOrder()->getBillingAddress();
 
-        return ['name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastName()];
+        return ['customer' => ['name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastName()]];
     }
 }
