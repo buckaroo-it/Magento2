@@ -276,6 +276,22 @@ class Data extends AbstractHelper
         return false;
     }
 
+    /**
+     * Get current store
+     *
+     * @return \Magento\Store\Api\Data\StoreInterface|null
+     */
+    public function getStore()
+    {
+        try {
+            return $this->storeManager->getStore();
+        }
+        catch (\Exception $e) {
+            $this->logger->addDebug(__METHOD__.(string)$e);
+            return null;
+        }
+    }
+
     public function getConfigCardSort()
     {
         $configValue = $this->scopeConfig->getValue(
