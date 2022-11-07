@@ -77,7 +77,7 @@ class PosPaymentValidator extends AbstractValidator
         $paymentMethodInstance = $validationSubject['payment'];
 
         $userAgent = $this->header->getHttpUserAgent();
-        $userAgentConfiguration = trim((string)$paymentMethodInstance->getConfigData('user_agent'));
+        $userAgentConfiguration = trim((string)$paymentMethodInstance->getPayment()->getConfigData('user_agent'));
 
         $this->buckarooLog->addDebug(var_export([$userAgent, $userAgentConfiguration], true));
 
