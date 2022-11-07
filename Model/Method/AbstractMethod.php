@@ -790,7 +790,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $billingCountry      = $this->payment->getOrder()->getBillingAddress()->getCountryId();
 
         if($responseCode == 491) {
-            return $this->getFirstError($transactionResponse);
+            $errorMessage =  $this->getFirstError($transactionResponse);
+            if(strlen(trim($errorMessage)) > 0) {
+                return $errorMessage;
+            }
         }
 
         $method = null;
@@ -810,8 +813,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $message       = strlen($methodMessage) > 0 ? $methodMessage : $message;
         }
 
-        if (isset($transactionResponse->Status->SubCode->_)) {
-            $message = $transactionResponse->Status->SubCode->_;
+        if (
+            isset($transactionResponse->Status->SubCode->_) &&
+            is_string($transactionResponse->Status->SubCode->_) &&
+            strlen(trim($transactionResponse->Status->SubCode->_)) > 0
+        ) {
+                $message = $transactionResponse->Status->SubCode->_;
         }
 
         $fraudMessage = $this->getFailureMessageOnFraud($transactionResponse);
