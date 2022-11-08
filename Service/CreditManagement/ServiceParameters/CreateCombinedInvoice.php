@@ -141,7 +141,7 @@ class CreateCombinedInvoice
                 'Name' => 'MaxStepIndex',
             ],
             [
-                '_'    => $this->configProvider->getPaymentMethodsWithGiftcards($order->getStoreId()),
+                '_'    => $this->getAllowedServices($order->getStoreId()),
                 'Name' => 'AllowedServices',
             ]
         ];
@@ -154,6 +154,14 @@ class CreateCombinedInvoice
         }
 
         return $ungroupedParameters;
+    }
+
+    protected function getAllowedServices($orderId)
+    {
+        if(method_exists($this->configProvider,'getPaymentMethodsWithGiftcards')) {
+            return  $this->configProvider->getPaymentMethodsWithGiftcards($orderId);
+        }
+        return $this->configProvider->getPaymentMethod();
     }
 
     /**
