@@ -141,7 +141,7 @@ class CreateCombinedInvoice
                 'Name' => 'MaxStepIndex',
             ],
             [
-                '_'    => $this->configProvider->getPaymentMethod(),
+                '_'    => $this->configProvider->getPaymentMethodsWithGiftcards($order->getStoreId()),
                 'Name' => 'AllowedServices',
             ]
         ];

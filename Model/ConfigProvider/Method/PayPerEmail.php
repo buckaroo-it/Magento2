@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
 
 /**
@@ -199,5 +201,62 @@ class PayPerEmail extends AbstractConfigProvider
         }
 
         return true;
+    }
+
+    /**
+     * Get allowed methods with allowed credit cards 
+     * @param string|null $storeId
+     * 
+     * @return string
+     */
+    public function getPaymentMethodsWithGiftcards(string $storeId = null): string
+    {
+        $paymentMethods = $this->scopeConfig->getValue(
+            self::XPATH_PAYPEREMAIL_PAYMENT_METHOD,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        if (!is_string($paymentMethods)) {
+            return '';
+        }
+        $methods = explode(",", $paymentMethods);
+        if (in_array('giftcard', $methods)) {
+            $methods = $this->addAllowedGiftcardsToMethods($methods, $storeId);
+        }
+        return implode(",", $methods);
+    }
+
+    /**
+     * Add allowed giftcards to list of allowed methods
+     *
+     * @param array $methods
+     * @param string|null $storeId
+     *
+     * @return array
+     */
+    private function addAllowedGiftcardsToMethods(array $methods, string $storeId = null)
+    {
+        $allowedGiftcards = $this->getAllowedCards($storeId);
+        $methods = array_diff($methods, ['giftcard']);
+        if (is_string($allowedGiftcards)) {
+            $methods[] = $allowedGiftcards;
+        }
+        return $methods;
+    }
+
+    /**
+     * Get allowed giftcards by codes
+     *
+     * @param string|null $storeId
+     *
+     * @return string|null|int
+     */
+    private function getAllowedCards(string $storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            Giftcards::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 }

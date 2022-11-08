@@ -229,7 +229,7 @@ class PayPerEmail extends AbstractMethod
                 'Name' => 'MerchantSendsEmail',
             ],
             [
-                '_'    => $this->getPaymentMethodsAllowed($config, $storeId),
+                '_'    => $config->getPaymentMethodsWithGiftcards($storeId),
                 'Name' => 'PaymentMethodsAllowed',
             ],
         ];
@@ -341,26 +341,5 @@ class PayPerEmail extends AbstractMethod
             );
 
         return $transactionBuilder;
-    }
-
-    private function getPaymentMethodsAllowed($config, $storeId)
-    {
-        if ($methods = $config->getPaymentMethod($storeId)) {
-            $methods = explode(',', (string)$methods);
-            $activeCards = '';
-            foreach ($methods as $key => $value) {
-                if ($value === 'giftcard') {
-                    $giftcardsConfig = $this->configProviderMethodFactory->get('giftcards');
-                    if ($activeCards = $giftcardsConfig->getAllowedCards($storeId)) {
-                        unset($methods[$key]);
-                    }
-                }
-            }
-            if ($activeCards) {
-                $methods = array_merge($methods, explode(',', (string)$activeCards));
-            }
-            $methods = join(',', $methods);
-        }
-        return $methods;
     }
 }
