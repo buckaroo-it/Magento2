@@ -25,7 +25,6 @@ use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
-use Buckaroo\Magento2\Observer\AddInTestModeMessage;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
 class Process extends \Magento\Framework\App\Action\Action
@@ -219,7 +218,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $payment = $this->order->getPayment();
 
         if($payment) {
-            $this->setPaymentAdditionalData($payment);
+            $this->setPaymentOutOfTransit($payment);
         }
 
         if (!method_exists($payment->getMethodInstance(), 'canProcessPostData')) {
@@ -410,20 +409,16 @@ class Process extends \Magento\Framework\App\Action\Action
         return $this->response;
     }
     /**
-     * Set additional information on the payment object
+     * Set flag if user is on the payment provider page
      *
      * @param OrderPaymentInterface $payment
      *
      * @return void
      */
-    protected function setPaymentAdditionalData(OrderPaymentInterface $payment)
+    protected function setPaymentOutOfTransit(OrderPaymentInterface $payment)
     {
         $payment
-        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false) //payment in transit
-        ->setAdditionalInformation(
-            AddInTestModeMessage::PAYMENT_IN_TEST_MODE,
-            isset($this->response['brq_test']) && $this->response['brq_test'] === 'true'
-        ) //payment in test mode
+        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
         ->save();
     }
     protected function handleFailed($statusCode)
