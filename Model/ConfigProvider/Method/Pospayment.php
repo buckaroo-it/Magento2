@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
@@ -60,7 +62,7 @@ class Pospayment extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getOtherPaymentMethods($store = null)
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -80,7 +81,7 @@ class Factory
         $configProvider = $this->objectManager->get($configProviderClass);
         if (!$configProvider instanceof ConfigProviderInterface) {
             throw new \LogicException(
-                'The ConfigProvider must implement '.
+                'The ConfigProvider must implement ' .
                 '"Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface".'
             );
         }

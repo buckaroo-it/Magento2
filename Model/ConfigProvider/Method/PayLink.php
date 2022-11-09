@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -67,7 +68,7 @@ class PayLink extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getPaymentMethod($store = null)
     {

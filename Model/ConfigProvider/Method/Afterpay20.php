@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -28,7 +29,8 @@ class Afterpay20 extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_afterpay20';
 
-    public const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
+    public const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP =
+        'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
 
     public const XPATH_AFTERPAY20_CUSTOMER_TYPE          = 'payment/buckaroo_magento2_afterpay20/customer_type';
     public const XPATH_AFTERPAY20_MIN_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/min_amount_b2b';

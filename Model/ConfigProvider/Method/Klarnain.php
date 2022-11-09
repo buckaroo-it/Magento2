@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -24,7 +25,7 @@ use Magento\Store\Model\ScopeInterface;
 
 class Klarnain extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_klarnain';
+    public const CODE = 'buckaroo_magento2_klarnain';
 
     public function getConfig()
     {

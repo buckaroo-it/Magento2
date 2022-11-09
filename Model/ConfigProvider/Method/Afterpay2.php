@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -35,7 +36,6 @@ class Afterpay2 extends AbstractConfigProvider
     public const XPATH_AFTERPAY2_LOW_TAX             = 'payment/buckaroo_magento2_afterpay2/low_tax';
     public const XPATH_AFTERPAY2_ZERO_TAX            = 'payment/buckaroo_magento2_afterpay2/zero_tax';
     public const XPATH_AFTERPAY2_NO_TAX              = 'payment/buckaroo_magento2_afterpay2/no_tax';
-
 
     /**
      * @inheritDoc

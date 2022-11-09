@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -61,7 +62,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtection($store = null)
     {
@@ -73,7 +74,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtectionEligible($store = null)
     {
@@ -85,7 +86,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtectionIneligible($store = null)
     {
@@ -97,7 +98,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
     {
@@ -109,7 +110,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
     {

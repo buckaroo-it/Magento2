@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -103,7 +104,7 @@ class Emandate extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSequenceType($store = null)
     {
@@ -115,7 +116,7 @@ class Emandate extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getReason($store = null)
     {
@@ -127,7 +128,7 @@ class Emandate extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getLanguage($store = null)
     {

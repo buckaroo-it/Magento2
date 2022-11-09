@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -27,7 +29,9 @@ use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstrac
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Store\Model\ScopeInterface;
 
-abstract class AbstractConfigProvider extends BaseAbstractConfigProvider implements CheckoutConfigProvider, ConfigProviderInterface
+abstract class AbstractConfigProvider extends BaseAbstractConfigProvider implements
+    CheckoutConfigProvider,
+    ConfigProviderInterface
 {
     public const XPATH_ACTIVE = 'active';
     public const XPATH_AVAILABLE_IN_BACKEND  = 'available_in_backend';

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -62,7 +63,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getDueDate($store = null)
     {
@@ -90,7 +91,7 @@ class Transfer extends AbstractConfigProvider
 
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getActiveStatusCm3($store = null)
     {
@@ -102,7 +103,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSchemeKey($store = null)
     {
@@ -114,7 +115,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getMaxStepIndex($store = null)
     {
@@ -126,7 +127,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getCm3DueDate($store = null)
     {
@@ -138,7 +139,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getPaymentMethodAfterExpiry($store = null)
     {

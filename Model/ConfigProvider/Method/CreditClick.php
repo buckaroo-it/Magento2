@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,7 +23,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class CreditClick extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_creditclick';
+    public const CODE = 'buckaroo_magento2_creditclick';
 
     /**
      * @inheritDoc

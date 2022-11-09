@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -42,9 +43,12 @@ class Creditcard extends AbstractConfigProvider
 
     public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS  = 'payment/buckaroo_magento2_creditcard/allowed_creditcards';
 
-    public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'payment/buckaroo_magento2_creditcard/mastercard_unsecure_hold';
-    public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'payment/buckaroo_magento2_creditcard/visa_unsecure_hold';
-    public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'payment/buckaroo_magento2_creditcard/maestro_unsecure_hold';
+    public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD
+        = 'payment/buckaroo_magento2_creditcard/mastercard_unsecure_hold';
+    public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD
+        = 'payment/buckaroo_magento2_creditcard/visa_unsecure_hold';
+    public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD
+        = 'payment/buckaroo_magento2_creditcard/maestro_unsecure_hold';
 
     public const XPATH_CREDITCARD_SORT                 = 'payment/buckaroo_magento2_creditcard/sorted_creditcards';
     public const XPATH_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
@@ -235,7 +239,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getMastercardUnsecureHold($store = null)
     {
@@ -247,7 +251,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getVisaUnsecureHold($store = null)
     {
@@ -259,7 +263,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getMaestroUnsecureHold($store = null)
     {
@@ -271,7 +275,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSort($store = null)
     {

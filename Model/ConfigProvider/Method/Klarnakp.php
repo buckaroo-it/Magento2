@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -24,9 +25,10 @@ use Magento\Store\Model\ScopeInterface;
 
 class Klarnakp extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_klarnakp';
+    public const CODE = 'buckaroo_magento2_klarnakp';
 
-    const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
+    public const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP =
+        'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
 
     public function getConfig()
     {

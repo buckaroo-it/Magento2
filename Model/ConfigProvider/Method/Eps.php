@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -28,7 +29,7 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Eps extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_eps';
+    public const CODE = 'buckaroo_magento2_eps';
 
     /**
      * @return array

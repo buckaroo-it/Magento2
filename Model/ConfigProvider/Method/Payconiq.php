@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -31,15 +32,16 @@ class Payconiq extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_payconiq';
 
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_payconiq/sellers_protection';
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_eligible';
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_ineligible';
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_itemnotreceived_eligible';
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_unauthorizedpayment_eligible';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION               =
+        'payment/buckaroo_magento2_payconiq/sellers_protection';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      =
+        'payment/buckaroo_magento2_payconiq/sellers_protection_eligible';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    =
+        'payment/buckaroo_magento2_payconiq/sellers_protection_ineligible';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE =
+        'payment/buckaroo_magento2_payconiq/sellers_protection_itemnotreceived_eligible';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE =
+        'payment/buckaroo_magento2_payconiq/sellers_protection_unauthorizedpayment_eligible';
 
     public const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
 
@@ -93,7 +95,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtection($store = null)
     {
@@ -105,7 +107,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtectionEligible($store = null)
     {
@@ -117,7 +119,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtectionIneligible($store = null)
     {
@@ -129,7 +131,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
     {
@@ -141,7 +143,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -34,7 +35,6 @@ class SepaDirectDebit extends AbstractConfigProvider
     public const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY =
         'payment/buckaroo_magento2_sepadirectdebit/payment_method_after_expiry';
 
-
     /**
      * @inheritDoc
      */
@@ -57,7 +57,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getActiveStatusCm3($store = null)
     {
@@ -69,7 +69,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSchemeKey($store = null)
     {
@@ -81,7 +81,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getMaxStepIndex($store = null)
     {
@@ -93,7 +93,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getCm3DueDate($store = null)
     {
@@ -105,7 +105,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getPaymentMethodAfterExpiry($store = null)
     {

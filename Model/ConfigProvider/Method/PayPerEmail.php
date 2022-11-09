@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,22 +26,23 @@ use Magento\Store\Model\ScopeInterface;
 
 class PayPerEmail extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_payperemail';
+    public const CODE = 'buckaroo_magento2_payperemail';
 
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_payperemail/active_status_cm3';
-    const XPATH_PAYPEREMAIL_SEND_MAIL                   = 'payment/buckaroo_magento2_payperemail/send_mail';
-    const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'payment/buckaroo_magento2_payperemail/scheme_key';
-    const XPATH_PAYPEREMAIL_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_payperemail/max_step_index';
-    const XPATH_PAYPEREMAIL_CM3_DUE_DATE                = 'payment/buckaroo_magento2_payperemail/cm3_due_date';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD              = 'payment/buckaroo_magento2_payperemail/payment_method';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/'.
-        'buckaroo_magento2_payperemail/payment_method_after_expiry';
-    const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_payperemail/visible_front_back';
-    const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE = 'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
-    const XPATH_PAYPEREMAIL_ENABLE_B2B                  = 'payment/buckaroo_magento2_payperemail/enable_b2b';
-    const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'payment/buckaroo_magento2_payperemail/expire_days';
-    const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'payment/buckaroo_magento2_payperemail/cancel_ppe';
-    const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE             = 'payment/buckaroo_magento2_payperemail/cron_cancel_ppe';
+    public const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3 = 'payment/buckaroo_magento2_payperemail/active_status_cm3';
+    public const XPATH_PAYPEREMAIL_SEND_MAIL                   = 'payment/buckaroo_magento2_payperemail/send_mail';
+    public const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'payment/buckaroo_magento2_payperemail/scheme_key';
+    public const XPATH_PAYPEREMAIL_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_payperemail/max_step_index';
+    public const XPATH_PAYPEREMAIL_CM3_DUE_DATE                = 'payment/buckaroo_magento2_payperemail/cm3_due_date';
+    public const XPATH_PAYPEREMAIL_PAYMENT_METHOD              = 'payment/buckaroo_magento2_payperemail/payment_method';
+    public const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY =
+        'payment/buckaroo_magento2_payperemail/payment_method_after_expiry';
+    public const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK = 'payment/buckaroo_magento2_payperemail/visible_front_back';
+    public const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE =
+        'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
+    public const XPATH_PAYPEREMAIL_ENABLE_B2B                  = 'payment/buckaroo_magento2_payperemail/enable_b2b';
+    public const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'payment/buckaroo_magento2_payperemail/expire_days';
+    public const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'payment/buckaroo_magento2_payperemail/cancel_ppe';
+    public const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE = 'payment/buckaroo_magento2_payperemail/cron_cancel_ppe';
 
     /**
      * @return array
@@ -155,7 +157,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getActiveStatusCm3($store = null)
     {
@@ -167,7 +169,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSchemeKey($store = null)
     {
@@ -179,7 +181,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getMaxStepIndex($store = null)
     {
@@ -191,7 +193,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getCm3DueDate($store = null)
     {
@@ -203,7 +205,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getPaymentMethodAfterExpiry($store = null)
     {
@@ -215,7 +217,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getVisibleFrontBack($store = null)
     {
@@ -227,7 +229,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getIsVisibleForAreaCode($store = null)
     {
@@ -239,7 +241,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getEnableB2b($store = null)
     {

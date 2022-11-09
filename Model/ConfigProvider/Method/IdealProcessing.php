@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ use Buckaroo\Magento2\Model\Method\IdealProcessing as IdealProcessingMethod;
 
 class IdealProcessing extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_idealprocessing';
+    public const CODE = 'buckaroo_magento2_idealprocessing';
 
     /**
      * @var array
@@ -35,7 +36,7 @@ class IdealProcessing extends AbstractConfigProvider
     ];
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getConfig($store = null)
     {
