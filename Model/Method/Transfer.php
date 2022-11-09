@@ -198,7 +198,7 @@ class Transfer extends AbstractMethod
                     'Name' => 'DateDue'
                 ],
                 [
-                    '_'    => $transferConfig->getSendEmail(),
+                    '_'    => $transferConfig->getOrderEmail(),
                     'Name' => 'SendMail'
                 ]
             ],

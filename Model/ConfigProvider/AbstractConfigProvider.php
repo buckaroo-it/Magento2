@@ -23,10 +23,11 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
 
 abstract class AbstractConfigProvider implements ConfigProviderInterface, ConfigInterface
 {
-    const DEFAULT_PATH_PATTERN = 'payment/%s/%s';
+    protected const DEFAULT_PATH_PATTERN = 'payment/%s/%s';
 
     /**
      * @var string
@@ -66,7 +67,7 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
     /**
      * Get all config in associated array
      *
-     * @param  null|int|\Magento\Store\Model\Store $store
+     * @param  null|int|Store $store
      * @return array
      */
     public function getConfig()
@@ -100,12 +101,12 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
     /**
      * Return the config value for the given Xpath (optionally with $store)
      *
-     * @param string                              $xpath
-     * @param null|int|\Magento\Store\Model\Store $store
+     * @param string $xpath
+     * @param null|int|Store $store
      *
      * @return mixed
      */
-    protected function getConfigFromXpath($xpath, $store = null)
+    protected function getConfigFromXpath(string $xpath, $store = null)
     {
         return $this->scopeConfig->getValue(
             $xpath,

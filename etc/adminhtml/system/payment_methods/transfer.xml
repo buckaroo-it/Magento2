@@ -44,12 +44,12 @@
             <config_path>payment/buckaroo_magento2_transfer/sort_order</config_path>
         </field>
 
-        <field id="send_email" translate="label comment tooltip" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="order_email" translate="label comment tooltip" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Send payment instruction email</label>
             <comment><![CDATA[Buckaroo sends an email to the customer with the payment procedures.]]></comment>
             <tooltip>Set to 'No' the customer is informed once online.</tooltip>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>payment/buckaroo_magento2_transfer/send_email</config_path>
+            <config_path>payment/buckaroo_magento2_transfer/order_email</config_path>
         </field>
 
         <field id="due_date" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">

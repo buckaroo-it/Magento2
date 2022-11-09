@@ -30,22 +30,12 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Applepay extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_applepay';
-    const XPATH_APPLEPAY_ACTIVE                = 'payment/buckaroo_magento2_applepay/active';
-    const XPATH_APPLEPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_applepay/active_status';
-    const XPATH_APPLEPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_applepay/order_status_success';
-    const XPATH_APPLEPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_applepay/order_status_failed';
-    const XPATH_APPLEPAY_ORDER_EMAIL           = 'payment/buckaroo_magento2_applepay/order_email';
-    const XPATH_APPLEPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_applepay/available_in_backend';
-    const XPATH_APPLEPAY_AVAILABLE_BUTTONS     = 'payment/buckaroo_magento2_applepay/available_buttons';
-    const XPATH_APPLEPAY_BUTTON_STYLE     = 'payment/buckaroo_magento2_applepay/button_style';
-    const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'payment/'.
-        'buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
+    public const CODE = 'buckaroo_magento2_applepay';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_applepay/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_applepay/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_applepay/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_applepay/specificcustomergroup';
+    public const XPATH_APPLEPAY_AVAILABLE_BUTTONS = 'payment/buckaroo_magento2_applepay/available_buttons';
+    public const XPATH_APPLEPAY_BUTTON_STYLE = 'payment/buckaroo_magento2_applepay/button_style';
+    public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT =
+        'payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
 
     /**
      * @var array
@@ -64,6 +54,15 @@ class Applepay extends AbstractConfigProvider
     /** @var StoreManagerInterface */
     private $storeManager;
 
+    /**
+     * @param Repository $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param StoreManagerInterface $storeManager
+     * @param Resolver $localeResolver
+     * @param Account $configProvicerAccount
+     */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
@@ -81,14 +80,11 @@ class Applepay extends AbstractConfigProvider
     }
 
     /**
-     * @return array|void
+     * @inheritDoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_ACTIVE,
-            ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -113,20 +109,17 @@ class Applepay extends AbstractConfigProvider
                         ),
                         'guid' => $this->configProvicerAccount->getMerchantGuid(),
                         'availableButtons' => $this->getAvailableButtons(),
-                        'buttonStyle' => $this->scopeConfig->getValue(
-                            static::XPATH_APPLEPAY_BUTTON_STYLE,
-                            ScopeInterface::SCOPE_STORE
-                        ),
-                        'dontAskBillingInfoInCheckout' => (int) $this->scopeConfig->getValue(
-                            static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
-                            ScopeInterface::SCOPE_STORE
-                        )
+                        'buttonStyle' => $this->getButtonStyle(),
+                        'dontAskBillingInfoInCheckout' => (int) $this->getDontAskBillingInfoInCheckout()
                     ],
                 ],
             ],
         ];
     }
 
+    /**
+     * @return false|string[]
+     */
     public function getAvailableButtons()
     {
         $availableButtons = $this->scopeConfig->getValue(
@@ -142,82 +135,6 @@ class Applepay extends AbstractConfigProvider
         return $availableButtons;
     }
 
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActive($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_ACTIVE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActiveStatus($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_ACTIVE_STATUS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusSuccess($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_ORDER_STATUS_SUCCESS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusFailed($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_ORDER_STATUS_FAILED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderEmail($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_ORDER_EMAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableInBackend($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_AVAILABLE_IN_BACKEND,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getButtonStyle($store = null)
     {
         return $this->scopeConfig->getValue(
@@ -227,9 +144,6 @@ class Applepay extends AbstractConfigProvider
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDontAskBillingInfoInCheckout($store = null)
     {
         return $this->scopeConfig->getValue(

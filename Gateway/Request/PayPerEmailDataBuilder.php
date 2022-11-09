@@ -53,7 +53,7 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
             $activeCards = '';
             foreach ($methods as $key => $value) {
                 if ($value === 'giftcard') {
-                    if ($activeCards = $this->giftcardsConfig->getAllowedCards($storeId)) {
+                    if ($activeCards = $this->giftcardsConfig->getAllowedGiftcards($storeId)) {
                         unset($methods[$key]);
                     }
                 }

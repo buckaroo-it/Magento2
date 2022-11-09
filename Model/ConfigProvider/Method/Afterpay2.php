@@ -24,48 +24,25 @@ use Buckaroo\Magento2\Model\Config\Source\Afterpay2PaymentMethods;
 use Buckaroo\Magento2\Model\Config\Source\Business;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * @method getDueDate()
- * @method getSendEmail()
- */
 class Afterpay2 extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_afterpay2';
+    public const CODE = 'buckaroo_magento2_afterpay2';
 
-    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_afterpay2/allowed_currencies';
+    public const XPATH_AFTERPAY2_BUSINESS            = 'payment/buckaroo_magento2_afterpay2/business';
+    public const XPATH_AFTERPAY2_PAYMENT_METHODS     = 'payment/buckaroo_magento2_afterpay2/payment_method';
+    public const XPATH_AFTERPAY2_HIGH_TAX            = 'payment/buckaroo_magento2_afterpay2/high_tax';
+    public const XPATH_AFTERPAY2_MIDDLE_TAX          = 'payment/buckaroo_magento2_afterpay2/middle_tax';
+    public const XPATH_AFTERPAY2_LOW_TAX             = 'payment/buckaroo_magento2_afterpay2/low_tax';
+    public const XPATH_AFTERPAY2_ZERO_TAX            = 'payment/buckaroo_magento2_afterpay2/zero_tax';
+    public const XPATH_AFTERPAY2_NO_TAX              = 'payment/buckaroo_magento2_afterpay2/no_tax';
 
-    const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_afterpay2/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_afterpay2/specificcountry';
 
-    const XPATH_AFTERPAY2_ACTIVE                 = 'payment/buckaroo_magento2_afterpay2/active';
-    const XPATH_AFTERPAY2_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay2/payment_fee';
-    const XPATH_AFTERPAY2_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_afterpay2/payment_fee_label';
-    const XPATH_AFTERPAY2_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay2/send_email';
-    const XPATH_AFTERPAY2_ACTIVE_STATUS          = 'payment/buckaroo_magento2_afterpay2/active_status';
-    const XPATH_AFTERPAY2_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_afterpay2/order_status_success';
-    const XPATH_AFTERPAY2_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_afterpay2/order_status_failed';
-    const XPATH_AFTERPAY2_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_afterpay2/available_in_backend';
-    const XPATH_AFTERPAY2_DUE_DATE               = 'payment/buckaroo_magento2_afterpay2/due_date';
-    const XPATH_AFTERPAY2_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay2/allowed_currencies';
-    const XPATH_AFTERPAY2_BUSINESS               = 'payment/buckaroo_magento2_afterpay2/business';
-    const XPATH_AFTERPAY2_PAYMENT_METHODS        = 'payment/buckaroo_magento2_afterpay2/payment_method';
-    const XPATH_AFTERPAY2_HIGH_TAX               = 'payment/buckaroo_magento2_afterpay2/high_tax';
-    const XPATH_AFTERPAY2_MIDDLE_TAX             = 'payment/buckaroo_magento2_afterpay2/middle_tax';
-    const XPATH_AFTERPAY2_LOW_TAX                = 'payment/buckaroo_magento2_afterpay2/low_tax';
-    const XPATH_AFTERPAY2_ZERO_TAX               = 'payment/buckaroo_magento2_afterpay2/zero_tax';
-    const XPATH_AFTERPAY2_NO_TAX                 = 'payment/buckaroo_magento2_afterpay2/no_tax';
-
-    const XPATH_SPECIFIC_CUSTOMER_GROUP          = 'payment/buckaroo_magento2_afterpay2/specificcustomergroup';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B      = 'payment/buckaroo_magento2_afterpay2/specificcustomergroupb2b';
     /**
-     * @return array
+     * @inheritDoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -77,7 +54,7 @@ class Afterpay2 extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'afterpay2' => [
-                        'sendEmail'         => (bool) $this->getSendEmail(),
+                        'sendEmail'         => (bool) $this->getOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
@@ -90,6 +67,7 @@ class Afterpay2 extends AbstractConfigProvider
     }
 
     /**
+     * This setting determines whether you accept Riverty | Afterpay payments for B2C, B2B or both customer types
      * businessMethod 1 = B2C
      * businessMethod 2 = B2B
      * businessMethod 3 = Both
@@ -100,7 +78,7 @@ class Afterpay2 extends AbstractConfigProvider
     {
         $business = (int) $this->scopeConfig->getValue(
             static::XPATH_AFTERPAY2_BUSINESS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
         $paymentMethod = $this->getPaymentMethod();
@@ -110,10 +88,11 @@ class Afterpay2 extends AbstractConfigProvider
             $business = Business::BUSINESS_B2C;
         }
 
-        return $business ? $business : false;
+        return $business ?: false;
     }
 
     /**
+     * Payment Method Channel
      * paymentMethod 1 = afterpayacceptgiro
      * paymentMethod 2 = afterpaydigiaccept
      *
@@ -123,103 +102,105 @@ class Afterpay2 extends AbstractConfigProvider
     {
         $paymentMethod = (int) $this->scopeConfig->getValue(
             static::XPATH_AFTERPAY2_PAYMENT_METHODS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
-        return $paymentMethod ? $paymentMethod : false;
+        return $paymentMethod ?: false;
     }
 
     /**
      * Get the config values for the high tax classes.
      *
-     * @param null|int $storeId
+     * @param null|int|string $store
      *
      * @return bool|mixed
      */
-    public function getHighTaxClasses($storeId = null)
+    public function getHighTaxClasses($store = null)
     {
         $taxClasses = $this->scopeConfig->getValue(
             static::XPATH_AFTERPAY2_HIGH_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
 
-        return $taxClasses ? $taxClasses : false;
+        return $taxClasses ?: false;
     }
 
     /**
      * Get the config values for the middle tax classes
      *
-     * @param null|int $storeId
+     * @param null|int|string $store
      *
      * @return bool|mixed
      */
-    public function getMiddleTaxClasses($storeId = null)
+    public function getMiddleTaxClasses($store = null)
     {
         $taxClasses = $this->scopeConfig->getValue(
             static::XPATH_AFTERPAY2_MIDDLE_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
 
-        return $taxClasses ? $taxClasses : false;
+        return $taxClasses ?: false;
     }
 
     /**
      * Get the config values for the low tax classes
      *
-     * @param null|int $storeId
+     * @param null|int|string $store
      *
      * @return bool|mixed
      */
-    public function getLowTaxClasses($storeId = null)
+    public function getLowTaxClasses($store = null)
     {
         $taxClasses = $this->scopeConfig->getValue(
             static::XPATH_AFTERPAY2_LOW_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
 
-        return $taxClasses ? $taxClasses : false;
+        return $taxClasses ?: false;
     }
 
     /**
      * Get the config values for the zero tax classes
      *
-     * @param null|int $storeId
+     * @param null|int|string $store
      *
      * @return bool|mixed
      */
-    public function getZeroTaxClasses($storeId = null)
+    public function getZeroTaxClasses($store = null)
     {
         $taxClasses = $this->scopeConfig->getValue(
             static::XPATH_AFTERPAY2_ZERO_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
 
-        return $taxClasses ? $taxClasses : false;
+        return $taxClasses ?: false;
     }
 
     /**
      * Get the config values for the no tax classes
      *
+     * @param null|int|string $store
      * @return bool|mixed
      */
-    public function getNoTaxClasses()
+    public function getNoTaxClasses($store = null)
     {
         $taxClasses = $this->scopeConfig->getValue(
             static::XPATH_AFTERPAY2_NO_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
 
-        return $taxClasses ? $taxClasses : false;
+        return $taxClasses ?: false;
     }
 
     /**
      * Get the methods name
      *
-     * @param int $method
+     * @param int|string $method
      *
      * @return bool|string
      */
@@ -232,200 +213,13 @@ class Afterpay2 extends AbstractConfigProvider
         }
 
         if ($method) {
-            switch ($method) {
-                case '1':
+            if ($method == '1') {
                     $paymentMethodName = 'afterpayacceptgiro';
-                    break;
-                case '2':
+            } elseif ($method == '2') {
                     $paymentMethodName = 'afterpaydigiaccept';
             }
         }
 
         return $paymentMethodName;
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActive($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_ACTIVE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentFeeLabel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_PAYMENT_FEE_LABEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSendEmail($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_SEND_EMAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActiveStatus($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_ACTIVE_STATUS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusSuccess($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_ORDER_STATUS_SUCCESS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusFailed($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_ORDER_STATUS_FAILED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableInBackend($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_AVAILABLE_IN_BACKEND,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDueDate($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_DUE_DATE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentMethods($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_PAYMENT_METHODS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHighTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_HIGH_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getMiddleTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_MIDDLE_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getLowTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_LOW_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getZeroTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_ZERO_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getNoTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY2_NO_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
     }
 }

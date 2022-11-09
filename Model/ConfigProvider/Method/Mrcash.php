@@ -29,27 +29,14 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Mrcash extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_mrcash';
-    const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
-    const XPATH_MRCASH_PAYMENT_FEE_LABEL        = 'payment/buckaroo_magento2_mrcash/payment_fee_label';
-    const XPATH_MRCASH_ACTIVE                   = 'payment/buckaroo_magento2_mrcash/active';
-    const XPATH_MRCASH_ACTIVE_STATUS            = 'payment/buckaroo_magento2_mrcash/active_status';
-    const XPATH_MRCASH_ORDER_STATUS_SUCCESS     = 'payment/buckaroo_magento2_mrcash/order_status_success';
-    const XPATH_MRCASH_ORDER_STATUS_FAILED      = 'payment/buckaroo_magento2_mrcash/order_status_failed';
-    const XPATH_MRCASH_AVAILABLE_IN_BACKEND     = 'payment/buckaroo_magento2_mrcash/available_in_backend';
+    public const CODE = 'buckaroo_magento2_mrcash';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_mrcash/allowed_currencies';
+    public const XPATH_MRCASH_USE_CLIENT_SIDE = 'payment/buckaroo_magento2_mrcash/client_side';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_mrcash/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_mrcash/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_mrcash/specificcustomergroup';
-
-    const XPATH_MRCASH_USE_CLIENT_SIDE          = 'payment/buckaroo_magento2_mrcash/client_side';
-
-    const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
+    public const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
 
     /** @var FormKey */
-    private $formKey;
+    private FormKey $formKey;
 
     /**
      * @param Repository           $assetRepo
@@ -70,13 +57,19 @@ class Mrcash extends AbstractConfigProvider
         $this->formKey = $formKey;
     }
 
+    /**
+     * Get Magento Form Key
+     *
+     * @return string
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function getFormKey()
     {
         return $this->formKey->getFormKey();
     }
 
     /**
-     * @return array|void
+     * @inheritDoc
      */
     public function getConfig()
     {
@@ -99,109 +92,12 @@ class Mrcash extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Get Use Client Side
      *
-     * @return float
+     * @param null|int|string $store
+     * @return mixed
      */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            static::XPATH_MRCASH_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
-    }
-
-    /**
-     * @return bool
-     */
-    private function useClientSide()
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_MRCASH_USE_CLIENT_SIDE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentFeeLabel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_MRCASH_PAYMENT_FEE_LABEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActive($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_MRCASH_ACTIVE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActiveStatus($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_MRCASH_ACTIVE_STATUS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusSuccess($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_MRCASH_ORDER_STATUS_SUCCESS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusFailed($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_MRCASH_ORDER_STATUS_FAILED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableInBackend($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_MRCASH_AVAILABLE_IN_BACKEND,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getUseClientSide($store = null)
+    private function useClientSide($store = null)
     {
         return $this->scopeConfig->getValue(
             static::XPATH_MRCASH_USE_CLIENT_SIDE,

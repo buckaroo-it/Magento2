@@ -71,7 +71,7 @@ class Afterpay20Test extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [Afterpay20::XPATH_AFTERPAY20_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Afterpay20::XPATH_AFTERPAY20_SEND_EMAIL, ScopeInterface::SCOPE_STORE],
+                [Afterpay20::XPATH_AFTERPAY20_ORDER_EMAIL, ScopeInterface::SCOPE_STORE],
                 [Afterpay20::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');

@@ -26,17 +26,6 @@ use Magento\Store\Model\ScopeInterface;
 class PayPerEmail extends AbstractConfigProvider
 {
     const CODE = 'buckaroo_magento2_payperemail';
-    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_payperemail/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_payperemail/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_payperemail/specificcountry';
-
-    const XPATH_PAYPEREMAIL_ACTIVE               = 'payment/buckaroo_magento2_payperemail/active';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_payperemail/payment_fee_label';
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS        = 'payment/buckaroo_magento2_payperemail/active_status';
-    const XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_payperemail/order_status_success';
-    const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_payperemail/order_status_failed';
 
     const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_payperemail/active_status_cm3';
     const XPATH_PAYPEREMAIL_SEND_MAIL                   = 'payment/buckaroo_magento2_payperemail/send_mail';
@@ -53,18 +42,12 @@ class PayPerEmail extends AbstractConfigProvider
     const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'payment/buckaroo_magento2_payperemail/cancel_ppe';
     const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE             = 'payment/buckaroo_magento2_payperemail/cron_cancel_ppe';
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payperemail/specificcustomergroup';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B     = 'payment/buckaroo_magento2_payperemail/specificcustomergroupb2b';
-
     /**
      * @return array
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_PAYPEREMAIL_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -90,43 +73,27 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
-     *
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            static::XPATH_PAYPEREMAIL_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
-    }
-
-    /**
      * @return bool
      */
     public function getSendMail()
     {
         $sendMail = $this->scopeConfig->getValue(
             static::XPATH_PAYPEREMAIL_SEND_MAIL,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
-        return $sendMail ? true : false;
+        return (bool)$sendMail;
     }
 
     public function getPaymentMethod($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
             static::XPATH_PAYPEREMAIL_PAYMENT_METHOD,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
+        return $paymentFee ?: false;
     }
 
     /**
@@ -136,7 +103,7 @@ class PayPerEmail extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             static::XPATH_PAYPEREMAIL_ENABLE_B2B,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -144,7 +111,7 @@ class PayPerEmail extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_PAYPEREMAIL_CRON_CANCEL_PPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -155,7 +122,7 @@ class PayPerEmail extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             static::XPATH_PAYPEREMAIL_EXPIRE_DAYS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -163,7 +130,7 @@ class PayPerEmail extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_PAYPEREMAIL_CANCEL_PPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -185,67 +152,6 @@ class PayPerEmail extends AbstractConfigProvider
         }
 
         return true;
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActive($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPEREMAIL_ACTIVE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentFeeLabel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActiveStatus($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPEREMAIL_ACTIVE_STATUS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusSuccess($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusFailed($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
     }
 
     /**

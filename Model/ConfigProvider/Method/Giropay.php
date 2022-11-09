@@ -24,24 +24,10 @@ use Magento\Store\Model\ScopeInterface;
 
 class Giropay extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_giropay';
-
-    const XPATH_GIROPAY_PAYMENT_FEE             = 'payment/buckaroo_magento2_giropay/payment_fee';
-    const XPATH_GIROPAY_PAYMENT_FEE_LABEL       = 'payment/buckaroo_magento2_giropay/payment_fee_label';
-    const XPATH_GIROPAY_ACTIVE                  = 'payment/buckaroo_magento2_giropay/active';
-    const XPATH_GIROPAY_ACTIVE_STATUS           = 'payment/buckaroo_magento2_giropay/active_status';
-    const XPATH_GIROPAY_ORDER_STATUS_SUCCESS    = 'payment/buckaroo_magento2_giropay/order_status_success';
-    const XPATH_GIROPAY_ORDER_STATUS_FAILED     = 'payment/buckaroo_magento2_giropay/order_status_failed';
-    const XPATH_GIROPAY_AVAILABLE_IN_BACKEND    = 'payment/buckaroo_magento2_giropay/available_in_backend';
-
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giropay/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_giropay/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_giropay/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_giropay/specificcustomergroup';
+    public const CODE = 'buckaroo_magento2_giropay';
 
     /**
-     * @return array|void
+     * @inheritDoc
      */
     public function getConfig()
     {
@@ -59,94 +45,5 @@ class Giropay extends AbstractConfigProvider
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            static::XPATH_GIROPAY_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentFeeLabel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIROPAY_PAYMENT_FEE_LABEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActive($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIROPAY_ACTIVE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActiveStatus($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIROPAY_ACTIVE_STATUS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusSuccess($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIROPAY_ORDER_STATUS_SUCCESS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusFailed($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIROPAY_ORDER_STATUS_FAILED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableInBackend($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIROPAY_AVAILABLE_IN_BACKEND,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
     }
 }

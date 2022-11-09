@@ -25,20 +25,26 @@ use Magento\Checkout\Model\ConfigProviderInterface as CheckoutConfigProvider;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-
+use Magento\Store\Model\ScopeInterface;
 
 abstract class AbstractConfigProvider extends BaseAbstractConfigProvider implements CheckoutConfigProvider, ConfigProviderInterface
 {
-    /**
-     * This xpath should be overridden in child classes.
-     */
-    const XPATH_ALLOWED_CURRENCIES = '';
+    public const XPATH_ACTIVE = 'active';
+    public const XPATH_AVAILABLE_IN_BACKEND  = 'available_in_backend';
 
-    /**
-     * This xpath should be overridden in child classes.
-     */
-    const XPATH_ALLOW_SPECIFIC    = '';
-    const XPATH_SPECIFIC_COUNTRY    = '';
+    public const XPATH_ORDER_EMAIL = 'order_email';
+    public const XPATH_PAYMENT_FEE = 'payment_fee';
+    public const XPATH_PAYMENT_FEE_LABEL = 'payment_fee_label';
+
+    public const XPATH_ACTIVE_STATUS = 'active_status';
+    public const XPATH_ORDER_STATUS_SUCCESS = 'order_status_success';
+    public const XPATH_ORDER_STATUS_FAILED = 'order_status_failed';
+
+    public const XPATH_ALLOWED_CURRENCIES = 'allowed_currencies';
+    public const XPATH_ALLOW_SPECIFIC = 'allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY = 'specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP = 'specificcustomergroup';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B = 'specificcustomergroupb2b';
 
     /**
      * The asset repository to generate the correct url to our assets.
@@ -124,7 +130,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
-     * @param string $pathPattern
      */
     public function __construct(
         Repository $assetRepo,
@@ -157,18 +162,15 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @return array
      */
-    protected function formatIssuers()
+    protected function formatIssuers(): array
     {
-        $issuers = array_map(
+        return array_map(
             function ($issuer) {
                 $issuer['img'] = $this->getImageUrl('ico-' . $issuer['code']);
-
                 return $issuer;
             },
             $this->getIssuers()
         );
-
-        return $issuers;
     }
 
     /**
@@ -184,21 +186,16 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        return false;
-    }
-
-    /**
      * @param null|int|\Magento\Store\Model\Store $store
      *
      * @return array
      */
     public function getAllowedCurrencies($store = null)
     {
-        $configuredAllowedCurrencies = trim((string)$this->getConfigFromXpath(static::XPATH_ALLOWED_CURRENCIES, $store));
+        $configuredAllowedCurrencies = trim((string)$this->getMethodConfigValue(
+            static::XPATH_ALLOWED_CURRENCIES,
+            $store
+        ));
         if (empty($configuredAllowedCurrencies)) {
             return $this->getBaseAllowedCurrencies();
         }
@@ -254,7 +251,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSpecificCustomerGroup($store = null)
     {
-        return $this->getConfigFromXpath(static::XPATH_SPECIFIC_CUSTOMER_GROUP, $store);
+        return $this->getMethodConfigValue(static::XPATH_SPECIFIC_CUSTOMER_GROUP, $store);
     }
 
     /**
@@ -264,7 +261,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSpecificCustomerGroupB2B($store = null)
     {
-        return $this->getConfigFromXpath(static::XPATH_SPECIFIC_CUSTOMER_GROUP_B2B, $store);
+        return $this->getMethodConfigValue(static::XPATH_SPECIFIC_CUSTOMER_GROUP_B2B, $store);
     }
 
     /**
@@ -275,5 +272,116 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getBuckarooPaymentFeeLabel($method = false)
     {
         return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel($method);
+    }
+
+    /**
+     * Retrieve information from payment configuration
+     *
+     * @param string $field
+     * @param null|int|string $storeId
+     *
+     * @return mixed
+     */
+    public function getMethodConfigValue(string $field, $storeId = null)
+    {
+        if (static::CODE === null || $this->pathPattern === null) {
+            return null;
+        }
+
+        return $this->scopeConfig->getValue(
+            sprintf($this->pathPattern, static::CODE, $field),
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
+     * Get Active Config Valuue
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getActive($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_ACTIVE, $store);
+    }
+
+    /**
+     * Get Available In Backend
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getAvailableInBackend($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_AVAILABLE_IN_BACKEND, $store);
+    }
+
+    /**
+     * Get Send order confirmation email
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getOrderEmail($store = null)
+    {
+        return (bool)$this->getMethodConfigValue(static::XPATH_ORDER_EMAIL, $store);
+    }
+
+    /**
+     * Get Payment fee Float Value
+     *
+     * @param null|int|string $store
+     *
+     * @return float|false
+     */
+    public function getPaymentFee($store = null)
+    {
+        $paymentFee =  $this->getMethodConfigValue(static::XPATH_PAYMENT_FEE, $store);
+        return $paymentFee ? (float)$paymentFee : false;
+    }
+
+    /**
+     * Get Payment fee frontend label
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_PAYMENT_FEE_LABEL, $store);
+    }
+
+    /**
+     * Get Method specific status enabled
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getActiveStatus($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_ACTIVE_STATUS, $store);
+    }
+
+    /**
+     * Get Method specific success status
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getOrderStatusSuccess($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_ORDER_STATUS_SUCCESS, $store);
+    }
+
+    /**
+     * Get Method specific failed status
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getOrderStatusFailed($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_ORDER_STATUS_FAILED, $store);
     }
 }

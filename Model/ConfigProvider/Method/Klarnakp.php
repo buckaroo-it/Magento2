@@ -26,36 +26,11 @@ class Klarnakp extends AbstractConfigProvider
 {
     const CODE = 'buckaroo_magento2_klarnakp';
 
-    const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarnakp/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC                = 'payment/buckaroo_magento2_klarnakp/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY              = 'payment/buckaroo_magento2_klarnakp/specificcountry';
-    const XPATH_KLARNAKP_ACTIVE                 = 'payment/buckaroo_magento2_klarnakp/active';
-    const XPATH_KLARNAKP_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnakp/payment_fee';
-    const XPATH_KLARNAKP_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarnakp/payment_fee_label';
-    const XPATH_KLARNAKP_SEND_EMAIL             = 'payment/buckaroo_magento2_klarnakp/send_email';
-    const XPATH_KLARNAKP_ACTIVE_STATUS          = 'payment/buckaroo_magento2_klarnakp/active_status';
-    const XPATH_KLARNAKP_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_klarnakp/order_status_success';
-    const XPATH_KLARNAKP_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_klarnakp/order_status_failed';
-    const XPATH_KLARNAKP_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_klarnakp/available_in_backend';
-    const XPATH_KLARNAKP_DUE_DATE               = 'payment/buckaroo_magento2_klarnakp/due_date';
-    const XPATH_KLARNAKP_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_klarnakp/allowed_currencies';
-    const XPATH_KLARNAKP_BUSINESS               = 'payment/buckaroo_magento2_klarnakp/business';
-    const XPATH_KLARNAKP_PAYMENT_METHOD        = 'payment/buckaroo_magento2_klarnakp/payment_method';
-    const XPATH_KLARNAKP_HIGH_TAX               = 'payment/buckaroo_magento2_klarnakp/high_tax';
-    const XPATH_KLARNAKP_MIDDLE_TAX             = 'payment/buckaroo_magento2_klarnakp/middle_tax';
-    const XPATH_KLARNAKP_LOW_TAX                = 'payment/buckaroo_magento2_klarnakp/low_tax';
-    const XPATH_KLARNAKP_ZERO_TAX               = 'payment/buckaroo_magento2_klarnakp/zero_tax';
-    const XPATH_KLARNAKP_NO_TAX                 = 'payment/buckaroo_magento2_klarnakp/no_tax';
-    const XPATH_KLARNAKP_GET_INVOICE            = 'payment/buckaroo_magento2_klarnakp/send_invoice';
     const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnakp/specificcustomergroup';
 
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -67,11 +42,8 @@ class Klarnakp extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'klarnakp' => [
-                        'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'businessMethod'    => $this->getBusiness(),
-                        'paymentMethod'     => $this->getPaymentMethod(),
                         'paymentFee'        => $this->getPaymentFee(),
                     ],
                     'response' => [],
@@ -81,259 +53,19 @@ class Klarnakp extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Get Create Invoice After Shipment
      *
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : 0;
-    }
-
-    public function getInvoiceSendMethod($storeId = null)
-    {
-        return $this->getConfigFromXpath(static::XPATH_KLARNAKP_GET_INVOICE, $storeId);
-    }
-
-    /**
-     * @param null|int $storeId
-     *
+     * @param null|int|string $store
      * @return bool
      */
-    public function getEnabled($storeId = null)
+    public function getCreateInvoiceAfterShipment($store = null): bool
     {
-        $enabled = $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $enabled ? $enabled : false;
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return bool
-     */
-    public function getCreateInvoiceAfterShipment($storeId = null)
-    {
-        $createInvoiceAfterShipment = $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActive($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_ACTIVE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentFeeLabel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_PAYMENT_FEE_LABEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSendEmail($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_SEND_EMAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActiveStatus($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_ACTIVE_STATUS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusSuccess($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_KLARNAKP_ORDER_STATUS_SUCCESS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusFailed($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_ORDER_STATUS_FAILED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableInBackend($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_AVAILABLE_IN_BACKEND,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDueDate($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_DUE_DATE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBusiness($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_BUSINESS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentMethod($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_PAYMENT_METHOD,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHighTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_HIGH_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getMiddleTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_MIDDLE_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getLowTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_LOW_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getZeroTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_ZERO_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getNoTax($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_NO_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getGetInvoice($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_GET_INVOICE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCreateInvoiceByShip($store = null)
-    {
-        return $this->scopeConfig->getValue(
+        $createInvoiceAfterShipment = (bool)$this->scopeConfig->getValue(
             static::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
             ScopeInterface::SCOPE_STORE,
             $store
         );
+
+        return $createInvoiceAfterShipment ?: false;
     }
 }

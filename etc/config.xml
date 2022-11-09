@@ -250,7 +250,7 @@
                 <title>Buckaroo Transfer</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>100</sort_order>
-                <send_email>1</send_email>
+                <order_email>1</order_email>
                 <due_date>7</due_date>
                 <due_date_invoice>0</due_date_invoice>
                 <reminder_level>4</reminder_level>

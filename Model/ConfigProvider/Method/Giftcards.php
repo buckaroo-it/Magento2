@@ -28,24 +28,11 @@ use Magento\Store\Model\ScopeInterface;
 
 class Giftcards extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_giftcards';
-    const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
-    const XPATH_GIFTCARDS_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_giftcards/payment_fee_label';
-    const XPATH_GIFTCARDS_ACTIVE               = 'payment/buckaroo_magento2_giftcards/active';
-    const XPATH_GIFTCARDS_ACTIVE_STATUS        = 'payment/buckaroo_magento2_giftcards/active_status';
-    const XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_giftcards/order_status_success';
-    const XPATH_GIFTCARDS_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_giftcards/order_status_failed';
-    const XPATH_GIFTCARDS_ORDER_EMAIL          = 'payment/buckaroo_magento2_giftcards/order_email';
-    const XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_giftcards/available_in_backend';
-    const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS    = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
-    const XPATH_GIFTCARDS_GROUP_GIFTCARDS      = 'payment/buckaroo_magento2_giftcards/group_giftcards';
-    const XPATH_GIFTCARDS_SORT                 = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
+    public const CODE = 'buckaroo_magento2_giftcards';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_giftcards/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_giftcards/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_giftcards/specificcustomergroup';
+    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS    = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
+    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS      = 'payment/buckaroo_magento2_giftcards/group_giftcards';
+    public const XPATH_GIFTCARDS_SORT                 = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
 
     /**
      * @var array
@@ -73,22 +60,16 @@ class Giftcards extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $sorted = explode(',', (string)$this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_SORT,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        ));
+        $sorted = explode(',', (string)$this->getSort());
 
         if (!empty($sorted)) {
             $sortedPosition = 1;
             foreach ($sorted as $cardName) {
-                $sorted_array[$cardName] = $sortedPosition++;
+                $sortedArray[$cardName] = $sortedPosition++;
             }
         }
 
@@ -102,20 +83,17 @@ class Giftcards extends AbstractConfigProvider
         $tableName     = $resource->getTableName('buckaroo_magento2_giftcard');
         $result        = $connection->fetchAll("SELECT * FROM " . $tableName);
         foreach ($result as $item) {
-            $item['sort'] = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99';
+            $item['sort'] = isset($sortedArray[$item['label']]) ? $sortedArray[$item['label']] : '99';
             $allGiftCards[$item['servicecode']] = $item;
         }
 
-        $availableCards = $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $availableCards = $this->getAllowedGiftcards();
 
         $url = $this->storeManager->getStore()->getBaseUrl(
             \Magento\Framework\UrlInterface::URL_TYPE_MEDIA
         );
 
-        foreach (explode(',', (string)$availableCards) as $key => $value) {
+        foreach (explode(',', (string)$availableCards) as $value) {
             $cards[] = [
                 'code'  => $value,
                 'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',
@@ -131,10 +109,7 @@ class Giftcards extends AbstractConfigProvider
         return [
             'payment' => [
                 'buckaroo' => [
-                    'groupGiftcards'   => $this->scopeConfig->getValue(
-                        static::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
-                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                    ),
+                    'groupGiftcards'   => $this->getGroupGiftcards(),
                     'avaibleGiftcards' => $cards,
                     'giftcards'        => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
@@ -143,116 +118,6 @@ class Giftcards extends AbstractConfigProvider
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return bool|float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
-    }
-
-    public function getAllowedCards($storeId = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentFeeLabel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_PAYMENT_FEE_LABEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActive($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ACTIVE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActiveStatus($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ACTIVE_STATUS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusSuccess($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusFailed($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ORDER_STATUS_FAILED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderEmail($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ORDER_EMAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableInBackend($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
     }
 
     /**

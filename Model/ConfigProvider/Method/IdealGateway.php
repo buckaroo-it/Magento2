@@ -26,20 +26,6 @@ class IdealGateway extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_idealgateway';
 
-
-    public const XPATH_IDEAL_PAYMENT_FEE           = 'payment/' . self::CODE . '/payment_fee';
-    public const XPATH_IDEAL_PAYMENT_FEE_LABEL     = 'payment/' . self::CODE . '/payment_fee_label';
-    public const XPATH_IDEAL_ACTIVE                = 'payment/' . self::CODE . '/active';
-    public const XPATH_IDEAL_ACTIVE_STATUS         = 'payment/' . self::CODE . '/active_status';
-    public const XPATH_IDEAL_ORDER_STATUS_SUCCESS  = 'payment/' . self::CODE . '/order_status_success';
-    public const XPATH_IDEAL_ORDER_STATUS_FAILED   = 'payment/' . self::CODE . '/order_status_failed';
-    public const XPATH_IDEAL_ORDER_EMAIL           = 'payment/' . self::CODE . '/order_email';
-    public const XPATH_IDEAL_AVAILABLE_IN_BACKEND  = 'payment/' . self::CODE . '/available_in_backend';
-    public const XPATH_ALLOWED_CURRENCIES          = 'payment/' . self::CODE . '/allowed_currencies';
-    public const XPATH_ALLOW_SPECIFIC              = 'payment/' . self::CODE . '/allowspecific';
-    public const XPATH_SPECIFIC_COUNTRY            = 'payment/' . self::CODE . '/specificcountry';
-    public const XPATH_SPECIFIC_CUSTOMER_GROUP     = 'payment/' . self::CODE . '/specificcustomergroup';
-
     /**
      * @var array
      */
@@ -54,10 +40,7 @@ class IdealGateway extends AbstractConfigProvider
      */
     public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_IDEAL_ACTIVE,
-            ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -83,22 +66,5 @@ class IdealGateway extends AbstractConfigProvider
                 ],
             ],
         ];
-    }
-
-    /**
-     * Return Payment Fee
-     *
-     * @param null|int $storeId
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_PAYMENT_FEE,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ?: false;
     }
 }

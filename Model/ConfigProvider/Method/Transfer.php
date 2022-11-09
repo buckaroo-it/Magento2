@@ -22,48 +22,25 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * @method getDueDate()
- * @method getActiveStatusCm3()
- * @method getSchemeKey()
- * @method getMaxStepIndex()
- * @method getCm3DueDate()
- * @method getPaymentMethodAfterExpiry()
- */
 class Transfer extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_transfer';
-    const XPATH_TRANSFER_ACTIVE                 = 'payment/buckaroo_magento2_transfer/active';
-    const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
-    const XPATH_TRANSFER_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_transfer/payment_fee_label';
-    const XPATH_TRANSFER_SEND_EMAIL             = 'payment/buckaroo_magento2_transfer/send_email';
-    const XPATH_TRANSFER_ACTIVE_STATUS          = 'payment/buckaroo_magento2_transfer/active_status';
-    const XPATH_TRANSFER_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_transfer/order_status_success';
-    const XPATH_TRANSFER_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_transfer/order_status_failed';
-    const XPATH_TRANSFER_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_transfer/available_in_backend';
-    const XPATH_TRANSFER_DUE_DATE               = 'payment/buckaroo_magento2_transfer/due_date';
+    public const CODE = 'buckaroo_magento2_transfer';
 
-    const XPATH_TRANSFER_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_transfer/active_status_cm3';
-    const XPATH_TRANSFER_SCHEME_KEY                  = 'payment/buckaroo_magento2_transfer/scheme_key';
-    const XPATH_TRANSFER_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_transfer/max_step_index';
-    const XPATH_TRANSFER_CM3_DUE_DATE                = 'payment/buckaroo_magento2_transfer/cm3_due_date';
-    const XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_transfer/payment_method_after_expiry';
+    public const XPATH_TRANSFER_DUE_DATE = 'payment/buckaroo_magento2_transfer/due_date';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_transfer/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_transfer/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_transfer/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_transfer/specificcustomergroup';
+    public const XPATH_TRANSFER_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_transfer/active_status_cm3';
+    public const XPATH_TRANSFER_SCHEME_KEY                  = 'payment/buckaroo_magento2_transfer/scheme_key';
+    public const XPATH_TRANSFER_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_transfer/max_step_index';
+    public const XPATH_TRANSFER_CM3_DUE_DATE                = 'payment/buckaroo_magento2_transfer/cm3_due_date';
+    public const XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY =
+        'payment/buckaroo_magento2_transfer/payment_method_after_expiry';
 
     /**
-     * @return array
+     * @inheritDoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_TRANSFER_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -75,115 +52,13 @@ class Transfer extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'transfer' => [
-                        'sendEmail' => (bool) $this->getSendEmail(),
+                        'sendEmail' => (bool) $this->getOrderEmail(),
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ]
                 ]
             ]
         ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getSendEmail()
-    {
-        $sendMail = $this->scopeConfig->getValue(
-            static::XPATH_TRANSFER_SEND_EMAIL,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        return $sendMail ? 'true' : 'false';
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            static::XPATH_TRANSFER_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActive($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_TRANSFER_ACTIVE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentFeeLabel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_TRANSFER_PAYMENT_FEE_LABEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getActiveStatus($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_TRANSFER_ACTIVE_STATUS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusSuccess($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_TRANSFER_ORDER_STATUS_SUCCESS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrderStatusFailed($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_TRANSFER_ORDER_STATUS_FAILED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableInBackend($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_TRANSFER_AVAILABLE_IN_BACKEND,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
     }
 
     /**
@@ -197,6 +72,22 @@ class Transfer extends AbstractConfigProvider
             $store
         );
     }
+
+    /**
+     * Get Due Date Y-m-d
+     *
+     * @param $store
+     * @return string
+     */
+    public function getDueDateFormated($store = null): string
+    {
+        $dueDays = (float)$this->getDueDate($store);
+
+        return (new \DateTime())
+            ->modify("+{$dueDays} day")
+            ->format('Y-m-d');
+    }
+
 
     /**
      * {@inheritdoc}
