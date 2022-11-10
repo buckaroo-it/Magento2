@@ -20,6 +20,7 @@
  */
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\Payment\Gateway\Data\Order\OrderAdapter" type="Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter"/>
     <preference for="Buckaroo\Magento2\Gateway\GatewayInterface" type="Buckaroo\Magento2\Gateway\Http\Bpe3"/>
     <preference for="Buckaroo\Magento2\Api\CertificateRepositoryInterface" type="Buckaroo\Magento2\Model\CertificateRepository"/>
     <preference for="Buckaroo\Magento2\Api\InvoiceRepositoryInterface" type="Buckaroo\Magento2\Model\InvoiceRepository"/>
