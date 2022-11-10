@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,26 +18,16 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
+
+use Magento\Store\Model\ScopeInterface;
 
 class Pospayment extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_pospayment';
-    const XPATH_POSPAYMENT_PAYMENT_FEE           = 'payment/buckaroo_magento2_pospayment/payment_fee';
-    const XPATH_POSPAYMENT_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_pospayment/payment_fee_label';
-    const XPATH_POSPAYMENT_ACTIVE                = 'payment/buckaroo_magento2_pospayment/active';
-    const XPATH_POSPAYMENT_ACTIVE_STATUS         = 'payment/buckaroo_magento2_pospayment/active_status';
-    const XPATH_POSPAYMENT_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_pospayment/order_status_success';
-    const XPATH_POSPAYMENT_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_pospayment/order_status_failed';
-    const XPATH_POSPAYMENT_ORDER_EMAIL           = 'payment/buckaroo_magento2_pospayment/order_email';
-    const XPATH_POSPAYMENT_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_pospayment/available_in_backend';
-    const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'payment/buckaroo_magento2_pospayment/other_payment_methods';
+    public const CODE = 'buckaroo_magento2_pospayment';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_pospayment/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_pospayment/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_pospayment/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_pospayment/specificcustomergroup';
+    public const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'payment/buckaroo_magento2_pospayment/other_payment_methods';
 
     /**
      * @var array
@@ -46,14 +37,11 @@ class Pospayment extends AbstractConfigProvider
     ];
 
     /**
-     * @return array
+     * @inheritDoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            self::XPATH_POSPAYMENT_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -74,18 +62,14 @@ class Pospayment extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
-     *
-     * @return float
+     * @inheritDoc
      */
-    public function getPaymentFee($storeId = null)
+    public function getOtherPaymentMethods($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_POSPAYMENT_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+        return $this->scopeConfig->getValue(
+            static::XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS,
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
-
-        return $paymentFee ? $paymentFee : false;
     }
 }

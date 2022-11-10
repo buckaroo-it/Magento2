@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,27 +21,15 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\ScopeInterface;
+
 class Emandate extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_emandate';
-    const XPATH_EMANDATE_PAYMENT_FEE           = 'payment/buckaroo_magento2_emandate/payment_fee';
-    const XPATH_EMANDATE_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_emandate/payment_fee_label';
-    const XPATH_EMANDATE_ACTIVE                = 'payment/buckaroo_magento2_emandate/active';
-    const XPATH_EMANDATE_ACTIVE_STATUS         = 'payment/buckaroo_magento2_emandate/active_status';
-    const XPATH_EMANDATE_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_emandate/order_status_success';
-    const XPATH_EMANDATE_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_emandate/order_status_failed';
-    const XPATH_EMANDATE_ORDER_EMAIL           = 'payment/buckaroo_magento2_emandate/order_email';
-    const XPATH_EMANDATE_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_emandate/available_in_backend';
+    public const CODE = 'buckaroo_magento2_emandate';
 
-    const XPATH_EMANDATE_SEQUENCE_TYPE         = 'payment/buckaroo_magento2_emandate/sequence_type';
-    const XPATH_EMANDATE_REASON                = 'payment/buckaroo_magento2_emandate/reason';
-    const XPATH_EMANDATE_LANGUAGE              = 'payment/buckaroo_magento2_emandate/language';
-
-    const XPATH_ALLOWED_CURRENCIES             = 'payment/buckaroo_magento2_emandate/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                 = 'payment/buckaroo_magento2_emandate/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY               = 'payment/buckaroo_magento2_emandate/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP        = 'payment/buckaroo_magento2_emandate/specificcustomergroup';
+    public const XPATH_EMANDATE_SEQUENCE_TYPE         = 'payment/buckaroo_magento2_emandate/sequence_type';
+    public const XPATH_EMANDATE_REASON                = 'payment/buckaroo_magento2_emandate/reason';
+    public const XPATH_EMANDATE_LANGUAGE              = 'payment/buckaroo_magento2_emandate/language';
 
     /**
      * @var array
@@ -88,14 +77,11 @@ class Emandate extends AbstractConfigProvider
     ];
 
     /**
-     * @return array
+     * @inheritDoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_EMANDATE_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -118,18 +104,38 @@ class Emandate extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
-     *
-     * @return float
+     * @inheritDoc
      */
-    public function getPaymentFee($storeId = null)
+    public function getSequenceType($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_EMANDATE_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+        return $this->scopeConfig->getValue(
+            static::XPATH_EMANDATE_SEQUENCE_TYPE,
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
+    }
 
-        return $paymentFee ? $paymentFee : false;
+    /**
+     * @inheritDoc
+     */
+    public function getReason($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_EMANDATE_REASON,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLanguage($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_EMANDATE_LANGUAGE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

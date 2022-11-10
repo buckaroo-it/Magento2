@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \Buckaroo\Magento2\Model\ConfigProvider;
+use \Magento\Store\Model\ScopeInterface;
 
 /**
  * @method string getLocationLiveWeb()
@@ -51,5 +51,54 @@ class Predefined extends AbstractConfigProvider
             'wsdl_test_web'     => $this->getWsdlTestWeb($store),
         ];
         return $config;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLocationLiveWeb($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PREDEFINED_LOCATION_LIVE_WEB,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLocationTestWeb($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PREDEFINED_LOCATION_TEST_WEB,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getWsdlLiveWeb($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PREDEFINED_WSDL_LIVE_WEB,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getWsdlTestWeb($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PREDEFINED_WSDL_TEST_WEB,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

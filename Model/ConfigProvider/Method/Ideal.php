@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,27 +21,13 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\ScopeInterface;
+
 class Ideal extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_ideal';
+    public const CODE = 'buckaroo_magento2_ideal';
 
-
-    const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
-    const XPATH_IDEAL_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_ideal/payment_fee_label';
-    const XPATH_IDEAL_ACTIVE                = 'payment/buckaroo_magento2_ideal/active';
-    const XPATH_IDEAL_ACTIVE_STATUS         = 'payment/buckaroo_magento2_ideal/active_status';
-    const XPATH_IDEAL_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_ideal/order_status_success';
-    const XPATH_IDEAL_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_ideal/order_status_failed';
-    const XPATH_IDEAL_ORDER_EMAIL           = 'payment/buckaroo_magento2_ideal/order_email';
-    const XPATH_IDEAL_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_ideal/available_in_backend';
-
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_ideal/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_ideal/specificcountry';
-    const XPATH_IDEAL_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_ideal/specificcustomergroup';
-
+    public const XPATH_IDEAL_SELECTION_TYPE = 'buckaroo_magento2/account/selection_type';
     /**
      * @var array
      */
@@ -49,14 +36,11 @@ class Ideal extends AbstractConfigProvider
     ];
 
     /**
-     * @return array|void
+     * @inheritDoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_IDEAL_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -65,10 +49,7 @@ class Ideal extends AbstractConfigProvider
             \Buckaroo\Magento2\Model\Method\Ideal::PAYMENT_METHOD_CODE
         );
 
-        $selectionType = $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_SELECTION_TYPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $selectionType = $this->getSelectionType();
 
         return [
             'payment' => [
@@ -85,18 +66,14 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
-     *
-     * @return float
+     * @inheritDoc
      */
-    public function getPaymentFee($storeId = null)
+    public function getSelectionType($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+        return $this->scopeConfig->getValue(
+            static::XPATH_IDEAL_SELECTION_TYPE,
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
-
-        return $paymentFee ? $paymentFee : false;
     }
 }

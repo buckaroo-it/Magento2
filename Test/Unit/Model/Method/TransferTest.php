@@ -75,11 +75,11 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         );
 
         $configFactoryMock = $this->getFakeMock(Factory::class)
-            ->setMethods(['get', 'getDueDate', 'getSendEmail'])
+            ->setMethods(['get', 'getDueDate', 'getOrderEmail'])
             ->getMock();
         $configFactoryMock->expects($this->once())->method('get')->with('transfer')->willReturnSelf();
         $configFactoryMock->expects($this->once())->method('getDueDate')->willReturn('7');
-        $configFactoryMock->expects($this->once())->method('getSendEmail')->willReturn('true');
+        $configFactoryMock->expects($this->once())->method('getOrderEmail')->willReturn('true');
 
         $paymentMock = $this->getFakeMock(Payment::class)
             ->setMethods(['getOrder', 'setAdditionalInformation'])
@@ -114,9 +114,9 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testGetTransferService()
     {
-        $TransferConfigMock = $this->getFakeMock(Transfer::class)->setMethods(['getDueDate', 'getSendEmail'])->getMock();
+        $TransferConfigMock = $this->getFakeMock(Transfer::class)->setMethods(['getDueDate', 'getOrderEmail'])->getMock();
         $TransferConfigMock->expects($this->once())->method('getDueDate');
-        $TransferConfigMock->expects($this->once())->method('getSendEmail');
+        $TransferConfigMock->expects($this->once())->method('getOrderEmail');
 
         $factoryMock = $this->getFakeMock(Factory::class)->setMethods(['get'])->getMock();
         $factoryMock->expects($this->once())->method('get')->with('transfer')->willReturn($TransferConfigMock);

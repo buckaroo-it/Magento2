@@ -19,19 +19,8 @@
  */
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-class DebugTypes implements \Magento\Framework\Option\ArrayInterface
+class LogRetention implements \Magento\Framework\Option\ArrayInterface
 {
-    private $levels = [
-        100 => 'DEBUG',
-        200 => 'INFO',
-        250 => 'NOTICE',
-        300 => 'WARNING',
-        400 => 'ERROR',
-        500 => 'CRITICAL',
-        550 => 'ALERT',
-        600 => 'EMERGENCY',
-    ];
-
     /**
      * Options getter
      *
@@ -39,15 +28,11 @@ class DebugTypes implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
-        $options = [];
-
-        foreach ($this->levels as $key => $value) {
-            $options[] = [
-                'value' => $key,
-                'label' => $value
-            ];
-        }
-
-        return $options;
+        return [
+            ['value' => (60*60*24), 'label' => __('Day')],
+            ['value' => (60*60*24*7), 'label' => __('Week')],
+            ['value' => (60*60*24*31), 'label' => __('Month')],
+            ['value' => (60*60*24*31*12), 'label' => __('Year')],
+        ];
     }
 }

@@ -80,7 +80,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [Transfer::XPATH_TRANSFER_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Transfer::XPATH_TRANSFER_SEND_EMAIL, ScopeInterface::SCOPE_STORE],
+                [Transfer::XPATH_TRANSFER_ORDER_EMAIL, ScopeInterface::SCOPE_STORE],
                 [Transfer::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls(true, $sendEmail, 'EUR,USD');
@@ -123,11 +123,11 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Transfer::XPATH_TRANSFER_SEND_EMAIL, ScopeInterface::SCOPE_STORE)
+            ->with(Transfer::XPATH_TRANSFER_ORDER_EMAIL, ScopeInterface::SCOPE_STORE)
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getSendEmail();
+        $result = $instance->getOrderEmail();
 
         $this->assertEquals($expected, $result);
     }

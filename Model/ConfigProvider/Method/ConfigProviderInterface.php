@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -23,11 +24,68 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 interface ConfigProviderInterface
 {
     /**
-     * @param null|int $storeId
+     * Get Active Config Valuue
      *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getActive($store = null);
+
+    /**
+     * Get Available In Backend
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getAvailableInBackend($store = null);
+
+    /**
+     * Get Send order confirmation email
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getOrderEmail($store = null);
+
+    /**
+     * Get Payment fee Float Value
+     *
+     * @param null|int|string $store
      * @return false|float
      */
-    public function getPaymentFee($storeId = null);
+    public function getPaymentFee($store = null);
+
+    /**
+     * Get Payment fee frontend label
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getPaymentFeeLabel($store = null);
+
+    /**
+     * Get Method specific status enabled
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getActiveStatus($store = null);
+
+    /**
+     * Get Method specific success status
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getOrderStatusSuccess($store = null);
+
+    /**
+     * Get Method specific failed status
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    public function getOrderStatusFailed($store = null);
 
     /**
      * @return array

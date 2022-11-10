@@ -69,7 +69,7 @@ class EpsTest extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [Eps::XPATH_EPS_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Eps::XPATH_EPS_SEND_EMAIL, ScopeInterface::SCOPE_STORE],
+                [Eps::XPATH_EPS_ORDER_EMAIL, ScopeInterface::SCOPE_STORE],
                 [Eps::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');

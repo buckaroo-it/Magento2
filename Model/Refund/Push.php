@@ -197,7 +197,7 @@ class Push
                 $this->creditmemoManagement->refund(
                     $creditmemo,
                     (bool)$creditData['do_offline'],
-                    !empty($creditData['send_email'])
+                    !empty($creditData['order_email'])
                 );
                 $this->logging->addDebug(__METHOD__.'|25');
                 $this->creditEmailSender->send($creditmemo);
