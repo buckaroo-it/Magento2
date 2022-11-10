@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -24,42 +25,23 @@ use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 
-/**
- * @method getDueDate()
- * @method getSendEmail()
- */
 class Billink extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_billink';
-    const XPATH_ALLOWED_CURRENCIES = 'buckaroo/buckaroo_magento2_billink/allowed_currencies';
+    public const CODE = 'buckaroo_magento2_billink';
 
-    const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_billink/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_billink/specificcountry';
+    public const XPATH_BILLINK_BUSINESS = 'payment/buckaroo_magento2_billink/business';
 
-    const XPATH_BILLINK_ACTIVE               = 'payment/buckaroo_magento2_billink/active';
-    const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
-    const XPATH_BILLINK_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_billink/payment_fee_label';
-    const XPATH_BILLINK_SEND_EMAIL           = 'payment/buckaroo_magento2_billink/send_email';
-    const XPATH_BILLINK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_billink/active_status';
-    const XPATH_BILLINK_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_billink/order_status_success';
-    const XPATH_BILLINK_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_billink/order_status_failed';
-    const XPATH_BILLINK_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_billink/available_in_backend';
-    const XPATH_BILLINK_DUE_DATE             = 'payment/buckaroo_magento2_billink/due_date';
-    const XPATH_BILLINK_ALLOWED_CURRENCIES   = 'payment/buckaroo_magento2_billink/allowed_currencies';
-
-    const XPATH_SPECIFIC_CUSTOMER_GROUP      = 'payment/buckaroo_magento2_billink/specificcustomergroup';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B  = 'payment/buckaroo_magento2_billink/specificcustomergroupb2b';
-
-    private $helper;
+    private BuckarooHelper $helper;
 
     /**
      * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies    $allowedCurrencies
      * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
+     * @param BuckarooHelper       $helper
      */
     public function __construct(
         Repository $assetRepo,
@@ -74,14 +56,11 @@ class Billink extends AbstractConfigProvider
     }
 
     /**
-     * @return array
+     * @inheritDoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_BILLINK_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -91,7 +70,7 @@ class Billink extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'billink'  => [
-                        'sendEmail'         => (bool) $this->getSendEmail(),
+                        'sendEmail'         => (bool) $this->getOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'b2b' => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
@@ -100,7 +79,8 @@ class Billink extends AbstractConfigProvider
                             ['genderType' => 'female', 'genderTitle' => 'She/her'],
                             ['genderType' => 'unknown', 'genderTitle' => 'They/them'],
                             ['genderType' => 'unknown', 'genderTitle' => 'I prefer not to say']
-                        ]
+                        ],
+                        'businessMethod' => $this->getBusiness()
                     ],
                     'response' => [],
                 ],
@@ -109,18 +89,19 @@ class Billink extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Get Customer Type
+     * businessMethod 1 = B2C
+     * businessMethod 2 = B2B
      *
-     * @return float
+     * @return bool|int
      */
-    public function getPaymentFee($storeId = null)
+    public function getBusiness()
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_BILLINK_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+        $business = (int) $this->scopeConfig->getValue(
+            static::XPATH_BILLINK_BUSINESS,
+            ScopeInterface::SCOPE_STORE
         );
 
-        return $paymentFee ? $paymentFee : false;
+        return $business ?: false;
     }
 }

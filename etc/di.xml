@@ -501,6 +501,23 @@
         <plugin name="myParcelNLBuckarooPlugin" type="Buckaroo\Magento2\Plugin\MyParcelNLBuckarooPlugin" />
     </type>
 
+    <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
+	<preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
+	<preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+	<virtualType name="Buckaroo\Magento2\Model\ResourceModel\Log\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+		<arguments>
+			<argument name="mainTable" xsi:type="string">buckaroo_magento2_log</argument>
+			<argument name="resourceModel" xsi:type="string">Buckaroo\Magento2\Model\ResourceModel\Log\Collection</argument>
+		</arguments>
+	</virtualType>
+	<type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+		<arguments>
+			<argument name="collections" xsi:type="array">
+				<item name="buckaroo_magento2_log_listing_data_source" xsi:type="string">Buckaroo\Magento2\Model\ResourceModel\Log\Grid\Collection</item>
+			</argument>
+		</arguments>
+	</type>
+
     <type name="Magento\CatalogInventory\Model\Configuration">
         <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
     </type>
@@ -536,6 +553,7 @@
                 <item name="sofortbanking" xsi:type="string">sofortueberweisung</item>
                 <item name="creditcards" xsi:type="string">creditcard</item>
                 <item name="idealgateway" xsi:type="string">ideal</item>
+                <item name="emandate" xsi:type="string">emandates</item>
             </argument>
         </arguments>
     </type>
@@ -591,6 +609,12 @@
     <virtualType name="AdditionalParametersPayPerEmailDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">fromPayPerEmail</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AdditionalParametersCreateMandateDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">createmandate</argument>
         </arguments>
     </virtualType>
 
@@ -2922,7 +2946,11 @@
     <virtualType name="EmandateOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersCreateMandateDataBuilder</item>
                 <item name="emandate" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmandateDataBuilder</item>
             </argument>
         </arguments>
@@ -3404,6 +3432,11 @@
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_IN_INSTALLMENTS</argument>
         </arguments>
     </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRedirect" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
+        </arguments>
+    </virtualType>
     <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::REFUND</argument>
@@ -3419,17 +3452,17 @@
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::RESERVE</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRedirect" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCreateMandate" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_MANDATE</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPaymentInvitation" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAYMENT_INVITATION</argument>
         </arguments>

@@ -21,45 +21,27 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-/**
- * @method getPaymentFeeLabel()
- * @method getSellersProtection()
- * @method getSellersProtectionEligible()
- * @method getSellersProtectionIneligible()
- * @method getSellersProtectionItemnotreceivedEligible()
- * @method getSellersProtectionUnauthorizedpaymentEligible()
- */
+use Magento\Store\Model\ScopeInterface;
+
 class Paypal extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_paypal';
-    const XPATH_PAYPAL_PAYMENT_FEE                      = 'payment/buckaroo_magento2_paypal/payment_fee';
-    const XPATH_PAYPAL_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_paypal/payment_fee_label';
-    const XPATH_PAYPAL_ACTIVE                           = 'payment/buckaroo_magento2_paypal/active';
-    const XPATH_PAYPAL_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_paypal/active_status';
-    const XPATH_PAYPAL_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_paypal/order_status_success';
-    const XPATH_PAYPAL_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_paypal/order_status_failed';
-    const XPATH_PAYPAL_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_paypal/available_in_backend';
-    const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_paypal/sellers_protection';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/' .
+    public const CODE = 'buckaroo_magento2_paypal';
+
+    public const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_paypal/sellers_protection';
+    public const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_eligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/' .
+    public const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_ineligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/' .
+    public const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_itemnotreceived_eligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/' .
+    public const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paypal/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_paypal/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_paypal/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paypal/specificcustomergroup';
-
-    const XPATH_PAYPAL_EXPRESS_BUTTONS          = 'payment/buckaroo_magento2_paypal/available_buttons';
-    const XPATH_PAYPAL_EXPRESS_MERCHANT_ID          = 'payment/buckaroo_magento2_paypal/express_merchant_id';
+    public const XPATH_PAYPAL_EXPRESS_BUTTONS          = 'payment/buckaroo_magento2_paypal/available_buttons';
+    public const XPATH_PAYPAL_EXPRESS_MERCHANT_ID          = 'payment/buckaroo_magento2_paypal/express_merchant_id';
 
     /**
-     * @return array|void
+     * @inheritDoc
      */
     public function getConfig()
     {
@@ -78,19 +60,63 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
-     *
-     * @return float
+     * @inheritDoc
      */
-    public function getPaymentFee($storeId = null)
+    public function getSellersProtection($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_PAYPAL_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION,
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
+    }
 
-        return $paymentFee ? $paymentFee : false;
+    /**
+     * @inheritDoc
+     */
+    public function getSellersProtectionEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSellersProtectionIneligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSellersProtectionItemnotreceivedEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
     public function getExpressButtons($store = null)
     {

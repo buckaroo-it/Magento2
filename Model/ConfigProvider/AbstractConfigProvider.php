@@ -23,10 +23,11 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
 
 abstract class AbstractConfigProvider implements ConfigProviderInterface, ConfigInterface
 {
-    const DEFAULT_PATH_PATTERN = 'payment/%s/%s';
+    protected const DEFAULT_PATH_PATTERN = 'payment/%s/%s';
 
     /**
      * @var string
@@ -64,80 +65,9 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
     }
 
     /**
-     * Allows getSomethingValue calls to be turned into XPATH names and returns the value IF they exist on the
-     * extending child class.
-     *
-     * @param string $method
-     * @param mixed  $params
-     *
-     * @return mixed|null
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function __call($method, $params)
-    {
-        /**
-         * By default, assume there's no constant
-         */
-        $constant = null;
-
-        /**
-         * If there's a param, it has to be either a Store object or a store id. Either way, we just pass it on as is
-         */
-        $store = null;
-        if (isset($params[0])) {
-            $store = $params[0];
-        }
-
-        /**
-         * Check if the store parameter is valid.
-         */
-        if ($store && !is_int($store) && !$store instanceof \Magento\Store\Model\Store) {
-            throw new \InvalidArgumentException(
-                "First argument passed to the getter should be an integer or an instance of" .
-                " '\\Magento\\Store\\Model\\Store"
-            );
-        }
-
-        /**
-         * If $method starts with get, we've got a contender
-         */
-        if (substr($method, 0, 3) === 'get') {
-            /**
-             * Remove get from the method name
-             */
-            $camel = substr($method, 3);
-            /**
-             * And turn CamelCasedValue into Camel_Cased_Value
-             */
-            $camelScored = preg_replace(
-                '/(^[^A-Z]+|[A-Z][^A-Z]+)/',
-                '_$1',
-                $camel
-            );
-
-            /**
-             * Get the actual class name
-             */
-            $class = get_class($this);
-            $classParts = explode('\\', $class);
-            $className = end($classParts);
-
-            /**
-             * Uppercase and append it to the XPATH prefix & child class' name
-             */
-            $constant = strtoupper('static::' . $this->getXpathPrefix() . $className . $camelScored);
-        }
-        if ($constant && defined($constant) && !empty(constant($constant))) {
-            return $this->getConfigFromXpath(constant($constant), $store);
-        }
-        return null;
-    }
-
-    /**
      * Get all config in associated array
      *
-     * @param  null|int|\Magento\Store\Model\Store $store
+     * @param  null|int|Store $store
      * @return array
      */
     public function getConfig()
@@ -171,12 +101,12 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
     /**
      * Return the config value for the given Xpath (optionally with $store)
      *
-     * @param string                              $xpath
-     * @param null|int|\Magento\Store\Model\Store $store
+     * @param string $xpath
+     * @param null|int|Store $store
      *
      * @return mixed
      */
-    protected function getConfigFromXpath($xpath, $store = null)
+    protected function getConfigFromXpath(string $xpath, $store = null)
     {
         return $this->scopeConfig->getValue(
             $xpath,

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,24 +23,15 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class P24 extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_p24';
-    protected $methodCode = self::CODE;
-    const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
-    const XPATH_P24_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_p24/payment_fee_label';
-    const XPATH_P24_ACTIVE                = 'payment/buckaroo_magento2_p24/active';
-    const XPATH_P24_ACTIVE_STATUS         = 'payment/buckaroo_magento2_p24/active_status';
-    const XPATH_P24_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_p24/order_status_success';
-    const XPATH_P24_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_p24/order_status_failed';
-    const XPATH_P24_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_p24/available_in_backend';
-
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_p24/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_p24/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_p24/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_p24/specificcustomergroup';
+    public const CODE = 'buckaroo_magento2_p24';
 
     /**
-     * @return array|void
+     * @var string
+     */
+    protected $methodCode = self::CODE;
+
+    /**
+     * @inheritDoc
      */
     public function getConfig()
     {
@@ -55,22 +47,6 @@ class P24 extends AbstractConfigProvider
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_P24_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,22 +23,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Voucher extends AbstractConfigProvider
 {
-    const CODE = 'buckaroo_magento2_voucher';
-
-    const XPATH_VOUCHER_PAYMENT_FEE           = 'payment/buckaroo_magento2_voucher/payment_fee';
-    const XPATH_VOUCHER_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_voucher/payment_fee_label';
-    const XPATH_VOUCHER_ACTIVE                = 'payment/buckaroo_magento2_voucher/active';
-    const XPATH_VOUCHER_ACTIVE_STATUS         = 'payment/buckaroo_magento2_voucher/active_status';
-    const XPATH_VOUCHER_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_voucher/order_status_success';
-    const XPATH_VOUCHER_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_voucher/order_status_failed';
-    const XPATH_VOUCHER_ORDER_EMAIL           = 'payment/buckaroo_magento2_voucher/order_email';
-    const XPATH_VOUCHER_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_voucher/available_in_backend';
-
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_voucher/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_voucher/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_voucher/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_voucher/specificcustomergroup';
+    public const CODE = 'buckaroo_magento2_voucher';
 
     /**
      * @var array
@@ -47,14 +33,11 @@ class Voucher extends AbstractConfigProvider
     ];
 
     /**
-     * @return array|void
+     * @inheritDoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_VOUCHER_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -70,22 +53,6 @@ class Voucher extends AbstractConfigProvider
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_VOUCHER_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
     }
 
     /**

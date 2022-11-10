@@ -73,7 +73,7 @@ class KlarnakpTest extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [Klarnakp::XPATH_KLARNAKP_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Klarnakp::XPATH_KLARNAKP_SEND_EMAIL, ScopeInterface::SCOPE_STORE],
+                [Klarnakp::XPATH_KLARNAKP_ORDER_EMAIL, ScopeInterface::SCOPE_STORE],
                 [Klarnakp::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
