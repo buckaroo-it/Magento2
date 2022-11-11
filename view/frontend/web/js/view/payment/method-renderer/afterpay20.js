@@ -305,8 +305,8 @@ define(
                             let billing = quote.billingAddress();
 
                             return this.isB2B && (
-                                (shipping !== null && shipping.countryId == 'NL' && shipping.company !== undefined && shipping.company.trim().length > 0) ||
-                                (billing !== null && billing.countryId == 'NL' && billing.company !== undefined && billing.company.trim().length > 0)
+                                (typeof(shipping.countryId) != "undefined" && shipping.countryId == 'NL' && typeof(shipping.company) != "undefined" && shipping.company.trim().length > 0) ||
+                                (typeof(billing.countryId) != "undefined" && billing.countryId == 'NL' && typeof(billing.company) != "undefined" && billing.company.trim().length > 0)
                             )
                         },
                         this
