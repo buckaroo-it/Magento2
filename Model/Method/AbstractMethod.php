@@ -28,8 +28,9 @@ use Magento\Payment\Model\InfoInterface;
 use Buckaroo\Magento2\Plugin\Method\Klarna;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
-use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
+use Buckaroo\Magento2\Observer\AddInTestModeMessage;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
@@ -712,7 +713,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
-        if (!(isset($response->RequiredAction->Type) && $response->RequiredAction->Type === 'Redirect')) {
+        if (!(isset($response[0]->RequiredAction->Type) && $response[0]->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
         }
 
@@ -933,7 +934,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
 
-        if (!(isset($response->RequiredAction->Type) && $response->RequiredAction->Type === 'Redirect')) {
+        if (!(isset($response[0]->RequiredAction->Type) && $response[0]->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
         }
 
@@ -1526,7 +1527,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
              * Save the payment's transaction key.
              */
             if ($saveId) {
-                $payment->setAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, $transactionKey);
+                $payment
+                    ->setAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, $transactionKey)
+                    ->setAdditionalInformation(
+                        AddInTestModeMessage::PAYMENT_IN_TEST_MODE,
+                        !empty($response->IsTest) && $response->IsTest === true
+                    );
             }
 
             $skipFirstPush = $payment->getAdditionalInformation('skip_push');

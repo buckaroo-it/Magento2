@@ -38,6 +38,11 @@
         <observer name="buckaroo_magento2_group_transaction_register" instance="Buckaroo\Magento2\Observer\GroupTransactionRegister" />
         <observer name="buckaroo_magento2_send_invoice_mail" instance="Buckaroo\Magento2\Observer\SendInvoiceMail" />
     </event>
+
+     <event name="controller_action_predispatch_sales_order_view">
+        <observer name="buckaroo_magento2_show_in_test_mode" instance="Buckaroo\Magento2\Observer\AddInTestModeMessage" />
+    </event>
+    
     <event name="sales_order_payment_cancel">
         <observer name="buckaroo_magento2_void_cm3_payment" instance="Buckaroo\Magento2\Observer\VoidCm3Payment" />
     </event>
