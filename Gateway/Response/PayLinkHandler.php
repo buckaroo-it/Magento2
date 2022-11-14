@@ -43,19 +43,15 @@ class PayLinkHandler implements HandlerInterface
 
         $response = $response['object'];
 
-        if (isset($response->getServiceParameters()['paylink'])) {
-          $payLink = $response->getServiceParameters()['paylink'];
-        }
-
-        if (empty($payLink)) {
-            $this->messageManager->addErrorMessage('Error creating PayLink');
-        } else {
+        if (isset($response->getServiceParameters()['paylink']) && !empty($response->getServiceParameters()['paylink'])) {
             $this->messageManager->addSuccess(
                 __(
                     'You PayLink <a href="%1">%1</a>',
-                    $payLink
+                    $response->getServiceParameters()['paylink']
                 )
             );
+        } else {
+            $this->messageManager->addErrorMessage('Error creating PayLink');
         }
     }
 }
