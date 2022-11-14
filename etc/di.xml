@@ -570,6 +570,30 @@
         </arguments>
     </type>
 
+    <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
+        <arguments>
+            <argument name="executors" xsi:type="array">
+                <item name="buckaroo" xsi:type="string">BuckarooCommandManager</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Command managers section -->
+    <virtualType name="BuckarooCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">BuckarooCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Commands infrastructure -->
+    <virtualType name="BuckarooCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="paylink" xsi:type="string">PayLinkCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <virtualType name="AdditionalParametersOrderDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">order</argument>
@@ -621,6 +645,12 @@
     <virtualType name="AdditionalParametersPayPerEmailDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">fromPayPerEmail</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AdditionalParametersPayLinkDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">fromPayLink</argument>
         </arguments>
     </virtualType>
 
@@ -3141,6 +3171,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">PayPerEmailOrderCommand</item>
+                <item name="paylink" xsi:type="string">PayLinkCommand</item>
                 <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
             </argument>
         </arguments>
@@ -3168,6 +3199,35 @@
         </arguments>
     </virtualType>
     <!-- END PayPerEmail Order Command -->
+    <!-- PayPerEmail PayLink Command -->
+    <virtualType name="PayLinkCommand" type="PayPerEmailOrderCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">PayLinkRequest</argument>
+            <argument name="handler" xsi:type="object">PayLinkResponseHandler</argument>
+        </arguments>
+    </virtualType>
+    <!-- PayPerEmail PayLink Command - Request Builder -->
+    <virtualType name="PayLinkRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="payPerEmail" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayLinkDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersPayPerEmailDataBuilder</item>
+                <item name="additional_parameters2" xsi:type="string">AdditionalParametersPayLinkDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Buckaroo Order Command - Response Handler -->
+    <virtualType name="PayLinkResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+                <item name="paylink" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PayLinkHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END PayPerEmail PayLink Command -->
+
     <!-- END PayPerEmail Commands infrastructure -->
     <!-- END Payment Method: PayPerEmail -->
 

@@ -78,4 +78,17 @@ class PayLink extends AbstractConfigProvider
             $store
         );
     }
+
+    /**
+     * @return bool
+     */
+    public function getSendMail()
+    {
+        $sendMail = $this->scopeConfig->getValue(
+            PayPerEmail::XPATH_PAYPEREMAIL_SEND_MAIL,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        return (bool)$sendMail;
+    }
 }
