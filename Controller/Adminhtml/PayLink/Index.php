@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -19,7 +20,7 @@
  */
 namespace Buckaroo\Magento2\Controller\Adminhtml\PayLink;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\NotFoundException;
@@ -28,9 +29,10 @@ use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\Command\CommandManagerPoolInterface;
+use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Sales\Api\Data\OrderInterface;
 
-class Index extends \Magento\Backend\App\Action
+class Index extends Action
 {
     /**
      * @var PageFactory
@@ -72,20 +74,16 @@ class Index extends \Magento\Backend\App\Action
         ResultFactory $resultFactory
     ) {
         parent::__construct($context);
-        $this->request                     = $request;
-        $this->resultPageFactory           = $resultPageFactory;
-        $this->order                       = $order;
-        $this->commandManagerPool          = $commandManagerPool;
-        $this->messageManager              = $messageManager;
-        $this->resultFactory = $resultFactory;
+        $this->request               = $request;
+        $this->resultPageFactory     = $resultPageFactory;
+        $this->order                 = $order;
+        $this->commandManagerPool    = $commandManagerPool;
+        $this->messageManager        = $messageManager;
+        $this->resultFactory         = $resultFactory;
     }
 
     /**
      * Generate PayLink from Sales Order View Admin
-     *
-     * @throws NotFoundException
-     * @throws CommandException
-     * @throws \Exception
      */
     public function execute()
     {
@@ -114,8 +112,10 @@ class Index extends \Magento\Backend\App\Action
                     'amount' => $order->getGrandTotal()
                 ]
             );
+        } catch (NotFoundException | ClientException | CommandException $exception) {
+            $this->messageManager->addErrorMessage($exception->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
+            $this->messageManager->addErrorMessage(__('Something went wrong creating pay link.'));
         }
 
         $payment = $order->getPayment();

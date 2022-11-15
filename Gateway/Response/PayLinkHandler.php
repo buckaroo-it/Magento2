@@ -29,29 +29,54 @@ class PayLinkHandler implements HandlerInterface
      */
     public function handle(array $handlingSubject, array $response)
     {
-        if (!isset($handlingSubject['payment'])
-            || !$handlingSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
-
-        if (!isset($response['object'])
-            || !$response['object'] instanceof TransactionResponse
-        ) {
-            throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');
-        }
+        $this->validate($handlingSubject, $response);
 
         $response = $response['object'];
+        $paylink = $response->getServiceParameters()['paylink'] ?? '';
 
-        if (isset($response->getServiceParameters()['paylink']) && !empty($response->getServiceParameters()['paylink'])) {
+        if (!empty($paylink)) {
             $this->messageManager->addSuccess(
                 __(
                     'You PayLink <a href="%1">%1</a>',
-                    $response->getServiceParameters()['paylink']
+                    $paylink
                 )
             );
         } else {
             $this->messageManager->addErrorMessage('Error creating PayLink');
         }
     }
+
+    /**
+     * Validate data from request
+     *
+     * @param array $handlingSubject
+     * @param array $response
+     *
+     * @return void
+     * @throws \InvalidArgumentException
+     */
+    protected function validate(array $handlingSubject, array $response)
+    {
+        $this->validatePayment($handlingSubject);
+        $this->validateResponse($response);
+    }
+
+    private function validatePayment(array $handlingSubject)
+    {
+        if (!isset($handlingSubject['payment'])
+            || !$handlingSubject['payment'] instanceof PaymentDataObjectInterface
+        ) {
+            throw new \InvalidArgumentException('Payment data object should be provided');
+        }
+    }
+
+    private function validateResponse(array $response)
+    {
+        if (!isset($response['object'])
+            || !$response['object'] instanceof TransactionResponse
+        ) {
+            throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');
+        }
+    }
+
 }
