@@ -3546,6 +3546,11 @@
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAYMENT_INVITATION</argument>
         </arguments>
     </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionVerify" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::VERIFY</argument>
+        </arguments>
+    </virtualType>
 
     <type name="Buckaroo\Magento2\Observer\VoidCm3Payment">
         <arguments>
@@ -4316,4 +4321,22 @@
     <!-- END Wechatpay Order Command -->
     <!-- END Wechatpay Commands infrastructure -->
     <!-- END Payment Method: Wechatpay -->
+
+    <!-- iDIN service (Age verification) -->
+    <virtualType name="IdinVerifyRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="idin" xsi:type="string">Buckaroo\Magento2\Gateway\Request\IdinDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Buckaroo\Magento2\Controller\Checkout\Idin">
+        <arguments>
+            <argument name="requestDataBuilder" xsi:type="object">IdinVerifyRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="clientInterface" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionVerify</argument>
+        </arguments>
+    </type>
+
 </config>

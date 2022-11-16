@@ -103,7 +103,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
     }
 
     /**
-     * Set issuer 
+     * Set issuer
      *
      * @param string $issuer
      *
@@ -163,7 +163,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
         );
     }
     /**
-     * Get idin mode 
+     * Get idin mode
      *
      * @return int
      */
@@ -207,7 +207,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
         if (!is_array($this->getAllAdditionalParameters())) {
             return $parameters;
         }
-        
+
         foreach ($this->getAllAdditionalParameters() as $key => $value) {
             $parameters[] = [
                 '_'    =>  $value,
