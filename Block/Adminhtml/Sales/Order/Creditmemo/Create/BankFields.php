@@ -31,22 +31,14 @@ class BankFields extends \Magento\Backend\Block\Template
     protected $refundFieldsFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory
-     */
-    protected $transactionBuilder;
-
-    /**
      * @param \Magento\Backend\Block\Template\Context              $context
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
      * @param \Buckaroo\Magento2\Model\RefundFieldsFactory              $refundFieldsFactory
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
         \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null
     ) {
         $this->refundFieldsFactory = $refundFieldsFactory;
-        $this->transactionBuilder = $transactionBuilderFactory;
         parent::__construct($context);
     }
 
