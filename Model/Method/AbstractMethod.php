@@ -823,7 +823,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $fraudMessage = $this->getFailureMessageOnFraud($transactionResponse);
-        if ($fraudMessage === null) {
+        if ($fraudMessage !== null) {
             return $fraudMessage;
         }
 
