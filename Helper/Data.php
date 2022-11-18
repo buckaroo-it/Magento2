@@ -276,6 +276,22 @@ class Data extends AbstractHelper
         return false;
     }
 
+    /**
+     * Get current store
+     *
+     * @return \Magento\Store\Api\Data\StoreInterface|null
+     */
+    public function getStore()
+    {
+        try {
+            return $this->storeManager->getStore();
+        }
+        catch (\Exception $e) {
+            $this->logger->addDebug(__METHOD__.(string)$e);
+            return null;
+        }
+    }
+
     public function getConfigCardSort()
     {
         $configValue = $this->scopeConfig->getValue(
@@ -307,10 +323,10 @@ class Data extends AbstractHelper
     public function getPPeCustomerDetails()
     {
         $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(), true));
-        if (($customerId = $this->_getRequest()->getParam('customer_id')) && ($customerId > 0)) {
+        if (($customerId = $this->_getRequest()->getParam('customer_id')) && ((int)$customerId > 0)) {
             $this->logger->addDebug(__METHOD__ . '|5|');
             if (!isset($this->staticCache['getPPeCustomerDetails'])
-                && ($customer = $this->customerRepository->getById($customerId))
+                && ($customer = $this->customerRepository->getById((int)$customerId))
             ) {
                 $this->logger->addDebug(__METHOD__ . '|15|');
                 $billingAddress = null;

@@ -69,15 +69,13 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         GiftcardInterface                                $giftcardRequest,
         GiftcardResponse                                 $giftcardResponse,
         Log                                              $logger
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->jsonResultFactory = $jsonResultFactory;
         $this->checkoutSession = $checkoutSession;
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;
         $this->logger = $logger;
-
     }
 
     /**
@@ -88,7 +86,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-
         if ($this->getRequest()->getParam('cardNumber') === null) {
             return $this->displayError(__('A card number is required'));
         }
@@ -126,7 +123,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
     protected function getGiftcardResponse(Quote $quote, $response)
     {
-
         $this->giftcardResponse->set($response, $quote);
 
         if ($this->giftcardResponse->getErrorMessage() !== null) {
@@ -149,7 +145,9 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             );
 
             $buttonMessage = __(
-                'Pay remaining amount: %1 %2', $remainingAmount, $this->giftcardResponse->getCurrency()
+                'Pay remaining amount: %1 %2',
+                $remainingAmount,
+                $this->giftcardResponse->getCurrency()
             );
         }
 
@@ -170,12 +168,10 @@ class Giftcard extends \Magento\Framework\App\Action\Action
      */
     protected function build(Quote $quote)
     {
-
         return $this->giftcardRequest
             ->setCardId($this->getRequest()->getParam('card'))
             ->setCardNumber($this->getRequest()->getParam('cardNumber'))
             ->setPin($this->getRequest()->getParam('pin'))
             ->setQuote($quote);
     }
-
 }
