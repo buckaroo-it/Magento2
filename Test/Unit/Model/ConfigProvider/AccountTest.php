@@ -53,7 +53,7 @@ class AccountTest extends BaseTest
         $resultKeys = array_keys($result);
         $this->assertEmpty(array_merge(array_diff($expectedKeys, $resultKeys), array_diff($resultKeys, $expectedKeys)));
     }
-    public function test_parsed_label_all()
+    public function testParsedLabelAll()
     {
         $orderNumber = '000000099';
         $productName = 'Product name';
