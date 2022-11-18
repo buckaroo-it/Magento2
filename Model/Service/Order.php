@@ -212,8 +212,7 @@ class Order
 
         $this->logging->addDebug(__METHOD__ . '|15|');
 
-        if (
-            $order->canCancel()
+        if ($order->canCancel()
             || in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['payperemail'])
         ) {
             $this->logging->addDebug(__METHOD__ . '|20|');

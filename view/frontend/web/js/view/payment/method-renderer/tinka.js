@@ -338,8 +338,7 @@ define(
                  */
 
                 validate: function () {
-                    if (
-                        document.querySelector('.action.primary.checkout')
+                    if (document.querySelector('.action.primary.checkout')
                         &&
                         !$('.action.primary.checkout').is(':visible')
                     ) {

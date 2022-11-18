@@ -152,8 +152,7 @@ class Totals extends \Magento\Framework\View\Element\Template
     private function isCreditmemoTotalSelected($creditTotals, $saleTotal)
     {
         foreach ($creditTotals as $creditTotal) {
-            if (
-                isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
+            if (    isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
             ) {
                 return true;
             }

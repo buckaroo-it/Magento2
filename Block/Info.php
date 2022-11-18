@@ -56,8 +56,7 @@ class Info extends \Magento\Payment\Block\Info
         if ($this->getInfo()->getOrder() && $this->getInfo()->getOrder()->getIncrementId()) {
             $items = $this->groupTransaction->getGroupTransactionItems($this->getInfo()->getOrder()->getIncrementId());
             foreach ($items as $key => $giftcard) {
-                if (
-                    $foundGiftcard = $this->giftcardCollection
+                if ($foundGiftcard = $this->giftcardCollection
                     ->getItemByColumnValue('servicecode', $giftcard['servicecode'])
                 ) {
                     $result[] = [

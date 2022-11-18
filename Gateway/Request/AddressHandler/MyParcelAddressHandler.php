@@ -38,8 +38,7 @@ class MyParcelAddressHandler extends AbstractAddressHandler
 
         if (!$myparcelFetched) {
             $this->buckarooLogger->addDebug(__METHOD__ . '|10|');
-            if (
-                (strpos((string)$order->getShippingMethod(), 'myparcelnl') !== false)
+            if ((strpos((string)$order->getShippingMethod(), 'myparcelnl') !== false)
                 &&
                 (strpos((string)$order->getShippingMethod(), 'pickup') !== false)
             ) {

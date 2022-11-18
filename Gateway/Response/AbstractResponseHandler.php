@@ -214,8 +214,7 @@ class AbstractResponseHandler
      */
     protected function validatePayment(array $handlingSubject)
     {
-        if (
-            !isset($handlingSubject['payment'])
+        if (!isset($handlingSubject['payment'])
             || !$handlingSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
@@ -230,8 +229,7 @@ class AbstractResponseHandler
      */
     protected function validateResponse(array $response)
     {
-        if (
-            !isset($response['object'])
+        if (!isset($response['object'])
             || !$response['object'] instanceof TransactionResponse
         ) {
             throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');

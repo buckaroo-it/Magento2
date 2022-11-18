@@ -327,8 +327,7 @@ define(
                     }
                     var submitBtn = document.getElementById(pfx + 'submit_' + currentCode);
 
-                    if (
-                        document.getElementById(pfx + 'cardnumber_' + currentCode)
+                    if (            document.getElementById(pfx + 'cardnumber_' + currentCode)
                         &&
                         document.getElementById(pfx + 'cardnumber_' + currentCode).value
                         &&

@@ -238,8 +238,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($statusCode, true));
 
-        if (
-            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
+        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
             && ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'))
         ) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');
@@ -288,14 +287,12 @@ class Process extends \Magento\Framework\App\Action\Action
                 /**
                  * @noinspection PhpUndefinedMethodInspection
                  */
-                if (
-                    !$this->order->getEmailSent()
+                if (!$this->order->getEmailSent()
                     && ($this->accountConfig->getOrderConfirmationEmail($store) === "1"
                         || $paymentMethod->getConfigData('order_email', $store) === "1"
                     )
                 ) {
-                    if (
-                        !($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1) &&
+                    if (!($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1) &&
                         $this->pushRequst->hasPostData('primary_service', 'KlarnaKp') &&
                         $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'reserve') &&
                         !empty($this->pushRequst->getServiceKlarnakpReservationnumber())
@@ -309,8 +306,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 }
 
                 $pendingCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING');
-                if (
-                    ($statusCode == $pendingCode)
+                if (($statusCode == $pendingCode)
                     && !$this->pushRequst->hasPostData('brq_payment_method', 'sofortueberweisung')
                 ) {
                     $this->addErrorMessage(
@@ -564,8 +560,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->quote->setReservedOrderId(null);
 
-        if (
-            !empty($this->pushRequst->getPaymentMethod())
+        if (!empty($this->pushRequst->getPaymentMethod())
             &&
             ($this->pushRequst->getPaymentMethod() == 'applepay')
             &&
@@ -671,8 +666,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
     private function setCustomerIDIN()
     {
-        if (
-            !empty($this->pushRequst->getServiceIdinConsumerbin())
+        if (!empty($this->pushRequst->getServiceIdinConsumerbin())
             && !empty($this->pushRequst->getServiceIdinIseighteenorolder())
             && $this->pushRequst->getServiceIdinIseighteenorolder() == 'True'
         ) {

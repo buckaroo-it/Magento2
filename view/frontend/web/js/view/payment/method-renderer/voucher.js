@@ -120,7 +120,7 @@ define(
                                 self.selectPaymentMethod();
                             }
                         });
-                }
+                    }
                 },
 
                 displayErrorModal: function (self, message) {

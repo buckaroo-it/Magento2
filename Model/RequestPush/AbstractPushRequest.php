@@ -46,16 +46,14 @@ class AbstractPushRequest
     public function hasAdditionalInformation($name, $value): bool
     {
         $fieldValue = $this->getAdditionalInformation($name);
-        if (
-            is_array($value) &&
+        if (is_array($value) &&
             isset($fieldValue) &&
             in_array($fieldValue, $value)
         ) {
             return true;
         }
 
-        if (
-            isset($fieldValue) &&
+        if (isset($fieldValue) &&
             $fieldValue == $value
         ) {
             return true;
@@ -68,16 +66,14 @@ class AbstractPushRequest
     {
         $getter = 'get' . str_replace('_', '', ucwords($name, '_'));
         $fieldValue = $this->$getter();
-        if (
-            is_array($value) &&
+        if (is_array($value) &&
             isset($fieldValue) &&
             in_array($fieldValue, $value)
         ) {
             return true;
         }
 
-        if (
-            isset($fieldValue) &&
+        if (isset($fieldValue) &&
             $fieldValue == $value
         ) {
             return true;

@@ -26,8 +26,7 @@ class InvoiceDataBuilder implements BuilderInterface
 
     public function build(array $buildSubject)
     {
-        if (
-            !isset($buildSubject['payment'])
+        if (!isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
@@ -49,8 +48,7 @@ class InvoiceDataBuilder implements BuilderInterface
     {
         $order = $this->getOrder();
 
-        if (
-            empty($this->invoiceId) || (!$this->isCustomInvoiceId && ($this->invoiceId != $order->getIncrementId()))
+        if (empty($this->invoiceId) || (!$this->isCustomInvoiceId && ($this->invoiceId != $order->getIncrementId()))
         ) {
             $this->setInvoiceId($order->getIncrementId(), false);
         }

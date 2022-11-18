@@ -36,8 +36,7 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
 
         $salesModel = ($invoice ? $invoice : $order);
 
-        if (
-            $salesModel->getBuckarooFeeBaseTaxAmount()
+        if ($salesModel->getBuckarooFeeBaseTaxAmount()
             && $order->getBuckarooFeeBaseTaxAmountInvoiced() > $order->getBuckarooFeeBaseTaxAmountRefunded()
         ) {
             $baseBuckarooFeeTax = $salesModel->getBuckarooFeeBaseTaxAmount();

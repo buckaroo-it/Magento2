@@ -25,8 +25,7 @@ class ApplepayDataBuilder extends AbstractDataBuilder
         $billingContact = json_decode(
             (string)$this->getPayment()->getAdditionalInformation('billingContact')
         );
-        if (
-            $billingContact &&
+        if ($billingContact &&
             !empty($billingContact->givenName) &&
             !empty($billingContact->familyName)
         ) {

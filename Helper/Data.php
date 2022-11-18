@@ -328,8 +328,7 @@ class Data extends AbstractHelper
         $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(), true));
         if (($customerId = $this->_getRequest()->getParam('customer_id')) && ((int)$customerId > 0)) {
             $this->logger->addDebug(__METHOD__ . '|5|');
-            if (
-                !isset($this->staticCache['getPPeCustomerDetails'])
+            if (!isset($this->staticCache['getPPeCustomerDetails'])
                 && ($customer = $this->customerRepository->getById((int)$customerId))
             ) {
                 $this->logger->addDebug(__METHOD__ . '|15|');
@@ -363,8 +362,7 @@ class Data extends AbstractHelper
             }
         }
 
-        if (
-            ($payment = $this->_getRequest()->getParam('payment'))
+        if (($payment = $this->_getRequest()->getParam('payment'))
             && ($payment['method'] == 'buckaroo_magento2_payperemail')
         ) {
             $this->logger->addDebug(__METHOD__ . '|40|');
@@ -464,8 +462,7 @@ class Data extends AbstractHelper
             $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
             $configCustomerGroup = $configProvider->getSpecificCustomerGroup();
 
-            if (
-                !$forceB2C
+            if (!$forceB2C
                 && (
                     ($paymentMethodCode == 'billink')
                     || (

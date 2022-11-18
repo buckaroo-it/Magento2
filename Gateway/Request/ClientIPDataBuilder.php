@@ -33,8 +33,7 @@ class ClientIPDataBuilder implements BuilderInterface
 
     public function build(array $buildSubject)
     {
-        if (
-            !isset($buildSubject['payment'])
+        if (!isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
@@ -69,8 +68,7 @@ class ClientIPDataBuilder implements BuilderInterface
         }
 
         //trustly anyway should be w/o private ip
-        if (
-            (isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) &&
+        if ((isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) &&
                 $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly'
             ) &&
             $this->isIpPrivate($ip) &&

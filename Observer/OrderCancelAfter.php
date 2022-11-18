@@ -87,8 +87,7 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
 
         $cancel_ppe = $this->configProviderPPE->getCancelPpe();
 
-        if (
-            $cancel_ppe && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])
+        if ($cancel_ppe && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])
         ) {
             try {
                 $this->logging->addDebug(__METHOD__ . '|sendCancelResponse|');

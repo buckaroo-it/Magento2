@@ -73,8 +73,7 @@ class OrderUpdateShipping
      */
     private function getAddressInfoFromPayRequest($registry)
     {
-        if (
-            $registry &&
+        if ($registry &&
             $registry->registry("buckaroo_response") &&
             isset($registry->registry("buckaroo_response")[0]) &&
             isset($registry->registry("buckaroo_response")[0]->Services->Service->ResponseParameter)

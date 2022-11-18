@@ -124,8 +124,7 @@ class ResponseCodeSDKValidator extends AbstractValidator
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         }
 
-        if (
-            (!isset($statusCode) || $statusCode == null)
+        if ((!isset($statusCode) || $statusCode == null)
             && $this->request->getParam('cancel')
         ) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');

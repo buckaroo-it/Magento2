@@ -52,8 +52,7 @@ class PluginBefore
             $state          = $order->getState();
             $config         = $this->configProviderMethodFactory->get('paylink');
             $this->_request = $context->getRequest();
-            if (
-                $config->getActive() != '0' &&
+            if ($config->getActive() != '0' &&
                 $this->_request->getFullActionName() == 'sales_order_view' &&
                 $state == 'new' &&
                 ($order->getPayment()->getMethod() != PayLink::CODE)

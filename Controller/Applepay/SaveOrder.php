@@ -89,8 +89,7 @@ class SaveOrder extends Common
         $shippingMethodsResult = [];
 
         if ($isPost) {
-            if (
-                ($payment = $this->getRequest()->getParam('payment'))
+            if (($payment = $this->getRequest()->getParam('payment'))
                 &&
                 ($extra = $this->getRequest()->getParam('extra'))
             ) {
@@ -140,8 +139,7 @@ class SaveOrder extends Common
                     } else {
                         //live mode
                         $this->logger->addDebug(__METHOD__ . '|6|');
-                        if (
-                            !empty($data->Status->Code->Code)
+                        if (!empty($data->Status->Code->Code)
                             &&
                             ($data->Status->Code->Code == '190')
                             &&

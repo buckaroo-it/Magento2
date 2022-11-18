@@ -221,8 +221,7 @@ define(
                             this.showIdentificationValue(true);
                         }
 
-                        if (
-                            (!this.isCustomerLoggedIn() && this.isOsc())
+                        if ((!this.isCustomerLoggedIn() && this.isOsc())
                             ||
                             (this.country === 'NL' || this.country === 'BE')
                             ||
@@ -479,8 +478,7 @@ define(
                  */
 
                 validate: function () {
-                    if (
-                        document.querySelector('.action.primary.checkout')
+                    if (document.querySelector('.action.primary.checkout')
                         &&
                         !$('.action.primary.checkout').is(':visible')
                     ) {

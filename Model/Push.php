@@ -323,22 +323,19 @@ class Push implements PushInterface
 
         //Check if the push is a refund request or cancel authorize
         if (!empty($this->pushRequst->getAmountCredit())) {
-            if (
-                $response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
+            if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && $this->order->isCanceled()
                 && $this->pushRequst->getTransactionType() == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
                 && $validSignature
             ) {
                 return $this->processCancelAuthorize();
-            } elseif (
-                $response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
+            } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && !$this->order->hasInvoices()
             ) {
                 throw new \Buckaroo\Magento2\Exception(
                     __('Refund failed ! Status : %1 and the order does not contain an invoice', $response['status'])
                 );
-            } elseif (
-                $response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
+            } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && $this->order->hasInvoices()
             ) {
                 //don't proceed failed refund push
@@ -380,8 +377,7 @@ class Push implements PushInterface
         }
         $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         if (!empty($this->pushRequst->getStatusmessage())) {
-            if (
-                $this->order->getState() === Order::STATE_NEW
+            if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
                 && !$this->pushRequst->hasPostData('brq_transaction_method', 'transfer')
                 && empty($this->pushRequst->getRelatedtransactionPartialpayment())
@@ -454,8 +450,7 @@ class Push implements PushInterface
             Giftcards::CODE,
             Transfer::CODE
         ];
-        if (
-            $payment
+        if ($payment
             && $payment->getMethod()
             && $receivedStatusCode
             && ($this->getTransactionType() == self::BUCK_PUSH_TYPE_TRANSACTION)
@@ -468,8 +463,7 @@ class Push implements PushInterface
             );
             $this->logging->addDebug(__METHOD__ . '|10|' .
                 var_export([$receivedTrxStatuses, $receivedStatusCode], true));
-            if (
-                $receivedTrxStatuses
+            if ($receivedTrxStatuses
                 && is_array($receivedTrxStatuses)
                 && !empty($trxId)
                 && isset($receivedTrxStatuses[$trxId])
@@ -477,8 +471,7 @@ class Push implements PushInterface
             ) {
                 $orderStatus = $this->helper->getOrderStatusByState($this->order, Order::STATE_NEW);
                 $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-                if (
-                    ($this->order->getState() == Order::STATE_NEW)
+                if (($this->order->getState() == Order::STATE_NEW)
                     && ($this->order->getStatus() == $orderStatus)
                     && ($receivedStatusCode == $statusCode)
                 ) {
@@ -507,17 +500,14 @@ class Push implements PushInterface
     private function isPushNeeded()
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
-        if (
-            $this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1)
+        if ($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1)
             && $this->pushRequst->hasAdditionalInformation('service_action_from_magento', ['refund'])
         ) {
             $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-            if (
-                $this->pushRequst->hasPostData('statuscode', $statusCodeSuccess)
+            if ($this->pushRequst->hasPostData('statuscode', $statusCodeSuccess)
                 && !empty($this->pushRequst->getRelatedtransactionRefund())
             ) {
-                if (
-                    $this->receivePushCheckDuplicates(
+                if ($this->receivePushCheckDuplicates(
                         $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL'),
                         $this->pushRequst->getRelatedtransactionRefund()
                     )
@@ -531,16 +521,14 @@ class Push implements PushInterface
         }
 
         $types = ['capture', 'cancelauthorize', 'cancelreservation'];
-        if (
-            $this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1)
+        if ($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1)
             && $this->pushRequst->hasAdditionalInformation('service_action_from_magento', $types)
             && empty($this->pushRequst->getRelatedtransactionRefund())
         ) {
             return false;
         }
 
-        if (
-            $this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1)
+        if ($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1)
             && $this->pushRequst->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
             && $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'pay')
             && !empty($this->pushRequst->getServiceKlarnakpCaptureid())
@@ -601,8 +589,7 @@ class Push implements PushInterface
         }
 
         $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-        if (
-            !is_null($this->pushRequst->getStatusCode())
+        if (!is_null($this->pushRequst->getStatusCode())
             && ($this->pushRequst->getStatusCode() == $statusCodeSuccess)
             && !$statusCode
         ) {
@@ -620,16 +607,14 @@ class Push implements PushInterface
         //If an order has an invoice key, then it should only be processed by invoice pushes
         $savedInvoiceKey = (string)$this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
-        if (
-            !empty($this->pushRequst->getInvoicekey())
+        if (!empty($this->pushRequst->getInvoicekey())
             && !empty($this->pushRequst->getSchemekey())
             && strlen($savedInvoiceKey) > 0
         ) {
             return self::BUCK_PUSH_TYPE_INVOICE;
         }
 
-        if (
-            !empty($this->pushRequst->getInvoicekey())
+        if (!empty($this->pushRequst->getInvoicekey())
             && !empty($this->pushRequst->getSchemekey())
             && strlen($savedInvoiceKey) == 0
         ) {
@@ -640,8 +625,7 @@ class Push implements PushInterface
             return self::BUCK_PUSH_TYPE_DATAREQUEST;
         }
 
-        if (
-            empty($this->pushRequst->getInvoicekey())
+        if (empty($this->pushRequst->getInvoicekey())
             && empty($this->pushRequst->getServiceCreditmanagement3Invoicekey())
             && empty($this->pushRequst->getDatarequest())
             && strlen($savedInvoiceKey) <= 0
@@ -811,8 +795,7 @@ class Push implements PushInterface
     {
         $payment = $this->order->getPayment();
 
-        if (
-            $payment->getMethod() != Giftcards::CODE
+        if ($payment->getMethod() != Giftcards::CODE
             || (!empty($this->pushRequst->getAmount()) && $this->pushRequst->getAmount() >= $this->order->getGrandTotal())
             || empty($this->pushRequst->getRelatedtransactionPartialpayment())
         ) {
@@ -939,14 +922,12 @@ class Push implements PushInterface
             $trxId = $this->pushRequst->getDatarequest();
         }
 
-        if (
-            !empty($this->pushRequst->getServiceKlarnaAutopaytransactionkey())
+        if (!empty($this->pushRequst->getServiceKlarnaAutopaytransactionkey())
         ) {
             $trxId = $this->pushRequst->getServiceKlarnaAutopaytransactionkey();
         }
 
-        if (
-            !empty($this->pushRequst->getServiceKlarnakpAutopaytransactionkey())
+        if (!empty($this->pushRequst->getServiceKlarnakpAutopaytransactionkey())
         ) {
             $trxId = $this->pushRequst->getServiceKlarnakpAutopaytransactionkey();
         }
@@ -1002,8 +983,7 @@ class Push implements PushInterface
         /**
          * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
          */
-        if (
-            $completedStateAndStatus != $currentStateAndStatus
+        if ($completedStateAndStatus != $currentStateAndStatus
             && $cancelledStateAndStatus != $currentStateAndStatus
             && $holdedStateAndStatus != $currentStateAndStatus
             && $closedStateAndStatus != $currentStateAndStatus
@@ -1011,8 +991,7 @@ class Push implements PushInterface
             return true;
         }
 
-        if (
-            ($this->order->getState() === Order::STATE_CANCELED)
+        if (($this->order->getState() === Order::STATE_CANCELED)
             && ($this->order->getStatus() === Order::STATE_CANCELED)
             && ($response['status'] === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
         ) {
@@ -1042,8 +1021,7 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($newStatus, true));
 
-        if (
-            ($this->order->getState() === Order::STATE_PROCESSING)
+        if (($this->order->getState() === Order::STATE_PROCESSING)
             && ($this->order->getStatus() === Order::STATE_PROCESSING)
         ) {
             //do not update to failed if we had a success already
@@ -1098,8 +1076,7 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|4|');
         $force = false;
-        if (
-            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_mrcash')
+        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_mrcash')
             && ($this->order->getState() === Order::STATE_NEW)
             && ($this->order->getStatus() === 'pending')
         ) {
@@ -1146,8 +1123,7 @@ class Push implements PushInterface
          */
         $paymentMethod = $payment->getMethodInstance();
 
-        if (
-            !$this->order->getEmailSent()
+        if (!$this->order->getEmailSent()
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
             )
@@ -1210,8 +1186,7 @@ class Push implements PushInterface
                 return true;
             }
 
-            if (
-                $this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1) &&
+            if ($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1) &&
                 (
                     $this->pushRequst->hasPostData('transaction_method', 'KlarnaKp') &&
                     $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'pay') &&
@@ -1240,8 +1215,7 @@ class Push implements PushInterface
                         ], true));
 
                     $saveInvoice = true;
-                    if (
-                        ($amount < $this->order->getTotalDue())
+                    if (($amount < $this->order->getTotalDue())
                         || (($amount == $this->order->getTotalDue()) && ($this->order->getTotalPaid() > 0))
                     ) {
                         $this->logging->addDebug(__METHOD__ . '|64|');
@@ -1301,15 +1275,13 @@ class Push implements PushInterface
             }
         }
 
-        if (
-            !empty($this->pushRequst->getServiceKlarnaAutopaytransactionkey())
+        if (!empty($this->pushRequst->getServiceKlarnaAutopaytransactionkey())
             && ($this->pushRequst->getStatusCode() == 190)
         ) {
             $this->saveInvoice();
         }
 
-        if (
-            !empty($this->pushRequst->getServiceKlarnakpAutopaytransactionkey())
+        if (!empty($this->pushRequst->getServiceKlarnakpAutopaytransactionkey())
             && ($this->pushRequst->getStatusCode() == 190)
         ) {
             $this->saveInvoice();
@@ -1347,8 +1319,7 @@ class Push implements PushInterface
         $paymentMethod = $payment->getMethodInstance();
 
         // Transfer has a slightly different flow where a successful order has a 792 status code instead of an 190 one
-        if (
-            !$this->order->getEmailSent()
+        if (!$this->order->getEmailSent()
             && in_array($payment->getMethod(), [Transfer::CODE,
                 SepaDirectDebit::CODE,
                 Sofortbanking::CODE,
@@ -1459,8 +1430,7 @@ class Push implements PushInterface
         if (!empty($this->pushRequst->getAmount())) {
             $invoiceAmount = floatval($this->pushRequst->getAmount());
         }
-        if (
-            ($payment->getMethod() == Giftcards::CODE)
+        if (($payment->getMethod() == Giftcards::CODE)
             && $invoiceAmount != $this->order->getGrandTotal()
         ) {
             $this->setReceivedPaymentFromBuckaroo();
@@ -1586,8 +1556,7 @@ class Push implements PushInterface
 
     private function isGroupTransactionInfoType()
     {
-        if (
-            !empty($this->pushRequst->getTransactionType())
+        if (!empty($this->pushRequst->getTransactionType())
             && ($this->pushRequst->getTransactionType() == self::BUCK_PUSH_GROUPTRANSACTION_TYPE)
         ) {
             return true;
@@ -1599,8 +1568,7 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         if ($this->isGroupTransactionInfoType()) {
-            if (
-                $this->pushRequst->getStatusCode() !=
+            if ($this->pushRequst->getStatusCode() !=
                 $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
             ) {
                 return true;
@@ -1620,8 +1588,7 @@ class Push implements PushInterface
     private function isGroupTransactionFailed()
     {
         if ($this->isGroupTransactionInfoType()) {
-            if (
-                $this->pushRequst->getStatusCode() ==
+            if ($this->pushRequst->getStatusCode() ==
                 $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
             ) {
                 return true;
@@ -1644,8 +1611,7 @@ class Push implements PushInterface
 
     private function receivePushCheckPayLink($response, $validSignature)
     {
-        if (
-            !empty($this->pushRequst->getAdditionalInformation('frompaylink'))
+        if (!empty($this->pushRequst->getAdditionalInformation('frompaylink'))
             && $response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
             && $validSignature
         ) {
@@ -1669,8 +1635,7 @@ class Push implements PushInterface
             'BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'
         ];
         $status = $this->helper->getStatusByValue($this->pushRequst->getStatusCode() ?? '');
-        if (
-            (!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
+        if ((!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
                 || ($payment->getMethod() == 'buckaroo_magento2_payperemail'))
             && !empty($this->pushRequst->getTransactionMethod())
             && ((in_array($response['status'], $failedStatuses))
@@ -1688,8 +1653,7 @@ class Push implements PushInterface
     private function receivePushCheckPayPerEmail($response, $validSignature, $payment)
     {
         $status = $this->helper->getStatusByValue($this->pushRequst->getStatusCode() ?? '');
-        if (
-            (!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
+        if ((!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
                 || ($payment->getMethod() == 'buckaroo_magento2_payperemail'))
             && !empty($this->pushRequst->getTransactionMethod())
             && (($response['status'] == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
@@ -1724,8 +1688,7 @@ class Push implements PushInterface
 
     public function isPayPerEmailB2BModePush()
     {
-        if (
-            !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
+        if (!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
             && !empty($this->pushRequst->getTransactionMethod())
             && ($this->pushRequst->getTransactionMethod() == 'payperemail')
         ) {
@@ -1741,8 +1704,7 @@ class Push implements PushInterface
 
     public function isPayPerEmailB2CModePush()
     {
-        if (
-            !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
+        if (!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
             && !empty($this->pushRequst->getTransactionMethod())
             && ($this->pushRequst->getTransactionMethod() == 'payperemail')
         ) {
@@ -1803,8 +1765,7 @@ class Push implements PushInterface
     private function lockPushProcessingCriteria()
     {
         $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-        if (
-            !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
+        if (!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
             || (($this->pushRequst->hasPostData('statuscode', $statusCodeSuccess))
                 && $this->pushRequst->hasPostData('transaction_method', 'ideal')
                 && $this->pushRequst->hasPostData('transaction_type', self::BUCK_PUSH_IDEAL_PAY)
@@ -1853,8 +1814,7 @@ class Push implements PushInterface
         ];
 
         if (in_array($payment->getMethod(), $authPpaymentMethods)) {
-            if (
-                (($payment->getMethod() == Klarnakp::CODE)
+            if ((($payment->getMethod() == Klarnakp::CODE)
                     || (
                         !empty($this->pushRequst->getTransactionType())
                         && in_array($this->pushRequst->getTransactionType(), ['I038', 'I880'])
@@ -1991,8 +1951,7 @@ class Push implements PushInterface
         /** @var \Magento\Sales\Api\OrderManagementInterface */
         $orderManagement = $this->objectManager->get('Magento\Sales\Api\OrderManagementInterface');
 
-        if (
-            $order instanceof \Magento\Sales\Api\Data\OrderInterface &&
+        if ($order instanceof \Magento\Sales\Api\Data\OrderInterface &&
             $order->getEntityId() !== null &&
             $order->getState() !== Order::STATE_CANCELED
         ) {

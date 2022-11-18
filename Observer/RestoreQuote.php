@@ -76,7 +76,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     protected $cart;
 
-    protected $_messageManager;
+    protected $messageManager;
 
     private $quoteRecreate;
 
@@ -123,7 +123,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->quote                  = $quote;
         $this->quoteFactory           = $quoteFactory;
         $this->productFactory         = $productFactory;
-        $this->_messageManager        = $messageManager;
+        $this->messageManager         = $messageManager;
         $this->cart                   = $cart;
         $this->dateTime               = $dateTime;
         $this->helper                 = $helper;
@@ -158,8 +158,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|20|');
 
-                if (
-                    $this->checkoutSession->getQuote()
+                if ($this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
@@ -172,8 +171,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     }
                 }
 
-                if (
-                    $this->helper->getRestoreQuoteLastOrder()
+                if ($this->helper->getRestoreQuoteLastOrder()
                     && ($lastRealOrder->getData('state') === 'new')
                     && ($lastRealOrder->getData('status') === 'pending')
                     && $payment->getMethodInstance()->usesRedirect

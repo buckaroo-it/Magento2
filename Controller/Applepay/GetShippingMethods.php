@@ -73,8 +73,7 @@ class GetShippingMethods extends Common
         $data = [];
         $shippingMethodsResult = [];
         if ($isPost) {
-            if (
-                ($wallet = $this->getRequest()->getParam('wallet'))
+            if (($wallet = $this->getRequest()->getParam('wallet'))
             ) {
                 $cart_hash = $this->getRequest()->getParam('id');
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager

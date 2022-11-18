@@ -123,8 +123,7 @@ class Giftcard
      */
     public function getRemainderAmount()
     {
-        if (
-            !isset($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
+        if (!isset($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
             !is_scalar($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
         ) {
             return 0;
@@ -138,8 +137,7 @@ class Giftcard
      */
     public function getAmountDebit()
     {
-        if (
-            empty($this->response->getAmount()) ||
+        if (empty($this->response->getAmount()) ||
             !is_scalar($this->response->getAmount())
         ) {
             return 0;
@@ -198,8 +196,7 @@ class Giftcard
     protected function cancelOrder()
     {
         $order = $this->createOrderFromQuote();
-        if (
-            $order instanceof \Magento\Sales\Api\Data\OrderInterface &&
+        if ($order instanceof \Magento\Sales\Api\Data\OrderInterface &&
             $order->getEntityId() !== null
         ) {
             $this->orderManagement->cancel($order->getEntityId());

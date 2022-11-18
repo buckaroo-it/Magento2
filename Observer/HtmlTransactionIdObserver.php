@@ -44,18 +44,19 @@ class HtmlTransactionIdObserver implements ObserverInterface
             $transaction->setData(
                 'html_txn_id',
                 sprintf(
-                    '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
+                    '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s"'
+                    . ' target="_blank">%s</a>',
                     $txnId,
                     $transaction->getTxnId()
                 )
             );
         }
     }
-     /**
+
+    /**
      * Is one of our payment methods
      *
      * @param OrderPaymentInterface|null $payment
-     *
      * @return boolean
      */
     public function isBuckarooPayment($payment)

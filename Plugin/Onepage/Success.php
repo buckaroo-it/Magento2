@@ -56,8 +56,7 @@ class Success
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
 
-        if (
-            $this->isBuckarooPayment($payment) &&
+        if ($this->isBuckarooPayment($payment) &&
             (
                 ($order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING &&  $this->paymentInTransit($payment)) ||
                 $order->getStatus() === Order::STATE_CANCELED

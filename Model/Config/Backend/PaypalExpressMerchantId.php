@@ -32,8 +32,7 @@ class PaypalExpressMerchantId extends \Magento\Framework\App\Config\Value
      */
     public function save()
     {
-        if (
-            is_array($this->getFieldsetDataValue('available_buttons')) &&
+        if (is_array($this->getFieldsetDataValue('available_buttons')) &&
             strlen($this->getValue()) === 0
         ) {
             throw new LocalizedException(__('Paypal express merchant id is required'));

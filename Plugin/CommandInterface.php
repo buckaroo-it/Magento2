@@ -112,8 +112,7 @@ class CommandInterface
 
         $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
 
-        if (
-            (
+        if ((
                 (
                     preg_match('/afterpay/', $methodInstance->getCode())
                     &&

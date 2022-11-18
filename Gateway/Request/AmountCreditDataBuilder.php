@@ -87,8 +87,7 @@ class AmountCreditDataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
-        if (
-            !isset($buildSubject['payment'])
+        if (!isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
@@ -221,8 +220,7 @@ class AmountCreditDataBuilder implements BuilderInterface
 
         if ($amount >= 0.01) {
             $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
-            if (
-                ($groupTransactionAmount > 0.01)
+            if (($groupTransactionAmount > 0.01)
                 &&
                 empty($requestParams['creditmemo']['buckaroo_already_paid'])
                 &&

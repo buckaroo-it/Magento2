@@ -27,15 +27,24 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
      * @var \Magento\Checkout\Model\Session
      */
     private $checkoutSession;
-
+    /**
+     * @var \Magento\Framework\Message\ManagerInterface
+     */
     protected $messageManager;
-
+    /**
+     * @var \Magento\Checkout\Model\Cart
+     */
     protected $cart;
-
+    /**
+     * @var \Buckaroo\Magento2\Logging\Log
+     */
     protected $logging;
 
     /**
-     * @param \Magento\Checkout\Model\Cart          $cart
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
+     * @param \Magento\Checkout\Model\Cart $cart
+     * @param \Buckaroo\Magento2\Logging\Log $logging
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -50,8 +59,9 @@ class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Empty the shopping cart
      *
+     * @param \Magento\Framework\Event\Observer $observer
      * @return void
      */
     public function execute(\Magento\Framework\Event\Observer $observer)

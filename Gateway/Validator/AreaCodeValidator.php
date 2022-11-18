@@ -46,8 +46,7 @@ class AreaCodeValidator extends AbstractValidator
          * @var AbstractConfigProvider
          */
         $config = $this->configProviderFactory->get($paymentMethodInstance->buckarooPaymentMethodCode);
-        if (
-            Area::AREA_ADMINHTML === $areaCode
+        if (Area::AREA_ADMINHTML === $areaCode
             && $config->getValue('available_in_backend') !== null
             && $config->getValue('available_in_backend') == 0
         ) {

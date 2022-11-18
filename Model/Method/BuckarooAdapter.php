@@ -163,8 +163,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         }
 
         $areaCode = $this->state->getAreaCode();
-        if (
-            'adminhtml' === $areaCode
+        if ('adminhtml' === $areaCode
             && $this->getConfigData('available_in_backend') !== null
             && $this->getConfigData('available_in_backend') == 0
         ) {

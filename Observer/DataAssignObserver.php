@@ -125,8 +125,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
 
         $paymentInfo = $this->readPaymentModelArgument($observer);
 
-        if (
-            in_array($paymentInfo->getMethodInstance()->getCode(), $this->termsConditionDepends)
+        if (in_array($paymentInfo->getMethodInstance()->getCode(), $this->termsConditionDepends)
             && !isset($additionalData[self::TERMS_CONDITION])
         ) {
             return;
