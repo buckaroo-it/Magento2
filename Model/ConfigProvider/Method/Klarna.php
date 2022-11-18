@@ -47,9 +47,7 @@ class Klarna extends AbstractConfigProvider
                         'paymentFee'        => $this->getPaymentFee(),
                         'genderList' => [
                             ['genderType' => 'male', 'genderTitle' => 'He/him'],
-                            ['genderType' => 'female', 'genderTitle' => 'She/her'],
-                            ['genderType' => 'unknown', 'genderTitle' => 'They/them'],
-                            ['genderType' => 'unknown', 'genderTitle' => 'I prefer not to say']
+                            ['genderType' => 'female', 'genderTitle' => 'She/her']
                         ]
                     ],
                     'response' => [],

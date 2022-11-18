@@ -376,14 +376,14 @@ class Push implements PushInterface
         if (!$this->isGroupTransactionInfo()) {
             $this->setTransactionKey();
         }
-
         $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         if (!empty($this->pushRequst->getStatusmessage())) {
-            if ($this->order->getState() === Order::STATE_NEW
-                && !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
-                && (!empty($this->pushRequst->getStatusCode())
-                    && $this->pushRequst->hasPostData('statuscode', $statusCodeSuccess))
-            ) {
+            if (
+                $this->order->getState() === Order::STATE_NEW
+                && empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
+                && !$this->pushRequst->hasPostData('brq_transaction_method', 'transfer')
+                && empty($this->pushRequst->getRelatedtransactionPartialpayment())
+                && $this->pushRequst->hasPostData('statuscode', $statusCodeSuccess) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addStatusHistoryComment(
                     $this->pushRequst->getStatusmessage(),
@@ -492,60 +492,6 @@ class Push implements PushInterface
         }
         $this->logging->addDebug(__METHOD__ . '|20|');
         return false;
-    }
-
-    /**
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    private function convertJsonRequest($postData): array
-    {
-            if(isset($postData['Transaction'])) {
-                $postData = $postData['Transaction'];
-            } else {
-                throw new \Buckaroo\Magento2\Exception(__('Json request could not be processed, please use httppost'));
-            }
-
-        $returnData =  [
-            'brq_amount' => $postData["AmountDebit"] ?? '',
-            'brq_currency' => $postData["Currency"] ?? '',
-            'brq_customer_name' => $postData["CustomerName"] ?? '',
-            'brq_description' => $postData["Description"] ?? '',
-            'brq_invoicenumber' => $postData["Invoice"] ?? '',
-            'brq_mutationtype' => $postData["MutationType"] ?? '', //Now is 1, before was 'Collecting'
-            'brq_ordernumber' => $postData["Order"] ?? '',
-            'brq_payer_hash' => $postData["PayerHash"] ?? '',
-            'brq_payment' => $postData["PaymentKey"] ?? '',
-            'brq_statuscode' => $postData["Status"]["Code"]["Code"] ?? '',
-            'brq_statuscode_detail' => $postData["Status"]["SubCode"]["Code"] ?? '',
-            'brq_statusmessage' => $postData["Status"]["SubCode"]["Description"] ?? '',
-            'brq_test' => $postData["IsTest"] ?? '',
-            'brq_transaction_method' => $postData["ServiceCode"] ?? '',
-            'brq_transaction_type' => $postData["TransactionType"] ?? '',
-            'brq_transactions' => $postData["Key"] ?? '',
-//            'brq_signature' => $this->validator->calculateSignature($postData)
-        ];
-
-        if(isset($postData['AdditionalParameters']['List']) && is_array($postData['AdditionalParameters']['List']))
-        {
-            foreach ($postData['AdditionalParameters']['List'] as $parameter) {
-                $key = 'ADD_' . $parameter['Name'];
-                $returnData[$key] = $parameter['Value'];
-            }
-        }
-
-        if(isset($postData['Services']) && is_array($postData['AdditionalParameters']))
-        {
-            foreach ($postData['Services'] as $service) {
-                if(isset($service["Parameters"]) && is_array($service["Parameters"])) {
-                    foreach ($service["Parameters"] as $parameter) {
-                        $key = 'brq_SERVICE_' . $service['Name'] . '_' . $parameter['Name'];
-                        $returnData[$key] = $parameter['Value'];
-                    }
-                }
-            }
-        }
-
-        return $returnData;
     }
 
     /**
@@ -938,27 +884,27 @@ class Push implements PushInterface
         }
     }
 
-    protected function setReceivedTransactionStatuses()
+    /**
+     * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
+     * with the current received tx status.
+     *
+     * @return void
+     */
+    protected function setReceivedTransactionStatuses(): void
     {
-        if (empty($this->pushRequst->getTransactions()) || empty($this->pushRequst->getStatusCode())) {
+        $txId = $this->pushRequst->getTransactions();
+        $statusCode = $this->pushRequst->getStatusCode();
+
+        if (empty($txId) || empty($statusCode)) {
             return;
         }
 
         $payment = $this->order->getPayment();
 
-        if (!$payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES)) {
-            $payment->setAdditionalInformation(
-                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
-                [$this->pushRequst->getTransactions() => $this->pushRequst->getStatusCode()]
-            );
-        } else {
-            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
-            $buckarooTransactionKeysArray[$this->pushRequst->getTransactions()] = $this->pushRequst->getStatusCode();
-            $payment->setAdditionalInformation(
-                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
-                $buckarooTransactionKeysArray
-            );
-        }
+        $receivedTxStatuses = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES) ?? [];
+        $receivedTxStatuses[$txId] = $statusCode;
+
+        $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES, $receivedTxStatuses);
     }
 
     /**

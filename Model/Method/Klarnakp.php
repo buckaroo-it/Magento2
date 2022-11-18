@@ -367,11 +367,6 @@ class Klarnakp extends AbstractMethod
 
         $streetFormat = $this->addressFormatter->formatStreet($shippingAddress->getStreet());
 
-        $rawPhoneNumber = $shippingAddress->getTelephone();
-        if (!is_numeric($rawPhoneNumber) || $rawPhoneNumber == '-') {
-            $rawPhoneNumber = $payment->getAdditionalInformation('customer_telephone');
-        }
-
         $shippingData = [
             [
                 '_' => $shippingSameAsBilling,
@@ -573,49 +568,6 @@ class Klarnakp extends AbstractMethod
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function assignData(\Magento\Framework\DataObject $data)
-    {
-        parent::assignData($data);
-        $data = $this->assignDataConvertToArray($data);
-
-        if (isset($data['additional_data']['termsCondition'])) {
-            $additionalData = $data['additional_data'];
-            $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
-            $this->getInfoInstance()->setAdditionalInformation(
-                'customer_billingName',
-                $additionalData['customer_billingName']
-            );
-            $this->getInfoInstance()->setAdditionalInformation('customer_iban', $additionalData['customer_iban']);
-
-            $dobDate = \DateTime::createFromFormat('d/m/Y', $additionalData['customer_DoB']);
-            $dobDate = (!$dobDate ? $additionalData['customer_DoB'] : $dobDate->format('d-m-Y'));
-            $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $dobDate);
-
-            if (isset($additionalData['selectedBusiness'])
-                && $additionalData['selectedBusiness'] == self::BUSINESS_METHOD_B2B
-            ) {
-                $this->getInfoInstance()->setAdditionalInformation('COCNumber', $additionalData['COCNumber']);
-                $this->getInfoInstance()->setAdditionalInformation('CompanyName', $additionalData['CompanyName']);
-                $this->getInfoInstance()->setAdditionalInformation(
-                    'selectedBusiness',
-                    $additionalData['selectedBusiness']
-                );
-            }
-
-            if (isset($additionalData['customer_telephone'])) {
-                $this->getInfoInstance()->setAdditionalInformation(
-                    'customer_telephone',
-                    $additionalData['customer_telephone']
-                );
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
@@ -650,9 +602,10 @@ class Klarnakp extends AbstractMethod
         $this->logger2->addDebug(__METHOD__.'|1|');
         $this->logger2->addDebug(var_export([$billingAddress->getStreet(), $streetFormat], true));
 
-        $telephone = $payment->getAdditionalInformation('customer_telephone');
-        $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
-        $telephone = $this->addressFormatter->formatTelephone($telephone, $billingAddress->getCountryId());
+        $telephone = $this->addressFormatter->formatTelephone(
+            $billingAddress->getTelephone(),
+            $billingAddress->getCountryId()
+        );
 
         $billingData = [
             [
