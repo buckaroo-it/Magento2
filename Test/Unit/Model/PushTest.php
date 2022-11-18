@@ -20,6 +20,7 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Magento\Directory\Model\Currency;
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Payment\Model\MethodInterface;
@@ -30,7 +31,6 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use Buckaroo\Magento2\Model\Method\Giftcards;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Push;
@@ -46,7 +46,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         return [
             'processed partial giftcard payment' => [
-                Giftcards::PAYMENT_METHOD_CODE,
+                Giftcards::CODE,
                 5,
                 2,
                 'abc',
@@ -60,14 +60,14 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
                 false
             ],
             'push amount equals order amount' => [
-                Giftcards::PAYMENT_METHOD_CODE,
+                Giftcards::CODE,
                 3,
                 6,
                 'ghi',
                 false
             ],
             'no related transaction key' => [
-                Giftcards::PAYMENT_METHOD_CODE,
+                Giftcards::CODE,
                 8,
                 7,
                 null,

@@ -378,12 +378,12 @@ class Push implements PushInterface
         }
         $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         if (!empty($this->pushRequst->getStatusmessage())) {
-            if (
-                $this->order->getState() === Order::STATE_NEW
+            if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
                 && !$this->pushRequst->hasPostData('brq_transaction_method', 'transfer')
                 && empty($this->pushRequst->getRelatedtransactionPartialpayment())
-                && $this->pushRequst->hasPostData('statuscode', $statusCodeSuccess) {
+                && $this->pushRequst->hasPostData('statuscode', $statusCodeSuccess)
+            ) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addStatusHistoryComment(
                     $this->pushRequst->getStatusmessage(),

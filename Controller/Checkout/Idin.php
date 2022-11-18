@@ -22,8 +22,6 @@
 namespace Buckaroo\Magento2\Controller\Checkout;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Gateway\GatewayInterface;
-use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
@@ -33,17 +31,6 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class Idin extends \Magento\Framework\App\Action\Action
 {
-
-    /**
-     * @var Buckaroo\Magento2\Gateway\Http\TransactionBuilder\IdinBuilderInterface
-     */
-    protected $transactionBuilder;
-
-    /**
-     * @var GatewayInterface
-     */
-    protected $gateway;
-
     /**
      * @var Log
      */
@@ -65,8 +52,6 @@ class Idin extends \Magento\Framework\App\Action\Action
     /**
      *
      * @param Context $context
-     * @param TransactionBuilderFactory $transactionBuilderFactory
-     * @param GatewayInterface $gateway
      * @param BuilderInterface $requestDataBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $clientInterface
@@ -75,16 +60,12 @@ class Idin extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         Context                   $context,
-        TransactionBuilderFactory $transactionBuilderFactory,
-        GatewayInterface          $gateway,
         BuilderInterface          $requestDataBuilder,
         TransferFactoryInterface  $transferFactory,
         ClientInterface           $clientInterface,
         Log                       $logger
     ) {
         parent::__construct($context);
-        $this->transactionBuilder = $transactionBuilderFactory->get('idin');
-        $this->gateway            = $gateway;
         $this->logger             = $logger;
         $this->requestDataBuilder = $requestDataBuilder;
         $this->transferFactory    = $transferFactory;

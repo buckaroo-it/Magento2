@@ -81,9 +81,6 @@
     <type name="Magento\Checkout\Controller\Onepage\Success">
         <plugin name="buckaroo_magento2_checkout_success" type="Buckaroo\Magento2\Plugin\Onepage\Success" />
     </type>
-    <type name="Buckaroo\Magento2\Model\Method\Paypal">
-        <plugin name="buckaroo_magento2_paypal_sellersprotection_order" type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\Order" />
-    </type>
 
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
         <plugin name="buckaroo_magento2_add_order_extension_attributes" type="Buckaroo\Magento2\Plugin\OrderExtensionAttribute" />
