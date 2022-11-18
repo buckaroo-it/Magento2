@@ -50,8 +50,6 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/ideal.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/ideal_gateway.xml"/>
-
         <include path="Buckaroo_Magento2::system/payment_methods/idealprocessing.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/creditcard.xml"/>
