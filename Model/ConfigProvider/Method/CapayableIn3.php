@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Model\Method\Capayable\Installments as CapayableIn3Method;
+use Magento\Store\Model\ScopeInterface;
 
 class CapayableIn3 extends AbstractConfigProvider
 {
@@ -46,7 +45,7 @@ class CapayableIn3 extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(CapayableIn3Method::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [

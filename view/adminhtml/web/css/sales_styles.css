@@ -40,7 +40,6 @@
 
 .buckaroo_magento2_payment_paypal,
 .buckaroo_magento2_payment_ideal,
-.buckaroo_magento2_payment_idealgateway,
 .buckaroo_magento2_payment_idealprocessing,
 .buckaroo_magento2_payment_creditcard,
 .buckaroo_magento2_payment_sepadirectdebit,
@@ -125,7 +124,6 @@
 
 /* iDeal */
 .buckaroo_magento2_payment_ideal:before,
-.buckaroo_magento2_payment_idealgateway:before,
 .buckaroo_magento2_payment_idealprocessing:before {
     background: url(../images/buckaroo_magento2_ideal_title.png) no-repeat;
     float: left;

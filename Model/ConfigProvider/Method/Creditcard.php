@@ -158,9 +158,7 @@ class Creditcard extends AbstractConfigProvider
     public function getConfig()
     {
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Creditcard::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         $selectionType = $this->scopeConfig->getValue(
             static::XPATH_SELECTION_TYPE,

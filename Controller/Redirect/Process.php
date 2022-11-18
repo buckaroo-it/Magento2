@@ -22,11 +22,11 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
 class Process extends \Magento\Framework\App\Action\Action
@@ -419,9 +419,7 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment)
     {
-        $payment
-        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
-        ->save();
+        $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false)->save();
     }
     protected function handleFailed($statusCode)
     {

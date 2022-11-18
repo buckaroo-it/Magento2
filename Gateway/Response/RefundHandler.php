@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Response;
 
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Push;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;

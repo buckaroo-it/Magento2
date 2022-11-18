@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Api\Data\Giftcard;
 
-
 interface GetTransactionsResponseInterface
 {
     /**
@@ -31,7 +29,7 @@ interface GetTransactionsResponseInterface
      * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
      */
     public function getTransactions();
-    
+
     /**
      * Get RemainderAmount
      *

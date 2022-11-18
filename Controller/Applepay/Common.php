@@ -20,12 +20,12 @@
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Reflection\DataObjectProcessor;
-use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Quote\Api\Data\EstimateAddressInterface;
 use Magento\Quote\Model\Quote;
@@ -234,7 +234,7 @@ class Common extends Action
 
         $quoteRepository = $objectManager->get(\Magento\Quote\Model\QuoteRepository::class);
 
-        $quote->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
+        $quote->getPayment()->setMethod(Applepay::CODE);
         $quote->getShippingAddress()->setCollectShippingRates(true);
         $quoteRepository->save($quote);
 

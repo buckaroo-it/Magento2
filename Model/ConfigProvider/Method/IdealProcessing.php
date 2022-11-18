@@ -22,7 +22,6 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Model\Method\IdealProcessing as IdealProcessingMethod;
 
 class IdealProcessing extends AbstractConfigProvider
 {
@@ -45,7 +44,7 @@ class IdealProcessing extends AbstractConfigProvider
         }
 
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(IdealProcessingMethod::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         $selectionType = $this->scopeConfig->getValue(
             \Buckaroo\Magento2\Model\ConfigProvider\Account::XPATH_ACCOUNT_SELECTION_TYPE,

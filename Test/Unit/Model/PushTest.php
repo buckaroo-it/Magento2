@@ -20,6 +20,7 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Magento\Directory\Model\Currency;
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Payment\Model\MethodInterface;
@@ -29,8 +30,7 @@ use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
-use Buckaroo\Magento2\Model\Method\Giftcards;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Push;
@@ -46,7 +46,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         return [
             'processed partial giftcard payment' => [
-                Giftcards::PAYMENT_METHOD_CODE,
+                Giftcards::CODE,
                 5,
                 2,
                 'abc',
@@ -60,14 +60,14 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
                 false
             ],
             'push amount equals order amount' => [
-                Giftcards::PAYMENT_METHOD_CODE,
+                Giftcards::CODE,
                 3,
                 6,
                 'ghi',
                 false
             ],
             'no related transaction key' => [
-                Giftcards::PAYMENT_METHOD_CODE,
+                Giftcards::CODE,
                 8,
                 7,
                 null,
@@ -283,11 +283,11 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMock();
         $paymentMock->expects($this->once())->method('getMethod')->willReturn($methodCode);
         $paymentMock->method('getAdditionalInformation')
-            ->with(AbstractMethod::BUCKAROO_ALL_TRANSACTIONS)->willReturn([]);
+            ->with(BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS)->willReturn([]);
         $paymentMock->method('setAdditionalInformation')
             ->withConsecutive(
-                [AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY],
-                [AbstractMethod::BUCKAROO_ALL_TRANSACTIONS]
+                [BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY],
+                [BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS]
             );
 
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['getPayment', 'getGrandTotal'])->getMock();
@@ -390,7 +390,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testSendCm3ConfirmationMail($configData, $accountConfig, $emailSent, $postData, $sendTimesCalled)
     {
-        $methodMock = $this->getMockBuilder(AbstractMethod::class)
+        $methodMock = $this->getMockBuilder(BuckarooAdapter::class)
             ->disableOriginalConstructor()
             ->setMethods(['getConfigData'])
             ->getMockForAbstractClass();

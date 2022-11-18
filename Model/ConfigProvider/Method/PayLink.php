@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Model\Method\PayLink as MethodPayLink;
 use Magento\Store\Model\ScopeInterface;
 
 class PayLink extends AbstractConfigProvider
@@ -39,7 +37,7 @@ class PayLink extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(MethodPayLink::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [

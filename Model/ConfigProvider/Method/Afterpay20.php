@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -22,7 +21,6 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
-use Buckaroo\Magento2\Model\Method\Afterpay20 as Afterpay20Method;
 use Magento\Store\Model\ScopeInterface;
 
 class Afterpay20 extends AbstractConfigProvider
@@ -45,7 +43,7 @@ class Afterpay20 extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(Afterpay20Method::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [

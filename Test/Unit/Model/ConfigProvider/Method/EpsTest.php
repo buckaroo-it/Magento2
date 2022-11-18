@@ -21,7 +21,6 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\Eps as EpsMethod;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Eps;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -75,7 +74,7 @@ class EpsTest extends BaseTest
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(EpsMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Eps::CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();

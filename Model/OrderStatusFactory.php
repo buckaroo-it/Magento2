@@ -67,7 +67,7 @@ class OrderStatusFactory
         $status = false;
 
         /**
-         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $paymentMethodInstance
+         * @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $paymentMethodInstance
          */
         $paymentMethodInstance = $order->getPayment()->getMethodInstance();
         if($paymentMethodInstance instanceof \Buckaroo\Magento2\Model\Method\BuckarooAdapter) {

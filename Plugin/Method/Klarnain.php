@@ -21,51 +21,7 @@
 
 namespace Buckaroo\Magento2\Plugin\Method;
 
-use \Magento\Sales\Model\Order;
-
-/**
- * Class Klarnain
- *
- *
- */
-class Klarnain
+class Klarnain extends CancelOrder
 {
-    const KLARNAIN_METHOD_NAME = 'buckaroo_magento2_klarnain';
 
-    /**
-     * \Buckaroo\Magento2\Model\Method\Klarnain
-     *
-     * @var bool
-     */
-    public $klarnainMethod = false;
-
-    /**
-     * @param \Buckaroo\Magento2\Model\Method\Klarna\Klarnain $klarnain
-     */
-    public function __construct(\Buckaroo\Magento2\Model\Method\Klarna\Klarnain $klarnain)
-    {
-        $this->klarnainMethod = $klarnain;
-    }
-
-    /**
-     * @param Order $subject
-     *
-     * @return Klarnain|Order
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function afterCancel(
-        Order $subject
-    ) {
-        $payment = $subject->getPayment();
-        $orderIsCanceled = $payment->getOrder()->getOrigData('state');
-        $orderIsVoided = ($payment->getAdditionalInformation('voided_by_buckaroo') === true);
-
-        if ($payment->getMethod() !== self::KLARNAIN_METHOD_NAME || $orderIsVoided || $orderIsCanceled == Order::STATE_CANCELED) {
-            return $subject;
-        }
-
-        $this->klarnainMethod->cancel($payment);
-
-        return $subject;
-    }
 }

@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Plugin\Onepage;
 use Magento\Sales\Model\Order;
 use Magento\Framework\App\Action\Context;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Helper\Data as BuckarooDataHelper;
 /**
  * Override Onepage checkout success controller class
@@ -43,14 +43,14 @@ class Success {
     ) {
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
     }
-    
-    /** 
+
+    /**
      * If the user visits the payment complete page when doing a payment
      * or when the order is canceled redirect to cart
      */
-    public function aroundExecute(\Magento\Checkout\Controller\Onepage\Success $checkoutSuccess, callable $proceed) 
+    public function aroundExecute(\Magento\Checkout\Controller\Onepage\Success $checkoutSuccess, callable $proceed)
     {
-       
+
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
 
@@ -89,6 +89,6 @@ class Success {
      */
     protected function paymentInTransit(OrderPaymentInterface $payment)
     {
-        return $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
+        return $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
     }
 }

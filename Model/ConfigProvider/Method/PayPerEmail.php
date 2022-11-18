@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
 use Magento\Store\Model\ScopeInterface;
 
 class PayPerEmail extends AbstractConfigProvider
@@ -53,7 +51,7 @@ class PayPerEmail extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(MethodPayPerEmail::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [

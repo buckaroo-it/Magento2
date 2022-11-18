@@ -17,12 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin\Method;
 
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use \Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order;
 
-class Emandate
+class CancelOrder
 {
     /**
      * @var BuckarooAdapter
@@ -38,18 +39,25 @@ class Emandate
     }
 
     /**
-     * Set CanCreditmemo true for Emandate
+     * Check if the order was canceled, if not call again the function cancel.
      *
      * @param Order $subject
      * @return Order
      */
-    public function beforeCanCreditmemo(Order $subject)
+    public function afterCancel(Order $subject): Order
     {
         $payment = $subject->getPayment();
+        $orderIsCanceled = $payment->getOrder()->getOrigData('state');
+        $orderIsVoided = ((bool)$payment->getAdditionalInformation('voided_by_buckaroo') === true);
 
-        if ($payment->getMethod() === $this->paymentMethod->getCode()) {
-            $subject->setForcedCanCreditmemo($this->paymentMethod->canRefund());
+        if ($payment->getMethod() !== $this->paymentMethod->getCode()
+            || $orderIsVoided
+            || $orderIsCanceled == Order::STATE_CANCELED
+        ) {
+            return $subject;
         }
+
+        $this->paymentMethod->cancel($payment);
 
         return $subject;
     }

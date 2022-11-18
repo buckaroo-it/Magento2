@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Encryption\Encryptor;
 
 class Index extends \Magento\Framework\App\Action\Action
@@ -51,16 +52,21 @@ class Index extends \Magento\Framework\App\Action\Action
     private $helper;
     private $encryptor;
     private $configProviderAccount;
-    private $transactionBuilderFactory;
-    private $gateway;
     private $validatorFactory;
     private $client;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param Log                                                 $logger
-     * @param \Magento\Sales\Model\Order                          $order
-     *
+     * @param \Magento\Framework\App\Action\Context $context
+     * @param Log $logger
+     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+     * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param \Magento\Framework\Data\Form\FormKey $formKey
+     * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param Encryptor $encryptor
+     * @param Account $configProviderAccount
+     * @param \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory
+     * @param \Buckaroo\Magento2\Gateway\Http\Client\Json $client
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
@@ -73,8 +79,6 @@ class Index extends \Magento\Framework\App\Action\Action
         \Buckaroo\Magento2\Helper\Data $helper,
         Encryptor $encryptor,
         Account $configProviderAccount,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
         \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory,
         \Buckaroo\Magento2\Gateway\Http\Client\Json $client
     ) {
@@ -87,8 +91,6 @@ class Index extends \Magento\Framework\App\Action\Action
         $this->helper             = $helper;
         $this->encryptor          = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
-        $this->transactionBuilderFactory = $transactionBuilderFactory;
-        $this->gateway            = $gateway;
         $this->validatorFactory   = $validatorFactory;
         $this->client = $client;
     }
@@ -97,7 +99,6 @@ class Index extends \Magento\Framework\App\Action\Action
     {
         if ($params = $this->getRequest()->getParams()) {
             if (!empty($params['secretKey']) && !empty($params['merchantKey'])) {
-
                 if (preg_match('/[^\*]/', $params['secretKey'])) {
                     $secretKey =  $params['secretKey'];
                 } else {
@@ -111,13 +112,6 @@ class Index extends \Magento\Framework\App\Action\Action
                 }
 
                 $mode = $params['mode'] ?? \Buckaroo\Magento2\Helper\Data::MODE_TEST;
-
-                if (!$this->testXml($mode, $merchantKey, $message)) {
-                    return $this->doResponse([
-                        'success' => false,
-                        'error_message' => $message
-                    ]);
-                }
 
                 if (!$this->testJson($mode, $merchantKey, $secretKey, $message)) {
                     return $this->doResponse([
@@ -136,44 +130,6 @@ class Index extends \Magento\Framework\App\Action\Action
             'success' => false,
             'error_message' => __('Failed to start validation process due to lack of data')
         ]);
-    }
-
-    private function testXml($mode, $merchantKey, &$message)
-    {
-
-        $services = [
-            'Name'             => 'Idin',
-            'Action'           => 'verify',
-            'Version'          => 0,
-            'RequestParameter' => [
-                [
-                    '_'    => 'BANKNL2Y',
-                    'Name' => 'issuerId',
-                ],
-            ],
-        ];
-
-        $transactionBuilder = $this->transactionBuilderFactory->get('datarequest');
-        $transactionBuilder->setMerchantKey($merchantKey);
-        $transaction        = $transactionBuilder
-            ->setServices($services)
-            ->setMethod('DataRequest')
-            ->setReturnUrl('')
-            ->build();
-
-        try {
-            $response = $this->gateway->setMode($mode)->authorize($transaction);
-        } catch (\Exception $e) {
-            $message = __('It seems like "Merchant key" and/or "Certificate file" are incorrect');
-            return false;
-        }
-
-        if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            $message = __('It seems like "Certificate file" is incorrect');
-            return false;
-        }
-
-        return true;
     }
 
     private function testJson($mode, $merchantKey, $secretKey, &$message)
@@ -208,7 +164,13 @@ class Index extends \Magento\Framework\App\Action\Action
         }
     }
 
-    private function doResponse($response)
+    /**
+     * Set Response on resultJson
+     *
+     * @param array $response
+     * @return Json
+     */
+    private function doResponse(array $response): Json
     {
         $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, true);
         $resultJson = $this->resultJsonFactory->create();

@@ -27,7 +27,7 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
             $order->getPayment()->getMethodInstance()->getCode() == 'buckaroo_magento2_payperemail'
         ) {
             $config = $this->configProviderMethodFactory->get(
-                \Buckaroo\Magento2\Model\Method\PayPerEmail::PAYMENT_METHOD_CODE
+                \Buckaroo\Magento2\Model\ConfigProvider\Method\Payperemail::CODE
             );
             if ($config->getEnabledB2B()) {
                 if ($order->getState() == Order::STATE_PROCESSING) {

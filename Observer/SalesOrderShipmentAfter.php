@@ -29,7 +29,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 {
     const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
 
-    /** @var Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp */
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp */
     private $klarnakpConfig;
 
     private $afterpayConfig;

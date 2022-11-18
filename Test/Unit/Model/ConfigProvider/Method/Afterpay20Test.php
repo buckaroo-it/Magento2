@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\Afterpay20 as Afterpay20Method;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -77,7 +76,7 @@ class Afterpay20Test extends BaseTest
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Afterpay20Method::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Afterpay20::CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();

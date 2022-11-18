@@ -24,7 +24,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Buckaroo\Magento2\Model\Method\Billink as BillinkMethod;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
@@ -65,7 +64,7 @@ class Billink extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(BillinkMethod::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [

@@ -21,7 +21,6 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\Kbc as KbcMethod;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Kbc;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -64,7 +63,7 @@ class KbcTest extends BaseTest
             ->willReturnOnConsecutiveCalls($active, 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(KbcMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Kbc::CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();

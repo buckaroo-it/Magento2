@@ -20,43 +20,7 @@
 
 namespace Buckaroo\Magento2\Plugin\Method;
 
-class Afterpay2
+class Afterpay2 extends CancelOrder
 {
-    const AFTERPAY_METHOD_NAME = 'buckaroo_magento2_afterpay2';
 
-    /**
-     * \Buckaroo\Magento2\Model\Method\Afterpay2
-     *
-     * @var bool
-     */
-    public $afterpayMethod = false;
-
-    /**
-     * @param \Buckaroo\Magento2\Model\Method\Afterpay2 $afterpay
-     */
-    public function __construct(\Buckaroo\Magento2\Model\Method\Afterpay2 $afterpay)
-    {
-        $this->afterpayMethod = $afterpay;
-    }
-
-    /**
-     * @param \Magento\Sales\Model\Order $subject
-     *
-     * @return \Magento\Sales\Model\Order
-     */
-    public function afterCancel(
-        \Magento\Sales\Model\Order $subject
-    ) {
-        $payment = $subject->getPayment();
-        $orderIsCanceled = $payment->getOrder()->isCanceled();
-        $orderIsVoided = ($payment->getAdditionalInformation('voided_by_buckaroo') === true);
-
-        if ($payment->getMethod() !== self::AFTERPAY_METHOD_NAME || $orderIsCanceled || $orderIsVoided) {
-            return $subject;
-        }
-
-        $this->afterpayMethod->cancel($payment);
-
-        return $subject;
-    }
 }

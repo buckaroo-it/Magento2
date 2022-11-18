@@ -16,13 +16,18 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\Quote;
 use Magento\Framework\App\State;
-use Magento\Framework\App\Area;
-use Magento\Framework\Exception\LocalizedException;
 
 class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 {
+    public const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
+    public const BUCKAROO_ALL_TRANSACTIONS = 'buckaroo_all_transactions';
+    public const BUCKAROO_PAYMENT_IN_TRANSIT = 'buckaroo_payment_in_transit';
+    public const PAYMENT_FROM = 'buckaroo_payment_from';
+
+    /**
+     * @var bool
+     */
     public static bool $requestOnVoid = true;
     /**
      * @var bool
@@ -44,6 +49,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      */
     protected $request;
 
+    /**
+     * @var State
+     */
     private State $state;
 
     /**
@@ -66,6 +74,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      */
     public $priceHelper;
 
+    /**
+     * @var int
+     */
     protected $payRemainder = 0;
 
     /**
