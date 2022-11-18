@@ -570,6 +570,30 @@
         </arguments>
     </type>
 
+    <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
+        <arguments>
+            <argument name="executors" xsi:type="array">
+                <item name="buckaroo" xsi:type="string">BuckarooCommandManager</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Command managers section -->
+    <virtualType name="BuckarooCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">BuckarooCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Commands infrastructure -->
+    <virtualType name="BuckarooCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="paylink" xsi:type="string">PayLinkCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <virtualType name="AdditionalParametersOrderDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">order</argument>
@@ -621,6 +645,12 @@
     <virtualType name="AdditionalParametersPayPerEmailDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">fromPayPerEmail</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="AdditionalParametersPayLinkDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">fromPayLink</argument>
         </arguments>
     </virtualType>
 
@@ -3141,6 +3171,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">PayPerEmailOrderCommand</item>
+                <item name="paylink" xsi:type="string">PayLinkCommand</item>
                 <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
             </argument>
         </arguments>
@@ -3168,6 +3199,35 @@
         </arguments>
     </virtualType>
     <!-- END PayPerEmail Order Command -->
+    <!-- PayPerEmail PayLink Command -->
+    <virtualType name="PayLinkCommand" type="PayPerEmailOrderCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">PayLinkRequest</argument>
+            <argument name="handler" xsi:type="object">PayLinkResponseHandler</argument>
+        </arguments>
+    </virtualType>
+    <!-- PayPerEmail PayLink Command - Request Builder -->
+    <virtualType name="PayLinkRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="payPerEmail" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayLinkDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersPayPerEmailDataBuilder</item>
+                <item name="additional_parameters2" xsi:type="string">AdditionalParametersPayLinkDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Buckaroo Order Command - Response Handler -->
+    <virtualType name="PayLinkResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+                <item name="paylink" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PayLinkHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END PayPerEmail PayLink Command -->
+
     <!-- END PayPerEmail Commands infrastructure -->
     <!-- END Payment Method: PayPerEmail -->
 
@@ -3486,6 +3546,11 @@
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAYMENT_INVITATION</argument>
         </arguments>
     </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionVerify" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::VERIFY</argument>
+        </arguments>
+    </virtualType>
 
     <type name="Buckaroo\Magento2\Observer\VoidCm3Payment">
         <arguments>
@@ -3632,7 +3697,7 @@
     <!-- END Sofortbanking Commands infrastructure -->
     <!-- END Payment Method: Sofortbanking -->
 
-    <!-- Payment Method: Paypal-->
+    <!-- Payment Method: Paypal -->
     <!-- Paypal Payment Method Facade configuration -->
     <virtualType name="PaypalFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
         <arguments>
@@ -3706,6 +3771,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="expressOrderId" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ExpressOrderIdDataBuilder</item>
+                <item name="paypal_extrainfo" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaypalExtrainfoDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4120,7 +4186,7 @@
             <argument name="requestBuilder" xsi:type="object">SepaDirectDebitOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
-            <argument name="handler" xsi:type="object">OrderWithCreditManagementResponseHandler</argument>
+            <argument name="handler" xsi:type="object">SepaDirectDebitHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
         </arguments>
@@ -4133,6 +4199,17 @@
                 <item name="orderRequest" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="sepaDirectDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SepaDirectDebitDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- SepaDirectDebit Order Command - Response Handler -->
+    <virtualType name="SepaDirectDebitHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+                <item name="credit_management" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler</item>
+                <item name="consumer_message" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ConsumerMessageHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4256,4 +4333,22 @@
     <!-- END Wechatpay Order Command -->
     <!-- END Wechatpay Commands infrastructure -->
     <!-- END Payment Method: Wechatpay -->
+
+    <!-- iDIN service (Age verification) -->
+    <virtualType name="IdinVerifyRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="idin" xsi:type="string">Buckaroo\Magento2\Gateway\Request\IdinDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Buckaroo\Magento2\Controller\Checkout\Idin">
+        <arguments>
+            <argument name="requestDataBuilder" xsi:type="object">IdinVerifyRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="clientInterface" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionVerify</argument>
+        </arguments>
+    </type>
+
 </config>

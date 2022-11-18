@@ -21,8 +21,15 @@
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Payment\Gateway\Http\ClientInterface;
+use Magento\Payment\Gateway\Http\TransferFactoryInterface;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class Idin extends \Magento\Framework\App\Action\Action
 {
@@ -33,7 +40,7 @@ class Idin extends \Magento\Framework\App\Action\Action
     protected $transactionBuilder;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\GatewayInterface
+     * @var GatewayInterface
      */
     protected $gateway;
 
@@ -43,24 +50,45 @@ class Idin extends \Magento\Framework\App\Action\Action
     private $logger;
 
     /**
+     * @var BuilderInterface
+     */
+    protected BuilderInterface $requestDataBuilder;
+    /**
+     * @var TransferFactoryInterface
+     */
+    protected TransferFactoryInterface $transferFactory;
+    /**
+     * @var ClientInterface
+     */
+    protected ClientInterface $clientInterface;
+
+    /**
      *
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Gateway\GatewayInterface $gateway
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Customer\Model\Session $customerSession
+     * @param Context $context
+     * @param TransactionBuilderFactory $transactionBuilderFactory
+     * @param GatewayInterface $gateway
+     * @param BuilderInterface $requestDataBuilder
+     * @param TransferFactoryInterface $transferFactory
+     * @param ClientInterface $clientInterface
+     * @param Log $logger
+     * @throws Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
-        Log $logger
+        Context                   $context,
+        TransactionBuilderFactory $transactionBuilderFactory,
+        GatewayInterface          $gateway,
+        BuilderInterface          $requestDataBuilder,
+        TransferFactoryInterface  $transferFactory,
+        ClientInterface           $clientInterface,
+        Log                       $logger
     ) {
         parent::__construct($context);
         $this->transactionBuilder = $transactionBuilderFactory->get('idin');
         $this->gateway            = $gateway;
         $this->logger             = $logger;
+        $this->requestDataBuilder = $requestDataBuilder;
+        $this->transferFactory    = $transferFactory;
+        $this->clientInterface    = $clientInterface;
     }
 
     /**
@@ -79,7 +107,19 @@ class Idin extends \Magento\Framework\App\Action\Action
         }
 
         try {
-            $response = $this->sendIdinRequest($data['issuer']);
+            $transferO = $this->transferFactory->create(
+                $this->requestDataBuilder->build($data)
+            );
+
+            $response = $this->clientInterface->placeRequest($transferO);
+
+            if (isset($response["object"]) && $response["object"] instanceof \Buckaroo\Transaction\Response\TransactionResponse) {
+                $response = $response["object"]->toArray();
+            } else {
+                return $this->json(
+                    ['error' => 'TransactionResponse is not valid']
+                );
+            }
         } catch (\Throwable $th) {
             $this->logger->debug($th->getMessage());
             return $this->json(
@@ -99,25 +139,5 @@ class Idin extends \Magento\Framework\App\Action\Action
     protected function json($data)
     {
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($data);
-    }
-    /**
-     * Send idin request
-     *
-     * @param string $issuer
-     *
-     * @return mixed $response
-     * @throws \Exception
-     */
-    protected function sendIdinRequest($issuer)
-    {
-        $transaction = $this->transactionBuilder
-            ->setIssuer($issuer)
-            ->build();
-
-        return $this->gateway
-            ->setMode(
-                $this->transactionBuilder->getMode()
-            )
-            ->authorize($transaction)[0];
     }
 }

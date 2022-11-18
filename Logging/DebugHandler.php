@@ -34,7 +34,7 @@ class DebugHandler extends Base
 
     protected $filesystem;
 
-    protected DirectoryList $dir;
+    protected $dir;
 
     public function __construct(
         DriverInterface $filesystem,

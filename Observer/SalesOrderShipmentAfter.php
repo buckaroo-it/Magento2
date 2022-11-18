@@ -22,18 +22,11 @@ namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Event\ObserverInterface;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Sales\Model\Order\Invoice;
-use \Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
-use Magento\Sales\Model\Service\InvoiceService;
-use Magento\Sales\Model\Order\ShipmentFactory;
 use Magento\Framework\DB\TransactionFactory;
 
 class SalesOrderShipmentAfter implements ObserverInterface
 {
-
     const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
 
     /** @var Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp */
@@ -71,11 +64,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
     protected $transactionFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\GatewayInterface
-     */
-    protected $gateway;
-
-    /**
      * @var \Buckaroo\Magento2\Helper\Data
      */
     public $helper;
@@ -95,7 +83,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
         \Buckaroo\Magento2\Helper\Data $helper,
         Log $logger
     ) {
@@ -106,7 +93,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->klarnakpConfig = $klarnakpConfig;
         $this->afterpayConfig = $afterpayConfig;
         $this->helper = $helper;
-        $this->gateway = $gateway;
         $this->logger = $logger;
     }
 
@@ -125,9 +111,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
         if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
             && $this->klarnakpConfig->getCreateInvoiceAfterShipment()
         ) {
-            $this->gateway->setMode(
-                $this->helper->getMode('buckaroo_magento2_klarnakp')
-            );
             $this->createInvoice($order, $shipment);
         }
 
@@ -135,9 +118,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
             && $this->afterpayConfig->getCreateInvoiceAfterShipment()
             && ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
         ) {
-            $this->gateway->setMode(
-                $this->helper->getMode('buckaroo_magento2_afterpay20')
-            );
             $this->createInvoice($order, $shipment, true);
         }
     }
