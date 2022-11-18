@@ -43,11 +43,8 @@ class SendCloudAddressHandler extends AbstractAddressHandler
                     if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
                         unset($requestData[$key]);
                     }
-
                 }
             }
         }
     }
-
-
 }

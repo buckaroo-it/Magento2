@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Magento\Catalog\Helper\Data;
@@ -229,7 +231,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 
         if (is_numeric($basePaymentFee)) {
             if (in_array($buckarooPaymentMethodCode, ['billink','afterpay20','afterpay','paypal'])) {
-
                 $inclTax = $this->configProviderBuckarooFee->getPaymentFeeTax() ==
                     Calculation::DISPLAY_TYPE_INCLUDING_TAX;
 
@@ -251,7 +252,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
                  */
                 return $this->getFeePrice($basePaymentFee);
             }
-
         } elseif (strpos($basePaymentFee, '%') === false) {
             /**
              * Payment fee is invalid
@@ -309,7 +309,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        if ($priceIncl === null
+        if (
+            $priceIncl === null
             && $this->configProviderBuckarooFee->getPaymentFeeTax() == Calculation::DISPLAY_TYPE_INCLUDING_TAX
         ) {
             $priceIncl = true;

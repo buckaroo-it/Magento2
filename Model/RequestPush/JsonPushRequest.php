@@ -28,13 +28,12 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
     public function __construct(array $requestData, Validator $validator)
     {
         $this->originalRequest = $requestData;
-        if(isset($requestData['Transaction'])) {
+        if (isset($requestData['Transaction'])) {
             $this->request = $requestData['Transaction'];
         } else {
             throw new Exception(__('Json request could not be processed, please use httppost'));
         }
         $this->validator  = $validator;
-
     }
 
     /**
@@ -43,18 +42,18 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
      */
     public function validate($store = null): bool
     {
-       return $this->validator->validate($this->getData());
+        return $this->validator->validate($this->getData());
     }
 
-    public function get($name){
-        if(method_exists($this, $name)){
+    public function get($name)
+    {
+        if (method_exists($this, $name)) {
             return $this->$name();
-        }
-        elseif(property_exists($this,$name)){
+        } elseif (property_exists($this, $name)) {
             return $this->$name;
         } else {
             $propertyName = ucfirst($name);
-            if(isset($this->request[$propertyName])) {
+            if (isset($this->request[$propertyName])) {
                 return $this->request[$propertyName];
             }
         }
@@ -128,7 +127,7 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
 
     public function getStatusCodeDetail()
     {
-        return $this->request["Status"]["SubCode"]["Code"]?? null;
+        return $this->request["Status"]["SubCode"]["Code"] ?? null;
     }
 
     public function getStatusMessage()
@@ -153,10 +152,9 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
 
     public function getAdditionalInformation($propertyName)
     {
-        if(isset($this->request['AdditionalParameters']['List']) && is_array($this->request['AdditionalParameters']['List']))
-        {
+        if (isset($this->request['AdditionalParameters']['List']) && is_array($this->request['AdditionalParameters']['List'])) {
             foreach ($this->request['AdditionalParameters']['List'] as $parameter) {
-                if(isset($parameter['Name']) && $parameter['Name'] == $propertyName) {
+                if (isset($parameter['Name']) && $parameter['Name'] == $propertyName) {
                     return $parameter['Value'] ?? null;
                 }
             }
@@ -175,8 +173,8 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
         $this->request['Key'] = $transactions;
     }
 
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->request['AmountDebit'] = $amount;
     }
-
 }

@@ -15,7 +15,8 @@ class ArticlesDataBuilder extends AbstractDataBuilder
 
     protected ArticleHandlerInterface $articleHandler;
 
-    public function __construct(ArticlesHandlerFactory $articlesHandlerFactory) {
+    public function __construct(ArticlesHandlerFactory $articlesHandlerFactory)
+    {
         $this->articlesHandlerFactory = $articlesHandlerFactory;
     }
 

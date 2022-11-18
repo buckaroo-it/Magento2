@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -93,7 +95,8 @@ class PhoneFormatter
             $phoneNumber = $this->isValidNotation($phoneNumber, $country);
         }
 
-        if ((in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
+        if (
+            (in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
             ||
             (in_array($country, ['AT', 'DE']))
         ) {

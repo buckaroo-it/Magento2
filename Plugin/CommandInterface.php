@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -110,7 +112,8 @@ class CommandInterface
 
         $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
 
-        if ((
+        if (
+            (
                 (
                     preg_match('/afterpay/', $methodInstance->getCode())
                     &&

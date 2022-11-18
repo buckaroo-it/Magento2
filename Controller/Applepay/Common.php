@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -152,7 +154,7 @@ class Common extends Action
             'fax' => '',
             'vat_id' => ''
         ];
-        $address['street'] = implode("\n",$address['street']);
+        $address['street'] = implode("\n", $address['street']);
         if ($type == 'shipping') {
             $address['email'] = isset($wallet['emailAddress']) ? $wallet['emailAddress'] : '';
         }
@@ -242,13 +244,11 @@ class Common extends Action
 
         if (count($shippingMethods) == 0) {
             $errorMessage = __(
-                'Apple Pay payment failed, because no shipping methods were found for the selected address. '.
+                'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
                 'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
             );
             $this->messageManager->addErrorMessage($errorMessage);
-
         } else {
-
             foreach ($shippingMethods as $index => $shippingMethod) {
                 $shippingMethodsResult[] = [
                     'carrier_title' => $shippingMethod->getCarrierTitle(),

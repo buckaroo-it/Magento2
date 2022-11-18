@@ -45,7 +45,7 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        quote, 
+        quote,
         globalMessageList,
         $t,
         url,
@@ -57,18 +57,20 @@ define(
     ) {
         'use strict';
 
-        function checkLabels(){
-            $.each($('.buckaroo_magento2_image_title span'), function(key, item){
+        function checkLabels()
+        {
+            $.each($('.buckaroo_magento2_image_title span'), function (key, item) {
                 var label = $(item).html(),
                     label_part = label.split(' + ');
                 $(item).html(label_part[0]);
             });
         }
 
-        function checkPayments(){
+        function checkPayments()
+        {
             var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail","emandate","rtp", "tinka"];
-            p.forEach(function(item) {
-                $('.buckaroo_magento2_'+item).remove();
+            p.forEach(function (item) {
+                $('.buckaroo_magento2_' + item).remove();
             });
             $('.buckaroo_magento2_flow_authorize').remove();
             checkLabels();
@@ -90,7 +92,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentGiftcard : false,
                 alreadyPayed : false,
-                
+
                 /**
              * @override
              */
@@ -113,13 +115,13 @@ define(
                         return true;
                     };
 
-/*                    quote.totals._latestValue.total_segments.forEach(function(item) {
+            /*                    quote.totals._latestValue.total_segments.forEach(function(item) {
                         if(item.code == 'buckaroo_already_paid' && quote.totals._latestValue.grand_total == 0.001){
                             self.alreadyPayed = true;
                             self.alreadyFullPayed(true);
                         }
                     });
-*/
+            */
                     /** Check used to see if input is valid **/
                     this.buttoncheck = ko.computed(
                         function () {
@@ -143,43 +145,42 @@ define(
              * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
              */
 
-                placeOrder: function (data, event) {
+            placeOrder: function (data, event) {
 
-                    var self = this,
-                    placeOrder;
+                var self = this,
+                placeOrder;
 
-                    if (event) {
-                        event.preventDefault();
-                    }
+                if (event) {
+                    event.preventDefault();
+                }
 
-                    if (this.validate() && additionalValidators.validate()) {
-
-                        //mageplaza only check
-                        if (document.querySelector('#checkoutSteps.opc.one-step-checkout-container .place-order-primary button.checkout')) {
-                            if (data || event) {
-                                return false;
-                            }
+                if (this.validate() && additionalValidators.validate()) {
+                    //mageplaza only check
+                    if (document.querySelector('#checkoutSteps.opc.one-step-checkout-container .place-order-primary button.checkout')) {
+                        if (data || event) {
+                            return false;
                         }
-
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
                     }
-                    return false;
-                },
+
+                    this.isPlaceOrderActionAllowed(false);
+                    placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
+
+                    $.when(placeOrder).fail(
+                        function () {
+                            self.isPlaceOrderActionAllowed(true);
+                        }
+                    ).done(this.afterPlaceOrder.bind(this));
+                    return true;
+                }
+                return false;
+            },
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
                     checkoutCommon.redirectHandle(response);
 
-                    if(this.alreadyPayed){
+                    if (this.alreadyPayed) {
                         window.location.replace(url.build('checkout/onepage/success/'));
                     }
 
@@ -228,7 +229,7 @@ define(
 
                     return text.replace('%s', this.baseCurrencyCode);
                 },
-                
+
                 getData: function () {
                     return {
                         "method": this.item.method,
@@ -250,21 +251,21 @@ define(
                         url: url.build('buckaroo/checkout/giftcard'),
                         type: 'POST',
                         dataType: 'json',
-                        showLoader: true, //use for display loader 
+                        showLoader: true, //use for display loader
                         data: {
                             card: self.currentGiftcard,
                             cardNumber: self.CardNumber._latestValue,
                             pin: self.Pin._latestValue
                         }
-                   }).done(function (data) {
+                    }).done(function (data) {
 
                         $('.buckaroo_magento2_giftcards_input').val('');
                         self.CardNumber('');
                         self.Pin('');
                         self.checkValidness();
 
-                        if(data.alreadyPaid){
-                            if(data.RemainderAmount == 0){
+                        if (data.alreadyPaid) {
+                            if (data.RemainderAmount == 0) {
                                 self.alreadyPayed = true;
                                 self.alreadyFullPayed(true);
                                 self.placeOrder(null, null);
@@ -273,44 +274,44 @@ define(
                             /* Totals summary reloading */
                             // var deferred = $.Deferred();
                             // getTotalsAction([], deferred);
-                            $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
+                            $('.buckaroo_magento2_' + self.currentGiftcard + ' input[name="payment[method]"]').click();
 
-                            checkPayments();                            
+                            checkPayments();
                         }
-                        if(data.error){
+                        if (data.error) {
                                 alert({
                                     title: $t('Error'),
                                     content: $t(data.error),
-                                    actions: {always: function(){} }
+                                    actions: {always: function (){} }
                                 });
                              self.messageContainer.addErrorMessage({'message': $t(data.error)});
-                        }else{
-                            if(data.RemainderAmount != 0){
+                        } else {
+                            if (data.RemainderAmount != 0) {
                                 alert({
                                     title: $t('Success'),
                                     content: $t(data.message),
-                                    actions: {always: function(){} },
+                                    actions: {always: function (){} },
                                     buttons: [{
-                                    text: $t(data.PayRemainingAmountButton),
-                                    class: 'action primary accept',
+                                        text: $t(data.PayRemainingAmountButton),
+                                        class: 'action primary accept',
                                         click: function () {
                                             this.closeModal(true);
                                         }
                                     }]
                                 });
                             }
-                             self.messageContainer.addSuccessMessage({'message': $t(data.message)});
+                            self.messageContainer.addSuccessMessage({'message': $t(data.message)});
                         }
 
-                        $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
-                    
+                        $('.buckaroo_magento2_' + self.currentGiftcard + ' input[name="payment[method]"]').click();
+
                     });
 
                 },
                 checkForPayments: function () {
-                    setTimeout(function() {
-                        quote.totals._latestValue.total_segments.forEach(function(item) {
-                            if(item.code == 'buckaroo_already_paid' && Math.abs(Math.round(item.value)) > 0){
+                    setTimeout(function () {
+                        quote.totals._latestValue.total_segments.forEach(function (item) {
+                            if (item.code == 'buckaroo_already_paid' && Math.abs(Math.round(item.value)) > 0) {
                                 checkPayments();
                             }
                         });
@@ -324,16 +325,16 @@ define(
                     } else {
                         currentCode = this.code;
                     }
-                    var submitBtn = document.getElementById(pfx+ 'submit_' + currentCode);
+                    var submitBtn = document.getElementById(pfx + 'submit_' + currentCode);
 
                     if (
-                        document.getElementById(pfx+ 'cardnumber_' + currentCode)
+                        document.getElementById(pfx + 'cardnumber_' + currentCode)
                         &&
-                        document.getElementById(pfx+ 'cardnumber_' + currentCode).value
+                        document.getElementById(pfx + 'cardnumber_' + currentCode).value
                         &&
-                        document.getElementById(pfx+ 'pin_' + currentCode)
+                        document.getElementById(pfx + 'pin_' + currentCode)
                         &&
-                        document.getElementById(pfx+ 'pin_' + currentCode).value
+                        document.getElementById(pfx + 'pin_' + currentCode).value
                     ) {
                         if (submitBtn) {
                             submitBtn.classList.remove("disabled");

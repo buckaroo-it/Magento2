@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -29,7 +30,6 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
         $isPost = $this->getRequest()->getPost();
 
         if ($isPost) {
-
             $giftcardModel = $this->giftcardFactory->create();
             $giftcardId    = $this->getRequest()->getParam('entity_id');
 
@@ -38,7 +38,7 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
             }
 
             $formData = $this->getRequest()->getParam('giftcard');
-            
+
             $filesData = $this->getRequest()->getFiles('logo');
 
             if ((isset($filesData['name'])) && ($filesData['name'] != '') && (!isset($formData['logo']['delete']))) {
@@ -57,7 +57,6 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
                     }
 
                     $formData['logo'] = 'buckaroo' . $result['file'];
-
                 } catch (\Exception $e) {
                     $this->messageManager->addError($e->getMessage());
                 }

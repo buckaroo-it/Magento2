@@ -22,9 +22,9 @@ class TransactionPayRemainderEncrypted extends DefaultTransaction
      * @param PayReminderService $payReminderService
      */
     public function __construct(
-        LoggerInterface         $logger,
-        Logger                  $customLogger,
-        BuckarooAdapter         $adapter,
+        LoggerInterface $logger,
+        Logger $customLogger,
+        BuckarooAdapter $adapter,
         PayReminderService $payReminderService
     ) {
         parent::__construct($logger, $customLogger, $adapter);

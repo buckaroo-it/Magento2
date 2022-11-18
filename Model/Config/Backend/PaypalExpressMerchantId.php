@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\Config\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
 
-
 class PaypalExpressMerchantId extends \Magento\Framework\App\Config\Value
 {
     /**

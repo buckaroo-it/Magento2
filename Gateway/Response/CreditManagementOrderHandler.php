@@ -7,10 +7,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 
-
 class CreditManagementOrderHandler implements HandlerInterface
 {
-
     public const INVOICE_KEY = 'buckaroo_cm3_invoice_key';
 
     protected TransactionResponse $response;

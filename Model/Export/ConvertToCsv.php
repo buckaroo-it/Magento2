@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace Buckaroo\Magento2\Model\Export;
 
 use Magento\Framework\App\Filesystem\DirectoryList;

@@ -99,51 +99,51 @@ define(
                  * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
                  * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
                  */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
+            placeOrder: function (data, event) {
+                var self = this,
+                    placeOrder;
 
-                    applepayPay.devLog('==========applepaydebug/60');
+                applepayPay.devLog('==========applepaydebug/60');
 
-                    if (applepayPay.isOsc()) {
-                        var validationResult = additionalValidators.validate();
-                        applepayPay.devLog('==========applepaydebug/601', validationResult);
-                        if (!validationResult) {
-                            return false;
-                        }
-                    }
-
-                    if (!this.submit) {
-                        applepayPay.devLog('==========applepaydebug/61');
-                        var child = document.querySelector('.apple-pay-button');
-                        if (child) {
-                            child.click();
-                        }
+                if (applepayPay.isOsc()) {
+                    var validationResult = additionalValidators.validate();
+                    applepayPay.devLog('==========applepaydebug/601', validationResult);
+                    if (!validationResult) {
                         return false;
                     }
+                }
 
-                    applepayPay.devLog('==========applepaydebug/62');
-                    this.submit = false;
-
-                    if (event) {
-                        event.preventDefault();
+                if (!this.submit) {
+                    applepayPay.devLog('==========applepaydebug/61');
+                    var child = document.querySelector('.apple-pay-button');
+                    if (child) {
+                        child.click();
                     }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-
-                        return true;
-                    }
-
                     return false;
-                },
+                }
+
+                applepayPay.devLog('==========applepaydebug/62');
+                this.submit = false;
+
+                if (event) {
+                    event.preventDefault();
+                }
+
+                if (this.validate() && additionalValidators.validate()) {
+                    this.isPlaceOrderActionAllowed(false);
+                    placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
+
+                    $.when(placeOrder).fail(
+                        function () {
+                            self.isPlaceOrderActionAllowed(true);
+                        }
+                    ).done(this.afterPlaceOrder.bind(this));
+
+                    return true;
+                }
+
+                return false;
+            },
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;

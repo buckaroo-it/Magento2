@@ -15,8 +15,7 @@ class TinkaHandler extends AbstractArticlesHandler
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    )
-    {
+    ) {
         return [
             'unitCode' => $articleId,
             'description' => $articleDescription,
@@ -34,8 +33,7 @@ class TinkaHandler extends AbstractArticlesHandler
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    ): array
-    {
+    ): array {
         return [
             'unitCode' => $articleId,
             'description' => $articleDescription,
@@ -43,5 +41,4 @@ class TinkaHandler extends AbstractArticlesHandler
             'price' => $articleUnitPrice
         ];
     }
-
 }

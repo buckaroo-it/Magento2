@@ -35,7 +35,7 @@ class ReturnUrlDataBuilder implements BuilderInterface
      */
     public function __construct(
         UrlInterface $urlBuilder,
-        FormKey      $formKey
+        FormKey $formKey
     ) {
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
@@ -43,7 +43,8 @@ class ReturnUrlDataBuilder implements BuilderInterface
 
     public function build(array $buildSubject)
     {
-        if (!isset($buildSubject['payment'])
+        if (
+            !isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');

@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace Buckaroo\Magento2\Gateway\Request;
 
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
@@ -21,7 +23,8 @@ class MockDataRequest implements BuilderInterface
      */
     public function build(array $buildSubject)
     {
-        if (!isset($buildSubject['payment'])
+        if (
+            !isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');

@@ -32,7 +32,6 @@ use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 
 class QuoteBuilder implements QuoteBuilderInterface
 {
-
     /**
      * @var \Magento\Quote\Model\QuoteFactory
      */

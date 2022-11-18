@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,13 +18,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
-use \Buckaroo\Magento2\Helper\Data;
-use \Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Magento\Checkout\Model\Session;
-use \Magento\Customer\Model\Session as CustomerSession;
-use \Magento\Quote\Api\CartRepositoryInterface;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Checkout\Model\Session;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Quote\Api\CartRepositoryInterface;
 
 class ShippingMethodManagement
 {
@@ -49,7 +51,8 @@ class ShippingMethodManagement
 
     public function beforeGet($cartId)
     {
-        if (($lastRealOrder = $this->checkoutSession->getLastRealOrder())
+        if (
+            ($lastRealOrder = $this->checkoutSession->getLastRealOrder())
             && ($payment = $lastRealOrder->getPayment())
         ) {
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
@@ -59,11 +62,13 @@ class ShippingMethodManagement
             $order = $payment->getOrder();
 
             $this->helper->addDebug(__METHOD__ . '|1|');
-            if ($this->accountConfig->getCartKeepAlive($order->getStore())
+            if (
+                $this->accountConfig->getCartKeepAlive($order->getStore())
                 && $this->isNeedRecreate($order->getStore())
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
-                if ($this->checkoutSession->getQuote()
+                if (
+                    $this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {

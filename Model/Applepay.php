@@ -1,5 +1,7 @@
 <?php
+
 namespace Buckaroo\Magento2\Model;
+
 class Applepay
 {
     public function processAddressFromWallet($wallet, $type = 'shipping')
@@ -24,7 +26,7 @@ class Applepay
         ];
         //this fails with array to string coversion critical error; as a result the address is not saved
         //made it one line
-        $address['street'] = implode("\n",$address['street']);
+        $address['street'] = implode("\n", $address['street']);
         if ($type == 'shipping') {
             $address['email'] = isset($wallet['emailAddress']) ? $wallet['emailAddress'] : '';
         }

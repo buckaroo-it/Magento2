@@ -28,7 +28,6 @@ use Buckaroo\Magento2\Helper\Data as HelperData;
 
 class Sort extends Field
 {
-
     /**
      * Template path
      *

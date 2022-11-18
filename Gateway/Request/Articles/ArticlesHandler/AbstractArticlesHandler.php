@@ -55,17 +55,16 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
      */
     public function __construct(
-        ScopeConfigInterface        $scopeConfig,
-        BuckarooLog                 $buckarooLog,
-        QuoteFactory                $quoteFactory,
-        Calculation                 $taxCalculation,
-        Config                      $taxConfig,
-        BuckarooFee                 $configProviderBuckarooFee,
-        SoftwareData                $softwareData,
+        ScopeConfigInterface $scopeConfig,
+        BuckarooLog $buckarooLog,
+        QuoteFactory $quoteFactory,
+        Calculation $taxCalculation,
+        Config $taxConfig,
+        BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
         ConfigProviderMethodFactory $configProviderMethodFactory,
         PayReminderService $payReminderService
-    )
-    {
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->buckarooLog = $buckarooLog;
         $this->quoteFactory = $quoteFactory;
@@ -129,11 +128,15 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         if (is_array($articles) && $numberOfInvoices == 1) {
             $serviceLine = $this->getServiceCostLine($currentInvoice);
-            if (!empty($serviceLine)) $articles = array_merge_recursive($articles, $serviceLine);;
+            if (!empty($serviceLine)) {
+                $articles = array_merge_recursive($articles, $serviceLine);
+            };
         }
 
         $shippingCosts = $this->getShippingCostsLine($currentInvoice);
-        if (!empty($shippingCosts)) $articles = array_merge_recursive($articles, $shippingCosts);
+        if (!empty($shippingCosts)) {
+            $articles = array_merge_recursive($articles, $shippingCosts);
+        }
 
         return $articles;
     }
@@ -214,7 +217,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         /** @var \Magento\Quote\Model\Quote\Item $item */
         foreach ($cartData as $item) {
-
             if ($this->skipItem($item)) {
                 continue;
             }
@@ -238,7 +240,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             }
 
             $count++;
-
         }
 
         return $articles;
@@ -255,7 +256,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
         foreach ($invoice->getAllItems() as $item) {
-
             if ($this->skipItem($item)) {
                 continue;
             }
@@ -287,7 +287,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             }
 
             $count++;
-
         }
 
         return $articles;
@@ -295,9 +294,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
     protected function skipItem($item): bool
     {
-        if (empty($item)
+        if (
+            empty($item)
             || $item->getRowTotalInclTax() == 0
-            || $item->hasParentItemId()) {
+            || $item->hasParentItemId()
+        ) {
             return true;
         }
 
@@ -307,7 +308,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     //Skip bundles which have dynamic pricing on (0 = yes,1 = no) - the underlying simples are also in the quote
     protected function skipBundleProducts($item, &$bundleProductQty): bool
     {
-        if ($item->getProductType() == Type::TYPE_BUNDLE
+        if (
+            $item->getProductType() == Type::TYPE_BUNDLE
             && $item->getProduct()->getCustomAttribute('price_type')
             && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
         ) {
@@ -376,8 +378,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    )
-    {
+    ) {
         return [
             'identifier' => $articleId,
             'description' => $articleDescription,
@@ -396,8 +397,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    ): array
-    {
+    ): array {
         return [
             'refundType' => 'Refund',
             'identifier' => $articleId,

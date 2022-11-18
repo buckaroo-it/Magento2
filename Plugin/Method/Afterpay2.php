@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,5 +23,4 @@ namespace Buckaroo\Magento2\Plugin\Method;
 
 class Afterpay2 extends CancelOrder
 {
-
 }

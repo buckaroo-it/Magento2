@@ -24,8 +24,7 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    )
-    {
+    ) {
         return [
             'identifier' => $articleId,
             'description' => $articleDescription,
@@ -110,8 +109,7 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    ): array
-    {
+    ): array {
         return [
             'identifier' => $articleId,
             'description' => $articleDescription,
@@ -120,5 +118,4 @@ class AfterpayOldHandler extends AbstractArticlesHandler
             'price' => $articleUnitPrice
         ];
     }
-
 }

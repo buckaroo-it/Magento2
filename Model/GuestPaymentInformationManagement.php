@@ -1,4 +1,5 @@
 <?php
+
  /**
   * NOTICE OF LICENSE
   *
@@ -28,7 +29,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
 // @codingStandardsIgnoreEnd
 {
-
     protected $registry = null;
     protected $logger = null;
 

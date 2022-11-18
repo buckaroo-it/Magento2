@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Api;
 
 use Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface;
 
-interface PayWithGiftcardInterface 
+interface PayWithGiftcardInterface
 {
     /**
      * Rest method for paying with giftcards

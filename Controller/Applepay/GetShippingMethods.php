@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -38,14 +40,13 @@ class GetShippingMethods extends Common
         PageFactory $resultPageFactory,
         \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        Log $logger,        
+        Log $logger,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         CustomerSession $customerSession = null,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
         CartRepositoryInterface $cartRepository
-        
     ) {
         parent::__construct(
             $context,
@@ -72,20 +73,20 @@ class GetShippingMethods extends Common
         $data = [];
         $shippingMethodsResult = [];
         if ($isPost) {
-            if (($wallet = $this->getRequest()->getParam('wallet'))
+            if (
+                ($wallet = $this->getRequest()->getParam('wallet'))
             ) {
                 $cart_hash = $this->getRequest()->getParam('id');
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                
-                if($cart_hash) {
+
+                if ($cart_hash) {
                     $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
-                    $quote = $this->cartRepository->get($cartId);            
+                    $quote = $this->cartRepository->get($cartId);
                 } else {
-                    
                     $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
-                    $quote = $checkoutSession->getQuote();    
+                    $quote = $checkoutSession->getQuote();
                 }
-        
+
 
                 if (!$this->setShippingAddress($quote, $wallet)) {
                     return $this->commonResponse(false, true);

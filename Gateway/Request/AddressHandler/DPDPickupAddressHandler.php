@@ -71,7 +71,6 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
                     }
                 }
             }
-
         }
     }
 }

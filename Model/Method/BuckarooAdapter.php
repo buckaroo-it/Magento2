@@ -100,26 +100,25 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param bool $usesRedirect
      */
     public function __construct(
-        ManagerInterface                                       $eventManager,
-        ValueHandlerPoolInterface                              $valueHandlerPool,
-        PaymentDataObjectFactory                               $paymentDataObjectFactory,
-                                                               $code,
-                                                               $formBlockType,
-                                                               $infoBlockType,
-        ObjectManagerInterface                                 $objectManager,
-        State                                                  $state,
-        \Magento\Developer\Helper\Data                         $developmentHelper,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory        $configProviderFactory,
+        ManagerInterface $eventManager,
+        ValueHandlerPoolInterface $valueHandlerPool,
+        PaymentDataObjectFactory $paymentDataObjectFactory,
+        $code,
+        $formBlockType,
+        $infoBlockType,
+        ObjectManagerInterface $objectManager,
+        State $state,
+        \Magento\Developer\Helper\Data $developmentHelper,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
-        \Magento\Framework\Pricing\Helper\Data                 $priceHelper,
-        RequestInterface                                       $request = null,
-        CommandPoolInterface                                   $commandPool = null,
-        ValidatorPoolInterface                                 $validatorPool = null,
-        CommandManagerInterface                                $commandExecutor = null,
-        LoggerInterface                                        $logger = null,
-        bool                                                   $usesRedirect = true
-    )
-    {
+        \Magento\Framework\Pricing\Helper\Data $priceHelper,
+        RequestInterface $request = null,
+        CommandPoolInterface $commandPool = null,
+        ValidatorPoolInterface $validatorPool = null,
+        CommandManagerInterface $commandExecutor = null,
+        LoggerInterface $logger = null,
+        bool $usesRedirect = true
+    ) {
         parent::__construct(
             $eventManager,
             $valueHandlerPool,
@@ -164,7 +163,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         }
 
         $areaCode = $this->state->getAreaCode();
-        if ('adminhtml' === $areaCode
+        if (
+            'adminhtml' === $areaCode
             && $this->getConfigData('available_in_backend') !== null
             && $this->getConfigData('available_in_backend') == 0
         ) {
@@ -196,10 +196,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @return bool
      */
     protected function isAvailableBasedOnIp(
-        Account                               $accountConfig,
+        Account $accountConfig,
         CartInterface $quote = null
-    )
-    {
+    ) {
         $methodValue = $this->getConfigData('limit_by_ip');
         if ($accountConfig->getLimitByIp() == 1 || $methodValue == 1) {
             $storeId = $quote ? $quote->getStoreId() : null;
@@ -278,7 +277,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      */
     public function processCustomPostData($payment, $postData)
     {
-        if($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
+        if ($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
             $order = $payment->getOrder();
 
             if ($order->getBuckarooReservationNumber()) {

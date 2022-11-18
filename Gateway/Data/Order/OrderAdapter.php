@@ -28,10 +28,9 @@ class OrderAdapter implements OrderAdapterInterface
      * @param AddressAdapterFactory $addressAdapterFactory
      */
     public function __construct(
-        Order                 $order,
+        Order $order,
         AddressAdapterFactory $addressAdapterFactory
-    )
-    {
+    ) {
         $this->order = $order;
         $this->addressAdapterFactory = $addressAdapterFactory;
     }

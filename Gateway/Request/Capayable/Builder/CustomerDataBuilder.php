@@ -28,7 +28,6 @@ use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
 class CustomerDataBuilder extends AbstractDataBuilder
 {
-
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
@@ -61,7 +60,7 @@ class CustomerDataBuilder extends AbstractDataBuilder
     }
     /**
      * Get initial from first name
-     * 
+     *
      * @param string $name
      * @return string
      */

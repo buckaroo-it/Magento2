@@ -28,5 +28,4 @@ class TerminalIdDataBuilder implements BuilderInterface
     {
         return $this->cookieManager->getCookie('Pos-Terminal-Id');
     }
-
 }

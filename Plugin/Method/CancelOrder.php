@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -50,7 +51,8 @@ class CancelOrder
         $orderIsCanceled = $payment->getOrder()->getOrigData('state');
         $orderIsVoided = ((bool)$payment->getAdditionalInformation('voided_by_buckaroo') === true);
 
-        if ($payment->getMethod() !== $this->paymentMethod->getCode()
+        if (
+            $payment->getMethod() !== $this->paymentMethod->getCode()
             || $orderIsVoided
             || $orderIsCanceled == Order::STATE_CANCELED
         ) {

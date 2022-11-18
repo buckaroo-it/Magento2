@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -108,13 +109,15 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
         $this->logger->addDebug(__METHOD__ . '|1|');
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
             && $this->klarnakpConfig->getCreateInvoiceAfterShipment()
         ) {
             $this->createInvoice($order, $shipment);
         }
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20')
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20')
             && $this->afterpayConfig->getCreateInvoiceAfterShipment()
             && ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
         ) {
@@ -162,7 +165,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             $this->logger->addDebug(__METHOD__ . '|4|');
         } catch (\Exception $e) {
-            $order->addStatusHistoryComment('Exception message: '.$e->getMessage(), false);
+            $order->addStatusHistoryComment('Exception message: ' . $e->getMessage(), false);
             $order->save();
             return null;
         }

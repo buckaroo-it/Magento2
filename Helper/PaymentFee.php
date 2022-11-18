@@ -21,8 +21,7 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
-
+use Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
@@ -81,7 +80,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
         $totals = [];
         $displayBothPrices = false;
         $displayIncludeTaxPrice = false;
-        
+
 
         if (
             $dataObject instanceof \Magento\Sales\Model\Order
@@ -167,7 +166,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $order_id = $this->getOrderIncrementId($dataObject);
         $alreadyPayed = $this->groupTransaction->getAlreadyPaid($order_id);
-        
+
         if (!$dataObject instanceof \Magento\Sales\Model\Order\Creditmemo && $alreadyPayed > 0) {
             unset($totals['buckaroo_fee']);
             $this->addTotalToTotals(
@@ -178,10 +177,9 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 __('Paid with Giftcard / Voucher')
             );
             return;
-        } 
+        }
 
         if ($order_id !== null && $alreadyPayed > 0) {
-
             $requestParams = $this->_request->getParams();
             $items = $this->groupTransaction->getGroupTransactionItems($order_id);
             $giftcards = [];
@@ -220,8 +218,10 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                         $amountValue = $residual;
                     }
                 } else {
-                    if ((!empty(floatval($refundedAlreadyPaidSaved))
-                        && floatval($refundedAlreadyPaidSaved) === floatval($amountValue))) {
+                    if (
+                        (!empty(floatval($refundedAlreadyPaidSaved))
+                        && floatval($refundedAlreadyPaidSaved) === floatval($amountValue))
+                    ) {
                         $amountBaseValue = 0;
                         $amountValue = 0;
                     } elseif (is_array($foundGiftcard) && array_key_exists($foundGiftcard['servicecode'], $giftcards)) {

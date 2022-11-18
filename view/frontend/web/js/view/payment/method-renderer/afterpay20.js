@@ -64,35 +64,34 @@ define(
                         min: 11,
                         max: 14
                     }
-                };
-                if (!value) {
-                    return false;
-                }
+            };
+            if (!value) {
+                return false;
+            }
 
                 value = value.replace(/^\+|(00)/, '');
                 value = value.replace(/\(0\)|\s|-/g, '');
 
-                if (value.match(/\+/)) {
+            if (value.match(/\+/)) {
+                return false;
+            }
+
+            if (value.match(/[^0-9]/)) {
+                return false;
+            }
+
+            if (lengths.hasOwnProperty(countryId)) {
+                if (lengths[countryId].min && (value.length < lengths[countryId].min)) {
                     return false;
                 }
-
-                if (value.match(/[^0-9]/)) {
+                if (lengths[countryId].max && (value.length > lengths[countryId].max)) {
                     return false;
                 }
-
-                if (lengths.hasOwnProperty(countryId)) {
-                    if (lengths[countryId].min && (value.length < lengths[countryId].min)) {
-                        return false;
-                    }
-                    if (lengths[countryId].max && (value.length > lengths[countryId].max)) {
-                        return false;
-                    }
-                }
+            }
 
                 return true;
-            },
-            $.mage.__('Phone number should be correct.')
-        );
+        },
+            $.mage.__('Phone number should be correct.'));
 
         return Component.extend(
             {
@@ -172,7 +171,7 @@ define(
                             const billingAddress = quote.billingAddress();
                             let showDob = false;
                             let country;
-                            if(billingAddress !== null) {
+                            if (billingAddress !== null) {
                                 country =  billingAddress.countryId;
                             }
 
@@ -180,7 +179,7 @@ define(
                                 showDob = true;
                             }
 
-                            
+
                             if ((!this.isCustomerLoggedIn() && this.isOsc()) || ((country === 'NL' || country === 'BE'))) {
                                 showDob = true;
                             }
@@ -237,7 +236,7 @@ define(
                      * Observe customer first & lastname
                      * bind them together, so they could appear in the frontend
                      */
-                    this.updateBillingName = function(firstname, lastname) {
+                    this.updateBillingName = function (firstname, lastname) {
                         if (!firstname && !lastname) {
                             return false;
                         }
@@ -263,7 +262,7 @@ define(
                     }
 
                     quote.shippingAddress.subscribe(
-                        function(newAddress) {
+                        function (newAddress) {
                             if (!this.isCustomerLoggedIn() && this.isOsc()) {
                                 if (newAddress.telephone) {
                                     this.phoneValidate();
@@ -274,7 +273,7 @@ define(
                     );
 
                     quote.billingAddress.subscribe(
-                        function(newAddress) {
+                        function (newAddress) {
                             if (this.getCode() !== this.isChecked() ||
                                 !newAddress ||
                                 !newAddress.getKey()
@@ -299,7 +298,7 @@ define(
                         }.bind(this)
                     );
                     this.showCOC = ko.computed(
-                        function() {
+                        function () {
 
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
@@ -320,7 +319,7 @@ define(
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
 
                         let self = this;
-                        if(elements !== undefined){
+                        if (elements !== undefined) {
                             elements.valid();
                         }
 
@@ -343,13 +342,15 @@ define(
 
                     this.calculateAge = function (specifiedDate) {
                         if (specifiedDate && (specifiedDate.length > 0)) {
-                            var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+                            var dateReg = /  ^ \d{2}[./ - ]\d{2}[./ - ]\d{4}$ / ;
                             if (specifiedDate.match(dateReg)) {
                                 var birthday = +new Date(
                                     specifiedDate.substr(6, 4),
                                     specifiedDate.substr(3, 2) - 1,
                                     specifiedDate.substr(0, 2),
-                                    0, 0, 0
+                                    0,
+                                    0,
+                                    0
                                 );
                                 return ~~((Date.now() - birthday) / (31557600000));
                             }
@@ -413,7 +414,7 @@ define(
                             'dpd-selected-parcelshop-city',
                             'dpd-selected-parcelshop-country'
                         ];
-                        dpdCookies.forEach(function(item) {
+                        dpdCookies.forEach(function (item) {
                             var value = $.mage.cookies.get(item);
                             if (value) {
                                 $.mage.cookies.clear(item);

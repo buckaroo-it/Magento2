@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -62,12 +63,15 @@ class Push
         $paymentMethodInstance = $payment->getMethodInstance();
         $card = $paymentMethodInstance->getInfoInstance()->getAdditionalInformation('card_type');
 
-        if(empty($card)) return $result;
+        if (empty($card)) {
+            return $result;
+        }
 
         $authenticationFunction = 'getService' . ucfirst($card) . 'Authentication';
         $enrolledFunction = 'getService' . ucfirst($card) . 'Enrolled';
 
-        if (empty($push->pushRequst->$authenticationFunction())
+        if (
+            empty($push->pushRequst->$authenticationFunction())
             || empty($push->pushRequst->$enrolledFunction())
         ) {
             return $result;

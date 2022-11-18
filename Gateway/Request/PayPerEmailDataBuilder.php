@@ -14,9 +14,8 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
 
     public function __construct(
         PayPerEmail $payPerEmailConfig,
-        Giftcards   $giftcardsConfig
-    )
-    {
+        Giftcards $giftcardsConfig
+    ) {
         $this->payPerEmailConfig = $payPerEmailConfig;
         $this->giftcardsConfig = $giftcardsConfig;
     }

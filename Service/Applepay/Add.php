@@ -16,7 +16,8 @@ use Magento\Quote\Model\Quote\AddressFactory as BaseQuoteAddressFactory;
 use Magento\Quote\Model\ShippingAddressManagementInterface;
 use Magento\Quote\Model\QuoteRepository;
 use Buckaroo\Magento2\Service\Applepay\ShippingMethod as AppleShippingMethod;
-class Add 
+
+class Add
 {
     /**
      * @var CartRepositoryInterface
@@ -35,7 +36,7 @@ class Add
      * @param ApplepayModel $applepayModel
      * @param QuoteAddressFactory $quoteAddressFactory
      */
-     
+
     public function __construct(
         CartRepositoryInterface $cartRepository,
         CartInterface $cart,
@@ -47,9 +48,7 @@ class Add
         ShippingAddressManagementInterface $shippingAddressManagement,
         QuoteRepository $quoteRepository = null,
         AppleShippingMethod $appleShippingMethod
-
-    )
-    {
+    ) {
         $this->cartRepository = $cartRepository;
         $this->cart = $cart;
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
@@ -61,51 +60,50 @@ class Add
         $this->quoteRepository = $quoteRepository
         ?? ObjectManager::getInstance()->get(QuoteRepository::class);
         $this->appleShippingMethod = $appleShippingMethod;
-
     }
 
-    public function process($request,$context)
+    public function process($request, $context)
     {
-        
+
         $cart_hash = $request->getParam('id');
-        
-        if($cart_hash) {
+
+        if ($cart_hash) {
             $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
-            $cart = $this->cartRepository->get($cartId);            
+            $cart = $this->cartRepository->get($cartId);
         } else {
             //get cart from session scenario
         }
 
         $product = $request->getParam('product');
         $cart->removeAllItems();
-        
+
         try {
             $productToBeAdded = $this->productRepository->getById($product['id']);
         } catch (NoSuchEntityException $e) {
             throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $product['id']]));
         }
-       
+
         $cartItem = new CartItem(
             $productToBeAdded->getSku(),
-            $product['qty']            
+            $product['qty']
         );
 
-        if(isset($product['selected_options'])) {
+        if (isset($product['selected_options'])) {
             $cartItem->setSelectedOptions($product['selected_options']);
         }
 
-        $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));        
-        $this->cartRepository->save($cart);        
-        
+        $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));
+        $this->cartRepository->save($cart);
+
         $wallet = $request->getParam('wallet');
         $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
-        
-        
+
+
         $shippingAddress = $this->quoteAddressFactory->create();
         $shippingAddress->addData($shippingAddressData);
 
-        $errors = $shippingAddress->validate(); 
-                
+        $errors = $shippingAddress->validate();
+
         try {
             $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
         } catch (\Exception $e) {
@@ -114,7 +112,7 @@ class Add
         $this->quoteRepository->save($cart);
         $shippingMethodsResult = [];
         //this delivery address is already assigned to the cart
-        $shippingMethods = $this->appleShippingMethod->getAvailableMethods( $cart);
+        $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
         foreach ($shippingMethods as $index => $shippingMethod) {
             $shippingMethodsResult[] = [
                 'carrier_title' => $shippingMethod['carrier_title'],
@@ -136,8 +134,8 @@ class Add
         $data = [
             'shipping_methods' => $shippingMethodsResult,
             'totals' => $totals
-        ];   
-        return $data;     
+        ];
+        return $data;
     }
     public function gatherTotals($address, $quoteTotals)
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -87,11 +89,12 @@ class SaveOrder extends Common
         $shippingMethodsResult = [];
 
         if ($isPost) {
-            if (($payment = $this->getRequest()->getParam('payment'))
+            if (
+                ($payment = $this->getRequest()->getParam('payment'))
                 &&
                 ($extra = $this->getRequest()->getParam('extra'))
             ) {
-                $this->logger->addDebug(__METHOD__.'|1|');
+                $this->logger->addDebug(__METHOD__ . '|1|');
                 $this->logger->addDebug(var_export($payment, true));
                 $this->logger->addDebug(var_export($extra, true));
 
@@ -106,7 +109,7 @@ class SaveOrder extends Common
                     return $this->commonResponse(false, true);
                 }
 
-                $this->logger->addDebug(__METHOD__.'|2|');
+                $this->logger->addDebug(__METHOD__ . '|2|');
 
                 if (!($this->customer->getCustomer() && $this->customer->getCustomer()->getId())) {
                     $quote->setCheckoutMethod('guest')
@@ -127,17 +130,18 @@ class SaveOrder extends Common
                 $data = [];
                 if ($this->registry && $this->registry->registry('buckaroo_response')) {
                     $data = $this->registry->registry('buckaroo_response')[0];
-                    $this->logger->addDebug(__METHOD__.'|4|'.var_export($data, true));
+                    $this->logger->addDebug(__METHOD__ . '|4|' . var_export($data, true));
                     if (!empty($data->RequiredAction->RedirectURL)) {
                         //test mode
-                        $this->logger->addDebug(__METHOD__.'|5|');
+                        $this->logger->addDebug(__METHOD__ . '|5|');
                         $data = [
                            'RequiredAction' => $data->RequiredAction
                         ];
                     } else {
                         //live mode
-                        $this->logger->addDebug(__METHOD__.'|6|');
-                        if (!empty($data->Status->Code->Code)
+                        $this->logger->addDebug(__METHOD__ . '|6|');
+                        if (
+                            !empty($data->Status->Code->Code)
                             &&
                             ($data->Status->Code->Code == '190')
                             &&
@@ -155,7 +159,7 @@ class SaveOrder extends Common
 
                                 $store = $this->order->getStore();
                                 $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
-                                $this->logger->addDebug(__METHOD__.'|7|'.var_export($url, true));
+                                $this->logger->addDebug(__METHOD__ . '|7|' . var_export($url, true));
                                 $data = [
                                     'RequiredAction' => [
                                         'RedirectURL' => $url

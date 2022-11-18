@@ -61,13 +61,12 @@ class AmountCreditDataBuilder implements BuilderInterface
      */
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        Factory     $configProviderMethodFactory,
+        Factory $configProviderMethodFactory,
         BuckarooLog $buckarooLog,
         \Magento\Framework\App\RequestInterface $request,
-                    $amount = null,
-                    $currency = null
-    )
-    {
+        $amount = null,
+        $currency = null
+    ) {
         if ($amount !== null) {
             $this->amount = $amount;
         }
@@ -88,7 +87,8 @@ class AmountCreditDataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
-        if (!isset($buildSubject['payment'])
+        if (
+            !isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');

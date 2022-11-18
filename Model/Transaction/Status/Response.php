@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Api\TransactionResponseInterface;
 
 class Response implements TransactionResponseInterface
 {
-
     public const STATUSCODE_SUCCESS               = 190;
     public const STATUSCODE_FAILED                = 490;
     public const STATUSCODE_VALIDATION_FAILURE    = 491;
@@ -97,7 +96,7 @@ class Response implements TransactionResponseInterface
         }
 
         if (!is_scalar($statusCode)) {
-           return false;
+            return false;
         }
 
         return $this->getStatusCode() === (int)$statusCode;

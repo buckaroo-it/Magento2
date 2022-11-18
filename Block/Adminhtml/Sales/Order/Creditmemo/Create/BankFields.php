@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,7 +23,6 @@ namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create;
 
 class BankFields extends \Magento\Backend\Block\Template
 {
-
     protected $orderPaymentBlock    = 'order_payment';
 
     /**

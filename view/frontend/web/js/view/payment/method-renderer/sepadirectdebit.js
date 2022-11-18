@@ -127,7 +127,7 @@ define(
                     /**
                      * check if country is NL, if so load: bank account number | ifnot load: bicnumber
                      */
-                    this.updateIsNl = function(address) {
+                    this.updateIsNl = function (address) {
                         var isnlComputed = ko.computed(
                             function () {
                                 if (address === null) {

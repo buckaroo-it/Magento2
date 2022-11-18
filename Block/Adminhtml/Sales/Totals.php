@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales;
 
 class Totals extends \Magento\Framework\View\Element\Template
@@ -77,7 +79,7 @@ class Totals extends \Magento\Framework\View\Element\Template
         */
         $source = $parent->getSource();
 
-        
+
         return $this->getTotalsForCreditmemo($source);
     }
 
@@ -92,7 +94,7 @@ class Totals extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * For credit memo display the fees from invoice/order, 
+     * For credit memo display the fees from invoice/order,
      * check if invoice has that fee and set selected
      *
      * @param mixed $source
@@ -105,23 +107,22 @@ class Totals extends \Magento\Framework\View\Element\Template
             $creditTotals = $this->helper->getTotals($source);
             $order = $source->getOrder();
             $invoice = $source->getInvoice();
-            $salesModel = ($invoice != null? $invoice : $order);
+            $salesModel = ($invoice != null ? $invoice : $order);
             $saleTotals = $this->helper->getTotals($salesModel);
-            
-            $saleTotals = array_map(function($saleTotal) use($creditTotals) {
-                if (in_array($saleTotal['code'],['buckaroo_fee', 'buckaroo_fee_excl'] )) {
+
+            $saleTotals = array_map(function ($saleTotal) use ($creditTotals) {
+                if (in_array($saleTotal['code'], ['buckaroo_fee', 'buckaroo_fee_excl'])) {
                     $saleTotal['block_name'] = "buckaroo_fee";
                     $saleTotal['is_selected'] = $this->isCreditmemoTotalSelected($creditTotals, $saleTotal);
                 }
                 return $saleTotal;
             }, $saleTotals);
 
-            
+
             return array_merge(
                 $this->getTotalsByCode($creditTotals, 'buckaroo_already_paid'),
                 $this->getTotalsExceptCode($saleTotals, 'buckaroo_already_paid')
             );
-            
         }
         return $this->helper->getTotals($source);
     }
@@ -154,7 +155,7 @@ class Totals extends \Magento\Framework\View\Element\Template
             if (
                 isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
             ) {
-               return true;
+                return true;
             }
         }
         return false;

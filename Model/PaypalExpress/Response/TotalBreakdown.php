@@ -27,7 +27,6 @@ use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {
-
     /**
      *  @var \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory
      */

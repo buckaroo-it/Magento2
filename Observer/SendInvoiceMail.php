@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
@@ -91,7 +93,8 @@ class SendInvoiceMail implements ObserverInterface
             }
         }
         if ($invoice->getIsPaid() && $canCapture) {
-            if (($payment->getMethod() == Afterpay20::CODE)
+            if (
+                ($payment->getMethod() == Afterpay20::CODE)
                 && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
                 && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
             ) {

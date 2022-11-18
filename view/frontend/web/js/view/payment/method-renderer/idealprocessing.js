@@ -97,16 +97,16 @@ define(
                         this
                     );
 
-                    $('.iosc-place-order-button').on('click', function(e){
-                        if(self.selectedBank() == null){
+                    $('.iosc-place-order-button').on('click', function (e) {
+                        if (self.selectedBank() == null) {
                             self.messageContainer.addErrorMessage({'message': $t('You need select a bank')});
                         }
                     });
-                    
+
                     return this;
                 },
 
-                setSelectedBankDropDown: function() {
+                setSelectedBankDropDown: function () {
                     var el = document.getElementById("buckaroo_magento2_idealp_issuer");
                     this.selectedBank(el.options[el.selectedIndex].valu);
                     this.selectPaymentMethod();
@@ -161,7 +161,7 @@ define(
                         selectedBankCode = this.selectedBank().code;
                     }
 
-                    if(this.idealIssuer){
+                    if (this.idealIssuer) {
                         selectedBankCode = this.idealIssuer;
                     }
 

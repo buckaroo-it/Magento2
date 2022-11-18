@@ -1,11 +1,12 @@
 <?php
+
 namespace Buckaroo\Magento2\Ui\Component\Listing\Column\Method;
 
-use \Magento\Sales\Api\OrderRepositoryInterface;
-use \Magento\Framework\View\Element\UiComponent\ContextInterface;
-use \Magento\Framework\View\Element\UiComponentFactory;
-use \Magento\Ui\Component\Listing\Columns\Column;
-use \Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 
 class Options extends Column
 {

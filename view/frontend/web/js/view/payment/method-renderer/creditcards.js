@@ -47,33 +47,28 @@ define(
          */
         $.validator.addMethod('validateCardNumber', function (value) {
                 return BuckarooClientSideEncryption.V001.validateCardNumber(value.replace(/\s+/g, ''));
-            },
-            $.mage.__('Please enter a valid creditcard number.')
-        );
+        },
+            $.mage.__('Please enter a valid creditcard number.'));
         $.validator.addMethod('validateCvc', function (value) {
                 var cardService = null;
-                if ($('#buckaroo_magento2_creditcards_issuer').val() == 'amex') {
-                    cardService = $('#buckaroo_magento2_creditcards_issuer').val();
-                }
+            if ($('#buckaroo_magento2_creditcards_issuer').val() == 'amex') {
+                cardService = $('#buckaroo_magento2_creditcards_issuer').val();
+            }
                 return BuckarooClientSideEncryption.V001.validateCvc(value, cardService);
-            },
-            $.mage.__('Please enter a valid Cvc number.')
-        );
+        },
+            $.mage.__('Please enter a valid Cvc number.'));
         $.validator.addMethod('validateCardHolderName', function (value) {
                 return BuckarooClientSideEncryption.V001.validateCardholderName(value);
-            },
-            $.mage.__('Please enter a valid card holder name.')
-        );
+        },
+            $.mage.__('Please enter a valid card holder name.'));
         $.validator.addMethod('validateYear', function (value) {
                 return BuckarooClientSideEncryption.V001.validateYear(value);
-            },
-            $.mage.__('Enter a valid year number.')
-        );
+        },
+            $.mage.__('Enter a valid year number.'));
         $.validator.addMethod('validateMonth', function (value) {
                 return BuckarooClientSideEncryption.V001.validateMonth(value);
-            },
-            $.mage.__('Enter a valid month number.')
-        );
+        },
+            $.mage.__('Enter a valid month number.'));
 
         return Component.extend(
             {
@@ -169,7 +164,7 @@ define(
                 /** Unable to translate 'Select a year' within knockout, so we create the option objects here **/
                 getYears : function () {
                     var years = [{ 'value': '', 'label': $.mage.__('Select a year') }];
-                    for(var i=0; i<=10; i++) {
+                    for (var i = 0; i <= 10; i++) {
                         years.push({'value': new Date().getFullYear() + i, 'label': new Date().getFullYear() + i});
                     }
 
@@ -189,17 +184,17 @@ define(
                     return true;
                 },
 
-                validateIssuer: function() {
+                validateIssuer: function () {
                     $('#buckaroo_magento2_creditcards_issuer').valid();
                     this.encryptCardDetails();
                 },
 
-                validateMonth: function() {
+                validateMonth: function () {
                     $('#buckaroo_magento2_creditcards_expirationmonth').valid();
                     this.encryptCardDetails();
                 },
 
-                validateYear: function() {
+                validateYear: function () {
                     $('#buckaroo_magento2_creditcards_expirationyear').valid();
                     this.encryptCardDetails();
                 },
@@ -291,16 +286,18 @@ define(
 
                         self.selectPaymentMethodAction = selectPaymentMethodAction;
 
-                        var getEncryptedData = function(cardNumber, year, month, cvc, cardholder) {
-                            BuckarooClientSideEncryption.V001.encryptCardData(cardNumber,
+                        var getEncryptedData = function (cardNumber, year, month, cvc, cardholder) {
+                            BuckarooClientSideEncryption.V001.encryptCardData(
+                                cardNumber,
                                 year,
                                 month,
                                 cvc,
                                 cardholder,
-                                function(encryptedCardData) {
+                                function (encryptedCardData) {
                                     self.EncryptedData(encryptedCardData);
                                     self.selectPaymentMethodAction(self.getData());
-                                });
+                                }
+                            );
                         };
                         getEncryptedData(cardNumber, year, month, cvc, cardholder);
                         selectPaymentMethodAction(this.getData());
@@ -350,7 +347,8 @@ define(
 
                     for (var key in issuerIdentificationNumbers) {
                         if (this.CardNumber().match(issuerIdentificationNumbers[key].regex)) {
-                            return this.creditcards.find(function (creditcard) { return creditcard.code == key; });
+                            return this.creditcards.find(function (creditcard) {
+                                return creditcard.code == key; });
                         }
                     }
 

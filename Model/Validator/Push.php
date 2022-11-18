@@ -24,8 +24,8 @@ namespace Buckaroo\Magento2\Model\Validator;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Buckaroo\Magento2\Model\ValidatorInterface;
-use \Magento\Framework\Encryption\Encryptor;
+use Buckaroo\Magento2\Model\ValidatorInterface;
+use Magento\Framework\Encryption\Encryptor;
 
 class Push implements ValidatorInterface
 {
@@ -92,7 +92,8 @@ class Push implements ValidatorInterface
      */
     public function validateStatusCode($code)
     {
-        if (null !== $this->helper->getStatusByValue($code)
+        if (
+            null !== $this->helper->getStatusByValue($code)
             && isset($this->bpeResponseMessages[$code])
         ) {
             return [
@@ -152,7 +153,7 @@ class Push implements ValidatorInterface
         foreach ($sortableArray as $brq_key => $value) {
             $value = $this->decodePushValue($brq_key, $value);
 
-            $signatureString .= $brq_key. '=' . $value;
+            $signatureString .= $brq_key . '=' . $value;
         }
 
         $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));

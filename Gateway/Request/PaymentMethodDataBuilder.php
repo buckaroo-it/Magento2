@@ -9,7 +9,8 @@ class PaymentMethodDataBuilder implements BuilderInterface
 {
     public function build(array $buildSubject)
     {
-        if (!isset($buildSubject['payment'])
+        if (
+            !isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
@@ -31,6 +32,5 @@ class PaymentMethodDataBuilder implements BuilderInterface
         return [
             'payment_method' => $providerType,
         ];
-
     }
 }

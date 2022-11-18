@@ -11,7 +11,6 @@ use Buckaroo\Magento2\Logging\Log;
 
 class PushSDK implements ValidatorInterface
 {
-
     /**
      * @var BuckarooAdapter
      */
@@ -43,7 +42,7 @@ class PushSDK implements ValidatorInterface
      * @param $data
      * @return bool
      */
-    public function validate($data) : bool
+    public function validate($data): bool
     {
         try {
             $post_data = $this->request->getContent();

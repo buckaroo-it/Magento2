@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -70,7 +71,7 @@ class OrderStatusFactory
          * @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $paymentMethodInstance
          */
         $paymentMethodInstance = $order->getPayment()->getMethodInstance();
-        if($paymentMethodInstance instanceof \Buckaroo\Magento2\Model\Method\BuckarooAdapter) {
+        if ($paymentMethodInstance instanceof \Buckaroo\Magento2\Model\Method\BuckarooAdapter) {
             $paymentMethod = $paymentMethodInstance->getCode();
         } else {
             $paymentMethod = $paymentMethodInstance->buckarooPaymentMethodCode;

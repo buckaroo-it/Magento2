@@ -4,7 +4,6 @@ namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
-
 class ApplepayDataBuilder extends AbstractDataBuilder
 {
     public function build(array $buildSubject): array
@@ -18,7 +17,7 @@ class ApplepayDataBuilder extends AbstractDataBuilder
 
     /**
      * Get customer card name from applepay transaction
-     * 
+     *
      * @return string|null
      */
     protected function getCustomerCardName()

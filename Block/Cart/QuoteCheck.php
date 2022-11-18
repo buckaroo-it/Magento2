@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,7 +21,7 @@
 
 namespace Buckaroo\Magento2\Block\Cart;
 
-use \Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Message\ManagerInterface;
 
 class QuoteCheck
 {

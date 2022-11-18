@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -59,7 +60,8 @@ class Push
         \Buckaroo\Magento2\Model\Push $push,
         $result
     ) {
-        if (!$this->configProviderPaypal->getSellersProtection()
+        if (
+            !$this->configProviderPaypal->getSellersProtection()
             || empty($push->pushRequst->getServicePaypalProtectioneligibility())
             || empty($push->pushRequst->getServicePaypalProtectioneligibilitytype())
         ) {

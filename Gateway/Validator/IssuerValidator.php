@@ -53,7 +53,7 @@ class IssuerValidator extends AbstractValidator
             }
         }
 
-        
+
         return $this->createResult(false, [__('Please select a issuer from the list')]);
     }
 

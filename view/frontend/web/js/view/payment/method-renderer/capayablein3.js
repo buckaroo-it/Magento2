@@ -44,9 +44,9 @@ define(
         'use strict';
 
         const validPhone = function (value, countryId = null) {
-           if (countryId === null) {
-               countryId = quote.billingAddress().countryId;
-           }
+            if (countryId === null) {
+                countryId = quote.billingAddress().countryId;
+            }
             var lengths = {
                 'NL': {
                     min: 10,
@@ -87,9 +87,11 @@ define(
 
             return true;
         };
-        $.validator.addMethod('phoneValidation', validPhone ,
-        $.mage.__('Phone number should be correct.')
-    );
+        $.validator.addMethod(
+            'phoneValidation',
+            validPhone ,
+            $.mage.__('Phone number should be correct.')
+        );
 
         return Component.extend(
             {
@@ -142,7 +144,7 @@ define(
                     /**
                      * Observe customer first & lastname and bind them together, so they could appear in the frontend
                      */
-                    this.updateBillingName = function(firstname, lastname) {
+                    this.updateBillingName = function (firstname, lastname) {
                         this.firstName = firstname;
                         this.lastName = lastname;
 
@@ -161,7 +163,7 @@ define(
                     }
 
                     quote.billingAddress.subscribe(
-                        function(newAddress) {
+                        function (newAddress) {
                             if (this.getCode() === this.isChecked() &&
                                 newAddress &&
                                 newAddress.getKey() &&
@@ -183,7 +185,7 @@ define(
                     this.dateValidate.subscribe(runValidation,this);
 
                     this.buttoncheck = ko.computed(function () {
-                        var validation = 
+                        var validation =
                             this.BillingName() !== null &&
                             this.dateValidate() !== null;
 
@@ -260,7 +262,7 @@ define(
                     return true;
                 },
 
-                getData : function() {
+                getData : function () {
                     let telephone = quote.shippingAddress().telephone;
                     if (validPhone(this.phone(), quote.shippingAddress().countryId)) {
                         telephone = this.phone();

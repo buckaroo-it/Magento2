@@ -40,7 +40,6 @@ use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface;
 
 class ApplyVoucherRequest implements ApplyVoucherRequestInterface
 {
-
     /**
      * @var \Magento\Store\Api\Data\StoreInterface
      */
@@ -223,7 +222,9 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     protected function getCurrency()
     {
         $currency = $this->quote->getCurrency();
-        if ($currency !== null)  return $currency->getBaseCurrencyCode();
+        if ($currency !== null) {
+            return $currency->getBaseCurrencyCode();
+        }
     }
     /**
      * Get return url

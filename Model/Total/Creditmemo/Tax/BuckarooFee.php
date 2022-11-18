@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Total\Creditmemo\Tax;
 
 class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTotal
@@ -34,7 +36,8 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
 
         $salesModel = ($invoice ? $invoice : $order);
 
-        if ($salesModel->getBuckarooFeeBaseTaxAmount()
+        if (
+            $salesModel->getBuckarooFeeBaseTaxAmount()
             && $order->getBuckarooFeeBaseTaxAmountInvoiced() > $order->getBuckarooFeeBaseTaxAmountRefunded()
         ) {
             $baseBuckarooFeeTax = $salesModel->getBuckarooFeeBaseTaxAmount();

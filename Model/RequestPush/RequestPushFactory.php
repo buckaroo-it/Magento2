@@ -43,7 +43,8 @@ class RequestPushFactory
                 $this->logging->addDebug(__METHOD__ . '|Create json object|' . var_export($this->request->getRequestData(), true));
                 return $this->_objectManager->create(
                     \Buckaroo\Magento2\Model\RequestPush\JsonPushRequest::class,
-                    ['requestData' => $this->request->getRequestData()]);
+                    ['requestData' => $this->request->getRequestData()]
+                );
             }
         } catch (\Exception $exception) {
             $this->logging->addDebug(__METHOD__ . '|EXCEPTION|' . var_export($exception->getMessage(), true));
@@ -52,7 +53,7 @@ class RequestPushFactory
         $this->logging->addDebug(__METHOD__ . '|Create httppost object|' . var_export($this->request->getRequestData(), true));
         return $this->_objectManager->create(
             \Buckaroo\Magento2\Model\RequestPush\HttppostPushRequest::class,
-            ['requestData' => $this->request->getPostValue()]);
-
+            ['requestData' => $this->request->getPostValue()]
+        );
     }
 }

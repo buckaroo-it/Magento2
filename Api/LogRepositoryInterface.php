@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright ©  All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Api;
@@ -11,7 +13,6 @@ use Magento\Framework\Api\SearchCriteriaInterface;
 
 interface LogRepositoryInterface
 {
-
     /**
      * Save Log
      * @param \Buckaroo\Magento2\Api\Data\LogInterface $log

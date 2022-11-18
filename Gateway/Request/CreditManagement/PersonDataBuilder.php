@@ -6,7 +6,6 @@ use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
 class PersonDataBuilder extends AbstractDataBuilder
 {
-
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
@@ -19,7 +18,7 @@ class PersonDataBuilder extends AbstractDataBuilder
 
         return [
             'culture' =>  strtolower($address->getCountryId()),
-            'name' => $address->getFirstname() . ' ' .$address->getLastname(),
+            'name' => $address->getFirstname() . ' ' . $address->getLastname(),
             'firstName' => $address->getFirstname(),
             'lastName' => $address->getLastname()
         ];

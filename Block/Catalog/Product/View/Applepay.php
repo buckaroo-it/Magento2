@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Magento\Checkout\Model\Cart;
@@ -64,7 +66,8 @@ class Applepay extends Template
     {
         $result = false;
 
-        if ($this->cart->getSummaryQty()
+        if (
+            $this->cart->getSummaryQty()
             &&
             ($this->applepayConfigProvider->getActive() != 0)
             &&
@@ -85,7 +88,8 @@ class Applepay extends Template
     {
         $result = false;
 
-        if (($this->applepayConfigProvider->getActive() != 0)
+        if (
+            ($this->applepayConfigProvider->getActive() != 0)
             &&
             ($this->applepayConfigProvider->getAvailableButtons())
             &&

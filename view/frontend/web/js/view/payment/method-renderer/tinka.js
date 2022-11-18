@@ -149,7 +149,7 @@ define(
                      * Observe customer first & lastname
                      * bind them together, so they could appear in the frontend
                      */
-                    this.updateBillingName = function(firstname, lastname) {
+                    this.updateBillingName = function (firstname, lastname) {
                         this.firstName = firstname;
                         this.lastName = lastname;
 
@@ -170,7 +170,7 @@ define(
                     }
 
                     quote.billingAddress.subscribe(
-                        function(newAddress) {
+                        function (newAddress) {
                             if (this.getCode() !== this.isChecked() ||
                                 !newAddress ||
                                 !newAddress.getKey()
@@ -213,7 +213,7 @@ define(
                             $('#' + this.getCode() + '_DoB-error').hide();
                             $('#' + this.getCode() + '_DoB').removeClass('mage-error');
                         } else {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 $('#' + self.getCode() + '_DoB-error').show();
                                 $('#' + self.getCode() + '_DoB').addClass('mage-error');
                             },200);
@@ -227,13 +227,15 @@ define(
 
                     this.calculateAge = function (specifiedDate) {
                         if (specifiedDate && (specifiedDate.length > 0)) {
-                            var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+                            var dateReg = /  ^ \d{2}[./ - ]\d{2}[./ - ]\d{4}$ / ;
                             if (specifiedDate.match(dateReg)) {
                                 var birthday = +new Date(
                                     specifiedDate.substr(6, 4),
                                     specifiedDate.substr(3, 2) - 1,
                                     specifiedDate.substr(0, 2),
-                                    0, 0, 0
+                                    0,
+                                    0,
+                                    0
                                 );
                                 return ~~((Date.now() - birthday) / (31557600000));
                             }
@@ -292,7 +294,7 @@ define(
                     return false;
                 },
 
-                magentoTerms: function() {
+                magentoTerms: function () {
                     /**
                      * The agreement checkbox won't force an update of our bindings. So check for changes manually and notify
                      * the bindings if something happend. Use $.proxy() to access the local this object. The dummy property is

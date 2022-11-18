@@ -23,7 +23,8 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
 
     public function check(Order $order)
     {
-        if ($order->getPayment() &&
+        if (
+            $order->getPayment() &&
             $order->getPayment()->getMethodInstance()->getCode() == 'buckaroo_magento2_payperemail'
         ) {
             $config = $this->configProviderMethodFactory->get(

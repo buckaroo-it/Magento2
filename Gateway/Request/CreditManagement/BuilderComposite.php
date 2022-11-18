@@ -11,7 +11,6 @@ use Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler;
 
 class BuilderComposite implements BuilderInterface
 {
-
     public const TYPE_ORDER = 'buckaroo_credit_management';
     public const TYPE_REFUND = 'buckaroo_credit_management_refund';
     public const TYPE_VOID = 'buckaroo_credit_management_void';
@@ -33,7 +32,7 @@ class BuilderComposite implements BuilderInterface
     public function __construct(
         TMapFactory $tmapFactory,
         Factory $configProvider,
-        array       $builders = [],
+        array $builders = [],
         string $type = self::TYPE_ORDER
     ) {
         $this->builders = $tmapFactory->create(

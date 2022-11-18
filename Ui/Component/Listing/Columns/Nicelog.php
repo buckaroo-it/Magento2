@@ -7,7 +7,6 @@ use Magento\Framework\View\Element\UiComponent\ContextInterface;
 
 class Nicelog extends \Magento\Ui\Component\Listing\Columns\Column
 {
-
     public function prepareDataSource(array $dataSource)
     {
         $dataSource = parent::prepareDataSource($dataSource);

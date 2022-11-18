@@ -1,4 +1,5 @@
 <?php
+
 namespace Buckaroo\Magento2\Service\Applepay;
 
 use Magento\Framework\Api\ExtensibleDataObjectConverter;
@@ -27,7 +28,7 @@ class ShippingMethod
         $address = $cart->getShippingAddress();
 
         $address->setLimitCarrier(null);
-        $address->setQuote($cart);        
+        $address->setQuote($cart);
         $address->setCollectShippingRates(true);
         $this->totalsCollector->collectAddressTotals($cart, $address);
         $methods = [];

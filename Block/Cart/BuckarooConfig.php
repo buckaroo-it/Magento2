@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace Buckaroo\Magento2\Block\Cart;
 
 class BuckarooConfig extends \Magento\Backend\Block\Template

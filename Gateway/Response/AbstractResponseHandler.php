@@ -49,14 +49,13 @@ class AbstractResponseHandler
 
 
     public function __construct(
-        Registry           $registry,
-        Data               $helper,
-        ManagerInterface   $eventManager,
-        BuckarooLog        $buckarooLog,
+        Registry $registry,
+        Data $helper,
+        ManagerInterface $eventManager,
+        BuckarooLog $buckarooLog,
         ResourceConnection $resourceConnection,
-        MessageManager     $messageManager
-    )
-    {
+        MessageManager $messageManager
+    ) {
         $this->registry = $registry;
         $this->helper = $helper;
         $this->eventManager = $eventManager;
@@ -76,11 +75,10 @@ class AbstractResponseHandler
      */
     public function saveTransactionData(
         TransactionResponse $response,
-        InfoInterface       $payment,
-                            $close,
-                            $saveId = false
-    )
-    {
+        InfoInterface $payment,
+        $close,
+        $saveId = false
+    ) {
         if (!empty($response->getTransactionKey())) {
             $transactionKey = $response->getTransactionKey();
 
@@ -216,7 +214,8 @@ class AbstractResponseHandler
      */
     protected function validatePayment(array $handlingSubject)
     {
-        if (!isset($handlingSubject['payment'])
+        if (
+            !isset($handlingSubject['payment'])
             || !$handlingSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
@@ -231,7 +230,8 @@ class AbstractResponseHandler
      */
     protected function validateResponse(array $response)
     {
-        if (!isset($response['object'])
+        if (
+            !isset($response['object'])
             || !$response['object'] instanceof TransactionResponse
         ) {
             throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');

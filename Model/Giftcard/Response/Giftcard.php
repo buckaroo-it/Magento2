@@ -63,8 +63,7 @@ class Giftcard
         PaymentGroupTransaction $groupTransaction,
         QuoteManagement $quoteManagement,
         OrderManagementInterface $orderManagement
-        )
-    {
+    ) {
         $this->priceCurrency = $priceCurrency;
         $this->groupTransaction = $groupTransaction;
         $this->quoteManagement = $quoteManagement;
@@ -199,7 +198,7 @@ class Giftcard
     protected function cancelOrder()
     {
         $order = $this->createOrderFromQuote();
-        if(
+        if (
             $order instanceof \Magento\Sales\Api\Data\OrderInterface &&
             $order->getEntityId() !== null
         ) {
@@ -223,7 +222,6 @@ class Giftcard
     {
         //fix missing email validation
         if ($this->quote->getCustomerEmail() == null) {
-
             $this->quote->setCustomerEmail(
                 $this->quote->getBillingAddress()->getEmail()
             );
@@ -237,7 +235,5 @@ class Giftcard
         $this->quote->setReservedOrderId(null);
         $this->quote->save();
         return $order;
-
-
     }
 }

@@ -17,7 +17,8 @@ class TokenEncryptedDataBuilder extends AbstractDataBuilder
      */
     protected ScopeConfigInterface $scopeConfig;
 
-    public function __construct(ScopeConfigInterface $scopeConfig) {
+    public function __construct(ScopeConfigInterface $scopeConfig)
+    {
         $this->scopeConfig = $scopeConfig;
     }
 
@@ -28,7 +29,8 @@ class TokenEncryptedDataBuilder extends AbstractDataBuilder
         $useClientSide = $this->getConfigData('client_side');
         $additionalInformation = $this->getPayment()->getAdditionalInformation();
 
-        if ($useClientSide && isset($additionalInformation['client_side_mode'])
+        if (
+            $useClientSide && isset($additionalInformation['client_side_mode'])
             && ($additionalInformation['client_side_mode'] == 'cc')
         ) {
             if (!isset($additionalInformation['customer_encrypteddata'])) {

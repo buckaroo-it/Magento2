@@ -29,14 +29,14 @@ class DescriptionDataBuilder implements BuilderInterface
      */
     public function __construct(
         Account $configProviderAccount
-    )
-    {
+    ) {
         $this->configProviderAccount = $configProviderAccount;
     }
 
     public function build(array $buildSubject)
     {
-        if (!isset($buildSubject['payment'])
+        if (
+            !isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');

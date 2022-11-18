@@ -22,7 +22,7 @@ class SepaDirectDebitDataBuilder extends AbstractDataBuilder
                 'name' => $customerAccountName
             ]];
 
-        if(!empty($customerBic)) {
+        if (!empty($customerBic)) {
             $data = ['bic' => $customerBic];
         }
 

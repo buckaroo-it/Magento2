@@ -19,5 +19,4 @@ class TransactionType
     public const CREATE_MANDATE = 'createMandate';
     public const PAYMENT_INVITATION = 'paymentInvitation';
     public const VERIFY = 'verify';
-
 }

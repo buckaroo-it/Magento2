@@ -21,8 +21,10 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
 
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
-        if (($order->getShippingMethod() == 'dhlparcel_servicepoint')
-            && $order->getDhlparcelShippingServicepointId()) {
+        if (
+            ($order->getShippingMethod() == 'dhlparcel_servicepoint')
+            && $order->getDhlparcelShippingServicepointId()
+        ) {
             $this->updateShippingAddressByDhlParcel($order->getDhlparcelShippingServicepointId(), $shippingAddress);
         }
 
@@ -39,7 +41,8 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $this->curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/' . $matches[2] . '/' . $servicePointId);
-            if (($response = $this->curl->getBody())
+            if (
+                ($response = $this->curl->getBody())
                 &&
                 //phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
                 ($parsedResponse = @json_decode($response))
@@ -48,8 +51,8 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
             ) {
                 $shippingAddress->setStreet([
                     $this->cleanStreetNumberAddition($parsedResponse->address->{'street'}),
-                    property_exists($parsedResponse->address, 'number') ? $parsedResponse->address->{'number'}: '',
-                    property_exists($parsedResponse->address, 'addition') ? $parsedResponse->address->{'addition'}: '',
+                    property_exists($parsedResponse->address, 'number') ? $parsedResponse->address->{'number'} : '',
+                    property_exists($parsedResponse->address, 'addition') ? $parsedResponse->address->{'addition'} : '',
                 ]);
                 $shippingAddress->setPostcode($parsedResponse->address->{'postalCode'});
                 $shippingAddress->setCity($parsedResponse->address->{'city'});
@@ -64,6 +67,4 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
     {
         return preg_replace('/[\W]/', '', $addition);
     }
-
-
 }

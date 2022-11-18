@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -107,14 +108,15 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
         $phpMajorMinor = $phpVersion[0] . '.' . $phpVersion[1];
         $phpPatch = (int) $phpVersion[2];
 
-        if (!isset($this->phpVersionSupport[$magentoMajorMinor]) ||
-            !isset($this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor])) {
+        if (
+            !isset($this->phpVersionSupport[$magentoMajorMinor]) ||
+            !isset($this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor])
+        ) {
             return 0;
         }
 
         $currentVersion = $this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor];
         if (isset($currentVersion)) {
-
             if (in_array($phpPatch, $currentVersion)) {
                 return true;
             } elseif (in_array('+', $currentVersion) && $phpPatch >= max($currentVersion)) {

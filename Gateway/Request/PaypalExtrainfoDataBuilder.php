@@ -94,7 +94,6 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
     {
         $shippingRegion = $shippingAddress->getRegion();
         if (isset($shippingRegion) && !empty($shippingRegion)) {
-
             $twoCharacterShippingRegion = $this->paypalStateCodes->getCodeFromValue(
                 $shippingAddress->getCountryId(),
                 $shippingAddress->getRegion()

@@ -32,14 +32,13 @@ class ResponseCodeSDKValidator extends AbstractValidator
      * @param ResultInterfaceFactory $resultFactory
      */
     public function __construct(
-        Data                   $helper,
-        Http                   $request,
+        Data $helper,
+        Http $request,
         ResultInterfaceFactory $resultFactory
     ) {
         parent::__construct($resultFactory);
         $this->helper = $helper;
         $this->request = $request;
-
     }
 
     /**
@@ -125,7 +124,8 @@ class ResponseCodeSDKValidator extends AbstractValidator
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         }
 
-        if ((!isset($statusCode) || $statusCode == null)
+        if (
+            (!isset($statusCode) || $statusCode == null)
             && $this->request->getParam('cancel')
         ) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');
@@ -136,6 +136,5 @@ class ResponseCodeSDKValidator extends AbstractValidator
 
     private function getErrorMessage()
     {
-
     }
 }

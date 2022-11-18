@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
@@ -156,7 +158,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|20|');
 
-                if ($this->checkoutSession->getQuote()
+                if (
+                    $this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
@@ -169,7 +172,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     }
                 }
 
-                if ($this->helper->getRestoreQuoteLastOrder()
+                if (
+                    $this->helper->getRestoreQuoteLastOrder()
                     && ($lastRealOrder->getData('state') === 'new')
                     && ($lastRealOrder->getData('status') === 'pending')
                     && $payment->getMethodInstance()->usesRedirect

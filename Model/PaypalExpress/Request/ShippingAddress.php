@@ -26,7 +26,6 @@ use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 
 class ShippingAddress implements ShippingAddressRequestInterface
 {
-
     protected $city;
 
     protected $country_code;

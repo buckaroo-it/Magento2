@@ -1,4 +1,5 @@
 <?php
+
  /**
   * NOTICE OF LICENSE
   *
@@ -76,7 +77,7 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__.'|1|'.var_export($this->getRequest()->getParams(), true));
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->getRequest()->getParams(), true));
 
         if (($params = $this->getRequest()->getParams()) && !empty($params['id'])) {
             $metadata = $this->cookieMetadataFactory
@@ -88,10 +89,10 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
                 $params['id'],
                 $metadata
             );
-            $this->logger->addDebug(__METHOD__.'|2|');
+            $this->logger->addDebug(__METHOD__ . '|2|');
         }
 
-        $redirectUrl= $this->storemanager->getStore()->getBaseUrl();
+        $redirectUrl = $this->storemanager->getStore()->getBaseUrl();
         $this->_redirect($redirectUrl);
     }
 }

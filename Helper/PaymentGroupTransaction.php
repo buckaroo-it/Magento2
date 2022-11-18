@@ -124,7 +124,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
             );
         $items = array_values($collection->getItems());
 
-        return array_filter($items, function($item) {
+        return array_filter($items, function ($item) {
             return $item['amount'] - (float)$item['refunded_amount'] > 0;
         });
     }
@@ -157,7 +157,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
 
     public function getGroupTransactionOriginalTransactionKey($order_id)
     {
-        if($order_id === null) {
+        if ($order_id === null) {
             return;
         }
         $collection = $this->grTrCollectionFactory->create();
@@ -169,11 +169,11 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
             ->addFieldToFilter(
                 'status',
                 ['eq' => '190']
-            )->setOrder('entity_id','DESC')
+            )->setOrder('entity_id', 'DESC')
             ->getFirstItem();
-            if (!$groupTransaction->isEmpty()) {
-                return $groupTransaction->getData('relatedtransaction');
-            }
+        if (!$groupTransaction->isEmpty()) {
+            return $groupTransaction->getData('relatedtransaction');
+        }
             return;
     }
 
@@ -186,7 +186,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return array_values($collection->getItems());
     }
 
-    
+
     public function getGroupTransactionById($entity_id)
     {
         $collection = $this->groupTransactionFactory->create()
@@ -211,7 +211,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
      */
     public function getActiveItemsWithName($orderId)
     {
-        if($orderId === null) {
+        if ($orderId === null) {
             return [];
         }
 

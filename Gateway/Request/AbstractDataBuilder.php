@@ -16,7 +16,8 @@ abstract class AbstractDataBuilder implements BuilderInterface
 
     public function initialize(array $buildSubject): array
     {
-        if (!isset($buildSubject['payment'])
+        if (
+            !isset($buildSubject['payment'])
             || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');

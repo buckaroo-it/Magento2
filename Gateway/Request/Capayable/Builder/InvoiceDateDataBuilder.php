@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
 
 use Magento\Payment\Gateway\Request\BuilderInterface;
+
 class InvoiceDateDataBuilder implements BuilderInterface
 {
     public function build(array $buildSubject): array
@@ -32,5 +33,4 @@ class InvoiceDateDataBuilder implements BuilderInterface
             'invoiceDate' => (new \DateTime())->format('Y-m-d')
         ];
     }
-   
 }

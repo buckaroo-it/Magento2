@@ -51,6 +51,4 @@ class PostNLAddressHandler extends AbstractAddressHandler
         // @codingStandardsIgnoreLine
         return $collection->setPageSize(1)->getFirstItem();
     }
-
-
 }

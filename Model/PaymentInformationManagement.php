@@ -1,4 +1,5 @@
 <?php
+
  /**
   * NOTICE OF LICENSE
   *
@@ -28,7 +29,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 class PaymentInformationManagement extends MagentoPaymentInformationManagement implements PaymentInformationManagementInterface
 // @codingStandardsIgnoreEnd
 {
-
     protected $registry = null;
     protected $logger = null;
 

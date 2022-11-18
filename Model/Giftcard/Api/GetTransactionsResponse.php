@@ -29,7 +29,6 @@ use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
 use Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
 
-
 class GetTransactionsResponse extends DataObject implements GetTransactionsResponseInterface
 {
     /**

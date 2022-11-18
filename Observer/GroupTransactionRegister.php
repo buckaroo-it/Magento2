@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
@@ -26,7 +28,6 @@ use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\Data;
-
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class GroupTransactionRegister implements ObserverInterface
@@ -71,7 +72,7 @@ class GroupTransactionRegister implements ObserverInterface
         if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
             return;
         }
-        
+
         $order = $invoice->getOrder();
 
         $items = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
@@ -79,13 +80,15 @@ class GroupTransactionRegister implements ObserverInterface
             $this->logger->addDebug(__METHOD__ . '|5|' . var_export([$order->getTotalPaid(), $item['amount']], true));
             $totalPaid = $order->getTotalPaid() + $item['amount'];
             $baseTotalPaid = $order->getBaseTotalPaid() + $item['amount'];
-            if (($totalPaid < $order->getGrandTotal())
+            if (
+                ($totalPaid < $order->getGrandTotal())
                 || ($this->helper->areEqualAmounts($totalPaid, $order->getGrandTotal()))
             ) {
                 $this->logger->addDebug(__METHOD__ . '|10|');
                 $order->setTotalPaid($totalPaid);
             }
-            if (($baseTotalPaid < $order->getBaseGrandTotal())
+            if (
+                ($baseTotalPaid < $order->getBaseGrandTotal())
                 || ($this->helper->areEqualAmounts($baseTotalPaid, $order->getBaseGrandTotal()))
             ) {
                 $this->logger->addDebug(__METHOD__ . '|15|');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Http\TransactionBuilder;
 
 use Magento\Framework\Data\Form\FormKey;
@@ -154,7 +156,7 @@ class RefundTest extends BaseTest
             ->setMethods(['setScope', 'getRouteUrl'])
             ->getMockForAbstractClass();
         $urlBuilderMock->expects($this->exactly($methodIsCalled))->method('setScope')->with(1)->willReturnSelf();
-        $urlBuilderMock->expects($this->exactly($methodIsCalled*2))
+        $urlBuilderMock->expects($this->exactly($methodIsCalled * 2))
             ->method('getRouteUrl')
             ->withConsecutive(['buckaroo/redirect/process'], [$generatedUrl . '?form_key=' . $formKey])
             ->willReturnOnConsecutiveCalls($generatedUrl, $generatedUrl . '?form_key=' . $formKey);

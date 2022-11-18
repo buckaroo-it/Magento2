@@ -43,7 +43,6 @@ use Buckaroo\Magento2\Gateway\Http\Client\TransactionPay;
 
 class Giftcard implements GiftcardInterface
 {
-
     /**
      * @var \Magento\Store\Api\Data\StoreInterface
      */
@@ -141,18 +140,17 @@ class Giftcard implements GiftcardInterface
      * @throws NoSuchEntityException
      */
     public function __construct(
-        ScopeConfigInterface    $scopeConfig,
-        Account                 $configProviderAccount,
-        UrlInterface            $urlBuilder,
-        FormKey                 $formKey,
-        Encryptor               $encryptor,
-        StoreManagerInterface   $storeManager,
-        SDKTransferFactory      $transferFactory,
-        ClientInterface         $clientInterface,
-        RequestInterface        $httpRequest,
+        ScopeConfigInterface $scopeConfig,
+        Account $configProviderAccount,
+        UrlInterface $urlBuilder,
+        FormKey $formKey,
+        Encryptor $encryptor,
+        StoreManagerInterface $storeManager,
+        SDKTransferFactory $transferFactory,
+        ClientInterface $clientInterface,
+        RequestInterface $httpRequest,
         PaymentGroupTransaction $groupTransaction
-    )
-    {
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
         $this->urlBuilder = $urlBuilder;
@@ -320,7 +318,9 @@ class Giftcard implements GiftcardInterface
     protected function getCurrency()
     {
         $currency = $this->quote->getCurrency();
-        if ($currency !== null) return $currency->getBaseCurrencyCode();
+        if ($currency !== null) {
+            return $currency->getBaseCurrencyCode();
+        }
     }
 
     /**

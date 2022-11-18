@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -24,7 +25,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Store\Model\Store;
-
 use Magento\Eav\Setup\EavSetup;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Eav\Model\Config;
@@ -561,7 +561,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         }
 
         $this->setCustomerIDIN($setup);
-        
+
         $this->setCustomerIsEighteenOrOlder($setup);
 
         $this->setProductIDIN($setup);

@@ -81,10 +81,10 @@ define(
                         const voucherCode = this.code();
                         let self = this;
                         $.ajax({
-                            url: url.build(`rest/default/V1/buckaroo/voucher/apply`),
+                            url: url.build(`rest / default / V1 / buckaroo / voucher / apply`),
                             type: 'POST',
                             dataType: 'json',
-                            showLoader: true, //use for display loader 
+                            showLoader: true, //use for display loader
                             data: { voucherCode: voucherCode }
                         }).done(function (data) {
                             self.code(null);
@@ -120,7 +120,7 @@ define(
                                 self.selectPaymentMethod();
                             }
                         });
-                    }
+                }
                 },
 
                 displayErrorModal: function (self, message) {

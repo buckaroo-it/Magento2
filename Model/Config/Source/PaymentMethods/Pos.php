@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -48,7 +49,8 @@ class Pos implements ArrayInterface
 
         $paymentMethodsList = $this->helper->getPaymentMethodsList();
         foreach ($paymentMethodsList as $key => $paymentMethod) {
-            if ($this->config->getConfigDataValue('payment/buckaroo_magento2_' . $paymentMethod['value'] . '/active')
+            if (
+                $this->config->getConfigDataValue('payment/buckaroo_magento2_' . $paymentMethod['value'] . '/active')
                 &&
                 ($paymentMethod['value'] != 'pospayment')
             ) {
