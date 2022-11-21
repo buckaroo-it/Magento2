@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Service\Applepay;
 
 use Magento\Framework\App\ObjectManager;
@@ -27,16 +29,20 @@ class Add
     private $cart;
 
     private $maskedQuoteIdToQuoteId;
+
+
     /**
      * @param CartRepositoryInterface $cartRepository
      * @param CartInterface $cart
      * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
      * @param ProductRepositoryInterface $productRepository
-     * @param BuyRequestBuilder $buyRequestBuilder
+     * @param BuyRequestBuilder $requestBuilder
      * @param ApplepayModel $applepayModel
-     * @param QuoteAddressFactory $quoteAddressFactory
+     * @param BaseQuoteAddressFactory $quoteAddressFactory
+     * @param ShippingAddressManagementInterface $shippingAddressManagement
+     * @param QuoteRepository|null $quoteRepository
+     * @param ShippingMethod $appleShippingMethod
      */
-
     public function __construct(
         CartRepositoryInterface $cartRepository,
         CartInterface $cart,
