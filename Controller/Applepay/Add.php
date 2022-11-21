@@ -73,15 +73,18 @@ class Add extends Common
     }
 
     /**
-     * @return Page
+     * @return \Magento\Framework\Controller\Result\Json
      */
     public function execute()
     {
-
         $data = $this->addService->process(
             $this->getRequest(),
             $this->context
         );
+
+        if (isset($data['errors'])) {
+            return $this->commonResponse($data, $data['errors']);
+        }
 
         return $this->commonResponse($data, false);
     }

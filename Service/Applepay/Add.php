@@ -113,7 +113,7 @@ class Add
         try {
             $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            return ['success' => 'false', 'error' => $e->getMessage()];
         }
         $this->quoteRepository->save($cart);
         $shippingMethodsResult = [];
@@ -135,13 +135,10 @@ class Add
             $totals['discount'] = round($cart->getSubtotalWithDiscount() - $cart->getSubtotal(), 2);
         }
 
-
-
-        $data = [
+        return [
             'shipping_methods' => $shippingMethodsResult,
             'totals' => $totals
         ];
-        return $data;
     }
     public function gatherTotals($address, $quoteTotals)
     {
