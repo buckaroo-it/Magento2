@@ -10,7 +10,7 @@ use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Eav\Model\Config;
 use Magento\Customer\Model\Customer;
 
-class UpgradeDataPatch implements DataPatchInterface
+class SetupModuleDataPatch implements DataPatchInterface
 {
     /**
      * @var ModuleDataSetupInterface
