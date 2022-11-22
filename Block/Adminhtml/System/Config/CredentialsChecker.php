@@ -42,6 +42,14 @@ class CredentialsChecker extends Field
         ])->toHtml();
     }
 
+    /**
+     * Return element html
+     *
+     * @param  AbstractElement $element
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function _getElementHtml(AbstractElement $element)
     {
         return $this->_toHtml();

@@ -68,7 +68,7 @@ class Add
         $this->appleShippingMethod = $appleShippingMethod;
     }
 
-    public function process($request, $context)
+    public function process($request)
     {
 
         $cart_hash = $request->getParam('id');

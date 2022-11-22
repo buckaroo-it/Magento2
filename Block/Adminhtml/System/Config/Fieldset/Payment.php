@@ -163,8 +163,12 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
+     * Check whether current payment method is enabled
+     *
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _isPaymentEnabled($element)
     {

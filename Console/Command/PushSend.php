@@ -47,8 +47,7 @@ class PushSend extends Command
         State $appState,
         AsyncClientInterface $asyncHttpClient,
         Account $configProviderAccount,
-        Encryptor $encryptor,
-        $name = null
+        Encryptor $encryptor
     ) {
         $this->appState = $appState;
         $this->asyncHttpClient = $asyncHttpClient;
@@ -64,6 +63,9 @@ class PushSend extends Command
         parent::configure();
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->appState->setAreaCode('global');

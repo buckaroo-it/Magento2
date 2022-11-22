@@ -104,7 +104,7 @@ class Idin extends Template
                     }
                     break;
                 case 2:
-                    foreach ($this->getProduct()->getCategoryIds() as $key => $cat) {
+                    foreach ($this->getProduct()->getCategoryIds() as $cat) {
                         if (in_array($cat, explode(',', (string)$this->idinConfigProvider->getIdinCategory()))) {
                             $result = true;
                         }

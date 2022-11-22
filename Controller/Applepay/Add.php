@@ -21,71 +21,61 @@
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
-use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Buckaroo\Magento2\Service\Applepay\Add as AddService;
+use Magento\Framework\App\Action\Context;
 
-class Add extends Common
+class Add implements HttpPostActionInterface
 {
-    protected $formKey;
-    protected $product;
-    protected $addService;
+    /**
+     * @var JsonFactory
+     */
+    protected $resultJsonFactory;
+    /**
+     * @var Context
+     */
     protected $context;
+    /**
+     * @var AddService|null
+     */
+    protected $addService;
 
     /**
-     * @param Context     $context
-     * @param PageFactory $resultPageFactory
+     * @param JsonFactory $resultJsonFactory
+     * @param Context $context
+     * @param AddService|null $addService
      */
     public function __construct(
+        JsonFactory $resultJsonFactory,
         Context $context,
-        PageFactory $resultPageFactory,
-        \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        Log $logger,
-        AddService $addService = null,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Framework\Data\Form\FormKey $formKey,
-        \Magento\Catalog\Model\Product $product,
-        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
-        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
-        CustomerSession $customerSession = null
+        AddService $addService = null
     ) {
-        parent::__construct(
-            $context,
-            $resultPageFactory,
-            $inlineParser,
-            $resultJsonFactory,
-            $logger,
-            $cart,
-            $totalsCollector,
-            $converter,
-            $customerSession
-        );
-
-        $this->formKey = $formKey;
-        $this->product = $product;
-        $this->addService = $addService;
+        $this->resultJsonFactory = $resultJsonFactory;
         $this->context = $context;
+        $this->addService = $addService;
     }
 
     /**
-     * @return \Magento\Framework\Controller\Result\Json
+     * Add Applepay
+     *
+     * @return Json
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
-        $data = $this->addService->process(
-            $this->getRequest(),
-            $this->context
-        );
+        $data = $this->addService->process($this->context->getRequest());
 
-        if (isset($data['errors'])) {
-            return $this->commonResponse($data, $data['errors']);
+        $errorMessage = $data['error'] ?? null;
+        if ($errorMessage || empty($data)) {
+            $response = ['success' => 'false', 'error' => $errorMessage];
+        } else {
+            $response = ['success' => 'true', 'data' => $data];
         }
 
-        return $this->commonResponse($data, false);
+        $resultJson = $this->resultJsonFactory->create();
+        return $resultJson->setData($response);
     }
 }

@@ -72,6 +72,8 @@ class Toolbar
      * @param AbstractBlock  $context
      * @param ButtonList     $buttonList
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforePushButtons(
         ToolbarContext $toolbar,
@@ -83,17 +85,6 @@ class Toolbar
         }
 
         return [$context, $buttonList];
-    }
-
-    /**
-     * @param $context
-     * @return bool
-     */
-    private function _isOrderView($context)
-    {
-        if ($context instanceof \Magento\Sales\Block\Adminhtml\Order\View) {
-            return true;
-        }
     }
 
     /**
