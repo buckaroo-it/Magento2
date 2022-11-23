@@ -31,8 +31,9 @@ class AddressDataBuilder extends AbstractDataBuilder
 
     /**
      * @param $street
-     *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getAddressData($street)
     {

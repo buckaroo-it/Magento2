@@ -21,6 +21,11 @@ class PushUrlDataBuilder implements BuilderInterface
         $this->urlBuilder = $urlBuilder;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function build(array $buildSubject): array
     {
         return [

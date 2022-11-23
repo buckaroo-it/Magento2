@@ -9,6 +9,9 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
 use Magento\Payment\Model\InfoInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
+ */
 abstract class AbstractDataBuilder implements BuilderInterface
 {
     protected Order $order;

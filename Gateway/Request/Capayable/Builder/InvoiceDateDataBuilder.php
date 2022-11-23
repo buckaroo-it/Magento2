@@ -27,6 +27,11 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class InvoiceDateDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function build(array $buildSubject): array
     {
         return [

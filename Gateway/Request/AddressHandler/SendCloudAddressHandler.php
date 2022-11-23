@@ -21,6 +21,13 @@ class SendCloudAddressHandler extends AbstractAddressHandler
         return $order;
     }
 
+    /**
+     * @param $order
+     * @param $requestData
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     protected function updateShippingAddressBySendcloud($order, &$requestData)
     {
         if ($order->getSendcloudServicePointId() > 0) {

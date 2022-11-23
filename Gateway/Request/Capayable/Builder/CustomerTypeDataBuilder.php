@@ -27,6 +27,11 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class CustomerTypeDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function build(array $buildSubject): array
     {
         return [

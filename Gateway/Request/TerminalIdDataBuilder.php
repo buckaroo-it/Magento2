@@ -16,6 +16,11 @@ class TerminalIdDataBuilder implements BuilderInterface
         $this->cookieManager = $cookieManager;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function build(array $buildSubject): array
     {
         return ['terminalID' => $this->getPosPaymentTerminalId()];

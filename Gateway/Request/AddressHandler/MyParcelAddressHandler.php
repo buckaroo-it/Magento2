@@ -17,6 +17,9 @@ class MyParcelAddressHandler extends AbstractAddressHandler
         parent::__construct($buckarooLogger);
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         $this->buckarooLogger->addDebug(__METHOD__ . '|1|');

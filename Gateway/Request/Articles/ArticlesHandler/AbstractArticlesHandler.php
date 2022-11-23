@@ -21,6 +21,9 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 {
     const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
@@ -141,6 +144,14 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         return $articles;
     }
 
+
+    /**
+     * @param Order $order
+     * @param InfoInterface $payment
+     * @return array|\array[][]
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function getCreditMemoArticlesData(Order $order, \Magento\Payment\Model\InfoInterface $payment): array
     {
         if ($this->payReminderService->isPayRemainder($order)) {

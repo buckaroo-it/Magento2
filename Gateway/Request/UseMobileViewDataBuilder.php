@@ -6,6 +6,11 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class UseMobileViewDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function build(array $buildSubject)
     {
         return ['useMobileView' => $this->isMobile()];
