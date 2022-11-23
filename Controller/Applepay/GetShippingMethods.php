@@ -35,6 +35,9 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class GetShippingMethods extends Common
 {
     /**

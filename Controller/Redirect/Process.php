@@ -30,6 +30,9 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Process extends \Magento\Framework\App\Action\Action
 {
     /**
@@ -122,6 +125,8 @@ class Process extends \Magento\Framework\App\Action\Action
      * @param \Buckaroo\Magento2\Model\OrderStatusFactory              $orderStatusFactory
      *
      * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -185,6 +190,9 @@ class Process extends \Magento\Framework\App\Action\Action
      *
      * @return \Magento\Framework\App\ResponseInterface
      * @throws \Exception
+     *
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function execute()
     {
@@ -501,7 +509,7 @@ class Process extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * @return bool
+     * @return \Magento\Sales\Model\Order\Payment
      * @throws \Buckaroo\Magento2\Exception
      */
     private function getOrderByTransactionKey()
@@ -618,7 +626,7 @@ class Process extends \Magento\Framework\App\Action\Action
                             $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
                         }
                     }
-                    $this->setSkipHandleFailedRecreate(false);
+                    $this->setSkipHandleFailedRecreate();
                 } catch (\Exception $e) {
                     $this->logger->addError('Could not load customer');
                 }
@@ -637,7 +645,6 @@ class Process extends \Magento\Framework\App\Action\Action
 
     protected function redirectToCheckout()
     {
-        $store = $this->order->getStore();
         $this->logger->addDebug('start redirectToCheckout');
         if (!$this->customerSession->isLoggedIn()) {
             $this->logger->addDebug('not isLoggedIn');
@@ -692,7 +699,7 @@ class Process extends \Magento\Framework\App\Action\Action
         return false;
     }
 
-    public function setSkipHandleFailedRecreate($value)
+    public function setSkipHandleFailedRecreate()
     {
         return true;
     }

@@ -23,13 +23,11 @@ namespace Buckaroo\Magento2\Controller\Pos;
 
 use Buckaroo\Magento2\Logging\Log;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class CheckOrderStatus extends \Magento\Framework\App\Action\Action
 {
-    /**
-     * @var array
-     */
-    protected $response;
-
     /**
      * @var Log
      */

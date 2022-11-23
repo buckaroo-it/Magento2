@@ -35,6 +35,9 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 {
     /** @var null|Transaction */
@@ -46,6 +49,33 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /** @var TransactionRepositoryInterface */
     protected $transactionRepository;
 
+    /**
+     * @param Context $context
+     * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param \Magento\Checkout\Model\Cart $cart
+     * @param \Magento\Sales\Model\Order $order
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param TransactionInterface $transaction
+     * @param Log $logger
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+     * @param \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Magento\Customer\Model\Session $customerSession
+     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
+     * @param \Magento\Customer\Model\SessionFactory $sessionFactory
+     * @param \Magento\Customer\Model\Customer $customerModel
+     * @param \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory
+     * @param OrderService $orderService
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param \Magento\Framework\Event\ManagerInterface $eventManager
+     * @param \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate
+     * @param RequestPushFactory $requestPushFactory
+     * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Buckaroo\Magento2\Helper\Data $helper,

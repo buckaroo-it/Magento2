@@ -35,6 +35,9 @@ use Magento\Quote\Model\Quote\TotalsCollector;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class SaveOrder extends Common
 {
     /**
@@ -83,6 +86,10 @@ class SaveOrder extends Common
      * @param ShippingMethodConverter $converter
      * @param CustomerSession|null $customerSession
      * @throws Exception
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __construct(
         Context                 $context,
