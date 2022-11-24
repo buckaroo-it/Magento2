@@ -52,6 +52,7 @@ class QuoteCheck
         ManagerInterface $messageManager
     ) {
         $this->quote           = $checkoutSession->getQuote();
+        $this->groupTransaction = $groupTransaction;
         $this->_messageManager = $messageManager;
     }
 
