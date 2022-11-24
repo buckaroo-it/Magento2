@@ -18,6 +18,9 @@ use Psr\Log\LoggerInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Framework\App\State;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 {
     public const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
@@ -98,6 +101,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param CommandManagerInterface|null $commandExecutor
      * @param LoggerInterface|null $logger
      * @param bool $usesRedirect
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ManagerInterface $eventManager,
@@ -259,11 +264,13 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         return $allowedCurrenciesRaw === null || in_array($currentCurrency, $allowedCurrencies);
     }
 
-    /**s
+    /**
      * @param OrderPaymentInterface|InfoInterface $payment
      * @param PushRequestInterface $postData
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function canProcessPostData($payment, PushRequestInterface $postData)
     {
@@ -338,6 +345,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param PushRequestInterface $responseData
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function canPushInvoice(PushRequestInterface $responseData): bool
     {
@@ -347,7 +356,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 
         return true;
     }
-
 
     /**
      * @return string

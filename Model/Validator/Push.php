@@ -171,6 +171,8 @@ class Push implements ValidatorInterface
      * @param string $brq_value
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function decodePushValue($brq_key, $brq_value)
     {

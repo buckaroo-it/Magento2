@@ -425,7 +425,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
      *
      * @dataProvider processPendingPaymentPushDataProvider
      */
-    public function testProcessPendingPaymentPush($state)
+    public function testProcessPendingPaymentPush()
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
@@ -457,7 +457,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance();
         $instance->order = $orderMock;
 
-        $result = $instance->processPendingPaymentPush($status, $message);
+        $result = $instance->processPendingPaymentPush($message);
 
         $this->assertTrue($result);
     }

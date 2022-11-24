@@ -45,6 +45,8 @@ class Push
      * @param boolean                  $result
      *
      * @return boolean
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function afterProcessSucceededPush(
         \Buckaroo\Magento2\Model\Push $push,

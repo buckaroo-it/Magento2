@@ -38,6 +38,9 @@ use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardException;
 use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ApplyVoucherRequest implements ApplyVoucherRequestInterface
 {
     /**

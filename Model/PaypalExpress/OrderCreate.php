@@ -36,6 +36,9 @@ use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class OrderCreate implements PaypalExpressOrderCreateInterface
 {
     /**

@@ -62,6 +62,8 @@ class OrderStatusFactory
      * @param \Magento\Sales\Model\Order $order
      *
      * @return string|false|null
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function get($statusCode, $order)
     {
