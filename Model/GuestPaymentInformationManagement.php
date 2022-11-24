@@ -25,6 +25,9 @@ use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaym
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 // @codingStandardsIgnoreStart
 class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
 // @codingStandardsIgnoreEnd
@@ -55,6 +58,8 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      * @param \Magento\Sales\Api\OrderRepositoryInterface                 $orderRepository
      *
      * @codeCoverageIgnore
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         \Magento\Quote\Api\GuestBillingAddressManagementInterface $billingAddressManagement,
