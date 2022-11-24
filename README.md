@@ -68,9 +68,9 @@ You will find all the necessary information there. But if you still have some un
 
 The Buckaroo Magento 2 plugin can be extended with the following modules:
 
-| Second chance module             | Google Analytics module  |
-:-------------------------:|:-------------------------:
-[<img src="https://www.buckaroo.nl/media/3479/magento2_secondchance_icon.png" alt="Second-chance" width="200"/>](/v1/docs/second-chance-module)|  [<img src="https://www.buckaroo.nl/media/3478/magento2_googleanalytics_icon.png" alt="Google-analytics" width="200"/>](/v1/docs/google-analytics-module)|
+| Second chance module | Google Analytics module | Hyvä React checkout module |
+:-------------------------:|:-------------------------:|:-------------------------:|
+[<img src="https://www.buckaroo.nl/media/3479/magento2_secondchance_icon.png" alt="Second-chance" width="200"/>](/v1/docs/second-chance-module)|  [<img src="https://www.buckaroo.nl/media/3478/magento2_googleanalytics_icon.png" alt="Google-analytics" width="200"/>](/v1/docs/google-analytics-module)| [<img src="https://www.buckaroo.nl/media/3577/magento2_hyva_icon.png" alt="Hyva" width="200"/>](https://github.com/buckaroo-it/Magento2_Hyva) |
 
 ### Contribute
 
