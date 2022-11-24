@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Plugin;
 
+use Magento\Quote\Model\Quote;
 use Magento\Framework\Exception\CouldNotSaveException;
 
 // @codingStandardsIgnoreStart
@@ -30,7 +31,7 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
         public function updateItemQty($cartId, $itemId, $itemQty)
         {
             $quote = $this->checkoutSession->getQuote();
-            if ($quote->getBaseBuckarooAlreadyPaid() > 0) {
+            if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
                 throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
             }
 
@@ -39,11 +40,25 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
 
         public function removeItemById($cartId, $itemId)
         {
-            $quote = $this->checkoutSession->getQuote();
-            if ($quote->getBaseBuckarooAlreadyPaid() > 0) {
+            if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
                 throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
             }
             return parent::removeItemById($cartId, $itemId);
+        }
+
+        /**
+         * Get quote already payed amount
+         *
+         * @param Magento\Quote\Model\Quote $quote
+         *
+         * @return float
+         */
+        private function getAlreadyPaid(Quote $quote)
+        {
+            $groupTransaction = \Magento\Framework\App\ObjectManager::getInstance()
+            ->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+
+            return $groupTransaction->getAlreadyPaid($quote->getReservedOrderId());
         }
     }
 
