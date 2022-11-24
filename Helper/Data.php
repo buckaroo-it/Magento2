@@ -36,6 +36,9 @@ use Magento\Customer\Model\Session;
 use Magento\Customer\Model\Group;
 use Magento\Framework\App\Area;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Data extends AbstractHelper
 {
     const MODE_INACTIVE = 0;
@@ -113,6 +116,8 @@ class Data extends AbstractHelper
      * @param Context $context
      * @param Account $configProviderAccount
      * @param Factory $configProviderMethodFactory
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Context $context,
@@ -274,7 +279,7 @@ class Data extends AbstractHelper
 
     public function isGroupTransaction()
     {
-        if ($this->groupTransaction->isGroupTransaction($orderId = $this->getOrderId())) {
+        if ($this->groupTransaction->isGroupTransaction($this->getOrderId())) {
             return true;
         }
         return false;
@@ -318,9 +323,12 @@ class Data extends AbstractHelper
     }
 
     /**
-     * try to fetch customer details for PPE method in admin area
+     * Try to fetch customer details for PPE method in admin area
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     //phpcs:ignore:Generic.Metrics.NestingLevel
     public function getPPeCustomerDetails()
@@ -455,6 +463,15 @@ class Data extends AbstractHelper
         ];
     }
 
+    /**
+     * @param string $paymentMethod
+     * @param bool $forceB2C
+     * @return bool
+     * @throws \Buckaroo\Magento2\Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function checkCustomerGroup(string $paymentMethod, bool $forceB2C = false): bool
     {
         if ($this->isBuckarooMethod($paymentMethod)) {
@@ -470,7 +487,7 @@ class Data extends AbstractHelper
                         && ($configProvider->getBusiness() == Business::BUSINESS_B2B)
                     )
                     || (
-                        ($paymentMethodCode == 'payperemail') && ($configProvider->getEnabledB2B())
+                        ($paymentMethodCode == 'payperemail') && ($configProvider->isEnabledB2B())
                     )
                 )
             ) {

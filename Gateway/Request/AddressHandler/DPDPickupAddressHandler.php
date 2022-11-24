@@ -19,6 +19,14 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
         parent::__construct($buckarooLogger);
     }
 
+    /**
+     * @param Order $order
+     * @param OrderAddressInterface $shippingAddress
+     * @return Order
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         if ($order->getShippingMethod() == 'dpdpickup_dpdpickup') {

@@ -34,6 +34,9 @@ use Magento\Framework\Filesystem\Io\File;
 use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
 use Buckaroo\Magento2\Model\CertificateFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Certificate extends \Magento\Framework\App\Config\Value
 {
     /**

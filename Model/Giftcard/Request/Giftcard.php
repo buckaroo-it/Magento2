@@ -41,6 +41,9 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPay;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Giftcard implements GiftcardInterface
 {
     /**
@@ -138,6 +141,8 @@ class Giftcard implements GiftcardInterface
      * @param RequestInterface $httpRequest
      * @param PaymentGroupTransaction $groupTransaction
      * @throws NoSuchEntityException
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,

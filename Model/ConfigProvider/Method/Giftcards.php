@@ -58,7 +58,9 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
-     * @return array
+     * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getConfig()
     {

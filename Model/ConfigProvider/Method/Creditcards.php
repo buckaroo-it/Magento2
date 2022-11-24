@@ -188,7 +188,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get Active Status Cm3
      */
-    public function getActiveStatusCm3($store = null)
+    public function getActiveStatusCm3()
     {
         return null;
     }

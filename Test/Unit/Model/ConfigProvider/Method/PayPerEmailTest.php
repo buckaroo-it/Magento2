@@ -133,7 +133,7 @@ class PayPerEmailTest extends BaseTest
      *
      * @dataProvider getSendMailProvider
      */
-    public function testGetSendMail($option, $expected)
+    public function testHasSendMail($option, $expected)
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
@@ -142,7 +142,7 @@ class PayPerEmailTest extends BaseTest
             ->willReturn($option);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getSendMail();
+        $result = $instance->hasSendMail();
 
         $this->assertEquals($expected, $result);
     }

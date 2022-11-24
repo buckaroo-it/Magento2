@@ -23,6 +23,11 @@ class ActiveAccountValidator extends AbstractValidator
         parent::__construct($resultFactory);
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function validate(array $validationSubject)
     {
         $isValid = true;

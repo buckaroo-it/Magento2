@@ -4,23 +4,32 @@ namespace Buckaroo\Magento2\Model;
 
 class Applepay
 {
+    /**
+     * Process Address From Wallet
+     *
+     * @param array $wallet
+     * @param string $type
+     * @return array
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
     public function processAddressFromWallet($wallet, $type = 'shipping')
     {
         $address = [
             'prefix' => '',
-            'firstname' => isset($wallet['givenName']) ? $wallet['givenName'] : '',
+            'firstname' => $wallet['givenName'] ?? '',
             'middlename' => '',
-            'lastname' => isset($wallet['familyName']) ? $wallet['familyName'] : '',
+            'lastname' => $wallet['familyName'] ?? '',
             'street' => [
-                '0' => isset($wallet['addressLines'][0]) ? $wallet['addressLines'][0] : '',
-                '1' => isset($wallet['addressLines'][1]) ? $wallet['addressLines'][1] : null
+                '0' => $wallet['addressLines'][0] ?? '',
+                '1' => $wallet['addressLines'][1] ?? null
             ],
-            'city' => isset($wallet['locality']) ? $wallet['locality'] : '',
+            'city' => $wallet['locality'] ?? '',
             'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
-            'region' => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : '',
+            'region' => $wallet['administrativeArea'] ?? '',
             'region_id' => '',
-            'postcode' => isset($wallet['postalCode']) ? $wallet['postalCode'] : '',
-            'telephone' => isset($wallet['phoneNumber']) ? $wallet['phoneNumber'] : 'N/A',
+            'postcode' => $wallet['postalCode'] ?? '',
+            'telephone' => $wallet['phoneNumber'] ?? 'N/A',
             'fax' => '',
             'vat_id' => ''
         ];
@@ -28,7 +37,7 @@ class Applepay
         //made it one line
         $address['street'] = implode("\n", $address['street']);
         if ($type == 'shipping') {
-            $address['email'] = isset($wallet['emailAddress']) ? $wallet['emailAddress'] : '';
+            $address['email'] = $wallet['emailAddress'] ?? '';
         }
 
         return $address;

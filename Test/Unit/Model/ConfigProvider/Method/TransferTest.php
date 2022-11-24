@@ -120,7 +120,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
      *
      * @dataProvider getSendMailProvider
      */
-    public function testGetSendMail($value, $expected)
+    public function testHasSendMail($value, $expected)
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())

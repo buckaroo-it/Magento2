@@ -27,7 +27,7 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
         $payment = $this->getPayment();
 
         $data = [
-            'merchantSendsEmail' => !$this->payPerEmailConfig->getSendMail(),
+            'merchantSendsEmail' => !$this->payPerEmailConfig->hasSendMail(),
             'email' => $payment->getAdditionalInformation('customer_email'),
             'paymentMethodsAllowed' => $this->getPaymentMethodsAllowed($this->payPerEmailConfig, $storeId),
             'attachment' => '',

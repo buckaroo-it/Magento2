@@ -46,6 +46,8 @@ class ResponseCodeSDKValidator extends AbstractValidator
      *
      * @param array $validationSubject
      * @return ResultInterface
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function validate(array $validationSubject)
     {
@@ -131,9 +133,5 @@ class ResponseCodeSDKValidator extends AbstractValidator
         }
 
         return $statusCode;
-    }
-
-    private function getErrorMessage()
-    {
     }
 }

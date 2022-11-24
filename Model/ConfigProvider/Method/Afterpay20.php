@@ -67,7 +67,7 @@ class Afterpay20 extends AbstractConfigProvider
      * @param null|int|string $storeId
      * @return bool
      */
-    public function getCreateInvoiceAfterShipment($storeId = null): bool
+    public function isInvoiceCreatedAfterShipment($storeId = null): bool
     {
         $createInvoiceAfterShipment = (bool)$this->scopeConfig->getValue(
             static::XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP,

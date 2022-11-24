@@ -74,6 +74,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @param  \Magento\Framework\DataObject $dataObject
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getTotals($dataObject)
     {
@@ -161,6 +163,14 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
         $this->buckarooFeeTax = $dataObject->getBuckarooFeeTaxAmount();
         return $totals;
     }
+
+    /**
+     * @param $dataObject
+     * @param $totals
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function addAlreadyPayedTotals($dataObject, &$totals)
     {
         $order_id = $this->getOrderIncrementId($dataObject);
@@ -189,7 +199,7 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                     $giftcards[$transaction[1]] = $value;
                 }
             }
-            foreach ($items as $key => $giftcard) {
+            foreach ($items as $giftcard) {
                 $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
                     'servicecode',
                     $giftcard['servicecode']

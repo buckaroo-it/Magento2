@@ -32,6 +32,7 @@ use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class Process extends \Magento\Framework\App\Action\Action
 {
@@ -193,6 +194,8 @@ class Process extends \Magento\Framework\App\Action\Action
      *
      *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function execute()
     {

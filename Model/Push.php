@@ -357,7 +357,7 @@ class Push implements PushInterface
                 $config = $this->configProviderMethodFactory->get(
                     PayPerEmail::CODE
                 );
-                if ($config->getEnabledB2B()) {
+                if ($config->isEnabledB2B()) {
                     $this->logging->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
                     if ($this->order->getState() === Order::STATE_COMPLETE) {
                         $this->order->setState(Order::STATE_PROCESSING);
@@ -1191,12 +1191,12 @@ class Push implements PushInterface
                     $this->pushRequst->hasPostData('transaction_method', 'KlarnaKp') &&
                     $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'pay') &&
                     empty($this->pushRequst->getServiceKlarnakpReservationnumber()) &&
-                    $this->klarnakpConfig->getCreateInvoiceAfterShipment()
+                    $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
                 ) ||
                 (
                     $this->pushRequst->hasPostData('transaction_method', 'afterpay') &&
                     $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'capture') &&
-                    $this->afterpayConfig->getCreateInvoiceAfterShipment()
+                    $this->afterpayConfig->isInvoiceCreatedAfterShipment()
                 )
             ) {
                 $this->logging->addDebug(__METHOD__ . '|5_1|');
@@ -1694,7 +1694,7 @@ class Push implements PushInterface
         ) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
-            if ($config->getEnabledB2B()) {
+            if ($config->isEnabledB2B()) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
                 return true;
             }
@@ -1710,7 +1710,7 @@ class Push implements PushInterface
         ) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
-            if (!$config->getEnabledB2B()) {
+            if (!$config->isEnabledB2B()) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
                 return true;
             }

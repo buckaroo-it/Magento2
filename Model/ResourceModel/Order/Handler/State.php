@@ -29,7 +29,7 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
             $config = $this->configProviderMethodFactory->get(
                 \Buckaroo\Magento2\Model\ConfigProvider\Method\Payperemail::CODE
             );
-            if ($config->getEnabledB2B()) {
+            if ($config->isEnabledB2B()) {
                 if ($order->getState() == Order::STATE_PROCESSING) {
                     if ($order->getInvoiceCollection() && $order->getInvoiceCollection()->getFirstItem()) {
                         if ($order->getInvoiceCollection()->getFirstItem()->getState() == 1) {

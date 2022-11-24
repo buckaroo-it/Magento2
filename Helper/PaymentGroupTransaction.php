@@ -147,7 +147,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     public function getGroupTransactionAmount($order_id)
     {
         $total = 0;
-        foreach ($this->getGroupTransactionItems($order_id) as $key => $value) {
+        foreach ($this->getGroupTransactionItems($order_id) as $value) {
             if ($value['status'] == '190') {
                 $total += $value['amount'] - (float)$value['refunded_amount'];
             }

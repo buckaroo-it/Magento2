@@ -29,6 +29,9 @@ use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstrac
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Store\Model\ScopeInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
+ */
 abstract class AbstractConfigProvider extends BaseAbstractConfigProvider implements
     CheckoutConfigProvider,
     ConfigProviderInterface
