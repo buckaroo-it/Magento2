@@ -66,10 +66,11 @@ class CommandInterface
      * @param MagentoCommandInterface $commandInterface
      * @param \Closure                $proceed
      * @param OrderPaymentInterface   $payment
-     * @param                         $amount
      * @param OrderInterface          $order
      *
      * @return mixed
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundExecute(
         MagentoCommandInterface $commandInterface,

@@ -41,6 +41,15 @@ class PluginBefore
         $this->urlBuilder                  = $urlBuilder;
     }
 
+    /**
+     * @param \Magento\Backend\Block\Widget\Button\Toolbar $subject
+     * @param \Magento\Framework\View\Element\AbstractBlock $context
+     * @param \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+     * @return void
+     * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforePushButtons(
         \Magento\Backend\Block\Widget\Button\Toolbar $subject,
         \Magento\Framework\View\Element\AbstractBlock $context,

@@ -49,6 +49,15 @@ class ShippingMethodManagement
         $this->quoteRepository = $quoteRepository;
     }
 
+    /**
+     * @param $cartId
+     * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function beforeGet($cartId)
     {
         if (($lastRealOrder = $this->checkoutSession->getLastRealOrder())
@@ -62,7 +71,7 @@ class ShippingMethodManagement
 
             $this->helper->addDebug(__METHOD__ . '|1|');
             if ($this->accountConfig->getCartKeepAlive($order->getStore())
-                && $this->isNeedRecreate($order->getStore())
+                && $this->isNeedRecreate()
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
                 if ($this->checkoutSession->getQuote()
@@ -83,7 +92,7 @@ class ShippingMethodManagement
         }
     }
 
-    public function isNeedRecreate($store)
+    public function isNeedRecreate()
     {
         return false;
     }

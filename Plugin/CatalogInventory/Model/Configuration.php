@@ -14,6 +14,13 @@ class Configuration
         $this->buckarooSession = $buckarooSession;
     }
 
+    /**
+     * @param $subject
+     * @param $result
+     * @return false|mixed
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function afterCanSubtractQty($subject, $result)
     {
         $flag = $this->buckarooSession->getData('flagHandleFailedQuote');

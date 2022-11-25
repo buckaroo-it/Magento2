@@ -52,6 +52,8 @@ class CreditmemoExtensionAttribute
      * @param CreditmemoInterface           $creditmemo
      *
      * @return CreditmemoInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGet(CreditmemoRepositoryInterface $subject, CreditmemoInterface $creditmemo)
     {

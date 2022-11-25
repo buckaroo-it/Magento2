@@ -32,6 +32,8 @@ class TotalsCollector
      * @param Quote                                      $quote
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforeCollect(
         \Magento\Quote\Model\Quote\TotalsCollector $subject,

@@ -51,6 +51,15 @@ class FixSession
         $this->sessionManager = $sessionManager;
     }
 
+    /**
+     * @param PhpCookieManager $subject
+     * @param $name
+     * @param $value
+     * @param PublicCookieMetadata|null $metadata
+     * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforeSetPublicCookie(
         PhpCookieManager $subject,
         $name,

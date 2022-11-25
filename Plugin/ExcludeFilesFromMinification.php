@@ -25,6 +25,14 @@ use Magento\Framework\View\Asset\Minification;
 
 class ExcludeFilesFromMinification
 {
+    /**
+     * @param Minification $subject
+     * @param callable $proceed
+     * @param $contentType
+     * @return mixed
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function aroundGetExcludes(Minification $subject, callable $proceed, $contentType)
     {
         $result = $proceed($contentType);

@@ -26,6 +26,15 @@ use Magento\Quote\Api\Data\AddressInterface;
 
 class PaymentMethodManagement
 {
+    /**
+     * @param $subject
+     * @param $cartId
+     * @param PaymentInterface $paymentMethod
+     * @param AddressInterface|null $billingAddress
+     * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforeSavePaymentInformation(
         $subject,
         $cartId,
