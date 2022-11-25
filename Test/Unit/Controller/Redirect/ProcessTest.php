@@ -38,7 +38,7 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Checkout\Model\Cart;
 
 /**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ProcessTest extends BaseTest
 {

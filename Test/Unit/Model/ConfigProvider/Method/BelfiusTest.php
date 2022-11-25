@@ -55,6 +55,8 @@ class BelfiusTest extends BaseTest
      *
      * @covers ::getConfig
      * @dataProvider getConfigProvider
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function testGetConfig($active, $expected)
     {

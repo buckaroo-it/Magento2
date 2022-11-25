@@ -36,7 +36,7 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Push;
 
 /**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
