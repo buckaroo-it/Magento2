@@ -378,10 +378,6 @@
                     <item name="type" xsi:type="string">public_key</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\PublicKey</item>
                 </item>
-                <item name="predefined" xsi:type="array">
-                    <item name="type" xsi:type="string">predefined</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Predefined</item>
-                </item>
                 <item name="states" xsi:type="array">
                     <item name="type" xsi:type="string">states</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\States</item>
@@ -471,7 +467,6 @@
             <argument name="configProviders" xsi:type="array">
                 <item name="buckaroo_magento2_configprovider_account" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Account</item>
                 <item name="buckaroo_magento2_configprovider_buckaroofee" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee</item>
-                <item name="buckaroo_magento2_configprovider_predefined" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Predefined</item>
                 <item name="buckaroo_magento2_configprovider_privatekey" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Privatekey</item>
                 <item name="buckaroo_magento2_configprovider_publickey" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Publickey</item>
                 <item name="buckaroo_magento2_configprovider_refund" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Refund</item>

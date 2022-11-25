@@ -32,7 +32,6 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
     {
         $data = [
             'title' => $this->getFirstname(),
-            'gender' => $this->getGender(),
             'initials' => $this->getInitials(),
             'lastName' => $this->getLastName(),
             'birthDate' => $this->getBirthDate(),
