@@ -65,6 +65,8 @@ class Certificate extends \Magento\Framework\App\Config\Value
      * @param AbstractResource                          $resource
      * @param AbstractDb                                $resourceCollection
      * @param array                                     $data
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Context $context,

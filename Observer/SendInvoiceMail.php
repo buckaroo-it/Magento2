@@ -65,6 +65,8 @@ class SendInvoiceMail implements ObserverInterface
     /**
      * @param Observer $observer
      * @throws LocalizedException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute(Observer $observer)
     {

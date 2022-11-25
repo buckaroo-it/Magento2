@@ -31,6 +31,9 @@ use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
 {
     const QUOTE_TYPE = 'buckaroo_fee';

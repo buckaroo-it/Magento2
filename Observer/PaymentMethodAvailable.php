@@ -41,6 +41,8 @@ class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterfa
     /**
      * @param \Magento\Framework\Event\Observer $observer
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute(Observer $observer)
     {

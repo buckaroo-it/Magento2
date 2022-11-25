@@ -270,7 +270,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      *
      * @return bool
      *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function canProcessPostData($payment, PushRequestInterface $postData)
     {
@@ -346,7 +346,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      *
      * @return bool
      *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function canPushInvoice(PushRequestInterface $responseData): bool
     {

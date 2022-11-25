@@ -625,6 +625,8 @@ class Push implements PushInterface
 
     /**
      * @return bool|string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getTransactionType()
     {
@@ -742,7 +744,7 @@ class Push implements PushInterface
             case 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER':
             case 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING':
             case 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT':
-                $this->processPendingPaymentPush($response['message']);
+                $this->processPendingPaymentPush();
                 break;
         }
     }
@@ -1120,9 +1122,9 @@ class Push implements PushInterface
      *
      * @return bool
      *
-     * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
-     * @SuppressWarnings(PHPMD.TooManyFields)
-     * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function processSucceededPush($newStatus, $message)
     {
@@ -1335,11 +1337,10 @@ class Push implements PushInterface
 
     /**
      * @param $newStatus
-     * @param $message
      *
      * @return bool
      */
-    public function processPendingPaymentPush($message)
+    public function processPendingPaymentPush()
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
 

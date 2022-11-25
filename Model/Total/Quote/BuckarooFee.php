@@ -146,7 +146,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
             return $this;
         }
 
-        $basePaymentFeeOLD = $this->getBaseFee($methodInstance, $quote);
         $basePaymentFee = $total->getBaseBuckarooFeeInclTax() - $total->getBuckarooFeeBaseTaxAmount();
 
         if ($basePaymentFee < 0.01) {
@@ -218,6 +217,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      *
      * @return bool|false|float
      * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getBaseFee(
         \Magento\Payment\Model\MethodInterface $methodInstance,

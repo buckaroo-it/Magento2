@@ -46,11 +46,6 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      */
     protected $unserialize;
 
-    /**
-     * @var \Magento\Framework\Serialize\Serializer\Json
-     */
-    private $serializer;
-
     protected $logger;
 
     /**
@@ -106,6 +101,8 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      * @param array $data
      * @param Order|Invoice $salesModel
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function initBuckarooFeeData($creditmemo, $data, $salesModel)
     {
