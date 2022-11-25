@@ -23,6 +23,9 @@ namespace Buckaroo\Magento2\Test;
 
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 
+/**
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
+ */
 abstract class BaseTest extends TestCaseFinder
 {
     /**

@@ -276,6 +276,8 @@ class CreateCombinedInvoice
      * @param $street
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getCmAddress($street)
     {

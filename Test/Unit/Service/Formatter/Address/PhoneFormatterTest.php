@@ -30,6 +30,8 @@ class PhoneFormatterTest extends BaseTest
 
     /**
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function formatProvider()
     {

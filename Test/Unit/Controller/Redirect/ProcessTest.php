@@ -37,6 +37,9 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
 use Magento\Checkout\Model\Cart;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects
+ */
 class ProcessTest extends BaseTest
 {
     protected $instanceClass = Process::class;
@@ -152,7 +155,7 @@ class ProcessTest extends BaseTest
         $transactionMock->expects($this->once())->method('load')->with(null, 'txn_id');
         $transactionMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
 
-        $instance = $this->getInstance([
+        $this->getInstance([
             'context' => $contextMock,
             'configProviderFactory' => $configProviderFactoryMock,
             'cart' => $cartMock,

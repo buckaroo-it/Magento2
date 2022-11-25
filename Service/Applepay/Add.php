@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Service\Applepay;
+namespace Buckaroo\Magento2\t;
 
 use Magento\Framework\App\ObjectManager;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -19,6 +19,9 @@ use Magento\Quote\Model\ShippingAddressManagementInterface;
 use Magento\Quote\Model\QuoteRepository;
 use Buckaroo\Magento2\Service\Applepay\ShippingMethod as AppleShippingMethod;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Add
 {
     /**
@@ -42,6 +45,8 @@ class Add
      * @param ShippingAddressManagementInterface $shippingAddressManagement
      * @param QuoteRepository|null $quoteRepository
      * @param ShippingMethod $appleShippingMethod
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
@@ -104,11 +109,16 @@ class Add
         $wallet = $request->getParam('wallet');
         $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
 
-
+        /**
+         * @var $shippingAddress \Magento\Quote\Model\Quote\Address
+         */
         $shippingAddress = $this->quoteAddressFactory->create();
         $shippingAddress->addData($shippingAddressData);
 
         $errors = $shippingAddress->validate();
+        if(is_array($errors)) {
+            return ['success' => 'false', 'error' => $errors];
+        }
 
         try {
             $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
@@ -119,7 +129,7 @@ class Add
         $shippingMethodsResult = [];
         //this delivery address is already assigned to the cart
         $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
-        foreach ($shippingMethods as $index => $shippingMethod) {
+        foreach ($shippingMethods as $shippingMethod) {
             $shippingMethodsResult[] = [
                 'carrier_title' => $shippingMethod['carrier_title'],
                 'price_incl_tax' => round($shippingMethod['amount'], 2),

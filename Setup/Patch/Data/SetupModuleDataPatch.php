@@ -10,6 +10,9 @@ use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Eav\Model\Config;
 use Magento\Customer\Model\Customer;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class SetupModuleDataPatch implements DataPatchInterface
 {
     /**
@@ -579,6 +582,8 @@ class SetupModuleDataPatch implements DataPatchInterface
      * @param ModuleDataSetupInterface $setup
      *
      * @return $this
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function installPaymentFeeColumns(ModuleDataSetupInterface $setup)
     {
@@ -712,6 +717,12 @@ class SetupModuleDataPatch implements DataPatchInterface
         return $this;
     }
 
+    /**
+     * @param ModuleDataSetupInterface $setup
+     * @return $this
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     protected function expandPaymentFeeColumns(ModuleDataSetupInterface $setup)
     {
         /**

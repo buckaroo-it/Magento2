@@ -35,6 +35,9 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Push;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects
+ */
 class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Push::class;
@@ -595,6 +598,11 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param array                      $postData
      *
      * @dataProvider processSucceededPushDataProvider
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function testProcessSucceededPush(
         $state,
@@ -714,6 +722,11 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertTrue($result);
     }
 
+    /**
+     * @return array
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     public function processSucceededPushDataProvider()
     {
         return [

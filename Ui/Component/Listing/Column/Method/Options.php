@@ -23,6 +23,14 @@ class Options extends Column
         $this->resourceConnection = $resourceConnection;
     }
 
+    /**
+     * @param array $dataSource
+     * @return array
+     * @throws \Zend_Db_Statement_Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     public function prepareDataSource(array $dataSource)
     {
         if (isset($dataSource['data']['items'])) {
@@ -37,24 +45,24 @@ class Options extends Column
                  */
                 $result = $db->query(
                     '
-                SELECT 
-                method, 
+                SELECT
+                method,
                 group_concat(distinct(' .
                         $this->resourceConnection->getTableName(
                             'buckaroo_magento2_group_transaction'
                         ) .
                         '.servicecode) SEPARATOR "-") as giftcard_codes,
-                increment_id 
+                increment_id
                 from ' .
                         $this->resourceConnection->getTableName('sales_order_payment') .
-                        ' 
+                        '
                 inner join ' .
                         $this->resourceConnection->getTableName('sales_order') .
                         ' on ' .
                         $this->resourceConnection->getTableName('sales_order') .
                         '.entity_id = ' .
                         $this->resourceConnection->getTableName('sales_order_payment') .
-                        '.parent_id 
+                        '.parent_id
                 inner join ' .
                         $this->resourceConnection->getTableName(
                             'buckaroo_magento2_group_transaction'
@@ -65,7 +73,7 @@ class Options extends Column
                         ) .
                         '.order_id=' .
                         $this->resourceConnection->getTableName('sales_order') .
-                        '.increment_id 
+                        '.increment_id
                 where ' .
                         $this->resourceConnection->getTableName('sales_order') .
                         '.increment_id in ("' .
@@ -97,14 +105,14 @@ class Options extends Column
                             increment_id
                             from ' .
                         $this->resourceConnection->getTableName('sales_order_payment') .
-                        ' 
+                        '
                             inner join ' .
                         $this->resourceConnection->getTableName('sales_order') .
                         ' on ' .
                         $this->resourceConnection->getTableName('sales_order') .
                         '.entity_id = ' .
                         $this->resourceConnection->getTableName('sales_order_payment') .
-                        '.parent_id 
+                        '.parent_id
                             where ' .
                         $this->resourceConnection->getTableName('sales_order') .
                         '.increment_id in ("' .
