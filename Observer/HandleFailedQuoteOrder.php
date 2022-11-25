@@ -63,10 +63,6 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        /**
-         * @var $quote \Magento\Quote\Model\Quote $quote
-         */
-        $quote = $observer->getEvent()->getQuote();
 
         if ($order->canCancel()) {
             //$this->logging->addDebug('Buckaroo push failed : '.$message.' : Cancel order.');

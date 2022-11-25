@@ -92,14 +92,13 @@ class SendInvoiceMail implements ObserverInterface
                 $invoice->getOrder()->setBaseShippingAmount($orderBaseShippingAmount);
             }
         }
-        if ($invoice->getIsPaid() && $canCapture) {
-            if (($payment->getMethod() == Afterpay20::CODE)
-                && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
-                && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
-            ) {
-                $this->logging->addDebug(__METHOD__ . '|25|');
-                $order->setBaseTotalPaid($order->getTotalPaid());
-            }
+        if ($invoice->getIsPaid() && $canCapture
+            && ($payment->getMethod() == Afterpay20::CODE)
+            && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
+            && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
+        ) {
+            $this->logging->addDebug(__METHOD__ . '|25|');
+            $order->setBaseTotalPaid($order->getTotalPaid());
         }
     }
 }

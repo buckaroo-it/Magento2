@@ -76,7 +76,7 @@ class GroupTransactionRegister implements ObserverInterface
         $order = $invoice->getOrder();
 
         $items = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
-        foreach ($items as $key => $item) {
+        foreach ($items as $item) {
             $this->logger->addDebug(__METHOD__ . '|5|' . var_export([$order->getTotalPaid(), $item['amount']], true));
             $totalPaid = $order->getTotalPaid() + $item['amount'];
             $baseTotalPaid = $order->getBaseTotalPaid() + $item['amount'];
