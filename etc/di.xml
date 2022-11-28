@@ -694,6 +694,14 @@
             </argument>
         </arguments>
     </virtualType>
+    <virtualType name="BuckarooPayRemainderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="amount" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayReminder\AmountDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayReminder\OriginalTransactionKeyDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
     <!-- Buckaroo Order Command - Response Handler -->
     <virtualType name="OrderResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
@@ -928,6 +936,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
                 <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\IssuerDataBuilder</item>
             </argument>
         </arguments>
@@ -3013,6 +3022,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
                 <item name="giftcards" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GiftcardsDataBuilder</item>
             </argument>
         </arguments>
