@@ -541,6 +541,7 @@
                 <item name="sofortbanking" xsi:type="string">sofortueberweisung</item>
                 <item name="creditcards" xsi:type="string">creditcard</item>
                 <item name="emandate" xsi:type="string">emandates</item>
+                <item name="mrcash" xsi:type="string">bancontactmrcash</item>
             </argument>
         </arguments>
     </type>
