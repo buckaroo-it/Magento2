@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Cron;
 
-use Magento\Framework\EntityManager\MetadataPool;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\App\ResourceConnection;
 use Buckaroo\Magento2\Logging\Log;
@@ -29,6 +28,7 @@ use Buckaroo\Magento2\Model\Config\Source\LogHandler;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Driver\File;
 use Magento\Framework\Filesystem\Io\File as IoFile;
+use Magento\Framework\Exception\FileSystemException;
 
 class LogCleaner
 {

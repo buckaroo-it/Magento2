@@ -21,7 +21,7 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order as OrderModel;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
@@ -36,14 +36,19 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
      */
     protected $dateTime;
 
+    /**
+     * @var GroupTransactionFactory
+     */
     protected $groupTransactionFactory;
 
     /**
-     * @var Order $order
+     * @var OrderModel
      */
-    public $order;
+    public OrderModel $order;
 
-    /** @var Transaction */
+    /**
+     * @var Transaction
+     */
     private $transaction;
 
     /**
@@ -57,25 +62,37 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     protected $resourceModel;
 
     /**
+     * @var Log
+     */
+    private Log $logging;
+
+    /**
+     * @param \Magento\Framework\App\Helper\Context $context
+     * @param GroupTransactionFactory $groupTransactionFactory
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+     * @param OrderModel $order
+     * @param TransactionInterface $transaction
+     * @param Log $logging
+     * @param GroupTransactionCollectionFactory $grTrCollectionFactory
+     * @param GroupTransaction $resourceModel
      */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        GroupTransactionFactory $groupTransactionFactory,
+        \Magento\Framework\App\Helper\Context       $context,
+        GroupTransactionFactory                     $groupTransactionFactory,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        Order $order,
-        TransactionInterface $transaction,
-        Log $logging,
-        GroupTransactionCollectionFactory $grTrCollectionFactory,
-        GroupTransaction $resourceModel
+        OrderModel                                  $order,
+        TransactionInterface                        $transaction,
+        Log                                         $logging,
+        GroupTransactionCollectionFactory           $grTrCollectionFactory,
+        GroupTransaction                            $resourceModel
     ) {
         parent::__construct($context);
 
         $this->groupTransactionFactory = $groupTransactionFactory;
-        $this->dateTime                = $dateTime;
-
-        $this->order       = $order;
+        $this->dateTime = $dateTime;
+        $this->order = $order;
         $this->transaction = $transaction;
-        $this->logging     = $logging;
+        $this->logging = $logging;
         $this->grTrCollectionFactory = $grTrCollectionFactory;
         $this->resourceModel = $resourceModel;
     }

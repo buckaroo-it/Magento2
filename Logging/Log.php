@@ -75,7 +75,7 @@ class Log extends Logger
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
     {

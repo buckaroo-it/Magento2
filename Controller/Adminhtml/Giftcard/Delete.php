@@ -46,5 +46,8 @@ class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
                 }
             }
         }
+
+        $this->messageManager->addErrorMessage(__('We can\'t find a Giftcard to delete.'));
+        $this->_redirect('*/*/');
     }
 }

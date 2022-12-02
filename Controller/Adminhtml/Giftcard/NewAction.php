@@ -21,10 +21,29 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-class NewAction extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
+class NewAction extends \Magento\Backend\App\Action
 {
+    /**
+     * @param \Magento\Backend\App\Action\Context $context
+     * @param \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory
+     */
+    public function __construct(
+        \Magento\Backend\App\Action\Context               $context,
+        \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory
+    ) {
+        $this->resultForwardFactory = $resultForwardFactory;
+        parent::__construct($context);
+    }
+
+    /**
+     * New action
+     *
+     * @return \Magento\Framework\Controller\ResultInterface
+     */
     public function execute()
     {
-        $this->_forward('edit');
+        /** @var \Magento\Framework\Controller\Result\Forward $resultForward */
+        $resultForward = $this->resultForwardFactory->create();
+        return $resultForward->forward('edit');
     }
 }

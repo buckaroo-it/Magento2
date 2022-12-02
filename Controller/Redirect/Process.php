@@ -114,42 +114,42 @@ class Process extends \Magento\Framework\App\Action\Action
     private PushRequestInterface $pushRequst;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param \Buckaroo\Magento2\Helper\Data                           $helper
-     * @param \Magento\Checkout\Model\Cart                        $cart
-     * @param \Magento\Sales\Model\Order                          $order
-     * @param \Magento\Quote\Model\Quote                          $quote
-     * @param TransactionInterface        $transaction
-     * @param Log                                                 $logger
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory          $configProviderFactory
+     * @param \Magento\Framework\App\Action\Context $context
+     * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param \Magento\Checkout\Model\Cart $cart
+     * @param \Magento\Sales\Model\Order $order
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param TransactionInterface $transaction
+     * @param Log $logger
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
-     * @param \Buckaroo\Magento2\Model\OrderStatusFactory              $orderStatusFactory
+     * @param \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory
      *
      * @throws \Buckaroo\Magento2\Exception
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Buckaroo\Magento2\Helper\Data $helper,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Sales\Model\Order $order,
-        \Magento\Quote\Model\Quote $quote,
-        TransactionInterface $transaction,
-        Log $logger,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Customer\Model\SessionFactory $sessionFactory,
-        \Magento\Customer\Model\Customer $customerModel,
+        \Magento\Framework\App\Action\Context                 $context,
+        \Buckaroo\Magento2\Helper\Data                        $helper,
+        \Magento\Checkout\Model\Cart                          $cart,
+        \Magento\Sales\Model\Order                            $order,
+        \Magento\Quote\Model\Quote                            $quote,
+        TransactionInterface                                  $transaction,
+        Log                                                   $logger,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory       $configProviderFactory,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender   $orderSender,
+        \Buckaroo\Magento2\Model\OrderStatusFactory           $orderStatusFactory,
+        \Magento\Checkout\Model\Session                       $checkoutSession,
+        \Magento\Customer\Model\Session                       $customerSession,
+        \Magento\Customer\Api\CustomerRepositoryInterface     $customerRepository,
+        \Magento\Customer\Model\SessionFactory                $sessionFactory,
+        \Magento\Customer\Model\Customer                      $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-        OrderService $orderService,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
-        RequestPushFactory $requestPushFactory
+        OrderService                                          $orderService,
+        \Magento\Framework\Event\ManagerInterface             $eventManager,
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate       $quoteRecreate,
+        RequestPushFactory                                    $requestPushFactory
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -443,7 +443,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         if (!$this->getSkipHandleFailedRecreate()) {
             if (!$this->quoteRecreate->recreate($this->quote)) {
-                $this->logging->addError('Could not recreate the quote.');
+                $this->logger->addError('Could not recreate the quote.');
             }
         }
 
@@ -662,7 +662,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
                         $this->checkoutSession->restoreQuote();
                         $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
-                    } elseif ($this->hasPostData('brq_primary_service', 'IDIN')) {
+                    } elseif ($this->pushRequst->hasPostData('brq_primary_service', 'IDIN')) {
                         $this->checkoutSession->restoreQuote();
                     }
                 } catch (\Exception $e) {
@@ -714,10 +714,13 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function removeAmastyGiftcardOnFailed()
     {
-        $class = \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class;
-        if (class_exists($class)) {
-            $giftcardAccountRepository = $this->_objectManager->get($class);
-            $giftcardOrderRepository = $this->_objectManager->get(\Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class);
+        if (class_exists(\Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class)) {
+            $giftcardAccountRepository = $this->_objectManager->get(
+                \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class
+            );
+            $giftcardOrderRepository = $this->_objectManager->get(
+                \Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class
+            );
 
             try {
                 $giftcardOrder = $giftcardOrderRepository->getByOrderId($this->order->getId());

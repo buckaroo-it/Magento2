@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\Registry;
@@ -70,6 +71,7 @@ class Idin extends Template
 
     /**
      * @return Product
+     * @throws LocalizedException
      */
     private function getProduct()
     {

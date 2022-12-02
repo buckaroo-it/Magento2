@@ -126,5 +126,7 @@ class PushSend extends Command
         foreach ($responses as $response) {
             $output->writeln($response->get()->getBody());
         }
+
+        return 0;
     }
 }

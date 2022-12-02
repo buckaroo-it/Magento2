@@ -96,6 +96,7 @@ class Toolbar
         if ($context instanceof \Magento\Sales\Block\Adminhtml\Order\Invoice\View) {
             return true;
         }
+        return false;
     }
 
     /**

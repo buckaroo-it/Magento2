@@ -269,6 +269,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
         ) {
             return $dataObject->getOrder()->getIncrementId();
         }
+
+        return null;
     }
     /**
      * @return mixed

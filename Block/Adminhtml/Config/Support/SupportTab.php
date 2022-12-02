@@ -115,7 +115,7 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
         }
 
         $currentVersion = $this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor];
-        if (isset($currentVersion)) {
+        if (!empty($currentVersion)) {
             if (in_array($phpPatch, $currentVersion)) {
                 return true;
             } elseif (in_array('+', $currentVersion) && $phpPatch >= max($currentVersion)) {
@@ -148,7 +148,7 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
         $version = false;
         $currentVersion = $this->softwareData->getProductMetaData()->getVersion();
 
-        if (isset($currentVersion)) {
+        if (!empty($currentVersion)) {
             $version = explode('.', $currentVersion);
         }
 
