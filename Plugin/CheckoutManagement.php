@@ -24,27 +24,30 @@ namespace Buckaroo\Magento2\Plugin;
 use Magento\Framework\Exception\CouldNotSaveException;
 
 // @codingStandardsIgnoreStart
-
 if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
 
     class CheckoutManagement extends \Mageplaza\Osc\Model\CheckoutManagement
     {
         public function updateItemQty($cartId, $itemId, $itemQty)
         {
+            /** @phpstan-ignore-next-line */
             $quote = $this->checkoutSession->getQuote();
             if ($quote->getBaseBuckarooAlreadyPaid() > 0) {
                 throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
             }
 
+            /** @phpstan-ignore-next-line */
             return parent::updateItemQty($cartId, $itemId, $itemQty);
         }
 
         public function removeItemById($cartId, $itemId)
         {
+            /** @phpstan-ignore-next-line */
             $quote = $this->checkoutSession->getQuote();
             if ($quote->getBaseBuckarooAlreadyPaid() > 0) {
                 throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
             }
+            /** @phpstan-ignore-next-line */
             return parent::removeItemById($cartId, $itemId);
         }
     }
