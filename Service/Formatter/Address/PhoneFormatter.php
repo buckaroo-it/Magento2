@@ -25,6 +25,8 @@ use Buckaroo\Magento2\Logging\Log;
 
 class PhoneFormatter
 {
+    private Log $logger;
+
     private $validMobile = [
         'NL' => ['00316'],
         'BE' => ['003246', '003247', '003248', '003249'],

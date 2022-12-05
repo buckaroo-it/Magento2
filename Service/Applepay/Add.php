@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Service\Applepay;
 
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
@@ -23,14 +24,20 @@ use Buckaroo\Magento2\Service\Applepay\ShippingMethod as AppleShippingMethod;
  */
 class Add
 {
-    /**
-     * @var CartRepositoryInterface
-     */
-    private $cartRepository;
-
-    private $cart;
-
+    private CartRepositoryInterface $cartRepository;
     private $maskedQuoteIdToQuoteId;
+    private ProductRepositoryInterface $productRepository;
+    private BuyRequestBuilder $requestBuilder;
+    private ApplepayModel $applepayModel;
+    private BaseQuoteAddressFactory $quoteAddressFactory;
+    private ShippingAddressManagementInterface $shippingAddressManagement;
+    private ShippingMethod $appleShippingMethod;
+    private \Magento\Checkout\Model\Session $checkoutSession;
+
+    /**
+     * @var QuoteRepository|mixed
+     */
+    private $quoteRepository;
 
 
     /**
@@ -48,40 +55,44 @@ class Add
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        CartRepositoryInterface $cartRepository,
-        CartInterface $cart,
-        MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
-        ProductRepositoryInterface $productRepository,
-        BuyRequestBuilder $requestBuilder,
-        ApplepayModel $applepayModel,
-        BaseQuoteAddressFactory $quoteAddressFactory,
+        CartRepositoryInterface            $cartRepository,
+        MaskedQuoteIdToQuoteIdInterface    $maskedQuoteIdToQuoteId,
+        ProductRepositoryInterface         $productRepository,
+        BuyRequestBuilder                  $requestBuilder,
+        ApplepayModel                      $applepayModel,
+        BaseQuoteAddressFactory            $quoteAddressFactory,
         ShippingAddressManagementInterface $shippingAddressManagement,
-        QuoteRepository $quoteRepository = null,
-        AppleShippingMethod $appleShippingMethod
+        AppleShippingMethod                $appleShippingMethod,
+        \Magento\Checkout\Model\Session    $checkoutSession,
+        QuoteRepository                    $quoteRepository = null
     ) {
         $this->cartRepository = $cartRepository;
-        $this->cart = $cart;
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->productRepository = $productRepository;
         $this->requestBuilder = $requestBuilder;
         $this->applepayModel = $applepayModel;
         $this->quoteAddressFactory = $quoteAddressFactory;
         $this->shippingAddressManagement = $shippingAddressManagement;
+        $this->appleShippingMethod = $appleShippingMethod;
+        $this->checkoutSession = $checkoutSession;
+
         $this->quoteRepository = $quoteRepository
         ?? ObjectManager::getInstance()->get(QuoteRepository::class);
-        $this->appleShippingMethod = $appleShippingMethod;
     }
 
+    /**
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
+     */
     public function process($request)
     {
+        $cartHash = $request->getParam('id');
 
-        $cart_hash = $request->getParam('id');
-
-        if ($cart_hash) {
-            $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
+        if ($cartHash) {
+            $cartId = $this->maskedQuoteIdToQuoteId->execute($cartHash);
             $cart = $this->cartRepository->get($cartId);
         } else {
-            //get cart from session scenario
+            $cart = $this->checkoutSession->getQuote();
         }
 
         $product = $request->getParam('product');
@@ -115,7 +126,7 @@ class Add
         $shippingAddress->addData($shippingAddressData);
 
         $errors = $shippingAddress->validate();
-        if(is_array($errors)) {
+        if (is_array($errors)) {
             return ['success' => 'false', 'error' => $errors];
         }
 

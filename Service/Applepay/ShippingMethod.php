@@ -13,6 +13,10 @@ use Magento\Quote\Model\Quote\TotalsCollector;
 
 class ShippingMethod
 {
+    private ExtensibleDataObjectConverter $dataObjectConverter;
+    private ShippingMethodConverter $shippingMethodConverter;
+    private TotalsCollector $totalsCollector;
+
     public function __construct(
         ExtensibleDataObjectConverter $dataObjectConverter,
         ShippingMethodConverter $shippingMethodConverter,

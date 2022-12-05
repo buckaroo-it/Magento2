@@ -33,6 +33,11 @@ class VoidCm3Payment implements ObserverInterface
      */
     private $paymentDataObjectFactory;
 
+    /**
+     * @var CommandInterface
+     */
+    private $voidCommand;
+
     public function __construct(PaymentDataObjectFactory $paymentDataObjectFactory, CommandInterface $voidCommand)
     {
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;

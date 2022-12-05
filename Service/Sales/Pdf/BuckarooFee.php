@@ -40,7 +40,7 @@ class BuckarooFee extends DefaultTotal
     private $paymentFee;
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      *
      * @param ScopeInterface $scopeConfig
      * @param PaymentFee     $paymentFee
@@ -60,18 +60,19 @@ class BuckarooFee extends DefaultTotal
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getTotalsForDisplay()
     {
         $store = $this->getOrder()->getStore();
         $amount = $this->getOrder()->formatPriceTxt($this->getAmount());
         $label = $this->paymentFee->getBuckarooPaymentFeeLabel($this->getOrder());
-        $fontSize = $this->getFontSize() ? $this->getFontSize() : 7;
+        $fontSize = $this->getFontSize() ? $this->getFontSize() : 7; /** @phpstan-ignore-line */
 
-        $amountInclTax = $this->getSource()->getBuckarooFeeInclTax();
+        $amountInclTax = $this->getSource()->getBuckarooFeeInclTax(); /** @phpstan-ignore-line */
 
         if (!$amountInclTax) {
+            /** @phpstan-ignore-next-line */
             $amountInclTax = $this->getAmount() + $this->getSource()->getBuckarooFeeTaxAmount();
         }
 
@@ -87,12 +88,12 @@ class BuckarooFee extends DefaultTotal
             case Type::DISPLAY_TYPE_BOTH:
                 $totals = [
                     [
-                        'amount' => $this->getAmountPrefix() . $amount,
+                        'amount' => $this->getAmountPrefix() . $amount, /** @phpstan-ignore-line */
                         'label' => __($label . ' (Excl. Tax)') . ':',
                         'font_size' => $fontSize,
                     ],
                     [
-                        'amount' => $this->getAmountPrefix() . $amountInclTax,
+                        'amount' => $this->getAmountPrefix() . $amountInclTax, /** @phpstan-ignore-line */
                         'label' => __($label . ' (Incl. Tax)') . ':',
                         'font_size' => $fontSize
                     ],
@@ -101,7 +102,7 @@ class BuckarooFee extends DefaultTotal
             case Type::DISPLAY_TYPE_INCLUDING_TAX:
                 $totals = [
                     [
-                        'amount' => $this->getAmountPrefix() . $amountInclTax,
+                        'amount' => $this->getAmountPrefix() . $amountInclTax, /** @phpstan-ignore-line */
                         'label' => __($label) . ':',
                         'font_size' => $fontSize,
                     ],
@@ -110,7 +111,7 @@ class BuckarooFee extends DefaultTotal
             default:
                 $totals = [
                     [
-                        'amount' => $this->getAmountPrefix() . $amount,
+                        'amount' => $this->getAmountPrefix() . $amount, /** @phpstan-ignore-line */
                         'label' => __($label) . ':',
                         'font_size' => $fontSize,
                     ],
