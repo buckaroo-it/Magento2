@@ -43,5 +43,7 @@ class EmandateDataBuilder extends AbstractDataBuilder
         if ($billingAddress !== null) {
             return (string)$billingAddress->getEmail();
         }
+
+        return $this->getOrder()->getCustomerEmail();
     }
 }

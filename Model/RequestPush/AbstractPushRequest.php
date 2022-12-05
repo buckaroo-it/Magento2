@@ -28,10 +28,10 @@ class AbstractPushRequest
             switch ($matches[1]) {
                 case 'set':
                     $this->checkArguments($args, 1, 1, $methodName);
-                    return $this->set($property, $args[0]);
+                    return $this->set($property, $args[0]); /** @phpstan-ignore-line */
                 case 'get':
                     $this->checkArguments($args, 0, 0, $methodName);
-                    return $this->get($property);
+                    return $this->get($property); /** @phpstan-ignore-line */
                 default:
                     throw new \Exception('Method ' . $methodName . ' not exists');
             }
@@ -45,7 +45,7 @@ class AbstractPushRequest
      */
     public function hasAdditionalInformation($name, $value): bool
     {
-        $fieldValue = $this->getAdditionalInformation($name);
+        $fieldValue = $this->getAdditionalInformation($name); /** @phpstan-ignore-line */
         if (is_array($value) &&
             isset($fieldValue) &&
             in_array($fieldValue, $value)

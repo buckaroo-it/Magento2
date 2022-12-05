@@ -13,6 +13,11 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
      */
     public $configProviderMethodFactory;
 
+    /**
+     * @var Log
+     */
+    private $logging;
+
     public function __construct(
         Factory $configProviderMethodFactory,
         Log $logging
@@ -27,17 +32,15 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
             $order->getPayment()->getMethodInstance()->getCode() == 'buckaroo_magento2_payperemail'
         ) {
             $config = $this->configProviderMethodFactory->get(
-                \Buckaroo\Magento2\Model\ConfigProvider\Method\Payperemail::CODE
+                \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail::CODE
             );
-            if ($config->isEnabledB2B()) {
-                if ($order->getState() == Order::STATE_PROCESSING) {
-                    if ($order->getInvoiceCollection() && $order->getInvoiceCollection()->getFirstItem()) {
-                        if ($order->getInvoiceCollection()->getFirstItem()->getState() == 1) {
-                            $this->logging->addDebug(__METHOD__ . '|10|');
-                            return $this;
-                        }
-                    }
-                }
+            if ($config->isEnabledB2B()
+                && $order->getState() == Order::STATE_PROCESSING
+                && $order->getInvoiceCollection() && $order->getInvoiceCollection()->getFirstItem()
+                && $order->getInvoiceCollection()->getFirstItem()->getState() == 1
+            ) {
+                $this->logging->addDebug(__METHOD__ . '|10|');
+                return $this;
             }
         }
 

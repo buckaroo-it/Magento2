@@ -97,6 +97,7 @@ class Log extends Logger
         for ($cnt = 1; $cnt < $depth; $cnt++) {
             if (isset($trace[$cnt])) {
                 try {
+                    /** @phpstan-ignore-next-line */
                     $logTrace[] = str_replace(BP, '', $trace[$cnt]['file']) . ": " . $trace[$cnt]['line'] . " " .
                         $trace[$cnt]['class'] . '->' .
                         $trace[$cnt]['function'] . '()';

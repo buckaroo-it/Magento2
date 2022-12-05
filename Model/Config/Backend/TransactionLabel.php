@@ -23,6 +23,9 @@ namespace Buckaroo\Magento2\Model\Config\Backend;
 
 class TransactionLabel extends \Magento\Framework\App\Config\Value
 {
+    /**
+     * @inheritDoc
+     */
     public function _afterLoad()
     {
         $value = $this->getValue();
@@ -35,5 +38,6 @@ class TransactionLabel extends \Magento\Framework\App\Config\Value
                 $this->setValue($storeName);
             }
         }
+        return $this;
     }
 }

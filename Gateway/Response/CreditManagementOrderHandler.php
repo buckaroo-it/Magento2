@@ -86,17 +86,20 @@ class CreditManagementOrderHandler implements HandlerInterface
      *
      * @param array $service
      *
-     * @return void
+     * @return string
      */
     private function getInvoiceKey(array $service)
     {
         if (!isset($service['Parameters']) || !is_array($service['Parameters'])) {
+            return '';
         }
         foreach ($service['Parameters'] as $parameter) {
             if ($parameter['Name'] === "InvoiceKey") {
                 return $parameter['Value'];
             }
         }
+
+        return '';
     }
 
     private function validatePayment(array $handlingSubject)

@@ -36,11 +36,20 @@ class ApplyVoucher implements ApplyVoucherInterface
      */
     protected $voucherRequest;
 
-
     /**
      * @var \Magento\Checkout\Model\Session
      */
     protected $checkoutSession;
+
+    /**
+     * @var GiftcardResponse
+     */
+    private $giftcardResponse;
+
+    /**
+     * @var Log
+     */
+    private $logger;
 
     public function __construct(
         ApplyVoucherRequestInterface $voucherRequest,

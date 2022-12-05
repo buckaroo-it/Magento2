@@ -102,7 +102,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         while ($totalCount > 0) {
             $items = $dataProvider->getSearchResult()->getItems();
             foreach ($items as $item) {
-                if ($this->configProviderAccount->getAdvancedExportGiftcards($this->storeManager->getStore())) {
+                if ($this->configProviderAccount->hasAdvancedExportGiftcards($this->storeManager->getStore())) {
                     $this->convertGiftCardsValue($item);
                 }
                 $this->metadataProvider->convertDate($item, $component->getName());

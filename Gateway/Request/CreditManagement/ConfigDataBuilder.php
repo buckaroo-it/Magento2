@@ -9,6 +9,8 @@ class ConfigDataBuilder extends AbstractDataBuilder
 {
     /** @var Factory */
     private $configProvider;
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface */
+    private $config;
 
     public function __construct(Factory $configProvider)
     {

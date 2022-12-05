@@ -82,9 +82,25 @@ class Giftcard implements GiftcardInterface
     protected $transferFactory;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private ScopeConfigInterface $scopeConfig;
+
+    /**
+     * @var UrlInterface
+     */
+    private UrlInterface $urlBuilder;
+
+    /**
+     * @var FormKey
+     */
+    private FormKey $formKey;
+
+    /**
      * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
      */
     protected $groupTransaction;
+
     /**
      * Card id
      *
@@ -112,6 +128,7 @@ class Giftcard implements GiftcardInterface
      * @var string
      */
     protected $action = 'Pay';
+
     /**
      * Card types
      *
@@ -127,6 +144,7 @@ class Giftcard implements GiftcardInterface
             'pin' => 'tcsValidationCode',
         ]
     ];
+
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -172,6 +190,7 @@ class Giftcard implements GiftcardInterface
      * Send giftcard request
      *
      * @return mixed
+     * @throws GiftcardException
      */
     public function send()
     {

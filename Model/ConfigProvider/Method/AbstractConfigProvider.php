@@ -36,6 +36,8 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     CheckoutConfigProvider,
     ConfigProviderInterface
 {
+    public const CODE = 'buckaroo';
+
     public const XPATH_ACTIVE = 'active';
     public const XPATH_AVAILABLE_IN_BACKEND  = 'available_in_backend';
 

@@ -43,8 +43,8 @@ class CountryProvider extends MagentoCountryProvider
      */
     public function getCountry(Quote $quote)
     {
-        $address = $quote->getShippingAddress() ? : $quote->getBillingAddress();
-        return (!empty($address) && !empty($address->getCountry()))
+        $address = $quote->getShippingAddress() ?: $quote->getBillingAddress();
+        return (!empty($address->getCountry()))
             ? $address->getCountry()
             : $this->directoryHelper->getDefaultCountry();
     }

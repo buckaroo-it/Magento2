@@ -83,6 +83,21 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      */
     protected $voucherCode;
 
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * @var UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
+     * @var FormKey
+     */
+    private $formKey;
+
 
     /**
      *

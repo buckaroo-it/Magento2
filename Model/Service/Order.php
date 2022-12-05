@@ -42,6 +42,7 @@ class Order
     protected $helper;
     protected $logging;
     protected $resourceConnection;
+    private Factory $configProviderFactory;
 
     public function __construct(
         Account $accountConfig,
