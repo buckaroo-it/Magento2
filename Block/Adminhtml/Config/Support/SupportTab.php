@@ -74,6 +74,7 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
+         * @phpstan-ignore-next-line
          */
         $this->setElement($element);
 

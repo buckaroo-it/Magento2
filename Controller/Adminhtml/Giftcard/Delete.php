@@ -23,6 +23,11 @@ namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
 class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
 {
+    /**
+     * Delete Giftcard
+     *
+     * @return \Magento\Backend\Model\View\Result\Page|\Magento\Framework\App\ResponseInterface
+     */
     public function execute()
     {
         $giftcardId = $this->getRequest()->getParam('entity_id');
@@ -38,16 +43,15 @@ class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
                     $giftcardModel->delete();
                     $this->messageManager->addSuccess(__('The giftcard has been deleted.'));
 
-                    $this->_redirect('*/*/');
-                    return;
+                    return $this->_redirect('*/*/');
                 } catch (\Exception $e) {
                     $this->messageManager->addError($e->getMessage());
-                    $this->_redirect('*/*/edit', ['id' => $giftcardModel->getId()]);
+                    return $this->_redirect('*/*/edit', ['id' => $giftcardModel->getId()]);
                 }
             }
         }
 
         $this->messageManager->addErrorMessage(__('We can\'t find a Giftcard to delete.'));
-        $this->_redirect('*/*/');
+        return $this->_redirect('*/*/');
     }
 }

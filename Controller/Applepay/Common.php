@@ -32,7 +32,7 @@ use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\TotalsCollector;
 
-class Common extends Action
+abstract class Common extends Action
 {
     /**
      * @var JsonFactory
@@ -82,15 +82,6 @@ class Common extends Action
         $this->converter = $converter;
         $this->customerSession = $customerSession ?? ObjectManager::getInstance()->get(CustomerSession::class);
     }
-
-    // @codingStandardsIgnoreStart
-    public function execute()
-    {
-        /**
-         * call the parent, method required part of the interface
-         */
-    }
-    // @codingStandardsIgnoreEnd
 
     /**
      * Get totals

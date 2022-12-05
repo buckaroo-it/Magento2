@@ -98,6 +98,6 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
         }
 
         $redirectUrl = $this->storemanager->getStore()->getBaseUrl();
-        $this->_redirect($redirectUrl);
+        return $this->_redirect($redirectUrl);
     }
 }

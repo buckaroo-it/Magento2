@@ -24,6 +24,11 @@ namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 class NewAction extends \Magento\Backend\App\Action
 {
     /**
+     * @var \Magento\Backend\Model\View\Result\ForwardFactory
+     */
+    private $resultForwardFactory;
+
+    /**
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory
      */

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\t;
+namespace Buckaroo\Magento2\Service\Applepay;
 
 use Magento\Framework\App\ObjectManager;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -13,7 +13,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Cart\Data\CartItem;
 use Magento\Quote\Model\Cart\BuyRequest\BuyRequestBuilder;
 use Buckaroo\Magento2\Model\Applepay as ApplepayModel;
-use Magento\Quote\Model\Quote\Address as QuoteAddress;
 use Magento\Quote\Model\Quote\AddressFactory as BaseQuoteAddressFactory;
 use Magento\Quote\Model\ShippingAddressManagementInterface;
 use Magento\Quote\Model\QuoteRepository;
