@@ -37,20 +37,18 @@ class CustomerDataBuilder extends AbstractDataBuilder
         $billingAddress = $this->getOrder()->getBillingAddress();
         return [
             'customer' => [
-                'initials'              => $this->getInitials(
-                    $billingAddress->getFirstname()
-                ),
-                'lastName'              => $billingAddress->getLastname(),
-                'email'                 => $billingAddress->getEmail(),
-                'phone'                 => $billingAddress->getTelephone(),
-                'culture'               => 'nl-NL',
-                'birthDate'             => $this->getCustomerBirthDate(),
+                'initials'  => $this->getInitials($billingAddress->getFirstname()),
+                'lastName'  => $billingAddress->getLastname(),
+                'email'     => $billingAddress->getEmail(),
+                'phone'     => $billingAddress->getTelephone(),
+                'culture'   => 'nl-NL',
+                'birthDate' => $this->getCustomerBirthDate(),
             ]
         ];
     }
 
     /**
-     * Get customer birth date
+     * Get customer birthdate
      *
      * @return string
      */
@@ -69,7 +67,7 @@ class CustomerDataBuilder extends AbstractDataBuilder
         $initials = '';
         $nameParts = explode(' ', $name);
 
-        if (empty($nameParts)) {
+        if (!$nameParts) {
             return $initials;
         }
 

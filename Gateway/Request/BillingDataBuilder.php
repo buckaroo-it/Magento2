@@ -45,7 +45,7 @@ class BillingDataBuilder extends AbstractDataBuilder
                 'gender' => $gender,
                 'firstName' => $billingAddress->getFirstname(),
                 'lastName' => $billingAddress->getLastName(),
-                'birthDate' => $birthDayStamp ?? ''
+                'birthDate' => $birthDayStamp
             ];
         }
 

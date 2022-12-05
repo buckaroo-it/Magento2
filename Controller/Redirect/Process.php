@@ -718,8 +718,9 @@ class Process extends \Magento\Framework\App\Action\Action
             $giftcardAccountRepository = $this->_objectManager->get(
                 \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class
             );
+
             $giftcardOrderRepository = $this->_objectManager->get(
-                \Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class
+                \Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class /** @phpstan-ignore-line */
             );
 
             try {

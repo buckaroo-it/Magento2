@@ -36,8 +36,7 @@ class ArticlesDataBuilder extends AbstractDataBuilder
         foreach ($this->getOrder()->getAllItems() as $item) {
 
             /** @var \Magento\Sales\Api\Data\OrderItemInterface $item */
-
-            if (empty($item) || $item->getParentItem() != null) {
+            if ($item->getParentItem() != null) {
                 continue;
             }
 
