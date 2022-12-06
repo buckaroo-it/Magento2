@@ -37,7 +37,7 @@ class CreditManagementOrderHandler implements HandlerInterface
      * @param array $response
      *
      * @return void
-     * @throws  \InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     protected function validate(array $handlingSubject, array $response)
     {
@@ -45,13 +45,12 @@ class CreditManagementOrderHandler implements HandlerInterface
         $this->validateResponse($response);
     }
 
-
     /**
      * Get invoice key from response
      *
      * @param array $services
      *
-     * @return array|null
+     * @return string|null
      */
     protected function getServiceInvoice()
     {
@@ -62,6 +61,8 @@ class CreditManagementOrderHandler implements HandlerInterface
                 return $this->getInvoiceKey($service);
             }
         }
+
+        return null;
     }
 
     /**
@@ -78,8 +79,8 @@ class CreditManagementOrderHandler implements HandlerInterface
                 return $service;
             }
         }
+        return null;
     }
-
 
     /**
      * Get invoice key from service

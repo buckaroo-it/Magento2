@@ -51,6 +51,7 @@ class Response implements TransactionResponseInterface
         if (isset($status['Code']['Code'])) {
             return $status['Code']['Code'];
         }
+        return null;
     }
 
     public function getServiceCode()

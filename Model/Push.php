@@ -1954,6 +1954,8 @@ class Push implements PushInterface
         if (!$quote->isEmpty()) {
             return $quote;
         }
+
+        return null;
     }
 
     /**

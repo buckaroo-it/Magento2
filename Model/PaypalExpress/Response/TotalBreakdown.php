@@ -96,6 +96,8 @@ class TotalBreakdown implements TotalBreakdownInterface
         if (isset($totals[$type])) {
             return $totals[$type];
         }
+
+        return null;
     }
     /**
      * Get buckaroo fee without tax

@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model\PaypalExpress;
 
 use Magento\Framework\Registry;
 use Magento\Sales\Api\Data\OrderAddressInterface;
+use stdClass;
 
 class OrderUpdateShipping
 {
@@ -69,7 +70,8 @@ class OrderUpdateShipping
     /**
      * Get payment response
      *
-     * @return stdClass|null
+     * @param Registry $registry
+     * @return stdClass|array|null
      */
     private function getAddressInfoFromPayRequest($registry)
     {
@@ -82,6 +84,8 @@ class OrderUpdateShipping
                 $registry->registry("buckaroo_response")[0]->Services->Service->ResponseParameter
             );
         }
+
+        return null;
     }
     /**
      * Format address data in key/value pairs
