@@ -43,6 +43,7 @@ use Buckaroo\Magento2\Gateway\Http\Client\TransactionPay;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class Giftcard implements GiftcardInterface
 {
