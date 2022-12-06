@@ -404,6 +404,10 @@ class SetupModuleDataPatch implements DataPatchInterface
 
     /** @var EavSetupFactory */
     private $eavSetupFactory;
+    /**
+     * @var Config
+     */
+    private Config $eavConfig;
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
@@ -490,6 +494,8 @@ class SetupModuleDataPatch implements DataPatchInterface
         $this->setProductIDIN($this->moduleDataSetup);
 
         $this->moduleDataSetup->getConnection()->endSetup();
+
+        return $this;
     }
 
     /**
