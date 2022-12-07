@@ -138,7 +138,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->helper->addDebug(__METHOD__ . '|55|');
     }
 
-    private function shouldSkipFurtherEventHandling()
+    public function shouldSkipFurtherEventHandling()
     {
         return false;
     }
