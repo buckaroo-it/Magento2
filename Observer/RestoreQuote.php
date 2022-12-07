@@ -17,11 +17,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\Method\Giftcards;
 use Buckaroo\Magento2\Model\Method\Payconiq;
+use Buckaroo\Magento2\Model\Service\Order;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
+use Magento\Checkout\Model\Session;
+use Magento\Quote\Api\CartRepositoryInterface;
 
 class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 {
@@ -30,109 +36,59 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     private $checkoutSession;
 
-    private $customerSession;
-
     /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
      */
     protected $accountConfig;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     * @var \Buckaroo\Magento2\Helper\Data
      */
-    protected $dateTime;
-
-    protected $request;
-
-    protected $mathRandom;
-
-    protected $resultFactory;
+    private \Buckaroo\Magento2\Helper\Data $helper;
 
     /**
-     * @var \Magento\Framework\App\ResponseFactory
+     * @var QuoteRecreate
      */
-    private $responseFactory;
-
-    /**
-     * @var \Magento\Framework\UrlInterface
-     */
-    private $url;
-
-    protected $orderFactory;
-
-    /**
-     * @var \Magento\Quote\Model\Quote $quote
-     */
-    protected $quote;
-
-    protected $quoteFactory;
-
-    protected $productFactory;
-
-    /**
-     * @var \Magento\Checkout\Model\Cart
-     */
-    protected $cart;
-
-    protected $_messageManager;
-
     private $quoteRecreate;
 
+    /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
     protected $quoteRepository;
 
-    /* @var EventManager */
-    private $eventManager;
+    /**
+     * @var \Buckaroo\Magento2\Model\Service\Order
+     */
+    protected $orderService;
 
     /**
-     * @param \Magento\Checkout\Model\Session                      $checkoutSession
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime          $dateTime
+     * @param Session $checkoutSession
+     * @param Account $accountConfig
+     * @param Data $helper
+     * @param QuoteRecreate $quoteRecreate
+     * @param CartRepositoryInterface $quoteRepository
+     * @param Order $orderService
      */
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Checkout\Model\Session                 $checkoutSession,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\Math\Random $mathRandom,
-        \Magento\Framework\Controller\ResultFactory $resultFactory,
-        \Magento\Framework\App\ResponseFactory $responseFactory,
-        \Magento\Framework\UrlInterface $url,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Quote\Model\Quote $quote,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Catalog\Model\ProductFactory $productFactory,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Checkout\Model\Cart $cart,
-        \Buckaroo\Magento2\Helper\Data $helper,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        QuoteRecreate $quoteRecreate,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Framework\Event\ManagerInterface $eventManager
+        \Buckaroo\Magento2\Helper\Data                  $helper,
+        QuoteRecreate                                   $quoteRecreate,
+        \Magento\Quote\Api\CartRepositoryInterface      $quoteRepository,
+        \Buckaroo\Magento2\Model\Service\Order          $orderService
     ) {
-        $this->checkoutSession        = $checkoutSession;
-        $this->customerSession        = $customerSession;
-        $this->accountConfig          = $accountConfig;
-        $this->request                = $request;
-        $this->mathRandom             = $mathRandom;
-        $this->resultFactory          = $resultFactory;
-        $this->responseFactory        = $responseFactory;
-        $this->url                    = $url;
-        $this->orderFactory           = $orderFactory;
-        $this->quote                  = $quote;
-        $this->quoteFactory           = $quoteFactory;
-        $this->productFactory         = $productFactory;
-        $this->_messageManager        = $messageManager;
-        $this->cart                   = $cart;
-        $this->dateTime               = $dateTime;
-        $this->helper                 = $helper;
-        $this->quoteRecreate          = $quoteRecreate;
-        $this->quoteRepository        = $quoteRepository;
-        $this->eventManager           = $eventManager;
+        $this->checkoutSession = $checkoutSession;
+        $this->accountConfig = $accountConfig;
+        $this->helper = $helper;
+        $this->quoteRecreate = $quoteRecreate;
+        $this->quoteRepository = $quoteRepository;
+        $this->orderService = $orderService;
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Restore Quote and Cancel LastRealOrder
      *
+     * @param \Magento\Framework\Event\Observer $observer
      * @return void
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
@@ -141,19 +97,14 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         if ($payment = $lastRealOrder->getPayment()) {
-            if ($this->shouldSkipFurtherEventHandling()) {
+            if ($this->shouldSkipFurtherEventHandling()
+                || strpos($payment->getMethod(), 'buckaroo_magento2') === false
+                || in_array($payment->getMethod(), [Giftcards::PAYMENT_METHOD_CODE, Payconiq::PAYMENT_METHOD_CODE])) {
                 $this->helper->addDebug(__METHOD__ . '|10|');
                 return;
             }
-            if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
-                return;
-            }
-            if (in_array($payment->getMethod(), [Giftcards::PAYMENT_METHOD_CODE, Payconiq::PAYMENT_METHOD_CODE])) {
-                return true;
-            }
-            $order = $payment->getOrder();
 
-            if ($this->accountConfig->getCartKeepAlive($order->getStore())) {
+            if ($this->accountConfig->getCartKeepAlive($lastRealOrder->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|20|');
 
                 if ($this->checkoutSession->getQuote()
@@ -161,11 +112,10 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|25|');
-                    if ($shippingAddress = $quote->getShippingAddress()) {
-                        if (!$shippingAddress->getShippingMethod()) {
-                            $this->helper->addDebug(__METHOD__ . '|35|');
-                            $shippingAddress->load($shippingAddress->getAddressId());
-                        }
+                    $shippingAddress = $quote->getShippingAddress();
+                    if (!$shippingAddress->getShippingMethod()) {
+                        $this->helper->addDebug(__METHOD__ . '|35|');
+                        $shippingAddress->load($shippingAddress->getAddressId());
                     }
                 }
 
@@ -178,15 +128,28 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     $this->checkoutSession->restoreQuote();
                 }
             }
+
+            $this->cancelLastOrder($lastRealOrder);
+
             $this->helper->addDebug(__METHOD__ . '|50|');
             $this->helper->setRestoreQuoteLastOrder(false);
         }
+
         $this->helper->addDebug(__METHOD__ . '|55|');
-        return true;
     }
 
-    public function shouldSkipFurtherEventHandling()
+    private function shouldSkipFurtherEventHandling()
     {
-        return true;
+        return false;
+    }
+
+    /**
+     * Cancel Last Order when the payment process has not been completed
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return bool
+     */
+    private function cancelLastOrder($order) {
+        return $this->orderService->cancel($order, $order->getStatus());
     }
 }
