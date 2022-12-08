@@ -30,4 +30,4 @@ jobs:
       - uses: extdn/github-actions-m2/magento-phpstan/8.1@master
         with:
           composer_name: buckaroo/magento2
-          module_source: Controller/
+          module_source: Controller
