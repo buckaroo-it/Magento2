@@ -27,7 +27,7 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v2
-      - uses: extdn/github-actions-m2/magento-phpstan@8.1@master
+      - uses: extdn/github-actions-m2/magento-phpstan/8.1@master
         with:
           composer_name: buckaroo/magento2
-          module_source: Controller
+          module_source: Controller/
