@@ -29,4 +29,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: extdn/github-actions-m2/magento-phpstan@master
         with:
-          composer_name: buckaroo/magento2
+          composer_name: buckaroo/sdk
