@@ -46,7 +46,7 @@ class PaymentTest extends BaseTest
         $elementMock = $this->getFakeMock(AbstractElement::class)->getMock();
 
         $result = $this->invokeArgs('_getHeaderCommentHtml', [$elementMock], $instance);
-        $this->assertInternalType('string', $result);
+        $this->assertIsString($result);
         $this->assertEquals(0, strlen($result));
     }
 }

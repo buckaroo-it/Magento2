@@ -39,7 +39,7 @@ class AddressFormatterTest extends BaseTest
         $instance = $this->getInstance(['streetFormatter' => $streetFormatter, 'phoneFormatter' => $phoneFormatter]);
         $result = $instance->format($addressMock);
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertArrayHasKey('street', $result);
         $this->assertArrayHasKey('telephone', $result);
         $this->assertCount(3, $result['street']);

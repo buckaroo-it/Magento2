@@ -50,7 +50,7 @@ class AccountTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
 
         $resultKeys = array_keys($result);
         $this->assertEmpty(array_merge(array_diff($expectedKeys, $resultKeys), array_diff($resultKeys, $expectedKeys)));

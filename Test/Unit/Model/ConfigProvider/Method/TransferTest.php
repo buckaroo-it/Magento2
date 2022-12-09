@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
@@ -43,7 +44,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Transfer::XPATH_TRANSFER_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(Transfer::XPATH_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
             ->willReturn($value);
 
         return $scopeConfigMock;
@@ -59,7 +60,10 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Transfer::XPATH_TRANSFER_ACTIVE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Transfer::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn(false);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -81,9 +85,19 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $scopeConfigMock->expects($this->exactly(3))
             ->method('getValue')
             ->withConsecutive(
-                [Transfer::XPATH_TRANSFER_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Transfer::XPATH_TRANSFER_ORDER_EMAIL, ScopeInterface::SCOPE_STORE],
-                [Transfer::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [
+                    $this->getPaymentMethodConfigPath(Transfer::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    ScopeInterface::SCOPE_STORE,
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(Transfer::CODE, AbstractConfigProvider::XPATH_ORDER_EMAIL),
+                    ScopeInterface::SCOPE_STORE,
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(Transfer::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ]
             )
             ->willReturnOnConsecutiveCalls(true, $sendEmail, 'EUR,USD');
 
@@ -125,7 +139,10 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Transfer::XPATH_TRANSFER_ORDER_EMAIL, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Transfer::CODE, AbstractConfigProvider::XPATH_ORDER_EMAIL),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -198,7 +215,11 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Transfer::XPATH_TRANSFER_ACTIVE, ScopeInterface::SCOPE_STORE, null)
+            ->with(
+                $this->getPaymentMethodConfigPath(Transfer::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                ScopeInterface::SCOPE_STORE,
+                null
+            )
             ->willReturn('1');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

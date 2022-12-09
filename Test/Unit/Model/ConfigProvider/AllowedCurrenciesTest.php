@@ -44,7 +44,7 @@ class AllowedCurrenciesTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertArrayHasKey('allowedCurrencies', $result);
         $this->assertCount(22, $result['allowedCurrencies']);
     }

@@ -25,6 +25,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing;
 use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 
 class IdealProcessingTest extends BaseTest
 {
@@ -38,13 +39,15 @@ class IdealProcessingTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
-            ->withConsecutive($this->onConsecutiveCalls([[IdealProcessing::XPATH_IDEALPROCESSING_ACTIVE]]))
+            ->withConsecutive($this->onConsecutiveCalls([[
+                $this->getPaymentMethodConfigPath(IdealProcessing::CODE, AbstractConfigProvider::XPATH_ACTIVE)
+            ]]))
             ->willReturn(1);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
 
         $resultPaymentBuckaroo = $result['payment']['buckaroo'];
 
@@ -89,7 +92,10 @@ class IdealProcessingTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(IdealProcessing::XPATH_IDEALPROCESSING_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(IdealProcessing::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($fee);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

@@ -20,6 +20,7 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -72,9 +73,19 @@ class KlarnakpTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Klarnakp::XPATH_KLARNAKP_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Klarnakp::XPATH_KLARNAKP_ORDER_EMAIL, ScopeInterface::SCOPE_STORE],
-                [Klarnakp::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [
+                    $this->getPaymentMethodConfigPath(Klarnakp::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    ScopeInterface::SCOPE_STORE,
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(Klarnakp::CODE, AbstractConfigProvider::XPATH_ORDER_EMAIL),
+                    ScopeInterface::SCOPE_STORE,
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(Klarnakp::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ]
             )
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
 
@@ -138,28 +149,15 @@ class KlarnakpTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Klarnakp::XPATH_KLARNAKP_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Klarnakp::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getPaymentFee();
 
         $this->assertEquals($expected, $result);
-    }
-
-    public function testGetInvoiceSendMethod()
-    {
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
-            ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(Klarnakp::XPATH_KLARNAKP_GET_INVOICE, ScopeInterface::SCOPE_STORE)
-            ->willReturn('1');
-
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getInvoiceSendMethod();
-
-        $this->assertEquals('1', $result);
     }
 }

@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
@@ -35,7 +36,9 @@ class PayPerEmailTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(PayPerEmail::XPATH_PAYPEREMAIL_ACTIVE)
+            ->with(
+                $this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::XPATH_ACTIVE)
+            )
             ->willReturn(0);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -49,13 +52,15 @@ class PayPerEmailTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
-            ->withConsecutive($this->onConsecutiveCalls([[PayPerEmail::XPATH_PAYPEREMAIL_ACTIVE]]))
+            ->withConsecutive($this->onConsecutiveCalls([
+                [$this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::XPATH_ACTIVE)]
+            ]))
             ->willReturn(1);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
 
         $resultPaymentBuckaroo = $result['payment']['buckaroo'];
 
@@ -101,7 +106,10 @@ class PayPerEmailTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(PayPerEmail::XPATH_PAYPEREMAIL_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($fee);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

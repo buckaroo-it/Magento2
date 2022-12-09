@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal;
@@ -40,7 +41,10 @@ class IdealTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Ideal::XPATH_IDEAL_ACTIVE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn(false);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -63,8 +67,15 @@ class IdealTest extends BaseTest
         $scopeConfigMock->expects($this->exactly(2))
             ->method('getValue')
             ->withConsecutive(
-                [Ideal::XPATH_IDEAL_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Ideal::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [
+                    $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    ScopeInterface::SCOPE_STORE,
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ]
             )
             ->willReturnOnConsecutiveCalls(true, 'EUR,USD');
 
@@ -101,7 +112,10 @@ class IdealTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Ideal::XPATH_IDEAL_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn(null);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -120,7 +134,10 @@ class IdealTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Ideal::XPATH_IDEAL_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn(10.00);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -139,7 +156,10 @@ class IdealTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Ideal::XPATH_IDEAL_ACTIVE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn('1');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

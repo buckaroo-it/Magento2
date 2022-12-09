@@ -61,7 +61,7 @@ class InvoiceRepositoryTest extends BaseTest
 
         if (!$canSave) {
             $expectsSave->willThrowException(new \Exception());
-            $this->setExpectedException(CouldNotSaveException::class);
+            $this->expectException(CouldNotSaveException::class);
         }
 
         $invoiceMock = $this->getFakeMock(Invoice::class)->setMethods(null)->getMock();
@@ -91,7 +91,7 @@ class InvoiceRepositoryTest extends BaseTest
     public function testGetById($id)
     {
         if (!$id) {
-            $this->setExpectedException(NoSuchEntityException::class, __('Invoice with id "%1" does not exist.', $id)->render());
+            $this->expectException(NoSuchEntityException::class);
         }
 
         $invoiceMock = $this->getFakeMock(Invoice::class)->setMethods(['load', 'getId'])->getMock();
@@ -155,7 +155,7 @@ class InvoiceRepositoryTest extends BaseTest
 
         if (!$canDelete) {
             $expectsSave->willThrowException(new \Exception());
-            $this->setExpectedException(CouldNotDeleteException::class);
+            $this->expectException(CouldNotDeleteException::class);
         }
 
         $invoiceMock = $this->getFakeMock(Invoice::class)->setMethods(null)->getMock();

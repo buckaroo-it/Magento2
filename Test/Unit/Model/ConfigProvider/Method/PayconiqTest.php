@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Store\Model\ScopeInterface;
@@ -36,7 +37,9 @@ class PayconiqTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
-            ->withConsecutive($this->onConsecutiveCalls([[Payconiq::XPATH_PAYCONIQ_ACTIVE]]))
+            ->withConsecutive($this->onConsecutiveCalls([[
+                $this->getPaymentMethodConfigPath(Payconiq::CODE, AbstractConfigProvider::XPATH_ACTIVE)
+            ]]))
             ->willReturn(1);
 
         $formKeyMock = $this->getFakeMock(FormKey::class)->setMethods(['getFormKey'])->getMock();
@@ -45,7 +48,7 @@ class PayconiqTest extends BaseTest
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'formKey' => $formKeyMock]);
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
 
         $resultPaymentBuckaroo = $result['payment']['buckaroo'];
 
@@ -96,7 +99,10 @@ class PayconiqTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Payconiq::XPATH_PAYCONIQ_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Payconiq::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($fee);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

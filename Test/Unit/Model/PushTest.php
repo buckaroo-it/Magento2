@@ -184,13 +184,13 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMockForAbstractClass();
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-            );
+        );
         $transactionMock->expects($this->once())->method('load')->with('', 'txn_id');
         $transactionMock->expects($this->once())->method('getOrder')->willReturn(null);
 
         $instance = $this->getInstance(['transaction' => $transactionMock, 'logging' => $debuggerMock]);
 
-        $this->setExpectedException(Exception::class, 'There was no order found by transaction Id');
+        $this->expectException(Exception::class);
         $this->invoke('loadOrder', $instance);
     }
 
@@ -302,7 +302,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->postData = $postData;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $this->invoke('giftcardPartialPayment', $instance);
 
         $this->assertEquals($expected, $result);
@@ -428,11 +428,11 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
      *
      * @dataProvider processPendingPaymentPushDataProvider
      */
-    public function testProcessPendingPaymentPush()
+    public function testProcessPendingPaymentPush($state)
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $message = 'testMessage';
         $status = 'testStatus';
 
@@ -534,7 +534,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->order = $orderMock;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->processFailedPush($status, $message);
         $this->assertTrue($result);
     }
@@ -688,7 +688,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             $orderMock->method('hasInvoices')->willReturn($orderCanInvoice);
 
             if (!$orderCanInvoice || $orderHasInvoices) {
-                $this->setExpectedException(Exception::class);
+                $this->expectException(Exception::class);
             } else {
                 $paymentMock->expects($this->once())->method('registerCaptureNotification')->with($amount);
                 $paymentMock->expects($this->once())->method('save');
@@ -717,7 +717,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->order = $orderMock;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->processSucceededPush($status, $message);
         $this->assertTrue($result);
     }

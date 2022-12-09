@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -67,8 +69,16 @@ class BelfiusTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Belfius::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null],
-                [Belfius::XPATH_PAYMENT_FEE_LABEL, ScopeInterface::SCOPE_STORE, null],
+                [
+                    $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE_LABEL),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ]
             )
             ->willReturnOnConsecutiveCalls('EUR', 'Belfius Fee');
 
@@ -135,7 +145,10 @@ class BelfiusTest extends BaseTest
 
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Belfius::XPATH_BELFIUS_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

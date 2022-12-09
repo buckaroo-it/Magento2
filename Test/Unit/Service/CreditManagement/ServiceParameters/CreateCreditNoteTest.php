@@ -46,7 +46,7 @@ class CreateCreditNoteTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->get($infoInstanceMock);
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertEquals('CreditManagement3', $result['Name']);
         $this->assertEquals('CreateCreditNote', $result['Action']);
         $this->assertEquals(1, $result['Version']);

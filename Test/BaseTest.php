@@ -28,6 +28,7 @@ use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
  */
 abstract class BaseTest extends TestCaseFinder
 {
+    protected const DEFAULT_PATH_PATTERN = 'payment/%s/%s';
     /**
      * @var null|string
      */
@@ -52,15 +53,6 @@ abstract class BaseTest extends TestCaseFinder
 
     public function setUp(): void
     {
-        /**
-         * Require functions.php to be able to use the translate function
-         */
-        if (strpos(__DIR__, 'vendor') === false) {
-            include_once __DIR__ . '/../../../../functions.php';
-        } else {
-            include_once __DIR__ . '/../../../../app/functions.php';
-        }
-
         ini_set('error_reporting', E_ALL);
         ini_set('display_errors', '1');
         ini_set('display_startup_errors', '1');
@@ -195,11 +187,11 @@ abstract class BaseTest extends TestCaseFinder
      *
      * @param                                          $function
      * @param                                          $response
-     * @param \PHPUnit_Framework_MockObject_MockObject $instance
+     * @param \PHPUnit\Framework\MockObject\MockObject $instance
      * @param                                          $with
      */
     protected function mockFunction(
-        \PHPUnit_Framework_MockObject_MockObject $instance,
+        \PHPUnit\Framework\MockObject\MockObject $instance,
         $function,
         $response,
         $with = []
@@ -254,12 +246,15 @@ abstract class BaseTest extends TestCaseFinder
         return $this;
     }
 
-    public function getPartialObject($object, $arguments = [], $mockMethods = [])
+    /**
+     * Return Full Path of Payment Method Config
+     *
+     * @param string $code
+     * @param string $configPath
+     * @return string
+     */
+    public function getPaymentMethodConfigPath(string $code, string $configPath): string
     {
-        $constructorArgs = $this->objectManagerHelper->getConstructArguments($object, $arguments);
-
-        $mock = $this->getMock($object, $mockMethods, $constructorArgs);
-
-        return $mock;
+        return sprintf(self::DEFAULT_PATH_PATTERN, $code, $configPath);
     }
 }

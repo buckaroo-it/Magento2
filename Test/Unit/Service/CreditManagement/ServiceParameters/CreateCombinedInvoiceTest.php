@@ -62,7 +62,7 @@ class CreateCombinedInvoiceTest extends BaseTest
         $instance = $this->getInstance(['configProviderMethodFactory' => $factoryMock]);
         $result = $instance->get($infoInstanceMock, 'payperemail');
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertEquals('CreditManagement3', $result['Name']);
         $this->assertEquals('CreateCombinedInvoice', $result['Action']);
         $this->assertEquals(1, $result['Version']);
