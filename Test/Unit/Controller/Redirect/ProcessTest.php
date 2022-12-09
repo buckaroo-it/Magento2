@@ -396,6 +396,7 @@ class ProcessTest extends BaseTest
 
             $exceptionMessage = 'There was no order found by transaction Id';
             $this->expectException(\Buckaroo\Magento2\Exception::class);
+            $this->expectExceptionMessage($exceptionMessage);
         }
 
         $transactionMock = $this->getFakeMock(TransactionInterface::class)
