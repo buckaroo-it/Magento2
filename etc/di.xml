@@ -378,10 +378,6 @@
                     <item name="type" xsi:type="string">public_key</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\PublicKey</item>
                 </item>
-                <item name="predefined" xsi:type="array">
-                    <item name="type" xsi:type="string">predefined</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Predefined</item>
-                </item>
                 <item name="states" xsi:type="array">
                     <item name="type" xsi:type="string">states</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\States</item>
@@ -471,7 +467,6 @@
             <argument name="configProviders" xsi:type="array">
                 <item name="buckaroo_magento2_configprovider_account" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Account</item>
                 <item name="buckaroo_magento2_configprovider_buckaroofee" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee</item>
-                <item name="buckaroo_magento2_configprovider_predefined" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Predefined</item>
                 <item name="buckaroo_magento2_configprovider_privatekey" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Privatekey</item>
                 <item name="buckaroo_magento2_configprovider_publickey" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Publickey</item>
                 <item name="buckaroo_magento2_configprovider_refund" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Refund</item>
@@ -546,6 +541,7 @@
                 <item name="sofortbanking" xsi:type="string">sofortueberweisung</item>
                 <item name="creditcards" xsi:type="string">creditcard</item>
                 <item name="emandate" xsi:type="string">emandates</item>
+                <item name="mrcash" xsi:type="string">bancontactmrcash</item>
             </argument>
         </arguments>
     </type>
@@ -696,6 +692,14 @@
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BuckarooPayRemainderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="amount" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayReminder\AmountDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayReminder\OriginalTransactionKeyDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -933,6 +937,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
                 <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\IssuerDataBuilder</item>
             </argument>
         </arguments>
@@ -1769,7 +1774,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CapayableOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayInInstallments</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
@@ -1782,22 +1787,22 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
                 <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayInInstallmentsDataBuilder</item>
                 <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
                 <item name="phone" xsi:type="string">CapayablePhone</item>
-                <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerType</item>
-                <item name="invoice_date" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\InvoiceDate</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Articles</item>
-                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Customer</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Address</item>
-                <item name="sub_totals" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\SubTotals</item>
-
+                <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerTypeDataBuilder</item>
+                <item name="invoice_date" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\InvoiceDateDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\ArticlesDataBuilder</item>
+                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\AddressDataBuilder</item>
+                <item name="sub_totals" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\SubTotalsDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CapayablePhone" type="Buckaroo\Magento2\Gateway\Request\Capayable\Builder\Phone">
+    <virtualType name="CapayablePhone" type="Buckaroo\Magento2\Gateway\Request\Capayable\Builder\PhoneDataBuilder">
         <arguments>
             <argument name="phoneFormatter" xsi:type="object">Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter</argument>
         </arguments>
@@ -3018,6 +3023,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
                 <item name="giftcards" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GiftcardsDataBuilder</item>
             </argument>
         </arguments>

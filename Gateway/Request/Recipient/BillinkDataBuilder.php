@@ -51,6 +51,12 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
 
     protected function getGender(): string
     {
-        return ucfirst(parent::getGender());
+        if ($this->payment->getAdditionalInformation('customer_gender') === '1') {
+            return 'Male';
+        } elseif ($this->payment->getAdditionalInformation('customer_gender') === '2') {
+            return 'Female';
+        } else {
+            return 'Unknown';
+        }
     }
 }

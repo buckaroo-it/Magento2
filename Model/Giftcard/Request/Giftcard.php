@@ -138,7 +138,7 @@ class Giftcard implements GiftcardInterface
     protected $cardTypes = [
         'fashioncheque' => [
             'number' => 'fashionChequeCardNumber',
-            'pin' => 'fashionChequePIN',
+            'pin' => 'fashionChequePin',
         ],
         'tcs' => [
             'number' => 'tcsCardnumber',

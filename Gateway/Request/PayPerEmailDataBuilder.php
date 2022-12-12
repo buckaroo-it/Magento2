@@ -6,6 +6,7 @@ namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
+use Buckaroo\Resources\Constants\Gender;
 
 class PayPerEmailDataBuilder extends AbstractDataBuilder
 {
@@ -32,7 +33,7 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
             'paymentMethodsAllowed' => $this->getPaymentMethodsAllowed($this->payPerEmailConfig, $storeId),
             'attachment' => '',
             'customer' => [
-                'gender' => $payment->getAdditionalInformation('customer_gender'),
+                'gender' => $payment->getAdditionalInformation('customer_gender') ?? Gender::UNKNOWN,
                 'firstName' => $payment->getAdditionalInformation('customer_billingFirstName'),
                 'lastName' => $payment->getAdditionalInformation('customer_billingLastName')
             ]

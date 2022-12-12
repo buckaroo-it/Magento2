@@ -22,7 +22,7 @@ class PayLinkHandler extends AbstractResponseHandler implements HandlerInterface
         if (!empty($paylink)) {
             $this->messageManager->addSuccess(
                 __(
-                    'You PayLink <a href="%1">%1</a>',
+                    'Your PayLink <a href="%1">%1</a>',
                     $paylink
                 )
             );
