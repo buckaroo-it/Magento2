@@ -304,7 +304,7 @@
 
 /* ===================== Sofort ======================= */
 .buckaroo_magento2_sofortbanking .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
+    background: url(../images/buckaroo_magento2_sofortbanking_title.png) no-repeat;
     margin-top: -7px;
     float: right;
     margin-right: -3px;
@@ -826,7 +826,7 @@
 
     /* Sofort */
     .buckaroo_magento2_sofortbanking .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
+        background: url(../images/buckaroo_magento2_sofortbanking_title.png) no-repeat;
         margin-top: -1px;
         float:left;
         margin-right: -3px;
