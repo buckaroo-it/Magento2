@@ -33,11 +33,13 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
         /** @var MethodInterface $paymentMethodInstance */
         $paymentMethodInstance = $validationSubject['paymentMethodInstance'];
 
-        $storeId = $validationSubject['quote']->getStoreId();
+        /** @var \Magento\Quote\Model\Quote $quote */
+        $quote = $validationSubject['quote'];
+        $storeId = $quote->getStoreId();
         $maximum = $paymentMethodInstance->getConfigData('max_amount', $storeId);
         $minimum = $paymentMethodInstance->getConfigData('min_amount', $storeId);
 
-        $total = $validationSubject['quote']->getGrandTotal();
+        $total = $quote->getGrandTotal();
 
         if ($total < 0.01
             || $maximum !== null && $total > $maximum
