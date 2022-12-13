@@ -677,8 +677,13 @@ class Afterpay20 extends AbstractMethod
             ];
         }
 
-        if ($billingAddress->getCountryId() == 'NL' || $billingAddress->getCountryId() == 'BE') {
-
+        if (
+            (
+                $billingAddress->getCountryId() == 'NL' &&
+                $this->isCustomerB2C($billingAddress->getCompany(), $order->getStoreId())
+            ) ||
+            $billingAddress->getCountryId() == 'BE'
+        ) {
             $billingData[] = [
                 '_'    => $birthDayStamp,
                 'Name' => 'BirthDate',
@@ -892,6 +897,16 @@ class Afterpay20 extends AbstractMethod
         return $this->getConfigData('customer_type', $storeId) === AfterpayCustomerType::CUSTOMER_TYPE_B2B;
     }
 
+    public function isCustomerB2C($company, $storeId = null)
+    {
+        $customerType = $this->getConfigData('customer_type', $storeId);
+
+        return $customerType ===  AfterpayCustomerType::CUSTOMER_TYPE_B2C || 
+        (
+            $customerType !== AfterpayCustomerType::CUSTOMER_TYPE_B2B &&
+            $this->isCompanyEmpty($company)
+        );
+    }
      /**
      * Validate that we received a company.
      *

@@ -1,5 +1,5 @@
-<?xml version="1.0"?>
-<!--
+<?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -18,13 +18,28 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
- -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Buckaroo_Magento2:etc/buckaroo_module.xsd">
-    <module name="Buckaroo_Magento2" setup_version="1.44.0" build_number="1769" stability="stable">
-        <sequence>
-            <module name="Magento_Payment"/>
-            <module name="Magento_ReleaseNotification"/>
-            <module name="Magento_Sales"/>
-        </sequence>
-    </module>
-</config>
+
+namespace Buckaroo\Magento2\Model\Voucher;
+
+use Magento\Quote\Api\Data\CartInterface;
+
+interface ApplyVoucherRequestInterface {
+    
+    /**
+     * Set voucherCode
+     *
+     * @param string $voucherCode
+     *
+     * @return \Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface
+     */
+    public function setVoucherCode(string $voucherCode);
+
+     /**
+     * Set quote
+     *
+     * @param CartInterface $quote
+     *
+     * @return \Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface
+     */
+    public function setQuote(CartInterface $quote);
+}

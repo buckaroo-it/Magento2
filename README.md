@@ -21,7 +21,7 @@
 Magento is an e-commerce platform owned by Adobe. There are two versions: Magento Open Source, the free, open source version written in PHP, and Magento Commerce, the paid cloud version.
 More than 250,000 merchants around the world use the Magento platform.
 
-The Buckaroo Payments Plugin ([Dutch](https://support.buckaroo.nl/categorieen/plugins/magento-2) or [English](https://support.buckaroo.eu/categories/plugins/magento-2)) for Magento 2 enables a ready-to-sell payment gateway. You can choose from popular online payment methods in The Netherlands, Belgium, France, Germany and globally.
+The Buckaroo Payments Plugin ([Dutch](https://docs.buckaroo.io/docs/nl/magento-2) or [English](https://docs.buckaroo.io/docs/magento-2)) for Magento 2 enables a ready-to-sell payment gateway. You can choose from popular online payment methods in The Netherlands, Belgium, France, Germany and globally.
 Start accepting payments within a few minutes.
 
 ### Requirements
@@ -61,16 +61,16 @@ php bin/magento setup:di:compile
 
 ### Configuration
 
-For the configuration of the plugin, please refer to our [Dutch](https://support.buckaroo.nl/categorieen/plugins/magento-2) or [English](https://support.buckaroo.eu/categories/plugins/magento-2) support website.
+For the configuration of the plugin, please refer to our [Dutch](https://docs.buckaroo.io/docs/nl/magento-2) or [English](https://docs.buckaroo.io/v1/docs/magento-2) support website.
 You will find all the necessary information there. But if you still have some unanswered questions, then please contact our [technical support department](mailto:support@buckaroo.nl).
 
 ### Additional plugins
 
 The Buckaroo Magento 2 plugin can be extended with the following modules:
 
-| Second chance module             | Google Analytics module  |
-:-------------------------:|:-------------------------:
-[<img src="https://www.buckaroo.nl/media/3479/magento2_secondchance_icon.png" alt="Second-chance" width="200"/>](/v1/docs/second-chance-module)|  [<img src="https://www.buckaroo.nl/media/3478/magento2_googleanalytics_icon.png" alt="Google-analytics" width="200"/>](/v1/docs/google-analytics-module)|
+| Second chance module | Google Analytics module | Hyvä React checkout module |
+:-------------------------:|:-------------------------:|:-------------------------:|
+[<img src="https://www.buckaroo.nl/media/3479/magento2_secondchance_icon.png" alt="Second-chance" width="200"/>](https://docs.buckaroo.io/v1/docs/second-chance-module)|  [<img src="https://www.buckaroo.nl/media/3478/magento2_googleanalytics_icon.png" alt="Google-analytics" width="200"/>](https://docs.buckaroo.io/v1/docs/google-analytics-module)| [<img src="https://www.buckaroo.nl/media/3577/magento2_hyva_icon.png" alt="Hyva" width="200"/>](https://docs.buckaroo.io/v1/docs/hyva-react-checkout-module) |
 
 ### Contribute
 
@@ -87,8 +87,8 @@ If you want to contribute as well, then please follow our [Contribution Guidelin
 - **PATCHES:** Bug and hotfixes only.
 
 ### Additional information
-- **Knowledge base & FAQ:** Available in [Dutch](https://support.buckaroo.nl/categorieen/plugins/magento-2) or [English](https://support.buckaroo.eu/categories/plugins/magento-2).
-- **Support:** https://support.buckaroo.eu/contact
+- **Knowledge base & FAQ:** Available in [Dutch](https://docs.buckaroo.io/docs/nl/magento-2) or [English](https://docs.buckaroo.io/docs/magento-2).
+- **Support:** https://docs.buckaroo.io
 - **Contact:** [support@buckaroo.nl](mailto:support@buckaroo.nl) or [+31 (0)30 711 50 50](tel:+310307115050)
 
 <b>Please note:</b><br>

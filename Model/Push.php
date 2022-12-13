@@ -39,6 +39,7 @@ use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\SepaDirectDebit;
 use Buckaroo\Magento2\Model\Method\Sofortbanking;
 use Buckaroo\Magento2\Model\Method\Transfer;
+use Buckaroo\Magento2\Model\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 use Magento\Framework\App\ResourceConnection;
@@ -360,16 +361,17 @@ class Push implements PushInterface
             );
         }
 
+
         if (!$this->isGroupTransactionInfo()) {
             $this->setTransactionKey();
         }
-
         if (isset($this->postData['brq_statusmessage'])) {
             if (
                 $this->order->getState() === Order::STATE_NEW &&
                 !isset($this->postData['add_frompayperemail']) &&
+                !$this->hasPostData('brq_transaction_method', 'transfer') &&
+                !isset($this->postData['brq_relatedtransaction_partialpayment']) &&
                 (isset($this->postData['brq_statuscode']) && $this->postData['brq_statuscode'] == 190)
-
             ) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addStatusHistoryComment(
@@ -381,10 +383,11 @@ class Push implements PushInterface
             }
         }
 
-        if (($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) && $this->isGroupTransactionPart()) {
+        if ((!in_array($payment->getMethod() ,[Giftcards::PAYMENT_METHOD_CODE, Voucher::PAYMENT_METHOD_CODE])) && $this->isGroupTransactionPart()) {
             $this->savePartGroupTransaction();
             return true;
         }
+
 
         switch ($transactionType) {
             case self::BUCK_PUSH_TYPE_INVOICE:
@@ -1027,6 +1030,7 @@ class Push implements PushInterface
         if (($this->order->getState() === Order::STATE_CANCELED)
             && ($this->order->getStatus() === Order::STATE_CANCELED)
             && ($response['status'] === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            && !isset($this->postData['brq_relatedtransaction_partialpayment'])
         ) {
             $this->logging->addDebug(__METHOD__ . '|2|');
 

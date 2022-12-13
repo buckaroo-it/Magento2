@@ -20,15 +20,17 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Catalog\Model\Product\Type;
-use Magento\Sales\Api\Data\CreditmemoInterface;
-use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
+use Magento\Tax\Model\Calculation;
+use Magento\Catalog\Model\Product\Type;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
+use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 
 class Afterpay extends AbstractMethod
 {
@@ -999,7 +1001,7 @@ class Afterpay extends AbstractMethod
 
         $customerData = [
             [
-                '_'    => $this->getRemoteAddress(),
+                '_'    => $this->getIp($this->helper->getStore()),
                 'Name' => 'CustomerIPAddress',
             ],
             [
@@ -1082,5 +1084,29 @@ class Afterpay extends AbstractMethod
     protected function getCaptureTransactionBuilderVersion()
     {
         return 1;
+    }
+
+    protected function getIp($store)
+    {
+        if (!$this->request instanceof RequestInterface) {
+            throw new \Exception("Required parameter `request` must be instance of Magento\Framework\App\RequestInterface");
+        }
+
+        $ipHeaders = $this->helper->configProviderAccount->getIpHeader($store);
+
+        $headers = [];
+        if ($ipHeaders) {
+            $ipHeaders = explode(',', strtoupper($ipHeaders));
+            foreach ($ipHeaders as $ipHeader) {
+                $headers[] = 'HTTP_' . str_replace('-', '_', $ipHeader);
+            }
+        }
+
+        $remoteAddress = new RemoteAddress(
+            $this->request,
+            $headers
+        );
+
+        return $remoteAddress->getRemoteAddress();
     }
 }
