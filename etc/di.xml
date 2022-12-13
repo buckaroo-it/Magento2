@@ -546,6 +546,26 @@
         </arguments>
     </type>
 
+    <!-- Buckaroo Payment Provider Gateway Availability Validators -->
+    <virtualType name="BuckarooAvailabilityValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="account_config" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\ActiveAccountValidator</item>
+                <item name="area_code" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
+                <item name="based_on_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnIPValidator</item>
+                <item name="based_on_amount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnAmountValidator</item>
+                <item name="based_on_currency" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator</item>
+            </argument>
+            <argument name="chainBreakingValidators" xsi:type="array">
+                <item name="account_config" xsi:type="string">account_config</item>
+                <item name="area_code" xsi:type="string">area_code</item>
+                <item name="based_on_ip" xsi:type="string">based_on_ip</item>
+                <item name="based_on_amount" xsi:type="string">based_on_amount</item>
+                <item name="based_on_currency" xsi:type="string">based_on_currency</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
         <arguments>
             <argument name="executors" xsi:type="array">
@@ -900,6 +920,7 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">IdealCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>

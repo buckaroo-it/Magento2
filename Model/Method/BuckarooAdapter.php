@@ -4,7 +4,11 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\Method\Buckaroo\Magento2\Gateway\Validator\AvailabilityValidator;
+use Magento\Developer\Helper\Data;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Payment\Gateway\Command\CommandManagerInterface;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
@@ -80,6 +84,11 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     protected $payRemainder = 0;
 
     /**
+     * @var \Buckaroo\Magento2\Gateway\Validator\AvailabilityValidator
+     */
+    private $availabilityValidator;
+
+    /**
      * @param ManagerInterface $eventManager
      * @param ValueHandlerPoolInterface $valueHandlerPool
      * @param PaymentDataObjectFactory $paymentDataObjectFactory
@@ -88,8 +97,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param string $infoBlockType
      * @param ObjectManagerInterface $objectManager
      * @param State $state
-     * @param \Magento\Developer\Helper\Data $developmentHelper
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+     * @param \Buckaroo\Magento2\Gateway\Validator\AvailabilityValidator $availabilityValidator
+     * @param Data $developmentHelper
+     * @param Factory $configProviderFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
      * @param RequestInterface|null $request
@@ -100,26 +110,26 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param bool $usesRedirect
      */
     public function __construct(
-        ManagerInterface                                       $eventManager,
-        ValueHandlerPoolInterface                              $valueHandlerPool,
-        PaymentDataObjectFactory                               $paymentDataObjectFactory,
-                                                               $code,
-                                                               $formBlockType,
-                                                               $infoBlockType,
-        ObjectManagerInterface                                 $objectManager,
-        State                                                  $state,
-        \Magento\Developer\Helper\Data                         $developmentHelper,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory        $configProviderFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
-        \Magento\Framework\Pricing\Helper\Data                 $priceHelper,
-        RequestInterface                                       $request = null,
-        CommandPoolInterface                                   $commandPool = null,
-        ValidatorPoolInterface                                 $validatorPool = null,
-        CommandManagerInterface                                $commandExecutor = null,
-        LoggerInterface                                        $logger = null,
-        bool                                                   $usesRedirect = true
-    )
-    {
+        ManagerInterface                                           $eventManager,
+        ValueHandlerPoolInterface                                  $valueHandlerPool,
+        PaymentDataObjectFactory                                   $paymentDataObjectFactory,
+                                                                   $code,
+                                                                   $formBlockType,
+                                                                   $infoBlockType,
+        ObjectManagerInterface                                     $objectManager,
+        State                                                      $state,
+        \Buckaroo\Magento2\Gateway\Validator\AvailabilityValidator $availabilityValidator,
+        \Magento\Developer\Helper\Data                             $developmentHelper,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory            $configProviderFactory,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory     $configProviderMethodFactory,
+        \Magento\Framework\Pricing\Helper\Data                     $priceHelper,
+        RequestInterface                                           $request = null,
+        CommandPoolInterface                                       $commandPool = null,
+        ValidatorPoolInterface                                     $validatorPool = null,
+        CommandManagerInterface                                    $commandExecutor = null,
+        LoggerInterface                                            $logger = null,
+        bool                                                       $usesRedirect = true
+    ) {
         parent::__construct(
             $eventManager,
             $valueHandlerPool,
@@ -142,6 +152,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         $this->configProviderFactory = $configProviderFactory;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->priceHelper = $priceHelper;
+        $this->availabilityValidator = $availabilityValidator;
     }
 
     /**
@@ -149,41 +160,30 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * This is a temporary workaround for https://github.com/magento/magento2/issues/33869.
      * It sets the info instance before the method gets executed. Otherwise, the validator doesn't get called
      * correctly.
+     * @throws NotFoundException
      */
     public function isAvailable(CartInterface $quote = null)
     {
         if (null == $quote) {
             return false;
         }
-        /**
-         * @var Account $accountConfig
-         */
-        $accountConfig = $this->configProviderFactory->get('account');
-        if ($accountConfig->getActive() == 0) {
-            return false;
+
+        try {
+            $validator = $this->getValidatorPool()->get('buckaroo_availability');
+            $result = $validator->validate(
+                [
+                    'paymentMethodInstance' => $this,
+                    'quote' => $quote
+                ]
+            );
+            if (!$result->isValid()) {
+                return false;
+            }
+        } // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock
+        catch (\Exception $e) {
+            // pass
         }
 
-        $areaCode = $this->state->getAreaCode();
-        if ('adminhtml' === $areaCode
-            && $this->getConfigData('available_in_backend') !== null
-            && $this->getConfigData('available_in_backend') == 0
-        ) {
-            return false;
-        }
-
-        if (!$this->isAvailableBasedOnIp($accountConfig, $quote)) {
-            return false;
-        }
-
-        if (!$this->isAvailableBasedOnAmount($quote)) {
-            return false;
-        }
-
-        if (!$this->isAvailableBasedOnCurrency($quote)) {
-            return false;
-        }
-
-        $this->setInfoInstance($quote->getPayment());
         return parent::isAvailable($quote);
     }
 
