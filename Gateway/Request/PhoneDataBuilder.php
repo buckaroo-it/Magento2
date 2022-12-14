@@ -4,24 +4,34 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
+use Magento\Sales\Model\Order;
 
-class PhoneDataBuilder extends AbstractDataBuilder
+class PhoneDataBuilder implements BuilderInterface
 {
     private string $addressType;
 
+    /**
+     * @param string $addressType
+     */
     public function __construct(string $addressType = 'billing')
     {
         $this->addressType = $addressType;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $order = $paymentDO->getOrder()->getOrder();
         /**
          * @var OrderAddressInterface $billingAddress
          */
-        $address = $this->getAddress();
+        $address = $this->getAddress($order);
 
         $telephone = $this->getPayment()->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $address->getTelephone() : $telephone);
@@ -32,12 +42,18 @@ class PhoneDataBuilder extends AbstractDataBuilder
         ]];
     }
 
-    private function getAddress()
+    /**
+     * Get Billing/Shipping Address
+     *
+     * @param Order $order
+     * @return OrderAddressInterface|null
+     */
+    private function getAddress($order)
     {
         if ($this->addressType == 'shipping') {
-            return $this->getOrder()->getShippingAddress();
+            return $order->getShippingAddress();
         } else {
-            return $this->getOrder()->getBillingAddress();
+            return $order->getBillingAddress();
         }
     }
 }

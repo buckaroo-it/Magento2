@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Resources\Constants\Gender;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
-class CustomerNameDataBuilder extends AbstractDataBuilder
+class CustomerNameDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
         /**
          * @var OrderAddressInterface $billingAddress
          */
-        $billingAddress = $this->getOrder()->getBillingAddress();
+        $billingAddress = $paymentDO->getOrder()->getBillingAddress();
 
         return [
             'customer' => [

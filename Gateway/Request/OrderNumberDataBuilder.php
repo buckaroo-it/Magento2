@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Magento\Sales\Api\Data\OrderAddressInterface;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class OrderNumberDataBuilder extends AbstractDataBuilder
+class OrderNumberDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
-        return ['order' => $this->getOrder()->getIncrementId()];
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        return ['order' => $paymentDO->getOrder()->getOrder()->getIncrementId()];
     }
 }

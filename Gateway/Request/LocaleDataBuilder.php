@@ -4,20 +4,32 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Magento\Sales\Api\Data\OrderAddressInterface;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Sales\Model\Order;
 
-class LocaleDataBuilder extends AbstractDataBuilder
+class LocaleDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $order = $paymentDO->getOrder()->getOrder();
 
-        return ['locale' => $this->getLocaleCode()];
+        return ['locale' => $this->getLocaleCode($order)];
     }
 
-    private function getLocaleCode(): string
+    /**
+     * Get Locale Code By Country ID from Billing Address
+     *
+     * @param Order $order
+     * @return string
+     */
+    private function getLocaleCode($order): string
     {
-        $country = $this->getOrder()->getBillingAddress()->getCountryId();
+        $country = $order->getBillingAddress()->getCountryId();
 
         if ($country == 'CN') {
             $localeCode = 'zh-CN';

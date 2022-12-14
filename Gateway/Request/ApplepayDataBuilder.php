@@ -2,23 +2,30 @@
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 
-
-class ApplepayDataBuilder extends AbstractDataBuilder
+class ApplepayDataBuilder implements BuilderInterface
 {
+
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+
         return [
-            'paymentData' => base64_encode((string)$this->getPayment()->getAdditionalInformation('applepayTransaction')),
+            'paymentData' => base64_encode(
+                (string)$paymentDO->getPayment()->getAdditionalInformation('applepayTransaction')
+            ),
             'customerCardName' => $this->getCustomerCardName(),
         ];
     }
 
     /**
      * Get customer card name from applepay transaction
-     * 
+     *
      * @return string|null
      */
     protected function getCustomerCardName()

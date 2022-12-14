@@ -2,10 +2,11 @@
 
 namespace Buckaroo\Magento2\Gateway\Helper;
 
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Model\Quote;
 
-class SubjectReader extends \Magento\Payment\Gateway\Helper\SubjectReader
+class SubjectReader
 {
     /**
      * Reads payment method instance from subject
@@ -39,5 +40,16 @@ class SubjectReader extends \Magento\Payment\Gateway\Helper\SubjectReader
         }
 
         return $subject['quote'];
+    }
+
+    /**
+     * Reads payment from subject
+     *
+     * @param array $subject
+     * @return PaymentDataObjectInterface
+     */
+    public function readPayment(array $subject): PaymentDataObjectInterface
+    {
+        return \Magento\Payment\Gateway\Helper\SubjectReader::readPayment($subject);
     }
 }

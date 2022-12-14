@@ -4,20 +4,33 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-class CreditcardEncryptedDataBuilder extends AbstractDataBuilder
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
+class CreditcardEncryptedDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $payment = $paymentDO->getPayment();
 
-        $additionalInformation = $this->getPayment()->getAdditionalInformation();
+        $additionalInformation = $payment->getAdditionalInformation();
 
         if (!isset($additionalInformation['customer_encrypteddata'])) {
-            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the encrypted creditcard data to Buckaroo.'));
+            throw new Exception(__(
+                'An error occured trying to send the encrypted creditcard data to Buckaroo.'
+            ));
         }
 
         if (!isset($additionalInformation['customer_creditcardcompany'])) {
-            throw new \Buckaroo\Magento2\Exception(__('An error occured trying to send the creditcard company data to Buckaroo.'));
+            throw new Exception(__(
+                'An error occured trying to send the creditcard company data to Buckaroo.'
+            ));
         }
 
         return [

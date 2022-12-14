@@ -44,8 +44,7 @@ class AmountDebitDataBuilder implements BuilderInterface
         Factory $configProviderMethodFactory,
                 $amount = null,
                 $currency = null
-    )
-    {
+    ) {
         if ($amount !== null) {
             $this->amount = $amount;
         }
@@ -79,7 +78,6 @@ class AmountDebitDataBuilder implements BuilderInterface
             self::CURRENCY => $this->getCurrency()
         ];
     }
-
 
     /**
      * @return \Magento\Sales\Model\Order
@@ -185,6 +183,4 @@ class AmountDebitDataBuilder implements BuilderInterface
         $configProvider = $this->configProviderMethodFactory->get($method);
         return $configProvider->getAllowedCurrencies();
     }
-
-
 }

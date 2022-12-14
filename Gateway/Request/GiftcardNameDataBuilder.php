@@ -2,14 +2,20 @@
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-class GiftcardNameDataBuilder extends AbstractDataBuilder
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
+
+class GiftcardNameDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
 
         return [
-            'name' => $this->getPayment()->getAdditionalInformation('giftcard_method')
+            'name' => $paymentDO->getPayment()->getAdditionalInformation('giftcard_method')
         ];
     }
 }

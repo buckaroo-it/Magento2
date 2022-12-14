@@ -5,8 +5,8 @@
  */
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\ConfigInterface;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
@@ -34,17 +34,8 @@ class CaptureRequest implements BuilderInterface
      */
     public function build(array $buildSubject)
     {
-        if (!isset($buildSubject['payment'])
-            || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
-
-        /** @var PaymentDataObjectInterface $paymentDO */
-        $paymentDO = $buildSubject['payment'];
-
+        $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder();
-
         $payment = $paymentDO->getPayment();
 
         if (!$payment instanceof OrderPaymentInterface) {

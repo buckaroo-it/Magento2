@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class TransferOrderDataBuilder extends AbstractDataBuilder
+class TransferOrderDataBuilder implements BuilderInterface
 {
     /**
      * @var Transfer
@@ -27,10 +29,11 @@ class TransferOrderDataBuilder extends AbstractDataBuilder
      */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $order = $paymentDO->getOrder()->getOrder();
         return [
-            'dateDue' => $this->transferConfig->getDueDateFormated($this->getOrder()->getStore()),
-            'sendMail' => (bool)$this->transferConfig->getOrderEmail($this->getOrder()->getStore()),
+            'dateDue' => $this->transferConfig->getDueDateFormated($order->getStore()),
+            'sendMail' => (bool)$this->transferConfig->getOrderEmail($order->getStore()),
         ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 
@@ -35,11 +36,11 @@ class PayLinkDataBuilder extends AbstractDataBuilder
      */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
-        $storeId = $this->getOrder()->getStoreId();
-        $order = $this->getOrder();
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $order = $paymentDO->getOrder()->getOrder();
+        $storeId = $order->getStoreId();
 
-        $data = [
+        return [
             'merchantSendsEmail' => true,
             'email' => $order->getCustomerEmail(),
             'paymentMethodsAllowed' => $this->getPaymentMethodsAllowed($this->payLinkConfig, $storeId),
@@ -50,10 +51,15 @@ class PayLinkDataBuilder extends AbstractDataBuilder
                 'lastName' => $order->getCustomerLastname()
             ]
         ];
-
-        return $data;
     }
 
+    /**
+     * Get Payment Methods Allowed
+     *
+     * @param PayLink $config
+     * @param int|string|null $storeId
+     * @return string
+     */
     private function getPaymentMethodsAllowed($config, $storeId)
     {
         if ($methods = $config->getPaymentMethod($storeId)) {

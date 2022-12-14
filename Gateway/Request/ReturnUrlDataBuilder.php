@@ -2,7 +2,9 @@
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -41,35 +43,28 @@ class ReturnUrlDataBuilder implements BuilderInterface
         $this->formKey = $formKey;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject)
     {
-        if (!isset($buildSubject['payment'])
-            || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
-
-        /** @var PaymentDataObjectInterface $payment */
-        $payment = $buildSubject['payment'];
-        $this->setOrder($payment->getOrder()->getOrder());
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $order = $paymentDO->getOrder()->getOrder();
 
         return [
-            'returnURL' => $this->getReturnUrl(),
-            'returnURLError' => $this->getReturnUrl(),
-            'returnURLCancel' => $this->getReturnUrl(),
-            'returnURLReject' => $this->getReturnUrl(),
+            'returnURL' => $this->getReturnUrl($order),
+            'returnURLError' => $this->getReturnUrl($order),
+            'returnURLCancel' => $this->getReturnUrl($order),
+            'returnURLReject' => $this->getReturnUrl($order),
             'pushURL' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
             'pushURLFailure' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push')
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReturnUrl()
+    public function getReturnUrl($order)
     {
         if ($this->returnUrl === null) {
-            $url = $this->urlBuilder->setScope($this->order->getStoreId());
+            $url = $this->urlBuilder->setScope($order->getStoreId());
             $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
 
             $this->setReturnUrl($url);
@@ -78,9 +73,6 @@ class ReturnUrlDataBuilder implements BuilderInterface
         return $this->returnUrl;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setReturnUrl($url)
     {
         $routeUrl = $this->urlBuilder->getRouteUrl($url);
@@ -92,27 +84,10 @@ class ReturnUrlDataBuilder implements BuilderInterface
 
     /**
      * @return string
+     * @throws LocalizedException
      */
     public function getFormKey()
     {
         return $this->formKey->getFormKey();
-    }
-
-    /**
-     * @return \Magento\Sales\Model\Order
-     */
-    public function getOrder()
-    {
-        return $this->order;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setOrder($order)
-    {
-        $this->order = $order;
-
-        return $this;
     }
 }

@@ -30,7 +30,6 @@ class AdditionalParametersDataBuilder implements BuilderInterface
         $this->additionalParameters = $additionalParameters;
     }
 
-
     public function build(array $buildSubject)
     {
         return [

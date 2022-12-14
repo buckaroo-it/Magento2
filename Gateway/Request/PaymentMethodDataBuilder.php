@@ -2,26 +2,22 @@
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class PaymentMethodDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject)
     {
-        if (!isset($buildSubject['payment'])
-            || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
-
-        /** @var PaymentDataObjectInterface $payment */
-        $payment = $buildSubject['payment']->getPayment();
+        $paymentDO = SubjectReader::readPayment($buildSubject);
 
         /**
          * @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $methodInstance
          */
-        $methodInstance = $payment->getMethodInstance();
+        $methodInstance = $paymentDO->getPayment()->getMethodInstance();
         $method = $methodInstance->buckarooPaymentMethodCode ?? 'buckaroo_magento2_ideal';
         $providerType = str_replace('buckaroo_magento2_', '', $method);
 
@@ -31,6 +27,5 @@ class PaymentMethodDataBuilder implements BuilderInterface
         return [
             'payment_method' => $providerType,
         ];
-
     }
 }

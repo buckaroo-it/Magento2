@@ -21,6 +21,9 @@ class TokenEncryptedDataBuilder extends AbstractDataBuilder
         $this->scopeConfig = $scopeConfig;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);

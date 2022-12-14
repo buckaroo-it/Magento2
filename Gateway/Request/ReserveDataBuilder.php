@@ -4,22 +4,29 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Resources\Constants\Gender;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
-class ReserveDataBuilder extends AbstractDataBuilder
+class ReserveDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $order = $paymentDO->getOrder()->getOrder();
+        $payment = $paymentDO->getPayment();
         /**
          * @var OrderAddressInterface $billingAddress
          */
-        $billingAddress = $this->getOrder()->getBillingAddress();
+        $billingAddress = $order->getBillingAddress();
         $country = $billingAddress->getCountryId();
-        $birthDayStamp = str_replace('/', '', (string)$this->payment->getAdditionalInformation('customer_DoB'));
+        $birthDayStamp = str_replace('/', '', (string)$payment->getAdditionalInformation('customer_DoB'));
         $gender = Gender::FEMALE;
-        if ($this->payment->getAdditionalInformation('customer_gender') === '1') {
+        if ($payment->getAdditionalInformation('customer_gender') === '1') {
             $gender = Gender::MALE;
         }
         return [

@@ -2,8 +2,8 @@
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
 use Buckaroo\Resources\Constants\IPProtocolVersion;
@@ -31,18 +31,15 @@ class ClientIPDataBuilder implements BuilderInterface
         $this->configProviderAccount = $configProviderAccount;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject)
     {
-        if (!isset($buildSubject['payment'])
-            || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $order = $paymentDO->getOrder()->getOrder();
 
-        $payment = $buildSubject['payment'];
-        $this->setOrder($payment->getOrder()->getOrder());
-
-        $ip = $this->getIp($this->getOrder());
+        $ip = $this->getIp($order);
 
         return [
             'clientIP' => [
@@ -111,23 +108,5 @@ class ClientIPDataBuilder implements BuilderInterface
         }
 
         return false;
-    }
-
-    /**
-     * @return Order
-     */
-    public function getOrder()
-    {
-        return $this->order;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setOrder($order)
-    {
-        $this->order = $order;
-
-        return $this;
     }
 }

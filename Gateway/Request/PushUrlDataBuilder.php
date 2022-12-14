@@ -21,6 +21,9 @@ class PushUrlDataBuilder implements BuilderInterface
         $this->urlBuilder = $urlBuilder;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
         return [
