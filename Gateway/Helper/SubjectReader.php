@@ -48,7 +48,7 @@ class SubjectReader
      * @param array $subject
      * @return PaymentDataObjectInterface
      */
-    public function readPayment(array $subject): PaymentDataObjectInterface
+    public static function readPayment(array $subject): PaymentDataObjectInterface
     {
         return \Magento\Payment\Gateway\Helper\SubjectReader::readPayment($subject);
     }
