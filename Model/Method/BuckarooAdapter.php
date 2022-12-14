@@ -5,7 +5,6 @@ namespace Buckaroo\Magento2\Model\Method;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
-use Buckaroo\Magento2\Model\Method\Buckaroo\Magento2\Gateway\Validator\AvailabilityValidator;
 use Magento\Developer\Helper\Data;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NotFoundException;
@@ -20,7 +19,6 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Framework\App\State;
 
 class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 {
@@ -54,21 +52,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     protected $request;
 
     /**
-     * @var State
-     */
-    private State $state;
-
-    /**
-     * @var \Magento\Developer\Helper\Data
-     */
-    protected $developmentHelper;
-
-    /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory
-     */
-    public $configProviderFactory;
-
-    /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
      */
     public $configProviderMethodFactory;
@@ -84,11 +67,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     protected $payRemainder = 0;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\Validator\AvailabilityValidator
-     */
-    private $availabilityValidator;
-
-    /**
      * @param ManagerInterface $eventManager
      * @param ValueHandlerPoolInterface $valueHandlerPool
      * @param PaymentDataObjectFactory $paymentDataObjectFactory
@@ -96,10 +74,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param string $formBlockType
      * @param string $infoBlockType
      * @param ObjectManagerInterface $objectManager
-     * @param State $state
-     * @param \Buckaroo\Magento2\Gateway\Validator\AvailabilityValidator $availabilityValidator
-     * @param Data $developmentHelper
-     * @param Factory $configProviderFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
      * @param RequestInterface|null $request
@@ -117,10 +91,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
                                                                    $formBlockType,
                                                                    $infoBlockType,
         ObjectManagerInterface                                     $objectManager,
-        State                                                      $state,
-        \Buckaroo\Magento2\Gateway\Validator\AvailabilityValidator $availabilityValidator,
-        \Magento\Developer\Helper\Data                             $developmentHelper,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory            $configProviderFactory,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory     $configProviderMethodFactory,
         \Magento\Framework\Pricing\Helper\Data                     $priceHelper,
         RequestInterface                                           $request = null,
@@ -146,13 +116,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         $this->buckarooPaymentMethodCode = $this->setBuckarooPaymentMethodCode();
         $this->objectManager = $objectManager;
         $this->request = $request;
-        $this->state = $state;
-        $this->developmentHelper = $developmentHelper;
         $this->usesRedirect = $usesRedirect;
-        $this->configProviderFactory = $configProviderFactory;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->priceHelper = $priceHelper;
-        $this->availabilityValidator = $availabilityValidator;
     }
 
     /**
@@ -185,80 +151,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         }
 
         return parent::isAvailable($quote);
-    }
-
-    /**
-     * Check if this payment method is limited by IP.
-     *
-     * @param Account $accountConfig
-     * @param CartInterface $quote
-     *
-     * @return bool
-     */
-    protected function isAvailableBasedOnIp(
-        Account                               $accountConfig,
-        CartInterface $quote = null
-    )
-    {
-        $methodValue = $this->getConfigData('limit_by_ip');
-        if ($accountConfig->getLimitByIp() == 1 || $methodValue == 1) {
-            $storeId = $quote ? $quote->getStoreId() : null;
-            $isAllowed = $this->developmentHelper->isDevAllowed($storeId);
-
-            if (!$isAllowed) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Check if the grand total exceeds the maximum allowed total.
-     *
-     * @param CartInterface $quote
-     *
-     * @return bool
-     */
-    protected function isAvailableBasedOnAmount(CartInterface $quote = null)
-    {
-        $storeId = $quote->getStoreId();
-        $maximum = $this->getConfigData('max_amount', $storeId);
-        $minimum = $this->getConfigData('min_amount', $storeId);
-
-        /**
-         * @var \Magento\Quote\Model\Quote $quote
-         */
-        $total = $quote->getGrandTotal();
-
-        if ($total < 0.01) {
-            return false;
-        }
-
-        if ($maximum !== null && $total > $maximum) {
-            return false;
-        }
-
-        if ($minimum !== null && $total < $minimum) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param CartInterface $quote
-     *
-     * @return bool
-     */
-    protected function isAvailableBasedOnCurrency(CartInterface $quote = null)
-    {
-        $allowedCurrenciesRaw = $this->getConfigData('allowed_currencies');
-        $allowedCurrencies = explode(',', (string)$allowedCurrenciesRaw);
-
-        $currentCurrency = $quote->getCurrency()->getQuoteCurrencyCode();
-
-        return $allowedCurrenciesRaw === null || in_array($currentCurrency, $allowedCurrencies);
     }
 
     /**s

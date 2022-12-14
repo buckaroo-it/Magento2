@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
 use Magento\Developer\Helper\Data;
@@ -46,7 +47,7 @@ class AvailableBasedOnIPValidator extends AbstractValidator
     }
 
     /**
-     * Available Based On IP dev/restrict/allow_ips
+     * Check if this payment method is limited by IP.
      *
      * @param array $validationSubject
      * @return ResultInterface
@@ -57,18 +58,10 @@ class AvailableBasedOnIPValidator extends AbstractValidator
     {
         $isValid = true;
 
-        if (!isset($validationSubject['paymentMethodInstance']) || !isset($validationSubject['quote'])) {
-            return $this->createResult(
-                false,
-                [__('Payment method instance does not exist')]
-            );
-        }
-
-        /** @var MethodInterface $paymentMethodInstance */
-        $paymentMethodInstance = $validationSubject['paymentMethodInstance'];
+        $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
 
         if ($this->accountConfig->getLimitByIp() == 1 || $paymentMethodInstance->getConfigData('limit_by_ip') == 1) {
-            $storeId = $validationSubject['quote']->getStoreId() ?? null;
+            $storeId = SubjectReader::readQuote($validationSubject)->getStoreId() ?? null;
             $isAllowed = $this->developmentHelper->isDevAllowed($storeId);
 
             if (!$isAllowed) {

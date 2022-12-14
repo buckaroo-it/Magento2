@@ -2,17 +2,16 @@
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Magento\Payment\Gateway\Data\OrderAdapterInterface;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Model\MethodInterface;
 
 class AvailableBasedOnAmountValidator extends AbstractValidator
 {
     /**
-     * Available Based on Amount
+     * Check if the grand total exceeds the maximum allowed total.
      *
      * @param array $validationSubject
      * @return ResultInterface
@@ -23,18 +22,9 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
     {
         $isValid = true;
 
-        if (!isset($validationSubject['paymentMethodInstance']) || !isset($validationSubject['quote'])) {
-            return $this->createResult(
-                false,
-                [__('Payment method instance does not exist')]
-            );
-        }
+        $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
+        $quote = SubjectReader::readQuote($validationSubject);
 
-        /** @var MethodInterface $paymentMethodInstance */
-        $paymentMethodInstance = $validationSubject['paymentMethodInstance'];
-
-        /** @var \Magento\Quote\Model\Quote $quote */
-        $quote = $validationSubject['quote'];
         $storeId = $quote->getStoreId();
         $maximum = $paymentMethodInstance->getConfigData('max_amount', $storeId);
         $minimum = $paymentMethodInstance->getConfigData('min_amount', $storeId);

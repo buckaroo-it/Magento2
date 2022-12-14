@@ -1036,6 +1036,7 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">KlarnaCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1151,6 +1152,7 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">KlarnaInCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1225,6 +1227,7 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">KlarnaKpCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1401,6 +1404,7 @@
     <virtualType name="AlipayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">AlipayCountryValidator</item>
             </argument>
         </arguments>
@@ -1484,6 +1488,7 @@
     <virtualType name="GiropayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">GiropayCountryValidator</item>
             </argument>
         </arguments>
@@ -1564,6 +1569,7 @@
     <virtualType name="TrustlyValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">TrustlyCountryValidator</item>
             </argument>
         </arguments>
@@ -1638,6 +1644,7 @@
     <virtualType name="Przelewy24ValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">Przelewy24CountryValidator</item>
             </argument>
         </arguments>
@@ -1713,6 +1720,7 @@
     <virtualType name="BelfiusValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">BelfiusCountryValidator</item>
             </argument>
         </arguments>
@@ -1769,6 +1777,7 @@
     <virtualType name="CapayableValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">CapayableCountryValidator</item>
             </argument>
         </arguments>
@@ -1865,6 +1874,7 @@
     <virtualType name="EpsValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">EpsCountryValidator</item>
             </argument>
         </arguments>
@@ -1911,6 +1921,7 @@
     <virtualType name="KbcValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">KbcCountryValidator</item>
             </argument>
         </arguments>
@@ -1959,6 +1970,7 @@
     <virtualType name="MrcashValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">MrcashCountryValidator</item>
             </argument>
         </arguments>
@@ -2031,6 +2043,7 @@
     <virtualType name="PayconiqValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">PayconiqCountryValidator</item>
             </argument>
         </arguments>
@@ -2078,6 +2091,7 @@
     <virtualType name="BillinkValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">BillinkCountryValidator</item>
             </argument>
         </arguments>
@@ -2247,6 +2261,7 @@
     <virtualType name="AfterpayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">AfterpayCountryValidator</item>
             </argument>
         </arguments>
@@ -2424,6 +2439,7 @@
     <virtualType name="AfterpayOldValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">AfterpayOldCountryValidator</item>
             </argument>
         </arguments>
@@ -2608,6 +2624,7 @@
     <virtualType name="TinkaValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">TinkaCountryValidator</item>
             </argument>
         </arguments>
@@ -2726,6 +2743,7 @@
     <virtualType name="CreditClickValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">CreditClickCountryValidator</item>
             </argument>
         </arguments>
@@ -2827,6 +2845,7 @@
     <virtualType name="ApplepayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">ApplepayCountryValidator</item>
             </argument>
         </arguments>
@@ -2907,6 +2926,7 @@
     <virtualType name="EmandateValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">EmandateCountryValidator</item>
                 <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
@@ -3005,6 +3025,7 @@
     <virtualType name="GiftcardsValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">GiftcardsCountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AllowedGiftcardsValidator</item>
             </argument>
@@ -3105,6 +3126,7 @@
     <virtualType name="PayPerEmailValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">PayPerEmailCountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
             </argument>
@@ -3216,6 +3238,7 @@
     <virtualType name="TransferValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">TransferCountryValidator</item>
             </argument>
         </arguments>
@@ -3305,6 +3328,7 @@
     <virtualType name="VoucherValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">VoucherCountryValidator</item>
             </argument>
         </arguments>
@@ -3543,6 +3567,7 @@
     <virtualType name="RtpValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">RtpCountryValidator</item>
             </argument>
         </arguments>
@@ -3623,6 +3648,7 @@
     <virtualType name="SofortbankingValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">SofortbankingCountryValidator</item>
             </argument>
         </arguments>
@@ -3682,6 +3708,7 @@
     <virtualType name="PaypalValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">PaypalCountryValidator</item>
             </argument>
         </arguments>
@@ -3765,6 +3792,7 @@
     <virtualType name="CreditcardValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">CreditcardCountryValidator</item>
             </argument>
         </arguments>
@@ -3896,6 +3924,7 @@
     <virtualType name="CreditcardEncryptedValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">CreditcardEncryptedCountryValidator</item>
             </argument>
         </arguments>
@@ -4028,6 +4057,7 @@
     <virtualType name="PospaymentValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">PospaymentCountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\PosPaymentValidator</item>
             </argument>
@@ -4108,6 +4138,7 @@
     <virtualType name="SepaDirectDebitValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">SepaDirectDebitCountryValidator</item>
                 <item name="bankAccount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\BankAccountValidator</item>
             </argument>
@@ -4203,6 +4234,7 @@
     <virtualType name="WechatpayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">WechatpayCountryValidator</item>
             </argument>
         </arguments>

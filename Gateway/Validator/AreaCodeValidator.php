@@ -2,23 +2,17 @@
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\State;
 use Magento\Framework\App\Area;
 use Magento\Payment\Model\MethodInterface;
-use Magento\Payment\Model\Method\Adapter as PaymentMethodAdapter;
 
 class AreaCodeValidator extends AbstractValidator
 {
-    /**
-     * @var ConfigProviderMethodFactory
-     */
-    private ConfigProviderMethodFactory $configProviderFactory;
-
     /**
      * @var State
      */
@@ -26,14 +20,12 @@ class AreaCodeValidator extends AbstractValidator
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param ConfigProviderMethodFactory $configProviderFactory
+     * @param State $state
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        ConfigProviderMethodFactory  $configProviderFactory,
         State $state
     ) {
-        $this->configProviderFactory = $configProviderFactory;
         $this->state = $state;
         parent::__construct($resultFactory);
     }
@@ -50,15 +42,7 @@ class AreaCodeValidator extends AbstractValidator
     {
         $isValid = true;
 
-        if (!isset($validationSubject['paymentMethodInstance'])) {
-            return $this->createResult(
-                false,
-                [__('Payment method instance does not exist')]
-            );
-        }
-
-        /** @var MethodInterface $paymentMethodInstance */
-        $paymentMethodInstance = $validationSubject['paymentMethodInstance'];
+        $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
 
         $areaCode = $this->state->getAreaCode();
         if (Area::AREA_ADMINHTML === $areaCode

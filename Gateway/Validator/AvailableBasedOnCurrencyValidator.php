@@ -2,13 +2,10 @@
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
-use Magento\Framework\App\State;
-use Magento\Framework\App\Area;
 
 class AvailableBasedOnCurrencyValidator extends AbstractValidator
 {
@@ -31,10 +28,11 @@ class AvailableBasedOnCurrencyValidator extends AbstractValidator
             );
         }
 
-        $allowedCurrenciesRaw = $validationSubject['paymentMethodInstance']->getConfigData('allowed_currencies');
+        $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
+        $allowedCurrenciesRaw = $paymentMethodInstance->getConfigData('allowed_currencies');
         $allowedCurrencies = explode(',', (string)$allowedCurrenciesRaw);
 
-        $currentCurrency = $validationSubject['quote']->getCurrency()->getQuoteCurrencyCode();
+        $currentCurrency = SubjectReader::readQuote($validationSubject)->getCurrency()->getQuoteCurrencyCode();
 
         if ($allowedCurrenciesRaw === null || in_array($currentCurrency, $allowedCurrencies)) {
             $isValid = true;
