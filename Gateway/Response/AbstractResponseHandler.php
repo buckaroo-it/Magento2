@@ -14,6 +14,9 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class AbstractResponseHandler
 {
     const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
@@ -49,14 +52,13 @@ class AbstractResponseHandler
 
 
     public function __construct(
-        Registry           $registry,
-        Data               $helper,
-        ManagerInterface   $eventManager,
-        BuckarooLog        $buckarooLog,
+        Registry $registry,
+        Data $helper,
+        ManagerInterface $eventManager,
+        BuckarooLog $buckarooLog,
         ResourceConnection $resourceConnection,
-        MessageManager     $messageManager
-    )
-    {
+        MessageManager $messageManager
+    ) {
         $this->registry = $registry;
         $this->helper = $helper;
         $this->eventManager = $eventManager;
@@ -76,11 +78,10 @@ class AbstractResponseHandler
      */
     public function saveTransactionData(
         TransactionResponse $response,
-        InfoInterface       $payment,
-                            $close,
-                            $saveId = false
-    )
-    {
+        InfoInterface $payment,
+        $close,
+        $saveId = false
+    ) {
         if (!empty($response->getTransactionKey())) {
             $transactionKey = $response->getTransactionKey();
 

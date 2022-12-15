@@ -17,7 +17,8 @@ class TokenEncryptedDataBuilder extends AbstractDataBuilder
      */
     protected ScopeConfigInterface $scopeConfig;
 
-    public function __construct(ScopeConfigInterface $scopeConfig) {
+    public function __construct(ScopeConfigInterface $scopeConfig)
+    {
         $this->scopeConfig = $scopeConfig;
     }
 

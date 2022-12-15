@@ -49,6 +49,8 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
      *
      * @return bool
      * @throws \Buckaroo\Magento2\Exception|\InvalidArgumentException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function validate($data)
     {

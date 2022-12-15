@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,8 +18,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -42,18 +45,25 @@ class CreditcardTest extends BaseTest
         $scopeConfigMock->method('getValue')
             ->withConsecutive(
                 [Creditcard::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, ScopeInterface::SCOPE_STORE],
-                [Creditcard::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [
+                    $this->getPaymentMethodConfigPath(
+                        Creditcard::CODE,
+                        AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES
+                    ),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ]
             )->willReturnOnConsecutiveCalls($issuers, $allowedCurrencies);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertArrayHasKey('payment', $result);
         $this->assertArrayHasKey('buckaroo', $result['payment']);
         $this->assertArrayHasKey('creditcard', $result['payment']['buckaroo']);
         $this->assertArrayHasKey('cards', $result['payment']['buckaroo']['creditcard']);
-        $this->assertInternalType('array', $result['payment']['buckaroo']['creditcard']['cards']);
+        $this->assertIsArray($result['payment']['buckaroo']['creditcard']['cards']);
     }
 
     /**
@@ -65,7 +75,11 @@ class CreditcardTest extends BaseTest
             ->setMethods(['getValue'])
             ->getMockForAbstractClass();
         $scopeConfigMock->method('getValue')
-            ->with(Creditcard::XPATH_CREDITCARD_ACTIVE, ScopeInterface::SCOPE_STORE, null)
+            ->with(
+                $this->getPaymentMethodConfigPath(Creditcard::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                ScopeInterface::SCOPE_STORE,
+                null
+            )
             ->willReturn('1');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

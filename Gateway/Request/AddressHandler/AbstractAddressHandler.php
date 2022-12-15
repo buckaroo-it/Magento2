@@ -18,6 +18,13 @@ abstract class AbstractAddressHandler implements AddressHandlerInterface
         $this->buckarooLogger = $buckarooLogger;
     }
 
+    /**
+     * @param array $mapping
+     * @param array $requestData
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     protected function updateShippingAddressCommonMappingV2(array $mapping, array &$requestData)
     {
         foreach ($mapping as $mappingItem) {
@@ -39,6 +46,13 @@ abstract class AbstractAddressHandler implements AddressHandlerInterface
         }
     }
 
+    /**
+     * @param array $mapping
+     * @param array $requestData
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     protected function updateShippingAddressCommonMapping(array $mapping, array &$requestData)
     {
         foreach ($mapping as $mappingItem) {

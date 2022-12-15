@@ -93,8 +93,7 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
     private function getStateOrProvince(Address $shippingAddress): string
     {
         $shippingRegion = $shippingAddress->getRegion();
-        if (isset($shippingRegion) && !empty($shippingRegion)) {
-
+        if (!empty($shippingRegion)) {
             $twoCharacterShippingRegion = $this->paypalStateCodes->getCodeFromValue(
                 $shippingAddress->getCountryId(),
                 $shippingAddress->getRegion()

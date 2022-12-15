@@ -53,6 +53,11 @@ use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Framework\Filesystem\Driver\File;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ */
 class Push implements PushInterface
 {
     const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE = 'I014';
@@ -183,6 +188,8 @@ class Push implements PushInterface
      * @param ConfigProvider\Method\Klarnakp $klarnakpConfig
      * @param ConfigProvider\Method\Afterpay20 $afterpayConfig
      * @param File $fileSystemDriver
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Order $order,
@@ -227,13 +234,16 @@ class Push implements PushInterface
         $this->afterpayConfig     = $afterpayConfig;
         $this->fileSystemDriver   = $fileSystemDriver;
         $this->pushRequst         = $requestPushFactory->create();
-
     }
 
     /**
      * {@inheritdoc}
      *
      * @todo Once Magento supports variable parameters, modify this method to no longer require a Request object
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function receivePush()
     {
@@ -358,7 +368,7 @@ class Push implements PushInterface
                 $config = $this->configProviderMethodFactory->get(
                     PayPerEmail::CODE
                 );
-                if ($config->getEnabledB2B()) {
+                if ($config->isEnabledB2B()) {
                     $this->logging->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
                     if ($this->order->getState() === Order::STATE_COMPLETE) {
                         $this->order->setState(Order::STATE_PROCESSING);
@@ -428,6 +438,15 @@ class Push implements PushInterface
         return true;
     }
 
+    /**
+     * @param $receivedStatusCode
+     * @param $trxId
+     * @return bool
+     * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
     private function receivePushCheckDuplicates($receivedStatusCode = null, $trxId = null)
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->order->getPayment()->getMethod(), true));
@@ -497,6 +516,8 @@ class Push implements PushInterface
     /**
      * Check if it is needed to handle the push message based on postdata
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function isPushNeeded()
     {
@@ -506,18 +527,19 @@ class Push implements PushInterface
         ) {
             $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
             if ($this->pushRequst->hasPostData('statuscode', $statusCodeSuccess)
-                && !empty($this->pushRequst->getRelatedtransactionRefund())) {
+                && !empty($this->pushRequst->getRelatedtransactionRefund())
+            ) {
                 if ($this->receivePushCheckDuplicates(
-                    $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL'),
-                    $this->pushRequst->getRelatedtransactionRefund()
-                )) {
+                        $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL'),
+                        $this->pushRequst->getRelatedtransactionRefund()
+                    )
+                ) {
                     $this->logging->addDebug(__METHOD__ . '|4|');
                     return true;
                 }
             }
             $this->logging->addDebug(__METHOD__ . '|5|');
             return false;
-
         }
 
         $types = ['capture', 'cancelauthorize', 'cancelreservation'];
@@ -564,6 +586,8 @@ class Push implements PushInterface
 
     /**
      * @return int|string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getStatusCode()
     {
@@ -601,6 +625,8 @@ class Push implements PushInterface
 
     /**
      * @return bool|string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getTransactionType()
     {
@@ -660,6 +686,8 @@ class Push implements PushInterface
      * @param $response
      *
      * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function processPush($response)
     {
@@ -716,7 +744,7 @@ class Push implements PushInterface
             case 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER':
             case 'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING':
             case 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT':
-                $this->processPendingPaymentPush($newStatus, $response['message']);
+                $this->processPendingPaymentPush();
                 break;
         }
     }
@@ -739,7 +767,6 @@ class Push implements PushInterface
     {
         $isPaid     = filter_var(strtolower($this->pushRequst->getIspaid()), FILTER_VALIDATE_BOOLEAN);
         $canInvoice = ($this->order->canInvoice() && !$this->order->hasInvoices());
-        $store      = $this->order->getStore();
 
         $amount        = floatval($this->pushRequst->getAmountDebit());
         $amount        = $this->order->getBaseCurrency()->formatTxt($amount);
@@ -1016,6 +1043,8 @@ class Push implements PushInterface
      * @param $message
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function processFailedPush($newStatus, $message)
     {
@@ -1092,6 +1121,10 @@ class Push implements PushInterface
      * @param $message
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function processSucceededPush($newStatus, $message)
     {
@@ -1191,12 +1224,12 @@ class Push implements PushInterface
                     $this->pushRequst->hasPostData('transaction_method', 'KlarnaKp') &&
                     $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'pay') &&
                     empty($this->pushRequst->getServiceKlarnakpReservationnumber()) &&
-                    $this->klarnakpConfig->getCreateInvoiceAfterShipment()
+                    $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
                 ) ||
                 (
                     $this->pushRequst->hasPostData('transaction_method', 'afterpay') &&
                     $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'capture') &&
-                    $this->afterpayConfig->getCreateInvoiceAfterShipment()
+                    $this->afterpayConfig->isInvoiceCreatedAfterShipment()
                 )
             ) {
                 $this->logging->addDebug(__METHOD__ . '|5_1|');
@@ -1260,7 +1293,6 @@ class Push implements PushInterface
                             ],
                             $connection->quoteInto('entity_id = ?', $this->order->getId())
                         );
-
                     }
 
                     if ($saveInvoice) {
@@ -1268,15 +1300,11 @@ class Push implements PushInterface
                             return false;
                         }
                     }
-
                 } else {
-
                     if (!$this->saveInvoice()) {
                         return false;
                     }
-
                 }
-
             }
         }
 
@@ -1309,11 +1337,10 @@ class Push implements PushInterface
 
     /**
      * @param $newStatus
-     * @param $message
      *
      * @return bool
      */
-    public function processPendingPaymentPush($newStatus, $message)
+    public function processPendingPaymentPush()
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
 
@@ -1337,10 +1364,6 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|sendemail|');
             $this->orderSender->send($this->order);
         }
-
-        $description = 'Payment push status : ' . $message;
-
-        // $this->updateOrderStatus(Order::STATE_PROCESSING, $newStatus, $description);
 
         return true;
     }
@@ -1404,6 +1427,9 @@ class Push implements PushInterface
      *
      * @return bool
      * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function saveInvoice()
     {
@@ -1606,7 +1632,7 @@ class Push implements PushInterface
     {
         $items = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequst->getTransactions());
         if (is_array($items) && count($items) > 0) {
-            foreach ($items as $key => $item) {
+            foreach ($items as $item) {
                 $item2['status']    = $this->pushRequst->getStatusCode();
                 $item2['entity_id'] = $item['entity_id'];
                 $this->groupTransaction->updateGroupTransaction($item2);
@@ -1655,6 +1681,15 @@ class Push implements PushInterface
         return false;
     }
 
+    /**
+     * @param $response
+     * @param $validSignature
+     * @param $payment
+     * @return bool
+     * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     private function receivePushCheckPayPerEmail($response, $validSignature, $payment)
     {
         $status = $this->helper->getStatusByValue($this->pushRequst->getStatusCode() ?? '');
@@ -1699,7 +1734,7 @@ class Push implements PushInterface
         ) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
-            if ($config->getEnabledB2B()) {
+            if ($config->isEnabledB2B()) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
                 return true;
             }
@@ -1715,7 +1750,7 @@ class Push implements PushInterface
         ) {
             $this->logging->addDebug(__METHOD__ . '|1|');
             $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
-            if (!$config->getEnabledB2B()) {
+            if (!$config->isEnabledB2B()) {
                 $this->logging->addDebug(__METHOD__ . '|5|');
                 return true;
             }
@@ -1850,7 +1885,7 @@ class Push implements PushInterface
                 $this->postData['brq_statuscode']
             );
         } catch (\Throwable $th) {
-            $this->logging->addDebug(__METHOD__ . '|'.(string)$th);
+            $this->logging->addDebug(__METHOD__ . '|' . (string)$th);
         }
     }
 
@@ -1919,6 +1954,8 @@ class Push implements PushInterface
         if (!$quote->isEmpty()) {
             return $quote;
         }
+
+        return null;
     }
 
     /**
@@ -1956,8 +1993,7 @@ class Push implements PushInterface
         /** @var \Magento\Sales\Api\OrderManagementInterface */
         $orderManagement = $this->objectManager->get('Magento\Sales\Api\OrderManagementInterface');
 
-        if(
-            $order instanceof \Magento\Sales\Api\Data\OrderInterface &&
+        if ($order instanceof \Magento\Sales\Api\Data\OrderInterface &&
             $order->getEntityId() !== null &&
             $order->getState() !== Order::STATE_CANCELED
         ) {
@@ -1989,7 +2025,6 @@ class Push implements PushInterface
 
         //fix missing email validation
         if ($quote->getCustomerEmail() == null) {
-
             $quote->setCustomerEmail(
                 $quote->getBillingAddress()->getEmail()
             );
@@ -2003,7 +2038,5 @@ class Push implements PushInterface
         $quote->setReservedOrderId(null);
         $quote->save();
         return $order;
-
-
     }
 }

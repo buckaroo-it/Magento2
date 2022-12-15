@@ -6,7 +6,6 @@ use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
 class DebtorDataBuilder extends AbstractDataBuilder
 {
-
     public function build(array $buildSubject)
     {
         parent::initialize($buildSubject);
@@ -16,7 +15,7 @@ class DebtorDataBuilder extends AbstractDataBuilder
         if ($address === null) {
             return [];
         }
-        
+
         return [
             'code' => $address->getEmail()
         ];

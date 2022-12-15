@@ -59,11 +59,11 @@ class Idin extends \Magento\Framework\App\Action\Action
      * @throws Exception
      */
     public function __construct(
-        Context                   $context,
-        BuilderInterface          $requestDataBuilder,
-        TransferFactoryInterface  $transferFactory,
-        ClientInterface           $clientInterface,
-        Log                       $logger
+        Context $context,
+        BuilderInterface $requestDataBuilder,
+        TransferFactoryInterface $transferFactory,
+        ClientInterface $clientInterface,
+        Log $logger
     ) {
         parent::__construct($context);
         $this->logger             = $logger;

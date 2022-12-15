@@ -670,8 +670,8 @@
 }
 
 /* ======================= Klarna ======================== */
-.buckaroo_magento2_klarna .buckaroo_magento2_image_title:after, 
-.buckaroo_magento2_klarnakp .buckaroo_magento2_image_title:after, 
+.buckaroo_magento2_klarna .buckaroo_magento2_image_title:after,
+.buckaroo_magento2_klarnakp .buckaroo_magento2_image_title:after,
 .buckaroo_magento2_klarnain .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_klarnakp_title.png) no-repeat;
     float: right;

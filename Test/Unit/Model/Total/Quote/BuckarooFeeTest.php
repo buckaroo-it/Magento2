@@ -419,8 +419,6 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $paymentCode = 'buckaroo_magento2_ideal';
         $fee = 1.1;
-        $grandTotal = 45.0000;
-        $baseGrandTotal = 45.0000;
         $taxIncl = Calculation::DISPLAY_TYPE_INCLUDING_TAX;
         $store = 1;
 

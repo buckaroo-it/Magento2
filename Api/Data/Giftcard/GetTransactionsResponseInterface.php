@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,6 @@ interface GetTransactionsResponseInterface
     /**
      * Get the list of transactions for this cart
      *
-     * @param string $cartId
      * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
      */
     public function getTransactions();

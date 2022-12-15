@@ -30,14 +30,13 @@ class ArticlesDataBuilder extends AbstractDataBuilder
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
-        
+
         $articles = [];
-        
-        foreach($this->getOrder()->getAllItems() as $item) {
+
+        foreach ($this->getOrder()->getAllItems() as $item) {
 
             /** @var \Magento\Sales\Api\Data\OrderItemInterface $item */
-
-            if (empty($item) || $item->getParentItem() != null) {
+            if ($item->getParentItem() != null) {
                 continue;
             }
 

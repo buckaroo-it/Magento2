@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -29,6 +30,10 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ */
 class Process extends \Magento\Framework\App\Action\Action
 {
     /**
@@ -109,40 +114,42 @@ class Process extends \Magento\Framework\App\Action\Action
     private PushRequestInterface $pushRequst;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param \Buckaroo\Magento2\Helper\Data                           $helper
-     * @param \Magento\Checkout\Model\Cart                        $cart
-     * @param \Magento\Sales\Model\Order                          $order
-     * @param \Magento\Quote\Model\Quote                          $quote
-     * @param TransactionInterface        $transaction
-     * @param Log                                                 $logger
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory          $configProviderFactory
+     * @param \Magento\Framework\App\Action\Context $context
+     * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param \Magento\Checkout\Model\Cart $cart
+     * @param \Magento\Sales\Model\Order $order
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param TransactionInterface $transaction
+     * @param Log $logger
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
-     * @param \Buckaroo\Magento2\Model\OrderStatusFactory              $orderStatusFactory
+     * @param \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory
      *
      * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Buckaroo\Magento2\Helper\Data $helper,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Sales\Model\Order $order,
-        \Magento\Quote\Model\Quote $quote,
-        TransactionInterface $transaction,
-        Log $logger,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Customer\Model\SessionFactory $sessionFactory,
-        \Magento\Customer\Model\Customer $customerModel,
+        \Magento\Framework\App\Action\Context                 $context,
+        \Buckaroo\Magento2\Helper\Data                        $helper,
+        \Magento\Checkout\Model\Cart                          $cart,
+        \Magento\Sales\Model\Order                            $order,
+        \Magento\Quote\Model\Quote                            $quote,
+        TransactionInterface                                  $transaction,
+        Log                                                   $logger,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory       $configProviderFactory,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender   $orderSender,
+        \Buckaroo\Magento2\Model\OrderStatusFactory           $orderStatusFactory,
+        \Magento\Checkout\Model\Session                       $checkoutSession,
+        \Magento\Customer\Model\Session                       $customerSession,
+        \Magento\Customer\Api\CustomerRepositoryInterface     $customerRepository,
+        \Magento\Customer\Model\SessionFactory                $sessionFactory,
+        \Magento\Customer\Model\Customer                      $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-        OrderService $orderService,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
-        RequestPushFactory $requestPushFactory
+        OrderService                                          $orderService,
+        \Magento\Framework\Event\ManagerInterface             $eventManager,
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate       $quoteRecreate,
+        RequestPushFactory                                    $requestPushFactory
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -184,6 +191,11 @@ class Process extends \Magento\Framework\App\Action\Action
      *
      * @return \Magento\Framework\App\ResponseInterface
      * @throws \Exception
+     *
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function execute()
     {
@@ -223,7 +235,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $payment = $this->order->getPayment();
 
-        if($payment) {
+        if ($payment) {
             $this->setPaymentOutOfTransit($payment);
         }
 
@@ -274,7 +286,6 @@ class Process extends \Magento\Framework\App\Action\Action
                             $this->order->save();
                         }
                     }
-
                 }
 
                 $payment->getMethodInstance()->processCustomPostData($payment, $this->pushRequst->getData());
@@ -296,7 +307,8 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->pushRequst->hasPostData('primary_service', 'KlarnaKp') &&
                         $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'reserve') &&
                         !empty($this->pushRequst->getServiceKlarnakpReservationnumber())
-                    )) {
+                        )
+                    ) {
                         if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                             $this->logger->addDebug(__METHOD__ . '|sendemail|');
                             $this->orderSender->send($this->order, true);
@@ -431,7 +443,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         if (!$this->getSkipHandleFailedRecreate()) {
             if (!$this->quoteRecreate->recreate($this->quote)) {
-                $this->logging->addError('Could not recreate the quote.');
+                $this->logger->addError('Could not recreate the quote.');
             }
         }
 
@@ -500,7 +512,7 @@ class Process extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * @return bool
+     * @return \Magento\Sales\Model\Order\Payment
      * @throws \Buckaroo\Magento2\Exception
      */
     private function getOrderByTransactionKey()
@@ -617,7 +629,7 @@ class Process extends \Magento\Framework\App\Action\Action
                             $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
                         }
                     }
-                    $this->setSkipHandleFailedRecreate(false);
+                    $this->setSkipHandleFailedRecreate();
                 } catch (\Exception $e) {
                     $this->logger->addError('Could not load customer');
                 }
@@ -636,7 +648,6 @@ class Process extends \Magento\Framework\App\Action\Action
 
     protected function redirectToCheckout()
     {
-        $store = $this->order->getStore();
         $this->logger->addDebug('start redirectToCheckout');
         if (!$this->customerSession->isLoggedIn()) {
             $this->logger->addDebug('not isLoggedIn');
@@ -651,10 +662,9 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
                         $this->checkoutSession->restoreQuote();
                         $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
-                    } elseif ($this->hasPostData('brq_primary_service', 'IDIN')) {
+                    } elseif ($this->pushRequst->hasPostData('brq_primary_service', 'IDIN')) {
                         $this->checkoutSession->restoreQuote();
                     }
-
                 } catch (\Exception $e) {
                     $this->logger->addError('Could not load customer');
                 }
@@ -692,7 +702,7 @@ class Process extends \Magento\Framework\App\Action\Action
         return false;
     }
 
-    public function setSkipHandleFailedRecreate($value)
+    public function setSkipHandleFailedRecreate()
     {
         return true;
     }
@@ -704,11 +714,14 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function removeAmastyGiftcardOnFailed()
     {
-        $class = \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class;
-        if (class_exists($class)) {
+        if (class_exists(\Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class)) {
+            $giftcardAccountRepository = $this->_objectManager->get(
+                \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class
+            );
 
-            $giftcardAccountRepository = $this->_objectManager->get($class);
-            $giftcardOrderRepository = $this->_objectManager->get(\Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class);
+            $giftcardOrderRepository = $this->_objectManager->get(
+                \Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class /** @phpstan-ignore-line */
+            );
 
             try {
                 $giftcardOrder = $giftcardOrderRepository->getByOrderId($this->order->getId());

@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright ©  All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Data;
@@ -11,7 +13,6 @@ use Buckaroo\Magento2\Api\Data\LogInterface;
 
 class Log extends \Magento\Framework\Api\AbstractExtensibleObject implements LogInterface
 {
-
     /**
      * Get log_id
      * @return string|null

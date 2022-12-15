@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
@@ -79,7 +81,7 @@ class AllowedCountries implements OptionSourceInterface
 
         $output = [];
 
-        if(is_array($countries)) {
+        if (is_array($countries)) {
             foreach ($countries as $country) {
                 $output[] = [
                     'value' => $country,

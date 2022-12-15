@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -37,29 +38,31 @@ class HtmlTransactionIdObserver implements ObserverInterface
         /** @var \Magento\Sales\Model\Order\Payment\Transaction $transaction */
         $transaction = $observer->getDataObject();
         $order = $transaction->getOrder();
-        $txnIdArray =explode("-",$transaction->getTxnId());
+        $txnIdArray = explode("-", $transaction->getTxnId());
         $txnId = reset($txnIdArray);
-       if ($this->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
-            $transaction->setData('html_txn_id', 
-            sprintf(
-                '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
-                $txnId,
-                $transaction->getTxnId()
-            )
-        );
-       }
+        if ($this->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
+            $transaction->setData(
+                'html_txn_id',
+                sprintf(
+                    '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s"'
+                    . ' target="_blank">%s</a>',
+                    $txnId,
+                    $transaction->getTxnId()
+                )
+            );
+        }
     }
-     /**
+
+    /**
      * Is one of our payment methods
      *
      * @param OrderPaymentInterface|null $payment
-     *
      * @return boolean
      */
     public function isBuckarooPayment($payment)
     {
         if (!$payment instanceof OrderPaymentInterface) {
-           return false;
+            return false;
         }
         return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
     }

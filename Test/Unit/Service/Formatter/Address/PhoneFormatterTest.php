@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Service\Formatter\Address;
 
 use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
@@ -28,6 +30,8 @@ class PhoneFormatterTest extends BaseTest
 
     /**
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function formatProvider()
     {

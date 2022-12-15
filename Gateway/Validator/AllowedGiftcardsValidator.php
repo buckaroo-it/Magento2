@@ -1,4 +1,5 @@
 <?php
+
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;

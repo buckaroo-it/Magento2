@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,10 +18,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin\Method;
 
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use \Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order;
 
 class Emandate
 {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Console\Command;
 
 use Symfony\Component\Console\Command\Command;
@@ -45,8 +47,7 @@ class PushSend extends Command
         State $appState,
         AsyncClientInterface $asyncHttpClient,
         Account $configProviderAccount,
-        Encryptor $encryptor,
-        $name = null
+        Encryptor $encryptor
     ) {
         $this->appState = $appState;
         $this->asyncHttpClient = $asyncHttpClient;
@@ -62,6 +63,9 @@ class PushSend extends Command
         parent::configure();
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->appState->setAreaCode('global');
@@ -122,5 +126,7 @@ class PushSend extends Command
         foreach ($responses as $response) {
             $output->writeln($response->get()->getBody());
         }
+
+        return 0;
     }
 }

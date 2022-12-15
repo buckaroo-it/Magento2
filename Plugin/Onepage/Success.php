@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,11 +26,12 @@ use Magento\Framework\App\Action\Context;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Helper\Data as BuckarooDataHelper;
+
 /**
  * Override Onepage checkout success controller class
  */
-class Success {
-
+class Success
+{
     /**
      * @var \Magento\Framework\Controller\Result\RedirectFactory
      */
@@ -54,8 +56,7 @@ class Success {
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
 
-        if(
-            $this->isBuckarooPayment($payment) &&
+        if ($this->isBuckarooPayment($payment) &&
             (
                 ($order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING &&  $this->paymentInTransit($payment)) ||
                 $order->getStatus() === Order::STATE_CANCELED
@@ -76,7 +77,7 @@ class Success {
     public function isBuckarooPayment($payment)
     {
         if (!$payment instanceof OrderPaymentInterface) {
-           return false;
+            return false;
         }
         return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
     }

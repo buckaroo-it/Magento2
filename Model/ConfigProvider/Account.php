@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -130,7 +131,7 @@ class Account extends AbstractConfigProvider
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
             'idin_category'                     => $this->getIdinCategory($store),
-            'advanced_export_giftcards'         => $this->getAdvancedExportGiftcards($store),
+            'advanced_export_giftcards'         => $this->hasAdvancedExportGiftcards($store),
         ];
         return $config;
     }
@@ -643,6 +644,21 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_IDIN_CATEGORY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Advanced order export for giftcards
+     *
+     * @param null|int|string $store
+     * @return bool
+     */
+    public function hasAdvancedExportGiftcards($store = null): bool
+    {
+        return (bool)$this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS,
             ScopeInterface::SCOPE_STORE,
             $store
         );

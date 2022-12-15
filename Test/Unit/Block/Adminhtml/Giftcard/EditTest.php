@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Giftcard;
 
 use Magento\Framework\Phrase;
@@ -75,7 +77,7 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertInstanceOf(Phrase::class, $result);
         $this->assertEquals($expectedText, $result->getText());
-        $this->assertInternalType('array', $resultArgs);
+        $this->assertIsArray($resultArgs);
 
         if (isset($resultArgs[0])) {
             $this->assertEquals($expectedArgument, $resultArgs[0]);

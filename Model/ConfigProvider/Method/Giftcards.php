@@ -58,7 +58,9 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
-     * @return array
+     * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getConfig()
     {
@@ -66,9 +68,10 @@ class Giftcards extends AbstractConfigProvider
             return [];
         }
 
-        $sorted = explode(',', (string)$this->getSort());
+        $sort = (string)$this->getSort();
 
-        if (!empty($sorted)) {
+        if (!empty($sort)) {
+            $sorted = explode(',', (string)$this->getSort());
             $sortedPosition = 1;
             foreach ($sorted as $cardName) {
                 $sortedArray[$cardName] = $sortedPosition++;

@@ -21,7 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
-use \Magento\Framework\DataObject;
+use Magento\Framework\DataObject;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
@@ -76,7 +76,8 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
      * @api
      * @return string|null
      */
-    public function getMessage() {
+    public function getMessage()
+    {
         return $this->getData('message');
     }
 
@@ -87,7 +88,8 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
      * @api
      * @return string|null
      */
-    public function getRemainingAmountMessage() {
+    public function getRemainingAmountMessage()
+    {
         return $this->getData('remainingAmountMessage');
     }
 }

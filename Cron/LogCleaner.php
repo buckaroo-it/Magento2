@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,9 +18,9 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Cron;
 
-use Magento\Framework\EntityManager\MetadataPool;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\App\ResourceConnection;
 use Buckaroo\Magento2\Logging\Log;
@@ -27,6 +28,7 @@ use Buckaroo\Magento2\Model\Config\Source\LogHandler;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Driver\File;
 use Magento\Framework\Filesystem\Io\File as IoFile;
+use Magento\Framework\Exception\FileSystemException;
 
 class LogCleaner
 {
@@ -55,7 +57,7 @@ class LogCleaner
         $this->driverFile          = $driverFile;
         $this->ioFile              = $ioFile;
     }
-    
+
     public function execute()
     {
         $retentionPeriod = (int) $this->accountConfig->getLogRetention();
@@ -80,7 +82,7 @@ class LogCleaner
                 ['time <= date_sub(now(),interval ' . $retentionPeriod . ' second)']
             );
         } catch (\Exception $e) {
-            $this->logging->error('Proceed Db error:'. var_export($e->getMessage(), true));
+            $this->logging->error('Proceed Db error:' . var_export($e->getMessage(), true));
         }
     }
 

@@ -38,9 +38,11 @@ use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardException;
 use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ApplyVoucherRequest implements ApplyVoucherRequestInterface
 {
-
     /**
      * @var \Magento\Store\Api\Data\StoreInterface
      */
@@ -80,6 +82,21 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * @var string
      */
     protected $voucherCode;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * @var UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
+     * @var FormKey
+     */
+    private $formKey;
 
 
     /**
@@ -223,7 +240,9 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     protected function getCurrency()
     {
         $currency = $this->quote->getCurrency();
-        if ($currency !== null)  return $currency->getBaseCurrencyCode();
+        if ($currency !== null) {
+            return $currency->getBaseCurrencyCode();
+        }
     }
     /**
      * Get return url

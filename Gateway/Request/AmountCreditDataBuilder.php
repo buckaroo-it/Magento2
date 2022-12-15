@@ -61,13 +61,12 @@ class AmountCreditDataBuilder implements BuilderInterface
      */
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        Factory     $configProviderMethodFactory,
+        Factory $configProviderMethodFactory,
         BuckarooLog $buckarooLog,
         \Magento\Framework\App\RequestInterface $request,
-                    $amount = null,
-                    $currency = null
-    )
-    {
+        $amount = null,
+        $currency = null
+    ) {
         if ($amount !== null) {
             $this->amount = $amount;
         }
@@ -221,8 +220,7 @@ class AmountCreditDataBuilder implements BuilderInterface
 
         if ($amount >= 0.01) {
             $groupTransactionAmount = $paymentGroupTransaction->getGroupTransactionAmount($order->getIncrementId());
-            if (
-                ($groupTransactionAmount > 0.01)
+            if (($groupTransactionAmount > 0.01)
                 &&
                 empty($requestParams['creditmemo']['buckaroo_already_paid'])
                 &&

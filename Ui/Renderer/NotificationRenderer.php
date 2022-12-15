@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Ui\Renderer;
 
 use Magento\Framework\Escaper;
@@ -154,7 +156,7 @@ class NotificationRenderer
             if (! empty($subHeading['imageUrl'])) {
                 $imageUrl = $this->assetRepository->getUrl($subHeading['imageUrl']);
                 $content .= "<div class='buckaroo-highlight-item'>";
-                $content .= '<img src="'.$this->escaper->escapeUrl($imageUrl).'" />';
+                $content .= '<img src="' . $this->escaper->escapeUrl($imageUrl) . '" />';
             } else {
                 $content .= "<div class='highlight-item-no-image'>";
             }

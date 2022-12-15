@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -75,7 +76,7 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * @return bool
      */
-    public function getSendMail()
+    public function hasSendMail()
     {
         $sendMail = $this->scopeConfig->getValue(
             static::XPATH_PAYPEREMAIL_SEND_MAIL,
@@ -99,7 +100,7 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * @return bool
      */
-    public function getEnabledB2B()
+    public function isEnabledB2B()
     {
         return $this->scopeConfig->getValue(
             static::XPATH_PAYPEREMAIL_ENABLE_B2B,

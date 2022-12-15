@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Sales\Api\Data\OrderExtensionFactory;
@@ -50,6 +52,8 @@ class OrderExtensionAttribute
      * @param OrderInterface           $order
      *
      * @return OrderInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGet(OrderRepositoryInterface $subject, OrderInterface $order)
     {

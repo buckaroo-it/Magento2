@@ -29,8 +29,7 @@ class DescriptionDataBuilder implements BuilderInterface
      */
     public function __construct(
         Account $configProviderAccount
-    )
-    {
+    ) {
         $this->configProviderAccount = $configProviderAccount;
     }
 

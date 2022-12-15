@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class LogRetention implements \Magento\Framework\Option\ArrayInterface
@@ -29,10 +31,10 @@ class LogRetention implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
         return [
-            ['value' => (60*60*24), 'label' => __('Day')],
-            ['value' => (60*60*24*7), 'label' => __('Week')],
-            ['value' => (60*60*24*31), 'label' => __('Month')],
-            ['value' => (60*60*24*31*12), 'label' => __('Year')],
+            ['value' => (60 * 60 * 24), 'label' => __('Day')],
+            ['value' => (60 * 60 * 24 * 7), 'label' => __('Week')],
+            ['value' => (60 * 60 * 24 * 31), 'label' => __('Month')],
+            ['value' => (60 * 60 * 24 * 31 * 12), 'label' => __('Year')],
         ];
     }
 }

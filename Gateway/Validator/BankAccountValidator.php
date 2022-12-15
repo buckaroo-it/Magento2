@@ -38,6 +38,9 @@ class BankAccountValidator extends AbstractValidator
      * @return bool|ResultInterface
      * @throws NotFoundException
      * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function validate(array $validationSubject): ResultInterface
     {

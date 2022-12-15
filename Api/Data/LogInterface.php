@@ -1,15 +1,16 @@
 <?php
+
 /**
  * Copyright ©  All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Api\Data;
 
 interface LogInterface extends \Magento\Framework\Api\ExtensibleDataInterface
 {
-
     const TIME = 'time';
     const SESSION_ID = 'session_id';
     const CHANNEL = 'channel';

@@ -41,9 +41,12 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPay;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ */
 class Giftcard implements GiftcardInterface
 {
-
     /**
      * @var \Magento\Store\Api\Data\StoreInterface
      */
@@ -80,9 +83,25 @@ class Giftcard implements GiftcardInterface
     protected $transferFactory;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private ScopeConfigInterface $scopeConfig;
+
+    /**
+     * @var UrlInterface
+     */
+    private UrlInterface $urlBuilder;
+
+    /**
+     * @var FormKey
+     */
+    private FormKey $formKey;
+
+    /**
      * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
      */
     protected $groupTransaction;
+
     /**
      * Card id
      *
@@ -110,6 +129,7 @@ class Giftcard implements GiftcardInterface
      * @var string
      */
     protected $action = 'Pay';
+
     /**
      * Card types
      *
@@ -126,6 +146,7 @@ class Giftcard implements GiftcardInterface
         ]
     ];
 
+
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Account $configProviderAccount
@@ -139,20 +160,21 @@ class Giftcard implements GiftcardInterface
      * @param RequestInterface $httpRequest
      * @param PaymentGroupTransaction $groupTransaction
      * @throws NoSuchEntityException
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        ScopeConfigInterface    $scopeConfig,
-        Account                 $configProviderAccount,
-        UrlInterface            $urlBuilder,
-        FormKey                 $formKey,
-        Encryptor               $encryptor,
-        StoreManagerInterface   $storeManager,
-        SDKTransferFactory      $transferFactory,
-        ClientInterface         $clientInterface,
-        RequestInterface        $httpRequest,
+        ScopeConfigInterface $scopeConfig,
+        Account $configProviderAccount,
+        UrlInterface $urlBuilder,
+        FormKey $formKey,
+        Encryptor $encryptor,
+        StoreManagerInterface $storeManager,
+        SDKTransferFactory $transferFactory,
+        ClientInterface $clientInterface,
+        RequestInterface $httpRequest,
         PaymentGroupTransaction $groupTransaction
-    )
-    {
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
         $this->urlBuilder = $urlBuilder;
@@ -169,6 +191,7 @@ class Giftcard implements GiftcardInterface
      * Send giftcard request
      *
      * @return mixed
+     * @throws GiftcardException
      */
     public function send()
     {
@@ -320,7 +343,9 @@ class Giftcard implements GiftcardInterface
     protected function getCurrency()
     {
         $currency = $this->quote->getCurrency();
-        if ($currency !== null) return $currency->getBaseCurrencyCode();
+        if ($currency !== null) {
+            return $currency->getBaseCurrencyCode();
+        }
     }
 
     /**

@@ -31,6 +31,5 @@ class PaymentMethodDataBuilder implements BuilderInterface
         return [
             'payment_method' => $providerType,
         ];
-
     }
 }

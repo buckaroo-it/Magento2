@@ -72,4 +72,3 @@ abstract class AbstractAddressDataBuilder extends AbstractDataBuilder
      */
     abstract protected function getAddress(): Address;
 }
-

@@ -58,12 +58,12 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay2'
             },
             {
-              type:  'buckaroo_magento2_afterpay20',
-              component:  'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay20'
+                type:  'buckaroo_magento2_afterpay20',
+                component:  'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay20'
             },
             {
-              type:  'buckaroo_magento2_billink',
-              component:  'Buckaroo_Magento2/js/view/payment/method-renderer/billink'
+                type:  'buckaroo_magento2_billink',
+                component:  'Buckaroo_Magento2/js/view/payment/method-renderer/billink'
             },
             {
                 type: 'buckaroo_magento2_payperemail',

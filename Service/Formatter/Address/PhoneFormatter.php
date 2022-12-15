@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
 use Buckaroo\Magento2\Logging\Log;
 
 class PhoneFormatter
 {
+    private Log $logger;
+
     private $validMobile = [
         'NL' => ['00316'],
         'BE' => ['003246', '003247', '003248', '003249'],

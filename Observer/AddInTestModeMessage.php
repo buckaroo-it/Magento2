@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
@@ -45,7 +47,9 @@ class AddInTestModeMessage implements ObserverInterface
         $this->orderRepository = $orderRepository;
     }
     /**
-     * @param Observer $observer
+     * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function execute(Observer $observer)
     {
@@ -76,7 +80,7 @@ class AddInTestModeMessage implements ObserverInterface
     protected function getOrder()
     {
         $orderId = $this->request->getParam('order_id');
-        if($orderId === null || !is_scalar($orderId)) {
+        if ($orderId === null || !is_scalar($orderId)) {
             return;
         }
         return $this->orderRepository->get(

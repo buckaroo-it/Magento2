@@ -55,7 +55,6 @@ class BuckarooAdapter
         $payment = $this->buckaroo->method($this->getMethodName($method));
 
         try {
-
             if ($this->isCreditManagementOfType($data, BuilderComposite::TYPE_ORDER)) {
                 $payment = $payment->combine($this->getCreditManagementBody($data));
             }
@@ -69,7 +68,6 @@ class BuckarooAdapter
             }
 
             return $payment->{$action}($data);
-
         } catch (\Throwable $th) {
             $this->logger->addDebug(__METHOD__ . (string)$th);
             throw $th;

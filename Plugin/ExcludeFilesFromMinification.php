@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,21 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Framework\View\Asset\Minification;
 
 class ExcludeFilesFromMinification
 {
+    /**
+     * @param Minification $subject
+     * @param callable $proceed
+     * @param $contentType
+     * @return mixed
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function aroundGetExcludes(Minification $subject, callable $proceed, $contentType)
     {
         $result = $proceed($contentType);

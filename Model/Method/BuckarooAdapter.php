@@ -18,6 +18,9 @@ use Psr\Log\LoggerInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Framework\App\State;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 {
     public const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
@@ -98,28 +101,29 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param CommandManagerInterface|null $commandExecutor
      * @param LoggerInterface|null $logger
      * @param bool $usesRedirect
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        ManagerInterface                                       $eventManager,
-        ValueHandlerPoolInterface                              $valueHandlerPool,
-        PaymentDataObjectFactory                               $paymentDataObjectFactory,
-                                                               $code,
-                                                               $formBlockType,
-                                                               $infoBlockType,
-        ObjectManagerInterface                                 $objectManager,
-        State                                                  $state,
-        \Magento\Developer\Helper\Data                         $developmentHelper,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory        $configProviderFactory,
+        ManagerInterface $eventManager,
+        ValueHandlerPoolInterface $valueHandlerPool,
+        PaymentDataObjectFactory $paymentDataObjectFactory,
+        $code,
+        $formBlockType,
+        $infoBlockType,
+        ObjectManagerInterface $objectManager,
+        State $state,
+        \Magento\Developer\Helper\Data $developmentHelper,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
-        \Magento\Framework\Pricing\Helper\Data                 $priceHelper,
-        RequestInterface                                       $request = null,
-        CommandPoolInterface                                   $commandPool = null,
-        ValidatorPoolInterface                                 $validatorPool = null,
-        CommandManagerInterface                                $commandExecutor = null,
-        LoggerInterface                                        $logger = null,
-        bool                                                   $usesRedirect = true
-    )
-    {
+        \Magento\Framework\Pricing\Helper\Data $priceHelper,
+        RequestInterface $request = null,
+        CommandPoolInterface $commandPool = null,
+        ValidatorPoolInterface $validatorPool = null,
+        CommandManagerInterface $commandExecutor = null,
+        LoggerInterface $logger = null,
+        bool $usesRedirect = true
+    ) {
         parent::__construct(
             $eventManager,
             $valueHandlerPool,
@@ -196,10 +200,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @return bool
      */
     protected function isAvailableBasedOnIp(
-        Account                               $accountConfig,
+        Account $accountConfig,
         CartInterface $quote = null
-    )
-    {
+    ) {
         $methodValue = $this->getConfigData('limit_by_ip');
         if ($accountConfig->getLimitByIp() == 1 || $methodValue == 1) {
             $storeId = $quote ? $quote->getStoreId() : null;
@@ -261,11 +264,13 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         return $allowedCurrenciesRaw === null || in_array($currentCurrency, $allowedCurrencies);
     }
 
-    /**s
+    /**
      * @param OrderPaymentInterface|InfoInterface $payment
      * @param PushRequestInterface $postData
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function canProcessPostData($payment, PushRequestInterface $postData)
     {
@@ -278,7 +283,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      */
     public function processCustomPostData($payment, $postData)
     {
-        if($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
+        if ($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
             $order = $payment->getOrder();
 
             if ($order->getBuckarooReservationNumber()) {
@@ -340,6 +345,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param PushRequestInterface $responseData
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function canPushInvoice(PushRequestInterface $responseData): bool
     {
@@ -349,7 +356,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 
         return true;
     }
-
 
     /**
      * @return string

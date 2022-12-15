@@ -153,8 +153,7 @@ class Idin extends AbstractConfigProvider
      */
     public function getIdinStatus(Quote $quote, CustomerInterface $customer = null)
     {
-        if (
-            !$this->checkCountry($customer) ||
+        if (!$this->checkCountry($customer) ||
             !$this->isIdinEnabled()
         ) {
             return ['active' => false, 'verified' => false];

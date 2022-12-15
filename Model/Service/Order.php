@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -40,6 +42,7 @@ class Order
     protected $helper;
     protected $logging;
     protected $resourceConnection;
+    private Factory $configProviderFactory;
 
     public function __construct(
         Account $accountConfig,
@@ -211,7 +214,8 @@ class Order
         $this->logging->addDebug(__METHOD__ . '|15|');
 
         if ($order->canCancel()
-            || in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['payperemail'])) {
+            || in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['payperemail'])
+        ) {
             $this->logging->addDebug(__METHOD__ . '|20|');
 
             if (in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {

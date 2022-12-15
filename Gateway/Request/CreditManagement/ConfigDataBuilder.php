@@ -7,9 +7,10 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class ConfigDataBuilder extends AbstractDataBuilder
 {
-
     /** @var Factory */
     private $configProvider;
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface */
+    private $config;
 
     public function __construct(Factory $configProvider)
     {
@@ -34,13 +35,12 @@ class ConfigDataBuilder extends AbstractDataBuilder
             $data['allowedServicesAfterDueDate'] = $this->getPaymentMethodsAfterExpiry();
         }
         return $data;
-
     }
 
     protected function getPaymentMethodsAfterExpiry(): string
     {
         $methods = $this->config->getPaymentMethodsAfterExpiry();
-        if(is_array($methods)) {
+        if (is_array($methods)) {
             return implode(',', $methods);
         }
         return "";

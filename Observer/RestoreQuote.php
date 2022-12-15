@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,11 +18,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq;
-use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 
 class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 {
@@ -30,110 +31,48 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     private $checkoutSession;
 
-    private $customerSession;
-
     /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
      */
-    protected $accountConfig;
+    private $accountConfig;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     * @var \Magento\Quote\Api\CartRepositoryInterface
      */
-    protected $dateTime;
-
-    protected $request;
-
-    protected $mathRandom;
-
-    protected $resultFactory;
+    private $quoteRepository;
 
     /**
-     * @var \Magento\Framework\App\ResponseFactory
+     * @var \Buckaroo\Magento2\Helper\Data
      */
-    private $responseFactory;
+    private $helper;
 
     /**
-     * @var \Magento\Framework\UrlInterface
-     */
-    private $url;
-
-    protected $orderFactory;
-
-    /**
-     * @var \Magento\Quote\Model\Quote $quote
-     */
-    protected $quote;
-
-    protected $quoteFactory;
-
-    protected $productFactory;
-
-    /**
-     * @var \Magento\Checkout\Model\Cart
-     */
-    protected $cart;
-
-    protected $_messageManager;
-
-    private $quoteRecreate;
-
-    protected $quoteRepository;
-
-    /* @var EventManager */
-    private $eventManager;
-
-    /**
-     * @param \Magento\Checkout\Model\Session                      $checkoutSession
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account      $accountConfig
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime          $dateTime
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig
+     * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\Math\Random $mathRandom,
-        \Magento\Framework\Controller\ResultFactory $resultFactory,
-        \Magento\Framework\App\ResponseFactory $responseFactory,
-        \Magento\Framework\UrlInterface $url,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Quote\Model\Quote $quote,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\Catalog\Model\ProductFactory $productFactory,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Checkout\Model\Cart $cart,
         \Buckaroo\Magento2\Helper\Data $helper,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        QuoteRecreate $quoteRecreate,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Framework\Event\ManagerInterface $eventManager
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
     ) {
         $this->checkoutSession        = $checkoutSession;
-        $this->customerSession        = $customerSession;
         $this->accountConfig          = $accountConfig;
-        $this->request                = $request;
-        $this->mathRandom             = $mathRandom;
-        $this->resultFactory          = $resultFactory;
-        $this->responseFactory        = $responseFactory;
-        $this->url                    = $url;
-        $this->orderFactory           = $orderFactory;
-        $this->quote                  = $quote;
-        $this->quoteFactory           = $quoteFactory;
-        $this->productFactory         = $productFactory;
-        $this->_messageManager        = $messageManager;
-        $this->cart                   = $cart;
-        $this->dateTime               = $dateTime;
         $this->helper                 = $helper;
-        $this->quoteRecreate          = $quoteRecreate;
         $this->quoteRepository        = $quoteRepository;
-        $this->eventManager           = $eventManager;
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Restore Quote
      *
+     * @param \Magento\Framework\Event\Observer $observer
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {

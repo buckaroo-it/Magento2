@@ -32,7 +32,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
             'birthDate' => $this->getBirthDate()
         ];
 
-        if($category == 'B2B') {
+        if ($category == 'B2B') {
             $data['chamberOfCommerce'] = $this->getChamberOfCommerce();
         }
 

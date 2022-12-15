@@ -7,10 +7,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 
-
 class CreditManagementOrderHandler implements HandlerInterface
 {
-
     public const INVOICE_KEY = 'buckaroo_cm3_invoice_key';
 
     protected TransactionResponse $response;
@@ -39,7 +37,7 @@ class CreditManagementOrderHandler implements HandlerInterface
      * @param array $response
      *
      * @return void
-     * @throws  \InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     protected function validate(array $handlingSubject, array $response)
     {
@@ -47,13 +45,12 @@ class CreditManagementOrderHandler implements HandlerInterface
         $this->validateResponse($response);
     }
 
-
     /**
      * Get invoice key from response
      *
      * @param array $services
      *
-     * @return array|null
+     * @return string|null
      */
     protected function getServiceInvoice()
     {
@@ -64,6 +61,8 @@ class CreditManagementOrderHandler implements HandlerInterface
                 return $this->getInvoiceKey($service);
             }
         }
+
+        return null;
     }
 
     /**
@@ -80,31 +79,33 @@ class CreditManagementOrderHandler implements HandlerInterface
                 return $service;
             }
         }
+        return null;
     }
-
 
     /**
      * Get invoice key from service
      *
      * @param array $service
      *
-     * @return void
+     * @return string
      */
     private function getInvoiceKey(array $service)
     {
         if (!isset($service['Parameters']) || !is_array($service['Parameters'])) {
+            return '';
         }
         foreach ($service['Parameters'] as $parameter) {
             if ($parameter['Name'] === "InvoiceKey") {
                 return $parameter['Value'];
             }
         }
+
+        return '';
     }
 
     private function validatePayment(array $handlingSubject)
     {
-        if (
-            !isset($handlingSubject['payment'])
+        if (!isset($handlingSubject['payment'])
             || !$handlingSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
@@ -113,8 +114,7 @@ class CreditManagementOrderHandler implements HandlerInterface
 
     private function validateResponse(array $response)
     {
-        if (
-            !isset($response['object'])
+        if (!isset($response['object'])
             || !$response['object'] instanceof TransactionResponse
         ) {
             throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');

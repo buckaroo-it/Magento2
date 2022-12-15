@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -62,10 +63,6 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        /**
-         * @var $quote \Magento\Quote\Model\Quote $quote
-         */
-        $quote = $observer->getEvent()->getQuote();
 
         if ($order->canCancel()) {
             //$this->logging->addDebug('Buckaroo push failed : '.$message.' : Cancel order.');
@@ -84,7 +81,6 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                     $payment->save();
                     //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
                 } catch (\Exception $e) {
-
                 }
             }
 
@@ -97,7 +93,6 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                 $this->orderManagement->cancel($order->getId());
                 //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-
             }
             $this->buckarooSession->setData('flagHandleFailedQuote', 0);
         }

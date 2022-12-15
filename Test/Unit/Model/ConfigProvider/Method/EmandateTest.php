@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class EmandateTest extends BaseTest
 {
@@ -33,7 +36,7 @@ class EmandateTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Emandate::XPATH_EMANDATE_ACTIVE)
+            ->with($this->getPaymentMethodConfigPath(Emandate::CODE, AbstractConfigProvider::XPATH_ACTIVE))
             ->willReturn(0);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -47,13 +50,16 @@ class EmandateTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
-            ->withConsecutive($this->onConsecutiveCalls([[Emandate::XPATH_EMANDATE_ACTIVE]]))
+            ->withConsecutive([
+                $this->getPaymentMethodConfigPath(Emandate::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                ScopeInterface::SCOPE_STORE,
+            ])
             ->willReturn(1);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
 
         $resultPaymentBuckaroo = $result['payment']['buckaroo'];
 
@@ -101,7 +107,10 @@ class EmandateTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Emandate::XPATH_EMANDATE_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Emandate::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($fee);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

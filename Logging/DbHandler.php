@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Logging;
 
 use Magento\Framework\Logger\Handler\Base;
@@ -59,7 +61,7 @@ class DbHandler extends Base
         try {
             $logData = json_decode($record['message'], true);
         } catch (\Exception $e) {
-            $logData=[];
+            $logData = [];
         }
 
         $logFactory->setData([

@@ -42,15 +42,15 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
         );
     }
 
-    public function get($name){
-        if(method_exists($this, $name)){
+    public function get($name)
+    {
+        if (method_exists($this, $name)) {
             return $this->$name();
-        }
-        elseif(property_exists($this,$name)){
+        } elseif (property_exists($this, $name)) {
             return $this->$name;
         } else {
             $propertyName = 'brq_' . strtolower(preg_replace('~(?!^)(?=[A-Z])~', '_', $name));
-            if(isset($this->request[$propertyName])) {
+            if (isset($this->request[$propertyName])) {
                 return $this->request[$propertyName];
             }
         }
@@ -159,7 +159,7 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
     public function getAdditionalInformation($propertyName)
     {
         $propertyName = 'add_' . strtolower($propertyName);
-        if(isset($this->request[$propertyName])) {
+        if (isset($this->request[$propertyName])) {
             return $this->request[$propertyName];
         }
 
@@ -176,7 +176,8 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
         $this->request['brq_transactions'] = $transactions;
     }
 
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->request['brq_amount'] = $amount;
     }
 }

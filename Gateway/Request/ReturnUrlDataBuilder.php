@@ -35,7 +35,7 @@ class ReturnUrlDataBuilder implements BuilderInterface
      */
     public function __construct(
         UrlInterface $urlBuilder,
-        FormKey      $formKey
+        FormKey $formKey
     ) {
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;

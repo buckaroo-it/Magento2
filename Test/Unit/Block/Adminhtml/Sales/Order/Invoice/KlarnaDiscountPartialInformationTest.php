@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,18 +18,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Sales\Order\Invoice;
 
 use Magento\Framework\Registry;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
-use Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice\KlarnakpDiscountPartialInformation;
+use Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice\KlarnaDiscountPartialInformation;
 use Buckaroo\Magento2\Test\BaseTest;
 
-class KlarnakpDiscountPartialInformationTest extends BaseTest
+class KlarnaDiscountPartialInformationTest extends BaseTest
 {
-    protected $instanceClass = KlarnakpDiscountPartialInformation::class;
+    protected $instanceClass = KlarnaDiscountPartialInformation::class;
 
     /**
      * @return array
@@ -63,7 +65,7 @@ class KlarnakpDiscountPartialInformationTest extends BaseTest
      */
     public function testShouldShowWarning($partialCapture, $method, $expected)
     {
-        $this->markTestSkipped("SKIP (Deprecated) KlarnakpDiscountPartialInformationTest");
+        $this->markTestSkipped("SKIP (Deprecated) KlarnaDiscountPartialInformationTest");
         $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['canCapturePartial', 'getMethod'])->getMock();
         $paymentMock->expects($this->once())->method('canCapturePartial')->willReturn($partialCapture);
         $paymentMock->method('getMethod')->willReturn($method);

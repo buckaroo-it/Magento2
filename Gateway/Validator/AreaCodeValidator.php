@@ -21,7 +21,7 @@ class AreaCodeValidator extends AbstractValidator
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        ConfigProviderFactory  $configProviderFactory,
+        ConfigProviderFactory $configProviderFactory,
         State $state
     ) {
         $this->configProviderFactory = $configProviderFactory;
@@ -54,6 +54,5 @@ class AreaCodeValidator extends AbstractValidator
         }
 
         return $this->createResult($isValid);
-
     }
 }

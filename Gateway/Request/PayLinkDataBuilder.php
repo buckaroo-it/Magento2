@@ -24,7 +24,7 @@ class PayLinkDataBuilder extends AbstractDataBuilder
      */
     public function __construct(
         PayLink $payLinkConfig,
-        Giftcards   $giftcardsConfig
+        Giftcards $giftcardsConfig
     ) {
         $this->payLinkConfig = $payLinkConfig;
         $this->giftcardsConfig = $giftcardsConfig;

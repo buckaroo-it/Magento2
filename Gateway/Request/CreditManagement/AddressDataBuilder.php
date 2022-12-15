@@ -11,14 +11,14 @@ class AddressDataBuilder extends AbstractDataBuilder
         parent::initialize($buildSubject);
 
         $billingAddress = $this->getOrder()->getBillingAddress();
-        if($billingAddress === null) {
+        if ($billingAddress === null) {
             return [];
         }
 
         $addressData = $this->getAddressData(
             $billingAddress->getStreet()
         );
-        
+
         return [
             'street'            => $addressData['street'],
             'houseNumber'       => $addressData['house_number'],
@@ -31,8 +31,9 @@ class AddressDataBuilder extends AbstractDataBuilder
 
     /**
      * @param $street
-     *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getAddressData($street)
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -109,7 +111,7 @@ class CertificateTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->setData(
             'fieldset_data',
             [
-                'certificate_upload'=> $this->uploadFixture,
+                'certificate_upload' => $this->uploadFixture,
                 'certificate_label' => $this->uploadFixture['label'],
             ]
         );

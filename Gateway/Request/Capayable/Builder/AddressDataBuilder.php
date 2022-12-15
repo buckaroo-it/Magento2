@@ -55,7 +55,7 @@ class AddressDataBuilder extends AbstractDataBuilder
     }
     /**
      * Get street fragments
-     * 
+     *
      * @param array|null $street
      * @return array
      */

@@ -9,19 +9,19 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate as EmandateConfig;
 
 class EmandateDataBuilder extends AbstractDataBuilder
 {
-
     /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate
      */
     protected $config;
 
-    public function __construct(EmandateConfig $config) {
+    public function __construct(EmandateConfig $config)
+    {
         $this->config = $config;
     }
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
-        
+
         return [
             'emandatereason'    => (string)$this->config->getReason(),
             'sequencetype'      => (float)$this->config->getSequenceType(),
@@ -34,7 +34,7 @@ class EmandateDataBuilder extends AbstractDataBuilder
 
     /**
      * Get email from billingAddress
-     * 
+     *
      * @return string
      */
     protected function getEmail(): string
@@ -43,5 +43,7 @@ class EmandateDataBuilder extends AbstractDataBuilder
         if ($billingAddress !== null) {
             return (string)$billingAddress->getEmail();
         }
+
+        return $this->getOrder()->getCustomerEmail();
     }
 }

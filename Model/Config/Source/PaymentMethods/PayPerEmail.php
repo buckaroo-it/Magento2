@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -26,6 +27,8 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
      * Options getter
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function toOptionArray()
     {

@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Quote\Api\Data\TotalsExtensionFactory;
@@ -39,6 +41,8 @@ class CartTotalRepository
      * @param \Closure        $proceed
      * @param int             $cartId
      * @return TotalsInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundGet(TotalRepository $subject, \Closure $proceed, $cartId)
     {

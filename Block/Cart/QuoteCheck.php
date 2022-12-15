@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,14 +21,14 @@
 
 namespace Buckaroo\Magento2\Block\Cart;
 
-use \Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Message\ManagerInterface;
 
 class QuoteCheck
 {
     /**
      * @var ManagerInterface
      */
-    protected $_messageManager;
+    protected $messageManager;
 
     /**
      * @var \Magento\Quote\Model\Quote
@@ -44,7 +45,7 @@ class QuoteCheck
         ManagerInterface $messageManager
     ) {
         $this->quote           = $checkoutSession->getQuote();
-        $this->_messageManager = $messageManager;
+        $this->messageManager  = $messageManager;
     }
 
     /**

@@ -137,7 +137,7 @@ class GiftcardsTest extends BaseTest
         ]);
         $result = $instance->toOptionArray();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertEquals($expected, $result);
     }
 }

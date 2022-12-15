@@ -1,4 +1,5 @@
 <?php
+
 namespace Buckaroo\Magento2\Ui\Component\Listing\Column\Method;
 
 use Magento\Framework\App\ResourceConnection;
@@ -81,7 +82,7 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
         );
         $additionalOptions = [];
         while ($row = $result->fetch()) {
-            if (!isset($additionalOptions[$row['method']. '-' . $row['giftcard_codes']])) {
+            if (!isset($additionalOptions[$row['method'] . '-' . $row['giftcard_codes']])) {
                 foreach ($this->options as $option) {
                     if ($option['value'] == $row['method']) {
                         $additionalOptions[$row['method'] . '-' . $row['giftcard_codes']] =
@@ -99,7 +100,6 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
                     "__disableTmpl" => true
                 ];
             }
-
         }
 
         $options = new \Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail();
@@ -110,7 +110,7 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
         ]);
         foreach ($option as $item) {
             $this->options[] = [
-                "value" => 'buckaroo_magento2_payperemail-'.$item['value'],
+                "value" => 'buckaroo_magento2_payperemail-' . $item['value'],
                 "label" => __('Buckaroo PayPerEmail') . ' + ' . $item['label'],
                 "__disableTmpl" => true
             ];

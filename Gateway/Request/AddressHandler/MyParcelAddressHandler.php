@@ -17,22 +17,32 @@ class MyParcelAddressHandler extends AbstractAddressHandler
         parent::__construct($buckarooLogger);
     }
 
+    /**
+     * Update Shipping Address By MyParcel
+     *
+     * @param Order $order
+     * @param OrderAddressInterface $shippingAddress
+     * @return Order
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         $this->buckarooLogger->addDebug(__METHOD__ . '|1|');
         $myparcelFetched = false;
-        if ($myparcelOptions = $order->getData('myparcel_delivery_options')) {
-            if (!empty($myparcelOptions)) {
-                try {
-                    $myparcelOptions = json_decode($myparcelOptions, true);
-                    $isPickup = $myparcelOptions['isPickup'] ?? false;
-                    if ($isPickup) {
-                        $this->updateShippingAddressByMyParcel($myparcelOptions['pickupLocation'], $requestData);
-                        $myparcelFetched = true;
-                    }
-                } catch (\JsonException $je) {
-                    $this->buckarooLogger->addDebug(__METHOD__ . '|2|' . ' Error related to json_decode (MyParcel plugin compatibility)');
+        $myparcelOptions = $order->getData('myparcel_delivery_options');
+        if (!empty($myparcelOptions)) {
+            try {
+                $myparcelOptions = json_decode($myparcelOptions, true);
+                $isPickup = $myparcelOptions['isPickup'] ?? false;
+                if ($isPickup) {
+                    $this->updateShippingAddressByMyParcel($myparcelOptions['pickupLocation'], $shippingAddress);
+                    $myparcelFetched = true;
                 }
+            } catch (\JsonException $je) {
+                $this->buckarooLogger->addDebug(
+                    __METHOD__ . '|2|' . ' Error related to json_decode (MyParcel plugin compatibility)'
+                );
             }
         }
 
@@ -43,14 +53,16 @@ class MyParcelAddressHandler extends AbstractAddressHandler
                 (strpos((string)$order->getShippingMethod(), 'pickup') !== false)
             ) {
                 $this->buckarooLogger->addDebug(__METHOD__ . '|15|');
-                if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()) {
-                    if ($myParcelNLData = $this->helper->getJson()->unserialize($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData())) {
-                        $this->buckarooLogger->addDebug(__METHOD__ . '|20|');
-                        $this->updateShippingAddressByMyParcel($myParcelNLData, $requestData);
-                    }
+                if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
+                    && $myParcelNLData = $this->helper->getJson()->unserialize(
+                        $this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
+                    )) {
+                    $this->buckarooLogger->addDebug(__METHOD__ . '|20|');
+                    $this->updateShippingAddressByMyParcel($myParcelNLData, $shippingAddress);
                 }
             }
         }
+
 
         return $order;
     }

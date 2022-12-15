@@ -33,9 +33,9 @@ interface PaypalExpressQuoteCreateInterface
    * @param \Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface[]|null $order_data
    * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface
    */
-  public function execute(
-    ShippingAddressRequestInterface $shipping_address,
-    string $page,
-    $order_data = null
-  );
+    public function execute(
+        ShippingAddressRequestInterface $shipping_address,
+        string $page,
+        $order_data = null
+    );
 }

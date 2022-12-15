@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -44,6 +45,8 @@ class Push
      * @param boolean                  $result
      *
      * @return boolean
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function afterProcessSucceededPush(
         \Buckaroo\Magento2\Model\Push $push,
@@ -62,7 +65,9 @@ class Push
         $paymentMethodInstance = $payment->getMethodInstance();
         $card = $paymentMethodInstance->getInfoInstance()->getAdditionalInformation('card_type');
 
-        if(empty($card)) return $result;
+        if (empty($card)) {
+            return $result;
+        }
 
         $authenticationFunction = 'getService' . ucfirst($card) . 'Authentication';
         $enrolledFunction = 'getService' . ucfirst($card) . 'Enrolled';

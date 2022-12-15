@@ -17,12 +17,17 @@ class ActiveAccountValidator extends AbstractValidator
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        ConfigProviderFactory  $configProviderFactory
+        ConfigProviderFactory $configProviderFactory
     ) {
         $this->configProviderFactory = $configProviderFactory;
         parent::__construct($resultFactory);
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function validate(array $validationSubject)
     {
         $isValid = true;

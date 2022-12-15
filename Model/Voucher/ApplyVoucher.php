@@ -14,11 +14,8 @@ use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
 
-
 class ApplyVoucher implements ApplyVoucherInterface
 {
-
-
     /**
      * @var \Magento\Quote\Model\QuoteIdMaskFactory
      */
@@ -39,11 +36,20 @@ class ApplyVoucher implements ApplyVoucherInterface
      */
     protected $voucherRequest;
 
-
     /**
      * @var \Magento\Checkout\Model\Session
      */
     protected $checkoutSession;
+
+    /**
+     * @var GiftcardResponse
+     */
+    private $giftcardResponse;
+
+    /**
+     * @var Log
+     */
+    private $logger;
 
     public function __construct(
         ApplyVoucherRequestInterface $voucherRequest,

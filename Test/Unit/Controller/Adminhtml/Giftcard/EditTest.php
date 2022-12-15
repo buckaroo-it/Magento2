@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,11 +18,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Controller\Adminhtml\Giftcard;
 
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
-use \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Edit;
+use Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Edit;
 use Buckaroo\Magento2\Model\Giftcard;
 use Buckaroo\Magento2\Model\GiftcardFactory;
 use Buckaroo\Magento2\Test\BaseTest;

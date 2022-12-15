@@ -19,8 +19,12 @@ class IssuerValidator extends AbstractValidator
     /** @var Factory */
     private $configProvider;
 
+    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface */
+    private $config;
+
     /**
-     * @param ConfigInterface $config
+     * @param ResultInterfaceFactory $resultFactory
+     * @param Factory $configProvider
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -53,7 +57,6 @@ class IssuerValidator extends AbstractValidator
             }
         }
 
-        
         return $this->createResult(false, [__('Please select a issuer from the list')]);
     }
 

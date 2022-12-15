@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Quote\Api\Data\PaymentInterface;
@@ -24,6 +26,16 @@ use Magento\Quote\Api\Data\AddressInterface;
 
 class GuestPaymentMethodManagement
 {
+    /**
+     * @param $subject
+     * @param $cartId
+     * @param $email
+     * @param PaymentInterface $paymentMethod
+     * @param AddressInterface|null $billingAddress
+     * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforeSavePaymentInformation(
         $subject,
         $cartId,

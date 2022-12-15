@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Backend;
 
 use Magento\Framework\App\Cache\TypeListInterface;
@@ -32,6 +34,9 @@ use Magento\Framework\Filesystem\Io\File;
 use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
 use Buckaroo\Magento2\Model\CertificateFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Certificate extends \Magento\Framework\App\Config\Value
 {
     /**
@@ -60,6 +65,8 @@ class Certificate extends \Magento\Framework\App\Config\Value
      * @param AbstractResource                          $resource
      * @param AbstractDb                                $resourceCollection
      * @param array                                     $data
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Context $context,

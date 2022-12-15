@@ -47,8 +47,7 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
     {
         $pendingApprovalStatus = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL');
 
-        if (
-            !empty($responseData->getStatusCode())
+        if (!empty($responseData->getStatusCode())
             && ($responseData->getStatusCode() == $pendingApprovalStatus)
             && $payment
             && !empty($responseData->getRelatedTransactions())
@@ -85,6 +84,4 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
     {
         return $this->dispatchAfterEvent('buckaroo_magento2_method_refund_after', $payment, $response);
     }
-
 }
-

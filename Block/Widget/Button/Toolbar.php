@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,7 +18,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 
 namespace Buckaroo\Magento2\Block\Widget\Button;
 
@@ -72,6 +72,8 @@ class Toolbar
      * @param AbstractBlock  $context
      * @param ButtonList     $buttonList
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforePushButtons(
         ToolbarContext $toolbar,
@@ -89,22 +91,12 @@ class Toolbar
      * @param $context
      * @return bool
      */
-    private function _isOrderView($context)
-    {
-        if ($context instanceof \Magento\Sales\Block\Adminhtml\Order\View) {
-            return true;
-        }
-    }
-
-    /**
-     * @param $context
-     * @return bool
-     */
     private function _isOrderInvoiceView($context)
     {
         if ($context instanceof \Magento\Sales\Block\Adminhtml\Order\Invoice\View) {
             return true;
         }
+        return false;
     }
 
     /**

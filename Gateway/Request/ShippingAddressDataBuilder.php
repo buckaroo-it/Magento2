@@ -99,4 +99,3 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
         return array_diff($filteredAddressOne, $filteredAddressTwo);
     }
 }
-
