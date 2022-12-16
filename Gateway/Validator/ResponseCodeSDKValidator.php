@@ -32,14 +32,13 @@ class ResponseCodeSDKValidator extends AbstractValidator
      * @param ResultInterfaceFactory $resultFactory
      */
     public function __construct(
-        Data                   $helper,
-        Http                   $request,
+        Data $helper,
+        Http $request,
         ResultInterfaceFactory $resultFactory
     ) {
         parent::__construct($resultFactory);
         $this->helper = $helper;
         $this->request = $request;
-
     }
 
     /**
@@ -47,6 +46,8 @@ class ResponseCodeSDKValidator extends AbstractValidator
      *
      * @param array $validationSubject
      * @return ResultInterface
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function validate(array $validationSubject)
     {
@@ -132,10 +133,5 @@ class ResponseCodeSDKValidator extends AbstractValidator
         }
 
         return $statusCode;
-    }
-
-    private function getErrorMessage()
-    {
-
     }
 }

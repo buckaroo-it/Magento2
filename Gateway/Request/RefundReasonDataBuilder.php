@@ -8,6 +8,8 @@ class RefundReasonDataBuilder implements BuilderInterface
 {
     /**
      * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function build(array $buildSubject): array
     {

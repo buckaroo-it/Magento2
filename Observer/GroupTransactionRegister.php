@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
@@ -26,7 +28,6 @@ use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\Data;
-
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class GroupTransactionRegister implements ObserverInterface
@@ -38,6 +39,7 @@ class GroupTransactionRegister implements ObserverInterface
     private $invoiceSender;
     private $logger;
     private $helper;
+    private PaymentGroupTransaction $groupTransaction;
 
     /**
      * @param Account       $accountConfig
@@ -71,11 +73,11 @@ class GroupTransactionRegister implements ObserverInterface
         if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
             return;
         }
-        
+
         $order = $invoice->getOrder();
 
         $items = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
-        foreach ($items as $key => $item) {
+        foreach ($items as $item) {
             $this->logger->addDebug(__METHOD__ . '|5|' . var_export([$order->getTotalPaid(), $item['amount']], true));
             $totalPaid = $order->getTotalPaid() + $item['amount'];
             $baseTotalPaid = $order->getBaseTotalPaid() + $item['amount'];

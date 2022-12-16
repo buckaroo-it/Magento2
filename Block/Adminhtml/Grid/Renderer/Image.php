@@ -39,6 +39,11 @@ class Image extends AbstractRenderer
         $this->_authorization = $context->getAuthorization();
     }
 
+    /**
+     * @param DataObject $row
+     * @return string
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function render(DataObject $row)
     {
         if ($img = $row['logo']) {
@@ -47,5 +52,7 @@ class Image extends AbstractRenderer
             );
             return '<img src="' . $mediaDirectory . $img . '" width="50" >';
         }
+
+        return '';
     }
 }

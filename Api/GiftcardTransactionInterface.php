@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Api;
 
-
 interface GiftcardTransactionInterface
 {
     /**

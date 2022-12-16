@@ -31,8 +31,8 @@ class ReserveBillingDataBuilder extends AbstractDataBuilder
             $gender = 'male';
         }
 
-        if($this->getPayment()->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp') {
-            if(empty($billingAddress->getCompany())) {
+        if ($this->getPayment()->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp') {
+            if (empty($billingAddress->getCompany())) {
                 $careOf = 'Person';
             } else {
                 $careOf = 'Company';
@@ -48,7 +48,7 @@ class ReserveBillingDataBuilder extends AbstractDataBuilder
                 'gender' => $gender,
                 'firstName' => $billingAddress->getFirstname(),
                 'lastName' => $billingAddress->getLastName(),
-                'birthDate' => $birthDayStamp ?? ''
+                'birthDate' => $birthDayStamp
             ];
         }
 

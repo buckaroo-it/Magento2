@@ -67,9 +67,9 @@ class ClientIPDataBuilder implements BuilderInterface
         //trustly anyway should be w/o private ip
         if ((isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) &&
                 $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly'
-            )
-            && $this->isIpPrivate($ip)
-            && $order->getXForwardedFor()
+            ) &&
+            $this->isIpPrivate($ip) &&
+            $order->getXForwardedFor()
         ) {
             $ip = $order->getXForwardedFor();
         }
@@ -97,7 +97,6 @@ class ClientIPDataBuilder implements BuilderInterface
 
         $long_ip = ip2long($ip);
         if ($long_ip != -1) {
-
             foreach ($pri_addrs as $pri_addr) {
                 list ($start, $end) = explode('|', $pri_addr);
 

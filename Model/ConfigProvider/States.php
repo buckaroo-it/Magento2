@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,7 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @method mixed getOrderStateNew()
@@ -31,7 +32,6 @@ use \Magento\Store\Model\ScopeInterface;
  */
 class States extends AbstractConfigProvider
 {
-
     /**
      * XPATHs to configuration values for buckaroo_magento2_predefined
      */

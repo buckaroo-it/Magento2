@@ -27,7 +27,6 @@ use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {
-
     /**
      *  @var \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory
      */
@@ -97,6 +96,8 @@ class TotalBreakdown implements TotalBreakdownInterface
         if (isset($totals[$type])) {
             return $totals[$type];
         }
+
+        return null;
     }
     /**
      * Get buckaroo fee without tax

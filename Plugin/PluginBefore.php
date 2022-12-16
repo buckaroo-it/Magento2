@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,28 +18,57 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink;
 
 class PluginBefore
 {
-    protected $urlBuider;
-
+    /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
     protected $orderRepository;
 
+    /**
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
+     */
     protected $configProviderMethodFactory;
 
+    /**
+     * @var \Magento\Framework\UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
+     * @var \Magento\Framework\App\RequestInterface
+     */
+    private $_request;
+
+    /**
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param \Magento\Framework\UrlInterface $urlBuilder
+     */
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Framework\UrlInterface $urlBuilder
+        \Magento\Sales\Api\OrderRepositoryInterface            $orderRepository,
+        \Magento\Framework\UrlInterface                        $urlBuilder
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderRepository             = $orderRepository;
         $this->urlBuilder                  = $urlBuilder;
     }
 
+    /**
+     * @param \Magento\Backend\Block\Widget\Button\Toolbar $subject
+     * @param \Magento\Framework\View\Element\AbstractBlock $context
+     * @param \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+     * @return void
+     * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforePushButtons(
         \Magento\Backend\Block\Widget\Button\Toolbar $subject,
         \Magento\Framework\View\Element\AbstractBlock $context,

@@ -15,9 +15,8 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
 
     public function __construct(
         PayPerEmail $payPerEmailConfig,
-        Giftcards   $giftcardsConfig
-    )
-    {
+        Giftcards $giftcardsConfig
+    ) {
         $this->payPerEmailConfig = $payPerEmailConfig;
         $this->giftcardsConfig = $giftcardsConfig;
     }
@@ -29,7 +28,7 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
         $payment = $this->getPayment();
 
         $data = [
-            'merchantSendsEmail' => !$this->payPerEmailConfig->getSendMail(),
+            'merchantSendsEmail' => !$this->payPerEmailConfig->hasSendMail(),
             'email' => $payment->getAdditionalInformation('customer_email'),
             'paymentMethodsAllowed' => $this->getPaymentMethodsAllowed($this->payPerEmailConfig, $storeId),
             'attachment' => '',

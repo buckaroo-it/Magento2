@@ -21,8 +21,7 @@ class PayReminderService
      */
     public function __construct(
         PaymentGroupTransaction $paymentGroupTransaction
-    )
-    {
+    ) {
         $this->paymentGroupTransaction = $paymentGroupTransaction;
     }
 

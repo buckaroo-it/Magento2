@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Api\TransactionResponseInterface;
 
 class Response implements TransactionResponseInterface
 {
-
     public const STATUSCODE_SUCCESS               = 190;
     public const STATUSCODE_FAILED                = 490;
     public const STATUSCODE_VALIDATION_FAILURE    = 491;
@@ -38,6 +37,7 @@ class Response implements TransactionResponseInterface
     public const STATUSCODE_PENDING_APPROVAL      = 794;
     public const STATUSCODE_CANCELLED_BY_USER     = 890;
     public const STATUSCODE_CANCELLED_BY_MERCHANT = 891;
+    private array $data;
 
 
     public function __construct(array $data)
@@ -51,6 +51,7 @@ class Response implements TransactionResponseInterface
         if (isset($status['Code']['Code'])) {
             return $status['Code']['Code'];
         }
+        return null;
     }
 
     public function getServiceCode()
@@ -67,20 +68,23 @@ class Response implements TransactionResponseInterface
      */
     public function get(string $key)
     {
-        if (
-            isset($this->data[$key]) &&
+        if (isset($this->data[$key]) &&
             (
-                (is_string($this->data[$key]) &&
+                (
+                    is_string($this->data[$key]) &&
                     strlen(trim($this->data[$key])) > 0
                 ) ||
-                (is_array($this->data[$key]) &&
+                (
+                    is_array($this->data[$key]) &&
                     count($this->data[$key]) > 0
-                )  ||
+                ) ||
                 is_scalar($this->data[$key])
             )
         ) {
             return $this->data[$key];
         }
+
+        return null;
     }
 
     /**
@@ -97,7 +101,7 @@ class Response implements TransactionResponseInterface
         }
 
         if (!is_scalar($statusCode)) {
-           return false;
+            return false;
         }
 
         return $this->getStatusCode() === (int)$statusCode;

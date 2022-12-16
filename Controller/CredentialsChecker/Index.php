@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
-use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Encryption\Encryptor;
@@ -28,73 +28,59 @@ use Magento\Framework\Encryption\Encryptor;
 class Index extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var array
-     */
-    protected $response;
-
-    /**
-     * @var Log
-     */
-    protected $logger;
-
-    /**
      * @var \Magento\Framework\Controller\Result\JsonFactory
      */
     protected $resultJsonFactory;
-
     /**
      * @var \Magento\Checkout\Model\ConfigProviderInterface
      */
     protected $accountConfig;
-
-    private $urlBuilder;
-    private $formKey;
-    private $helper;
+    /**
+     * @var Encryptor
+     */
     private $encryptor;
+    /**
+     * @var Account
+     */
     private $configProviderAccount;
-    private $validatorFactory;
+    /**
+     * @var \Buckaroo\Magento2\Gateway\Http\Client\Json
+     */
     private $client;
 
     /**
+     * Check Credentials in Admin
+     *
      * @param \Magento\Framework\App\Action\Context $context
-     * @param Log $logger
      * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
-     * @param \Magento\Framework\UrlInterface $urlBuilder
-     * @param \Magento\Framework\Data\Form\FormKey $formKey
-     * @param \Buckaroo\Magento2\Helper\Data $helper
      * @param Encryptor $encryptor
      * @param Account $configProviderAccount
-     * @param \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory
      * @param \Buckaroo\Magento2\Gateway\Http\Client\Json $client
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        Log $logger,
+        \Magento\Framework\App\Action\Context            $context,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\Data\Form\FormKey $formKey,
-        \Buckaroo\Magento2\Helper\Data $helper,
-        Encryptor $encryptor,
-        Account $configProviderAccount,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory,
-        \Buckaroo\Magento2\Gateway\Http\Client\Json $client
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory  $configProviderFactory,
+        Encryptor                                        $encryptor,
+        Account                                          $configProviderAccount,
+        \Buckaroo\Magento2\Gateway\Http\Client\Json      $client
     ) {
         parent::__construct($context);
-        $this->logger             = $logger;
         $this->resultJsonFactory  = $resultJsonFactory;
         $this->accountConfig      = $configProviderFactory->get('account');
-        $this->urlBuilder         = $urlBuilder;
-        $this->formKey            = $formKey;
-        $this->helper             = $helper;
         $this->encryptor          = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
-        $this->validatorFactory   = $validatorFactory;
         $this->client = $client;
     }
 
+    /**
+     * Check Buckaroo Credentials Secret Key and Merchant Key
+     *
+     * @return \Magento\Framework\App\ResponseInterface|Json|\Magento\Framework\Controller\ResultInterface
+     * @throws \Exception
+     */
     public function execute()
     {
         if ($params = $this->getRequest()->getParams()) {
@@ -132,6 +118,15 @@ class Index extends \Magento\Framework\App\Action\Action
         ]);
     }
 
+    /**
+     * Create test request
+     *
+     * @param int|string $mode
+     * @param string $merchantKey
+     * @param string $secretKey
+     * @param \Magento\Framework\Phrase|string $message
+     * @return bool
+     */
     private function testJson($mode, $merchantKey, $secretKey, &$message)
     {
         $this->client->setSecretKey($secretKey);

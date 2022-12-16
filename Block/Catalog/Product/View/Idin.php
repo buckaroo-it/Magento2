@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,14 +18,16 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use \Magento\Framework\Registry;
+use Magento\Framework\Registry;
 
 class Idin extends Template
 {
@@ -68,6 +71,7 @@ class Idin extends Template
 
     /**
      * @return Product
+     * @throws LocalizedException
      */
     private function getProduct()
     {
@@ -102,7 +106,7 @@ class Idin extends Template
                     }
                     break;
                 case 2:
-                    foreach ($this->getProduct()->getCategoryIds() as $key => $cat) {
+                    foreach ($this->getProduct()->getCategoryIds() as $cat) {
                         if (in_array($cat, explode(',', (string)$this->idinConfigProvider->getIdinCategory()))) {
                             $result = true;
                         }

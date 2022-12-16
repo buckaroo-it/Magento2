@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -61,7 +63,6 @@ class MyParcelNLBuckarooPlugin
         // @codingStandardsIgnoreLine
         if ($result = file_get_contents('php://input')) {
             if ($jsonDecoded = $this->json->unserialize($result)) {
-
                 $this->logger->addDebug(__METHOD__ . '|2|' . var_export($jsonDecoded, true));
 
                 if (!empty($jsonDecoded['deliveryOptions']) &&

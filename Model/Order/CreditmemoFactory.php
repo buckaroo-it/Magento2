@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Order;
 
 use Magento\Sales\Model\Order\CreditmemoFactory as MagentoCreditmemoFactory;
@@ -43,11 +45,6 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      * @deprecated 101.0.0
      */
     protected $unserialize;
-
-    /**
-     * @var \Magento\Framework\Serialize\Serializer\Json
-     */
-    private $serializer;
 
     protected $logger;
 
@@ -104,6 +101,8 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      * @param array $data
      * @param Order|Invoice $salesModel
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function initBuckarooFeeData($creditmemo, $data, $salesModel)
     {

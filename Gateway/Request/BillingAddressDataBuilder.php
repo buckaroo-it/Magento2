@@ -16,4 +16,3 @@ class BillingAddressDataBuilder extends AbstractAddressDataBuilder
         return $this->getOrder()->getBillingAddress();
     }
 }
-

@@ -21,6 +21,9 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 {
     const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
@@ -55,17 +58,16 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
      */
     public function __construct(
-        ScopeConfigInterface        $scopeConfig,
-        BuckarooLog                 $buckarooLog,
-        QuoteFactory                $quoteFactory,
-        Calculation                 $taxCalculation,
-        Config                      $taxConfig,
-        BuckarooFee                 $configProviderBuckarooFee,
-        SoftwareData                $softwareData,
+        ScopeConfigInterface $scopeConfig,
+        BuckarooLog $buckarooLog,
+        QuoteFactory $quoteFactory,
+        Calculation $taxCalculation,
+        Config $taxConfig,
+        BuckarooFee $configProviderBuckarooFee,
+        SoftwareData $softwareData,
         ConfigProviderMethodFactory $configProviderMethodFactory,
         PayReminderService $payReminderService
-    )
-    {
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->buckarooLog = $buckarooLog;
         $this->quoteFactory = $quoteFactory;
@@ -129,15 +131,27 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         if (is_array($articles) && $numberOfInvoices == 1) {
             $serviceLine = $this->getServiceCostLine($currentInvoice);
-            if (!empty($serviceLine)) $articles = array_merge_recursive($articles, $serviceLine);;
+            if (!empty($serviceLine)) {
+                $articles = array_merge_recursive($articles, $serviceLine);
+            };
         }
 
         $shippingCosts = $this->getShippingCostsLine($currentInvoice);
-        if (!empty($shippingCosts)) $articles = array_merge_recursive($articles, $shippingCosts);
+        if (!empty($shippingCosts)) {
+            $articles = array_merge_recursive($articles, $shippingCosts);
+        }
 
         return $articles;
     }
 
+
+    /**
+     * @param Order $order
+     * @param InfoInterface $payment
+     * @return array|\array[][]
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function getCreditMemoArticlesData(Order $order, \Magento\Payment\Model\InfoInterface $payment): array
     {
         if ($this->payReminderService->isPayRemainder($order)) {
@@ -214,7 +228,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         /** @var \Magento\Quote\Model\Quote\Item $item */
         foreach ($cartData as $item) {
-
             if ($this->skipItem($item)) {
                 continue;
             }
@@ -238,7 +251,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             }
 
             $count++;
-
         }
 
         return $articles;
@@ -255,7 +267,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
         foreach ($invoice->getAllItems() as $item) {
-
             if ($this->skipItem($item)) {
                 continue;
             }
@@ -287,7 +298,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             }
 
             $count++;
-
         }
 
         return $articles;
@@ -297,7 +307,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     {
         if (empty($item)
             || $item->getRowTotalInclTax() == 0
-            || $item->hasParentItemId()) {
+            || $item->hasParentItemId()
+        ) {
             return true;
         }
 
@@ -376,8 +387,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    )
-    {
+    ) {
         return [
             'identifier' => $articleId,
             'description' => $articleDescription,
@@ -396,8 +406,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    ): array
-    {
+    ): array {
         return [
             'refundType' => 'Refund',
             'identifier' => $articleId,

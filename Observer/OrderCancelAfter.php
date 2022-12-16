@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -75,10 +76,6 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        /**
-         * @var $quote \Magento\Quote\Model\Quote
-         */
-        $quote = $observer->getEvent()->getQuote();
 
         $payment = $order->getPayment();
 
@@ -90,7 +87,7 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
         ) {
             try {
                 $this->logging->addDebug(__METHOD__ . '|sendCancelResponse|');
-                $response = $this->sendCancelResponse($originalKey);
+                $this->sendCancelResponse($originalKey);
                 //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
             }

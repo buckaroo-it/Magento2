@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -69,6 +70,7 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
         $values = [];
         /**
          * @noinspection PhpUndefinedMethodInspection
+         * @phpstan-ignore-next-line
          */
         $total = $this->getTotal();
         $totals = $this->helper->getTotals($total);

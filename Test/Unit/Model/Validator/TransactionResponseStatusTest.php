@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Validator;
 
 use Buckaroo\Magento2\Helper\Data;
@@ -31,13 +33,13 @@ class TransactionResponseStatusTest extends BaseTest
     {
         return [
             'no transaction data' => [
-                (Object)[],
+                (object)[],
                 null
             ],
             'has status code' => [
-                (Object)[
-                    'Status' => (Object)[
-                        'Code' => (Object)[
+                (object)[
+                    'Status' => (object)[
+                        'Code' => (object)[
                             'Code' => 890
                         ]
                     ]
@@ -45,68 +47,68 @@ class TransactionResponseStatusTest extends BaseTest
                 890
             ],
             'has status code, is canceled' => [
-                (Object)[
-                    'Status' => (Object)[
-                        'Code' => (Object)[
+                (object)[
+                    'Status' => (object)[
+                        'Code' => (object)[
                             'Code' => 791
                         ]
                     ],
-                    'Transaction' => (Object)[
+                    'Transaction' => (object)[
                         'IsCanceled' => true
                     ]
                 ],
                 791
             ],
             'has status code, is not canceled' => [
-                (Object)[
-                    'Status' => (Object)[
-                        'Code' => (Object)[
+                (object)[
+                    'Status' => (object)[
+                        'Code' => (object)[
                             'Code' => 675
                         ]
                     ],
-                    'Transaction' => (Object)[
+                    'Transaction' => (object)[
                         'IsCanceled' => false
                     ]
                 ],
                 675
             ],
             'null status code, is canceled' => [
-                (Object)[
-                    'Status' => (Object)[
-                        'Code' => (Object)[
+                (object)[
+                    'Status' => (object)[
+                        'Code' => (object)[
                             'Code' => null
                         ]
                     ],
-                    'Transaction' => (Object)[
+                    'Transaction' => (object)[
                         'IsCanceled' => true
                     ]
                 ],
                 190
             ],
             'null status code, is not canceled' => [
-                (Object)[
-                    'Status' => (Object)[
-                        'Code' => (Object)[
+                (object)[
+                    'Status' => (object)[
+                        'Code' => (object)[
                             'Code' => null
                         ]
                     ],
-                    'Transaction' => (Object)[
+                    'Transaction' => (object)[
                         'IsCanceled' => false
                     ]
                 ],
                 null
             ],
             'no status code, is canceled' => [
-                (Object)[
-                    'Transaction' => (Object)[
+                (object)[
+                    'Transaction' => (object)[
                         'IsCanceled' => true
                     ]
                 ],
                 190
             ],
             'no status code, is not canceled' => [
-                (Object)[
-                    'Transaction' => (Object)[
+                (object)[
+                    'Transaction' => (object)[
                         'IsCanceled' => false
                     ]
                 ],

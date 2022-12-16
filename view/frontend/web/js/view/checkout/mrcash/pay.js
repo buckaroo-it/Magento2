@@ -24,7 +24,7 @@ define(
         'mage/translate',
         'BuckarooSDK'
     ],
-    function(
+    function (
         $,
         utils,
         url
@@ -34,11 +34,11 @@ define(
         return {
             transactionKey : null,
 
-            setTransactionKey: function(newKey) {
+            setTransactionKey: function (newKey) {
                 this.transactionKey = newKey;
             },
 
-            showQrCode: function() {
+            showQrCode: function () {
                 if (/iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                     $('#buckaroo_magento2_mrcash_url').show();
                 }
@@ -46,7 +46,7 @@ define(
                     "#buckaroo_magento2_mrcash_qr",
                     "#buckaroo_magento2_mrcash_url",
                     this.transactionKey,
-                    function(status, params) {
+                    function (status, params) {
                         if (status === 'SUCCESS') {
                             $('#buckaroo_magento2_mrcash_cancel').hide();
                         }
@@ -56,7 +56,7 @@ define(
                 );
             },
 
-            cancelPayment: function() {
+            cancelPayment: function () {
                 var cancelText = $.mage.__('You have canceled the order. We kindly ask you to not complete the payment in the Bancontact app - Your order will not be processed. Place the order again if you still want to make the payment.');
                 $('#buckaroo_magento2_mrcash_title').hide();
                 $('#buckaroo_magento2_mrcash_cancel').hide();

@@ -55,6 +55,6 @@ class EmandateDataBuilder implements BuilderInterface
             return (string)$billingAddress->getEmail();
         }
 
-        return '';
+        return $this->getOrder()->getCustomerEmail();
     }
 }

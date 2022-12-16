@@ -42,8 +42,8 @@ class AmountDebitDataBuilder implements BuilderInterface
      */
     public function __construct(
         Factory $configProviderMethodFactory,
-                $amount = null,
-                $currency = null
+        $amount = null,
+        $currency = null
     ) {
         if ($amount !== null) {
             $this->amount = $amount;

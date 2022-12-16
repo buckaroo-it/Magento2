@@ -19,12 +19,11 @@ class PosPaymentValidator extends AbstractValidator
      * @param ResultInterfaceFactory $resultFactory
      */
     public function __construct(
-        ResultInterfaceFactory         $resultFactory,
-        CookieManagerInterface         $cookieManager,
-        BuckarooLog                    $buckarooLog,
+        ResultInterfaceFactory $resultFactory,
+        CookieManagerInterface $cookieManager,
+        BuckarooLog $buckarooLog,
         \Magento\Framework\HTTP\Header $header
-    )
-    {
+    ) {
         $this->header = $header;
         $this->cookieManager = $cookieManager;
         $this->buckarooLog = $buckarooLog;

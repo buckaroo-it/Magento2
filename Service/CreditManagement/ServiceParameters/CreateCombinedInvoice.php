@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
 use Magento\Payment\Model\InfoInterface;
@@ -274,6 +276,8 @@ class CreateCombinedInvoice
      * @param $street
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getCmAddress($street)
     {

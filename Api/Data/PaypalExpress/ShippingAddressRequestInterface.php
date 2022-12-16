@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
 
-
 interface ShippingAddressRequestInterface
 {
     /**
@@ -54,12 +53,11 @@ interface ShippingAddressRequestInterface
     /**
      * Set state
      *
-     * @param string|null $state
+     * @param string $state
      *
      * @return void
      */
     public function setState(string $state);
-
 
     /**
      * Get city

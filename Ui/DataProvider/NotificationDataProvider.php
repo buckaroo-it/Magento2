@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Ui\DataProvider;
 
 use Buckaroo\Magento2\Ui\DataProvider\Modifier\Notifications;
@@ -68,6 +70,13 @@ class NotificationDataProvider extends \Magento\Ui\DataProvider\AbstractDataProv
     {
         return $this->modifier->modifyMeta($this->meta);
     }
+
+    /**
+     * @param \Magento\Framework\Api\Filter $filter
+     * @return null
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function addFilter(\Magento\Framework\Api\Filter $filter)
     {
         return null;

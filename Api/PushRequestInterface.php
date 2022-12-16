@@ -24,6 +24,9 @@ namespace Buckaroo\Magento2\Api;
 interface PushRequestInterface
 {
     /**
+     * Validate Push Request
+     *
+     * @param int|string|null $store
      * @return boolean
      *
      * @api
@@ -60,6 +63,11 @@ interface PushRequestInterface
 
     public function getTransactionType();
 
+    /**
+     * Get Transaction Id
+     *
+     * @return string|null
+     */
     public function getTransactions();
 
     public function setTransactions($transactions);

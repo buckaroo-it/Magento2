@@ -54,7 +54,7 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
         return $this->getAddress()->getLastName();
     }
 
-    protected function getCategory(): string
+    protected function getCategory()
     {
         return 'B2C';
     }

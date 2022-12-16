@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Framework\HTTP\Header;
@@ -49,6 +51,15 @@ class FixSession
         $this->sessionManager = $sessionManager;
     }
 
+    /**
+     * @param PhpCookieManager $subject
+     * @param $name
+     * @param $value
+     * @param PublicCookieMetadata|null $metadata
+     * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforeSetPublicCookie(
         PhpCookieManager $subject,
         $name,

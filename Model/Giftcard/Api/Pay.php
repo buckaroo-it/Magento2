@@ -22,11 +22,9 @@
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
 use Magento\Quote\Model\Quote;
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
-use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
@@ -59,22 +57,18 @@ class Pay implements PayWithGiftcardInterface
      */
     protected $payResponseFactory;
 
-
-
     public function __construct(
         GiftcardRequest $giftcardRequest,
         GiftcardResponse $giftcardResponse,
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
-        PayResponseSetInterfaceFactory $payResponseFactory,
-        Log $logger
+        PayResponseSetInterfaceFactory $payResponseFactory
     ) {
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;
         $this->payResponseFactory = $payResponseFactory;
-        $this->logger = $logger;
     }
     /**
      * @inheritDoc

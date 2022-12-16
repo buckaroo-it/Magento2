@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -73,6 +74,7 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
+         * @phpstan-ignore-next-line
          */
         $this->setElement($element);
 
@@ -108,13 +110,13 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
         $phpPatch = (int) $phpVersion[2];
 
         if (!isset($this->phpVersionSupport[$magentoMajorMinor]) ||
-            !isset($this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor])) {
+            !isset($this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor])
+        ) {
             return 0;
         }
 
         $currentVersion = $this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor];
-        if (isset($currentVersion)) {
-
+        if (!empty($currentVersion)) {
             if (in_array($phpPatch, $currentVersion)) {
                 return true;
             } elseif (in_array('+', $currentVersion) && $phpPatch >= max($currentVersion)) {
@@ -147,7 +149,7 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
         $version = false;
         $currentVersion = $this->softwareData->getProductMetaData()->getVersion();
 
-        if (isset($currentVersion)) {
+        if (!empty($currentVersion)) {
             $version = explode('.', $currentVersion);
         }
 

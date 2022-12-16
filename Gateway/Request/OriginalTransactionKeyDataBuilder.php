@@ -22,5 +22,4 @@ class OriginalTransactionKeyDataBuilder implements BuilderInterface
 
         return ['originalTransactionKey' => $originalTransactionKey];
     }
-
 }

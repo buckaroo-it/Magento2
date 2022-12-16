@@ -35,9 +35,11 @@ use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class QuoteCreate implements PaypalExpressQuoteCreateInterface
 {
-
     /**
      * @var \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory
      */
@@ -120,7 +122,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             $this->addAddressToQuote($shipping_address);
             $this->setPaymentMethod();
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__.$th->getMessage());
+            $this->logger->addDebug(__METHOD__ . $th->getMessage());
             throw new PaypalExpressException(__("Failed to add address quote"), 1, $th);
         }
 
@@ -190,7 +192,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
 
             if (count($shippingMethods)) {
                 $shippingMethod = array_shift($shippingMethods);
-                $address->setShippingMethod($shippingMethod->getCarrierCode(). '_' .$shippingMethod->getMethodCode());
+                $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
             }
         }
         $address->setCollectShippingRates(true);
@@ -255,7 +257,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * Set paypal payment method on quote
      *
-     * @return Quote
+     * @return void
      */
     protected function setPaymentMethod()
     {
@@ -279,7 +281,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             $quoteBuilder->setFormData($form_data);
             return $quoteBuilder->build();
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__.$th->getMessage());
+            $this->logger->addDebug(__METHOD__ . $th->getMessage());
             throw new PaypalExpressException(__("Failed to create quote"), 1, $th);
         }
     }

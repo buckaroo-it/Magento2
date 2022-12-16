@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright ©  All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
@@ -22,9 +24,11 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Store\Model\StoreManagerInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class LogRepository implements LogRepositoryInterface
 {
-
     protected $logFactory;
 
     protected $dataObjectHelper;
@@ -59,6 +63,8 @@ class LogRepository implements LogRepositoryInterface
      * @param CollectionProcessorInterface $collectionProcessor
      * @param JoinProcessorInterface $extensionAttributesJoinProcessor
      * @param ExtensibleDataObjectConverter $extensibleDataObjectConverter
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ResourceLog $resource,
@@ -96,15 +102,15 @@ class LogRepository implements LogRepositoryInterface
             $storeId = $this->storeManager->getStore()->getId();
             $log->setStoreId($storeId);
         } */
-        
+
         $logData = $this->extensibleDataObjectConverter->toNestedArray(
             $log,
             [],
             \Buckaroo\Magento2\Api\Data\LogInterface::class
         );
-        
+
         $logModel = $this->logFactory->create()->setData($logData);
-        
+
         try {
             $this->resource->save($logModel);
         } catch (\Exception $exception) {
@@ -136,22 +142,22 @@ class LogRepository implements LogRepositoryInterface
         \Magento\Framework\Api\SearchCriteriaInterface $criteria
     ) {
         $collection = $this->logCollectionFactory->create();
-        
+
         $this->extensionAttributesJoinProcessor->process(
             $collection,
             \Buckaroo\Magento2\Api\Data\LogInterface::class
         );
-        
+
         $this->collectionProcessor->process($criteria, $collection);
-        
+
         $searchResults = $this->searchResultsFactory->create();
         $searchResults->setSearchCriteria($criteria);
-        
+
         $items = [];
         foreach ($collection as $model) {
             $items[] = $model->getDataModel();
         }
-        
+
         $searchResults->setItems($items);
         $searchResults->setTotalCount($collection->getSize());
         return $searchResults;

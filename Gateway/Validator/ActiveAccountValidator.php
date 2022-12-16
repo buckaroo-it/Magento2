@@ -20,7 +20,7 @@ class ActiveAccountValidator extends AbstractValidator
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        ConfigProviderFactory  $configProviderFactory
+        ConfigProviderFactory $configProviderFactory
     ) {
         $this->configProviderFactory = $configProviderFactory;
         parent::__construct($resultFactory);

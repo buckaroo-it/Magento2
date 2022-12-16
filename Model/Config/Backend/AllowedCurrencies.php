@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Backend;
 
 /**
@@ -44,12 +46,14 @@ class AllowedCurrencies extends \Magento\Framework\App\Config\Value
      * @param \Magento\Framework\Registry                                  $registry
      * @param \Magento\Framework\App\Config\ScopeConfigInterface           $config
      * @param \Magento\Framework\App\Cache\TypeListInterface               $cacheTypeList
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies         $configProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies    $configProvider
      * @param \Magento\Framework\Locale\Bundle\CurrencyBundle              $currencyBundle
      * @param \Magento\Framework\Locale\ResolverInterface                  $localeResolver
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb|null           $resourceCollection
      * @param array                                                        $data
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         \Magento\Framework\Model\Context $context,

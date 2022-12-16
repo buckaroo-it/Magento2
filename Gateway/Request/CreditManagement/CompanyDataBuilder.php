@@ -13,7 +13,7 @@ class CompanyDataBuilder extends AbstractDataBuilder
         $billingAddress = $this->getOrder()->getBillingAddress();
         $company = $billingAddress->getCompany();
 
-        if(empty($company) || strlen($company) <= 0) {
+        if (empty($company) || strlen($company) <= 0) {
             return [];
         }
 
@@ -22,5 +22,4 @@ class CompanyDataBuilder extends AbstractDataBuilder
             'name'          => $billingAddress->getCompany()  ?? 'Person'
         ];
     }
-
 }

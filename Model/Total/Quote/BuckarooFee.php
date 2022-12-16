@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Magento\Catalog\Helper\Data;
@@ -29,6 +31,9 @@ use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
     /** @var ConfigProviderAccount */
@@ -141,7 +146,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
             return $this;
         }
 
-        $basePaymentFeeOLD = $this->getBaseFee($methodInstance, $quote);
         $basePaymentFee = $total->getBaseBuckarooFeeInclTax() - $total->getBuckarooFeeBaseTaxAmount();
 
         if ($basePaymentFee < 0.01) {
@@ -186,6 +190,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      * @param  \Magento\Quote\Model\Quote               $quote
      * @param  \Magento\Quote\Model\Quote\Address\Total $total
      * @return $this
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
     {
@@ -213,6 +219,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      *
      * @return bool|false|float
      * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getBaseFee(
         \Magento\Payment\Model\MethodInterface $methodInstance,
@@ -229,7 +237,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 
         if (is_numeric($basePaymentFee)) {
             if (in_array($buckarooPaymentMethodCode, ['billink','afterpay20','afterpay','paypal'])) {
-
                 $inclTax = $this->configProviderBuckarooFee->getPaymentFeeTax() ==
                     Calculation::DISPLAY_TYPE_INCLUDING_TAX;
 
@@ -251,7 +258,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
                  */
                 return $this->getFeePrice($basePaymentFee);
             }
-
         } elseif (strpos($basePaymentFee, '%') === false) {
             /**
              * Payment fee is invalid

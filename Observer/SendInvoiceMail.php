@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
@@ -63,6 +65,8 @@ class SendInvoiceMail implements ObserverInterface
     /**
      * @param Observer $observer
      * @throws LocalizedException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute(Observer $observer)
     {
@@ -90,14 +94,13 @@ class SendInvoiceMail implements ObserverInterface
                 $invoice->getOrder()->setBaseShippingAmount($orderBaseShippingAmount);
             }
         }
-        if ($invoice->getIsPaid() && $canCapture) {
-            if (($payment->getMethod() == Afterpay20::CODE)
-                && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
-                && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
-            ) {
-                $this->logging->addDebug(__METHOD__ . '|25|');
-                $order->setBaseTotalPaid($order->getTotalPaid());
-            }
+        if ($invoice->getIsPaid() && $canCapture
+            && ($payment->getMethod() == Afterpay20::CODE)
+            && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
+            && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
+        ) {
+            $this->logging->addDebug(__METHOD__ . '|25|');
+            $order->setBaseTotalPaid($order->getTotalPaid());
         }
     }
 }

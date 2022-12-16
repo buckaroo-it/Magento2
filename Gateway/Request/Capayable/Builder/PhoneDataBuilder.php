@@ -29,14 +29,14 @@ use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
 
 class PhoneDataBuilder extends AbstractDataBuilder
 {
-
     protected $phoneFormatter;
 
 
-    public function __construct(PhoneFormatter $phoneFormatter) {
+    public function __construct(PhoneFormatter $phoneFormatter)
+    {
         $this->phoneFormatter = $phoneFormatter;
     }
-    
+
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);

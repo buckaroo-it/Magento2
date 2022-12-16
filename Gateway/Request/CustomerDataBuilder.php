@@ -44,5 +44,4 @@ class CustomerDataBuilder extends AbstractDataBuilder
     {
         return 'd-m-Y';
     }
-
 }

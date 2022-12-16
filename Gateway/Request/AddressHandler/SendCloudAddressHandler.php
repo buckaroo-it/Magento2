@@ -9,10 +9,16 @@ use Magento\Sales\Model\Order;
 
 class SendCloudAddressHandler extends AbstractAddressHandler
 {
+    /**
+     * @param Order $order
+     * @param OrderAddressInterface $shippingAddress
+     * @return Order
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
-        if (
-            ($order->getShippingMethod() == 'sendcloud_sendcloud')
+        if (($order->getShippingMethod() == 'sendcloud_sendcloud')
             &&
             $order->getSendcloudServicePointId()
         ) {
@@ -22,6 +28,13 @@ class SendCloudAddressHandler extends AbstractAddressHandler
         return $order;
     }
 
+    /**
+     * @param $order
+     * @param $requestData
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     protected function updateShippingAddressBySendcloud($order, &$requestData)
     {
         if ($order->getSendcloudServicePointId() > 0) {
@@ -43,11 +56,8 @@ class SendCloudAddressHandler extends AbstractAddressHandler
                     if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
                         unset($requestData[$key]);
                     }
-
                 }
             }
         }
     }
-
-
 }

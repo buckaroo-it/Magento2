@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace Buckaroo\Magento2\Model\Export;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -100,7 +102,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         while ($totalCount > 0) {
             $items = $dataProvider->getSearchResult()->getItems();
             foreach ($items as $item) {
-                if ($this->configProviderAccount->getAdvancedExportGiftcards($this->storeManager->getStore())) {
+                if ($this->configProviderAccount->hasAdvancedExportGiftcards($this->storeManager->getStore())) {
                     $this->convertGiftCardsValue($item);
                 }
                 $this->metadataProvider->convertDate($item, $component->getName());
@@ -127,7 +129,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         $orderIncrementId = $order->getIncrementId();
         if ($items = $this->groupTransaction->getGroupTransactionItems($orderIncrementId)) {
             $result = [$document->getDataByKey('payment_method')];
-            foreach ($items as $key => $giftcard) {
+            foreach ($items as $giftcard) {
                 array_push($result, $giftcard['servicecode']);
             }
             $document->setData('payment_method', implode(",", $result));

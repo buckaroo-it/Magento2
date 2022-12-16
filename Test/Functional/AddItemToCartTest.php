@@ -19,7 +19,7 @@ class AddItemToCartTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     protected $driver;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -29,7 +29,7 @@ class AddItemToCartTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->driver = RemoteWebDriver::create($host, $capabilities, 5000);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 

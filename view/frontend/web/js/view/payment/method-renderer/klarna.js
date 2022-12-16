@@ -72,11 +72,11 @@ define(
                         ]
                     );
 
-                    this.gendersList = function() {
+                    this.gendersList = function () {
 
                         return window.checkoutConfig.payment.buckaroo.klarna.genderList;
                     }
-                    
+
                     /**
                      * observe radio buttons
                      * check if selected
@@ -92,14 +92,14 @@ define(
                     this.getSelectedGender = function () {
                         return this.selectedGender();
                     }
-                                       
+
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
                     this.buttoncheck = ko.computed(
-                    function () {
-                        var result = (this.selectedGender != null);
-                        return result;
+                        function () {
+                            var result = (this.selectedGender != null);
+                            return result;
                         },
                         this
                     );
@@ -159,7 +159,7 @@ define(
                     var text = $.mage.__('The transaction will be processed using %s.');
 
                     return text.replace('%s', this.baseCurrencyCode);
-                },             
+                },
 
                 getData: function () {
                     return {

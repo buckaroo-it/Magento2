@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
@@ -26,13 +28,18 @@ use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
 
 class VoidCm3Payment implements ObserverInterface
 {
-
     /**
      * @var PaymentDataObjectFactory
      */
     private $paymentDataObjectFactory;
 
-    public function __construct(PaymentDataObjectFactory $paymentDataObjectFactory, CommandInterface $voidCommand) {
+    /**
+     * @var CommandInterface
+     */
+    private $voidCommand;
+
+    public function __construct(PaymentDataObjectFactory $paymentDataObjectFactory, CommandInterface $voidCommand)
+    {
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->voidCommand = $voidCommand;
     }

@@ -19,9 +19,8 @@ class BuckarooBuilderComposite implements BuilderInterface
      */
     public function __construct(
         TMapFactory $tmapFactory,
-        array       $builders = []
-    )
-    {
+        array $builders = []
+    ) {
         $this->builders = $tmapFactory->create(
             [
                 'array' => $builders,
@@ -59,4 +58,3 @@ class BuckarooBuilderComposite implements BuilderInterface
         return array_replace_recursive($result, $builder);
     }
 }
-

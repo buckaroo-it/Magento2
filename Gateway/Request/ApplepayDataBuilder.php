@@ -24,21 +24,22 @@ class ApplepayDataBuilder implements BuilderInterface
     }
 
     /**
-     * Get customer card name from applepay transaction
+     * Get customer card name from Apple Pay transaction
      *
      * @return string|null
      */
     protected function getCustomerCardName()
     {
-        $billingContact = json_decode(
+        $billingContact = \json_decode(
             (string)$this->getPayment()->getAdditionalInformation('billingContact')
         );
-        if (
-            $billingContact &&
+        if ($billingContact &&
             !empty($billingContact->givenName) &&
             !empty($billingContact->familyName)
         ) {
             return $billingContact->givenName . ' ' . $billingContact->familyName;
         }
+
+        return null;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -24,6 +26,7 @@ use Buckaroo\Magento2\Logging\Log;
 // @codingStandardsIgnoreStart
 
 if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
+
 
     class GuestSaveManager extends \Onestepcheckout\Iosc\Plugin\GuestSaveManager
     {
@@ -33,24 +36,21 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
         protected $logger;
 
+
         public function __construct(
-            \Onestepcheckout\Iosc\Model\DataManager $dataManager,
+            \Onestepcheckout\Iosc\Model\DataManager $dataManager, /** @phpstan-ignore-line */
             \Magento\Framework\App\Request\Http $request,
-            \Onestepcheckout\Iosc\Model\MockManager $mockManager,
-            \Onestepcheckout\Iosc\Helper\Data $helper,
+            \Onestepcheckout\Iosc\Model\MockManager $mockManager, /** @phpstan-ignore-line */
+            \Onestepcheckout\Iosc\Helper\Data $helper, /** @phpstan-ignore-line */
             \Magento\Checkout\Model\Session $checkoutSession,
             \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
             \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
             Log $logger
         ) {
-            $this->dataManager        = $dataManager;
-            $this->request            = $request;
-            $this->mockManager        = $mockManager;
-            $this->helper             = $helper;
-            $this->checkoutSession    = $checkoutSession;
             $this->quoteIdMaskFactory = $quoteIdMaskFactory;
             $this->cartRepository     = $cartRepository;
             $this->logger             = $logger;
+            /** @phpstan-ignore-next-line */
             parent::__construct($dataManager, $request, $mockManager, $helper, $checkoutSession);
         }
 
@@ -65,7 +65,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
                 $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
                 $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
             }
-            
+
+            /** @phpstan-ignore-next-line */
             parent::beforeSavePaymentInformationAndPlaceOrder(
                 $parent,
                 $cartId,
@@ -87,6 +88,7 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
                 $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
             }
 
+            /** @phpstan-ignore-next-line */
             parent::beforeSavePaymentInformation($parent, $cartId, $email, $paymentMethod, $billingAddress);
         }
     }

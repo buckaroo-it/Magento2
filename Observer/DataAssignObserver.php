@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
@@ -124,7 +126,8 @@ class DataAssignObserver extends AbstractDataAssignObserver
         $paymentInfo = $this->readPaymentModelArgument($observer);
 
         if (in_array($paymentInfo->getMethodInstance()->getCode(), $this->termsConditionDepends)
-            && !isset($additionalData[self::TERMS_CONDITION])) {
+            && !isset($additionalData[self::TERMS_CONDITION])
+        ) {
             return;
         }
 

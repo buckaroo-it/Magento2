@@ -30,7 +30,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigFactory;
 
 class ProcessResponse
 {
-
     /**
      * @var \Magento\Sales\Model\Order
      */
@@ -75,17 +74,16 @@ class ProcessResponse
     public function process(
         TransactionResponseInterface $response,
         Order $order
-    )
-    {
+    ) {
         $this->init($response, $order);
-        if($this->isFailed()) {
+        if ($this->isFailed()) {
             $this->handleFailed();
             return [
                 "payment_status" => "failed",
                 "status_code" => $response->getStatusCode()
             ];
         }
-        if($this->isSuccessful()) {
+        if ($this->isSuccessful()) {
             $this->handleSuccessful();
             return [
                 "payment_status" => "success",
@@ -108,10 +106,10 @@ class ProcessResponse
     protected function isProcessing()
     {
         return $this->response->isStatusCode([
-            Response::STATUSCODE_WAITING_ON_USER_INPUT, 
-            Response::STATUSCODE_PENDING_PROCESSING,    
-            Response::STATUSCODE_WAITING_ON_CONSUMER,   
-            Response::STATUSCODE_PAYMENT_ON_HOLD,      
+            Response::STATUSCODE_WAITING_ON_USER_INPUT,
+            Response::STATUSCODE_PENDING_PROCESSING,
+            Response::STATUSCODE_WAITING_ON_CONSUMER,
+            Response::STATUSCODE_PAYMENT_ON_HOLD,
         ]);
     }
 
@@ -195,15 +193,14 @@ class ProcessResponse
         }
     }
     /**
-     * Set class properties 
+     * Set class properties
      *
      * @return void
      */
     protected function init(
         TransactionResponseInterface $response,
         Order $order
-    )
-    {
+    ) {
         $this->response = $response;
         $this->order = $order;
         $this->payment = $this->order->getPayment();

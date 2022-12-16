@@ -1,37 +1,25 @@
 <?php
-/**
- * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
- */
 
-namespace Buckaroo\Magento2\Setup;
+namespace Buckaroo\Magento2\Setup\Patch\Data;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\Store;
-
-use Magento\Eav\Setup\EavSetup;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Eav\Model\Config;
 use Magento\Customer\Model\Customer;
 
-class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
+class SetupModuleDataPatch implements DataPatchInterface
 {
+    /**
+     * @var ModuleDataSetupInterface
+     */
+    private $moduleDataSetup;
+
     /**
      * @var \Magento\Sales\Setup\SalesSetupFactory
      */
@@ -57,6 +45,9 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
      */
     protected $encryptor;
 
+    /**
+     * @var \Magento\Framework\Registry
+     */
     protected $registry;
 
     /**
@@ -411,25 +402,36 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         ],
     ];
 
+    /** @var EavSetupFactory */
     private $eavSetupFactory;
+    /**
+     * @var Config
+     */
+    private Config $eavConfig;
 
     /**
+     * @param ModuleDataSetupInterface $moduleDataSetup
      * @param \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory
      * @param \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory
+     * @param \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection
      * @param \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection
      * @param \Magento\Framework\Encryption\Encryptor $encryptor
      * @param \Magento\Framework\Registry $registry
+     * @param EavSetupFactory $eavSetupFactory
+     * @param Config $eavConfig
      */
     public function __construct(
-        \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory,
-        \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory,
-        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
+        ModuleDataSetupInterface                                      $moduleDataSetup,
+        \Magento\Sales\Setup\SalesSetupFactory                        $salesSetupFactory,
+        \Magento\Quote\Setup\QuoteSetupFactory                        $quoteSetupFactory,
+        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection    $giftcardCollection,
         \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection,
-        \Magento\Framework\Encryption\Encryptor $encryptor,
-        \Magento\Framework\Registry $registry,
-        EavSetupFactory $eavSetupFactory,
-        Config $eavConfig
+        \Magento\Framework\Encryption\Encryptor                       $encryptor,
+        \Magento\Framework\Registry                                   $registry,
+        EavSetupFactory                                               $eavSetupFactory,
+        Config                                                        $eavConfig
     ) {
+        $this->moduleDataSetup = $moduleDataSetup;
         $this->salesSetupFactory = $salesSetupFactory;
         $this->quoteSetupFactory = $quoteSetupFactory;
         $this->giftcardCollection = $giftcardCollection;
@@ -437,178 +439,61 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         $this->encryptor = $encryptor;
         $this->registry = $registry;
         $this->eavSetupFactory = $eavSetupFactory;
-        $this->eavConfig       = $eavConfig;
+        $this->eavConfig = $eavConfig;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
+    public function apply()
     {
-        $setup->startSetup();
+        $this->moduleDataSetup->getConnection()->startSetup();
 
-        if ($this->registry->registry('tig_buckaroo_upgrade') && !$context->getVersion()) {
-            $setup->getConnection()->query(
+        if ($this->registry->registry('tig_buckaroo_upgrade')) {
+            $this->moduleDataSetup->getConnection()->query(
                 "SET FOREIGN_KEY_CHECKS=0"
             );
-            $setup->getConnection()->query(
+            $this->moduleDataSetup->getConnection()->query(
                 "UPDATE "
-                . $setup->getTable('sales_order_status')
+                . $this->moduleDataSetup->getTable('sales_order_status')
                 . " SET status = replace(status, 'tig_buckaroo','buckaroo_magento2') WHERE status LIKE '%tig_buckaroo%'"
             );
-            $setup->getConnection()->query(
+            $this->moduleDataSetup->getConnection()->query(
                 "UPDATE "
-                . $setup->getTable('sales_order_status_state')
+                . $this->moduleDataSetup->getTable('sales_order_status_state')
                 . " SET status = replace(status, 'tig_buckaroo','buckaroo_magento2') WHERE status LIKE '%tig_buckaroo%'"
             );
-            $setup->getConnection()->query(
+            $this->moduleDataSetup->getConnection()->query(
                 "SET FOREIGN_KEY_CHECKS=1"
             );
             return false;
         }
 
-        if (version_compare($context->getVersion(), '0.1.1', '<')) {
-            $this->installOrderStatusses($setup);
-        }
+        $this->installOrderStatusses($this->moduleDataSetup); // 0.1.1
+        $this->installPaymentFeeColumns($this->moduleDataSetup); // 0.1.3
+        $this->expandPaymentFeeColumns($this->moduleDataSetup); // 0.1.4
+        $this->installInvoicePaymentFeeTaxAmountColumns($this->moduleDataSetup); // 0.1.5
+        $this->installOrderPaymentFeeTaxAmountColumns($this->moduleDataSetup); // 0.1.6
+        $this->encryptCertificates(); // 0.9.4
+        $this->installBaseGiftcards($this->moduleDataSetup, $this->giftcardArray); // 1.3.0
+        $this->installBaseGiftcards($this->moduleDataSetup, $this->giftcardAdditionalArray); // 1.3.0
+        $this->updateFailureRedirectConfiguration($this->moduleDataSetup); // 1.5.0
+        $this->installPaymentFeeInclTaxColumns($this->moduleDataSetup); // 1.5.3
+        $this->installReservationNrColumn($this->moduleDataSetup); // 1.9.2
+        $this->installPushDataColumn($this->moduleDataSetup); // 1.9.2
+        $this->installIdentificationNumber($this->moduleDataSetup); // 1.9.3
+        $this->updateSecretKeyConfiguration($this->moduleDataSetup); // 1.14.0
+        $this->updateMerchantKeyConfiguration($this->moduleDataSetup); // 1.14.0
+        $this->replaceTigBuckaroo(); // 1.18.0
+        $this->installAlreadyPayColumns($this->moduleDataSetup); // 1.19.1
+        $this->fixLanguageCodes($this->moduleDataSetup); // 1.22.0
+        $this->zeroizeGiftcardsPaymentFee($this->moduleDataSetup); // 1.25.1
+        $this->giftcardPartialRefund($this->moduleDataSetup); // 1.25.2
+        $this->setCustomerIDIN($this->moduleDataSetup);
+        $this->setCustomerIsEighteenOrOlder($this->moduleDataSetup);
+        $this->setProductIDIN($this->moduleDataSetup);
 
-        if (version_compare($context->getVersion(), '0.1.3', '<')) {
-            $this->installPaymentFeeColumns($setup);
-        }
-
-        if (version_compare($context->getVersion(), '0.1.4', '<')) {
-            $this->expandPaymentFeeColumns($setup);
-        }
-
-        if (version_compare($context->getVersion(), '0.1.5', '<')) {
-            $this->installInvoicePaymentFeeTaxAmountColumns($setup);
-        }
-
-        if (version_compare($context->getVersion(), '0.1.6', '<')) {
-            $this->installOrderPaymentFeeTaxAmountColumns($setup);
-        }
-
-        if (version_compare($context->getVersion(), '0.9.4', '<')) {
-            $this->encryptCertificates();
-        }
-
-        if (version_compare($context->getVersion(), '1.3.0', '<')) {
-            $this->installBaseGiftcards($setup, $this->giftcardArray);
-        }
-
-        if (version_compare($context->getVersion(), '1.3.0', '<')) {
-            $this->installBaseGiftcards($setup, $this->giftcardAdditionalArray);
-        }
-
-        if (version_compare($context->getVersion(), '1.5.0', '<')) {
-            $this->updateFailureRedirectConfiguration($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.5.3', '<')) {
-            $this->installPaymentFeeInclTaxColumns($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.9.2', '<')) {
-            $this->installReservationNrColumn($setup);
-            $this->installPushDataColumn($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.9.3', '<')) {
-            $this->installIdentificationNumber($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.14.0', '<')) {
-            $this->updateSecretKeyConfiguration($setup);
-            $this->updateMerchantKeyConfiguration($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.18.0', '<')) {
-            $setup->getConnection()->query(
-                "UPDATE "
-                . $setup->getTable('sales_order_payment')
-                . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
-            );
-            $setup->getConnection()->query(
-                "UPDATE "
-                . $setup->getTable('sales_order_grid')
-                . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
-            );
-            $setup->getConnection()->query(
-                "UPDATE "
-                . $setup->getTable('sales_invoice_grid')
-                . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
-            );
-            $setup->getConnection()->query(
-                "UPDATE "
-                . $setup->getTable('quote_payment')
-                . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
-            );
-        }
-
-        if (version_compare($context->getVersion(), '1.19.1', '<')) {
-            $this->installAlreadyPayColumns($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.22.0', '<')) {
-            $this->fixLanguageCodes($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.25.1', '<')) {
-            $this->zeroizeGiftcardsPaymentFee($setup);
-        }
-
-        if (version_compare($context->getVersion(), '1.25.2', '<')) {
-            $this->giftcardPartialRefund($setup);
-        }
-
-        $this->setCustomerIDIN($setup);
-        
-        $this->setCustomerIsEighteenOrOlder($setup);
-
-        $this->setProductIDIN($setup);
-
-        $setup->endSetup();
-    }
-
-    /**
-     * @param ModuleDataSetupInterface $setup
-     *
-     * @return $this
-     */
-
-    public function installReservationNrColumn(ModuleDataSetupInterface $setup)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_reservation_number',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT]
-        );
-
-        return $this;
-    }
-
-    public function installIdentificationNumber(ModuleDataSetupInterface $setup)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_identification_number',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT]
-        );
+        $this->moduleDataSetup->getConnection()->endSetup();
 
         return $this;
     }
@@ -698,10 +583,13 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 
         return $this;
     }
+
     /**
      * @param ModuleDataSetupInterface $setup
      *
      * @return $this
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function installPaymentFeeColumns(ModuleDataSetupInterface $setup)
     {
@@ -837,131 +725,10 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 
     /**
      * @param ModuleDataSetupInterface $setup
-     *
      * @return $this
-     */
-    protected function installAlreadyPayColumns(ModuleDataSetupInterface $setup)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $quoteInstaller = $this->quoteSetupFactory->create(['resourceName' => 'quote_setup', 'setup' => $setup]);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $quoteInstaller->addAttribute(
-            'quote',
-            'buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $quoteInstaller->addAttribute(
-            'quote',
-            'base_buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'base_buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'order',
-            'base_buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'invoice',
-            'base_buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'invoice',
-            'buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'base_buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'buckaroo_already_paid',
-            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-
-        return $this;
-    }
-
-    /**
-     * @param ModuleDataSetupInterface $setup
      *
-     * @return $this
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    protected function fixLanguageCodes(ModuleDataSetupInterface $setup)
-    {
-        $setup->getConnection()->query(
-            "UPDATE "
-            . $setup->getTable('core_config_data')
-            . " SET value='nl' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='nl_NL'"
-        );
-
-        $setup->getConnection()->query(
-            "UPDATE "
-            . $setup->getTable('core_config_data')
-            . " SET value='en' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='en_US'"
-        );
-
-        return $this;
-    }
-
     protected function expandPaymentFeeColumns(ModuleDataSetupInterface $setup)
     {
         /**
@@ -1309,6 +1076,25 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         return $this;
     }
 
+    public function installReservationNrColumn(ModuleDataSetupInterface $setup)
+    {
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_reservation_number',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT]
+        );
+
+        return $this;
+    }
+
     protected function installPushDataColumn(ModuleDataSetupInterface $setup)
     {
         $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
@@ -1316,6 +1102,25 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         $salesInstaller->addAttribute(
             'order',
             'buckaroo_push_data',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT]
+        );
+
+        return $this;
+    }
+
+    public function installIdentificationNumber(ModuleDataSetupInterface $setup)
+    {
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_identification_number',
             ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT]
         );
 
@@ -1365,6 +1170,166 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $setup->getTable('core_config_data'),
             $data,
             $setup->getConnection()->quoteInto('path = ?', $path)
+        );
+
+        return $this;
+    }
+
+    /**
+     * Replace tig_buckaroo with buckaroo_magento2
+     *
+     * @param ModuleDataSetupInterface $setup
+     *
+     * @return $this
+     */
+    protected function replaceTigBuckaroo()
+    {
+        $this->moduleDataSetup->getConnection()->query(
+            "UPDATE "
+            . $this->moduleDataSetup->getTable('sales_order_payment')
+            . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
+        );
+        $this->moduleDataSetup->getConnection()->query(
+            "UPDATE "
+            . $this->moduleDataSetup->getTable('sales_order_grid')
+            . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
+        );
+        $this->moduleDataSetup->getConnection()->query(
+            "UPDATE "
+            . $this->moduleDataSetup->getTable('sales_invoice_grid')
+            . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
+        );
+        $this->moduleDataSetup->getConnection()->query(
+            "UPDATE "
+            . $this->moduleDataSetup->getTable('quote_payment')
+            . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param ModuleDataSetupInterface $setup
+     *
+     * @return $this
+     */
+    protected function installAlreadyPayColumns(ModuleDataSetupInterface $setup)
+    {
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller = $this->quoteSetupFactory->create(['resourceName' => 'quote_setup', 'setup' => $setup]);
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller->addAttribute(
+            'quote',
+            'buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller->addAttribute(
+            'quote',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'order',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'invoice',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'invoice',
+            'buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'base_buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'buckaroo_already_paid',
+            ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param ModuleDataSetupInterface $setup
+     *
+     * @return $this
+     */
+    protected function fixLanguageCodes(ModuleDataSetupInterface $setup)
+    {
+        $setup->getConnection()->query(
+            "UPDATE "
+            . $setup->getTable('core_config_data')
+            . " SET value='nl' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='nl_NL'"
+        );
+
+        $setup->getConnection()->query(
+            "UPDATE "
+            . $setup->getTable('core_config_data')
+            . " SET value='en' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='en_US'"
         );
 
         return $this;
@@ -1501,5 +1466,29 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
                 'default' => '0',
             ]
         );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getDependencies()
+    {
+        return [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getVersion()
+    {
+        return '2.0.0';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAliases()
+    {
+        return [];
     }
 }

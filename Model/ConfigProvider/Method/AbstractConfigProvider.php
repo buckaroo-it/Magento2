@@ -29,10 +29,15 @@ use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstrac
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Store\Model\ScopeInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
+ */
 abstract class AbstractConfigProvider extends BaseAbstractConfigProvider implements
     CheckoutConfigProvider,
     ConfigProviderInterface
 {
+    public const CODE = 'buckaroo';
+
     public const XPATH_ACTIVE = 'active';
     public const XPATH_AVAILABLE_IN_BACKEND  = 'available_in_backend';
     public const XPATH_ORDER_EMAIL = 'order_email';

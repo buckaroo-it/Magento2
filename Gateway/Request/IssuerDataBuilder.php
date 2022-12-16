@@ -17,6 +17,5 @@ class IssuerDataBuilder implements BuilderInterface
         return [
             'issuer' => $paymentDO->getPayment()->getAdditionalInformation('issuer'),
         ];
-
     }
 }

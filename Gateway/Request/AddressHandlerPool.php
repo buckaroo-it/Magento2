@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -48,7 +49,6 @@ class AddressHandlerPool
             foreach ($this->addressHandlers as $addressHandler) {
                 $order = $addressHandler->handle($order, $shippingAddress);
             }
-
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage(), 0, $th);
         }

@@ -40,6 +40,9 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
      * @param ModuleContextInterface $context
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {

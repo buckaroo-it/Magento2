@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
@@ -50,6 +52,8 @@ class CreditmemoExtensionAttribute
      * @param CreditmemoInterface           $creditmemo
      *
      * @return CreditmemoInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGet(CreditmemoRepositoryInterface $subject, CreditmemoInterface $creditmemo)
     {

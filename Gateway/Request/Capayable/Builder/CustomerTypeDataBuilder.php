@@ -24,13 +24,18 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
 
 use Magento\Payment\Gateway\Request\BuilderInterface;
+
 class CustomerTypeDataBuilder implements BuilderInterface
 {
+    /**
+     * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function build(array $buildSubject): array
     {
         return [
             'customerType' => 'Debtor'
         ];
     }
-   
 }

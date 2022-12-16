@@ -24,6 +24,8 @@ class TerminalIdDataBuilder implements BuilderInterface
 
     /**
      * @inheritDoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function build(array $buildSubject): array
     {
@@ -39,5 +41,4 @@ class TerminalIdDataBuilder implements BuilderInterface
     {
         return $this->cookieManager->getCookie('Pos-Terminal-Id');
     }
-
 }

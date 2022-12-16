@@ -37,8 +37,10 @@ class Sort extends Field
     /**
      * Return element html
      *
-     * @param  AbstractElement $element
+     * @param  \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _getElementHtml(AbstractElement $element)
     {

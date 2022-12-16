@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -119,7 +120,7 @@ class Json
         $this->client->setOptions($options);
 
         $this->logger->addDebug(__METHOD__ . '|10|' . var_export($options, true));
-        
+
         try {
             $this->client->get($uri);
             $response = json_decode($this->client->getBody(), true);

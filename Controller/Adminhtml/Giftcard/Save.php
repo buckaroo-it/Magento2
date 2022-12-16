@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,15 +22,19 @@
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Exception\LocalizedException;
 
 class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
 {
+    /**
+     * Save Giftcard in Admin
+     *
+     * @return \Magento\Backend\Model\View\Result\Page|void
+     */
     public function execute()
     {
         $isPost = $this->getRequest()->getPost();
-
         if ($isPost) {
-
             $giftcardModel = $this->giftcardFactory->create();
             $giftcardId    = $this->getRequest()->getParam('entity_id');
 
@@ -37,36 +42,7 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
                 $giftcardModel->load($giftcardId);
             }
 
-            $formData = $this->getRequest()->getParam('giftcard');
-            
-            $filesData = $this->getRequest()->getFiles('logo');
-
-            if ((isset($filesData['name'])) && ($filesData['name'] != '') && (!isset($formData['logo']['delete']))) {
-                try {
-                    $uploaderFactory = $this->uploaderFactory->create(['fileId' => 'logo']);
-                    $uploaderFactory->setAllowedExtensions(['jpg', 'jpeg', 'gif', 'png']);
-                    $imageAdapter = $this->adapterFactory->create();
-                    $uploaderFactory->setAllowRenameFiles(true);
-                    $uploaderFactory->setFilesDispersion(true);
-                    $mediaDirectory  = $this->fileSystem->getDirectoryRead(DirectoryList::MEDIA);
-                    $destinationPath = $mediaDirectory->getAbsolutePath('buckaroo');
-                    $result          = $uploaderFactory->save($destinationPath);
-
-                    if (!$result) {
-                        throw new LocalizedException(__('File cannot be saved to path: $1', $destinationPath));
-                    }
-
-                    $formData['logo'] = 'buckaroo' . $result['file'];
-
-                } catch (\Exception $e) {
-                    $this->messageManager->addError($e->getMessage());
-                }
-            }
-
-            if (isset($formData['logo']['delete'])) {
-                $formData['logo']  = '';
-            }
-
+            $formData = $this->getFormData();
             $giftcardModel->setData($formData);
 
             try {
@@ -87,5 +63,42 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
             $this->_getSession()->setFormData($formData);
             $this->_redirect('*/*/edit', ['id' => $giftcardId]);
         }
+    }
+
+    /**
+     * Return form data
+     *
+     * @return array
+     */
+    private function getFormData()
+    {
+        $formData = $this->getRequest()->getParam('giftcard');
+        $filesData = $this->getRequest()->getFiles('logo');
+
+        if ((isset($filesData['name'])) && ($filesData['name'] != '') && (!isset($formData['logo']['delete']))) {
+            try {
+                $uploaderFactory = $this->uploaderFactory->create(['fileId' => 'logo']);
+                $uploaderFactory->setAllowedExtensions(['jpg', 'jpeg', 'gif', 'png']);
+                $uploaderFactory->setAllowRenameFiles(true);
+                $uploaderFactory->setFilesDispersion(true);
+                $mediaDirectory = $this->fileSystem->getDirectoryRead(DirectoryList::MEDIA);
+                $destinationPath = $mediaDirectory->getAbsolutePath('buckaroo');
+                $result = $uploaderFactory->save($destinationPath);
+
+                if (!$result) {
+                    throw new LocalizedException(__('File cannot be saved to path: $1', $destinationPath));
+                }
+
+                $formData['logo'] = 'buckaroo' . $result['file'];
+            } catch (\Exception $e) {
+                $this->messageManager->addErrorMessage($e->getMessage());
+            }
+        }
+
+        if (isset($formData['logo']['delete'])) {
+            $formData['logo'] = '';
+        }
+
+        return $formData;
     }
 }

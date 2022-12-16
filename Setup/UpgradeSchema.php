@@ -211,6 +211,8 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
      * @param SchemaSetupInterface $installer
      *
      * @throws \Zend_Db_Exception
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function createGroupTransactionTable(SchemaSetupInterface $installer)
     {

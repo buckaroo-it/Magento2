@@ -19,6 +19,14 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
         parent::__construct($buckarooLogger);
     }
 
+    /**
+     * @param Order $order
+     * @param OrderAddressInterface $shippingAddress
+     * @return Order
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         if ($order->getShippingMethod() == 'dpdpickup_dpdpickup') {
@@ -29,6 +37,13 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
         return $order;
     }
 
+    /**
+     * @param $quote
+     * @param $requestData
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function updateShippingAddressByDpdParcel($quote, &$requestData)
     {
         $fullStreet = $quote->getDpdStreet();
@@ -65,13 +80,12 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
             $this->updateShippingAddressCommonMapping($mapping, $requestData);
 
             foreach ($requestData as $key => $value) {
-                if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
-                        unset($requestData[$key]);
-                    }
+                if ($requestData[$key]['Group'] == 'ShippingCustomer'
+                    && $requestData[$key]['Name'] == 'StreetNumberAdditional'
+                ) {
+                    unset($requestData[$key]);
                 }
             }
-
         }
     }
 }

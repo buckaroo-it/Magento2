@@ -39,7 +39,7 @@ define([
             if (this.totals()) {
                 price = totals.getSegment('grand_total').value;
 
-                if(!isNaN(parseFloat(this.getAlreadyPayTotal()))){
+                if (!isNaN(parseFloat(this.getAlreadyPayTotal()))) {
                     price = parseFloat(price) - parseFloat(this.getAlreadyPayTotal());
                 }
             }

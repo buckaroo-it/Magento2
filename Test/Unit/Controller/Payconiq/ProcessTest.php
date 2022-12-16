@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Controller\Payconiq;
 
 use Buckaroo\Magento2\Helper\Data;
@@ -36,7 +38,10 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 
-class ProcessTest extends BaseTest
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
+    class ProcessTest extends BaseTest
 {
     protected $instanceClass = Process::class;
 

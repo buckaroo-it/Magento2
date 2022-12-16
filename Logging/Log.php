@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Logging;
 
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
@@ -28,7 +30,6 @@ use Monolog\Logger;
 
 class Log extends Logger
 {
-
     public const BUCKAROO_LOG_TRACE_DEPTH_DEFAULT = 10;
 
     /** @var DebugConfiguration */
@@ -74,7 +75,7 @@ class Log extends Logger
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
     {
@@ -93,10 +94,11 @@ class Log extends Logger
             $depth = self::BUCKAROO_LOG_TRACE_DEPTH_DEFAULT;
         }
 
-        for ($cnt=1; $cnt<$depth; $cnt++) {
+        for ($cnt = 1; $cnt < $depth; $cnt++) {
             if (isset($trace[$cnt])) {
                 try {
-                    $logTrace[] = str_replace(BP, '', $trace[$cnt]['file']) . ": " .$trace[$cnt]['line']. " ".
+                    /** @phpstan-ignore-next-line */
+                    $logTrace[] = str_replace(BP, '', $trace[$cnt]['file']) . ": " . $trace[$cnt]['line'] . " " .
                         $trace[$cnt]['class'] . '->' .
                         $trace[$cnt]['function'] . '()';
                 } catch (\Exception $e) {

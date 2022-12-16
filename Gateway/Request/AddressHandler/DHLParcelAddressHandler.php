@@ -22,7 +22,8 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
         if (($order->getShippingMethod() == 'dhlparcel_servicepoint')
-            && $order->getDhlparcelShippingServicepointId()) {
+            && $order->getDhlparcelShippingServicepointId()
+        ) {
             $this->updateShippingAddressByDhlParcel($order->getDhlparcelShippingServicepointId(), $shippingAddress);
         }
 
@@ -48,8 +49,8 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
             ) {
                 $shippingAddress->setStreet([
                     $this->cleanStreetNumberAddition($parsedResponse->address->{'street'}),
-                    property_exists($parsedResponse->address, 'number') ? $parsedResponse->address->{'number'}: '',
-                    property_exists($parsedResponse->address, 'addition') ? $parsedResponse->address->{'addition'}: '',
+                    property_exists($parsedResponse->address, 'number') ? $parsedResponse->address->{'number'} : '',
+                    property_exists($parsedResponse->address, 'addition') ? $parsedResponse->address->{'addition'} : '',
                 ]);
                 $shippingAddress->setPostcode($parsedResponse->address->{'postalCode'});
                 $shippingAddress->setCity($parsedResponse->address->{'city'});
@@ -64,6 +65,4 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
     {
         return preg_replace('/[\W]/', '', $addition);
     }
-
-
 }

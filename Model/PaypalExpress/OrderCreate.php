@@ -36,6 +36,9 @@ use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class OrderCreate implements PaypalExpressOrderCreateInterface
 {
     /**
@@ -103,7 +106,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->orderUpdateShippingFactory = $orderUpdateShippingFactory;
         $this->logger = $logger;
     }
-    
+
     /** @inheritDoc */
     public function execute(
         string $paypal_order_id,
@@ -112,10 +115,10 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         try {
             $orderId = $this->createOrder($paypal_order_id, $cart_id);
         } catch (NoSuchEntityException $th) {
-            $this->logger->addDebug(__METHOD__.$th->getMessage());
+            $this->logger->addDebug(__METHOD__ . $th->getMessage());
             throw new PaypalExpressException(__("Failed to create order"), 1, $th);
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__.$th->getMessage());
+            $this->logger->addDebug(__METHOD__ . $th->getMessage());
             throw $th;
         }
 
@@ -134,7 +137,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         string $paypal_order_id,
         string $cart_id
     ) {
-        
+
         $quote = $this->getQuote($cart_id);
         $quote->getPayment()->setAdditionalInformation('express_order_id', $paypal_order_id);
 

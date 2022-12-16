@@ -26,7 +26,6 @@ use Magento\Framework\Pricing\PriceCurrencyInterface;
 
 class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
-
     /**
      * @var PriceCurrencyInterface
      */
@@ -53,6 +52,8 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
      * @param  \Magento\Quote\Model\Quote               $quote
      * @param  \Magento\Quote\Model\Quote\Address\Total $total
      * @return $this
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
     {
@@ -61,7 +62,7 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
         $customTitle = [];
         if ($orderId) {
             $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
-            
+
             foreach ($items as $giftcard) {
                 $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
                     'servicecode',
@@ -69,8 +70,6 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
                 );
 
                 if ($foundGiftcard !== null || $giftcard['servicecode'] === 'buckaroovoucher') {
-
-                    
                     if ($giftcard['servicecode'] === 'buckaroovoucher') {
                         $label = __('Voucher');
                     } else {

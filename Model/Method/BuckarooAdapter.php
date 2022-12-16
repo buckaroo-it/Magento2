@@ -20,6 +20,9 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Quote\Api\Data\CartInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 {
     public const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
@@ -82,6 +85,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param CommandManagerInterface|null $commandExecutor
      * @param LoggerInterface|null $logger
      * @param bool $usesRedirect
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ManagerInterface                                           $eventManager,
@@ -158,6 +163,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param PushRequestInterface $postData
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function canProcessPostData($payment, PushRequestInterface $postData)
     {
@@ -170,7 +177,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      */
     public function processCustomPostData($payment, $postData)
     {
-        if($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
+        if ($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
             $order = $payment->getOrder();
 
             if ($order->getBuckarooReservationNumber()) {
@@ -232,6 +239,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param PushRequestInterface $responseData
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function canPushInvoice(PushRequestInterface $responseData): bool
     {
@@ -241,7 +250,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 
         return true;
     }
-
 
     /**
      * @return string

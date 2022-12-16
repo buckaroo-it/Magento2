@@ -121,9 +121,10 @@ class Creditcard extends AbstractConfigProvider
      */
     public function formatIssuers(): array
     {
-        $sorted = explode(',', (string)$this->getSort());
+        $sort = $this->getSort();
 
-        if (!empty($sorted)) {
+        if (!empty($sort)) {
+            $sorted = explode(',', trim($sort));
             $sortedPosition = 1;
             foreach ($sorted as $cardName) {
                 $sortedArray[$cardName] = $sortedPosition++;

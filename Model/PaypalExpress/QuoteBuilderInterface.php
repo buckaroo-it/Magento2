@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\PaypalExpress;
 
 interface QuoteBuilderInterface
 {
-
     /**
      * Set form data
      *

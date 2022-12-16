@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,13 +18,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
-use \Buckaroo\Magento2\Helper\Data;
-use \Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Magento\Checkout\Model\Session;
-use \Magento\Customer\Model\Session as CustomerSession;
-use \Magento\Quote\Api\CartRepositoryInterface;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Checkout\Model\Session;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Quote\Api\CartRepositoryInterface;
 
 class ShippingMethodManagement
 {
@@ -47,6 +49,15 @@ class ShippingMethodManagement
         $this->quoteRepository = $quoteRepository;
     }
 
+    /**
+     * @param $cartId
+     * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function beforeGet($cartId)
     {
         if (($lastRealOrder = $this->checkoutSession->getLastRealOrder())
@@ -60,7 +71,7 @@ class ShippingMethodManagement
 
             $this->helper->addDebug(__METHOD__ . '|1|');
             if ($this->accountConfig->getCartKeepAlive($order->getStore())
-                && $this->isNeedRecreate($order->getStore())
+                && $this->isNeedRecreate()
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
                 if ($this->checkoutSession->getQuote()
@@ -81,7 +92,7 @@ class ShippingMethodManagement
         }
     }
 
-    public function isNeedRecreate($store)
+    public function isNeedRecreate()
     {
         return false;
     }

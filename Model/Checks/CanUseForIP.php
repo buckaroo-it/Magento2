@@ -63,8 +63,7 @@ class CanUseForIP implements SpecificationInterface
         MethodInterface $paymentMethod,
         Account $accountConfig,
         CartInterface $quote = null
-    ): bool
-    {
+    ): bool {
         $methodValue = $paymentMethod->getConfigData('limit_by_ip');
         if ($accountConfig->getLimitByIp() == 1 || $methodValue == 1) {
             $storeId = $quote ? $quote->getStoreId() : null;

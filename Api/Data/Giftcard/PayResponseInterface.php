@@ -30,7 +30,7 @@ interface PayResponseInterface
 {
     /**
      * Get RemainderAmount
-     * 
+     *
      * @api
      * @return float
      */

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -78,6 +79,5 @@ class ArticlesHandlerFactory
                 )
             );
         }
-
     }
 }

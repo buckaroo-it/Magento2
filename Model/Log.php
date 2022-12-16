@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright ©  All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
@@ -13,7 +15,6 @@ use Magento\Framework\Api\DataObjectHelper;
 
 class Log extends \Magento\Framework\Model\AbstractModel
 {
-
     protected $logDataFactory;
 
     protected $dataObjectHelper;
@@ -50,14 +51,14 @@ class Log extends \Magento\Framework\Model\AbstractModel
     public function getDataModel()
     {
         $logData = $this->getData();
-        
+
         $logDataObject = $this->logDataFactory->create();
         $this->dataObjectHelper->populateWithArray(
             $logDataObject,
             $logData,
             LogInterface::class
         );
-        
+
         return $logDataObject;
     }
 }

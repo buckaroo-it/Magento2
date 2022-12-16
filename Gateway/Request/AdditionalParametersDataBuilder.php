@@ -30,6 +30,12 @@ class AdditionalParametersDataBuilder implements BuilderInterface
         $this->additionalParameters = $additionalParameters;
     }
 
+    /**
+     * @param array $buildSubject
+     * @return array[]
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function build(array $buildSubject)
     {
         return [

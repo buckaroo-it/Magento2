@@ -1,4 +1,5 @@
 <?php
+
  /**
   * NOTICE OF LICENSE
   *
@@ -39,6 +40,9 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
      */
     protected $logger;
 
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
     protected $storemanager;
 
     protected $cookieManager;
@@ -46,22 +50,24 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
     protected $cookieMetadataFactory;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param Log                                                 $logger
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory          $configProviderFactory
-     *
+     * @param \Magento\Framework\App\Action\Context $context
+     * @param Log $logger
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+     * @param \Magento\Store\Model\StoreManagerInterface $storemanager
+     * @param \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager
+     * @param \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        Log $logger,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Store\Model\StoreManagerInterface $storemanager,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
+        \Magento\Framework\App\Action\Context                  $context,
+        Log                                                    $logger,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory        $configProviderFactory,
+        \Magento\Store\Model\StoreManagerInterface             $storemanager,
+        \Magento\Framework\Stdlib\CookieManagerInterface       $cookieManager,
         \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory
     ) {
         parent::__construct($context);
-        $this->logger             = $logger;
+        $this->logger = $logger;
         $this->accountConfig = $configProviderFactory->get('account');
         $this->storemanager = $storemanager;
         $this->cookieManager = $cookieManager;
@@ -76,7 +82,7 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__.'|1|'.var_export($this->getRequest()->getParams(), true));
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->getRequest()->getParams(), true));
 
         if (($params = $this->getRequest()->getParams()) && !empty($params['id'])) {
             $metadata = $this->cookieMetadataFactory
@@ -88,10 +94,10 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
                 $params['id'],
                 $metadata
             );
-            $this->logger->addDebug(__METHOD__.'|2|');
+            $this->logger->addDebug(__METHOD__ . '|2|');
         }
 
-        $redirectUrl= $this->storemanager->getStore()->getBaseUrl();
-        $this->_redirect($redirectUrl);
+        $redirectUrl = $this->storemanager->getStore()->getBaseUrl();
+        return $this->_redirect($redirectUrl);
     }
 }
