@@ -33,12 +33,12 @@ class PhoneDataBuilder implements BuilderInterface
          */
         $address = $this->getAddress($order);
 
-        $telephone = $this->getPayment()->getAdditionalInformation('customer_telephone');
+        $telephone = $paymentDO->getPayment()->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $address->getTelephone() : $telephone);
 
         return ['phone' => [
-            'mobile' => $telephone ?? '',
-            'landline' => $telephone ?? ''
+            'mobile' => $telephone,
+            'landline' => $telephone
         ]];
     }
 

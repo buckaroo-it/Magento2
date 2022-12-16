@@ -19,7 +19,7 @@ class ApplepayDataBuilder implements BuilderInterface
             'paymentData' => base64_encode(
                 (string)$paymentDO->getPayment()->getAdditionalInformation('applepayTransaction')
             ),
-            'customerCardName' => $this->getCustomerCardName(),
+            'customerCardName' => $this->getCustomerCardName($paymentDO),
         ];
     }
 
@@ -28,10 +28,10 @@ class ApplepayDataBuilder implements BuilderInterface
      *
      * @return string|null
      */
-    protected function getCustomerCardName()
+    protected function getCustomerCardName($paymentDO)
     {
         $billingContact = \json_decode(
-            (string)$this->getPayment()->getAdditionalInformation('billingContact')
+            (string)$paymentDO->getPayment()->getAdditionalInformation('billingContact')
         );
         if ($billingContact &&
             !empty($billingContact->givenName) &&
