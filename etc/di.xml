@@ -2134,7 +2134,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\VATNumberDataBuilder</item>
+                <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\VATNumberDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerBillinkDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
@@ -2883,7 +2883,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="applepay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ApplepayDataBuilder</item>
+                <item name="applepay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\ApplepayDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3084,7 +3084,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooRefundRequest</item>
-                <item name="giftcard_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GiftcardNameDataBuilder</item>
+                <item name="giftcard_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\GiftcardNameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>

@@ -1,13 +1,13 @@
 <?php
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\AdditionalInformation;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class ApplepayDataBuilder implements BuilderInterface
 {
-
     /**
      * @inheritDoc
      */
@@ -26,6 +26,7 @@ class ApplepayDataBuilder implements BuilderInterface
     /**
      * Get customer card name from Apple Pay transaction
      *
+     * @param PaymentDataObjectInterface $paymentDO
      * @return string|null
      */
     protected function getCustomerCardName($paymentDO)
