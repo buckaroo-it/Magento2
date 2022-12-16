@@ -158,7 +158,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         return parent::isAvailable($quote);
     }
 
-    /**s
+    /**
      * @param OrderPaymentInterface|InfoInterface $payment
      * @param PushRequestInterface $postData
      *

@@ -11,11 +11,6 @@ use Buckaroo\Resources\Constants\IPProtocolVersion;
 class ClientIPDataBuilder implements BuilderInterface
 {
     /**
-     * @var Order
-     */
-    private $order;
-
-    /**
      * @var Account
      */
     private $configProviderAccount;
@@ -57,7 +52,7 @@ class ClientIPDataBuilder implements BuilderInterface
         $ipHeaders = $this->configProviderAccount->getIpHeader($store);
 
         if ($ipHeaders) {
-            $ipHeaders = explode(',', (string)strtoupper($ipHeaders));
+            $ipHeaders = explode(',', strtoupper($ipHeaders));
             foreach ($ipHeaders as &$ipHeader) {
                 $ipHeader = 'HTTP_' . str_replace('-', '_', (string)$ipHeader);
             }
