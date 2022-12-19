@@ -797,7 +797,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\OriginalTransactionKeyDataBuilder</item>
                 <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
@@ -848,7 +848,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\OriginalTransactionKeyDataBuilder</item>
                 <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
@@ -1602,7 +1602,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CountryDataBuilder</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CountryDataBuilder</item>
                 <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
             </argument>
         </arguments>
@@ -1677,8 +1677,8 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
-                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\EmailDataBuilder</item>
+                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1821,7 +1821,7 @@
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayInInstallmentsDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\EmailDataBuilder</item>
                 <item name="phone" xsi:type="string">CapayablePhone</item>
                 <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerTypeDataBuilder</item>
                 <item name="invoice_date" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\InvoiceDateDataBuilder</item>
@@ -2664,7 +2664,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="tinka" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TinkaDataBuilder</item>
-                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerDataBuilder</item>
+                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerDataBuilder</item>
                 <item name="customer_address" xsi:type="string">CustomerTinkaDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
@@ -2782,7 +2782,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
-                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
+                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3283,8 +3283,8 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
-                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
-                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CountryDataBuilder</item>
+                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CountryDataBuilder</item>
                 <item name="transfer_config_params" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TransferOrderDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
             </argument>
@@ -3606,7 +3606,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\NameDataBuilder</item>
+                <item name="name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\NameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3748,7 +3748,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="expressOrderId" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ExpressOrderIdDataBuilder</item>
+                <item name="expressOrderId" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\ExpressOrderIdDataBuilder</item>
                 <item name="paypal_extrainfo" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaypalExtrainfoDataBuilder</item>
             </argument>
         </arguments>
@@ -3835,7 +3835,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardTypeDataBuilder</item>
+                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardTypeDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3882,7 +3882,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
-                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardTypeDataBuilder</item>
+                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardTypeDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3967,7 +3967,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="creditcard_encrypted" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardEncryptedDataBuilder</item>
+                <item name="creditcard_encrypted" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardEncryptedDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4014,7 +4014,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
-                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardEncryptedDataBuilder</item>
+                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardEncryptedDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4179,7 +4179,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="orderRequest" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="sepaDirectDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SepaDirectDebitDataBuilder</item>
+                <item name="sepaDirectDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\SepaDirectDebitDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
             </argument>
         </arguments>
@@ -4273,7 +4273,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="locale" xsi:type="string">Buckaroo\Magento2\Gateway\Request\LocaleDataBuilder</item>
+                <item name="locale" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\LocaleDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>

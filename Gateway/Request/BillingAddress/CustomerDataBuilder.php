@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\BillingAddress;
 
-use Buckaroo\Resources\Constants\Gender;
+use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class CustomerDataBuilder extends AbstractDataBuilder
@@ -12,9 +12,8 @@ class CustomerDataBuilder extends AbstractDataBuilder
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
-        /**
-         * @var OrderAddressInterface $billingAddress
-         */
+
+        /** @var OrderAddressInterface $billingAddress */
         $billingAddress = $this->getOrder()->getBillingAddress();
 
         return [

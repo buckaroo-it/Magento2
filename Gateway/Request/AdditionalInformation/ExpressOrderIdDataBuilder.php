@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\AdditionalInformation;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
-use Magento\Payment\Gateway\Request\BuilderInterface;
+use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
 class ExpressOrderIdDataBuilder extends AbstractDataBuilder
 {
