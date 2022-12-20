@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\BasicParameters;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;

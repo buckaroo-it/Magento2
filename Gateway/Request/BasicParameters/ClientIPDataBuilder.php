@@ -1,12 +1,11 @@
 <?php
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\BasicParameters;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Sales\Model\Order;
 use Buckaroo\Resources\Constants\IPProtocolVersion;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class ClientIPDataBuilder implements BuilderInterface
 {

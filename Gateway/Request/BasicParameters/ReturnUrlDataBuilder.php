@@ -1,12 +1,11 @@
 <?php
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\BasicParameters;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
 
@@ -76,7 +75,6 @@ class ReturnUrlDataBuilder implements BuilderInterface
     public function setReturnUrl($url)
     {
         $routeUrl = $this->urlBuilder->getRouteUrl($url);
-
         $this->returnUrl = $routeUrl;
 
         return $this;

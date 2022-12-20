@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\BasicParameters;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;

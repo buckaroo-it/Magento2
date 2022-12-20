@@ -159,6 +159,26 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     }
 
     /**
+     * @inheritdoc
+     */
+    public function canUseForCountry($country)
+    {
+        try {
+            $validator = $this->getValidatorPool()->get('country');
+        } catch (\Exception $e) {
+            return true;
+        }
+
+        $result = $validator->validate([
+            'methodInstance' => $this,
+            'country' => $country,
+            'storeId' => $this->getStore()
+        ]);
+
+        return $result->isValid();
+    }
+
+    /**
      * @param OrderPaymentInterface|InfoInterface $payment
      * @param PushRequestInterface $postData
      *
