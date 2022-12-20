@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Magento2\Gateway\Request\BasicParameters;
+namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Framework\Data\Form\FormKey;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Magento2\Gateway\Request\BasicParameters\ClientIPDataBuilder;
+use Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder;
 use Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayOldDataBuilder as RecipientAfterpayOld;
 use Buckaroo\Resources\Constants\RecipientCategory;
 

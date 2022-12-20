@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Magento2\Gateway\Request\BasicParameters;
+namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;

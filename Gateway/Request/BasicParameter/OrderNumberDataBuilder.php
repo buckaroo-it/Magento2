@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\BasicParameters;
+namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
