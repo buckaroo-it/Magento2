@@ -12,6 +12,9 @@ class CurrencyDataBuilder implements BuilderInterface
 {
     private const CURRENCY = 'currency';
 
+    /** @var Factory */
+    private $configProviderMethodFactory;
+
     /**
      * @var string
      */
@@ -21,6 +24,17 @@ class CurrencyDataBuilder implements BuilderInterface
      * @var array
      */
     private array $allowedCurrencies;
+
+    /**
+     * Constructor
+     *
+     * @param Factory $configProviderMethodFactory
+     */
+    public function __construct(
+        Factory $configProviderMethodFactory
+    ) {
+        $this->configProviderMethodFactory = $configProviderMethodFactory;
+    }
 
     /**
      * @inheritdoc
@@ -101,10 +115,9 @@ class CurrencyDataBuilder implements BuilderInterface
      */
     private function setAllowedCurrencies($methodInstance)
     {
-//        $method = $methodInstance->getCode() ?? 'buckaroo_magento2_ideal';
-//        $configProvider = $this->configProviderMethodFactory->get($method);
-        $this->allowedCurrencies = ['EUR'];
-
+        $method = $methodInstance->getCode() ?? 'buckaroo_magento2_ideal';
+        $configProvider = $this->configProviderMethodFactory->get($method);
+        $this->allowedCurrencies = $configProvider->getAllowedCurrencies();
 
         return $this;
     }

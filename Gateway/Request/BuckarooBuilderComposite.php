@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Service\DataBuilderService;
 use Magento\Framework\ObjectManager\TMap;
 use Magento\Framework\ObjectManager\TMapFactory;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -14,11 +15,18 @@ class BuckarooBuilderComposite implements BuilderInterface
     private $builders;
 
     /**
+     * @var DataBuilderService
+     */
+    private $dataBuilderService;
+
+    /**
      * @param TMapFactory $tmapFactory
+     * @param DataBuilderService $dataBuilderService
      * @param array $builders
      */
     public function __construct(
         TMapFactory $tmapFactory,
+        DataBuilderService $dataBuilderService,
         array $builders = []
     ) {
         $this->builders = $tmapFactory->create(
@@ -27,6 +35,7 @@ class BuckarooBuilderComposite implements BuilderInterface
                 'type' => BuilderInterface::class
             ]
         );
+        $this->dataBuilderService = $dataBuilderService;
     }
 
     /**
@@ -37,24 +46,11 @@ class BuckarooBuilderComposite implements BuilderInterface
      */
     public function build(array $buildSubject)
     {
-        $result = [];
         foreach ($this->builders as $key => $builder) {
             // @TODO implement exceptions catching
-            $result = $this->merge($result, [$key => $builder->build($buildSubject)]);
+            $this->dataBuilderService->addData($builder->build($buildSubject));
         }
 
-        return $result;
-    }
-
-    /**
-     * Merge function for builders
-     *
-     * @param array $result
-     * @param array $builder
-     * @return array
-     */
-    protected function merge(array $result, array $builder)
-    {
-        return array_replace_recursive($result, $builder);
+        return $this->dataBuilderService->getData();
     }
 }
