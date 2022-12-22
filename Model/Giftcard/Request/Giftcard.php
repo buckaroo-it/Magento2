@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
-use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Http\ClientException;
@@ -39,7 +38,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
-use Buckaroo\Magento2\Gateway\Http\Client\TransactionPay;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -103,15 +101,11 @@ class Giftcard implements GiftcardInterface
     protected $groupTransaction;
 
     /**
-     * Card id
-     *
      * @var string
      */
     protected $cardId;
 
     /**
-     * Card number
-     *
      * @var string
      */
     protected $cardNumber;
@@ -131,8 +125,6 @@ class Giftcard implements GiftcardInterface
     protected $action = 'Pay';
 
     /**
-     * Card types
-     *
      * @var array
      */
     protected $cardTypes = [
@@ -146,7 +138,6 @@ class Giftcard implements GiftcardInterface
         ]
     ];
 
-
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Account $configProviderAccount
@@ -156,7 +147,6 @@ class Giftcard implements GiftcardInterface
      * @param StoreManagerInterface $storeManager
      * @param SDKTransferFactory $transferFactory
      * @param ClientInterface $clientInterface
-     * @param TransactionPayRemainder $clientPayRemainder
      * @param RequestInterface $httpRequest
      * @param PaymentGroupTransaction $groupTransaction
      * @throws NoSuchEntityException
@@ -223,7 +213,10 @@ class Giftcard implements GiftcardInterface
     }
 
     /**
+     * Get Request Body
+     *
      * @return array
+     * @throws \Exception
      */
     protected function getBody()
     {
@@ -335,7 +328,7 @@ class Giftcard implements GiftcardInterface
      */
     protected function getAmount()
     {
-        /**@var Quote */
+        /** @var Quote $quote */
         $quote = $this->quote;
         return $quote->getGrandTotal();
     }
@@ -346,6 +339,8 @@ class Giftcard implements GiftcardInterface
         if ($currency !== null) {
             return $currency->getBaseCurrencyCode();
         }
+
+        return null;
     }
 
     /**

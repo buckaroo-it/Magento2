@@ -46,7 +46,7 @@ class BuckarooBuilderComposite implements BuilderInterface
      */
     public function build(array $buildSubject)
     {
-        foreach ($this->builders as $key => $builder) {
+        foreach ($this->builders as $builder) {
             // @TODO implement exceptions catching
             $this->dataBuilderService->addData($builder->build($buildSubject));
         }
