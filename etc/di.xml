@@ -4158,6 +4158,13 @@
     <!-- END Payment Method: Wechatpay -->
 
     <!-- iDIN service (Age verification) -->
+    <type name="Buckaroo\Magento2\Controller\Checkout\Idin">
+        <arguments>
+            <argument name="requestDataBuilder" xsi:type="object">IdinVerifyRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="clientInterface" xsi:type="object">TransactionVerify</argument>
+        </arguments>
+    </type>
     <virtualType name="IdinVerifyRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
@@ -4166,12 +4173,26 @@
         </arguments>
     </virtualType>
 
-    <type name="Buckaroo\Magento2\Controller\Checkout\Idin">
+
+    <!--    Refund Group Transaction-->
+    <type name="Buckaroo\Magento2\Service\RefundGroupTransactionService">
         <arguments>
-            <argument name="requestDataBuilder" xsi:type="object">IdinVerifyRequest</argument>
+            <argument name="requestDataBuilder" xsi:type="object">BuckarooRefundGroupTransactionRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="clientInterface" xsi:type="object">TransactionVerify</argument>
+            <argument name="clientInterface" xsi:type="object">TransactionRefund</argument>
+            <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
         </arguments>
     </type>
-
+    <virtualType name="BuckarooRefundGroupTransactionRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
 </config>

@@ -52,4 +52,15 @@ class SubjectReader
     {
         return \Magento\Payment\Gateway\Helper\SubjectReader::readPayment($subject);
     }
+
+    /**
+     * Reads amount from subject
+     *
+     * @param array $subject
+     * @return mixed
+     */
+    public static function readAmount(array $subject)
+    {
+        \Magento\Payment\Gateway\Helper\SubjectReader::readAmount($subject);
+    }
 }

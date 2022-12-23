@@ -25,9 +25,9 @@ class BuckarooBuilderComposite implements BuilderInterface
      * @param array $builders
      */
     public function __construct(
-        TMapFactory $tmapFactory,
+        TMapFactory        $tmapFactory,
         DataBuilderService $dataBuilderService,
-        array $builders = []
+        array              $builders = []
     ) {
         $this->builders = $tmapFactory->create(
             [
@@ -51,6 +51,27 @@ class BuckarooBuilderComposite implements BuilderInterface
             $this->dataBuilderService->addData($builder->build($buildSubject));
         }
 
+        return $this->dataBuilderService->getData();
+    }
+
+    /**
+     * Add Data to the Request
+     *
+     * @param array $data
+     * @return void
+     */
+    public function addData(array $data)
+    {
+        $this->dataBuilderService->addData($data);
+    }
+
+    /**
+     * Get Data to the Request
+     *
+     * @return array
+     */
+    public function getData(): array
+    {
         return $this->dataBuilderService->getData();
     }
 }
