@@ -1155,9 +1155,9 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1166,7 +1166,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">KlarnaShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -1396,9 +1396,9 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaKpDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1407,7 +1407,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">KlarnaKpShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2160,9 +2160,9 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\BillinkDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2171,7 +2171,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">BillinkShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2184,13 +2184,13 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="PhoneShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder">
+    <virtualType name="PhoneShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder">
         <arguments>
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="EmailAddressShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder">
+    <virtualType name="EmailAddressShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder">
         <arguments>
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
@@ -2324,9 +2324,9 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2335,7 +2335,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">AfterpayShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2348,13 +2348,13 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="PhoneShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder">
+    <virtualType name="PhoneShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder">
         <arguments>
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="EmailAddressShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder">
+    <virtualType name="EmailAddressShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder">
         <arguments>
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
@@ -2498,9 +2498,9 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayOldDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2509,7 +2509,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">AfterpayOldShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2675,9 +2675,9 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\TinkaDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2686,7 +2686,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">TinkaShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2769,7 +2769,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
                 <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
             </argument>
         </arguments>
@@ -3247,7 +3247,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
                 <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CountryDataBuilder</item>
                 <item name="transfer_config_params" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TransferOrderDataBuilder</item>
@@ -3390,7 +3390,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="group" xsi:type="string">BuckarooCreditManagmentGroup</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
                 <item name="config" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\ConfigDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceDataBuilder</item>
             </argument>
@@ -3400,7 +3400,7 @@
     <virtualType name="BuckarooCreditManagmentGroup" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
                 <item name="person" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\PersonDataBuilder</item>
                 <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\AddressDataBuilder</item>
                 <item name="company" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\CompanyDataBuilder</item>
@@ -4130,9 +4130,9 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\WechatpayDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4141,7 +4141,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">WechatpayShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
