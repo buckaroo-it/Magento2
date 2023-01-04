@@ -109,11 +109,11 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
 
     /** @inheritDoc */
     public function execute(
-        string $paypal_order_id,
-        string $cart_id = null
+        string $paypalOrderId,
+        string $cartId = null
     ) {
         try {
-            $orderId = $this->createOrder($paypal_order_id, $cart_id);
+            $orderId = $this->createOrder($paypalOrderId, $cartId);
         } catch (NoSuchEntityException $th) {
             $this->logger->addDebug(__METHOD__ . $th->getMessage());
             throw new PaypalExpressException(__("Failed to create order"), 1, $th);
