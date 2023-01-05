@@ -9,24 +9,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Log;
 
-class Index extends \Magento\Backend\App\Action
+use Magento\Framework\App\Action\HttpGetActionInterface;
+
+class Index extends \Magento\Backend\App\Action implements HttpGetActionInterface
 {
-    protected $resultPageFactory;
-
-    /**
-     * Constructor
-     *
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
-     */
-    public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory
-    ) {
-        $this->resultPageFactory = $resultPageFactory;
-        parent::__construct($context);
-    }
-
     /**
      * Index action
      *
@@ -34,8 +20,8 @@ class Index extends \Magento\Backend\App\Action
      */
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
-            $resultPage->getConfig()->getTitle()->prepend(__("Log"));
-            return $resultPage;
+        $resultPage = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_PAGE);
+        $resultPage->getConfig()->getTitle()->prepend(__("Log"));
+        return $resultPage;
     }
 }
