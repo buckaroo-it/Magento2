@@ -128,7 +128,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         $configAllowSpecific = $this->configProviderMethodFactory->get($paymentMethodCode)->getAllowSpecific();
 
         if ($configAllowSpecific == 1) {
-            $countryId = ($billingAddress === null ) ? null : $billingAddress->getCountryId();
+            $countryId = ($billingAddress === null) ? null : $billingAddress->getCountryId();
             $configSpecificCountry = $this->configProviderMethodFactory->get($paymentMethodCode)->getSpecificCountry();
 
             if (!in_array($countryId, $configSpecificCountry)) {
