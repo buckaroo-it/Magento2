@@ -32,6 +32,7 @@ use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Quote\Api\Data\EstimateAddressInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 
@@ -56,21 +57,45 @@ class GetShippingMethods extends Common
      * @var DataObjectProcessor $dataProcessor
      */
     private DataObjectProcessor $dataProcessor;
+    /**
+     * @var CheckoutSession
+     */
+    private CheckoutSession $checkoutSession;
+    /**
+     * @var QuoteRepository
+     */
+    private QuoteRepository $quoteRepository;
+    /** @var DataObjectProcessor */
+    private DataObjectProcessor $dataObjectProcessor;
 
+    /**
+     * @param Context $context
+     * @param Log $logger
+     * @param Quote\TotalsCollector $totalsCollector
+     * @param \Magento\Quote\Model\Cart\ShippingMethodConverter $converter
+     * @param Cart $cart
+     * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
+     * @param CartRepositoryInterface $cartRepository
+     * @param CheckoutSession $checkoutSession
+     * @param QuoteRepository $quoteRepository
+     * @param DataObjectProcessor $dataObjectProcessor
+     * @param CustomerSession|null $customerSession
+     */
     public function __construct(
-        Context $context,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        Log $logger,
-        Cart $cart,
-        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
+        Context                                           $context,
+        Log                                               $logger,
+        \Magento\Quote\Model\Quote\TotalsCollector        $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
-        MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
-        CartRepositoryInterface $cartRepository,
-        CustomerSession $customerSession = null
+        Cart                                              $cart,
+        MaskedQuoteIdToQuoteIdInterface                   $maskedQuoteIdToQuoteId,
+        CartRepositoryInterface                           $cartRepository,
+        CheckoutSession                                   $checkoutSession,
+        QuoteRepository                                   $quoteRepository,
+        DataObjectProcessor                               $dataObjectProcessor,
+        CustomerSession                                   $customerSession = null
     ) {
         parent::__construct(
             $context,
-            $resultJsonFactory,
             $logger,
             $totalsCollector,
             $converter,
@@ -79,6 +104,9 @@ class GetShippingMethods extends Common
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->cart = $cart;
         $this->cartRepository = $cartRepository;
+        $this->checkoutSession = $checkoutSession;
+        $this->quoteRepository = $quoteRepository;
+        $this->dataObjectProcessor = $dataObjectProcessor;
     }
 
     /**
@@ -94,20 +122,18 @@ class GetShippingMethods extends Common
         $data = [];
         if ($isPost && $wallet = $this->getRequest()->getParam('wallet')) {
             $cartHash = $this->getRequest()->getParam('id');
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 
             if ($cartHash) {
                 $cartId = $this->maskedQuoteIdToQuoteId->execute($cartHash);
                 $quote = $this->cartRepository->get($cartId);
             } else {
-                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
-                $quote = $checkoutSession->getQuote();
+                $quote = $this->checkoutSession->getQuote();
             }
 
             if (!$this->setShippingAddress($quote, $wallet)) {
                 return $this->commonResponse(false, true);
             }
-            $data = $this->getShippingMethods($quote, $objectManager);
+            $data = $this->getShippingMethods($quote);
         }
 
         return $this->commonResponse($data, false);
@@ -117,18 +143,15 @@ class GetShippingMethods extends Common
      * Get Shipping Methods
      *
      * @param \Magento\Quote\Api\Data\CartInterface $quote
-     * @param \Magento\Framework\App\ObjectManager $objectManager
      * @return array|void
      */
-    protected function getShippingMethods(&$quote, $objectManager)
+    protected function getShippingMethods(&$quote)
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
 
-        $quoteRepository = $objectManager->get(\Magento\Quote\Model\QuoteRepository::class);
-
         $quote->getPayment()->setMethod(Applepay::CODE);
         $quote->getShippingAddress()->setCollectShippingRates(true);
-        $quoteRepository->save($quote);
+        $this->quoteRepository->save($quote);
 
         $shippingMethods = $this->getShippingMethods2($quote, $quote->getShippingAddress());
 
@@ -161,8 +184,8 @@ class GetShippingMethods extends Common
                 'shipping_methods' => $shippingMethodsResult,
                 'totals' => $totals
             ];
-            $quoteRepository->save($quote);
-            $this->cart->save();
+            $this->quoteRepository->save($quote);
+            $this->cart->saveQuote();
 
             $this->logger->addDebug(__METHOD__ . '|3|');
 
@@ -222,25 +245,9 @@ class GetShippingMethods extends Common
         } elseif ($address instanceof EstimateAddressInterface) {
             $className = EstimateAddressInterface::class;
         }
-        return $this->getDataObjectProcessor()->buildOutputDataArray(
+        return $this->dataObjectProcessor->buildOutputDataArray(
             $address,
             $className
         );
     }
-
-    /**
-     * Gets the data object processor
-     *
-     * @return DataObjectProcessor
-     * @deprecated 101.0.0
-     */
-    private function getDataObjectProcessor()
-    {
-        if ($this->dataProcessor === null) {
-            $this->dataProcessor = ObjectManager::getInstance()
-                ->get(DataObjectProcessor::class);
-        }
-        return $this->dataProcessor;
-    }
-
 }
