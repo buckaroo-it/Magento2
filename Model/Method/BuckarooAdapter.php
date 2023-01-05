@@ -318,7 +318,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         $incrementId = $payment->getOrder()->getIncrementId();
 
         $originalTransactionKey = $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
-        if ($originalTransactionKey !== false) {
+        if ($originalTransactionKey !== null) {
             $serviceAction = $newServiceAction;
             $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
 
