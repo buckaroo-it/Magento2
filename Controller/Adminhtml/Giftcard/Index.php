@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
 use Buckaroo\Magento2\Model\GiftcardFactory;
@@ -29,7 +30,7 @@ use Magento\Framework\Filesystem;
 use Magento\MediaStorage\Model\File\UploaderFactory;
 use Magento\Framework\Image\AdapterFactory;
 
-class Index extends \Magento\Backend\App\Action
+class Index extends \Magento\Backend\App\Action implements HttpGetActionInterface
 {
     /**
      * @var  PageFactory

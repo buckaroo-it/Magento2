@@ -87,14 +87,14 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
 
     public function __construct(
         OrderCreateResponseInterfaceFactory $responseFactory,
-        CartManagementInterface $quoteManagement,
-        MaskedQuoteIdToQuoteId $maskedQuoteIdToQuoteId,
-        CustomerSession $customerSession,
-        CheckoutSession $checkoutSession,
-        CartRepositoryInterface $quoteRepository,
-        OrderRepositoryInterface $orderRepository,
-        OrderUpdateShippingFactory $orderUpdateShippingFactory,
-        Log $logger
+        CartManagementInterface             $quoteManagement,
+        MaskedQuoteIdToQuoteId              $maskedQuoteIdToQuoteId,
+        CustomerSession                     $customerSession,
+        CheckoutSession                     $checkoutSession,
+        CartRepositoryInterface             $quoteRepository,
+        OrderRepositoryInterface            $orderRepository,
+        OrderUpdateShippingFactory          $orderUpdateShippingFactory,
+        Log                                 $logger
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteManagement = $quoteManagement;
@@ -107,7 +107,9 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->logger = $logger;
     }
 
-    /** @inheritDoc */
+    /**
+     * @inheritDoc
+     */
     public function execute(
         string $paypalOrderId,
         string $cartId = null
@@ -128,18 +130,18 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /**
      * Place order based on quote and paypal order id
      *
-     * @param string $paypal_order_id
-     * @param string $cart_id
+     * @param string $paypalOrderId
+     * @param string $cartId
      *
      * @return string
      */
     protected function createOrder(
-        string $paypal_order_id,
-        string $cart_id
+        string $paypalOrderId,
+        string $cartId
     ) {
 
-        $quote = $this->getQuote($cart_id);
-        $quote->getPayment()->setAdditionalInformation('express_order_id', $paypal_order_id);
+        $quote = $this->getQuote($cartId);
+        $quote->getPayment()->setAdditionalInformation('express_order_id', $paypalOrderId);
 
         $this->checkQuoteBelongsToLoggedUser($quote);
         $orderId = $this->quoteManagement->placeOrder($quote->getId());
@@ -149,12 +151,16 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->setLastOrderToSession($order);
         return $order->getIncrementId();
     }
+
     protected function updateOrderShipping(OrderInterface $order)
     {
-        $orderUpdateShipping = $this->orderUpdateShippingFactory->create(["shippingAddress" => $order->getShippingAddress()]);
+        $orderUpdateShipping = $this->orderUpdateShippingFactory->create([
+            "shippingAddress" => $order->getShippingAddress()
+        ]);
         $orderUpdateShipping->update();
         $this->orderRepository->save($order);
     }
+
     /**
      * Check if quote belongs to the current logged in user
      *
@@ -173,30 +179,31 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /**
      * Update session with last order
      *
-     * @param  \Magento\Sales\Api\Data\OrderInterface $order
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
      *
      * @return void
      */
     protected function setLastOrderToSession(OrderInterface $order)
     {
         $this->checkoutSession
-        ->setLastQuoteId($order->getQuoteId())
-        ->setLastSuccessQuoteId($order->getQuoteId())
-        ->setLastOrderId($order->getEntityId())
-        ->setLastRealOrderId($order->getIncrementId())
-        ->setLastOrderStatus($order->getStatus());
+            ->setLastQuoteId($order->getQuoteId())
+            ->setLastSuccessQuoteId($order->getQuoteId())
+            ->setLastOrderId($order->getEntityId())
+            ->setLastRealOrderId($order->getIncrementId())
+            ->setLastOrderStatus($order->getStatus());
     }
+
     /**
      * Get quote from masked quote/cart id
      *
-     * @param string $cart_id
+     * @param string $cartId
      *
      * @return \Magento\Quote\Model\Quote
      */
-    protected function getQuote($cart_id)
+    protected function getQuote($cartId)
     {
         return $this->quoteRepository->get(
-            $this->maskedQuoteIdToQuoteId->execute($cart_id)
+            $this->maskedQuoteIdToQuoteId->execute($cartId)
         );
     }
 }
