@@ -80,6 +80,8 @@ class GetShippingMethods extends Common
      * @param QuoteRepository $quoteRepository
      * @param DataObjectProcessor $dataObjectProcessor
      * @param CustomerSession|null $customerSession
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Context                                           $context,

@@ -79,7 +79,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $this->payReminderService = $payReminderService;
     }
 
-
+    /**
+     * @inheritDoc
+     */
     public function getOrderArticlesData($order, $payment): array
     {
         $this->buckarooLog->addDebug(__METHOD__ . '|1|');
@@ -112,6 +114,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         return $articles;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getInvoiceArticlesData($order, $payment): array
     {
         $this->buckarooLog->addDebug(__METHOD__ . '|1|');
@@ -133,7 +138,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $serviceLine = $this->getServiceCostLine($currentInvoice);
             if (!empty($serviceLine)) {
                 $articles = array_merge_recursive($articles, $serviceLine);
-            };
+            }
         }
 
         $shippingCosts = $this->getShippingCostsLine($currentInvoice);
@@ -144,11 +149,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         return $articles;
     }
 
-
     /**
+     * Get Items Data from Creditmemo (refund)
+     *
      * @param Order $order
      * @param InfoInterface $payment
-     * @return array|\array[][]
+     * @return array|array[]
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */

@@ -34,10 +34,8 @@ class PhoneDataBuilder extends AbstractDataBuilder
 
     private function getAddress()
     {
-        if ($this->addressType == 'shipping') {
-            return $this->getOrder()->getShippingAddress();
-        } else {
-            return $this->getOrder()->getBillingAddress();
-        }
+        return ($this->addressType == 'shipping')
+            ? $this->getOrder()->getShippingAddress()
+            : $this->getOrder()->getBillingAddress();
     }
 }

@@ -278,7 +278,7 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Check if the transaction is part of a group transactions
+     * Check if the transaction is part of a group transaction
      *
      * @return bool
      */
