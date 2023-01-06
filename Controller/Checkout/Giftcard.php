@@ -36,11 +36,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    protected $jsonResultFactory;
-
-    /**
      * @var \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
      */
     protected $giftcardRequest;
@@ -57,7 +52,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
 
     /**
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param GiftcardInterface $giftcardRequest
      * @param GiftcardResponse $giftcardResponse
@@ -65,14 +59,12 @@ class Giftcard extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
         GiftcardInterface $giftcardRequest,
         GiftcardResponse $giftcardResponse,
         Log $logger
     ) {
         parent::__construct($context);
-        $this->jsonResultFactory = $jsonResultFactory;
         $this->checkoutSession = $checkoutSession;
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;

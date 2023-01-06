@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Cron;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\App\ResourceConnection;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ResourceModel\Log as LogResourceModel;
 use Buckaroo\Magento2\Model\Config\Source\LogHandler;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Driver\File;
@@ -41,15 +42,15 @@ class LogCleaner
     private $ioFile;
 
     public function __construct(
-        \Buckaroo\Magento2\Model\ResourceModel\Log $resource,
-        Account $accountConfig,
+        LogResourceModel   $resource,
+        Account            $accountConfig,
         ResourceConnection $resourceConnection,
-        Log $logging,
-        DirectoryList $directoryList,
-        File $driverFile,
-        IoFile $ioFile
+        Log                $logging,
+        DirectoryList      $directoryList,
+        File               $driverFile,
+        IoFile             $ioFile
     ) {
-        $this->resource = $resource;
+        $this->resource            = $resource;
         $this->accountConfig       = $accountConfig;
         $this->resourceConnection  = $resourceConnection;
         $this->logging             = $logging;
