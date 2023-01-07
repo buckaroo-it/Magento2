@@ -32,17 +32,18 @@ class Totals extends \Magento\Framework\View\Element\Template
      * @var \Magento\Framework\Pricing\PriceCurrencyInterface
      */
     protected $_currency;
+
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Buckaroo\Magento2\Helper\PaymentFee                  $helper
+     * @param \Buckaroo\Magento2\Helper\PaymentFee $helper
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $currency
-     * @param array                                            $data
+     * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Buckaroo\Magento2\Helper\PaymentFee $helper,
+        \Magento\Framework\View\Element\Template\Context  $context,
+        \Buckaroo\Magento2\Helper\PaymentFee              $helper,
         \Magento\Framework\Pricing\PriceCurrencyInterface $currency,
-        array $data = []
+        array                                             $data = []
     ) {
         $this->helper = $helper;
         $this->_currency = $currency;
@@ -58,14 +59,14 @@ class Totals extends \Magento\Framework\View\Element\Template
     {
         $parent = $this->getParentBlock();
         /**
-        * @noinspection PhpUndefinedMethodInspection
-        */
+         * @noinspection PhpUndefinedMethodInspection
+         */
         $source = $parent->getSource();
         $totals = $this->getTotalsForCreditmemo($source);
         foreach ($totals as $total) {
             /**
-            * @noinspection PhpUndefinedMethodInspection
-            */
+             * @noinspection PhpUndefinedMethodInspection
+             */
             $this->getParentBlock()->addTotalBefore(new \Magento\Framework\DataObject($total), 'grand_total');
         }
         return $this;
@@ -75,10 +76,9 @@ class Totals extends \Magento\Framework\View\Element\Template
     {
         $parent = $this->getParentBlock();
         /**
-        * @noinspection PhpUndefinedMethodInspection
-        */
+         * @noinspection PhpUndefinedMethodInspection
+         */
         $source = $parent->getSource();
-
 
         return $this->getTotalsForCreditmemo($source);
     }
@@ -94,8 +94,7 @@ class Totals extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * For credit memo display the fees from invoice/order,
-     * check if invoice has that fee and set selected
+     * For credit memo display the fees from invoice/order, check if invoice has that fee and set selected
      *
      * @param mixed $source
      *
@@ -118,7 +117,6 @@ class Totals extends \Magento\Framework\View\Element\Template
                 return $saleTotal;
             }, $saleTotals);
 
-
             return array_merge(
                 $this->getTotalsByCode($creditTotals, 'buckaroo_already_paid'),
                 $this->getTotalsExceptCode($saleTotals, 'buckaroo_already_paid')
@@ -134,13 +132,13 @@ class Totals extends \Magento\Framework\View\Element\Template
         });
     }
 
-
     private function getTotalsExceptCode($totals, $code)
     {
         return array_filter($totals, function ($total) use ($code) {
             return $total['code'] !== $code;
         });
     }
+
     /**
      * Check if fee is in creditmemo
      *
@@ -152,7 +150,7 @@ class Totals extends \Magento\Framework\View\Element\Template
     private function isCreditmemoTotalSelected($creditTotals, $saleTotal)
     {
         foreach ($creditTotals as $creditTotal) {
-            if (    isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
+            if (isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
             ) {
                 return true;
             }

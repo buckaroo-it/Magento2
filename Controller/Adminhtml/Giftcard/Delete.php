@@ -21,7 +21,9 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
+use Magento\Framework\App\Action\HttpPostActionInterface;
+
+class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index implements HttpPostActionInterface
 {
     /**
      * Delete Giftcard
@@ -37,15 +39,15 @@ class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
             $giftcardModel->load($giftcardId);
 
             if (!$giftcardModel->getId()) {
-                $this->messageManager->addError(__('This giftcard no longer exists.'));
+                $this->messageManager->addErrorMessage(__('This giftcard no longer exists.'));
             } else {
                 try {
                     $giftcardModel->delete();
-                    $this->messageManager->addSuccess(__('The giftcard has been deleted.'));
+                    $this->messageManager->addSuccessMessage(__('The giftcard has been deleted.'));
 
                     return $this->_redirect('*/*/');
                 } catch (\Exception $e) {
-                    $this->messageManager->addError($e->getMessage());
+                    $this->messageManager->addErrorMessage($e->getMessage());
                     return $this->_redirect('*/*/edit', ['id' => $giftcardModel->getId()]);
                 }
             }

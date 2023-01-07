@@ -21,10 +21,11 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\LocalizedException;
 
-class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
+class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index implements HttpPostActionInterface
 {
     /**
      * Save Giftcard in Admin

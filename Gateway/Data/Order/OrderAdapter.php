@@ -148,6 +148,8 @@ class OrderAdapter implements OrderAdapterInterface
     }
 
     /**
+     * Get entire order object
+     *
      * @return Order
      */
     public function getOrder(): Order

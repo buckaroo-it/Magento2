@@ -59,9 +59,10 @@ class ClientIPDataBuilder implements BuilderInterface
         }
 
         //trustly anyway should be w/o private ip
-        if ((isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) &&
+        if ((
+            isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) &&
                 $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly'
-            ) &&
+        ) &&
             $this->isIpPrivate($ip) &&
             $order->getXForwardedFor()
         ) {
@@ -81,7 +82,7 @@ class ClientIPDataBuilder implements BuilderInterface
             return false;
         }
 
-        $pri_addrs = [
+        $priAddrs = [
             '10.0.0.0|10.255.255.255', // single class A network
             '172.16.0.0|172.31.255.255', // 16 contiguous class B network
             '192.168.0.0|192.168.255.255', // 256 contiguous class C network
@@ -89,12 +90,12 @@ class ClientIPDataBuilder implements BuilderInterface
             '127.0.0.0|127.255.255.255' // localhost
         ];
 
-        $long_ip = ip2long($ip);
-        if ($long_ip != -1) {
-            foreach ($pri_addrs as $pri_addr) {
-                list ($start, $end) = explode('|', $pri_addr);
+        $longIp = ip2long($ip);
+        if ($longIp != -1) {
+            foreach ($priAddrs as $priAddr) {
+                list($start, $end) = explode('|', $priAddr);
 
-                if ($long_ip >= ip2long($start) && $long_ip <= ip2long($end)) {
+                if ($longIp >= ip2long($start) && $longIp <= ip2long($end)) {
                     return true;
                 }
             }

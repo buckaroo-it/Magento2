@@ -22,9 +22,11 @@
 namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Api\AddressHandlerInterface;
-use Magento\Payment\Gateway\Request\BuilderInterface;
 use Exception;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Address;
+use TypeError;
 
 class AddressHandlerPool
 {
@@ -33,13 +35,24 @@ class AddressHandlerPool
      */
     protected array $addressHandlers;
 
+    /**
+     * @param array $addressHandlers
+     */
     public function __construct(array $addressHandlers)
     {
+        foreach ($addressHandlers as $key => $addressHandler) {
+            if (!($addressHandler instanceof AddressHandlerInterface)) {
+                throw new TypeError("$key - $addressHandler is not instance of AddressHandlerInterface");
+            }
+        }
         $this->addressHandlers = $addressHandlers;
     }
 
     /**
+     * Change shipping address based on Shipping method
+     *
      * @param Order $order
+     * @return OrderAddressInterface|Address|null
      * @throws Exception
      */
     public function getShippingAddress(Order $order)

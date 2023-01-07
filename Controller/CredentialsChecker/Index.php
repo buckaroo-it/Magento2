@@ -23,14 +23,11 @@ namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Encryption\Encryptor;
 
 class Index extends \Magento\Framework\App\Action\Action
 {
-    /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    protected $resultJsonFactory;
     /**
      * @var \Magento\Checkout\Model\ConfigProviderInterface
      */
@@ -52,7 +49,6 @@ class Index extends \Magento\Framework\App\Action\Action
      * Check Credentials in Admin
      *
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      * @param Encryptor $encryptor
      * @param Account $configProviderAccount
@@ -61,14 +57,12 @@ class Index extends \Magento\Framework\App\Action\Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context            $context,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         \Buckaroo\Magento2\Model\ConfigProvider\Factory  $configProviderFactory,
         Encryptor                                        $encryptor,
         Account                                          $configProviderAccount,
         \Buckaroo\Magento2\Gateway\Http\Client\Json      $client
     ) {
         parent::__construct($context);
-        $this->resultJsonFactory  = $resultJsonFactory;
         $this->accountConfig      = $configProviderFactory->get('account');
         $this->encryptor          = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
@@ -168,7 +162,6 @@ class Index extends \Magento\Framework\App\Action\Action
     private function doResponse(array $response): Json
     {
         $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, true);
-        $resultJson = $this->resultJsonFactory->create();
-        return $resultJson->setData($response);
+        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($response);
     }
 }
