@@ -26,33 +26,25 @@ use Monolog\Logger;
 
 class DbHandler extends Base
 {
+    /**
+     * @var \Buckaroo\Magento2\Model\Log
+     */
     protected $logFactory;
 
     // @codingStandardsIgnoreLine
     protected $loggerType = Logger::DEBUG;
 
-    protected $checkoutSession;
-
-    protected $session;
-
-    protected $customerSession;
-
     /**
+     * @param \Buckaroo\Magento2\Model\LogFactory $logFactory
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\LogFactory $logFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\Session\SessionManager $sessionManager,
-        \Magento\Customer\Model\Session $customerSession
+        \Buckaroo\Magento2\Model\LogFactory $logFactory
     ) {
         $this->logFactory = $logFactory;
-        $this->checkoutSession  = $checkoutSession;
-        $this->session = $sessionManager;
-        $this->customerSession = $customerSession;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function write(array $record): void
     {

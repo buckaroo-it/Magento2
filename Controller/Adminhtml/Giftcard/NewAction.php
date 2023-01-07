@@ -21,25 +21,11 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-class NewAction extends \Magento\Backend\App\Action
+use Magento\Backend\App\Action;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+
+class NewAction extends Action implements HttpGetActionInterface
 {
-    /**
-     * @var \Magento\Backend\Model\View\Result\ForwardFactory
-     */
-    private $resultForwardFactory;
-
-    /**
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory
-     */
-    public function __construct(
-        \Magento\Backend\App\Action\Context               $context,
-        \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory
-    ) {
-        $this->resultForwardFactory = $resultForwardFactory;
-        parent::__construct($context);
-    }
-
     /**
      * New action
      *
@@ -48,7 +34,7 @@ class NewAction extends \Magento\Backend\App\Action
     public function execute()
     {
         /** @var \Magento\Framework\Controller\Result\Forward $resultForward */
-        $resultForward = $this->resultForwardFactory->create();
+        $resultForward = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_FORWARD);
         return $resultForward->forward('edit');
     }
 }

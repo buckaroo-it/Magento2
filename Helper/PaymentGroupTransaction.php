@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Helper;
 
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Model\Order as OrderModel;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -42,16 +44,6 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     protected $groupTransactionFactory;
 
     /**
-     * @var OrderModel
-     */
-    public OrderModel $order;
-
-    /**
-     * @var Transaction
-     */
-    private $transaction;
-
-    /**
      * @var \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory
      */
     protected $grTrCollectionFactory;
@@ -67,11 +59,11 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     private Log $logging;
 
     /**
-     * @param \Magento\Framework\App\Helper\Context $context
+     * Constructor
+     *
+     * @param Context $context
      * @param GroupTransactionFactory $groupTransactionFactory
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
-     * @param OrderModel $order
-     * @param TransactionInterface $transaction
+     * @param DateTime $dateTime
      * @param Log $logging
      * @param GroupTransactionCollectionFactory $grTrCollectionFactory
      * @param GroupTransaction $resourceModel
@@ -80,8 +72,6 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         \Magento\Framework\App\Helper\Context       $context,
         GroupTransactionFactory                     $groupTransactionFactory,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        OrderModel                                  $order,
-        TransactionInterface                        $transaction,
         Log                                         $logging,
         GroupTransactionCollectionFactory           $grTrCollectionFactory,
         GroupTransaction                            $resourceModel
@@ -90,8 +80,6 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
 
         $this->groupTransactionFactory = $groupTransactionFactory;
         $this->dateTime = $dateTime;
-        $this->order = $order;
-        $this->transaction = $transaction;
         $this->logging = $logging;
         $this->grTrCollectionFactory = $grTrCollectionFactory;
         $this->resourceModel = $resourceModel;
@@ -172,16 +160,22 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return $total;
     }
 
-    public function getGroupTransactionOriginalTransactionKey($order_id)
+    /**
+     * Get last transaction from group transaction filter by order
+     *
+     * @param string|int $orderId
+     * @return \Buckaroo\Magento2\Model\GroupTransaction|null
+     */
+    public function getGroupTransactionOriginalTransactionKey($orderId)
     {
-        if ($order_id === null) {
-            return;
+        if ($orderId === null) {
+            return null;
         }
         $collection = $this->grTrCollectionFactory->create();
         $groupTransaction = $collection
             ->addFieldToFilter(
                 'order_id',
-                ['eq' => $order_id]
+                ['eq' => $orderId]
             )
             ->addFieldToFilter(
                 'status',
@@ -191,7 +185,8 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         if (!$groupTransaction->isEmpty()) {
             return $groupTransaction->getData('relatedtransaction');
         }
-            return;
+
+        return null;
     }
 
     public function getGroupTransactionItemsNotRefunded($order_id)

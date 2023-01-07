@@ -27,17 +27,12 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Controller\Result\Json;
-use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
-use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\TotalsCollector;
 
 abstract class Common extends Action
 {
-    /**
-     * @var JsonFactory
-     */
-    protected $resultJsonFactory;
     /**
      * @var Log
      */
@@ -61,7 +56,6 @@ abstract class Common extends Action
      * Apple Pay common constructor
      *
      * @param Context $context
-     * @param JsonFactory $resultJsonFactory
      * @param Log $logger
      * @param TotalsCollector $totalsCollector
      * @param ShippingMethodConverter $converter
@@ -69,14 +63,12 @@ abstract class Common extends Action
      */
     public function __construct(
         Context $context,
-        JsonFactory $resultJsonFactory,
         Log $logger,
         TotalsCollector $totalsCollector,
         ShippingMethodConverter $converter,
         CustomerSession $customerSession = null
     ) {
         parent::__construct($context);
-        $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
         $this->totalsCollector = $totalsCollector;
         $this->converter = $converter;
@@ -155,7 +147,7 @@ abstract class Common extends Action
         }
         $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, true);
 
-        $resultJson = $this->resultJsonFactory->create();
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         return $resultJson->setData($response);
     }
 

@@ -277,12 +277,14 @@ class Data extends AbstractHelper
         return $orderId;
     }
 
+    /**
+     * Check if the transaction is part of a group transaction
+     *
+     * @return bool
+     */
     public function isGroupTransaction()
     {
-        if ($this->groupTransaction->isGroupTransaction($this->getOrderId())) {
-            return true;
-        }
-        return false;
+        return (bool)$this->groupTransaction->isGroupTransaction($this->getOrderId());
     }
 
     /**

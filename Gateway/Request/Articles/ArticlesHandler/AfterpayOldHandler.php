@@ -6,7 +6,15 @@ use Magento\Quote\Model\Quote\Item;
 
 class AfterpayOldHandler extends AbstractArticlesHandler
 {
+    public const HIGH_TAX_CATEGORY = 1;
+    public const MIDDLE_TAX_CATEGORY = 5;
+    public const LOW_TAX_CATEGORY = 2;
+    public const ZERO_TAX_CATEGORY = 3;
+    public const DEFAULT_TAX_CATEGORY = 4;
+
     /**
+     * Get Item Tax
+     *
      * @param Item|\Magento\Sales\Model\Order\Item $item
      * @return float
      */
@@ -28,7 +36,7 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         return [
             'identifier' => $articleId,
             'description' => $articleDescription,
-            'vatCategory' => $articleVat ?: 4,
+            'vatCategory' => $articleVat ?: self::DEFAULT_TAX_CATEGORY,
             'quantity' => $articleQuantity,
             'price' => $articleUnitPrice
         ];
@@ -39,7 +47,7 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         $storeId = (int) $order->getStoreId();
         $taxClassId = $this->configProviderBuckarooFee->getTaxClass($storeId);
 
-        $taxCategory = 4;
+        $taxCategory = self::DEFAULT_TAX_CATEGORY;
 
         if (!$taxClassId) {
             return $taxCategory;
@@ -55,16 +63,15 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         $zeroClasses   = explode(',', (string)$afterPayConfig->getZeroTaxClasses($storeId));
 
         if (in_array($taxClassId, $highClasses)) {
-            $taxCategory = 1;
+            $taxCategory = self::HIGH_TAX_CATEGORY;
         } elseif (in_array($taxClassId, $middleClasses)) {
-            $taxCategory = 5;
+            $taxCategory = self::MIDDLE_TAX_CATEGORY;
         } elseif (in_array($taxClassId, $lowClasses)) {
-            $taxCategory = 2;
+            $taxCategory = self::LOW_TAX_CATEGORY;
         } elseif (in_array($taxClassId, $zeroClasses)) {
-            $taxCategory = 3;
+            $taxCategory = self::ZERO_TAX_CATEGORY;
         } else {
-            // No classes == 4
-            $taxCategory = 4;
+            $taxCategory = self::DEFAULT_TAX_CATEGORY;
         }
 
         return $taxCategory;
@@ -101,6 +108,13 @@ class AfterpayOldHandler extends AbstractArticlesHandler
     }
 
     /**
+     * Get the structure of the array returned to request for refunded items
+     *
+     * @param $articleDescription
+     * @param $articleId
+     * @param $articleQuantity
+     * @param $articleUnitPrice
+     * @param string $articleVat
      * @return array
      */
     public function getArticleRefundArrayLine(
@@ -113,7 +127,7 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         return [
             'identifier' => $articleId,
             'description' => $articleDescription,
-            'vatCategory' => $articleVat ?: 4,
+            'vatCategory' => $articleVat ?: self::DEFAULT_TAX_CATEGORY,
             'quantity' => $articleQuantity,
             'price' => $articleUnitPrice
         ];

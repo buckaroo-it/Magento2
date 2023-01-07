@@ -21,7 +21,9 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-class Edit extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
+use Magento\Framework\App\Action\HttpGetActionInterface;
+
+class Edit extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index implements HttpGetActionInterface
 {
     /**
      * @return \Magento\Backend\Model\View\Result\Page|void
@@ -38,7 +40,7 @@ class Edit extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
         if ($giftcardId) {
             $model->load($giftcardId);
             if (!$model->getId()) {
-                $this->messageManager->addError(__('This giftcard no longer exists.'));
+                $this->messageManager->addErrorMessage(__('This giftcard no longer exists.'));
                 $this->_redirect('*/*/');
                 return;
             }

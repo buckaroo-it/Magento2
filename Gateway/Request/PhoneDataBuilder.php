@@ -50,10 +50,8 @@ class PhoneDataBuilder implements BuilderInterface
      */
     private function getAddress($order)
     {
-        if ($this->addressType == 'shipping') {
-            return $order->getShippingAddress();
-        } else {
-            return $order->getBillingAddress();
-        }
+        return ($this->addressType == 'shipping')
+            ? $order->getShippingAddress()
+            : $order->getBillingAddress();
     }
 }

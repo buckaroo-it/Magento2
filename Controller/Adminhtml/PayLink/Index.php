@@ -23,64 +23,58 @@ namespace Buckaroo\Magento2\Controller\Adminhtml\PayLink;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\Command\CommandManagerPoolInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
-class Index extends Action
+class Index extends Action implements HttpGetActionInterface
 {
-    /**
-     * @var PageFactory
-     */
-    protected PageFactory $resultPageFactory;
     /**
      * @var Http
      */
     protected Http $request;
-    /**
-     * @var OrderInterface
-     */
-    private OrderInterface $order;
+
     /**
      * @var CommandManagerPoolInterface
      */
     private CommandManagerPoolInterface $commandManagerPool;
+
     /**
      * @var ManagerInterface
      */
     protected $messageManager;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
      * @param Context $context
-     * @param PageFactory $resultPageFactory
      * @param Http $request
-     * @param OrderInterface $order
+     * @param OrderRepositoryInterface $orderRepository
      * @param CommandManagerPoolInterface $commandManagerPool
      * @param ManagerInterface $messageManager
-     * @param ResultFactory $resultFactory
      */
     public function __construct(
-        Context $context,
-        PageFactory $resultPageFactory,
-        Http $request,
-        OrderInterface $order,
+        Context                     $context,
+        Http                        $request,
+        OrderRepositoryInterface    $orderRepository,
         CommandManagerPoolInterface $commandManagerPool,
-        ManagerInterface $messageManager,
-        ResultFactory $resultFactory
+        ManagerInterface            $messageManager
     ) {
         parent::__construct($context);
         $this->request               = $request;
-        $this->resultPageFactory     = $resultPageFactory;
-        $this->order                 = $order;
+        $this->orderRepository       = $orderRepository;
         $this->commandManagerPool    = $commandManagerPool;
         $this->messageManager        = $messageManager;
-        $this->resultFactory         = $resultFactory;
     }
 
     /**
@@ -89,7 +83,7 @@ class Index extends Action
     public function execute()
     {
         $orderId = $this->request->getParam('order_id');
-        $order    = $this->order->load($orderId);
+        $order = $this->orderRepository->get($orderId);
 
         if (!$orderId) {
             $this->messageManager->addErrorMessage('Order not found!');

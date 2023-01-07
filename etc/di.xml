@@ -749,11 +749,11 @@
     <type name="Buckaroo\Magento2\Gateway\Request\AddressHandlerPool">
         <arguments>
             <argument name="addressHandlers" xsi:type="array">
-                <item name="postnl_postnl" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\PostNLAddressHandler</item>
-                <item name="dpdpickup_dpdpickup" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DPDPickupAddressHandler</item>
-                <item name="dhlparcel_servicepoint" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DHLParcelAddressHandler</item>
-                <item name="sendcloud_sendcloud" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\SendCloudAddressHandler</item>
-                <item name="myparcel_myparcel" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\MyParcelAddressHandler</item>
+                <item name="postnl_postnl" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\PostNLAddressHandler\Proxy</item>
+                <item name="dpdpickup_dpdpickup" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DPDPickupAddressHandler\Proxy</item>
+                <item name="dhlparcel_servicepoint" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\DHLParcelAddressHandler\Proxy</item>
+                <item name="sendcloud_sendcloud" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\SendCloudAddressHandler\Proxy</item>
+                <item name="myparcel_myparcel" xsi:type="object">Buckaroo\Magento2\Gateway\Request\AddressHandler\MyParcelAddressHandler\Proxy</item>
             </argument>
         </arguments>
     </type>

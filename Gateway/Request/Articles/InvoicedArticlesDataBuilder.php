@@ -13,8 +13,6 @@ class InvoicedArticlesDataBuilder extends AbstractDataBuilder
     /** @var ArticlesHandlerFactory */
     protected ArticlesHandlerFactory $articlesHandlerFactory;
 
-    protected ArticleHandlerInterface $articleHandler;
-
     public function __construct(ArticlesHandlerFactory $articlesHandlerFactory)
     {
         $this->articlesHandlerFactory = $articlesHandlerFactory;
@@ -24,8 +22,8 @@ class InvoicedArticlesDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
-        $this->articleHandler = $this->articlesHandlerFactory->create($this->getPayment()->getMethod());
+        $articleHandler = $this->articlesHandlerFactory->create($this->getPayment()->getMethod());
 
-        return $this->articleHandler->getInvoiceArticlesData($this->getOrder(), $this->getPayment());
+        return $articleHandler->getInvoiceArticlesData($this->getOrder(), $this->getPayment());
     }
 }

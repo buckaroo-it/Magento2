@@ -24,15 +24,16 @@ namespace Buckaroo\Magento2\Controller\Applepay;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
-use Magento\Checkout\Model\Session;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Registry;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote\TotalsCollector;
 use Magento\Quote\Model\QuoteManagement;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -61,54 +62,58 @@ class SaveOrder extends Common
      */
     protected $order;
     /**
-     * @var Session
+     * @var CheckoutSession
      */
     protected $checkoutSession;
     /**
      * @var \Magento\Checkout\Model\ConfigProviderInterface
      */
     protected $accountConfig;
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private SearchCriteriaBuilder $searchCriteriaBuilder;
 
     /**
      * Save Order Constructor
      *
      * @param Context $context
-     * @param JsonFactory $resultJsonFactory
      * @param Log $logger
      * @param QuoteManagement $quoteManagement
-     * @param CustomerSession $customer
+     * @param CustomerSession $customerSession
      * @param DataObjectFactory $objectFactory
      * @param Registry $registry
-     * @param Order $order
-     * @param Session $checkoutSession
+     * @param OrderRepositoryInterface $orderRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param CheckoutSession $checkoutSession
      * @param ConfigProviderFactory $configProviderFactory
      * @param TotalsCollector $totalsCollector
      * @param ShippingMethodConverter $converter
-     * @param CustomerSession|null $customerSession
      * @throws Exception
-     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __construct(
-        Context                 $context,
-        JsonFactory             $resultJsonFactory,
-        Log                     $logger,
-        QuoteManagement         $quoteManagement,
-        CustomerSession         $customer,
-        DataObjectFactory       $objectFactory,
-        Registry                $registry,
-        Order                   $order,
-        Session                 $checkoutSession,
-        ConfigProviderFactory   $configProviderFactory,
-        TotalsCollector         $totalsCollector,
-        ShippingMethodConverter $converter,
-        CustomerSession         $customerSession = null
+        Context                  $context,
+        Log                      $logger,
+        QuoteManagement          $quoteManagement,
+        CustomerSession          $customerSession,
+        DataObjectFactory        $objectFactory,
+        Registry                 $registry,
+        OrderRepositoryInterface $orderRepository,
+        SearchCriteriaBuilder    $searchCriteriaBuilder,
+        CheckoutSession          $checkoutSession,
+        ConfigProviderFactory    $configProviderFactory,
+        TotalsCollector          $totalsCollector,
+        ShippingMethodConverter  $converter
     ) {
         parent::__construct(
             $context,
-            $resultJsonFactory,
             $logger,
             $totalsCollector,
             $converter,
@@ -116,10 +121,11 @@ class SaveOrder extends Common
         );
 
         $this->quoteManagement = $quoteManagement;
-        $this->customer = $customer;
+        $this->customerSession = $customerSession;
         $this->objectFactory = $objectFactory;
         $this->registry = $registry;
-        $this->order = $order;
+        $this->orderRepository = $orderRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->checkoutSession = $checkoutSession;
         $this->accountConfig = $configProviderFactory->get('account');
     }
@@ -147,9 +153,7 @@ class SaveOrder extends Common
             $this->logger->addDebug(var_export($payment, true));
             $this->logger->addDebug(var_export($extra, true));
 
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-            $checkoutSession = $objectManager->get(Session::class);
-            $quote = $checkoutSession->getQuote();
+            $quote = $this->checkoutSession->getQuote();
 
             if (!$this->setShippingAddress($quote, $payment['shippingContact'])) {
                 return $this->commonResponse(false, true);
@@ -223,17 +227,19 @@ class SaveOrder extends Common
     private function processBuckarooResponse(&$data)
     {
         $data = [];
-        $this->order->loadByIncrementId($data->Order);
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('increment_id', $data->Order, 'eq')->create();
+        $order = $this->orderRepository->getList($searchCriteria)->getFirstItem();
 
-        if ($this->order->getId()) {
+        if ($order->getId()) {
             $this->checkoutSession
-                ->setLastQuoteId($this->order->getQuoteId())
-                ->setLastSuccessQuoteId($this->order->getQuoteId())
-                ->setLastOrderId($this->order->getId())
-                ->setLastRealOrderId($this->order->getIncrementId())
-                ->setLastOrderStatus($this->order->getStatus());
+                ->setLastQuoteId($order->getQuoteId())
+                ->setLastSuccessQuoteId($order->getQuoteId())
+                ->setLastOrderId($order->getId())
+                ->setLastRealOrderId($order->getIncrementId())
+                ->setLastOrderStatus($order->getStatus());
 
-            $store = $this->order->getStore();
+            $store = $order->getStore();
             $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
             $this->logger->addDebug(__METHOD__ . '|7|' . var_export($url, true));
             $data = [

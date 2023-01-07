@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Response;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Api\Data\CartInterface;
@@ -92,6 +93,7 @@ class Giftcard
     {
         $this->groupTransaction->saveGroupTransaction($this->response->data());
     }
+
     /**
      * Get created group transaction with giftcard name
      *
@@ -101,6 +103,7 @@ class Giftcard
     {
         return $this->groupTransaction->getByTransactionIdWithName($this->response->getTransactionKey());
     }
+
     /**
      * Get already paid amount
      *
@@ -112,10 +115,12 @@ class Giftcard
             $this->quote->getReservedOrderId()
         );
     }
+
     public function isSuccessful()
     {
         return $this->response->isSuccess();
     }
+
     /**
      * Get reminder amount
      *
@@ -130,6 +135,7 @@ class Giftcard
         }
         return (float)$this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
     }
+
      /**
      * Get debit amount
      *
@@ -144,6 +150,7 @@ class Giftcard
         }
         return (float)$this->response->getAmount();
     }
+
     /**
      * Get transaction key
      *
@@ -156,6 +163,7 @@ class Giftcard
         }
         return $this->response->data()['RequiredAction']['PayRemainderDetails']['GroupTransaction'];
     }
+
     /**
      * Get currency
      *
@@ -168,6 +176,7 @@ class Giftcard
         }
         return $this->response->data()['RequiredAction']['PayRemainderDetails']['Currency'];
     }
+
     public function getErrorMessage()
     {
         if ($this->response->isSuccess()) {
@@ -192,6 +201,7 @@ class Giftcard
      * @param string $reservedOrderId
      *
      * @return void
+     * @throws LocalizedException
      */
     protected function cancelOrder()
     {
