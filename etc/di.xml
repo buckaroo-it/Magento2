@@ -769,6 +769,13 @@
     </type>
 
     <!-- Buckaroo Commands infrastructure -->
+    <virtualType name="BuckarooWithIdBuilderComposite" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="usingId" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Buckaroo Commands infrastructure -->
     <virtualType name="BuckarooGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
@@ -1079,7 +1086,6 @@
             <argument name="valueHandlerPool" xsi:type="object">KlarnaValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">KlarnaValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">KlarnaGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -1142,7 +1148,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerKlarnaDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerKlarnaDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="shipping" xsi:type="string">KlarnaBillingDataBuilder</item>
@@ -1383,7 +1389,7 @@
     </virtualType>
     <!-- END KlarnaKp Cancel Command -->
 
-    <virtualType name="CustomerKlarnaKpDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerKlarnaKpDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="shipping" xsi:type="string">KlarnaKpBillingDataBuilder</item>
@@ -2147,7 +2153,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerBillinkDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerBillinkDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">BillinkBillingDataBuilder</item>
@@ -2311,7 +2317,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerAfterpayDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerAfterpayDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">AfterpayBillingDataBuilder</item>
@@ -2485,7 +2491,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerAfterpayOldDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerAfterpayOldDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">AfterpayOldBillingDataBuilder</item>
@@ -2662,7 +2668,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerTinkaDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerTinkaDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">TinkaBillingDataBuilder</item>
@@ -4117,7 +4123,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerWechatpayDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerWechatpayDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">WechatpayBillingDataBuilder</item>

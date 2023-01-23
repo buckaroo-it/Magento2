@@ -15,6 +15,11 @@ class BuckarooBuilderComposite implements BuilderInterface
     private $builders;
 
     /**
+     * @var bool
+     */
+    private $usingId;
+
+    /**
      * @var DataBuilderService
      */
     private $dataBuilderService;
@@ -23,11 +28,13 @@ class BuckarooBuilderComposite implements BuilderInterface
      * @param TMapFactory $tmapFactory
      * @param DataBuilderService $dataBuilderService
      * @param array $builders
+     * @param bool $usingId
      */
     public function __construct(
         TMapFactory        $tmapFactory,
         DataBuilderService $dataBuilderService,
-        array              $builders = []
+        array              $builders = [],
+        bool               $usingId = false
     ) {
         $this->builders = $tmapFactory->create(
             [
@@ -35,6 +42,7 @@ class BuckarooBuilderComposite implements BuilderInterface
                 'type' => BuilderInterface::class
             ]
         );
+        $this->usingId = $usingId;
         $this->dataBuilderService = $dataBuilderService;
     }
 
@@ -46,9 +54,14 @@ class BuckarooBuilderComposite implements BuilderInterface
      */
     public function build(array $buildSubject)
     {
-        foreach ($this->builders as $builder) {
-            // @TODO implement exceptions catching
-            $this->dataBuilderService->addData($builder->build($buildSubject));
+        if ($this->usingId) {
+            foreach ($this->builders as $key => $builder) {
+                $this->dataBuilderService->addData([$key => $builder->build($buildSubject)]);
+            }
+        } else {
+            foreach ($this->builders as $builder) {
+                $this->dataBuilderService->addData($builder->build($buildSubject));
+            }
         }
 
         return $this->dataBuilderService->getData();
