@@ -1,9 +1,10 @@
 <?php
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\Address;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain;
+use Buckaroo\Magento2\Gateway\Request\AddressHandlerPool;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain;
 use Magento\Sales\Model\Order\Address;
 
 class ShippingAddressDataBuilder extends AbstractAddressDataBuilder

@@ -1,8 +1,8 @@
 <?php
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Gateway\Request\Address;
 
-use Magento\Payment\Gateway\Request\BuilderInterface;
+use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Magento\Sales\Model\Order\Address;
 
 abstract class AbstractAddressDataBuilder extends AbstractDataBuilder
