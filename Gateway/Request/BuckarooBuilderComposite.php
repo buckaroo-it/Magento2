@@ -25,6 +25,16 @@ class BuckarooBuilderComposite implements BuilderInterface
     private $dataBuilderService;
 
     /**
+     * @var array
+     */
+    private $buildersArray;
+
+    /**
+     * @var TMapFactory
+     */
+    private TMapFactory $tmapFactory;
+
+    /**
      * @param TMapFactory $tmapFactory
      * @param DataBuilderService $dataBuilderService
      * @param array $builders
@@ -36,12 +46,8 @@ class BuckarooBuilderComposite implements BuilderInterface
         array              $builders = [],
         bool               $usingId = false
     ) {
-        $this->builders = $tmapFactory->create(
-            [
-                'array' => $builders,
-                'type' => BuilderInterface::class
-            ]
-        );
+        $this->tmapFactory = $tmapFactory;
+        $this->buildersArray = $builders;
         $this->usingId = $usingId;
         $this->dataBuilderService = $dataBuilderService;
     }
@@ -55,16 +61,35 @@ class BuckarooBuilderComposite implements BuilderInterface
     public function build(array $buildSubject)
     {
         if ($this->usingId) {
-            foreach ($this->builders as $key => $builder) {
+            foreach ($this->getBuilders() as $key => $builder) {
                 $this->dataBuilderService->addData([$key => $builder->build($buildSubject)]);
             }
         } else {
-            foreach ($this->builders as $builder) {
+            foreach ($this->getBuilders() as $builder) {
                 $this->dataBuilderService->addData($builder->build($buildSubject));
             }
         }
 
         return $this->dataBuilderService->getData();
+    }
+
+    /**
+     * Return builders
+     *
+     * @return BuilderInterface[]
+     */
+    private function getBuilders()
+    {
+        if ($this->builders === null) {
+            $this->builders = $this->tmapFactory->create(
+                [
+                    'array' => $this->buildersArray,
+                    'type' => BuilderInterface::class
+                ]
+            );
+        }
+
+        return $this->builders;
     }
 
     /**

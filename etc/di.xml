@@ -812,7 +812,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="BuckarooPayRemainderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooPayRemainderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="amount" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayReminder\AmountDataBuilder</item>
@@ -860,7 +860,7 @@
     </virtualType>
 
     <!-- Buckaroo Capture Command - Request Builder -->
-    <virtualType name="BuckarooCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -905,7 +905,7 @@
         </arguments>
     </virtualType>
     <!-- Buckaroo Partial Refund Command - Request Builder -->
-    <virtualType name="BuckarooPartialRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooPartialRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -942,7 +942,7 @@
         </arguments>
     </virtualType>
     <!-- Buckaroo Cancel Command - Request Builder -->
-    <virtualType name="BuckarooCancelRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooCancelRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -1139,7 +1139,7 @@
     </virtualType>
 
     <!-- Klarna Order Command - Request Builder -->
-    <virtualType name="KlarnaOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -1157,7 +1157,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="KlarnaBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaDataBuilder</item>
@@ -1168,7 +1168,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="KlarnaShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">KlarnaShippingRecipientDataBuilder</item>
@@ -1245,7 +1245,7 @@
     </virtualType>
 
     <!-- KlarnaIn Order Command - Request Builder -->
-    <virtualType name="KlarnaInOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaInOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="klarna_order_request" xsi:type="string">KlarnaOrderRequest</item>
@@ -1321,7 +1321,7 @@
         </arguments>
     </virtualType>
     <!-- KlarnaKp Authorize Command - Request Builder -->
-    <virtualType name="KlarnaKpAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="klarnakp_reserve_request" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReserveDataBuilder</item>
@@ -1345,7 +1345,7 @@
         </arguments>
     </virtualType>
     <!-- KlarnaKp Capture Command - Request Builder -->
-    <virtualType name="KlarnaKpCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -1375,7 +1375,7 @@
         </arguments>
     </virtualType>
     <!-- KlarnaKp Cancel Command - Request Builder -->
-    <virtualType name="KlarnaKpCancelRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpCancelRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -1398,7 +1398,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="KlarnaKpBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaKpDataBuilder</item>
@@ -1409,7 +1409,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="KlarnaKpShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">KlarnaKpShippingRecipientDataBuilder</item>
@@ -1496,7 +1496,7 @@
         </arguments>
     </virtualType>
     <!-- Alipay Order Command - Request Builder -->
-    <virtualType name="AlipayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AlipayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -1576,7 +1576,7 @@
         </arguments>
     </virtualType>
     <!-- Giropay Order Command - Request Builder -->
-    <virtualType name="GiropayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="GiropayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -1649,7 +1649,7 @@
         </arguments>
     </virtualType>
     <!-- Trustly Order Command - Request Builder -->
-    <virtualType name="TrustlyOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TrustlyOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -1719,7 +1719,7 @@
         </arguments>
     </virtualType>
     <!-- Przelewy24 Order Command - Request Builder -->
-    <virtualType name="Przelewy24OrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="Przelewy24OrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -1847,7 +1847,7 @@
         </arguments>
     </virtualType>
     <!-- Capayable Order Command - Request Builder -->
-    <virtualType name="CapayableOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CapayableOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -2021,7 +2021,7 @@
         </arguments>
     </virtualType>
     <!-- Mrcash Order Command - Request Builder -->
-    <virtualType name="MrcashOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="MrcashOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2143,7 +2143,7 @@
     </virtualType>
 
     <!-- Billink Order Command - Request Builder -->
-    <virtualType name="BillinkOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BillinkOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2162,7 +2162,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="BillinkBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BillinkBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\BillinkDataBuilder</item>
@@ -2173,7 +2173,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="BillinkShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BillinkShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">BillinkShippingRecipientDataBuilder</item>
@@ -2215,7 +2215,7 @@
         </arguments>
     </virtualType>
     <!-- Billink Authorize Command - Request Builder -->
-    <virtualType name="BillinkAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BillinkAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BillinkOrderRequest</item>
@@ -2308,7 +2308,7 @@
     </virtualType>
 
     <!-- Afterpay Order Command - Request Builder -->
-    <virtualType name="AfterpayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2326,7 +2326,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="AfterpayBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayDataBuilder</item>
@@ -2337,7 +2337,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="AfterpayShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">AfterpayShippingRecipientDataBuilder</item>
@@ -2379,7 +2379,7 @@
         </arguments>
     </virtualType>
     <!-- Afterpay Authorize Command - Request Builder -->
-    <virtualType name="AfterpayAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">AfterpayOrderRequest</item>
@@ -2401,7 +2401,7 @@
         </arguments>
     </virtualType>
     <!-- Afterpay Refund Command - Request Builder -->
-    <virtualType name="AfterpayRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
@@ -2481,7 +2481,7 @@
     </virtualType>
 
     <!-- Afterpay Old Order Command - Request Builder -->
-    <virtualType name="AfterpayOldOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2500,7 +2500,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="AfterpayOldBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayOldDataBuilder</item>
@@ -2511,7 +2511,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="AfterpayOldShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">AfterpayOldShippingRecipientDataBuilder</item>
@@ -2541,7 +2541,7 @@
         </arguments>
     </virtualType>
     <!-- Afterpay Old Authorize Command - Request Builder -->
-    <virtualType name="AfterpayOldAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">AfterpayOldOrderRequest</item>
@@ -2558,7 +2558,7 @@
         </arguments>
     </virtualType>
     <!-- Afterpay Old Capture Command - Request Builder -->
-    <virtualType name="AfterpayOldCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="capture_request" xsi:type="string">BuckarooCaptureRequest</item>
@@ -2580,7 +2580,7 @@
         </arguments>
     </virtualType>
     <!-- Afterpay Old Refund Command - Request Builder -->
-    <virtualType name="AfterpayOldRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
@@ -2657,7 +2657,7 @@
     </virtualType>
 
     <!-- Tinka Order Command - Request Builder -->
-    <virtualType name="TinkaOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TinkaOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2677,7 +2677,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="TinkaBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TinkaBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\TinkaDataBuilder</item>
@@ -2688,7 +2688,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="TinkaShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TinkaShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">TinkaShippingRecipientDataBuilder</item>
@@ -2771,7 +2771,7 @@
     </virtualType>
 
     <!-- CreditClick Order Command - Request Builder -->
-    <virtualType name="CreditClickOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditClickOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2794,7 +2794,7 @@
         </arguments>
     </virtualType>
     <!-- CreditClick Refund Command - Request Builder -->
-    <virtualType name="CreditClickRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditClickRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
@@ -2869,7 +2869,7 @@
     </virtualType>
 
     <!-- Applepay Order Command - Request Builder -->
-    <virtualType name="ApplepayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="ApplepayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2948,7 +2948,7 @@
     </virtualType>
 
     <!-- Emandate Order Command - Request Builder -->
-    <virtualType name="EmandateOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="EmandateOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -3042,7 +3042,7 @@
     </virtualType>
 
     <!-- Giftcards Order Command - Request Builder -->
-    <virtualType name="GiftcardsOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="GiftcardsOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3061,7 +3061,7 @@
     </virtualType>
 
     <!-- Giftcards Refund Command - Request Builder -->
-    <virtualType name="GiftcardsRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="GiftcardsRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooRefundRequest</item>
@@ -3138,7 +3138,7 @@
         </arguments>
     </virtualType>
     <!-- PayPerEmail Order Command - Request Builder -->
-    <virtualType name="PayPerEmailOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="PayPerEmailOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3156,7 +3156,7 @@
         </arguments>
     </virtualType>
     <!-- PayPerEmail PayLink Command - Request Builder -->
-    <virtualType name="PayLinkRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="PayLinkRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3249,7 +3249,7 @@
     </virtualType>
 
     <!-- Transfer Order Command - Request Builder -->
-    <virtualType name="TransferOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TransferOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3344,7 +3344,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="BuckarooVoidCreditManagementRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooVoidCreditManagementRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -3368,7 +3368,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="BuckarooRefundWithCreditManagementRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooRefundWithCreditManagementRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
@@ -3487,7 +3487,7 @@
     </virtualType>
 
     <!-- Rtp Order Command - Request Builder -->
-    <virtualType name="RtpOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="RtpOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3619,7 +3619,7 @@
     </virtualType>
 
     <!-- Paypal Order Command - Request Builder -->
-    <virtualType name="PaypalOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="PaypalOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3699,7 +3699,7 @@
     </virtualType>
 
     <!-- Creditcard Order Command - Request Builder -->
-    <virtualType name="CreditcardOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3721,7 +3721,7 @@
         </arguments>
     </virtualType>
     <!-- Creditcard Authorize Command - Request Builder -->
-    <virtualType name="CreditcardAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">CreditcardOrderRequest</item>
@@ -3738,7 +3738,7 @@
         </arguments>
     </virtualType>
     <!-- Creditcard Capture Command - Request Builder -->
-    <virtualType name="CreditcardCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -3824,7 +3824,7 @@
     </virtualType>
 
     <!-- CreditcardEncrypted Order Command - Request Builder -->
-    <virtualType name="CreditcardEncryptedOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardEncryptedOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3846,7 +3846,7 @@
         </arguments>
     </virtualType>
     <!-- CreditcardEncrypted Authorize Command - Request Builder -->
-    <virtualType name="CreditcardEncryptedAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardEncryptedAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">CreditcardEncryptedOrderRequest</item>
@@ -3863,7 +3863,7 @@
         </arguments>
     </virtualType>
     <!-- CreditcardEncrypted Capture Command - Request Builder -->
-    <virtualType name="CreditcardEncryptedCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardEncryptedCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
@@ -3948,7 +3948,7 @@
     </virtualType>
 
     <!-- Pospayment Order Command - Request Builder -->
-    <virtualType name="PospaymentOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="PospaymentOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -4026,7 +4026,7 @@
     </virtualType>
 
     <!-- SepaDirectDebit Order Command - Request Builder -->
-    <virtualType name="SepaDirectDebitOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="SepaDirectDebitOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="orderRequest" xsi:type="string">BuckarooOrderRequest</item>
@@ -4115,7 +4115,7 @@
     </virtualType>
 
     <!-- Wechatpay Order Command - Request Builder -->
-    <virtualType name="WechatpayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="WechatpayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -4132,7 +4132,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="WechatpayBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="WechatpayBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\WechatpayDataBuilder</item>
@@ -4143,7 +4143,7 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="WechatpayShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="WechatpayShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">WechatpayShippingRecipientDataBuilder</item>
@@ -4171,7 +4171,7 @@
             <argument name="clientInterface" xsi:type="object">TransactionVerify</argument>
         </arguments>
     </type>
-    <virtualType name="IdinVerifyRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="IdinVerifyRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="idin" xsi:type="string">Buckaroo\Magento2\Gateway\Request\IdinDataBuilder</item>
