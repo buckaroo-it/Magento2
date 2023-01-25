@@ -161,6 +161,35 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     /**
      * @inheritdoc
      */
+    public function cancel(InfoInterface $payment)
+    {
+        if (!self::$requestOnVoid) {
+            return $this;
+        }
+
+        $this->executeCommand('cancel', ['payment' => $payment]);
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function void(InfoInterface $payment)
+    {
+        if (!self::$requestOnVoid) {
+            return $this;
+        }
+
+        $this->executeCommand('void', ['payment' => $payment]);
+
+        return $this;
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function canUseForCountry($country)
     {
         try {

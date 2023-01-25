@@ -433,6 +433,7 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false)->save();
     }
+
     protected function handleFailed($statusCode)
     {
         $this->logger->addDebug(__METHOD__ . '|7|');
