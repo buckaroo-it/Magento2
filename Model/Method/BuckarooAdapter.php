@@ -179,7 +179,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
             return $this;
         }
 
-        return parent::cancel($payment);
+        return parent::void($payment);
     }
 
 
