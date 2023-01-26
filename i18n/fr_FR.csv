@@ -35,7 +35,7 @@
 "Only available when set to 'specific countries'.","Uniquement disponible lorsqu'il est défini sur 'pays spécifiques'."
 "Display only for selected IPs","Afficher uniquement pour les adresses IP sélectionnées"
 "Show method only to Magento set IPs.","Afficher la méthode uniquement sur les adresses IP définies par Magento."
-"Magento developer client restrictions.","Restrictions du client développeur Magento."
+"Magento developer client restrictions.","N'affichez ce mode de paiement qu'aux IP Magento sélectionnées. Cette option est destinée aux développeurs lorsque vous souhaitez tester un mode de paiement spécifique sans le montrer publiquement."
 "Creditcards","Cartes de crédit"
 "Enable Creditcards","Activer les Cartes de crédit"
 "Allowed Creditcards","Cartes de crédit autorisées"
