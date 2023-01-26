@@ -62,6 +62,8 @@ class RefundGroupTransactionService
      * @return int|mixed|string
      * @throws ClientException
      * @throws ConverterException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function refundGroupTransactions($buildSubject)
     {

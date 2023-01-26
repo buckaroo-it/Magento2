@@ -530,9 +530,8 @@ class Push implements PushInterface
                 && !empty($this->pushRequst->getRelatedtransactionRefund())
             ) {
                 if ($this->receivePushCheckDuplicates(
-                        $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL'),
-                        $this->pushRequst->getRelatedtransactionRefund()
-                    )
+                    $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL'),
+                    $this->pushRequst->getRelatedtransactionRefund())
                 ) {
                     $this->logging->addDebug(__METHOD__ . '|4|');
                     return true;
@@ -991,6 +990,8 @@ class Push implements PushInterface
      * Checks if the order can be updated by checking its state and status.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function canUpdateOrderStatus($response)
     {
