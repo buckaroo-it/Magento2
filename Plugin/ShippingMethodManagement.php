@@ -60,7 +60,8 @@ class ShippingMethodManagement
      */
     public function beforeGet($cartId)
     {
-        if (($lastRealOrder = $this->checkoutSession->getLastRealOrder())
+        if (
+            ($lastRealOrder = $this->checkoutSession->getLastRealOrder())
             && ($payment = $lastRealOrder->getPayment())
         ) {
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
@@ -70,11 +71,13 @@ class ShippingMethodManagement
             $order = $payment->getOrder();
 
             $this->helper->addDebug(__METHOD__ . '|1|');
-            if ($this->accountConfig->getCartKeepAlive($order->getStore())
+            if (
+                $this->accountConfig->getCartKeepAlive($order->getStore())
                 && $this->isNeedRecreate()
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
-                if ($this->checkoutSession->getQuote()
+                if (
+                    $this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {

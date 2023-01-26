@@ -52,8 +52,8 @@ class PluginBefore
      */
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
-        \Magento\Sales\Api\OrderRepositoryInterface            $orderRepository,
-        \Magento\Framework\UrlInterface                        $urlBuilder
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Magento\Framework\UrlInterface $urlBuilder
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderRepository             = $orderRepository;
@@ -80,7 +80,8 @@ class PluginBefore
             $state          = $order->getState();
             $config         = $this->configProviderMethodFactory->get('paylink');
             $this->_request = $context->getRequest();
-            if ($config->getActive() != '0' &&
+            if (
+                $config->getActive() != '0' &&
                 $this->_request->getFullActionName() == 'sales_order_view' &&
                 $state == 'new' &&
                 ($order->getPayment()->getMethod() != PayLink::CODE)

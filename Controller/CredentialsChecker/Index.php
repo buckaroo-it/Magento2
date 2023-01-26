@@ -56,11 +56,11 @@ class Index extends \Magento\Framework\App\Action\Action
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context            $context,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory  $configProviderFactory,
-        Encryptor                                        $encryptor,
-        Account                                          $configProviderAccount,
-        \Buckaroo\Magento2\Gateway\Http\Client\Json      $client
+        \Magento\Framework\App\Action\Context $context,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
+        Encryptor $encryptor,
+        Account $configProviderAccount,
+        \Buckaroo\Magento2\Gateway\Http\Client\Json $client
     ) {
         parent::__construct($context);
         $this->accountConfig      = $configProviderFactory->get('account');

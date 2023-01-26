@@ -16,7 +16,8 @@ class SubjectReader
      */
     public static function readPaymentMethodInstance(array $subject)
     {
-        if (!isset($subject['paymentMethodInstance'])
+        if (
+            !isset($subject['paymentMethodInstance'])
             || !$subject['paymentMethodInstance'] instanceof MethodInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
@@ -33,7 +34,8 @@ class SubjectReader
      */
     public static function readQuote(array $subject)
     {
-        if (!isset($subject['quote'])
+        if (
+            !isset($subject['quote'])
             || !$subject['quote'] instanceof Quote
         ) {
             throw new \InvalidArgumentException('Quote data object should be provided.');

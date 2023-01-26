@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\PayReminder;

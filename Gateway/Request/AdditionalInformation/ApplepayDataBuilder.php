@@ -34,7 +34,8 @@ class ApplepayDataBuilder implements BuilderInterface
         $billingContact = \json_decode(
             (string)$paymentDO->getPayment()->getAdditionalInformation('billingContact')
         );
-        if ($billingContact &&
+        if (
+            $billingContact &&
             !empty($billingContact->givenName) &&
             !empty($billingContact->familyName)
         ) {

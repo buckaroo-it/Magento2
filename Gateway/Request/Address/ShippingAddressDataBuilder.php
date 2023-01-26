@@ -31,7 +31,8 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
      */
     protected function getAddress(): Address
     {
-        if ($this->isAddressDataDifferent($this->getPayment()) ||
+        if (
+            $this->isAddressDataDifferent($this->getPayment()) ||
             $this->getOrder()->getShippingAddress() === null ||
             $this->getPayment()->getMethod() === Klarna::CODE ||
             $this->getPayment()->getMethod() === Klarnain::CODE

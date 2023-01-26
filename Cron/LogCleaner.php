@@ -42,13 +42,13 @@ class LogCleaner
     private $ioFile;
 
     public function __construct(
-        LogResourceModel   $resource,
-        Account            $accountConfig,
+        LogResourceModel $resource,
+        Account $accountConfig,
         ResourceConnection $resourceConnection,
-        Log                $logging,
-        DirectoryList      $directoryList,
-        File               $driverFile,
-        IoFile             $ioFile
+        Log $logging,
+        DirectoryList $directoryList,
+        File $driverFile,
+        IoFile $ioFile
     ) {
         $this->resource            = $resource;
         $this->accountConfig       = $accountConfig;

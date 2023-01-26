@@ -21,7 +21,8 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
 
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
-        if (($order->getShippingMethod() == 'dhlparcel_servicepoint')
+        if (
+            ($order->getShippingMethod() == 'dhlparcel_servicepoint')
             && $order->getDhlparcelShippingServicepointId()
         ) {
             $this->updateShippingAddressByDhlParcel($order->getDhlparcelShippingServicepointId(), $shippingAddress);
@@ -40,7 +41,8 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $this->curl->get('https://api-gw.dhlparcel.nl/parcel-shop-locations/' . $matches[2] . '/' . $servicePointId);
-            if (($response = $this->curl->getBody())
+            if (
+                ($response = $this->curl->getBody())
                 &&
                 //phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
                 ($parsedResponse = @json_decode($response))

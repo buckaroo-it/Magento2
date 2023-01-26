@@ -60,11 +60,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      * @param Order $orderService
      */
     public function __construct(
-        Session                 $checkoutSession,
-        Account                 $accountConfig,
-        Data                    $helper,
+        Session $checkoutSession,
+        Account $accountConfig,
+        Data $helper,
         CartRepositoryInterface $quoteRepository,
-        Order                   $orderService
+        Order $orderService
     ) {
         $this->orderService = $orderService;
         $this->checkoutSession = $checkoutSession;
@@ -89,9 +89,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         if ($payment = $lastRealOrder->getPayment()) {
-            if ($this->shouldSkipFurtherEventHandling()
+            if (
+                $this->shouldSkipFurtherEventHandling()
                 || strpos($payment->getMethod(), 'buckaroo_magento2') === false
-                || in_array($payment->getMethod(), [Giftcards::CODE, Payconiq::CODE])) {
+                || in_array($payment->getMethod(), [Giftcards::CODE, Payconiq::CODE])
+            ) {
                 $this->helper->addDebug(__METHOD__ . '|10|');
                 return;
             }
@@ -99,7 +101,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             if ($this->accountConfig->getCartKeepAlive($lastRealOrder->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|20|');
 
-                if ($this->checkoutSession->getQuote()
+                if (
+                    $this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
@@ -112,7 +115,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     }
                 }
 
-                if ($this->helper->getRestoreQuoteLastOrder()
+                if (
+                    $this->helper->getRestoreQuoteLastOrder()
                     && ($lastRealOrder->getData('state') === 'new')
                     && ($lastRealOrder->getData('status') === 'pending')
                     && $payment->getMethodInstance()->usesRedirect

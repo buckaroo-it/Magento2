@@ -35,9 +35,9 @@ class AvailableBasedOnIPValidator extends AbstractValidator
      * @param Data $developmentHelper
      */
     public function __construct(
-        ResultInterfaceFactory         $resultFactory,
-        AccountConfig                  $accountConfig,
-        ConfigProviderMethodFactory    $configProviderMethodFactory,
+        ResultInterfaceFactory $resultFactory,
+        AccountConfig $accountConfig,
+        ConfigProviderMethodFactory $configProviderMethodFactory,
         \Magento\Developer\Helper\Data $developmentHelper
     ) {
         $this->accountConfig = $accountConfig;

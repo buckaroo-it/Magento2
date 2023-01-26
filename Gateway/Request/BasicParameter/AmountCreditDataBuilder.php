@@ -39,8 +39,8 @@ class AmountCreditDataBuilder implements BuilderInterface
      * @param RefundGroupTransactionService $refundGroupService
      */
     public function __construct(
-        DataBuilderService                      $dataBuilderService,
-        RefundGroupTransactionService           $refundGroupService
+        DataBuilderService $dataBuilderService,
+        RefundGroupTransactionService $refundGroupService
     ) {
         $this->dataBuilderService = $dataBuilderService;
         $this->refundGroupService = $refundGroupService;

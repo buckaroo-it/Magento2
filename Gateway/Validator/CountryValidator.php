@@ -33,8 +33,10 @@ class CountryValidator extends AbstractValidator
         /** @var MethodInterface $methodInstance */
         $methodInstance = $validationSubject['methodInstance'] ?? null;
 
-        if ($methodInstance instanceof MethodInterface
-            && (int)$methodInstance->getConfigData('allowspecific', $storeId) === 1) {
+        if (
+            $methodInstance instanceof MethodInterface
+            && (int)$methodInstance->getConfigData('allowspecific', $storeId) === 1
+        ) {
             $availableCountries = explode(
                 ',',
                 $methodInstance->getConfigData('specificcountry', $storeId) ?? ''

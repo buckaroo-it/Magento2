@@ -99,18 +99,18 @@ class SaveOrder extends Common
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __construct(
-        Context                  $context,
-        Log                      $logger,
-        QuoteManagement          $quoteManagement,
-        CustomerSession          $customerSession,
-        DataObjectFactory        $objectFactory,
-        Registry                 $registry,
+        Context $context,
+        Log $logger,
+        QuoteManagement $quoteManagement,
+        CustomerSession $customerSession,
+        DataObjectFactory $objectFactory,
+        Registry $registry,
         OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder    $searchCriteriaBuilder,
-        CheckoutSession          $checkoutSession,
-        ConfigProviderFactory    $configProviderFactory,
-        TotalsCollector          $totalsCollector,
-        ShippingMethodConverter  $converter
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        CheckoutSession $checkoutSession,
+        ConfigProviderFactory $configProviderFactory,
+        TotalsCollector $totalsCollector,
+        ShippingMethodConverter $converter
     ) {
         parent::__construct(
             $context,
@@ -145,7 +145,8 @@ class SaveOrder extends Common
         $errorMessage = false;
         $data = [];
 
-        if ($isPost
+        if (
+            $isPost
             && ($payment = $this->getRequest()->getParam('payment'))
             && ($extra = $this->getRequest()->getParam('extra'))
         ) {
@@ -176,7 +177,8 @@ class SaveOrder extends Common
                 } else {
                     //live mode
                     $this->logger->addDebug(__METHOD__ . '|6|');
-                    if (!empty($data->Status->Code->Code)
+                    if (
+                        !empty($data->Status->Code->Code)
                         && ($data->Status->Code->Code == '190')
                         && !empty($data->Order)
                     ) {

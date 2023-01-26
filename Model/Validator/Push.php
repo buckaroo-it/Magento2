@@ -92,7 +92,8 @@ class Push implements ValidatorInterface
      */
     public function validateStatusCode($code)
     {
-        if (null !== $this->helper->getStatusByValue($code)
+        if (
+            null !== $this->helper->getStatusByValue($code)
             && isset($this->bpeResponseMessages[$code])
         ) {
             return [

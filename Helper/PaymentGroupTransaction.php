@@ -69,12 +69,12 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
      * @param GroupTransaction $resourceModel
      */
     public function __construct(
-        \Magento\Framework\App\Helper\Context       $context,
-        GroupTransactionFactory                     $groupTransactionFactory,
+        \Magento\Framework\App\Helper\Context $context,
+        GroupTransactionFactory $groupTransactionFactory,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        Log                                         $logging,
-        GroupTransactionCollectionFactory           $grTrCollectionFactory,
-        GroupTransaction                            $resourceModel
+        Log $logging,
+        GroupTransactionCollectionFactory $grTrCollectionFactory,
+        GroupTransaction $resourceModel
     ) {
         parent::__construct($context);
 

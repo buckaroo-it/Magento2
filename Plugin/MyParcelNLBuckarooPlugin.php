@@ -65,7 +65,8 @@ class MyParcelNLBuckarooPlugin
             if ($jsonDecoded = $this->json->unserialize($result)) {
                 $this->logger->addDebug(__METHOD__ . '|2|' . var_export($jsonDecoded, true));
 
-                if (!empty($jsonDecoded['deliveryOptions']) &&
+                if (
+                    !empty($jsonDecoded['deliveryOptions']) &&
                     !empty($jsonDecoded['deliveryOptions'][0]['deliveryType']) &&
                     ($jsonDecoded['deliveryOptions'][0]['deliveryType'] == 'pickup') &&
                     !empty($jsonDecoded['deliveryOptions'][0]['pickupLocation'])

@@ -38,13 +38,13 @@ class RefundGroupTransactionService
     private ?HandlerInterface $handler;
 
     public function __construct(
-        PaymentGroupTransaction  $paymentGroupTransaction,
-        BuckarooLog              $buckarooLog,
-        RequestInterface         $request,
-        BuilderInterface         $requestDataBuilder,
+        PaymentGroupTransaction $paymentGroupTransaction,
+        BuckarooLog $buckarooLog,
+        RequestInterface $request,
+        BuilderInterface $requestDataBuilder,
         TransferFactoryInterface $transferFactory,
-        ClientInterface          $clientInterface,
-        HandlerInterface         $handler = null
+        ClientInterface $clientInterface,
+        HandlerInterface $handler = null
     ) {
         $this->requestDataBuilder = $requestDataBuilder;
         $this->transferFactory = $transferFactory;
@@ -76,7 +76,8 @@ class RefundGroupTransactionService
         $this->totalOrder = $order->getBaseGrandTotal();
 
         $requestParams = $this->request->getParams();
-        if (isset($requestParams['creditmemo']['buckaroo_already_paid'])
+        if (
+            isset($requestParams['creditmemo']['buckaroo_already_paid'])
             && !empty($requestParams['creditmemo']['buckaroo_already_paid'])
         ) {
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $giftCardValue) {
@@ -95,7 +96,8 @@ class RefundGroupTransactionService
             $groupTransactionAmount = $this->paymentGroupTransaction->getGroupTransactionAmount(
                 $order->getIncrementId()
             );
-            if (($groupTransactionAmount > 0.01)
+            if (
+                ($groupTransactionAmount > 0.01)
                 && empty($requestParams['creditmemo']['buckaroo_already_paid'])
                 && !empty($requestParams['creditmemo']['adjustment_negative'])
             ) {

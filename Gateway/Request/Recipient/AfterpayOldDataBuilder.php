@@ -72,7 +72,8 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
         if ($payment->getAdditionalInformation('selectedBusiness') == self::BUSINESS_METHOD_B2B) {
             $category = RecipientCategory::COMPANY;
         } else {
-            if ($this->isCustomerB2B($order->getStoreId()) &&
+            if (
+                $this->isCustomerB2B($order->getStoreId()) &&
                 !$this->isCompanyEmpty($billingAddress->getCompany())
             ) {
                 $category = RecipientCategory::COMPANY;

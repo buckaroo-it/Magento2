@@ -108,7 +108,7 @@ class ApplyVoucher implements ApplyVoucherInterface
             $message = $this->giftcardResponse->getErrorMessage();
             $messageParts = explode(":", $message);
 
-            if(isset($messageParts[1])) {
+            if (isset($messageParts[1])) {
                 $message = $messageParts[1];
             }
             throw new ApiException($message);

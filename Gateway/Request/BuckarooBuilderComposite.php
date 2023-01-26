@@ -41,10 +41,10 @@ class BuckarooBuilderComposite implements BuilderInterface
      * @param bool $usingId
      */
     public function __construct(
-        TMapFactory        $tmapFactory,
+        TMapFactory $tmapFactory,
         DataBuilderService $dataBuilderService,
-        array              $builders = [],
-        bool               $usingId = false
+        array $builders = [],
+        bool $usingId = false
     ) {
         $this->tmapFactory = $tmapFactory;
         $this->buildersArray = $builders;

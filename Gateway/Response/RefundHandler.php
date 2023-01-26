@@ -16,13 +16,15 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
 
     public function handle(array $handlingSubject, array $response)
     {
-        if (!isset($handlingSubject['payment'])
+        if (
+            !isset($handlingSubject['payment'])
             || !$handlingSubject['payment'] instanceof PaymentDataObjectInterface
         ) {
             throw new \InvalidArgumentException('Payment data object should be provided');
         }
 
-        if (!isset($response['object'])
+        if (
+            !isset($response['object'])
             || !$response['object'] instanceof TransactionResponse
         ) {
             throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');
@@ -47,7 +49,8 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
     {
         $pendingApprovalStatus = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL');
 
-        if (!empty($responseData->getStatusCode())
+        if (
+            !empty($responseData->getStatusCode())
             && ($responseData->getStatusCode() == $pendingApprovalStatus)
             && $payment
             && !empty($responseData->getRelatedTransactions())

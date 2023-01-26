@@ -31,9 +31,11 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
 
         $total = $quote->getGrandTotal();
 
-        if ($total < 0.01
+        if (
+            $total < 0.01
             || $maximum !== null && $total > $maximum
-            || $minimum !== null && $total < $minimum) {
+            || $minimum !== null && $total < $minimum
+        ) {
             $isValid = false;
         }
 

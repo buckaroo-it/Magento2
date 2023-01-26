@@ -68,7 +68,8 @@ class Response implements TransactionResponseInterface
      */
     public function get(string $key)
     {
-        if (isset($this->data[$key]) &&
+        if (
+            isset($this->data[$key]) &&
             (
                 (
                     is_string($this->data[$key]) &&

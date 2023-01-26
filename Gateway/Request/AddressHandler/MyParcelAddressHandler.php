@@ -48,15 +48,18 @@ class MyParcelAddressHandler extends AbstractAddressHandler
 
         if (!$myparcelFetched) {
             $this->buckarooLogger->addDebug(__METHOD__ . '|10|');
-            if ((strpos((string)$order->getShippingMethod(), 'myparcelnl') !== false)
+            if (
+                (strpos((string)$order->getShippingMethod(), 'myparcelnl') !== false)
                 &&
                 (strpos((string)$order->getShippingMethod(), 'pickup') !== false)
             ) {
                 $this->buckarooLogger->addDebug(__METHOD__ . '|15|');
-                if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
+                if (
+                    $this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
                     && $myParcelNLData = $this->helper->getJson()->unserialize(
                         $this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
-                    )) {
+                    )
+                ) {
                     $this->buckarooLogger->addDebug(__METHOD__ . '|20|');
                     $this->updateShippingAddressByMyParcel($myParcelNLData, $shippingAddress);
                 }

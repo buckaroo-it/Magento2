@@ -28,13 +28,15 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
 
     public function check(Order $order)
     {
-        if ($order->getPayment() &&
+        if (
+            $order->getPayment() &&
             $order->getPayment()->getMethodInstance()->getCode() == 'buckaroo_magento2_payperemail'
         ) {
             $config = $this->configProviderMethodFactory->get(
                 \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail::CODE
             );
-            if ($config->isEnabledB2B()
+            if (
+                $config->isEnabledB2B()
                 && $order->getState() == Order::STATE_PROCESSING
                 && $order->getInvoiceCollection() && $order->getInvoiceCollection()->getFirstItem()
                 && $order->getInvoiceCollection()->getFirstItem()->getState() == 1

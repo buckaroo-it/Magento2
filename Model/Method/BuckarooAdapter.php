@@ -89,21 +89,21 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        ManagerInterface                                           $eventManager,
-        ValueHandlerPoolInterface                                  $valueHandlerPool,
-        PaymentDataObjectFactory                                   $paymentDataObjectFactory,
-                                                                   $code,
-                                                                   $formBlockType,
-                                                                   $infoBlockType,
-        ObjectManagerInterface                                     $objectManager,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory     $configProviderMethodFactory,
-        \Magento\Framework\Pricing\Helper\Data                     $priceHelper,
-        RequestInterface                                           $request = null,
-        CommandPoolInterface                                       $commandPool = null,
-        ValidatorPoolInterface                                     $validatorPool = null,
-        CommandManagerInterface                                    $commandExecutor = null,
-        LoggerInterface                                            $logger = null,
-        bool                                                       $usesRedirect = true
+        ManagerInterface $eventManager,
+        ValueHandlerPoolInterface $valueHandlerPool,
+        PaymentDataObjectFactory $paymentDataObjectFactory,
+        $code,
+        $formBlockType,
+        $infoBlockType,
+        ObjectManagerInterface $objectManager,
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
+        \Magento\Framework\Pricing\Helper\Data $priceHelper,
+        RequestInterface $request = null,
+        CommandPoolInterface $commandPool = null,
+        ValidatorPoolInterface $validatorPool = null,
+        CommandManagerInterface $commandExecutor = null,
+        LoggerInterface $logger = null,
+        bool $usesRedirect = true
     ) {
         parent::__construct(
             $eventManager,

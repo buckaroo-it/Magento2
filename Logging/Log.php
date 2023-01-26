@@ -58,13 +58,13 @@ class Log extends Logger
      * @param string $name
      */
     public function __construct(
-        DebugConfiguration                        $debugConfiguration,
-        \Magento\Checkout\Model\Session           $checkoutSession,
+        DebugConfiguration $debugConfiguration,
+        \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Session\SessionManager $sessionManager,
-        \Magento\Customer\Model\Session           $customerSession,
-        array                                     $handlers = [],
-        array                                     $processors = [],
-        string                                    $name = 'buckaroo'
+        \Magento\Customer\Model\Session $customerSession,
+        array $handlers = [],
+        array $processors = [],
+        string $name = 'buckaroo'
     ) {
         $this->debugConfiguration = $debugConfiguration;
         $this->checkoutSession = $checkoutSession;

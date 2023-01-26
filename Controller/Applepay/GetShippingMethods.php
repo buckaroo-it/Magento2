@@ -83,17 +83,17 @@ class GetShippingMethods extends Common
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        Context                                           $context,
-        Log                                               $logger,
-        \Magento\Quote\Model\Quote\TotalsCollector        $totalsCollector,
+        Context $context,
+        Log $logger,
+        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
-        Cart                                              $cart,
-        MaskedQuoteIdToQuoteIdInterface                   $maskedQuoteIdToQuoteId,
-        CartRepositoryInterface                           $cartRepository,
-        CheckoutSession                                   $checkoutSession,
-        QuoteRepository                                   $quoteRepository,
-        DataObjectProcessor                               $dataObjectProcessor,
-        CustomerSession                                   $customerSession = null
+        Cart $cart,
+        MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
+        CartRepositoryInterface $cartRepository,
+        CheckoutSession $checkoutSession,
+        QuoteRepository $quoteRepository,
+        DataObjectProcessor $dataObjectProcessor,
+        CustomerSession $customerSession = null
     ) {
         parent::__construct(
             $context,

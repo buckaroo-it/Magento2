@@ -41,7 +41,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-    class ProcessTest extends BaseTest
+class ProcessTest extends BaseTest
 {
     protected $instanceClass = Process::class;
 

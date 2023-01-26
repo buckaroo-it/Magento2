@@ -311,7 +311,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
     protected function skipItem($item): bool
     {
-        if (empty($item)
+        if (
+            empty($item)
             || $item->getRowTotalInclTax() == 0
             || $item->hasParentItemId()
         ) {
@@ -324,7 +325,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     //Skip bundles which have dynamic pricing on (0 = yes,1 = no) - the underlying simples are also in the quote
     protected function skipBundleProducts($item, &$bundleProductQty): bool
     {
-        if ($item->getProductType() == Type::TYPE_BUNDLE
+        if (
+            $item->getProductType() == Type::TYPE_BUNDLE
             && $item->getProduct()->getCustomAttribute('price_type')
             && $item->getProduct()->getCustomAttribute('price_type')->getValue() == 0
         ) {
