@@ -738,11 +738,11 @@
             <argument name="cacheId" xsi:type="string">buckaroo_error_mapper</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper" type="Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapper">
+    <type name="Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper">
         <arguments>
             <argument name="messageMapping" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualMappingData</argument>
         </arguments>
-    </virtualType>
+    </type>
     <!-- END Message Mapper -->
 
     <!-- Buckaroo AddressHandlerPool - Change Shipping Request by Delivery Methods-->
@@ -793,7 +793,7 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -846,7 +846,7 @@
             <argument name="client" xsi:type="object">TransactionCapture</argument>
             <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -885,7 +885,7 @@
             <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Buckaroo Refund Command - Request Builder -->
@@ -938,7 +938,7 @@
             <argument name="client" xsi:type="object">TransactionCancel</argument>
             <argument name="handler" xsi:type="object">CancelResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Buckaroo Cancel Command - Request Builder -->
@@ -1045,7 +1045,7 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- iDEAL Order Command - Request Builder -->
@@ -1068,7 +1068,7 @@
             <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- END iDEAL Refund Command -->
@@ -1134,7 +1134,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -1317,7 +1317,7 @@
             <argument name="client" xsi:type="object">TransactionReserve</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- KlarnaKp Authorize Command - Request Builder -->
@@ -1341,7 +1341,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- KlarnaKp Capture Command - Request Builder -->
@@ -1371,7 +1371,7 @@
             <argument name="client" xsi:type="object">TransactionCancelReserve</argument>
             <argument name="handler" xsi:type="object">CancelResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- KlarnaKp Cancel Command - Request Builder -->
@@ -1492,7 +1492,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Alipay Order Command - Request Builder -->
@@ -1572,7 +1572,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Giropay Order Command - Request Builder -->
@@ -1843,7 +1843,7 @@
             <argument name="client" xsi:type="object">TransactionPayInInstallments</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Capayable Order Command - Request Builder -->
@@ -2138,7 +2138,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -2211,7 +2211,7 @@
             <argument name="client" xsi:type="object">TransactionAuthorize</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Billink Authorize Command - Request Builder -->
@@ -2233,7 +2233,7 @@
             <argument name="client" xsi:type="object">TransactionCapture</argument>
             <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- END Billink Capture Command -->
@@ -2303,7 +2303,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -2375,7 +2375,7 @@
             <argument name="client" xsi:type="object">TransactionAuthorize</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Afterpay Authorize Command - Request Builder -->
@@ -2397,7 +2397,7 @@
             <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Afterpay Refund Command - Request Builder -->
@@ -2476,7 +2476,7 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -2537,7 +2537,7 @@
             <argument name="client" xsi:type="object">TransactionAuthorize</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Afterpay Old Authorize Command - Request Builder -->
@@ -2576,7 +2576,7 @@
             <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Afterpay Old Refund Command - Request Builder -->
@@ -2652,7 +2652,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -2766,7 +2766,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -2790,7 +2790,7 @@
             <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- CreditClick Refund Command - Request Builder -->
@@ -2864,7 +2864,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -2943,7 +2943,7 @@
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator
             </argument>
             <argument name="errorMessageMapper" xsi:type="object">
-                Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+                Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -3037,7 +3037,7 @@
             <argument name="client" xsi:type="object">TransactionPayRedirect</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -3134,7 +3134,7 @@
             <argument name="client" xsi:type="object">TransactionPaymentInvitation</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- PayPerEmail Order Command - Request Builder -->
@@ -3243,7 +3243,7 @@
                 Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator
             </argument>
             <argument name="errorMessageMapper" xsi:type="object">
-                Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper
+                Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper
             </argument>
         </arguments>
     </virtualType>
@@ -3482,7 +3482,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -3614,7 +3614,7 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderWithCreditManagementResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -3694,7 +3694,7 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -3717,7 +3717,7 @@
             <argument name="client" xsi:type="object">TransactionAuthorize</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Creditcard Authorize Command - Request Builder -->
@@ -3819,7 +3819,7 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainderEncrypted</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -3842,7 +3842,7 @@
             <argument name="client" xsi:type="object">TransactionAuthorizeEncrypted</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- CreditcardEncrypted Authorize Command - Request Builder -->
@@ -3943,7 +3943,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -4021,7 +4021,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">SepaDirectDebitHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -4110,7 +4110,7 @@
             <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
