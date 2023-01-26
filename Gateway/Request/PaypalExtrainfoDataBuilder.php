@@ -79,7 +79,7 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
             'addressOverride' => true
         ];
 
-        $this->payReminderService->setServiceAction('Pay,ExtraInfo');
+        $this->payReminderService->setServiceAction('ExtraInfo');
 
         return $data;
     }
