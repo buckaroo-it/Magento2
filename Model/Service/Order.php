@@ -225,11 +225,6 @@ class Order
 
             $order->cancel();
 
-            if (in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
-                $this->logging->addDebug(__METHOD__ . '|25|');
-                return true;
-            }
-
             $this->logging->addDebug(__METHOD__ . '|30|');
 
             $failedStatus = $this->orderStatusFactory->get(

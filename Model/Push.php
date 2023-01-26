@@ -1021,6 +1021,7 @@ class Push implements PushInterface
         if (($this->order->getState() === Order::STATE_CANCELED)
             && ($this->order->getStatus() === Order::STATE_CANCELED)
             && ($response['status'] === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            && !isset($this->postData['brq_relatedtransaction_partialpayment'])
         ) {
             $this->logging->addDebug(__METHOD__ . '|2|');
 

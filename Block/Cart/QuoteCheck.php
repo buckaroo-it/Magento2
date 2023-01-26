@@ -22,6 +22,8 @@
 namespace Buckaroo\Magento2\Block\Cart;
 
 use Magento\Framework\Message\ManagerInterface;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Quote\Model\Quote;
 
 class QuoteCheck
 {
@@ -36,16 +38,23 @@ class QuoteCheck
     protected $quote;
 
     /**
+     * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
+     */
+    protected $groupTransaction;
+
+    /**
      * Plugin constructor.
      *
      * @param \Magento\Checkout\Model\Session $checkoutSession
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
+        PaymentGroupTransaction $groupTransaction,
         ManagerInterface $messageManager
     ) {
         $this->quote           = $checkoutSession->getQuote();
         $this->messageManager  = $messageManager;
+        $this->groupTransaction = $groupTransaction;
     }
 
     /**
@@ -135,11 +144,21 @@ class QuoteCheck
      */
     public function allowedMethod($subject)
     {
-        $quote = $subject->getQuote();
-
-        if ($quote->getBaseBuckarooAlreadyPaid() > 0) {
+        if ($this->getAlreadyPaid($subject->getQuote()) > 0) {
             //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new \Exception('Action is blocked, please finish current order');
         }
+    }
+
+    /**
+     * Get quote already payed amount
+     *
+     * @param Magento\Quote\Model\Quote $quote
+     *
+     * @return float
+     */
+    private function getAlreadyPaid(Quote $quote)
+    {
+        return $this->groupTransaction->getAlreadyPaid($quote->getReservedOrderId());
     }
 }
