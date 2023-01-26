@@ -322,7 +322,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 $pendingCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING');
                 if (
                     ($statusCode == $pendingCode)
-                    && !$this->pushRequst->hasPostData('brq_payment_method', 'sofortueberweisung')
+                    && !$this->pushRequst->hasPostData('payment_method', 'sofortueberweisung')
                 ) {
                     $this->addErrorMessage(
                         __(
@@ -668,7 +668,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
                         $this->checkoutSession->restoreQuote();
                         $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
-                    } elseif ($this->pushRequst->hasPostData('brq_primary_service', 'IDIN')) {
+                    } elseif ($this->pushRequst->hasPostData('primary_service', 'IDIN')) {
                         $this->checkoutSession->restoreQuote();
                     }
                 } catch (\Exception $e) {

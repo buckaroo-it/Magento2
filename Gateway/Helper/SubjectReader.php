@@ -63,6 +63,6 @@ class SubjectReader
      */
     public static function readAmount(array $subject)
     {
-        \Magento\Payment\Gateway\Helper\SubjectReader::readAmount($subject);
+        return \Magento\Payment\Gateway\Helper\SubjectReader::readAmount($subject);
     }
 }
