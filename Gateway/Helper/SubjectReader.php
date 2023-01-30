@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Helper;
 
+use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Model\Quote;
@@ -27,7 +28,7 @@ class SubjectReader
     }
 
     /**
-     * Reads quote from subject
+     * Reads quote from subject`
      *
      * @param array $subject
      * @return Quote
@@ -42,6 +43,24 @@ class SubjectReader
         }
 
         return $subject['quote'];
+    }
+
+    /**
+     * Reads quote from subject
+     *
+     * @param array $response
+     * @return TransactionResponse
+     */
+    public static function readTransactionResponse(array $response): TransactionResponse
+    {
+        if (
+            !isset($response['object'])
+            || !$response['object'] instanceof TransactionResponse
+        ) {
+            throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');
+        }
+
+        return $response['object'];
     }
 
     /**

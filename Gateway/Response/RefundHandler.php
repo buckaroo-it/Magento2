@@ -2,10 +2,9 @@
 
 namespace Buckaroo\Magento2\Gateway\Response;
 
-use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\Push;
 use Buckaroo\Transaction\Response\TransactionResponse;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -16,23 +15,9 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
 
     public function handle(array $handlingSubject, array $response)
     {
-        if (
-            !isset($handlingSubject['payment'])
-            || !$handlingSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
+        $this->transactionResponse = SubjectReader::readTransactionResponse($response);
 
-        if (
-            !isset($response['object'])
-            || !$response['object'] instanceof TransactionResponse
-        ) {
-            throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');
-        }
-
-        $this->transactionResponse = $response['object'];
-
-        $payment = $handlingSubject['payment']->getPayment();
+        $payment = SubjectReader::readPayment($handlingSubject)->getPayment();
 
         $response = $this->refundTransactionSdk($this->transactionResponse, $payment);
 

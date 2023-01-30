@@ -2,15 +2,11 @@
 
 namespace Buckaroo\Magento2\Gateway\Response;
 
-use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Registry;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Framework\Event\ManagerInterface;
 
 class CaptureHandler extends AbstractResponseHandler implements HandlerInterface
 {
@@ -24,23 +20,9 @@ class CaptureHandler extends AbstractResponseHandler implements HandlerInterface
      */
     public function handle(array $handlingSubject, array $response)
     {
-        if (
-            !isset($handlingSubject['payment'])
-            || !$handlingSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
+        $payment = SubjectReader::readPayment($handlingSubject)->getPayment();
 
-        if (
-            !isset($response['object'])
-            || !$response['object'] instanceof TransactionResponse
-        ) {
-            throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');
-        }
-
-        $this->transactionResponse = $response['object'];
-
-        $payment = $handlingSubject['payment']->getPayment();
+        $this->transactionResponse = SubjectReader::readTransactionResponse($response);
         $arrayResponse = $this->transactionResponse->toArray();
 
         $this->saveTransactionData($this->transactionResponse, $payment, $this->closeAuthorizeTransaction, true);
