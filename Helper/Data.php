@@ -302,7 +302,7 @@ class Data extends AbstractHelper
 
         return $configValue;
     }
-    
+
     public function getConfigGiftCardsSort()
     {
         $configValue = $this->scopeConfig->getValue(
@@ -441,7 +441,6 @@ class Data extends AbstractHelper
             ['value' => 'paypal',       'label' => __('Paypal')],
             ['value' => 'payperemail',       'label' => __('PayPerEmail')],
             ['value' => 'pospayment',       'label' => __('Point of Sale')],
-            ['value' => 'rtp',       'label' => __('Request To Pay')],
             ['value' => 'sepadirectdebit',       'label' => __('SEPA direct debit')],
             ['value' => 'sofortbanking',       'label' => __('SOFORT')],
             ['value' => 'belfius',       'label' => __('Belfius')],

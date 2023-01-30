@@ -292,7 +292,7 @@ class Push implements PushInterface
          * @todo when buckaroo changes the push / response order this can be removed
          */
         if ($skipFirstPush > 0) {
-            $payment->setAdditionalInformation('skip_push', $skipFirstPush - 1);
+            $payment->setAdditionalInformation('skip_push', (int)$skipFirstPush - 1);
             $payment->save();
             throw new \Buckaroo\Magento2\Exception(
                 __('Skipped handling this push, first handle response, action will be taken on the next push.')
