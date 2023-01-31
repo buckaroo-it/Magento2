@@ -10,7 +10,7 @@ use Magento\Sales\Model\Order;
 
 class CurrencyDataBuilder implements BuilderInterface
 {
-    private const CURRENCY = 'currency';
+    private const KEY_CURRENCY = 'currency';
 
     /** @var Factory */
     private $configProviderMethodFactory;
@@ -47,7 +47,7 @@ class CurrencyDataBuilder implements BuilderInterface
         $this->setAllowedCurrencies($paymentDO->getPayment()->getMethodInstance());
 
         return [
-            self::CURRENCY => $this->getCurrency($order)
+            self::KEY_CURRENCY => $this->getCurrency($order)
         ];
     }
 
@@ -115,7 +115,12 @@ class CurrencyDataBuilder implements BuilderInterface
      */
     private function setAllowedCurrencies($methodInstance)
     {
-        $method = $methodInstance->getCode() ?? 'buckaroo_magento2_ideal';
+        $method = $methodInstance->getCode();
+        if(!$method) {
+            throw new \Buckaroo\Magento2\Exception(
+                __("The payment method code it is not set.")
+            );
+        }
         $configProvider = $this->configProviderMethodFactory->get($method);
         $this->allowedCurrencies = $configProvider->getAllowedCurrencies();
 
