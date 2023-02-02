@@ -84,7 +84,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
         $displayIncludeTaxPrice = false;
 
 
-        if ($dataObject instanceof \Magento\Sales\Model\Order
+        if (
+            $dataObject instanceof \Magento\Sales\Model\Order
             || $dataObject instanceof \Magento\Sales\Model\Order\Invoice
             || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
         ) {
@@ -216,7 +217,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
 
                 if (!empty($foundGiftcard['is_partial_refundable'])) {
                     $residual = floatval($giftcard['amount']) - floatval($refundedAlreadyPaidSaved);
-                    if (array_key_exists($foundGiftcard['servicecode'], $giftcards)
+                    if (
+                        array_key_exists($foundGiftcard['servicecode'], $giftcards)
                         && floatval($giftcards[$foundGiftcard['servicecode']]) <= $residual
                     ) {
                         $amountValue = floatval($giftcards[$foundGiftcard['servicecode']]);
@@ -226,7 +228,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                         $amountValue = $residual;
                     }
                 } else {
-                    if ((!empty(floatval($refundedAlreadyPaidSaved))
+                    if (
+                        (!empty(floatval($refundedAlreadyPaidSaved))
                         && floatval($refundedAlreadyPaidSaved) === floatval($amountValue))
                     ) {
                         $amountBaseValue = 0;
@@ -264,7 +267,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
         if ($dataObject instanceof \Magento\Sales\Model\Order) {
             return $dataObject->getIncrementId();
         }
-        if ($dataObject instanceof \Magento\Sales\Model\Order\Invoice
+        if (
+            $dataObject instanceof \Magento\Sales\Model\Order\Invoice
             || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
         ) {
             return $dataObject->getOrder()->getIncrementId();

@@ -4,30 +4,40 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate as EmandateConfig;
+use Magento\Sales\Model\Order;
 
-class EmandateDataBuilder extends AbstractDataBuilder
+class EmandateDataBuilder implements BuilderInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate
+     * @var EmandateConfig
      */
-    protected $config;
+    protected EmandateConfig $config;
 
+    /**
+     * @param EmandateConfig $config
+     */
     public function __construct(EmandateConfig $config)
     {
         $this->config = $config;
     }
+
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $order = $paymentDO->getOrder()->getOrder();
 
         return [
             'emandatereason'    => (string)$this->config->getReason(),
             'sequencetype'      => (float)$this->config->getSequenceType(),
-            'purchaseid'        => $this->getOrder()->getIncrementId(),
-            'debtorbankid'      => (string)$this->getPayment()->getAdditionalInformation('issuer'),
-            'debtorreference'   => $this->getEmail(),
+            'purchaseid'        => $order->getIncrementId(),
+            'debtorbankid'      => (string)$paymentDO->getPayment()->getAdditionalInformation('issuer'),
+            'debtorreference'   => $this->getEmail($order),
             'language'          => (string)$this->config->getLanguage(),
         ];
     }
@@ -35,15 +45,16 @@ class EmandateDataBuilder extends AbstractDataBuilder
     /**
      * Get email from billingAddress
      *
+     * @param Order $order
      * @return string
      */
-    protected function getEmail(): string
+    protected function getEmail($order): string
     {
-        $billingAddress = $this->getOrder()->getBillingAddress();
+        $billingAddress = $order->getBillingAddress();
         if ($billingAddress !== null) {
             return (string)$billingAddress->getEmail();
         }
 
-        return $this->getOrder()->getCustomerEmail();
+        return $order->getCustomerEmail();
     }
 }

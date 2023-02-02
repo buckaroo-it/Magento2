@@ -72,7 +72,8 @@ class Push
         $authenticationFunction = 'getService' . ucfirst($card) . 'Authentication';
         $enrolledFunction = 'getService' . ucfirst($card) . 'Enrolled';
 
-        if (empty($push->pushRequst->$authenticationFunction())
+        if (
+            empty($push->pushRequst->$authenticationFunction())
             || empty($push->pushRequst->$enrolledFunction())
         ) {
             return $result;

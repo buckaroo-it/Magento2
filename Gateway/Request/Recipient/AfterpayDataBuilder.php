@@ -55,7 +55,8 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
         $category = RecipientCategory::PERSON;
         $billingAddress = $this->getOrder()->getBillingAddress();
 
-        if ($this->isCustomerB2B($this->getOrder()->getStoreId()) &&
+        if (
+            $this->isCustomerB2B($this->getOrder()->getStoreId()) &&
             $billingAddress->getCountryId() === 'NL' &&
             !$this->isCompanyEmpty($billingAddress->getCompany())
         ) {

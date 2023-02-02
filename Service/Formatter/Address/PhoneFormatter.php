@@ -97,7 +97,8 @@ class PhoneFormatter
             $phoneNumber = $this->isValidNotation($phoneNumber, $country);
         }
 
-        if ((in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
+        if (
+            (in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
             ||
             (in_array($country, ['AT', 'DE']))
         ) {

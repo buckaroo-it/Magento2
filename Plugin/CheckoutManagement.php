@@ -32,7 +32,6 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
         public function updateItemQty($cartId, $itemId, $itemQty)
         {
             /** @phpstan-ignore-next-line */
-            $quote = $this->checkoutSession->getQuote();
             if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
                 throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
             }

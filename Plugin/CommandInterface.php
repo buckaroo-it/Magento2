@@ -113,16 +113,17 @@ class CommandInterface
 
         $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
 
-        if ((
+        if (
+            (
             (
                 preg_match('/afterpay/', $methodInstance->getCode())
                 && $this->helper->getOriginalTransactionKey($order->getIncrementId())
-            ) ||
-            (
+            )
+            || (
                 preg_match('/eps/', $methodInstance->getCode())
                 && ($this->helper->getMode($methodInstance->getCode()) != Data::MODE_LIVE)
             )
-        )
+            )
             && ($orderStatus == 'pending')
             && ($order->getState() === Order::STATE_PROCESSING)
             && ($order->getStatus() === Order::STATE_PROCESSING)

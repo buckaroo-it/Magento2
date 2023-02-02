@@ -4,7 +4,10 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Magento\Developer\Helper\Data;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Payment\Gateway\Command\CommandManagerInterface;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
@@ -16,7 +19,6 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Framework\App\State;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -53,21 +55,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     protected $request;
 
     /**
-     * @var State
-     */
-    private State $state;
-
-    /**
-     * @var \Magento\Developer\Helper\Data
-     */
-    protected $developmentHelper;
-
-    /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory
-     */
-    public $configProviderFactory;
-
-    /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
      */
     public $configProviderMethodFactory;
@@ -90,9 +77,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param string $formBlockType
      * @param string $infoBlockType
      * @param ObjectManagerInterface $objectManager
-     * @param State $state
-     * @param \Magento\Developer\Helper\Data $developmentHelper
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
      * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
      * @param RequestInterface|null $request
@@ -112,9 +96,6 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         $formBlockType,
         $infoBlockType,
         ObjectManagerInterface $objectManager,
-        State $state,
-        \Magento\Developer\Helper\Data $developmentHelper,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
         \Magento\Framework\Pricing\Helper\Data $priceHelper,
         RequestInterface $request = null,
@@ -140,10 +121,7 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         $this->buckarooPaymentMethodCode = $this->setBuckarooPaymentMethodCode();
         $this->objectManager = $objectManager;
         $this->request = $request;
-        $this->state = $state;
-        $this->developmentHelper = $developmentHelper;
         $this->usesRedirect = $usesRedirect;
-        $this->configProviderFactory = $configProviderFactory;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->priceHelper = $priceHelper;
     }
@@ -153,115 +131,76 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * This is a temporary workaround for https://github.com/magento/magento2/issues/33869.
      * It sets the info instance before the method gets executed. Otherwise, the validator doesn't get called
      * correctly.
+     * @throws NotFoundException
      */
     public function isAvailable(CartInterface $quote = null)
     {
         if (null == $quote) {
             return false;
         }
-        /**
-         * @var Account $accountConfig
-         */
-        $accountConfig = $this->configProviderFactory->get('account');
-        if ($accountConfig->getActive() == 0) {
-            return false;
+
+        try {
+            $validator = $this->getValidatorPool()->get('buckaroo_availability');
+            $result = $validator->validate(
+                [
+                    'paymentMethodInstance' => $this,
+                    'quote' => $quote
+                ]
+            );
+            if (!$result->isValid()) {
+                return false;
+            }
+        } // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock
+        catch (\Exception $e) {
+            // pass
         }
 
-        $areaCode = $this->state->getAreaCode();
-        if ('adminhtml' === $areaCode
-            && $this->getConfigData('available_in_backend') !== null
-            && $this->getConfigData('available_in_backend') == 0
-        ) {
-            return false;
-        }
-
-        if (!$this->isAvailableBasedOnIp($accountConfig, $quote)) {
-            return false;
-        }
-
-        if (!$this->isAvailableBasedOnAmount($quote)) {
-            return false;
-        }
-
-        if (!$this->isAvailableBasedOnCurrency($quote)) {
-            return false;
-        }
-
-        $this->setInfoInstance($quote->getPayment());
         return parent::isAvailable($quote);
     }
 
     /**
-     * Check if this payment method is limited by IP.
-     *
-     * @param Account $accountConfig
-     * @param CartInterface $quote
-     *
-     * @return bool
+     * @inheritdoc
      */
-    protected function isAvailableBasedOnIp(
-        Account $accountConfig,
-        CartInterface $quote = null
-    ) {
-        $methodValue = $this->getConfigData('limit_by_ip');
-        if ($accountConfig->getLimitByIp() == 1 || $methodValue == 1) {
-            $storeId = $quote ? $quote->getStoreId() : null;
-            $isAllowed = $this->developmentHelper->isDevAllowed($storeId);
-
-            if (!$isAllowed) {
-                return false;
-            }
+    public function cancel(InfoInterface $payment)
+    {
+        if (!self::$requestOnVoid) {
+            return $this;
         }
 
-        return true;
+        return parent::cancel($payment);
     }
 
     /**
-     * Check if the grand total exceeds the maximum allowed total.
-     *
-     * @param CartInterface $quote
-     *
-     * @return bool
+     * @inheritdoc
      */
-    protected function isAvailableBasedOnAmount(CartInterface $quote = null)
+    public function void(InfoInterface $payment)
     {
-        $storeId = $quote->getStoreId();
-        $maximum = $this->getConfigData('max_amount', $storeId);
-        $minimum = $this->getConfigData('min_amount', $storeId);
-
-        /**
-         * @var \Magento\Quote\Model\Quote $quote
-         */
-        $total = $quote->getGrandTotal();
-
-        if ($total < 0.01) {
-            return false;
+        if (!self::$requestOnVoid) {
+            return $this;
         }
 
-        if ($maximum !== null && $total > $maximum) {
-            return false;
-        }
-
-        if ($minimum !== null && $total < $minimum) {
-            return false;
-        }
-
-        return true;
+        return parent::void($payment);
     }
 
+
     /**
-     * @param CartInterface $quote
-     *
-     * @return bool
+     * @inheritdoc
      */
-    protected function isAvailableBasedOnCurrency(CartInterface $quote = null)
+    public function canUseForCountry($country)
     {
-        $allowedCurrenciesRaw = $this->getConfigData('allowed_currencies');
-        $allowedCurrencies = explode(',', (string)$allowedCurrenciesRaw);
+        try {
+            $validator = $this->getValidatorPool()->get('country');
+        } catch (\Exception $e) {
+            return true;
+        }
 
-        $currentCurrency = $quote->getCurrency()->getQuoteCurrencyCode();
+        $result = $validator->validate([
+            'methodInstance' => $this,
+            'country' => $country,
+            'storeId' => $this->getStore()
+        ]);
 
-        return $allowedCurrenciesRaw === null || in_array($currentCurrency, $allowedCurrencies);
+        return $result->isValid();
     }
 
     /**

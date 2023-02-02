@@ -16,6 +16,9 @@ use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ApplyVoucher implements ApplyVoucherInterface
 {
     /**
@@ -105,7 +108,7 @@ class ApplyVoucher implements ApplyVoucherInterface
             $message = $this->giftcardResponse->getErrorMessage();
             $messageParts = explode(":", $message);
 
-            if(isset($messageParts[1])) {
+            if (isset($messageParts[1])) {
                 $message = $messageParts[1];
             }
             throw new ApiException($message);

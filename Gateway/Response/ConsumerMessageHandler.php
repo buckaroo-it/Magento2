@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Response;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 
@@ -12,10 +13,7 @@ class ConsumerMessageHandler extends AbstractResponseHandler implements HandlerI
      */
     public function handle(array $handlingSubject, array $response)
     {
-        $this->validate($handlingSubject, $response);
-
-        /** @var TransactionResponse $response */
-        $response = $response['object'];
+        $response = SubjectReader::readTransactionResponse($response);
         $consumerMessageData = $response->get('ConsumerMessage');
 
         if (!empty($consumerMessageData) && $consumerMessageData['MustRead'] == 1) {

@@ -2,26 +2,36 @@
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class RefundOriginalTransactionKeyDataBuilder extends AbstractDataBuilder
+class RefundOriginalTransactionKeyDataBuilder implements BuilderInterface
 {
     const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
 
+    /**
+     * @inheritDoc
+     */
     public function build(array $buildSubject)
     {
-        parent::initialize($buildSubject);
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $payment = $paymentDO->getPayment();
 
-        $originalTransactionKey = $this->getRefundTransactionPartialSupport($this->getPayment());
+        $originalTransactionKey = $this->getRefundTransactionPartialSupport($payment);
 
         return ['originalTransactionKey' => $originalTransactionKey];
     }
 
+    /**
+     * Get Refund Transaction Partial Support KEY
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment
+     * @return mixed
+     */
     protected function getRefundTransactionPartialSupport($payment)
     {
         $creditmemo = $payment->getCreditmemo();
-        if ($this->getPayment()->getMethodInstance()->canRefundPartialPerInvoice() && $creditmemo) {
+        if ($payment->getMethodInstance()->canRefundPartialPerInvoice() && $creditmemo) {
             return $payment->getParentTransactionId();
         }
 

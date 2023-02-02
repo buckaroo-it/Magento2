@@ -55,16 +55,16 @@ class Add
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        CartRepositoryInterface            $cartRepository,
-        MaskedQuoteIdToQuoteIdInterface    $maskedQuoteIdToQuoteId,
-        ProductRepositoryInterface         $productRepository,
-        BuyRequestBuilder                  $requestBuilder,
-        ApplepayModel                      $applepayModel,
-        BaseQuoteAddressFactory            $quoteAddressFactory,
+        CartRepositoryInterface $cartRepository,
+        MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
+        ProductRepositoryInterface $productRepository,
+        BuyRequestBuilder $requestBuilder,
+        ApplepayModel $applepayModel,
+        BaseQuoteAddressFactory $quoteAddressFactory,
         ShippingAddressManagementInterface $shippingAddressManagement,
-        AppleShippingMethod                $appleShippingMethod,
-        \Magento\Checkout\Model\Session    $checkoutSession,
-        QuoteRepository                    $quoteRepository = null
+        AppleShippingMethod $appleShippingMethod,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        QuoteRepository $quoteRepository = null
     ) {
         $this->cartRepository = $cartRepository;
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;

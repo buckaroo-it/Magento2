@@ -35,6 +35,7 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\QuoteRepository;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -54,10 +55,6 @@ class GetShippingMethods extends Common
      */
     private CartRepositoryInterface $cartRepository;
     /**
-     * @var DataObjectProcessor $dataProcessor
-     */
-    private DataObjectProcessor $dataProcessor;
-    /**
      * @var CheckoutSession
      */
     private CheckoutSession $checkoutSession;
@@ -65,7 +62,9 @@ class GetShippingMethods extends Common
      * @var QuoteRepository
      */
     private QuoteRepository $quoteRepository;
-    /** @var DataObjectProcessor */
+    /**
+     * @var DataObjectProcessor
+     */
     private DataObjectProcessor $dataObjectProcessor;
 
     /**
@@ -84,17 +83,17 @@ class GetShippingMethods extends Common
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        Context                                           $context,
-        Log                                               $logger,
-        \Magento\Quote\Model\Quote\TotalsCollector        $totalsCollector,
+        Context $context,
+        Log $logger,
+        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
-        Cart                                              $cart,
-        MaskedQuoteIdToQuoteIdInterface                   $maskedQuoteIdToQuoteId,
-        CartRepositoryInterface                           $cartRepository,
-        CheckoutSession                                   $checkoutSession,
-        QuoteRepository                                   $quoteRepository,
-        DataObjectProcessor                               $dataObjectProcessor,
-        CustomerSession                                   $customerSession = null
+        Cart $cart,
+        MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
+        CartRepositoryInterface $cartRepository,
+        CheckoutSession $checkoutSession,
+        QuoteRepository $quoteRepository,
+        DataObjectProcessor $dataObjectProcessor,
+        CustomerSession $customerSession = null
     ) {
         parent::__construct(
             $context,

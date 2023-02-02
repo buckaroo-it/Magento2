@@ -9,6 +9,9 @@ use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 
 class ActiveAccountValidator extends AbstractValidator
 {
+    /**
+     * @var ConfigProviderFactory
+     */
     private ConfigProviderFactory $configProviderFactory;
 
     /**
@@ -24,9 +27,13 @@ class ActiveAccountValidator extends AbstractValidator
     }
 
     /**
-     * @inheritDoc
+     * Validate if Buckaroo Module is enabled
      *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @param array $validationSubject
+     * @return \Magento\Payment\Gateway\Validator\ResultInterface
+     * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function validate(array $validationSubject)
     {

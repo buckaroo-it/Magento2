@@ -390,7 +390,7 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Cancel On Failed
+     * 'Canceled' state on failed payment
      */
     public function getCancelOnFailed($store = null)
     {

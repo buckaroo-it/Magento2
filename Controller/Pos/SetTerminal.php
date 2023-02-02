@@ -59,11 +59,11 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context                  $context,
-        Log                                                    $logger,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory        $configProviderFactory,
-        \Magento\Store\Model\StoreManagerInterface             $storemanager,
-        \Magento\Framework\Stdlib\CookieManagerInterface       $cookieManager,
+        \Magento\Framework\App\Action\Context $context,
+        Log $logger,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
+        \Magento\Store\Model\StoreManagerInterface $storemanager,
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory
     ) {
         parent::__construct($context);

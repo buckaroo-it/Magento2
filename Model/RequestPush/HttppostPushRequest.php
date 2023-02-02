@@ -148,6 +148,11 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
         return $this->request['brq_transaction_type'] ?? null;
     }
 
+    public function getPaymentMethod()
+    {
+        return $this->request['brq_payment_method'] ?? null;
+    }
+
     /**
      * @return string|null
      */

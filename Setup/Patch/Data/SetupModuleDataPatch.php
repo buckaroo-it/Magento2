@@ -421,15 +421,15 @@ class SetupModuleDataPatch implements DataPatchInterface
      * @param Config $eavConfig
      */
     public function __construct(
-        ModuleDataSetupInterface                                      $moduleDataSetup,
-        \Magento\Sales\Setup\SalesSetupFactory                        $salesSetupFactory,
-        \Magento\Quote\Setup\QuoteSetupFactory                        $quoteSetupFactory,
-        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection    $giftcardCollection,
+        ModuleDataSetupInterface $moduleDataSetup,
+        \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory,
+        \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory,
+        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
         \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection,
-        \Magento\Framework\Encryption\Encryptor                       $encryptor,
-        \Magento\Framework\Registry                                   $registry,
-        EavSetupFactory                                               $eavSetupFactory,
-        Config                                                        $eavConfig
+        \Magento\Framework\Encryption\Encryptor $encryptor,
+        \Magento\Framework\Registry $registry,
+        EavSetupFactory $eavSetupFactory,
+        Config $eavConfig
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
         $this->salesSetupFactory = $salesSetupFactory;

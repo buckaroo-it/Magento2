@@ -29,7 +29,8 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class PaymentInformationManagement extends MagentoPaymentInformationManagement implements PaymentInformationManagementInterface
+class PaymentInformationManagement extends MagentoPaymentInformationManagement implements
+    PaymentInformationManagementInterface
 // @codingStandardsIgnoreEnd
 {
     protected $registry = null;
@@ -96,7 +97,6 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
         \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
     ) {
-
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
 
         $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);

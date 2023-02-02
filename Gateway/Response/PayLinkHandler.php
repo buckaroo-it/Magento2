@@ -2,10 +2,8 @@
 
 namespace Buckaroo\Magento2\Gateway\Response;
 
-use Buckaroo\Transaction\Response\TransactionResponse;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Framework\Event\ManagerInterface;
 
 class PayLinkHandler extends AbstractResponseHandler implements HandlerInterface
 {
@@ -14,9 +12,7 @@ class PayLinkHandler extends AbstractResponseHandler implements HandlerInterface
      */
     public function handle(array $handlingSubject, array $response)
     {
-        $this->validate($handlingSubject, $response);
-
-        $response = $response['object'];
+        $response = SubjectReader::readTransactionResponse($response);
         $paylink = $response->getServiceParameters()['paylink'] ?? '';
 
         if (!empty($paylink)) {

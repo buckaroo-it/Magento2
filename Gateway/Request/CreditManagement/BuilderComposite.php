@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Request\CreditManagement;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Framework\ObjectManager\TMap;
 use Magento\Framework\ObjectManager\TMapFactory;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -77,31 +78,15 @@ class BuilderComposite implements BuilderInterface
 
     protected function isCreditManagementActive(array $buildSubject)
     {
-        $this->validateBuildSubject($buildSubject);
+        $payment = SubjectReader::readPayment($buildSubject)->getPayment();
 
-
-        return $this->configProvider->get(
-            $buildSubject['payment']
-                ->getPayment()
-                ->getMethod()
-        )->getActiveStatusCm3() == true;
+        return $this->configProvider->get($payment->getMethod())->getActiveStatusCm3() == true;
     }
 
     protected function hasCreditManagementTransaction(array $buildSubject)
     {
-        $this->validateBuildSubject($buildSubject);
+        $payment = SubjectReader::readPayment($buildSubject)->getPayment();
 
-        $buildSubject['payment']
-            ->getPayment()
-            ->getAdditionalInformation(CreditManagementOrderHandler::INVOICE_KEY) != null;
-    }
-
-    private function validateBuildSubject(array $buildSubject)
-    {
-        if (!isset($buildSubject['payment'])
-            || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
+        $payment->getAdditionalInformation(CreditManagementOrderHandler::INVOICE_KEY) != null;
     }
 }

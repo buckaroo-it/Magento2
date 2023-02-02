@@ -49,7 +49,8 @@ class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterfa
         $method = $observer->getMethodInstance();
 
         $checkCustomerGroup = $this->helper->checkCustomerGroup($method->getCode());
-        if ($method->getCode() === 'buckaroo_magento2_billink'
+        if (
+            $method->getCode() === 'buckaroo_magento2_billink'
             && !$checkCustomerGroup
         ) {
             $checkCustomerGroup = $this->helper->checkCustomerGroup($method->getCode(), true);
@@ -65,11 +66,13 @@ class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterfa
                 $showMethod = false;
                 //check custom set payment methods what should be visible in addition to POS
                 if ($otherPaymentMethods = $pospaymentMethodInstance->getOtherPaymentMethods()) {
-                    if ($this->helper->isBuckarooMethod($method->getCode())
+                    if (
+                        $this->helper->isBuckarooMethod($method->getCode())
                         && in_array(
                             $this->helper->getBuckarooMethod($method->getCode()),
                             explode(',', $otherPaymentMethods)
-                        )) {
+                        )
+                    ) {
                         $showMethod = true;
                     }
                 }

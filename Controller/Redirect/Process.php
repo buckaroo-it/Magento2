@@ -130,26 +130,26 @@ class Process extends \Magento\Framework\App\Action\Action
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context                 $context,
-        \Buckaroo\Magento2\Helper\Data                        $helper,
-        \Magento\Checkout\Model\Cart                          $cart,
-        \Magento\Sales\Model\Order                            $order,
-        \Magento\Quote\Model\Quote                            $quote,
-        TransactionInterface                                  $transaction,
-        Log                                                   $logger,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory       $configProviderFactory,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender   $orderSender,
-        \Buckaroo\Magento2\Model\OrderStatusFactory           $orderStatusFactory,
-        \Magento\Checkout\Model\Session                       $checkoutSession,
-        \Magento\Customer\Model\Session                       $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface     $customerRepository,
-        \Magento\Customer\Model\SessionFactory                $sessionFactory,
-        \Magento\Customer\Model\Customer                      $customerModel,
+        \Magento\Framework\App\Action\Context $context,
+        \Buckaroo\Magento2\Helper\Data $helper,
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Sales\Model\Order $order,
+        \Magento\Quote\Model\Quote $quote,
+        TransactionInterface $transaction,
+        Log $logger,
+        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        \Magento\Customer\Model\SessionFactory $sessionFactory,
+        \Magento\Customer\Model\Customer $customerModel,
         \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-        OrderService                                          $orderService,
-        \Magento\Framework\Event\ManagerInterface             $eventManager,
-        \Buckaroo\Magento2\Service\Sales\Quote\Recreate       $quoteRecreate,
-        RequestPushFactory                                    $requestPushFactory
+        OrderService $orderService,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
+        RequestPushFactory $requestPushFactory
     ) {
         parent::__construct($context);
         $this->helper             = $helper;
@@ -249,7 +249,8 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($statusCode, true));
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
             && ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'))
         ) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');
@@ -298,12 +299,14 @@ class Process extends \Magento\Framework\App\Action\Action
                 /**
                  * @noinspection PhpUndefinedMethodInspection
                  */
-                if (!$this->order->getEmailSent()
+                if (
+                    !$this->order->getEmailSent()
                     && ($this->accountConfig->getOrderConfirmationEmail($store) === "1"
                         || $paymentMethod->getConfigData('order_email', $store) === "1"
                     )
                 ) {
-                    if (!($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1) &&
+                    if (
+                        !($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1) &&
                         $this->pushRequst->hasPostData('primary_service', 'KlarnaKp') &&
                         $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'reserve') &&
                         !empty($this->pushRequst->getServiceKlarnakpReservationnumber())
@@ -317,8 +320,9 @@ class Process extends \Magento\Framework\App\Action\Action
                 }
 
                 $pendingCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING');
-                if (($statusCode == $pendingCode)
-                    && !$this->pushRequst->hasPostData('brq_payment_method', 'sofortueberweisung')
+                if (
+                    ($statusCode == $pendingCode)
+                    && !$this->pushRequst->hasPostData('payment_method', 'sofortueberweisung')
                 ) {
                     $this->addErrorMessage(
                         __(
@@ -433,6 +437,7 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false)->save();
     }
+
     protected function handleFailed($statusCode)
     {
         $this->logger->addDebug(__METHOD__ . '|7|');
@@ -571,7 +576,8 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->quote->setReservedOrderId(null);
 
-        if (!empty($this->pushRequst->getPaymentMethod())
+        if (
+            !empty($this->pushRequst->getPaymentMethod())
             &&
             ($this->pushRequst->getPaymentMethod() == 'applepay')
             &&
@@ -662,7 +668,7 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
                         $this->checkoutSession->restoreQuote();
                         $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
-                    } elseif ($this->pushRequst->hasPostData('brq_primary_service', 'IDIN')) {
+                    } elseif ($this->pushRequst->hasPostData('primary_service', 'IDIN')) {
                         $this->checkoutSession->restoreQuote();
                     }
                 } catch (\Exception $e) {
@@ -676,7 +682,8 @@ class Process extends \Magento\Framework\App\Action\Action
 
     private function setCustomerIDIN()
     {
-        if (!empty($this->pushRequst->getServiceIdinConsumerbin())
+        if (
+            !empty($this->pushRequst->getServiceIdinConsumerbin())
             && !empty($this->pushRequst->getServiceIdinIseighteenorolder())
             && $this->pushRequst->getServiceIdinIseighteenorolder() == 'True'
         ) {

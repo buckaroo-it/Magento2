@@ -64,11 +64,11 @@ class Index extends Action implements HttpGetActionInterface
      * @param ManagerInterface $messageManager
      */
     public function __construct(
-        Context                     $context,
-        Http                        $request,
-        OrderRepositoryInterface    $orderRepository,
+        Context $context,
+        Http $request,
+        OrderRepositoryInterface $orderRepository,
         CommandManagerPoolInterface $commandManagerPool,
-        ManagerInterface            $messageManager
+        ManagerInterface $messageManager
     ) {
         parent::__construct($context);
         $this->request               = $request;

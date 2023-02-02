@@ -9,8 +9,14 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class TerminalIdDataBuilder implements BuilderInterface
 {
+    /**
+     * @var CookieManagerInterface
+     */
     private CookieManagerInterface $cookieManager;
 
+    /**
+     * @param CookieManagerInterface $cookieManager
+     */
     public function __construct(CookieManagerInterface $cookieManager)
     {
         $this->cookieManager = $cookieManager;
@@ -27,6 +33,8 @@ class TerminalIdDataBuilder implements BuilderInterface
     }
 
     /**
+     * Get Pos Terminal ID Cookie
+     *
      * @return null|string
      */
     private function getPosPaymentTerminalId(): ?string

@@ -80,7 +80,8 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
             $this->updateShippingAddressCommonMapping($mapping, $requestData);
 
             foreach ($requestData as $key => $value) {
-                if ($requestData[$key]['Group'] == 'ShippingCustomer'
+                if (
+                    $requestData[$key]['Group'] == 'ShippingCustomer'
                     && $requestData[$key]['Name'] == 'StreetNumberAdditional'
                 ) {
                     unset($requestData[$key]);

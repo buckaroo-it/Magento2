@@ -109,13 +109,15 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
         $this->logger->addDebug(__METHOD__ . '|1|');
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
             && $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
         ) {
             $this->createInvoice($order, $shipment);
         }
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20')
+        if (
+            ($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20')
             && $this->afterpayConfig->isInvoiceCreatedAfterShipment()
             && ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
         ) {

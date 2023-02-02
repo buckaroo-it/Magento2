@@ -546,6 +546,26 @@
         </arguments>
     </type>
 
+    <!-- Buckaroo Payment Provider Gateway Availability Validators -->
+    <virtualType name="BuckarooAvailabilityValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="account_config" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\ActiveAccountValidator</item>
+                <item name="area_code" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
+                <item name="based_on_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnIPValidator</item>
+                <item name="based_on_amount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnAmountValidator</item>
+                <item name="based_on_currency" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator</item>
+            </argument>
+            <argument name="chainBreakingValidators" xsi:type="array">
+                <item name="account_config" xsi:type="string">account_config</item>
+                <item name="area_code" xsi:type="string">area_code</item>
+                <item name="based_on_ip" xsi:type="string">based_on_ip</item>
+                <item name="based_on_amount" xsi:type="string">based_on_amount</item>
+                <item name="based_on_currency" xsi:type="string">based_on_currency</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
         <arguments>
             <argument name="executors" xsi:type="array">
@@ -570,71 +590,160 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="AdditionalParametersOrderDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <!-- Additional Parameters Data Builder Types -->
+    <virtualType name="AdditionalParametersOrderDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">order</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersRefundDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersRefundDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">refund</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersPayDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersPayDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">pay</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersPayInInstallmentsDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersPayInInstallmentsDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">payininstallments</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersReserveDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersReserveDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">reserve</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersAuthorizeDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersAuthorizeDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">authorize</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersCaptureDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersCaptureDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">capture</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersCancelDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersCancelDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">cancelauthorize</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersPayPerEmailDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersPayPerEmailDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">fromPayPerEmail</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersPayLinkDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersPayLinkDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">fromPayLink</argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="AdditionalParametersCreateMandateDataBuilder" type="Buckaroo\Magento2\Gateway\Request\AdditionalParametersDataBuilder">
+    <virtualType name="AdditionalParametersCreateMandateDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">createmandate</argument>
         </arguments>
     </virtualType>
+    <!-- END Additional Parameters Data Builder Types -->
+
+    <!-- Gateway Client Types -->
+    <virtualType name="TransactionAuthorize" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionAuthorizeEncrypted" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE_ENCRYPTED</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionCancel" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CANCEL</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionCancelReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CANCEL_RESERVE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionCapture" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CAPTURE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionPay" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionPayInInstallments" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_IN_INSTALLMENTS</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionPayRedirect" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionRefund" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::REFUND</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionCreditManagmentVoid" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_CREDIT_NOTE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::RESERVE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionPayRedirect" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionCreateMandate" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_MANDATE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionPaymentInvitation" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAYMENT_INVITATION</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionVerify" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::VERIFY</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Gateway Client Types -->
+
+    <!-- Message Mapper -->
+    <virtualType name="Buckaroo\Magento2\Gateway\ErrorMapper\VirtualConfigReader" type="Magento\Payment\Gateway\ErrorMapper\VirtualConfigReader">
+        <arguments>
+            <argument name="fileName" xsi:type="string">buckaroo_error_mapping.xml</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Buckaroo\Magento2\Gateway\ErrorMapper\VirtualMappingData" type="Magento\Payment\Gateway\ErrorMapper\MappingData">
+        <arguments>
+            <argument name="reader" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualConfigReader</argument>
+            <argument name="cacheId" xsi:type="string">buckaroo_error_mapper</argument>
+        </arguments>
+    </virtualType>
+    <type name="Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper">
+        <arguments>
+            <argument name="messageMapping" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualMappingData</argument>
+        </arguments>
+    </type>
+    <!-- END Message Mapper -->
 
     <!-- Buckaroo AddressHandlerPool - Change Shipping Request by Delivery Methods-->
     <type name="Buckaroo\Magento2\Gateway\Request\AddressHandlerPool">
@@ -660,6 +769,13 @@
     </type>
 
     <!-- Buckaroo Commands infrastructure -->
+    <virtualType name="BuckarooWithIdBuilderComposite" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="usingId" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Buckaroo Commands infrastructure -->
     <virtualType name="BuckarooGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
@@ -677,25 +793,26 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Buckaroo Order Command - Request Builder -->
-    <virtualType name="BuckarooOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountDebitDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="BuckarooPayRemainderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooPayRemainderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="amount" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayReminder\AmountDataBuilder</item>
@@ -726,10 +843,10 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">BuckarooCaptureRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCapture</argument>
+            <argument name="client" xsi:type="object">TransactionCapture</argument>
             <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
@@ -743,18 +860,18 @@
     </virtualType>
 
     <!-- Buckaroo Capture Command - Request Builder -->
-    <virtualType name="BuckarooCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\InvoiceNumberDataBuilder</item>
                 <item name="amountDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\AmountInvoicedDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
-                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OrderNumberDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
             </argument>
         </arguments>
@@ -765,38 +882,40 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">BuckarooRefundRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Buckaroo Refund Command - Request Builder -->
-    <virtualType name="BuckarooRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
-                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\OriginalTransactionKeyDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
     <!-- Buckaroo Partial Refund Command - Request Builder -->
-    <virtualType name="BuckarooPartialRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooPartialRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
                 <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\RefundOriginalTransactionKeyDataBuilder</item>
-                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>
@@ -816,23 +935,24 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">BuckarooCancelRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCancel</argument>
+            <argument name="client" xsi:type="object">TransactionCancel</argument>
             <argument name="handler" xsi:type="object">CancelResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Buckaroo Cancel Command - Request Builder -->
-    <virtualType name="BuckarooCancelRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooCancelRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OriginalTransactionKeyDataBuilder</item>
-                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountCreditDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\OriginalTransactionKeyDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCancelDataBuilder</item>
             </argument>
         </arguments>
@@ -864,6 +984,7 @@
             </argument>
         </arguments>
     </type>
+
 
     <!-- Payment Method: iDEAL -->
     <!-- iDEAL Payment Method Facade configuration -->
@@ -899,14 +1020,10 @@
     <virtualType name="IdealValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">IdealCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="IdealCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</argument>
         </arguments>
     </virtualType>
     <!-- END iDEAL validators infrastructure -->
@@ -920,7 +1037,6 @@
             </argument>
         </arguments>
     </virtualType>
-
     <!-- iDEAL Order Command -->
     <virtualType name="IdealOrderCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
@@ -929,16 +1045,16 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- iDEAL Order Command - Request Builder -->
-    <virtualType name="IdealOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="IdealOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
-                <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\IssuerDataBuilder</item>
+                <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\IssuerDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -949,36 +1065,16 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">BuckarooRefundRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- END iDEAL Refund Command -->
     <!-- END iDEAL Commands infrastructure -->
     <!-- END Payment Method: iDEAL -->
 
-    <!-- Message Mapper -->
-    <virtualType name="Buckaroo\Magento2\Gateway\ErrorMapper\VirtualConfigReader" type="Magento\Payment\Gateway\ErrorMapper\VirtualConfigReader">
-        <arguments>
-            <argument name="fileName" xsi:type="string">buckaroo_error_mapping.xml</argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="Buckaroo\Magento2\Gateway\ErrorMapper\VirtualMappingData" type="Magento\Payment\Gateway\ErrorMapper\MappingData">
-        <arguments>
-            <argument name="reader" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualConfigReader</argument>
-            <argument name="cacheId" xsi:type="string">buckaroo_error_mapper</argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper" type="Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapper">
-        <arguments>
-            <argument name="messageMapping" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualMappingData</argument>
-        </arguments>
-    </virtualType>
-    <!-- Message Mapper -->
 
     <!-- Payment Method: Klarna -->
     <!-- Klarna Payment Method Facade configuration -->
@@ -990,7 +1086,6 @@
             <argument name="valueHandlerPool" xsi:type="object">KlarnaValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">KlarnaValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">KlarnaGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -1014,13 +1109,9 @@
     <virtualType name="KlarnaValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">KlarnaCountryValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="KlarnaCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna</argument>
         </arguments>
     </virtualType>
     <!-- END Klarna validators infrastructure -->
@@ -1040,15 +1131,15 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">KlarnaOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Klarna Order Command - Request Builder -->
-    <virtualType name="KlarnaOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -1057,7 +1148,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerKlarnaDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerKlarnaDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="shipping" xsi:type="string">KlarnaBillingDataBuilder</item>
@@ -1066,22 +1157,22 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="KlarnaBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="KlarnaShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">KlarnaShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -1129,13 +1220,9 @@
     <virtualType name="KlarnaInValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">KlarnaInCountryValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="KlarnaInCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain</argument>
         </arguments>
     </virtualType>
     <!-- END KlarnaIn validators infrastructure -->
@@ -1153,12 +1240,12 @@
     <virtualType name="KlarnaInOrderCommand" type="KlarnaOrderCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">KlarnaInOrderRequest</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayInInstallments</argument>
+            <argument name="client" xsi:type="object">TransactionPayInInstallments</argument>
         </arguments>
     </virtualType>
 
     <!-- KlarnaIn Order Command - Request Builder -->
-    <virtualType name="KlarnaInOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaInOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="klarna_order_request" xsi:type="string">KlarnaOrderRequest</item>
@@ -1203,13 +1290,9 @@
     <virtualType name="KlarnaKpValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">KlarnaKpCountryValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="KlarnaKpCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp</argument>
         </arguments>
     </virtualType>
     <!-- END KlarnaKp validators infrastructure -->
@@ -1231,14 +1314,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">KlarnaKpAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve</argument>
+            <argument name="client" xsi:type="object">TransactionReserve</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- KlarnaKp Authorize Command - Request Builder -->
-    <virtualType name="KlarnaKpAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="klarnakp_reserve_request" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReserveDataBuilder</item>
@@ -1255,25 +1338,25 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">KlarnaKpCaptureRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- KlarnaKp Capture Command - Request Builder -->
-    <virtualType name="KlarnaKpCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\InvoiceNumberDataBuilder</item>
                 <item name="amountDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\AmountInvoicedDataBuilder</item>
                 <item name="reservation_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReservationNumberDataBuilder</item>
-                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OrderNumberDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
             </argument>
         </arguments>
@@ -1285,28 +1368,28 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">KlarnaKpCancelRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCancelReserve</argument>
+            <argument name="client" xsi:type="object">TransactionCancelReserve</argument>
             <argument name="handler" xsi:type="object">CancelResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- KlarnaKp Cancel Command - Request Builder -->
-    <virtualType name="KlarnaKpCancelRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpCancelRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="reservation_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReservationNumberDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
     <!-- END KlarnaKp Cancel Command -->
 
-    <virtualType name="CustomerKlarnaKpDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerKlarnaKpDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="shipping" xsi:type="string">KlarnaKpBillingDataBuilder</item>
@@ -1315,22 +1398,22 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="KlarnaKpBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaKpDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="KlarnaKpShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="KlarnaKpShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">KlarnaKpShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -1380,7 +1463,8 @@
     <virtualType name="AlipayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">AlipayCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1405,21 +1489,22 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AlipayOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Alipay Order Command - Request Builder -->
-    <virtualType name="AlipayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AlipayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountDebitDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="use_mobile_view" xsi:type="string">Buckaroo\Magento2\Gateway\Request\UseMobileViewDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
             </argument>
@@ -1463,13 +1548,9 @@
     <virtualType name="GiropayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">GiropayCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="GiropayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</argument>
         </arguments>
     </virtualType>
     <!-- END Giropay validators infrastructure -->
@@ -1488,21 +1569,22 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">GiropayOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Giropay Order Command - Request Builder -->
-    <virtualType name="GiropayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="GiropayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountDebitDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1543,13 +1625,9 @@
     <virtualType name="TrustlyValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">TrustlyCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="TrustlyCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Trustly</argument>
         </arguments>
     </virtualType>
     <!-- END Trustly validators infrastructure -->
@@ -1571,11 +1649,11 @@
         </arguments>
     </virtualType>
     <!-- Trustly Order Command - Request Builder -->
-    <virtualType name="TrustlyOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TrustlyOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CountryDataBuilder</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CountryDataBuilder</item>
                 <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
             </argument>
         </arguments>
@@ -1617,13 +1695,9 @@
     <virtualType name="Przelewy24ValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">Przelewy24CountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Przelewy24CountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</argument>
         </arguments>
     </virtualType>
     <!-- END Przelewy24 validators infrastructure -->
@@ -1645,12 +1719,12 @@
         </arguments>
     </virtualType>
     <!-- Przelewy24 Order Command - Request Builder -->
-    <virtualType name="Przelewy24OrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="Przelewy24OrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
-                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\EmailDataBuilder</item>
+                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1692,13 +1766,9 @@
     <virtualType name="BelfiusValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">BelfiusCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="BelfiusCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</argument>
         </arguments>
     </virtualType>
     <!-- END Belfius validators infrastructure -->
@@ -1748,13 +1818,9 @@
     <virtualType name="CapayableValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">CapayableCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="CapayableCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3</argument>
         </arguments>
     </virtualType>
     <!-- END Capayable validators infrastructure -->
@@ -1774,24 +1840,25 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CapayableOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayInInstallments</argument>
+            <argument name="client" xsi:type="object">TransactionPayInInstallments</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Capayable Order Command - Request Builder -->
-    <virtualType name="CapayableOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CapayableOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AmountDebitDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\InvoiceDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountDebitDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayInInstallmentsDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\EmailDataBuilder</item>
                 <item name="phone" xsi:type="string">CapayablePhone</item>
                 <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerTypeDataBuilder</item>
                 <item name="invoice_date" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\InvoiceDateDataBuilder</item>
@@ -1844,13 +1911,9 @@
     <virtualType name="EpsValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">EpsCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="EpsCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Eps</argument>
         </arguments>
     </virtualType>
     <!-- END Eps validators infrastructure -->
@@ -1890,13 +1953,9 @@
     <virtualType name="KbcValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">KbcCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="KbcCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Kbc</argument>
         </arguments>
     </virtualType>
     <!-- END Kbc validators infrastructure -->
@@ -1938,16 +1997,13 @@
     <virtualType name="MrcashValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">MrcashCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="MrcashCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Mrcash</argument>
-        </arguments>
-    </virtualType>
     <!-- END Mrcash validators infrastructure -->
+
     <!-- Mrcash Commands infrastructure -->
     <virtualType name="MrcashGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
@@ -1961,11 +2017,11 @@
     <virtualType name="MrcashOrderCommand" type="BuckarooOrderCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">MrcashOrderRequest</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
         </arguments>
     </virtualType>
     <!-- Mrcash Order Command - Request Builder -->
-    <virtualType name="MrcashOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="MrcashOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2010,13 +2066,9 @@
     <virtualType name="PayconiqValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">PayconiqCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="PayconiqCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq</argument>
         </arguments>
     </virtualType>
     <!-- END Payconiq validators infrastructure -->
@@ -2057,13 +2109,9 @@
     <virtualType name="BillinkValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">BillinkCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="BillinkCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Billink</argument>
         </arguments>
     </virtualType>
     <!-- END Billink validators infrastructure -->
@@ -2087,25 +2135,25 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">BillinkOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Billink Order Command - Request Builder -->
-    <virtualType name="BillinkOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BillinkOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\VATNumberDataBuilder</item>
+                <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\VATNumberDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerBillinkDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerBillinkDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerBillinkDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">BillinkBillingDataBuilder</item>
@@ -2114,22 +2162,22 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="BillinkBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BillinkBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\BillinkDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="BillinkShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BillinkShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">BillinkShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2142,13 +2190,13 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="PhoneShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder">
+    <virtualType name="PhoneShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder">
         <arguments>
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="EmailAddressShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder">
+    <virtualType name="EmailAddressShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder">
         <arguments>
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
@@ -2160,14 +2208,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">BillinkAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="client" xsi:type="object">TransactionAuthorize</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Billink Authorize Command - Request Builder -->
-    <virtualType name="BillinkAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BillinkAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BillinkOrderRequest</item>
@@ -2182,10 +2230,10 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">BuckarooCaptureRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCapture</argument>
+            <argument name="client" xsi:type="object">TransactionCapture</argument>
             <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- END Billink Capture Command -->
@@ -2226,13 +2274,9 @@
     <virtualType name="AfterpayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">AfterpayCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="AfterpayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20</argument>
         </arguments>
     </virtualType>
     <!-- END Afterpay validators infrastructure -->
@@ -2256,15 +2300,15 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AfterpayOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Afterpay Order Command - Request Builder -->
-    <virtualType name="AfterpayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2273,7 +2317,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerAfterpayDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerAfterpayDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">AfterpayBillingDataBuilder</item>
@@ -2282,22 +2326,22 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="AfterpayBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="AfterpayShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">AfterpayShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2310,13 +2354,13 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="PhoneShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder">
+    <virtualType name="PhoneShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder">
         <arguments>
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="EmailAddressShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder">
+    <virtualType name="EmailAddressShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder">
         <arguments>
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
@@ -2328,14 +2372,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AfterpayAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="client" xsi:type="object">TransactionAuthorize</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Afterpay Authorize Command - Request Builder -->
-    <virtualType name="AfterpayAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">AfterpayOrderRequest</item>
@@ -2350,14 +2394,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AfterpayRefundRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Afterpay Refund Command - Request Builder -->
-    <virtualType name="AfterpayRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
@@ -2403,13 +2447,9 @@
     <virtualType name="AfterpayOldValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">AfterpayOldCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="AfterpayOldCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</argument>
         </arguments>
     </virtualType>
     <!-- END Afterpay Old validators infrastructure -->
@@ -2436,12 +2476,12 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Afterpay Old Order Command - Request Builder -->
-    <virtualType name="AfterpayOldOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -2451,7 +2491,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerAfterpayOldDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerAfterpayOldDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">AfterpayOldBillingDataBuilder</item>
@@ -2460,22 +2500,22 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="AfterpayOldBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayOldDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="AfterpayOldShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">AfterpayOldShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2494,14 +2534,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AfterpayOldAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="client" xsi:type="object">TransactionAuthorize</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Afterpay Old Authorize Command - Request Builder -->
-    <virtualType name="AfterpayOldAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">AfterpayOldOrderRequest</item>
@@ -2518,7 +2558,7 @@
         </arguments>
     </virtualType>
     <!-- Afterpay Old Capture Command - Request Builder -->
-    <virtualType name="AfterpayOldCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="capture_request" xsi:type="string">BuckarooCaptureRequest</item>
@@ -2533,14 +2573,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AfterpayOldRefundRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Afterpay Old Refund Command - Request Builder -->
-    <virtualType name="AfterpayOldRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="AfterpayOldRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
@@ -2587,13 +2627,9 @@
     <virtualType name="TinkaValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">TinkaCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="TinkaCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Tinka</argument>
         </arguments>
     </virtualType>
     <!-- END Tinka validators infrastructure -->
@@ -2613,26 +2649,26 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">TinkaOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Tinka Order Command - Request Builder -->
-    <virtualType name="TinkaOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TinkaOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="tinka" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TinkaDataBuilder</item>
-                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerDataBuilder</item>
+                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerDataBuilder</item>
                 <item name="customer_address" xsi:type="string">CustomerTinkaDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerTinkaDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerTinkaDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">TinkaBillingDataBuilder</item>
@@ -2641,22 +2677,22 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="TinkaBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TinkaBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\TinkaDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="TinkaShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TinkaShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">TinkaShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2705,16 +2741,13 @@
     <virtualType name="CreditClickValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">CreditClickCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CreditClickCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</argument>
-        </arguments>
-    </virtualType>
     <!-- END CreditClick validators infrastructure -->
+
     <!-- CreditClick Commands infrastructure -->
     <virtualType name="CreditClickGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
@@ -2730,20 +2763,20 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CreditClickOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- CreditClick Order Command - Request Builder -->
-    <virtualType name="CreditClickOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditClickOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
-                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
+                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2754,14 +2787,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CreditClickRefundRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="client" xsi:type="object">TransactionRefund</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- CreditClick Refund Command - Request Builder -->
-    <virtualType name="CreditClickRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditClickRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
@@ -2806,16 +2839,13 @@
     <virtualType name="ApplepayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">ApplepayCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="ApplepayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay</argument>
-        </arguments>
-    </virtualType>
     <!-- END Applepay validators infrastructure -->
+
     <!-- Applepay Commands infrastructure -->
     <virtualType name="ApplepayGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
@@ -2831,19 +2861,19 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">ApplepayOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Applepay Order Command - Request Builder -->
-    <virtualType name="ApplepayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="ApplepayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="applepay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ApplepayDataBuilder</item>
+                <item name="applepay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\ApplepayDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2886,17 +2916,14 @@
     <virtualType name="EmandateValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">EmandateCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="EmandateCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate</argument>
-        </arguments>
-    </virtualType>
     <!-- END Emandate validators infrastructure -->
+
     <!-- Emandate Commands infrastructure -->
     <virtualType name="EmandateGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
@@ -2911,23 +2938,23 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">EmandateOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionCreateMandate</argument>
+            <argument name="client" xsi:type="object">TransactionCreateMandate</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator
             </argument>
             <argument name="errorMessageMapper" xsi:type="object">
-                Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+                Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Emandate Order Command - Request Builder -->
-    <virtualType name="EmandateOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="EmandateOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCreateMandateDataBuilder</item>
                 <item name="emandate" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmandateDataBuilder</item>
             </argument>
@@ -2984,14 +3011,10 @@
     <virtualType name="GiftcardsValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">GiftcardsCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AllowedGiftcardsValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="GiftcardsCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards</argument>
         </arguments>
     </virtualType>
     <!-- END Giftcards validators infrastructure -->
@@ -3011,15 +3034,15 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">GiftcardsOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRedirect</argument>
+            <argument name="client" xsi:type="object">TransactionPayRedirect</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Giftcards Order Command - Request Builder -->
-    <virtualType name="GiftcardsOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="GiftcardsOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3038,11 +3061,11 @@
     </virtualType>
 
     <!-- Giftcards Refund Command - Request Builder -->
-    <virtualType name="GiftcardsRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="GiftcardsRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooRefundRequest</item>
-                <item name="giftcard_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GiftcardNameDataBuilder</item>
+                <item name="giftcard_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\GiftcardNameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3084,14 +3107,10 @@
     <virtualType name="PayPerEmailValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">PayPerEmailCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="PayPerEmailCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail</argument>
         </arguments>
     </virtualType>
     <!-- END PayPerEmail validators infrastructure -->
@@ -3112,14 +3131,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">PayPerEmailOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPaymentInvitation</argument>
+            <argument name="client" xsi:type="object">TransactionPaymentInvitation</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- PayPerEmail Order Command - Request Builder -->
-    <virtualType name="PayPerEmailOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="PayPerEmailOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3137,7 +3156,7 @@
         </arguments>
     </virtualType>
     <!-- PayPerEmail PayLink Command - Request Builder -->
-    <virtualType name="PayLinkRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="PayLinkRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -3195,17 +3214,13 @@
     <virtualType name="TransferValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">TransferCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="TransferCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer</argument>
-        </arguments>
-    </virtualType>
     <!-- END Transfer validators infrastructure -->
+
     <!-- Transfer Commands infrastructure -->
     <virtualType name="TransferGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
@@ -3222,25 +3237,25 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">TransferOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderWithCreditManagementResponseHandler</argument>
             <argument name="validator" xsi:type="object">
                 Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator
             </argument>
             <argument name="errorMessageMapper" xsi:type="object">
-                Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper
+                Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper
             </argument>
         </arguments>
     </virtualType>
 
     <!-- Transfer Order Command - Request Builder -->
-    <virtualType name="TransferOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="TransferOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
-                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CustomerNameDataBuilder</item>
-                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CountryDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
+                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CountryDataBuilder</item>
                 <item name="transfer_config_params" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TransferOrderDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
             </argument>
@@ -3284,13 +3299,9 @@
     <virtualType name="VoucherValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">VoucherCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="VoucherCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</argument>
         </arguments>
     </virtualType>
     <!-- END Voucher validators infrastructure -->
@@ -3333,10 +3344,10 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="BuckarooVoidCreditManagementRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooVoidCreditManagementRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="payment_method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultVoidCreditManagment</item>
             </argument>
         </arguments>
@@ -3353,11 +3364,11 @@
     <virtualType name="BuckarooRefundWithCreditManagementCommand" type="BuckarooRefundCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">BuckarooRefundWithCreditManagementRequest</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="client" xsi:type="object">TransactionRefund</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="BuckarooRefundWithCreditManagementRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="BuckarooRefundWithCreditManagementRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
@@ -3373,9 +3384,9 @@
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceDataBuilder</item>
                 <item name="invoice_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceKeyDataBuilder</item>
                 <item name="invoice_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceNumberDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3385,7 +3396,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="group" xsi:type="string">BuckarooCreditManagmentGroup</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
                 <item name="config" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\ConfigDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\InvoiceDataBuilder</item>
             </argument>
@@ -3395,7 +3406,7 @@
     <virtualType name="BuckarooCreditManagmentGroup" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
                 <item name="person" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\PersonDataBuilder</item>
                 <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\AddressDataBuilder</item>
                 <item name="company" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditManagement\CompanyDataBuilder</item>
@@ -3405,82 +3416,6 @@
     </virtualType>
 
     <!-- END Credit Managment -->
-
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorizeEncrypted" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE_ENCRYPTED</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCancel" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CANCEL</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCancelReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CANCEL_RESERVE</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCapture" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CAPTURE</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPay" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayInInstallments" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_IN_INSTALLMENTS</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRedirect" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionRefund" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::REFUND</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCreditManagmentVoid" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_CREDIT_NOTE</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::RESERVE</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRedirect" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REDIRECT</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionCreateMandate" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_MANDATE</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionPaymentInvitation" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAYMENT_INVITATION</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Buckaroo\Magento2\Gateway\Http\Client\TransactionVerify" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::VERIFY</argument>
-        </arguments>
-    </virtualType>
 
     <type name="Buckaroo\Magento2\Observer\VoidCm3Payment">
         <arguments>
@@ -3522,13 +3457,9 @@
     <virtualType name="RtpValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">RtpCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="RtpCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Rtp</argument>
         </arguments>
     </virtualType>
     <!-- END Rtp validators infrastructure -->
@@ -3548,19 +3479,19 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">RtpOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Rtp Order Command - Request Builder -->
-    <virtualType name="RtpOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="RtpOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\NameDataBuilder</item>
+                <item name="name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\NameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3602,13 +3533,9 @@
     <virtualType name="SofortbankingValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">SofortbankingCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="SofortbankingCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking</argument>
         </arguments>
     </virtualType>
     <!-- END Sofortbanking validators infrastructure -->
@@ -3661,17 +3588,13 @@
     <virtualType name="PaypalValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">PaypalCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
         </arguments>
     </virtualType>
-
-    <virtualType name="PaypalCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal</argument>
-        </arguments>
-    </virtualType>
     <!-- END Paypal validators infrastructure -->
+
     <!-- Paypal Commands infrastructure -->
     <virtualType name="PaypalGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
@@ -3691,16 +3614,16 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderWithCreditManagementResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Paypal Order Command - Request Builder -->
-    <virtualType name="PaypalOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="PaypalOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="expressOrderId" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ExpressOrderIdDataBuilder</item>
+                <item name="expressOrderId" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\ExpressOrderIdDataBuilder</item>
                 <item name="paypal_extrainfo" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaypalExtrainfoDataBuilder</item>
             </argument>
         </arguments>
@@ -3744,13 +3667,9 @@
     <virtualType name="CreditcardValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">CreditcardCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="CreditcardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard</argument>
         </arguments>
     </virtualType>
     <!-- END Creditcard validators infrastructure -->
@@ -3762,8 +3681,6 @@
                 <item name="order" xsi:type="string">CreditcardOrderCommand</item>
                 <item name="authorize" xsi:type="string">CreditcardAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">CreditcardCaptureCommand</item>
-<!--                <item name="cancel" xsi:type="string">BuckarooCancelCommand</item>-->
-<!--                <item name="void" xsi:type="string">BuckarooCancelCommand</item>-->
                 <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
             </argument>
         </arguments>
@@ -3777,16 +3694,16 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Creditcard Order Command - Request Builder -->
-    <virtualType name="CreditcardOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardTypeDataBuilder</item>
+                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardTypeDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3797,14 +3714,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CreditcardAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="client" xsi:type="object">TransactionAuthorize</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- Creditcard Authorize Command - Request Builder -->
-    <virtualType name="CreditcardAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">CreditcardOrderRequest</item>
@@ -3821,19 +3738,19 @@
         </arguments>
     </virtualType>
     <!-- Creditcard Capture Command - Request Builder -->
-    <virtualType name="CreditcardCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\InvoiceNumberDataBuilder</item>
-                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OrderNumberDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
                 <item name="amountDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\AmountInvoicedDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
-                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardTypeDataBuilder</item>
+                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardTypeDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3875,13 +3792,9 @@
     <virtualType name="CreditcardEncryptedValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">CreditcardEncryptedCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="CreditcardEncryptedCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards</argument>
         </arguments>
     </virtualType>
     <!-- END CreditcardEncrypted validators infrastructure -->
@@ -3893,8 +3806,6 @@
                 <item name="order" xsi:type="string">CreditcardEncryptedOrderCommand</item>
                 <item name="authorize" xsi:type="string">CreditcardEncryptedAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">CreditcardEncryptedCaptureCommand</item>
-                <!--                <item name="cancel" xsi:type="string">BuckarooCancelCommand</item>-->
-                <!--                <item name="void" xsi:type="string">BuckarooCancelCommand</item>-->
                 <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
             </argument>
         </arguments>
@@ -3908,16 +3819,16 @@
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainderEncrypted</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- CreditcardEncrypted Order Command - Request Builder -->
-    <virtualType name="CreditcardEncryptedOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardEncryptedOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="creditcard_encrypted" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardEncryptedDataBuilder</item>
+                <item name="creditcard_encrypted" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardEncryptedDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3928,14 +3839,14 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CreditcardEncryptedAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionAuthorizeEncrypted</argument>
+            <argument name="client" xsi:type="object">TransactionAuthorizeEncrypted</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <!-- CreditcardEncrypted Authorize Command - Request Builder -->
-    <virtualType name="CreditcardEncryptedAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardEncryptedAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">CreditcardEncryptedOrderRequest</item>
@@ -3952,19 +3863,19 @@
         </arguments>
     </virtualType>
     <!-- CreditcardEncrypted Capture Command - Request Builder -->
-    <virtualType name="CreditcardEncryptedCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="CreditcardEncryptedCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PaymentMethodDataBuilder</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\InvoiceNumberDataBuilder</item>
-                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\OrderNumberDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
                 <item name="amountDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\AmountInvoicedDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DescriptionDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ClientIPDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReturnUrlDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
-                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CreditcardEncryptedDataBuilder</item>
+                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardEncryptedDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4007,14 +3918,10 @@
     <virtualType name="PospaymentValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">PospaymentCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\PosPaymentValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="PospaymentCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment</argument>
         </arguments>
     </virtualType>
     <!-- END Pospayment validators infrastructure -->
@@ -4033,15 +3940,15 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">PospaymentOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Pospayment Order Command - Request Builder -->
-    <virtualType name="PospaymentOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="PospaymentOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
@@ -4087,14 +3994,10 @@
     <virtualType name="SepaDirectDebitValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">SepaDirectDebitCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="bankAccount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\BankAccountValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="SepaDirectDebitCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</argument>
         </arguments>
     </virtualType>
     <!-- END SepaDirectDebit validators infrastructure -->
@@ -4115,19 +4018,19 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">SepaDirectDebitOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">SepaDirectDebitHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- SepaDirectDebit Order Command - Request Builder -->
-    <virtualType name="SepaDirectDebitOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="SepaDirectDebitOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="orderRequest" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="sepaDirectDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SepaDirectDebitDataBuilder</item>
+                <item name="sepaDirectDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\SepaDirectDebitDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
             </argument>
         </arguments>
@@ -4182,13 +4085,9 @@
     <virtualType name="WechatpayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">WechatpayCountryValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
             </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="WechatpayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Wechatpay</argument>
         </arguments>
     </virtualType>
     <!-- END Wechatpay validators infrastructure -->
@@ -4208,23 +4107,23 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">WechatpayOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPay</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 
     <!-- Wechatpay Order Command - Request Builder -->
-    <virtualType name="WechatpayOrderRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="WechatpayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="locale" xsi:type="string">Buckaroo\Magento2\Gateway\Request\LocaleDataBuilder</item>
+                <item name="locale" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\LocaleDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CustomerWechatpayDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+    <virtualType name="CustomerWechatpayDataBuilder" type="BuckarooWithIdBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="billing" xsi:type="string">WechatpayBillingDataBuilder</item>
@@ -4233,22 +4132,22 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="WechatpayBillingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="WechatpayBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\WechatpayDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\EmailAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="WechatpayShippingDataBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <virtualType name="WechatpayShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">WechatpayShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -4265,7 +4164,14 @@
     <!-- END Payment Method: Wechatpay -->
 
     <!-- iDIN service (Age verification) -->
-    <virtualType name="IdinVerifyRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+    <type name="Buckaroo\Magento2\Controller\Checkout\Idin">
+        <arguments>
+            <argument name="requestDataBuilder" xsi:type="object">IdinVerifyRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="clientInterface" xsi:type="object">TransactionVerify</argument>
+        </arguments>
+    </type>
+    <virtualType name="IdinVerifyRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="idin" xsi:type="string">Buckaroo\Magento2\Gateway\Request\IdinDataBuilder</item>
@@ -4273,12 +4179,26 @@
         </arguments>
     </virtualType>
 
-    <type name="Buckaroo\Magento2\Controller\Checkout\Idin">
+
+    <!--    Refund Group Transaction-->
+    <type name="Buckaroo\Magento2\Service\RefundGroupTransactionService">
         <arguments>
-            <argument name="requestDataBuilder" xsi:type="object">IdinVerifyRequest</argument>
+            <argument name="requestDataBuilder" xsi:type="object">BuckarooRefundGroupTransactionRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="clientInterface" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionVerify</argument>
+            <argument name="clientInterface" xsi:type="object">TransactionRefund</argument>
+            <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
         </arguments>
     </type>
-
+    <virtualType name="BuckarooRefundGroupTransactionRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
 </config>

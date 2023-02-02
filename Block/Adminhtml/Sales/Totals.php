@@ -40,10 +40,10 @@ class Totals extends \Magento\Framework\View\Element\Template
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context  $context,
-        \Buckaroo\Magento2\Helper\PaymentFee              $helper,
+        \Magento\Framework\View\Element\Template\Context $context,
+        \Buckaroo\Magento2\Helper\PaymentFee $helper,
         \Magento\Framework\Pricing\PriceCurrencyInterface $currency,
-        array                                             $data = []
+        array $data = []
     ) {
         $this->helper = $helper;
         $this->_currency = $currency;
@@ -150,7 +150,8 @@ class Totals extends \Magento\Framework\View\Element\Template
     private function isCreditmemoTotalSelected($creditTotals, $saleTotal)
     {
         foreach ($creditTotals as $creditTotal) {
-            if (isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
+            if (
+                isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
             ) {
                 return true;
             }

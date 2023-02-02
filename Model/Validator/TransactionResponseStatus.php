@@ -105,14 +105,16 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
             $statusCode = $this->transaction->Status->Code->Code;
         }
 
-        if ((!isset($statusCode) || $statusCode == null)
+        if (
+            (!isset($statusCode) || $statusCode == null)
             && isset($this->transaction->Transaction->IsCanceled)
             && $this->transaction->Transaction->IsCanceled == true
         ) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         }
 
-        if ((!isset($statusCode) || $statusCode == null)
+        if (
+            (!isset($statusCode) || $statusCode == null)
             && $this->request->getParam('cancel')
         ) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');

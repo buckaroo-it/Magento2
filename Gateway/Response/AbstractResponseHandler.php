@@ -68,9 +68,11 @@ class AbstractResponseHandler
     }
 
     /**
+     * Save Transaction Data
+     *
      * @param TransactionResponse $response
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param                                                                                    $close
+     * @param bool $close
      * @param bool $saveId
      *
      * @return OrderPaymentInterface|InfoInterface
@@ -192,50 +194,5 @@ class AbstractResponseHandler
 
         $this->registry->unregister($key);
         $this->registry->register($key, $registryValue);
-    }
-
-    /**
-     * Validate data from request
-     *
-     * @param array $handlingSubject
-     * @param array $response
-     *
-     * @return void
-     * @throws \InvalidArgumentException
-     */
-    protected function validate(array $handlingSubject, array $response)
-    {
-        $this->validatePayment($handlingSubject);
-        $this->validateResponse($response);
-    }
-
-    /**
-     * Validate Payment Data Object Interface
-     *
-     * @param array $handlingSubject
-     * @return void
-     */
-    protected function validatePayment(array $handlingSubject)
-    {
-        if (!isset($handlingSubject['payment'])
-            || !$handlingSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
-    }
-
-    /**
-     * Check if response is instance of TransactionResponse
-     *
-     * @param array $response
-     * @return void
-     */
-    protected function validateResponse(array $response)
-    {
-        if (!isset($response['object'])
-            || !$response['object'] instanceof TransactionResponse
-        ) {
-            throw new \InvalidArgumentException('Data must be an instance of "TransactionResponse"');
-        }
     }
 }

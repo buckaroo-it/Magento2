@@ -18,7 +18,8 @@ class SendCloudAddressHandler extends AbstractAddressHandler
      */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
-        if (($order->getShippingMethod() == 'sendcloud_sendcloud')
+        if (
+            ($order->getShippingMethod() == 'sendcloud_sendcloud')
             &&
             $order->getSendcloudServicePointId()
         ) {
