@@ -1479,7 +1479,6 @@ class Push implements PushInterface
         /**
          * Only when the order can be invoiced and has not been invoiced before.
          */
-
         if (!$this->isGroupTransactionInfoType()) {
             $this->addTransactionData();
         }
@@ -1541,11 +1540,10 @@ class Push implements PushInterface
         foreach ($this->order->getInvoiceCollection() as $invoice) {
             $invoice->setTransactionId($transactionKey)->save();
 
-            if (!empty($this->pushRequst->getInvoiceNumber())) {
-                if ($this->groupTransaction->isGroupTransaction($this->pushRequst->getInvoiceNumber())) {
-                    $this->logging->addDebug(__METHOD__ . '|27|');
-                    $invoice->setState(2);
-                }
+            if (!empty($this->pushRequst->getInvoiceNumber())
+                && $this->groupTransaction->isGroupTransaction($this->pushRequst->getInvoiceNumber())) {
+                $this->logging->addDebug(__METHOD__ . '|27|');
+                $invoice->setState(2);
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
