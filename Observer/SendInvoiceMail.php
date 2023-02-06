@@ -92,8 +92,6 @@ class SendInvoiceMail implements ObserverInterface
             $order->setBaseSubtotal($orderBaseSubtotal);
             $order->setBaseTaxAmount($orderBaseTaxAmount);
         }
-
-        
         if ($invoice->getIsPaid() && $canCapture) {
             if (($payment->getMethod() == Afterpay20::PAYMENT_METHOD_CODE)
                 && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
