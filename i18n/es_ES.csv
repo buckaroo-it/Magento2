@@ -453,3 +453,5 @@
 "Check with Buckaroo whether Client Side Encryption is enabled","Consulte a Buckaroo si está activado el cifrado de datos desde el cliente. Si no es así, se producirán errores en las transacciones. Si tiene alguna duda, póngase en contacto con nosotros."
 "An anti-fraud rule has blocked this transaction automatically. Please contact the webshop.","Una regla antifraude ha bloqueado automáticamente esta transacción. Póngase en contacto con la tienda en línea."
 "The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.","Se ha iniciado el proceso de reembolso, pero está pendiente de aprobación. Inicie sesión en Buckaroo Plaza para aprobar el reembolso y finalizarlo."
+"PIN / Security code:","PIN / Código de seguridad:"
+"-- Please Select Your Gender--","Por favor seleccione su género"
