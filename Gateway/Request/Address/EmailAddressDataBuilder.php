@@ -30,7 +30,7 @@ class EmailAddressDataBuilder extends AbstractDataBuilder
     private function getAddress()
     {
         return ($this->addressType == 'shipping')
-            ? $this->getOrder()->getShippingAddress()
+            ? $this->getOrder()->getShippingAddress() ?? $this->getOrder()->getBillingAddress()
             : $this->getOrder()->getBillingAddress();
     }
 }

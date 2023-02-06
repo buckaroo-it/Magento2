@@ -58,7 +58,8 @@ class AddressHandlerPool
     public function getShippingAddress(Order $order)
     {
         try {
-            $shippingAddress = clone $order->getShippingAddress();
+            $orderShippingAddress = $order->getShippingAddress() ?? $order->getBillingAddress();
+            $shippingAddress = clone $orderShippingAddress;
             foreach ($this->addressHandlers as $addressHandler) {
                 $order = $addressHandler->handle($order, $shippingAddress);
             }

@@ -38,7 +38,7 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     protected function getAddress(): OrderAddressInterface
     {
         if ($this->addressType == 'shipping') {
-            return $this->getOrder()->getShippingAddress();
+            return $this->getOrder()->getShippingAddress() ?? $this->getOrder()->getBillingAddress();
         } else {
             return $this->getOrder()->getBillingAddress();
         }
