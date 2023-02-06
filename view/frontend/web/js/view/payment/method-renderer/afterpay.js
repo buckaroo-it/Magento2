@@ -342,7 +342,7 @@ define(
 
                     this.calculateAge = function (specifiedDate) {
                         if (specifiedDate && (specifiedDate.length > 0)) {
-                            var dateReg = /  ^ \d{2}[./ - ]\d{2}[./ - ]\d{4}$ / ;
+                            var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/ ;
                             if (specifiedDate.match(dateReg)) {
                                 var birthday = +new Date(
                                     specifiedDate.substr(6, 4),
