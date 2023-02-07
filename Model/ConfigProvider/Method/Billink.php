@@ -96,10 +96,10 @@ class Billink extends AbstractConfigProvider
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'b2b' => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
                         'genderList' => [
-                            ['genderType' => 'male', 'genderTitle' => 'He/him'],
-                            ['genderType' => 'female', 'genderTitle' => 'She/her'],
-                            ['genderType' => 'unknown', 'genderTitle' => 'They/them'],
-                            ['genderType' => 'unknown', 'genderTitle' => 'I prefer not to say']
+                            ['genderType' => 'male', 'genderTitle' => __('He/him')],
+                            ['genderType' => 'female', 'genderTitle' => __('She/her')],
+                            ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
+                            ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
                         ]
                     ],
                     'response' => [],
