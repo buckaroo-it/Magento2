@@ -181,13 +181,16 @@ class CreateCombinedInvoice
                 '_'    => $order->getBillingAddress()->getLastname(),
                 'Name' => 'LastName',
                 'Group' => 'Person',
-            ],
-            [
+            ]
+        ];
+
+        if (!empty($payment->getAdditionalInformation('customer_gender'))) {
+            $personParameters[] = [
                 '_'    => $payment->getAdditionalInformation('customer_gender'),
                 'Name' => 'Gender',
                 'Group' => 'Person',
-            ],
-        ];
+            ];
+        }
 
         return $personParameters;
     }
@@ -250,7 +253,7 @@ class CreateCombinedInvoice
         $requestParameters = [];
         $company = $billingAddress->getCompany();
 
-        if (strlen($company) <= 0) {
+        if (empty($company) || strlen($company) <= 0) {
             return $requestParameters;
         }
 
