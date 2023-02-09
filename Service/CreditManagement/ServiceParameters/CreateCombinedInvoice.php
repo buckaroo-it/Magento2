@@ -250,7 +250,7 @@ class CreateCombinedInvoice
         $requestParameters = [];
         $company = $billingAddress->getCompany();
 
-        if (strlen($company) <= 0) {
+        if (empty($company) || strlen($company) <= 0) {
             return $requestParameters;
         }
 
