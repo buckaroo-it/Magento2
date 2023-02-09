@@ -115,6 +115,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     }
                 }
 
+                $this->helper->addDebug(__METHOD__ . '|restoreQuote|' . var_export($this->helper->getRestoreQuoteLastOrder(), true));
+                $this->helper->addDebug(__METHOD__ . '|state|' . var_export($lastRealOrder->getData('state'), true));
+                $this->helper->addDebug(__METHOD__ . '|status|' . var_export($lastRealOrder->getData('status'), true));
+                $this->helper->addDebug(__METHOD__ . '|usesRedirect|' . var_export($payment->getMethodInstance()->usesRedirect, true));
+
                 if (
                     $this->helper->getRestoreQuoteLastOrder()
                     && ($lastRealOrder->getData('state') === 'new')
@@ -123,10 +128,10 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
+                    $this->cancelLastOrder($lastRealOrder);
                 }
             }
 
-            $this->cancelLastOrder($lastRealOrder);
 
             $this->helper->addDebug(__METHOD__ . '|50|');
             $this->helper->setRestoreQuoteLastOrder(false);

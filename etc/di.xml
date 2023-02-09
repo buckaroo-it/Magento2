@@ -36,7 +36,6 @@
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
 
-
       <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
     <preference for="Buckaroo\Magento2\Api\ApplyVoucherInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucher"/>
@@ -398,7 +397,7 @@
         </arguments>
     </type>
 
-    <type name="Buckaroo\Magento2\Logging\InternalLogger">
+    <type name="Buckaroo\Magento2\Logging\Log">
         <arguments>
             <argument name="name" xsi:type="string">buckaroo_logging</argument>
             <argument name="handlers"  xsi:type="array">
@@ -808,6 +807,7 @@
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="save_order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\SaveOrderBeforeDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
             </argument>
         </arguments>
@@ -832,6 +832,12 @@
 
 
     <!-- Buckaroo Order New Command - Response Handler -->
+    <virtualType name="OrderDispatchEventHandler"  type="Buckaroo\Magento2\Gateway\Response\DispatchEventHandler">
+        <arguments>
+            <argument name="command" xsi:type="string">order</argument>
+        </arguments>
+    </virtualType>
+
     <virtualType name="OrderNewResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
             <argument name="handlers" xsi:type="array">
@@ -840,6 +846,7 @@
                 <item name="payment_in_transit" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PaymentInTransitHandler</item>
                 <item name="skip_push" xsi:type="string">Buckaroo\Magento2\Gateway\Response\SkipPushHandler</item>
                 <item name="restore_quote" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RestoreQuoteHandler</item>
+                <item name="dispatch_event" xsi:type="string">OrderDispatchEventHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1058,7 +1065,7 @@
             <argument name="requestBuilder" xsi:type="object">IdealOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
-            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="handler" xsi:type="object">OrderNewResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>

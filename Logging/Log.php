@@ -87,12 +87,13 @@ class Log extends Logger
             self::$processUid = uniqid();
         }
 
-        $trace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS);
-        $logTrace = [];
         $depth = $this->debugConfiguration->getDebugBacktraceDepth();
         if (empty($depth) || trim($depth) == '') {
             $depth = self::BUCKAROO_LOG_TRACE_DEPTH_DEFAULT;
         }
+
+        $trace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, $depth);
+        $logTrace = [];
 
         for ($cnt = 1; $cnt < $depth; $cnt++) {
             if (isset($trace[$cnt])) {

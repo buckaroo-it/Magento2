@@ -5,8 +5,7 @@
  */
 namespace Buckaroo\Magento2\Gateway\Response;
 
-use Buckaroo\Magento2\Helper\Data;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Checkout\Model\Session\Proxy;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 
@@ -22,8 +21,7 @@ class RestoreQuoteHandler implements HandlerInterface
     /**
      * Constructor
      *
-     * @param  \Magento\Checkout\Model\Session\Proxy $checkoutSession
-     * @return void
+     * @param Proxy $checkoutSession
      */
     public function __construct(\Magento\Checkout\Model\Session\Proxy $checkoutSession)
     {
@@ -40,11 +38,9 @@ class RestoreQuoteHandler implements HandlerInterface
     public function handle(array $handlingSubject, array $response)
     {
         $paymentDO = SubjectReader::readPayment($handlingSubject);
-        /** @var OrderPaymentInterface $payment */
-        $payment = $paymentDO->getPayment();
 
-        $order = $payment->getOrder();
+        $orderId = $paymentDO->getOrder()->getId();
 
-        $this->checkoutSession->setRestoreQuoteLastOrder($order->getId());
+        $this->checkoutSession->setRestoreQuoteLastOrder($orderId);
     }
 }
