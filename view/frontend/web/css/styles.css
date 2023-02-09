@@ -819,7 +819,7 @@
         background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
         margin-top: -1px;
         float:left;
-        margin-right: -3px;
+        margin-right: 10px;
         background-size: auto 24px;
         width: 40px;
         height: 30px;
@@ -831,11 +831,23 @@
         background: url(../images/buckaroo_magento2_belfius_title.png) no-repeat;
         margin-top: -1px;
         float:left;
-        margin-right: -2px;
+        margin-right: 10px;
         background-size: auto 24px;
         width: 40px;
         height: 30px;
         content: ' ';
+    }
+
+    /* Billink */
+    .buckaroo_magento2_billink .buckaroo_magento2_image_title:before {
+        background: url(../images/buckaroo_magento2_billink_title.png) no-repeat;
+        float: left;
+        margin-right: 10px;
+        background-size: auto 16px;
+        width: 40px;
+        height: 16px;
+        content: '';
+        background-position: center;
     }
 
     /* Alipay */
@@ -918,7 +930,7 @@
         margin-top: 6px;
         float: left;
         margin-right: 10px;
-        background-size: auto 8px;
+        background-size: auto 24px;
         width: 40px;
         height: 30px;
         content: ' ';
