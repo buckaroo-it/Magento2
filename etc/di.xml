@@ -830,6 +830,21 @@
     </virtualType>
     <!-- END Buckaroo Order Command -->
 
+
+    <!-- Buckaroo Order New Command - Response Handler -->
+    <virtualType name="OrderNewResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="transaction_id" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TransactionIdHandler</item>
+                <item name="payment_details" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PaymentDetailsHandler</item>
+                <item name="payment_in_transit" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PaymentInTransitHandler</item>
+                <item name="skip_push" xsi:type="string">Buckaroo\Magento2\Gateway\Response\SkipPushHandler</item>
+                <item name="restore_quote" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RestoreQuoteHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Buckaroo Order Command -->
+
     <!-- Buckaroo Authorize Command - Response Handler -->
     <virtualType name="AuthorizeResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
