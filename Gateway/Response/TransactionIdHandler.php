@@ -62,18 +62,16 @@ class TransactionIdHandler implements HandlerInterface
      */
     protected function shouldCloseTransaction(): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Whether parent transaction should be closed
      *
-     * @param Payment $orderPayment
      * @return bool
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function shouldCloseParentTransaction(Payment $orderPayment): bool
+    protected function shouldCloseParentTransaction(): bool
     {
-        return false;
+        return true;
     }
 }

@@ -11,45 +11,43 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class RefundHandler extends AbstractResponseHandler implements HandlerInterface
 {
-    public bool $closeRefundTransaction = true;
-
+    /**
+     * @inheritdoc
+     */
     public function handle(array $handlingSubject, array $response)
     {
+        $payment = SubjectReader::readPayment($handlingSubject)->getPayment();
         $this->transactionResponse = SubjectReader::readTransactionResponse($response);
 
-        $payment = SubjectReader::readPayment($handlingSubject)->getPayment();
-
-        $response = $this->refundTransactionSdk($this->transactionResponse, $payment);
-
-        $this->saveTransactionData($this->transactionResponse, $payment, $this->closeRefundTransaction, false);
-        $this->afterRefund($payment, $response);
+        $this->refundTransactionSdk($this->transactionResponse, $payment);
     }
 
     /**
+     * Refund Transaction
+     *
      * @param TransactionResponse $responseData
-     * @param null $payment
+     * @param InfoInterface|null $payment
      * @return array|\StdClass|TransactionResponse
      */
     public function refundTransactionSdk(TransactionResponse $responseData, $payment = null)
     {
         $pendingApprovalStatus = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL');
 
-        if (
-            !empty($responseData->getStatusCode())
+        if (!empty($responseData->getStatusCode())
             && ($responseData->getStatusCode() == $pendingApprovalStatus)
             && $payment
             && !empty($responseData->getRelatedTransactions())
         ) {
             $this->buckarooLog->addDebug(__METHOD__ . '|10|');
-            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(
+            $transactionKeysArray = $payment->getAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
             foreach ($responseData->getRelatedTransactions() as $relatedTransaction) {
-                $buckarooTransactionKeysArray[$relatedTransaction['RelatedTransactionKey']] = $responseData->getStatusCode();
+                $transactionKeysArray[$relatedTransaction['RelatedTransactionKey']] = $responseData->getStatusCode();
             }
             $payment->setAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
-                $buckarooTransactionKeysArray
+                $transactionKeysArray
             );
             $connection = $this->resourceConnection->getConnection();
             $connection->rollBack();
@@ -60,16 +58,5 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
         }
 
         return $responseData;
-    }
-
-    /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass $response
-     *
-     * @return $this
-     */
-    protected function afterRefund($payment, $response)
-    {
-        return $this->dispatchAfterEvent('buckaroo_magento2_method_refund_after', $payment, $response);
     }
 }

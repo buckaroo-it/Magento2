@@ -3,10 +3,25 @@
 namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 
-class PayLinkHandler extends AbstractResponseHandler implements HandlerInterface
+class PayLinkHandler implements HandlerInterface
 {
+    /**
+     * @var MessageManager
+     */
+    protected MessageManager $messageManager;
+
+    /**
+     * @param MessageManager $messageManager
+     */
+    public function __construct(
+        MessageManager $messageManager
+    ) {
+        $this->messageManager = $messageManager;
+    }
+
     /**
      * @inheritdoc
      */
