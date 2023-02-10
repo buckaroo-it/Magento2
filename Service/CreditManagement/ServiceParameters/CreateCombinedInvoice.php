@@ -182,12 +182,15 @@ class CreateCombinedInvoice
                 'Name' => 'LastName',
                 'Group' => 'Person',
             ],
-            [
+        ];
+
+        if (!empty($payment->getAdditionalInformation('customer_gender'))) {
+            $personParameters[] = [
                 '_'    => $payment->getAdditionalInformation('customer_gender'),
                 'Name' => 'Gender',
                 'Group' => 'Person',
-            ],
-        ];
+            ];
+        }
 
         return $personParameters;
     }

@@ -126,10 +126,9 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
+                    $this->cancelLastOrder($lastRealOrder);
                 }
             }
-
-            $this->cancelLastOrder($lastRealOrder);
 
             $this->helper->addDebug(__METHOD__ . '|50|');
             $this->helper->setRestoreQuoteLastOrder(false);
