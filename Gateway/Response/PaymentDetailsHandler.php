@@ -25,6 +25,7 @@ class PaymentDetailsHandler implements HandlerInterface
      * Constructor
      *
      * @param Data $helper
+     * @param Registry $registry
      */
     public function __construct(
         Data     $helper,

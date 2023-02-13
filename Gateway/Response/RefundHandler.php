@@ -3,23 +3,64 @@
 namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Push;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\InfoInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Magento\Framework\Message\ManagerInterface as MessageManager;
 
-class RefundHandler extends AbstractResponseHandler implements HandlerInterface
+class RefundHandler implements HandlerInterface
 {
+    /**
+     * @var Data
+     */
+    protected Data $helper;
+
+    /**
+     * @var ResourceConnection
+     */
+    protected ResourceConnection $resourceConnection;
+
+    /**
+     * @var BuckarooLog
+     */
+    protected BuckarooLog $buckarooLog;
+
+    /**
+     * @var MessageManager
+     */
+    protected MessageManager $messageManager;
+
+
+    /**
+     * Constructor
+     *
+     * @param Data $helper
+     */
+    public function __construct(
+        Data               $helper,
+        BuckarooLog        $buckarooLog,
+        ResourceConnection $resourceConnection,
+        MessageManager     $messageManager
+    ) {
+        $this->helper = $helper;
+        $this->buckarooLog = $buckarooLog;
+        $this->resourceConnection = $resourceConnection;
+        $this->messageManager = $messageManager;
+    }
+
     /**
      * @inheritdoc
      */
     public function handle(array $handlingSubject, array $response)
     {
         $payment = SubjectReader::readPayment($handlingSubject)->getPayment();
-        $this->transactionResponse = SubjectReader::readTransactionResponse($response);
+        $transactionResponse = SubjectReader::readTransactionResponse($response);
 
-        $this->refundTransactionSdk($this->transactionResponse, $payment);
+        $this->refundTransactionSdk($transactionResponse, $payment);
     }
 
     /**
