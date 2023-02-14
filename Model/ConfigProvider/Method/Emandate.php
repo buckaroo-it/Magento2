@@ -48,34 +48,42 @@ class Emandate extends AbstractConfigProvider
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
+            'imgName' => 'abnamro'
         ],
         [
             'name' => 'ASN Bank',
             'code' => 'ASNBNL21',
+            'imgName' => 'asnbank'
         ],
         [
             'name' => 'ING',
             'code' => 'INGBNL2A',
+            'imgName' => 'ing'
         ],
         [
             'name' => 'Knab Bank',
             'code' => 'KNABNL2H',
+            'imgName' => 'knab'
         ],
         [
             'name' => 'Rabobank',
             'code' => 'RABONL2U',
+            'imgName' => 'rabobank'
         ],
         [
             'name' => 'RegioBank',
             'code' => 'RBRBNL21',
+            'imgName' => 'regiobank'
         ],
         [
             'name' => 'SNS Bank',
             'code' => 'SNSBNL2A',
+            'imgName' => 'sns'
         ],
         [
             'name' => 'Triodos Bank',
             'code' => 'TRIONL2U',
+            'imgName' => 'triodos'
         ],
     ];
 

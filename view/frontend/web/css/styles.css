@@ -1,4 +1,31 @@
 
+.bk-payment-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.bk-img-wrap {
+    width: 40px;
+    margin: 0 10px;
+    align-items: center;
+    display: flex;
+}
+.bk-radio-wrap {
+    flex: auto;
+}
+
+.checkout-payment-method .payment-method-title.bk-payment {
+    padding: 15px 0;
+}
+@media screen and (max-width: 480px) {
+    .bk-payment-wrap {
+        flex-direction: row-reverse;
+    }
+    .bk-img-wrap {
+        margin-left: 0;
+    }
+}
+
 /* ===================== Default / Overwrite Styling ============================= */
 
 .payment-method-second-col input[type="date"] {
@@ -197,45 +224,18 @@
 .buckaroo_magento2_currency-notification:before {
     content: '*';
 }
-
-
-/* ===================== PayPal =============================== */
-.buckaroo_magento2_paypal .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_paypal_title.png) no-repeat;
-    float: right;
-    margin-right: 10px;
-    margin-top: -4px;
-    background-size: auto 30px;
-    width: 30px;
-    height: 30px;
-    content: ' ';
-}
-
 /* ===================== iDeal ================================ */
 .buckaroo_magento2_ideal .payment-method-second-col .bank-types,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types{
-    float:left; width: 100%;
+.buckaroo_magento2_emandate .payment-method-second-col .bank-types,
+.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
 }
 .buckaroo_magento2_ideal .payment-method-second-col .bank-types-img,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types-img{
-    vertical-align:middle;
+.buckaroo_magento2_emandate .payment-method-second-col .bank-types-img,
+.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types-img {
     margin-right:10px;
-}
-.buckaroo_magento2_ideal .payment-method-second-col .bank-types-input,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types-input{
-    margin-top:10px;
-}
-
-.buckaroo_magento2_ideal .buckaroo_magento2_image_title:after,
-.buckaroo_magento2_idealprocessing .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_ideal_title.png) no-repeat;
-    float: right;
-    margin-right: 6px;
-    margin-top: -1px;
-    background-size: auto 27px;
-    width: 30px;
-    height: 25px;
-    content: ' ';
 }
 
 /* ===================== Credit Card =========================== */
@@ -256,149 +256,10 @@
     margin-top:10px;
 }
 
-.buckaroo_magento2_creditcards .buckaroo_magento2_image_title:after,
-.buckaroo_magento2_creditcard .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_creditcard_title.png) no-repeat;
-    margin-top: -1px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 22px;
-    width: 35px;
-    height: 25px;
-    content: ' ';
-}
 
-/* ===================== Sepa Direct Debit  ============================= */
-.buckaroo_magento2_sepadirectdebit .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_sepa_title.png) no-repeat;
-    margin-top: 5px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 15px;
-    width: 40px;
-    height: 20px;
-    content: ' ';
-}
 
-/* ===================== Bank Transfer ==================== */
-.buckaroo_magento2_transfer .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_transfer_title.png) no-repeat;
-    margin-top: 5px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 15px;
-    width: 40px;
-    height: 20px;
-    content: ' ';
-}
-
-/* ===================== Mr Cash ============================== */
-.buckaroo_magento2_mrcash .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_mrcash_title.png) no-repeat;
-    margin-top: -2px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 24px;
-    width: 40px;
-    height: 30px;
-    content: ' ';
-}
-
-/* ===================== Sofort ======================= */
-.buckaroo_magento2_sofortbanking .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: -3px;
-    background-size: auto 37px;
-    width: 62px;
-    height: 37px;
-    content: ' ';
-}
-
-/* ===================== Belfius ======================= */
-.buckaroo_magento2_belfius .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_belfius_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: -2px;
-    background-size: auto 37px;
-    width: 62px;
-    height: 37px;
-    content: ' ';
-}
-
-/* ===================== Alipay ======================= */
-.buckaroo_magento2_alipay .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_alipay_title.jpg) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 37px;
-    height: 37px;
-    content: ' ';
-}
-
-/* ===================== Wechatpay ======================= */
-.buckaroo_magento2_wechatpay .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_wechatpay_title.jpg) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 55px;
-    height: 37px;
-    content: ' ';
-}
-
-/* ===================== P24 ======================= */
-.buckaroo_magento2_p24 .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_p24_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 37px;
-    height: 37px;
-    content: ' ';
-}
-
-/* ===================== Trustly ======================= */
-.buckaroo_magento2_trustly .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_trustly_title.png) no-repeat;
-    margin-top: -1px;
-    float:right;
-    margin-right: 10px;
-    background-size: auto 24px;
-    width: 80px;
-    height: 45px;
-    content: ' ';
-}
-
-/* ===================== Giropay ============================== */
-.buckaroo_magento2_giropay .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_giropay_title.png) no-repeat;
-    margin-top: 3px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 17px;
-    width: 41px;
-    height: 20px;
-    content: ' ';
-}
 
 /* ===================== Giftcard ============================ */
-.buckaroo_magento2_giftcard .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_giftcard_title.png) no-repeat;
-    float: right;
-    margin-right: 10px;
-    margin-top: -2px;
-    background-size: auto 25px;
-    width: 41px;
-    height: 25px;
-    content: ' ';
-}
 
 .buckaroo_magento2_image_title_custom:after {
     background: none!important;
@@ -413,109 +274,6 @@
     margin-top: -7px;
     max-height: 40px;
     margin-right: 5px;
-}
-
-/* ===================== All Giftcards ============================ */
-.buckaroo_magento2_giftcards_group .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_giftcards_title.png) no-repeat;
-    float: right;
-    margin-right: 5px;
-    margin-top: -2px;
-    background-size: auto 32px;
-    width: 50px;
-    height: 32px;
-    content: ' ';
-}
-
-.buckaroo_magento2_all_giftcard .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_giftcards_title.png) no-repeat;
-    float: right;
-    margin-right: 5px;
-    margin-top: -2px;
-    background-size: auto 32px;
-    width: 50px;
-    height: 32px;
-    content: ' ';
-}
-
-.buckaroo_magento2_ajaxgiftcard .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_giftcards_title.png) no-repeat;
-    float: right;
-    margin-right: 5px;
-    margin-top: -2px;
-    background-size: auto 32px;
-    width: 50px;
-    height: 32px;
-    content: ' ';
-}
-
-.buckaroo_magento2_vvvgiftcard .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_vvvgiftcard_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: -10px;
-    background-size: auto 37px;
-    width: 64px;
-    height: 48px;
-    content: ' ';
-}
-
-.buckaroo_magento2_boekenbon .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_boekenbon_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: 9px;
-    background-size: auto 72px;
-    width: 72px;
-    height: 72px;
-    content: ' ';
-}
-
-.buckaroo_magento2_fashioncheque .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_fashioncheque_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: -10px;
-    background-size: auto 37px;
-    width: 64px;
-    height: 48px;
-    content: ' ';
-}
-
-.buckaroo_magento2_yourgift .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_yourgift_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: -10px;
-    background-size: auto 37px;
-    width: 64px;
-    height: 48px;
-    content: ' ';
-}
-
-.buckaroo_magento2_webshopgiftcard .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_webshopgiftcard_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: 10px;
-    background-size: auto 37px;
-    width: 37px;
-    height: 37px;
-    content: ' ';
-}
-
-/* ===================== Afterpay ============================ */
-.buckaroo_magento2_afterpay .buckaroo_magento2_image_title:after,
-.buckaroo_magento2_afterpay2 .buckaroo_magento2_image_title:after,
-.buckaroo_magento2_afterpay20 .buckaroo_magento2_image_title:after{
-    background: url(../images/buckaroo_magento2_afterpay_title.png) no-repeat;
-    margin-top: -7px;
-    float: right;
-    margin-right: -3px;
-    background-size: auto 37px;
-    width: 62px;
-    height: 37px;
-    content: ' ';
 }
 
 .buckaroo_magento2_afterpay .payment-method-second-col input:disabled,
@@ -539,17 +297,6 @@
 }
 
 /* ===================== Billink ============================ */
-.buckaroo_magento2_billink .buckaroo_magento2_image_title:after{
-    background: url(../images/buckaroo_magento2_billink_title.png) no-repeat;
-    float: right;
-    margin-right: 10px;
-    margin-top: 5px;
-    background-size: auto 22px;
-    width: 83px;
-    height: 25px;
-    content: ' ';
-}
-
 .buckaroo_magento2_billink .payment-method-second-col input:disabled{
     color: #999;
     background: #f2f2f2;
@@ -557,29 +304,6 @@
     opacity: 1;
 }
 
-/* ===================== PayPerEmail ============================ */
-.buckaroo_magento2_payperemail .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_payperemail_title.png) no-repeat;
-    float: right;
-    margin-right: 10px;
-    margin-top: 0px;
-    background-size: auto 22px;
-    width: 80px;
-    height: 25px;
-    content: ' ';
-}
-
-/* ======================= EPS ======================== */
-.buckaroo_magento2_eps .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_eps_title.png) no-repeat;
-    float: right;
-    margin-right: 3px;
-    margin-top: -6px;
-    background-size: auto 30px;
-    width: 45px;
-    height: 30px;
-    content: ' ';
-}
 
 /* ======================= Payconiq ======================== */
 #buckaroo_magento2_payconiq_container {
@@ -598,67 +322,8 @@
     min-height: 32px;
 }
 
-.buckaroo_magento2_payconiq .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_payconiq_title.png) no-repeat;
-    float: right;
-    margin-right: 10px;
-    margin-top: 2px;
-    background-size: auto 15px;
-    width: 104px;
-    height: 30px;
-    content: ' ';
-}
-
-/* ======================= KBC ======================== */
-.buckaroo_magento2_kbc .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_kbc_title.png) no-repeat;
-    float: right;
-    margin-right: 11px;
-    margin-top: -3px;
-    background-size: auto 26px;
-    width: 39px;
-    height: 26px;
-    content: ' ';
-}
-
-/* ======================= pospayment ======================== */
-.buckaroo_magento2_pospayment .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_pospayment_title.png) no-repeat;
-    float: right;
-    margin-right: -25px;
-    margin-top: 0px;
-    background-size: auto 26px;
-    width: 105px;
-    height: 36px;
-    content: ' ';
-}
-
-/* ======================= tinka ======================== */
-.buckaroo_magento2_tinka .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_tinka_title.svg) no-repeat;
-    float: right;
-    margin-right: 0px;
-    margin-top: -11px;
-    background-size: auto 42px;
-    width: 65px;
-    height: 42px;
-    content: ' ';
-}
 
 /* ======================= Klarna ======================== */
-.buckaroo_magento2_klarna .buckaroo_magento2_image_title:after,
-.buckaroo_magento2_klarnakp .buckaroo_magento2_image_title:after,
-.buckaroo_magento2_klarnain .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_klarnakp_title.png) no-repeat;
-    float: right;
-    margin-right: 3px;
-    margin-top: -6px;
-    background-size: auto 30px;
-    width: 55px;
-    height: 30px;
-    content: ' ';
-}
-
 .buckaroo_magento2_klarna .payment-method-second-col input:disabled,
 .buckaroo_magento2_klarnakp .payment-method-second-col input:disabled,
 .buckaroo_magento2_klarnain .payment-method-second-col input:disabled {
@@ -679,376 +344,6 @@
     /*float:left; width: 30%; */
 }
 
-/* ===================== Emandate ================================ */
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types{
-    float:left;
-    width: 100%;
-}
-
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types-img{
-    vertical-align:middle;
-    margin-right:10px;
-}
-
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types-input{
-    margin-top:10px;
-}
-
-.buckaroo_magento2_emandate .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_emandate_title.png) no-repeat;
-    float: right;
-    margin-right: 10px;
-    margin-top: -1px;
-    background-size: auto 25px;
-    width: 30px;
-    height: 25px;
-    content: ' ';
-}
-
-/* ===================== Apple Pay ================================ */
-.buckaroo_magento2_applepay .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_applepay_title.png) no-repeat;
-    float: right;
-    margin-right: 3px;
-    margin-top: -6px;
-    background-size: auto 30px;
-    width: 50px;
-    height: 30px;
-    content: ' ';
-}
-
-
-/* ===================== Capayable ================================ */
-.buckaroo_magento2_capayablein3 .buckaroo_magento2_image_title:after,
-.buckaroo_magento2_capayablepostpay .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_capayable_title.png) no-repeat;
-    float: right;
-    margin-right: 11px;
-    margin-top: -11px;
-    background-size: auto 41px;
-    width: 84px;
-    height: 33px;
-    content: ' ';
-}
-
-/* =============================================================== */
-/* ========== Responsive replacement -> payment logo's =========== */
-/* =============================================================== */
-
-@media screen and (max-width: 480px) {
-    .buckaroo_magento2_image_title.label:after {
-        display:none;
-    }
-
-    /* PayPal */
-    .buckaroo_magento2_paypal .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_paypal_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -4px;
-        background-size: auto 30px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* iDeal */
-    .buckaroo_magento2_ideal .buckaroo_magento2_image_title:before,
-    .buckaroo_magento2_idealprocessing .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_ideal_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Credit Card */
-    .buckaroo_magento2_creditcards .buckaroo_magento2_image_title:before,
-    .buckaroo_magento2_creditcard .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_creditcard_title.png) no-repeat;
-        margin-top: 0;
-        float: left;
-        margin-right: 10px;
-        background-size: auto 20px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Sepa Direct Debit */
-    .buckaroo_magento2_sepadirectdebit .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_sepa_title.png) no-repeat;
-        margin-top: 4px;
-        float:left;
-        margin-right: 10px;
-        background-size: auto 14px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Bank Transfer */
-    .buckaroo_magento2_transfer .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_transfer_title.png) no-repeat;
-        margin-top: 4px;
-        float:left;
-        margin-right: 10px;
-        background-size: auto 14px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Mr Cash */
-    .buckaroo_magento2_mrcash .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_mrcash_title.png) no-repeat;
-        margin-top: -1px;
-        float: left;
-        margin-right: 10px;
-        background-size: auto 23px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Sofort */
-    .buckaroo_magento2_sofortbanking .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_sofort_title.png) no-repeat;
-        margin-top: -1px;
-        float:left;
-        margin-right: -3px;
-        background-size: auto 24px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Belfius */
-    .buckaroo_magento2_belfius .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_belfius_title.png) no-repeat;
-        margin-top: -1px;
-        float:left;
-        margin-right: -2px;
-        background-size: auto 24px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Alipay */
-    .buckaroo_magento2_alipay .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_alipay_title.jpg) no-repeat;
-        margin-top: -1px;
-        float:left;
-        margin-right: 10px;
-        background-size: auto 24px;
-        width: 30px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Wechatpay */
-    .buckaroo_magento2_wechatpay .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_wechatpay_title.jpg) no-repeat;
-        margin-top: -1px;
-        float:left;
-        margin-right: 10px;
-        background-size: auto 24px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* P24 */
-    .buckaroo_magento2_p24 .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_p24_title.png) no-repeat;
-        margin-top: -1px;
-        float:left;
-        margin-right: 10px;
-        background-size: auto 24px;
-        width: 30px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Trustly */
-    .buckaroo_magento2_trustly .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_trustly_title.png) no-repeat;
-        margin-top: 1px;
-        float: right;
-        margin-right: -59px;
-        background-size: auto 24px;
-        width: 80px;
-        height: 45px;
-        content: ' ';
-    }
-
-    /* Giropay */
-    .buckaroo_magento2_giropay .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_giropay_title.png) no-repeat;
-        margin-top: 2px;
-        float:left;
-        margin-right: 10px;
-        background-size: auto 17px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Giftcard */
-    .buckaroo_magento2_giftcard .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_giftcard_title.png) no-repeat;
-        margin-top: -1px;
-        float: left;
-        margin-right: 10px;
-        background-size: auto 23px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Afterpay */
-    .buckaroo_magento2_afterpay .buckaroo_magento2_image_title:before,
-    .buckaroo_magento2_afterpay2 .buckaroo_magento2_image_title:before,
-    .buckaroo_magento2_afterpay20 .buckaroo_magento2_image_title:before{
-        background: url(../images/buckaroo_magento2_afterpay_title.png) no-repeat;
-        margin-top: 6px;
-        float: left;
-        margin-right: 10px;
-        background-size: auto 8px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* PayPerEmail */
-    .buckaroo_magento2_payperemail .buckaroo_magento2_image_title:before {
-        /*background: url(../images/buckaroo_magento2_payperemail_title.png) no-repeat; TODO: add PPE image */
-        margin-top: -1px;
-        float: left;
-        margin-right: 10px;
-        background-size: auto 24px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* EPS */
-    .buckaroo_magento2_eps .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_eps_title.png) no-repeat;
-        margin-top: -4px;
-        float: left;
-        margin-right: 10px;
-        background-size: auto 30px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Payconiq */
-    .buckaroo_magento2_payconiq .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_payconiq_title.png) no-repeat;
-        margin-top: -1px;
-        float: left;
-        margin-right: 10px;
-        background-size: auto 19px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* KBC */
-    .buckaroo_magento2_kbc .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_kbc_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-
-    /* Emandate */
-    .buckaroo_magento2_emandate .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_emandate_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Klarna */
-    .buckaroo_magento2_klarna .buckaroo_magento2_image_title:before,
-    .buckaroo_magento2_klarnakp .buckaroo_magento2_image_title:before,
-    .buckaroo_magento2_klarnain .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_klarnakp_title.png) no-repeat;
-        margin-top: -1px;
-        float: left;
-        margin-right: 10px;
-        background-size: auto 19px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Apple Pay */
-    .buckaroo_magento2_applepay .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_applepay_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* Capayble */
-    .buckaroo_magento2_capayablein3 .buckaroo_magento2_image_title:before,
-    .buckaroo_magento2_capayablepostpay .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_capayable_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* pospayment */
-    .buckaroo_magento2_pospayment .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_pospayment_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-    /* tinka */
-    .buckaroo_magento2_tinka .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_tinka_title.svg) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-}
 
 /* ================================================================================================================== */
 /* Creditcards ====================================================================================================== */
