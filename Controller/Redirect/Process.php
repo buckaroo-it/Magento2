@@ -299,18 +299,18 @@ class Process extends \Magento\Framework\App\Action\Action
                 /**
                  * @noinspection PhpUndefinedMethodInspection
                  */
-                if (
-                    !$this->order->getEmailSent()
-                    && ($this->accountConfig->getOrderConfirmationEmail($store) === "1"
+                if (!$this->order->getEmailSent()
+                    && (
+                        $this->accountConfig->getOrderConfirmationEmail($store) === "1"
                         || $paymentMethod->getConfigData('order_email', $store) === "1"
                     )
                 ) {
-                    if (
-                        !($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1) &&
-                        $this->pushRequst->hasPostData('primary_service', 'KlarnaKp') &&
-                        $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'reserve') &&
-                        !empty($this->pushRequst->getServiceKlarnakpReservationnumber())
-                        )
+                    $isKlarnaKpReserve = ($this->pushRequst->hasPostData('primary_service', 'KlarnaKp')
+                        && $this->pushRequst->hasAdditionalInformation('service_action_from_magento', 'reserve')
+                        && !empty($this->pushRequst->getServiceKlarnakpReservationnumber()));
+
+                    if (!($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1)
+                        && $isKlarnaKpReserve)
                     ) {
                         if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                             $this->logger->addDebug(__METHOD__ . '|sendemail|');

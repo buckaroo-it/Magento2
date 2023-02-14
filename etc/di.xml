@@ -1040,7 +1040,6 @@
             <argument name="valueHandlerPool" xsi:type="object">IdealValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">IdealValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">IdealCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -1311,7 +1310,6 @@
             <argument name="valueHandlerPool" xsi:type="object">KlarnaKpValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">KlarnaKpValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">KlarnaKpGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
     <!-- KlarnaKp Value handlers infrastructure -->
@@ -1359,7 +1357,7 @@
             <argument name="requestBuilder" xsi:type="object">KlarnaKpAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionReserve</argument>
-            <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
+            <argument name="handler" xsi:type="object">KlarnaKpAuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
@@ -1373,6 +1371,15 @@
                 <item name="customer" xsi:type="string">CustomerKlarnaKpDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersReserveDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- KlarnaKp Authorize Command - Response Handler -->
+    <virtualType name="KlarnaKpAuthorizeResponseHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="authorize" xsi:type="string">AuthorizeResponseHandler</item>
+                <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Gateway\Response\KlarnaKpHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1402,6 +1409,15 @@
                 <item name="reservation_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReservationNumberDataBuilder</item>
                 <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- KlarnaKp Capture Command - Response Handler -->
+    <virtualType name="KlarnaKpCaptureResponseHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="authorize" xsi:type="string">CaptureResponseHandler</item>
+                <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Gateway\Response\KlarnaKpHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1484,7 +1500,6 @@
             <argument name="valueHandlerPool" xsi:type="object">AlipayValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">AlipayValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">AlipayGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
     <!-- Alipay Value handlers infrastructure -->
@@ -1569,7 +1584,6 @@
             <argument name="valueHandlerPool" xsi:type="object">GiropayValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">GiropayValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">GiropayGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
     <!-- Giropay Value handlers infrastructure -->
@@ -1646,7 +1660,6 @@
             <argument name="valueHandlerPool" xsi:type="object">TrustlyValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">TrustlyValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">TrustlyGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
     <!-- Trustly Value handlers infrastructure -->
@@ -1716,7 +1729,6 @@
             <argument name="valueHandlerPool" xsi:type="object">Przelewy24ValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">Przelewy24ValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">Przelewy24GatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
     <!-- Przelewy24 Value handlers infrastructure -->
@@ -1787,7 +1799,6 @@
             <argument name="valueHandlerPool" xsi:type="object">BelfiusValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">BelfiusValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">BelfiusGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
     <!-- Belfius Value handlers infrastructure -->
@@ -1839,7 +1850,6 @@
             <argument name="valueHandlerPool" xsi:type="object">CapayableValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">CapayableValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">CapayableGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
     <!-- Capayable Value handlers infrastructure -->
@@ -1974,7 +1984,6 @@
             <argument name="valueHandlerPool" xsi:type="object">KbcValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">KbcValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">BuckarooGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
     <!-- Kbc Value handlers infrastructure -->
@@ -2018,7 +2027,6 @@
             <argument name="valueHandlerPool" xsi:type="object">MrcashValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">MrcashValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">MrcashGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
     <!-- Mrcash Value handlers infrastructure -->
@@ -2087,7 +2095,6 @@
             <argument name="valueHandlerPool" xsi:type="object">PayconiqValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">PayconiqValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">BuckarooGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
     <!-- Payconiq Value handlers infrastructure -->
@@ -2129,7 +2136,7 @@
             <argument name="valueHandlerPool" xsi:type="object">BillinkValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">BillinkValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">BillinkGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
 
@@ -2294,7 +2301,7 @@
             <argument name="valueHandlerPool" xsi:type="object">AfterpayValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">AfterpayValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">AfterpayGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
 
@@ -2455,7 +2462,7 @@
             <argument name="valueHandlerPool" xsi:type="object">AfterpayOldValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">AfterpayOldValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">AfterpayOldGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
 
@@ -2635,7 +2642,6 @@
             <argument name="valueHandlerPool" xsi:type="object">TinkaValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">TinkaValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">TinkaGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -2750,7 +2756,6 @@
             <argument name="valueHandlerPool" xsi:type="object">CreditClickValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">CreditClickValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">CreditClickGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
     <!-- CreditClick Value handlers infrastructure -->
@@ -2848,7 +2853,6 @@
             <argument name="valueHandlerPool" xsi:type="object">ApplepayValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">ApplepayValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">ApplepayGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
     <!-- Apple Pay Value handlers infrastructure -->
@@ -2924,7 +2928,6 @@
             <argument name="valueHandlerPool" xsi:type="object">EmandateValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">EmandateValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">EmandateGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
     <!-- Emandate Value handlers infrastructure -->
@@ -3019,7 +3022,6 @@
             <argument name="valueHandlerPool" xsi:type="object">GiftcardsValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">GiftcardsValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">GiftcardsGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -3115,7 +3117,6 @@
             <argument name="valueHandlerPool" xsi:type="object">PayPerEmailValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">PayPerEmailValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">PayPerEmailGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -3308,7 +3309,7 @@
             <argument name="valueHandlerPool" xsi:type="object">VoucherValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">VoucherValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">VoucherGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
     <!-- Voucher Value handlers infrastructure -->
@@ -3465,7 +3466,6 @@
             <argument name="valueHandlerPool" xsi:type="object">RtpValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">RtpValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">RtpGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -3541,7 +3541,6 @@
             <argument name="valueHandlerPool" xsi:type="object">SofortbankingValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">SofortbankingValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">SofortbankingGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -3596,7 +3595,6 @@
             <argument name="valueHandlerPool" xsi:type="object">PaypalValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">PaypalValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">PaypalGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
     <!-- PayPal Value handlers infrastructure -->
@@ -3675,7 +3673,6 @@
             <argument name="valueHandlerPool" xsi:type="object">CreditcardValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">CreditcardValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">CreditcardGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -3800,7 +3797,6 @@
             <argument name="valueHandlerPool" xsi:type="object">CreditcardEncryptedValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">CreditcardEncryptedValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">CreditcardEncryptedGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -3926,7 +3922,6 @@
             <argument name="valueHandlerPool" xsi:type="object">PospaymentValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">PospaymentValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">PospaymentGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 
@@ -4093,7 +4088,6 @@
             <argument name="valueHandlerPool" xsi:type="object">WechatpayValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">WechatpayValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">WechatpayGatewayCommandPool</argument>
-            <argument name="usesRedirect" xsi:type="boolean">true</argument>
         </arguments>
     </virtualType>
 

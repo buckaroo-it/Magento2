@@ -64,21 +64,26 @@ class AbstractPushRequest
         return false;
     }
 
-    public function hasPostData($name, $value): bool
+    /**
+     * Check if parameter has the specified values
+     *
+     * @param string $name
+     * @param string|float|int|array $value
+     * @return bool
+     */
+    public function hasPostData(string $name, $value): bool
     {
         $getter = 'get' . str_replace('_', '', ucwords($name, '_'));
         $fieldValue = $this->$getter();
-        if (
-            is_array($value) &&
-            isset($fieldValue) &&
-            in_array($fieldValue, $value)
+        if (is_array($value)
+            && isset($fieldValue)
+            && in_array($fieldValue, $value)
         ) {
             return true;
         }
 
-        if (
-            isset($fieldValue) &&
-            $fieldValue == $value
+        if (isset($fieldValue)
+            && $fieldValue == $value
         ) {
             return true;
         }
