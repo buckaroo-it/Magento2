@@ -92,17 +92,19 @@ class Info extends \Magento\Payment\Block\Info
             "afterpay20" => "svg/afterpay.svg",
             "capayablein3" => "svg/in3.svg",
             "capayablepostpay" => "svg/in3.svg",
-            "creditcards" => "svg/creditcard.svg",
-            "giftcards" => "svg/giftcard.svg",
+            "creditcard" => "svg/creditcards.svg",
+            "creditcards" => "svg/creditcards.svg",
+            "giftcards" => "svg/giftcards.svg",
             "idealprocessing" => "svg/ideal.svg",
             "klarnain" => "svg/klarna.svg",
             "klarnakp" => "svg/klarna.svg",
             "mrcash" => "svg/bancontact.svg",
             "p24" => "svg/przelewy24.svg",
-            "sepadirectdebit" => "svg/sepa.svg",
+            "sepadirectdebit" => "svg/sepa-directdebit.svg",
             "sofortbanking" => "svg/sofort.svg",
             "emandate" => "emandate.png",
-            "pospayment" => "pos.png"
+            "pospayment" => "pos.png",
+            "transfer" => "svg/sepa-credittransfer.svg"
         ];
 
         $name = "svg/{$method}.svg";
@@ -115,7 +117,7 @@ class Info extends \Magento\Payment\Block\Info
     }
     public function getGifcardLogo(string $code): string
     {
-        $name = "svg/giftcard.svg";
+        $name = "svg/giftcards.svg";
 
         $mappings = [
             "ajaxgiftcard" => "ajaxgiftcard",

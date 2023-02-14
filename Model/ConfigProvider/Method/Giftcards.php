@@ -193,6 +193,6 @@ class Giftcards extends AbstractConfigProvider
             return  $this->getImageUrl("giftcards/{$mappings[$code]}", "svg");
         }
 
-        return $this->getImageUrl("svg/giftcard","svg");
+        return $this->getImageUrl("svg/giftcards","svg");
     }
 }
