@@ -1385,7 +1385,6 @@
         <arguments>
             <argument name="handlers" xsi:type="array">
                 <item name="authorize" xsi:type="string">AuthorizeResponseHandler</item>
-                <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Gateway\Response\KlarnaKpHandler</item>
             </argument>
         </arguments>
     </virtualType>
