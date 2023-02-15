@@ -539,6 +539,12 @@
         </arguments>
     </type>
 
+    <type name="Buckaroo\Magento2\Gateway\Response\RestoreQuoteHandler">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+
     <!-- Buckaroo Payment Provider Gateway Availability Validators -->
     <virtualType name="BuckarooAvailabilityValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
         <arguments>

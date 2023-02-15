@@ -5,7 +5,7 @@
  */
 namespace Buckaroo\Magento2\Gateway\Response;
 
-use Magento\Checkout\Model\Session\Proxy;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 
@@ -14,16 +14,16 @@ class RestoreQuoteHandler implements HandlerInterface
     /**
      * Checkout session object
      *
-     * @var \Magento\Checkout\Model\Session\Proxy
+     * @var CheckoutSession
      */
     protected $checkoutSession;
 
     /**
      * Constructor
      *
-     * @param Proxy $checkoutSession
+     * @param CheckoutSession $checkoutSession
      */
-    public function __construct(\Magento\Checkout\Model\Session\Proxy $checkoutSession)
+    public function __construct(CheckoutSession $checkoutSession)
     {
         $this->checkoutSession = $checkoutSession;
     }
