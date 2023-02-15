@@ -25,6 +25,7 @@ use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Magento\Checkout\Model\Session;
 
 class PayPerEmail extends AbstractMethod
 {
@@ -72,6 +73,7 @@ class PayPerEmail extends AbstractMethod
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Event\ManagerInterface $eventManager,
+        Session $checkoutSession,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -116,7 +118,7 @@ class PayPerEmail extends AbstractMethod
             $priceHelper,
             $data
         );
-
+        $this->_checkoutSession = $checkoutSession;
         $this->serviceParameters = $serviceParameters;
     }
 
@@ -206,6 +208,9 @@ class PayPerEmail extends AbstractMethod
         /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $config */
         $config = $this->configProviderMethodFactory->get('payperemail');
         $storeId = $payment->getOrder()->getStoreId();
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $config */
+
+        $middleName = $this->_checkoutSession->getQuote()->getBillingAddress()->getMiddlename();
 
         $params = [
             [
@@ -221,7 +226,7 @@ class PayPerEmail extends AbstractMethod
                 'Name' => 'CustomerFirstName',
             ],
             [
-                '_'    => $payment->getAdditionalInformation('customer_billingLastName'),
+                '_'    => $middleName . ' ' . $payment->getAdditionalInformation('customer_billingLastName'),
                 'Name' => 'CustomerLastName',
             ],
             [
