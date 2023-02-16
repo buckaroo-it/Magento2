@@ -6,7 +6,6 @@
 }
 .bk-img-wrap {
     width: 40px;
-    margin: 0 10px;
     align-items: center;
     display: flex;
 }
@@ -15,14 +14,14 @@
 }
 
 .checkout-payment-method .payment-method-title.bk-payment {
-    padding: 15px 0;
+    padding: 15px;
 }
 @media screen and (max-width: 480px) {
     .bk-payment-wrap {
         flex-direction: row-reverse;
     }
     .bk-img-wrap {
-        margin-left: 0;
+        margin-right: 10px;
     }
 }
 
