@@ -151,9 +151,11 @@ define(
                     termsValidate: false,
                     identificationValidate: null,
                     phoneValidate: null,
+                    showIdentification: false,
                     showCOC: false,
                     value:"",
-                    buttoncheck: true
+                    buttoncheck: false,
+                    validationState: {},
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
@@ -181,7 +183,7 @@ define(
                             'phoneValidate',
                             'customerCoc',
                             'value',
-                            'buttoncheck'
+                            'validationState'
                         ]
                     );
 
@@ -262,6 +264,25 @@ define(
                         },
                         this
                     );
+
+                    this.buttoncheck = ko.computed(
+                        function() {
+                            const state = this.validationState();
+                            const valid = this.getActiveValidationFields().map((field) => {
+                                if(state[field] !== undefined) {
+                                    return state[field];
+                                }
+                                return false;
+                            }).reduce(
+                                function(prev, cur) {
+                                    return prev && cur
+                                },
+                                true
+                            )
+                            return valid;
+                        },
+                        this
+                    )
                     
                     this.activeAddress.subscribe(function(address) {
                         if(address.phone) {
@@ -288,7 +309,7 @@ define(
                     return this;
                 },
 
-                validateAll() {
+                getActiveValidationFields() {
                     let fields = ['TermsCondition'];
                     if(this.showPhone()) {
                         fields.push('Telephone')
@@ -305,6 +326,11 @@ define(
                     if(this.showNLBEFields()) {
                         fields.push('DoB')
                     }
+                    return fields;
+                },
+
+                validateAll() {
+                    let fields = this.getActiveValidationFields();
 
                     const valid = fields.map(
                         function(field) {
@@ -315,16 +341,17 @@ define(
                         function(prev, cur) {
                             return prev && cur
                         },
-                        this
+                        true
                     );
                     return valid;
                 },
 
                 validateField: function(id) {
-                    this.buttoncheck(true);
                     this.messageContainer.clear();
                     const isValid = $(`#buckaroo_magento2_afterpay20_${id}`).valid();
-                    this.buttoncheck(isValid);
+                    let state = this.validationState();
+                    state[id] = isValid;
+                    this.validationState(state);
                     return isValid;
                 },
 
@@ -376,7 +403,6 @@ define(
                         ).done(this.afterPlaceOrder.bind(this));
                         return true;
                     } else {
-                        this.buttoncheck(false);
                         this.messageContainer.addErrorMessage(
                             {
                                 'message': $t("Please make sure all fields are filled in correctly before proceeding.")

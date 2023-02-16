@@ -19,25 +19,6 @@
             <form data-bind="mageInit: { 'validation': [] },
                 attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
-
-                    <!-- ko if: showIdentification -->
-                    <div class="field required">
-                        <legend class="label"> <span data-bind="i18n: 'Identification number:'"> </span> </legend>
-                        <div class="control">
-                            <input id="buckaroo_magento2_tinka_Identificationnumber"
-                                   class="input-text field"
-                                   type="text"
-                                   name="payment[buckaroo_magento2_tinka][buckaroo_identification_number]"
-                                   data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                   checked: identificationValidate
-                                   valueUpdate: 'blur',
-                                   value: identificationValidate
-                                   ">
-                        </div>
-                    </div>
-                    <!-- /ko -->
-
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_tinka_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
                         <div class="control">

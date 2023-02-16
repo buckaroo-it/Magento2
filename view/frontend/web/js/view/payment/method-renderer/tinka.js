@@ -51,7 +51,6 @@ define(
                 defaults                : {
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_tinka',
                     telephoneNumber: null,
-                    identificationNumber: null,
                     firstName: '',
                     lastName: '',
                     CustomerName: null,
@@ -61,7 +60,6 @@ define(
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
                     termsValidate: false,
                     showNLBEFieldsValue: true,
-                    showIdentificationValue: null,
                     showFrenchTosValue: null,
                     value:''
                 },
@@ -95,7 +93,6 @@ define(
                             'termsValidate',
                             'dummy',
                             'showNLBEFieldsValue',
-                            'showIdentificationValue',
                             'showFrenchTosValue',
                             'value'
                         ]
@@ -110,14 +107,7 @@ define(
                         this
                     );
 
-                    this.showIdentification = ko.computed(
-                        function () {
-                            if (this.showIdentificationValue() !== null) {
-                                return this.showIdentificationValue();
-                            }
-                        },
-                        this
-                    );
+              
 
                     this.showFrenchTos = ko.computed(
                         function () {
@@ -134,14 +124,9 @@ define(
                         }
 
                         this.showNLBEFieldsValue(false);
-                        this.showIdentificationValue(false);
 
                         if (this.country === 'NL' || this.country === 'BE') {
                             this.showNLBEFieldsValue(true);
-                        }
-
-                        if (this.country === 'FI') {
-                            this.showIdentificationValue(true);
                         }
                     };
 
