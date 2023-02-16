@@ -958,7 +958,7 @@
     <virtualType name="RefundResponseHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
             <argument name="handlers" xsi:type="array">
-                <item name="transaction_id" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TransactionIdHandler</item>
+                <item name="transaction_id" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RefundTransactionIdHandler</item>
                 <item name="payment_details" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PaymentDetailsHandler</item>
                 <item name="payment_in_transit" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PaymentInTransitHandler</item>
                 <item name="skip_push" xsi:type="string">Buckaroo\Magento2\Gateway\Response\SkipPushHandler</item>
