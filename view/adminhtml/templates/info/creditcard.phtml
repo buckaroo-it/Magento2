@@ -27,10 +27,15 @@
 <?php
 if ($giftCards = $block->getGiftCards()) {
     foreach ($giftCards as $giftCard) { ?>
-        <div class="buckaroo_magento2_payment_<?php echo $block->escapeHtml($giftCard['code']); ?>">
+        <div class="bk-payment-wrap">
+            <div class="bk-img-wrap">
+                <img src=" <?php echo $block->escapeHtml($block->getGifcardLogo($giftCard['code'])) ?>" alt=""/>
+            </div>
+            <div class="bk-label-wrap">
             <?php echo $block->escapeHtml($giftCard['label']) ?>
+            </div>
         </div>
-        <?php
+    <?php
     }
 }
 ?>
@@ -42,7 +47,14 @@ if ($giftCards = $block->getGiftCards()) {
 <div class="buckaroo_magento2_payment_card_<?php echo $block->getCardCode(); ?>">
     <?php if ($block->getInfo()->getAdditionalInformation()): ?>
         <?php if ($block->getCardType()): ?>
-            <?php echo $block->escapeHtml(__('Selected card: %1', $block->getCardType())); ?>
+            <div class="bk-payment-wrap">
+                <div class="bk-img-wrap">
+                    <img src=" <?php echo $block->escapeHtml($block->getCreditcardLogo($block->getCardCode())) ?>" alt=""/>
+                </div>
+                <div class="bk-label-wrap">
+                <?php echo $block->escapeHtml(__('Selected card: %1', $block->getCardType())); ?>
+                </div>
+            </div>
         <?php endif; ?>
     <?php endif; ?>
 </div>
@@ -57,6 +69,3 @@ if ($giftCards = $block->getGiftCards()) {
         </ul>
     </div>
 <?php endif; ?>
-
-
-
