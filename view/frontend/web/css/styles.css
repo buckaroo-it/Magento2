@@ -21,9 +21,6 @@
     .bk-payment-wrap {
         flex-direction: row-reverse;
     }
-    .bk-img-wrap {
-        margin-right: 10px;
-    }
     .checkout-payment-method .payment-method-title.bk-payment {
         padding: 15px;
     }
