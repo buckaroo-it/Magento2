@@ -426,6 +426,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 );
         }
 
+        if (isset($data['additional_data']['customer_billingMiddleName'])) {
+            $this->getInfoInstance()
+                ->setAdditionalInformation(
+                    'customer_billingMiddleName',
+                    $data['additional_data']['customer_billingMiddleName']
+                );
+        }
+
         if (isset($data['additional_data']['customer_billingLastName'])) {
             $this->getInfoInstance()
                 ->setAdditionalInformation(

@@ -27,7 +27,7 @@
                         <legend class="label"> <span data-bind="i18n: 'Salutation:'"> </span> </legend>
                         <div class="control">
                             <ul id="Saluation">
-                                <li>            
+                                <li>
                                     <select id="buckaroo_magento2_payperemail_genderSelect" name="payment[buckaroo_magento2_payperemail[customer_gender]" class="field"
                                     data-bind="options: gendersList(),
                                      optionsText: $t('genderTitle'),
@@ -59,6 +59,21 @@
                     </div>
 
                     <div class="field required">
+                        <label class="label" for="buckaroo_magento2_payperemail_BillingMiddleName"> <span data-bind="i18n: 'Billing Middle Name:'"> </span> </label>
+                        <div class="control">
+                            <input id="buckaroo_magento2_payperemail_BillingMiddleName"
+                                   class="input-text field"
+                                   type="text"
+                                   data-bind="
+                                       valueUpdate: 'keyup',
+                                       attr: { 'data-validate': JSON.stringify({ 'required': false }) },
+                                       value: BillingMiddleName,
+                                       textInput: CustomerMiddleName()"
+                                   name="payment[buckaroo_magento2_payperemail][customer_billingMiddleName]"
+                                   >
+                        </div>
+                    </div>
+                    <div class="field required">
                         <label class="label" for="buckaroo_magento2_payperemail_BillingLastName"> <span data-bind="i18n: 'Billing Last Name:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_payperemail_BillingLastName"
@@ -70,10 +85,9 @@
                                        value: BillingLastName,
                                        textInput: CustomerLastName()"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingLastName]"
-                                   >
+                            >
                         </div>
                     </div>
-
                     <div class="field required" >
                         <label class="label" for="buckaroo_magento2_payperemail_Email"> <span data-bind="i18n: 'Email:'"> </span> </label>
                         <div class="control">

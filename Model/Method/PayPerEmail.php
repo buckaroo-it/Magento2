@@ -206,9 +206,7 @@ class PayPerEmail extends AbstractMethod
         $config = $this->configProviderMethodFactory->get('payperemail');
         $storeId = $payment->getOrder()->getStoreId();
         /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $config */
-
-        $middleName = $payment->getOrder()->getBillingAddress()->getMiddlename();
-
+        
         $params = [
             [
                 '_'    => $payment->getAdditionalInformation('customer_gender'),
@@ -223,7 +221,7 @@ class PayPerEmail extends AbstractMethod
                 'Name' => 'CustomerFirstName',
             ],
             [
-                '_'    => $middleName . ' ' . $payment->getAdditionalInformation('customer_billingLastName'),
+                '_'    => $payment->getAdditionalInformation('customer_billingMiddleName') . ' ' . $payment->getAdditionalInformation('customer_billingLastName'),
                 'Name' => 'CustomerLastName',
             ],
             [
