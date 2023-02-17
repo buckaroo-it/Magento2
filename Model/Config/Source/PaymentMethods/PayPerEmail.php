@@ -154,11 +154,6 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
                 'code' => 'buckaroo_magento2_trustly'
             ],
             [
-                'value' => 'rtp',
-                'label' => __('Request To Pay'),
-                'code' => 'buckaroo_magento2_rtp'
-            ],
-            [
                 'value' => 'tinka',
                 'label' => __('Tinka'),
                 'code' => 'buckaroo_magento2_tinka'
