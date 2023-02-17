@@ -30,7 +30,7 @@ class AfterExpiry implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
-        $options = [
+        return [
             ['value' => 'amex',                   'label' => __('American Express')],
             ['value' => 'bancontactmrcash',       'label' => __('Bancontact / Mr Cash')],
             ['value' => 'transfer',               'label' => __('Bank Transfer')],
@@ -56,10 +56,7 @@ class AfterExpiry implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'wechatpay',              'label' => __('WeChatPay')],
             ['value' => 'p24',                    'label' => __('P24')],
             ['value' => 'trustly',                'label' => __('Trustly')],
-            ['value' => 'rtp',                    'label' => __('Request To Pay')],
-            ['value' => 'tinka',                    'label' => __('Tinka')],
+            ['value' => 'tinka',                  'label' => __('Tinka')],
         ];
-
-        return $options;
     }
 }
