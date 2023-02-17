@@ -46,10 +46,6 @@ class SaveOrder extends Common
      */
     protected $quoteManagement;
     /**
-     * @var CustomerSession
-     */
-    protected $customer;
-    /**
      * @var DataObjectFactory
      */
     private $objectFactory;
@@ -203,21 +199,26 @@ class SaveOrder extends Common
     {
         $this->logger->addDebug(__METHOD__ . '|2|');
 
-        if (!($this->customer->getCustomer() && $this->customer->getCustomer()->getId())) {
-            $quote->setCheckoutMethod('guest')
-                ->setCustomerId(null)
-                ->setCustomerEmail($quote->getShippingAddress()->getEmail())
-                ->setCustomerIsGuest(true)
-                ->setCustomerGroupId(\Magento\Customer\Model\Group::NOT_LOGGED_IN_ID);
+        try {
+            if (!($this->customerSession->getCustomer() && $this->customerSession->getCustomer()->getId())) {
+                $quote->setCheckoutMethod('guest')
+                    ->setCustomerId(null)
+                    ->setCustomerEmail($quote->getShippingAddress()->getEmail())
+                    ->setCustomerIsGuest(true)
+                    ->setCustomerGroupId(\Magento\Customer\Model\Group::NOT_LOGGED_IN_ID);
+            }
+
+            $quote->collectTotals()->save();
+
+            $obj = $this->objectFactory->create();
+            $obj->setData($extra);
+            $quote->getPayment()->getMethodInstance()->assignData($obj);
+
+            $this->quoteManagement->submit($quote);
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__ . '|exception|' . var_export($th->getMessage()));
         }
 
-        $quote->collectTotals()->save();
-
-        $obj = $this->objectFactory->create();
-        $obj->setData($extra);
-        $quote->getPayment()->getMethodInstance()->assignData($obj);
-
-        $this->quoteManagement->submit($quote);
     }
 
     /**
