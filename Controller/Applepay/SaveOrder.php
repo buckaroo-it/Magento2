@@ -212,6 +212,7 @@ class SaveOrder extends Common
 
             $obj = $this->objectFactory->create();
             $obj->setData($extra);
+            $quote->getPayment()->setMethod($obj->getMethod());
             $quote->getPayment()->getMethodInstance()->assignData($obj);
 
             $this->quoteManagement->submit($quote);

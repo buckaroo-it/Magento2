@@ -32,10 +32,9 @@ class ApplepayDataBuilder implements BuilderInterface
     protected function getCustomerCardName($paymentDO)
     {
         $billingContact = \json_decode(
-            (string)$paymentDO->getPayment()->getAdditionalInformation('billingContact')
+            stripslashes((string)$paymentDO->getPayment()->getAdditionalInformation('billingContact'))
         );
-        if (
-            $billingContact &&
+        if ($billingContact &&
             !empty($billingContact->givenName) &&
             !empty($billingContact->familyName)
         ) {
