@@ -18,6 +18,8 @@ class SkipPushHandler implements HandlerInterface
      * @param array $response
      * @return void
      * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function handle(array $handlingSubject, array $response)
     {
