@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Group;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -173,10 +174,8 @@ class SaveOrder extends Common
                 } else {
                     //live mode
                     $this->logger->addDebug(__METHOD__ . '|6|');
-                    if (
-                        !empty($data->Status->Code->Code)
-                        && ($data->Status->Code->Code == '190')
-                        && !empty($data->Order)
+                    if (isset($data['Status']['Code']['Code']) && $data['Status']['Code']['Code'] == '190'
+                        && isset($data['Order'])
                     ) {
                         $this->processBuckarooResponse($data);
                     }
@@ -205,7 +204,7 @@ class SaveOrder extends Common
                     ->setCustomerId(null)
                     ->setCustomerEmail($quote->getShippingAddress()->getEmail())
                     ->setCustomerIsGuest(true)
-                    ->setCustomerGroupId(\Magento\Customer\Model\Group::NOT_LOGGED_IN_ID);
+                    ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
             }
 
             $quote->collectTotals()->save();
@@ -230,9 +229,8 @@ class SaveOrder extends Common
      */
     private function processBuckarooResponse(&$data)
     {
-        $data = [];
         $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('increment_id', $data->Order, 'eq')->create();
+            ->addFilter('increment_id', $data['Order'], 'eq')->create();
         $order = $this->orderRepository->getList($searchCriteria)->getFirstItem();
 
         if ($order->getId()) {

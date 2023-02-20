@@ -40,7 +40,7 @@ class TransactionIdHandler implements HandlerInterface
             }
 
             $payment->setIsTransactionClosed($this->shouldCloseTransaction());
-            $closed = $this->shouldCloseParentTransaction($payment);
+            $closed = $this->shouldCloseParentTransaction();
             $payment->setShouldCloseParentTransaction($closed);
         }
     }

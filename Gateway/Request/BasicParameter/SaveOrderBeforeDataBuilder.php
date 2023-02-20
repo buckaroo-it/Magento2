@@ -37,12 +37,10 @@ class SaveOrderBeforeDataBuilder implements BuilderInterface
 
         if ($this->configProviderAccount->getCreateOrderBeforeTransaction($store)) {
             $newStatus = $this->configProviderAccount->getOrderStatusNew($store);
-            $orderState = 'new';
             if (!$newStatus) {
-                $newStatus = $order->getConfig()->getStateDefaultStatus($orderState);
+                $newStatus = $order->getConfig()->getStateDefaultStatus('new');
             }
 
-            $order->setState($orderState);
             $order->setStatus($newStatus);
             $order->save();
         }
