@@ -3,53 +3,92 @@
 namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Push;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\InfoInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Magento\Framework\Message\ManagerInterface as MessageManager;
 
-class RefundHandler extends AbstractResponseHandler implements HandlerInterface
+class RefundHandler implements HandlerInterface
 {
-    public bool $closeRefundTransaction = true;
+    /**
+     * @var Data
+     */
+    protected Data $helper;
 
-    public function handle(array $handlingSubject, array $response)
-    {
-        $this->transactionResponse = SubjectReader::readTransactionResponse($response);
+    /**
+     * @var ResourceConnection
+     */
+    protected ResourceConnection $resourceConnection;
 
-        $payment = SubjectReader::readPayment($handlingSubject)->getPayment();
+    /**
+     * @var BuckarooLog
+     */
+    protected BuckarooLog $buckarooLog;
 
-        $response = $this->refundTransactionSdk($this->transactionResponse, $payment);
+    /**
+     * @var MessageManager
+     */
+    protected MessageManager $messageManager;
 
-        $this->saveTransactionData($this->transactionResponse, $payment, $this->closeRefundTransaction, false);
-        $this->afterRefund($payment, $response);
+
+    /**
+     * Constructor
+     *
+     * @param Data $helper
+     */
+    public function __construct(
+        Data               $helper,
+        BuckarooLog        $buckarooLog,
+        ResourceConnection $resourceConnection,
+        MessageManager     $messageManager
+    ) {
+        $this->helper = $helper;
+        $this->buckarooLog = $buckarooLog;
+        $this->resourceConnection = $resourceConnection;
+        $this->messageManager = $messageManager;
     }
 
     /**
+     * @inheritdoc
+     */
+    public function handle(array $handlingSubject, array $response)
+    {
+        $payment = SubjectReader::readPayment($handlingSubject)->getPayment();
+        $transactionResponse = SubjectReader::readTransactionResponse($response);
+
+        $this->refundTransactionSdk($transactionResponse, $payment);
+    }
+
+    /**
+     * Refund Transaction
+     *
      * @param TransactionResponse $responseData
-     * @param null $payment
+     * @param InfoInterface|null $payment
      * @return array|\StdClass|TransactionResponse
      */
     public function refundTransactionSdk(TransactionResponse $responseData, $payment = null)
     {
         $pendingApprovalStatus = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL');
 
-        if (
-            !empty($responseData->getStatusCode())
+        if (!empty($responseData->getStatusCode())
             && ($responseData->getStatusCode() == $pendingApprovalStatus)
             && $payment
             && !empty($responseData->getRelatedTransactions())
         ) {
             $this->buckarooLog->addDebug(__METHOD__ . '|10|');
-            $buckarooTransactionKeysArray = $payment->getAdditionalInformation(
+            $transactionKeysArray = $payment->getAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
             foreach ($responseData->getRelatedTransactions() as $relatedTransaction) {
-                $buckarooTransactionKeysArray[$relatedTransaction['RelatedTransactionKey']] = $responseData->getStatusCode();
+                $transactionKeysArray[$relatedTransaction['RelatedTransactionKey']] = $responseData->getStatusCode();
             }
             $payment->setAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
-                $buckarooTransactionKeysArray
+                $transactionKeysArray
             );
             $connection = $this->resourceConnection->getConnection();
             $connection->rollBack();
@@ -60,16 +99,5 @@ class RefundHandler extends AbstractResponseHandler implements HandlerInterface
         }
 
         return $responseData;
-    }
-
-    /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass $response
-     *
-     * @return $this
-     */
-    protected function afterRefund($payment, $response)
-    {
-        return $this->dispatchAfterEvent('buckaroo_magento2_method_refund_after', $payment, $response);
     }
 }

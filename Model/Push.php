@@ -1846,7 +1846,8 @@ class Push implements PushInterface
         $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         if (
             !empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
-            || (($this->pushRequst->hasPostData('statuscode', $statusCodeSuccess))
+            || (
+                ($this->pushRequst->hasPostData('statuscode', $statusCodeSuccess))
                 && $this->pushRequst->hasPostData('transaction_method', 'ideal')
                 && $this->pushRequst->hasPostData('transaction_type', self::BUCK_PUSH_IDEAL_PAY)
             )
@@ -1938,11 +1939,11 @@ class Push implements PushInterface
     protected function isFailedGroupTransaction()
     {
         return $this->pushRequst->hasPostData(
-            'brq_transaction_type',
+            'transaction_type',
             self::BUCK_PUSH_GROUPTRANSACTION_TYPE
         ) &&
         $this->pushRequst->hasPostData(
-            'brq_statuscode',
+            'statuscode',
             $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
         );
     }
