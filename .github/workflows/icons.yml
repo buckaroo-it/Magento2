@@ -1,0 +1,47 @@
+name: Icon update
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Clone media repository
+        run: |
+            git clone https://github.com/buckaroo-it/Media
+            ls -lah
+      - name: Rename all files to lowercase
+        run: |
+            cd Media
+            cp ${{ github.workspace }}/.github/workflows/rename-icons.php ${{ github.workspace }}/Media/rename-icons.php
+            php  ./rename-icons.php
+      - name: Copy payment method icons
+        run: |
+            cd Media
+            cp -R "Payment methods/SVG/." ${{ github.workspace }}/view/adminhtml/web/images/svg/
+            cp -R "Payment methods/SVG/." ${{ github.workspace }}/view/frontend/web/images/svg/
+      - name: Copy creditcards icons
+        run: |
+            cd Media
+            cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/view/adminhtml/web/images/creditcards/
+            cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/view/frontend/web/images/creditcards/
+      - name: Copy giftcards icons
+        run: |
+            cd Media
+            cp -R "Giftcards/SVG/." ${{ github.workspace }}/view/adminhtml/web/images/giftcards/
+            cp -R "Giftcards/SVG/." ${{ github.workspace }}/view/frontend/web/images/giftcards/
+      - name: Copy payment issuers icons
+        run: |
+            cd Media
+            cp -R "iDEAL bank issuers/SVG/." ${{ github.workspace }}/view/frontend/web/images/ideal/
+      - name: Cleanup
+        run: |
+            rm -rd Media
+      - name: Create commit if we have changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply logo changes from media repository

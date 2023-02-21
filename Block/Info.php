@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Block;
 
+use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 
@@ -32,6 +33,8 @@ class Info extends \Magento\Payment\Block\Info
     protected $groupTransaction;
     protected $giftcardCollection;
 
+    protected  Repository $assetRepo;
+
     /**
      * @param \Magento\Framework\View\Element\Template\Context     $context
      * @param array                                                $data
@@ -41,11 +44,13 @@ class Info extends \Magento\Payment\Block\Info
         \Magento\Framework\View\Element\Template\Context $context,
         PaymentGroupTransaction $groupTransaction,
         GiftcardCollection $giftcardCollection,
+        Repository $assetRepo,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->groupTransaction = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
+        $this->assetRepo = $assetRepo;
     }
 
     public function getGiftCards()
@@ -78,5 +83,67 @@ class Info extends \Magento\Payment\Block\Info
                 ];
         }
         return false;
+    }
+
+    public function getPaymentLogo(string $method): string
+    {
+        $mappings = [
+            "afterpay2" => "svg/afterpay.svg",
+            "afterpay20" => "svg/afterpay.svg",
+            "capayablein3" => "svg/in3.svg",
+            "capayablepostpay" => "svg/in3.svg",
+            "creditcard" => "svg/creditcards.svg",
+            "creditcards" => "svg/creditcards.svg",
+            "giftcards" => "svg/giftcards.svg",
+            "idealprocessing" => "svg/ideal.svg",
+            "klarnain" => "svg/klarna.svg",
+            "klarnakp" => "svg/klarna.svg",
+            "mrcash" => "svg/bancontact.svg",
+            "p24" => "svg/przelewy24.svg",
+            "sepadirectdebit" => "svg/sepa-directdebit.svg",
+            "sofortbanking" => "svg/sofort.svg",
+            "emandate" => "emandate.png",
+            "pospayment" => "pos.png",
+            "transfer" => "svg/sepa-credittransfer.svg"
+        ];
+
+        $name = "svg/{$method}.svg";
+        
+        if(isset($mappings[$method])) {
+            $name = $mappings[$method];
+        }
+
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
+    }
+    public function getGifcardLogo(string $code): string
+    {
+        $name = "svg/giftcards.svg";
+
+        $mappings = [
+            "ajaxgiftcard" => "ajaxgiftcard",
+            "boekenbon" => "boekenbon",
+            "cjpbetalen" => "cjp",
+            "digitalebioscoopbon" => "nationaletuinbon",
+            "fashioncheque" => "fashioncheque",
+            "fashionucadeaukaart" => "fashiongiftcard",
+            "nationaletuinbon" => "nationalebioscoopbon",
+            "nationaleentertainmentcard" => "nationaleentertainmentcard",
+            "podiumcadeaukaart" => "podiumcadeaukaart",
+            "sportfitcadeau" => "sport-fitcadeau",
+            "vvvgiftcard" => "vvvgiftcard"
+        ];
+
+        if(isset($mappings[$code])) {
+            $name = "giftcards/{$mappings[$code]}.svg";
+        }
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
+    }
+    public function getCreditcardLogo(string $code): string
+    {
+        if($code === 'cartebleuevisa') {
+            $code = 'cartebleue';
+        }
+        
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/creditcards/{$code}.svg");
     }
 }
