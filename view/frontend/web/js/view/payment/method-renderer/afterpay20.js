@@ -52,11 +52,6 @@ define(
         'use strict';
 
         $.validator.addMethod('validateCOC', function (value) {
-            var countryId = quote.billingAddress().countryId;
-            var lengths = {
-                'NL':  8,
-                'BE': 10
-            };
             if (!value) {
                 return false;
             }
@@ -65,11 +60,7 @@ define(
                 return false;
             }
 
-            if (!lengths.hasOwnProperty(countryId)) {
-                return false;
-            }
-
-            return value.length <= lengths[countryId];
+            return value.length <= 8;
         },
         $.mage.__('Invalid COC number')
         );
