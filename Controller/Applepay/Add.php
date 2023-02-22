@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -42,6 +43,10 @@ class Add implements HttpPostActionInterface
      * @var AddService|null
      */
     protected $addService;
+    /**
+     * @var Log $logging
+     */
+    public $logging;
 
     /**
      * @param JsonFactory $resultJsonFactory
@@ -51,11 +56,13 @@ class Add implements HttpPostActionInterface
     public function __construct(
         JsonFactory $resultJsonFactory,
         Context $context,
+        Log $logging,
         AddService $addService = null
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->context = $context;
         $this->addService = $addService;
+        $this->logging = $logging;
     }
 
     /**
@@ -66,6 +73,7 @@ class Add implements HttpPostActionInterface
      */
     public function execute()
     {
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->context->getRequest(), true));
         $data = $this->addService->process($this->context->getRequest());
 
         $errorMessage = $data['error'] ?? null;

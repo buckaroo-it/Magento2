@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Applepay;
 
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -33,11 +34,15 @@ class Add
     private ShippingAddressManagementInterface $shippingAddressManagement;
     private ShippingMethod $appleShippingMethod;
     private \Magento\Checkout\Model\Session $checkoutSession;
-
     /**
      * @var QuoteRepository|mixed
      */
     private $quoteRepository;
+    /**
+     * @var Log $logging
+     */
+    public $logging;
+
 
 
     /**
@@ -64,6 +69,7 @@ class Add
         ShippingAddressManagementInterface $shippingAddressManagement,
         AppleShippingMethod $appleShippingMethod,
         \Magento\Checkout\Model\Session $checkoutSession,
+        Log $logging,
         QuoteRepository $quoteRepository = null
     ) {
         $this->cartRepository = $cartRepository;
@@ -75,7 +81,7 @@ class Add
         $this->shippingAddressManagement = $shippingAddressManagement;
         $this->appleShippingMethod = $appleShippingMethod;
         $this->checkoutSession = $checkoutSession;
-
+        $this->logging = $logging;
         $this->quoteRepository = $quoteRepository
         ?? ObjectManager::getInstance()->get(QuoteRepository::class);
     }
@@ -87,13 +93,15 @@ class Add
     public function process($request)
     {
         $cartHash = $request->getParam('id');
-
+        $this->logging->addDebug(__METHOD__ . '|1|');
         if ($cartHash) {
             $cartId = $this->maskedQuoteIdToQuoteId->execute($cartHash);
             $cart = $this->cartRepository->get($cartId);
         } else {
             $cart = $this->checkoutSession->getQuote();
         }
+
+        $this->logging->addDebug(__METHOD__ . '|2|');
 
         $product = $request->getParam('product');
         $cart->removeAllItems();
@@ -104,20 +112,28 @@ class Add
             throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $product['id']]));
         }
 
+        $this->logging->addDebug(__METHOD__ . '|3|');
+
         $cartItem = new CartItem(
             $productToBeAdded->getSku(),
             $product['qty']
         );
 
+        $this->logging->addDebug(__METHOD__ . '|4|');
         if (isset($product['selected_options'])) {
+            $this->logging->addDebug(__METHOD__ . '|5|');
             $cartItem->setSelectedOptions($product['selected_options']);
         }
 
-        $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));
-        $this->cartRepository->save($cart);
+        $this->logging->addDebug(__METHOD__ . '|6|');
 
+        $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));
+        $this->logging->addDebug(__METHOD__ . '|7|');
+        $this->cartRepository->save($cart);
+        $this->logging->addDebug(__METHOD__ . '|8|');
         $wallet = $request->getParam('wallet');
         $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
+        $this->logging->addDebug(__METHOD__ . '|9|');
 
         /**
          * @var $shippingAddress \Magento\Quote\Model\Quote\Address
@@ -150,6 +166,7 @@ class Add
         $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
         $cart->setTotalsCollectedFlag(false);
         $cart->collectTotals();
+        $this->logging->addDebug(__METHOD__ . '|10|');
         $totals = $this->gatherTotals($cart->getShippingAddress(), $cart->getTotals());
         if ($cart->getSubtotal() != $cart->getSubtotalWithDiscount()) {
             $totals['discount'] = round($cart->getSubtotalWithDiscount() - $cart->getSubtotal(), 2);
