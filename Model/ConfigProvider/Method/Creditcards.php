@@ -96,7 +96,7 @@ class Creditcards extends AbstractConfigProvider
                     'creditcards' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'creditcards' => $issuers,
-                        'defaultCardImage' => $this->getImageUrl('svg/creditcard', 'svg'),
+                        'defaultCardImage' => $this->getImageUrl('svg/creditcards', 'svg'),
                         'useCardDesign' => $this->useCardDesign(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
