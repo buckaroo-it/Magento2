@@ -57,7 +57,7 @@ class Add implements HttpPostActionInterface
         JsonFactory $resultJsonFactory,
         Context $context,
         Log $logging,
-        AddService $addService = null
+        AddService $addService
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->context = $context;
@@ -73,7 +73,7 @@ class Add implements HttpPostActionInterface
      */
     public function execute()
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->context->getRequest(), true));
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->context->getRequest()->getParams(), true));
         $data = $this->addService->process($this->context->getRequest());
 
         $errorMessage = $data['error'] ?? null;

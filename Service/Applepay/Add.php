@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Service\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Quote\Model\Cart\Data\CartItem;
-use Magento\Quote\Model\Cart\BuyRequest\BuyRequestBuilder;
+use Magento\Framework\DataObjectFactory;
 use Buckaroo\Magento2\Model\Applepay as ApplepayModel;
 use Magento\Quote\Model\Quote\AddressFactory as BaseQuoteAddressFactory;
 use Magento\Quote\Model\ShippingAddressManagementInterface;
@@ -28,7 +27,7 @@ class Add
     private CartRepositoryInterface $cartRepository;
     private $maskedQuoteIdToQuoteId;
     private ProductRepositoryInterface $productRepository;
-    private BuyRequestBuilder $requestBuilder;
+    private DataObjectFactory $dataObjectFactory;
     private ApplepayModel $applepayModel;
     private BaseQuoteAddressFactory $quoteAddressFactory;
     private ShippingAddressManagementInterface $shippingAddressManagement;
@@ -44,46 +43,44 @@ class Add
     public $logging;
 
 
-
     /**
      * @param CartRepositoryInterface $cartRepository
-     * @param CartInterface $cart
      * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
      * @param ProductRepositoryInterface $productRepository
-     * @param BuyRequestBuilder $requestBuilder
+     * @param DataObjectFactory $dataObjectFactory
      * @param ApplepayModel $applepayModel
      * @param BaseQuoteAddressFactory $quoteAddressFactory
      * @param ShippingAddressManagementInterface $shippingAddressManagement
-     * @param QuoteRepository|null $quoteRepository
      * @param ShippingMethod $appleShippingMethod
-     *
+     * @param Session $checkoutSession
+     * @param Log $logging
+     * @param QuoteRepository|null $quoteRepository
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
         ProductRepositoryInterface $productRepository,
-        BuyRequestBuilder $requestBuilder,
+        DataObjectFactory $dataObjectFactory,
         ApplepayModel $applepayModel,
         BaseQuoteAddressFactory $quoteAddressFactory,
         ShippingAddressManagementInterface $shippingAddressManagement,
         AppleShippingMethod $appleShippingMethod,
         \Magento\Checkout\Model\Session $checkoutSession,
         Log $logging,
-        QuoteRepository $quoteRepository = null
+        QuoteRepository $quoteRepository
     ) {
         $this->cartRepository = $cartRepository;
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->productRepository = $productRepository;
-        $this->requestBuilder = $requestBuilder;
+        $this->dataObjectFactory = $dataObjectFactory;
         $this->applepayModel = $applepayModel;
         $this->quoteAddressFactory = $quoteAddressFactory;
         $this->shippingAddressManagement = $shippingAddressManagement;
         $this->appleShippingMethod = $appleShippingMethod;
         $this->checkoutSession = $checkoutSession;
         $this->logging = $logging;
-        $this->quoteRepository = $quoteRepository
-        ?? ObjectManager::getInstance()->get(QuoteRepository::class);
+        $this->quoteRepository = $quoteRepository;
     }
 
     /**
@@ -114,20 +111,20 @@ class Add
 
         $this->logging->addDebug(__METHOD__ . '|3|');
 
-        $cartItem = new CartItem(
-            $productToBeAdded->getSku(),
-            $product['qty']
+        $buyRequest = $this->dataObjectFactory->create(
+            ['data' => [
+                'product' => $product['id'],
+                'selected_configurable_option' => '',
+                'related_product' => '',
+                'item' => $product['id'],
+                'super_attribute' => $product['selected_options'],
+                'qty' => $product['qty'],
+            ]]
         );
 
-        $this->logging->addDebug(__METHOD__ . '|4|');
-        if (isset($product['selected_options'])) {
-            $this->logging->addDebug(__METHOD__ . '|5|');
-            $cartItem->setSelectedOptions($product['selected_options']);
-        }
+        $this->logging->addDebug(__METHOD__ . '|6|' . var_export($buyRequest->getData()));
 
-        $this->logging->addDebug(__METHOD__ . '|6|');
-
-        $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));
+        $cart->addProduct($productToBeAdded, $buyRequest);
         $this->logging->addDebug(__METHOD__ . '|7|');
         $this->cartRepository->save($cart);
         $this->logging->addDebug(__METHOD__ . '|8|');
