@@ -6,7 +6,6 @@ use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Magento\Payment\Model\MethodInterface;
 
 class AvailableBasedOnAmountValidator extends AbstractValidator
 {
@@ -23,6 +22,7 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
         $isValid = true;
 
         $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
+
         $quote = SubjectReader::readQuote($validationSubject);
 
         $storeId = $quote->getStoreId();
@@ -31,8 +31,7 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
 
         $total = $quote->getGrandTotal();
 
-        if (
-            $total < 0.01
+        if ($total < 0.01
             || $maximum !== null && $total > $maximum
             || $minimum !== null && $total < $minimum
         ) {

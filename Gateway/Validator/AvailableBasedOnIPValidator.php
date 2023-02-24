@@ -9,7 +9,6 @@ use Magento\Developer\Helper\Data;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Magento\Payment\Model\MethodInterface;
 
 class AvailableBasedOnIPValidator extends AbstractValidator
 {

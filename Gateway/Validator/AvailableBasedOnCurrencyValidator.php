@@ -21,13 +21,6 @@ class AvailableBasedOnCurrencyValidator extends AbstractValidator
     {
         $isValid = false;
 
-        if (!isset($validationSubject['paymentMethodInstance']) || !isset($validationSubject['quote'])) {
-            return $this->createResult(
-                false,
-                [__('Payment method instance does not exist')]
-            );
-        }
-
         $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
         $allowedCurrenciesRaw = $paymentMethodInstance->getConfigData('allowed_currencies');
         $allowedCurrencies = explode(',', (string)$allowedCurrenciesRaw);
