@@ -3202,7 +3202,7 @@
     <virtualType name="PayLinkResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
             <argument name="handlers" xsi:type="array">
-                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+                <item name="response" xsi:type="string">OrderResponseHandler</item>
                 <item name="paylink" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PayLinkHandler</item>
             </argument>
         </arguments>
@@ -3361,7 +3361,7 @@
     <virtualType name="OrderWithCreditManagementResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
             <argument name="handlers" xsi:type="array">
-                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+                <item name="response" xsi:type="string">OrderResponseHandler</item>
                 <item name="credit_management" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler</item>
             </argument>
         </arguments>
@@ -3991,7 +3991,7 @@
     <virtualType name="SepaDirectDebitHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
         <arguments>
             <argument name="handlers" xsi:type="array">
-                <item name="response" xsi:type="string">Buckaroo\Magento2\Gateway\Response\OrderHandler</item>
+                <item name="response" xsi:type="string">OrderResponseHandler</item>
                 <item name="credit_management" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler</item>
                 <item name="consumer_message" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ConsumerMessageHandler</item>
             </argument>
