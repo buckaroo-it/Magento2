@@ -2,47 +2,49 @@
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Magento\Framework\Exception\NotFoundException;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Model\InfoInterface;
 
 /**
  * Class IssuerValidator
+ *
  * @package Magento\Payment\Gateway\Validator
  * @api
  * @since 100.0.2
  */
 class IssuerValidator extends AbstractValidator
 {
-    /** @var Factory */
-    private $configProvider;
+    /** @var ConfigProviderMethodFactory */
+    private $configProviderFactory;
 
     /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface */
     private $config;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param Factory $configProvider
+     * @param ConfigProviderMethodFactory $configProviderFactory
      */
     public function __construct(
-        ResultInterfaceFactory $resultFactory,
-        Factory $configProvider
+        ResultInterfaceFactory      $resultFactory,
+        ConfigProviderMethodFactory $configProviderFactory
     ) {
-        $this->configProvider = $configProvider;
+        $this->configProviderFactory = $configProviderFactory;
         parent::__construct($resultFactory);
     }
 
     /**
      * @param array $validationSubject
-     * @return bool|ResultInterface
-     * @throws NotFoundException
-     * @throws \Exception
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $paymentInfo = $validationSubject['payment'];
+
+        $paymentInfo = SubjectReader::readPayment($validationSubject)->getPayment();
 
         $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
         if ($skipValidation) {
@@ -60,10 +62,19 @@ class IssuerValidator extends AbstractValidator
         return $this->createResult(false, [__('Please select a issuer from the list')]);
     }
 
+    /**
+     * Get config provider class based on payment method name
+     *
+     * @param InfoInterface $paymentInfo
+     * @return \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface|false
+     * @throws \Buckaroo\Magento2\Exception
+     */
     protected function getConfig($paymentInfo)
     {
-        return $this->config = $this->configProvider->get(
-            $paymentInfo->getMethod()
-        );
+        try {
+            return $this->config = $this->configProviderFactory->get($paymentInfo->getMethodInstance()->getCode());
+        } catch (\Exception $exception) {
+            return false;
+        }
     }
 }
