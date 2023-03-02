@@ -139,9 +139,9 @@ class Add
         $shippingAddress->addData($shippingAddressData);
 
         $errors = $shippingAddress->validate();
-        if (is_array($errors)) {
-            return ['success' => 'false', 'error' => $errors];
-        }
+//        if (is_array($errors)) {
+//            return ['success' => 'false', 'error' => $errors];
+//        }
 
         try {
             $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
@@ -155,7 +155,7 @@ class Add
         foreach ($shippingMethods as $shippingMethod) {
             $shippingMethodsResult[] = [
                 'carrier_title' => $shippingMethod['carrier_title'],
-                'price_incl_tax' => round($shippingMethod['amount'], 2),
+                'price_incl_tax' => round($shippingMethod['amount']['value'], 2),
                 'method_code' => $shippingMethod['carrier_code'] . '_' .  $shippingMethod['method_code'],
                 'method_title' => $shippingMethod['method_title'],
             ];
