@@ -83,6 +83,7 @@ class Add implements HttpPostActionInterface
             $response = ['success' => 'true', 'data' => $data];
         }
 
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($response, true));
         $resultJson = $this->resultJsonFactory->create();
         return $resultJson->setData($response);
     }
