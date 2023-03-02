@@ -44,6 +44,11 @@
             <config_path>payment/buckaroo_magento2_tinka/sort_order</config_path>
         </field>
 
+        <field id="activeservice" translate="label" type="select" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Active payment service</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\TinkaActiveService</source_model>
+                <config_path>payment/buckaroo_magento2_tinka/activeservice</config_path>
+        </field>
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 
