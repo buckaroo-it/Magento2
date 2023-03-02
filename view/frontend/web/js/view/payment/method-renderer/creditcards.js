@@ -41,6 +41,7 @@ define(
         checkoutCommon
     ) {
         'use strict';
+        
 
         /**
          * Add validation methods
@@ -135,6 +136,20 @@ define(
                             'CardIssuer'
                         ]
                     );
+
+                    this.formatedCardNumber = ko.computed({
+                        read: function () {
+                            console.log(this.CardNumber());
+                            return String(this.CardNumber()).match(new RegExp('.{1,4}', 'g')).join(" ");
+                        },
+                        write: function (value) {
+                            const v = value.split(" ").join("");
+                            console.log("v",v);
+                            this.CardNumber(v);
+                        },
+                        owner: this
+                    });
+
 
                     this.CardIssuer.subscribe(this.changeIssuerLogo, this);
 
@@ -314,6 +329,8 @@ define(
                         this.CardIssuer(cardIssuerObject.code);
                     }
                 },
+
+                
 
                 /** Get the card issuer based on the creditcard number **/
                 getCardIssuer: function () {

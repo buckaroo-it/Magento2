@@ -53,6 +53,25 @@
     float:left; width: 100%; margin-bottom: 20px;
 }
 
+.payment-method-second-col input,
+.payment-method-second-col select {
+    border-radius: 5px;
+    background-color: #fefefe;
+}
+.payment-method-second-col input:focus,
+.payment-method-second-col select:focus,
+.payment-method-second-col input.mage-error:focus,
+.payment-method-second-col select.mage-error:focus {
+    box-shadow: none;
+    border-bottom: 2px solid #0044ff;
+}
+
+.payment-method-second-col input.mage-error,
+.payment-method-second-col select.mage-error {
+    border:1px solid #c2c2c2;
+    border-bottom: 2px solid #ed8380;
+}
+
 .action.action-update {
     margin-top: 20px;
 }

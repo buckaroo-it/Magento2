@@ -76,9 +76,8 @@
                                        class="input-text field"
                                        name="payment[buckaroo_magento2_creditcards][cardnumber]"
                                        data-bind="
-                            valueUpdate: 'blur',
-                            value: CardNumber,
-                            textInput: CardNumber(),
+                            valueUpdate: 'input',
+                            value: formatedCardNumber,
                             attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }) },
                             event: { blur: encryptCardDetails, change: processCard }">
                             </div>
