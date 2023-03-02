@@ -148,8 +148,8 @@ define(
                 var shippingMethods = self.availableShippingMethodInformation();
                 var shippingContactCallback = self.onSelectedShippingContact.bind(this);
                 var shipmentMethodCallback = self.onSelectedShipmentMethod.bind(this);
-                var requiredBillingContactFields = ["postalAddress", "name", "phoneticName", "phone", "email"];
-                var requiredShippingContactFields = ["postalAddress", "name", "phoneticName", "phone", "email"];
+                var requiredBillingContactFields = ["postalAddress", "name", "phone", "email"];
+                var requiredShippingContactFields = ["postalAddress", "name", "phone", "email"];
 
                 var country = window.checkoutConfig.payment.buckaroo.applepay.country;
                 this.devLog('==============applepaydebug/11', this.quote);

@@ -122,8 +122,6 @@ class Add
             ]]
         );
 
-        $this->logging->addDebug(__METHOD__ . '|6|' . var_export($buyRequest->getData()));
-
         $cart->addProduct($productToBeAdded, $buyRequest);
         $this->logging->addDebug(__METHOD__ . '|7|');
         $this->cartRepository->save($cart);
