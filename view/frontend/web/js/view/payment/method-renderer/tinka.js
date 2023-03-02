@@ -133,7 +133,6 @@ define(
 
                     this.buttoncheck = ko.computed(
                         function () {
-                            console.log(this.isDateValid(), this.showNLBEFields());
                             if(this.showNLBEFields()) {
                                 return this.isDateValid();
                             }
