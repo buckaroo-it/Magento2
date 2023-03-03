@@ -284,7 +284,7 @@ class Data extends AbstractHelper
      */
     public function isGroupTransaction()
     {
-        return (bool)$this->groupTransaction->isGroupTransaction($this->getOrderId());
+        return $this->groupTransaction->isGroupTransaction($this->getOrderId());
     }
 
     /**

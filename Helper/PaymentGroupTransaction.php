@@ -110,9 +110,16 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return $groupTransaction->save();
     }
 
-    public function isGroupTransaction($order_id)
+    /**
+     * Check if is group transaction the order
+     *
+     * @param string|int $orderId
+     * @return bool
+     */
+    public function isGroupTransaction($orderId)
     {
-        return $this->getGroupTransactionItems($order_id);
+        $groupTransactions = $this->getGroupTransactionItems($orderId);
+        return is_array($groupTransactions) && count($groupTransactions) > 0;
     }
 
     public function getGroupTransactionItems($order_id)
