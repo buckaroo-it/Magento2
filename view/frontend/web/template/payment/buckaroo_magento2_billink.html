@@ -33,19 +33,14 @@
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
-                            <ul id="Saluation">
-                                <li>            
-                                    <select id="buckaroo_magento2_bilink_genderSelect" name="payment[buckaroo_magento2_bilink][customer_gender]" class="select"
-                                    data-bind="options: gendersList(),
-                                     optionsText: $t('genderTitle'),
-                                     optionsValue: 'genderType',
-                                     optionsCaption: $t('-- Please Select Your Gender--'),
-                                     value: getSelectedGender,
-                                     event: { change: setSelectedGender }, attr: { 'data-validate': JSON.stringify({ 'required': true })}">
-                                     </select>
-                                </li>
-                            </ul>
-                            <div for="gender" generated="true" class="mage-error" id="gender-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
+                        <select id="buckaroo_magento2_bilink_genderSelect" name="payment[buckaroo_magento2_bilink][customer_gender]" class="select"
+                        data-bind="options: gendersList(),
+                            optionsText: $t('genderTitle'),
+                            optionsValue: 'genderType',
+                            optionsCaption: $t('-- Please Select Your Gender--'),
+                            value: getSelectedGender,
+                            event: { change: setSelectedGender }, attr: { 'data-validate': JSON.stringify({ 'required': true })}">
+                            </select>
                         </div>
                     </div>
                     <!-- /ko -->
