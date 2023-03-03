@@ -103,7 +103,7 @@ class GatewayCommand implements CommandInterface
      */
     public function execute(array $commandSubject)
     {
-        if ($this->validator !== null && $this->skipCommand->isSkip($commandSubject)) {
+        if ($this->skipCommand !== null && $this->skipCommand->isSkip($commandSubject)) {
             return;
         }
 
