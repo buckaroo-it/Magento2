@@ -21,10 +21,8 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Catalog\Model\Product\Type;
-use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Model\Config\Source\TinkaActiveService;
 
 class Tinka extends AbstractMethod
 {
@@ -86,8 +84,7 @@ class Tinka extends AbstractMethod
         $billingAddress = $payment->getOrder()->getBillingAddress();
         $billingStreetFormat   = $this->formatStreet($billingAddress->getStreet());
 
-        $telephone = $payment->getAdditionalInformation('customer_telephone');
-        $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
+        $telephone = $billingAddress->getTelephone();
 
         $billingData = [
             [
@@ -324,7 +321,9 @@ class Tinka extends AbstractMethod
             'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'RequestParameter' => [
                 [
-                    '_'    => 'Credit',
+                    '_'    => $this->getActiveService(
+                        $payment->getOrder()->getStoreId()
+                    ),
                     'Name' => 'PaymentMethod',
                     "Group" => "",
                     "GroupID" => "",
@@ -562,5 +561,15 @@ class Tinka extends AbstractMethod
     public function getPaymentMethodName($payment)
     {
         return $this->buckarooPaymentMethodCode;
+    }
+
+    public function getActiveService($storeId = null)
+    {
+        $activeService = $this->getConfigData('activeservice', $storeId);
+        
+        if (!in_array($activeService, TinkaActiveService::LIST)) {
+            return TinkaActiveService::CREDIT;
+        }
+        return $activeService;
     }
 }
