@@ -24,7 +24,7 @@ class AdditionalParametersDataBuilder implements BuilderInterface
      */
     public function __construct(
         string $action,
-        array $additionalParameters = []
+        array  $additionalParameters = []
     ) {
         $this->action = $action;
         $this->additionalParameters = $additionalParameters;
@@ -53,7 +53,7 @@ class AdditionalParametersDataBuilder implements BuilderInterface
             $parameterLine['service_action_from_magento'] = strtolower($this->getAction());
         }
 
-        $parameterLine['initiated_by_magento'] =  1;
+        $parameterLine['initiated_by_magento'] = 1;
 
         if ($additionalParameters = $this->getAllAdditionalParameters()) {
             foreach ($additionalParameters as $key => $value) {
@@ -62,18 +62,6 @@ class AdditionalParametersDataBuilder implements BuilderInterface
         }
 
         return $parameterLine;
-    }
-
-    public function setAdditionalParameter($key, $value)
-    {
-        $this->additionalParameters[$key] = $value;
-
-        return $this;
-    }
-
-    public function getAdditionalParameter($key)
-    {
-        return $this->additionalParameters[$key];
     }
 
     /**
@@ -97,5 +85,17 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     public function getAllAdditionalParameters(): array
     {
         return $this->additionalParameters;
+    }
+
+    public function setAdditionalParameter($key, $value)
+    {
+        $this->additionalParameters[$key] = $value;
+
+        return $this;
+    }
+
+    public function getAdditionalParameter($key)
+    {
+        return $this->additionalParameters[$key];
     }
 }
