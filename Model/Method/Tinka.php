@@ -21,10 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Tax\Model\Config;
-use Magento\Tax\Model\Calculation;
 use Magento\Catalog\Model\Product\Type;
-use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Model\Config\Source\TinkaActiveService;
 
 class Tinka extends AbstractMethod

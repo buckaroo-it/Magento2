@@ -21,9 +21,9 @@
 
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-use Buckaroo\Magento2\Helper\TinkaServices;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class TinkaActiveService implements \Magento\Framework\Option\ArrayInterface
+class TinkaActiveService implements OptionSourceInterface
 {
 
     public const CREDIT = "Credit";
