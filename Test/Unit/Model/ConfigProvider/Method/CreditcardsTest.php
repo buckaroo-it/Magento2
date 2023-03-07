@@ -43,7 +43,6 @@ class CreditcardsTest extends BaseTest
                                 'paymentFeeLabel' => 'Fee',
                                 'creditcards' => [],
                                 'defaultCardImage' => '',
-                                'useCardDesign' => '1',
                                 'allowedCurrencies' => ['EUR']
                             ]
                         ]
