@@ -21,46 +21,81 @@
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Magento\Framework\App\Action\Action;
+
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Service\Applepay\QuoteService;
+use Magento\Checkout\Model\Cart;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\Reflection\DataObjectProcessor;
+use Magento\Quote\Model\QuoteRepository;
 
 class UpdateShippingMethods extends Common
 {
+
+    private \Magento\Checkout\Model\Session $checkoutSession;
+
+    private QuoteRepository $quoteRepository;
+
+    public function __construct(
+        Context                                           $context,
+        Log                                               $logger,
+        \Magento\Quote\Model\Quote\TotalsCollector        $totalsCollector,
+        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
+        QuoteRepository                                   $quoteRepository,
+        \Magento\Checkout\Model\Session                   $checkoutSession,
+        CustomerSession                                   $customerSession = null
+    ) {
+        parent::__construct(
+            $context,
+            $logger,
+            $totalsCollector,
+            $converter,
+            $customerSession
+        );
+
+        $this->checkoutSession = $checkoutSession;
+        $this->quoteRepository = $quoteRepository;
+    }
+
+    /**
+     * Set Shipping Method
+     */
     public function execute()
     {
         $isPost = $this->getRequest()->getPostValue();
         $errorMessage = false;
         $data = [];
 
-        if ($isPost) {
-            if ($wallet = $this->getRequest()->getParam('wallet')) {
-                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
-                $quoteRepository = $objectManager->get(\Magento\Quote\Model\QuoteRepository::class);
-                $quote = $checkoutSession->getQuote();
+        if ($isPost && $wallet = $this->getRequest()->getParam('wallet')) {
+            try {
+                // Get Cart
+                $quote = $this->checkoutSession->getQuote();
 
-                ////shipping
+                // Set Shipping Method
                 $quote->getShippingAddress()->setCollectShippingRates(true);
                 $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
 
+                // Recalculate Totals after setting new shipping method
                 $quote->setTotalsCollectedFlag(false);
                 $quote->collectTotals();
                 $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
-                $quoteRepository->save($quote);
+
+                // Save Cart
+                $this->quoteRepository->save($quote);
                 $data = [
                     'shipping_methods' => [
                         'code' => $wallet['identifier']
                     ],
                     'totals' => $totals
                 ];
-
-                //resave proper method
-                $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
-                $quote->getShippingAddress()->save();
+            } catch (\Exception $exception) {
+                $errorMessage = "Setting the new Shipping Method failed.";
             }
+        } else {
+            $errorMessage = "The request for updating shipping method is wrong.";
         }
+
 
         return $this->commonResponse($data, $errorMessage);
     }

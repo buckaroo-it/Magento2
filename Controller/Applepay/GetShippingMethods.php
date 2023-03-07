@@ -25,17 +25,14 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Checkout\Model\Cart;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Quote\Api\Data\EstimateAddressInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Checkout\Model\Session as CheckoutSession;
-use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
-use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\QuoteRepository;
+use Buckaroo\Magento2\Service\Applepay\QuoteService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -43,21 +40,14 @@ use Magento\Quote\Model\QuoteRepository;
 class GetShippingMethods extends Common
 {
     /**
-     * @var MaskedQuoteIdToQuoteIdInterface
+     * @var QuoteService
      */
-    private MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId;
+    private $quoteService;
+
     /**
      * @var Cart
      */
     private Cart $cart;
-    /**
-     * @var CartRepositoryInterface
-     */
-    private CartRepositoryInterface $cartRepository;
-    /**
-     * @var CheckoutSession
-     */
-    private CheckoutSession $checkoutSession;
     /**
      * @var QuoteRepository
      */
@@ -73,9 +63,6 @@ class GetShippingMethods extends Common
      * @param Quote\TotalsCollector $totalsCollector
      * @param \Magento\Quote\Model\Cart\ShippingMethodConverter $converter
      * @param Cart $cart
-     * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
-     * @param CartRepositoryInterface $cartRepository
-     * @param CheckoutSession $checkoutSession
      * @param QuoteRepository $quoteRepository
      * @param DataObjectProcessor $dataObjectProcessor
      * @param CustomerSession|null $customerSession
@@ -88,11 +75,9 @@ class GetShippingMethods extends Common
         \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         Cart $cart,
-        MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
-        CartRepositoryInterface $cartRepository,
-        CheckoutSession $checkoutSession,
         QuoteRepository $quoteRepository,
         DataObjectProcessor $dataObjectProcessor,
+        QuoteService $quoteService,
         CustomerSession $customerSession = null
     ) {
         parent::__construct(
@@ -102,12 +87,10 @@ class GetShippingMethods extends Common
             $converter,
             $customerSession
         );
-        $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->cart = $cart;
-        $this->cartRepository = $cartRepository;
-        $this->checkoutSession = $checkoutSession;
         $this->quoteRepository = $quoteRepository;
         $this->dataObjectProcessor = $dataObjectProcessor;
+        $this->quoteService = $quoteService;
     }
 
     /**
@@ -122,14 +105,9 @@ class GetShippingMethods extends Common
 
         $data = [];
         if ($isPost && $wallet = $this->getRequest()->getParam('wallet')) {
+            // Get Cart
             $cartHash = $this->getRequest()->getParam('id');
-
-            if ($cartHash) {
-                $cartId = $this->maskedQuoteIdToQuoteId->execute($cartHash);
-                $quote = $this->cartRepository->get($cartId);
-            } else {
-                $quote = $this->checkoutSession->getQuote();
-            }
+            $quote = $this->quoteService->getQuote($cartHash);
 
             if (!$this->setShippingAddress($quote, $wallet)) {
                 return $this->commonResponse(false, true);

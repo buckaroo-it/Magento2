@@ -6,7 +6,6 @@ namespace Buckaroo\Magento2\Service\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Checkout\Model\Session;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
@@ -14,6 +13,7 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\DataObjectFactory;
 use Buckaroo\Magento2\Model\Applepay as ApplepayModel;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\AddressFactory as BaseQuoteAddressFactory;
 use Magento\Quote\Model\ShippingAddressManagementInterface;
 use Magento\Quote\Model\QuoteRepository;
@@ -89,57 +89,31 @@ class Add
      */
     public function process($request)
     {
+        // Get Cart
         $cartHash = $request->getParam('id');
-        $this->logging->addDebug(__METHOD__ . '|1|');
-        if ($cartHash) {
-            $cartId = $this->maskedQuoteIdToQuoteId->execute($cartHash);
-            $cart = $this->cartRepository->get($cartId);
-        } else {
-            $cart = $this->checkoutSession->getQuote();
-        }
+        $cart = $this->getCart($cartHash);
 
-        $this->logging->addDebug(__METHOD__ . '|2|');
-
-        $product = $request->getParam('product');
+        // Remove all items from Cart
         $cart->removeAllItems();
 
-        try {
-            $productToBeAdded = $this->productRepository->getById($product['id']);
-        } catch (NoSuchEntityException $e) {
-            throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $product['id']]));
-        }
+        // Add product to cart
+        $product = $request->getParam('product');
+        $this->addProductToCart($product, $cart);
 
-        $this->logging->addDebug(__METHOD__ . '|3|');
-
-        $buyRequest = $this->dataObjectFactory->create(
-            ['data' => [
-                'product' => $product['id'],
-                'selected_configurable_option' => '',
-                'related_product' => '',
-                'item' => $product['id'],
-                'super_attribute' => $product['selected_options'],
-                'qty' => $product['qty'],
-            ]]
-        );
-
-        $cart->addProduct($productToBeAdded, $buyRequest);
-        $this->logging->addDebug(__METHOD__ . '|7|');
-        $this->cartRepository->save($cart);
-        $this->logging->addDebug(__METHOD__ . '|8|');
+        // Get Shipping Address From Request
         $wallet = $request->getParam('wallet');
         $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
-        $this->logging->addDebug(__METHOD__ . '|9|');
 
-        /**
-         * @var $shippingAddress \Magento\Quote\Model\Quote\Address
-         */
+        // Add Shipping Address on Quote
+        /** @var $shippingAddress \Magento\Quote\Model\Quote\Address */
         $shippingAddress = $this->quoteAddressFactory->create();
         $shippingAddress->addData($shippingAddressData);
 
+        // Validate Shipping Address
         $errors = $shippingAddress->validate();
-//        if (is_array($errors)) {
-//            return ['success' => 'false', 'error' => $errors];
-//        }
+        if (is_array($errors)) {
+            return ['success' => 'false', 'error' => $errors];
+        }
 
         try {
             $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
@@ -192,5 +166,57 @@ class Add
         ];
 
         return $totals;
+    }
+
+    /**
+     * Get checkout quote instance by current session
+     *
+     * @param int|string $cartHash
+     * @return Quote
+     */
+    public function getCart(int|string $cartHash): Quote
+    {
+        $this->logging->addDebug(__METHOD__ . '|1|');
+
+        if ($cartHash) {
+            $cartId = $this->maskedQuoteIdToQuoteId->execute($cartHash);
+            $cart = $this->cartRepository->get($cartId);
+        } else {
+            $cart = $this->checkoutSession->getQuote();
+        }
+
+        return $cart;
+    }
+
+    /**
+     * Add Product Selected to cart
+     *
+     * @param array $product
+     * @return Quote
+     */
+    public function addProductToCart($product, $cart): Quote
+    {
+        $this->logging->addDebug(__METHOD__ . '|1|');
+        try {
+            $productToBeAdded = $this->productRepository->getById($product['id']);
+        } catch (NoSuchEntityException $e) {
+            throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $product['id']]));
+        }
+
+        $this->logging->addDebug(__METHOD__ . '|3|');
+
+        $buyRequest = $this->dataObjectFactory->create(
+            ['data' => [
+                'product' => $product['id'],
+                'selected_configurable_option' => '',
+                'related_product' => '',
+                'item' => $product['id'],
+                'super_attribute' => $product['selected_options'] ?? '',
+                'qty' => $product['qty'],
+            ]]
+        );
+
+        $cart->addProduct($productToBeAdded, $buyRequest);
+        $this->cartRepository->save($cart);
     }
 }

@@ -151,6 +151,7 @@ class SaveOrder extends Common
             $this->logger->addDebug(var_export($payment, true));
             $this->logger->addDebug(var_export($extra, true));
 
+            // Get Cart
             $quote = $this->checkoutSession->getQuote();
 
             if (!$this->setShippingAddress($quote, $payment['shippingContact'])) {
