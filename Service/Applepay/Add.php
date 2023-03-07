@@ -136,7 +136,7 @@ class Add
         $shippingAddress = $this->quoteAddressFactory->create();
         $shippingAddress->addData($shippingAddressData);
 
-//        $errors = $shippingAddress->validate();
+        $errors = $shippingAddress->validate();
 //        if (is_array($errors)) {
 //            return ['success' => 'false', 'error' => $errors];
 //        }
