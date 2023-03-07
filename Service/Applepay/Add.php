@@ -136,7 +136,7 @@ class Add
         $shippingAddress = $this->quoteAddressFactory->create();
         $shippingAddress->addData($shippingAddressData);
 
-        $errors = $shippingAddress->validate();
+//        $errors = $shippingAddress->validate();
 //        if (is_array($errors)) {
 //            return ['success' => 'false', 'error' => $errors];
 //        }
@@ -144,12 +144,15 @@ class Add
         try {
             $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
         } catch (\Exception $e) {
+            $this->logging->addDebug(__METHOD__ . '|9.1|' .  $e->getMessage());
             return ['success' => 'false', 'error' => $e->getMessage()];
         }
         $this->quoteRepository->save($cart);
         $shippingMethodsResult = [];
+        $this->logging->addDebug(__METHOD__ . '|9.2|');
         //this delivery address is already assigned to the cart
         $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
+        $this->logging->addDebug(__METHOD__ . '|9.3|');
         foreach ($shippingMethods as $shippingMethod) {
             $shippingMethodsResult[] = [
                 'carrier_title' => $shippingMethod['carrier_title'],
@@ -158,9 +161,16 @@ class Add
                 'method_title' => $shippingMethod['method_title'],
             ];
         }
-        $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+        $this->logging->addDebug(__METHOD__ . '|9.4|' . var_export($shippingMethodsResult, true));
+        try {
+            $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+        } catch (\Exception $e) {
+            $this->logging->addDebug(__METHOD__ . '|9.45 exception|' . $e->getMessage());
+        }
+        $this->logging->addDebug(__METHOD__ . '|9.5|');
         $cart->setTotalsCollectedFlag(false);
         $cart->collectTotals();
+        $this->logging->addDebug(__METHOD__ . '|9.6|');
         $this->logging->addDebug(__METHOD__ . '|10|');
         $totals = $this->gatherTotals($cart->getShippingAddress(), $cart->getTotals());
         if ($cart->getSubtotal() != $cart->getSubtotalWithDiscount()) {

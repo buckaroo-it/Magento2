@@ -17,18 +17,18 @@ class Applepay
     {
         $address = [
             'prefix' => '',
-            'firstname' => $wallet['givenName'] ?? '',
+            'firstname' => $wallet['givenName'] ?? 'Test',
             'middlename' => '',
-            'lastname' => $wallet['familyName'] ?? '',
+            'lastname' => $wallet['familyName'] ?? 'Acceptatie',
             'street' => [
-                '0' => $wallet['addressLines'][0] ?? '',
-                '1' => $wallet['addressLines'][1] ?? null
+                '0' => $wallet['addressLines'][0] ?? 'Hoofdstraat',
+                '1' => $wallet['addressLines'][1] ?? '80'
             ],
-            'city' => $wallet['locality'] ?? '',
-            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
-            'region' => $wallet['administrativeArea'] ?? '',
+            'city' => $wallet['locality'] ?? 'Heerenveen',
+            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '8441ER',
+            'region' => $wallet['administrativeArea'] ?? 'Friesland',
             'region_id' => '',
-            'postcode' => $wallet['postalCode'] ?? '',
+            'postcode' => $wallet['postalCode'] ?? '8441ER',
             'telephone' => $wallet['phoneNumber'] ?? 'N/A',
             'fax' => '',
             'vat_id' => ''
