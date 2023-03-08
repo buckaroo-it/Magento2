@@ -8,7 +8,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\ShippingMethodInterface;
+use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\TotalsCollector;
@@ -23,17 +25,37 @@ class ShippingMethod
      */
     public $logging;
 
+    /**
+     * @var ShipmentEstimationInterface
+     */
+    private $shipmentEstimation;
+
     public function __construct(
         ExtensibleDataObjectConverter $dataObjectConverter,
         ShippingMethodConverter $shippingMethodConverter,
         TotalsCollector $totalsCollector,
+        ShipmentEstimationInterface $shipmentEstimation,
         Log $logging
     ) {
         $this->dataObjectConverter = $dataObjectConverter;
         $this->shippingMethodConverter = $shippingMethodConverter;
         $this->totalsCollector = $totalsCollector;
+        $this->shipmentEstimation = $shipmentEstimation;
         $this->logging = $logging;
     }
+
+    /**
+     * Get shipping methods by address
+     *
+     * @param Quote $quote
+     * @param AddressInterface $address
+     * @return ShippingMethodInterface[]
+     */
+    public function getAvailableShippingMethods($quote, $address)
+    {
+        return $this->shipmentEstimation->estimateByExtendedAddress($quote, $address);
+    }
+
 
     public function getAvailableMethods($cart)
     {

@@ -22,14 +22,18 @@
 namespace Buckaroo\Magento2\Service\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Quote\Api\Data\ShippingMethodInterface;
+use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\TotalsCollector;
+use Magento\Quote\Model\ShippingMethodManagement;
 
 class SetAddress
 {
@@ -51,7 +55,10 @@ class SetAddress
      * @var ShippingMethodConverter
      */
     protected $converter;
-    private ShippingMethodManagement $shippingMethodManagement;
+    /**
+     * @var \Magento\Quote\Api\ShipmentEstimationInterface
+     */
+    protected $shipmentEstimation;
 
     /**
      * Apple Pay common constructor
@@ -67,38 +74,27 @@ class SetAddress
         Log                     $logger,
         TotalsCollector         $totalsCollector,
         ShippingMethodConverter $converter,
-        ShippingMethodManagement $shippingMethodManagement,
+        ShipmentEstimationInterface $shipmentEstimation,
         CustomerSession         $customerSession = null
     ) {
         parent::__construct($context);
         $this->logger = $logger;
         $this->totalsCollector = $totalsCollector;
         $this->converter = $converter;
-        $this->shippingMethodManagement = $shippingMethodManagement;
+        $this->shipmentEstimation = $shipmentEstimation;
         $this->customerSession = $customerSession ?? ObjectManager::getInstance()->get(CustomerSession::class);
     }
 
     /**
-     * Get totals
+     * Get shipping methods by address
      *
-     * @param $address
-     * @param $quoteTotals
-     * @return array
+     * @param Quote $quote
+     * @param AddressInterface $address
+     * @return ShippingMethodInterface[]
      */
-    public function gatherTotals($address, $quoteTotals)
+    public function getAvailableShippingMethods($quote, $address)
     {
-        $totals = [
-            'subtotal' => $quoteTotals['subtotal']->getValue(),
-            'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping' => $address->getData('shipping_incl_tax'),
-            'grand_total' => $quoteTotals['grand_total']->getValue()
-        ];
-
-        return $totals;
-    }
-
-    public function getAvailableShippingMethods() {
-        return $this->shippingMethodManagement->getShippingMethods(Quote $quote, $address);
+        return $this->shipmentEstimation->estimateByExtendedAddress($quote, $address);
     }
 
     /**

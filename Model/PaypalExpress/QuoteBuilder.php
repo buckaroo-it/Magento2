@@ -27,8 +27,6 @@ use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\DataObjectFactory;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
-use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface;
-use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 
 class QuoteBuilder implements QuoteBuilderInterface
 {

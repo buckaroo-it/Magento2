@@ -25,7 +25,9 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Checkout\Model\Cart;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Quote\Api\Data\EstimateAddressInterface;
@@ -37,7 +39,7 @@ use Buckaroo\Magento2\Service\Applepay\QuoteService;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class GetShippingMethods extends Common
+class GetShippingMethods extends AbstractApplepay
 {
     /**
      * @var QuoteService
@@ -48,44 +50,42 @@ class GetShippingMethods extends Common
      * @var Cart
      */
     private Cart $cart;
+
     /**
      * @var QuoteRepository
      */
     private QuoteRepository $quoteRepository;
+
     /**
      * @var DataObjectProcessor
      */
     private DataObjectProcessor $dataObjectProcessor;
 
     /**
-     * @param Context $context
-     * @param Log $logger
-     * @param Quote\TotalsCollector $totalsCollector
-     * @param \Magento\Quote\Model\Cart\ShippingMethodConverter $converter
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log $logging
      * @param Cart $cart
      * @param QuoteRepository $quoteRepository
      * @param DataObjectProcessor $dataObjectProcessor
+     * @param QuoteService $quoteService
      * @param CustomerSession|null $customerSession
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        Context $context,
-        Log $logger,
-        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
-        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
+        JsonFactory $resultJsonFactory,
+        RequestInterface $request,
+        Log $logging,
         Cart $cart,
         QuoteRepository $quoteRepository,
         DataObjectProcessor $dataObjectProcessor,
         QuoteService $quoteService,
-        CustomerSession $customerSession = null
     ) {
         parent::__construct(
-            $context,
-            $logger,
-            $totalsCollector,
-            $converter,
-            $customerSession
+            $resultJsonFactory,
+            $request,
+            $logging
         );
         $this->cart = $cart;
         $this->quoteRepository = $quoteRepository;
@@ -101,15 +101,15 @@ class GetShippingMethods extends Common
      */
     public function execute()
     {
-        $isPost = $this->getRequest()->getPostValue();
+        $postValues = $this->getParams();
 
         $data = [];
-        if ($isPost && $wallet = $this->getRequest()->getParam('wallet')) {
+        if (!empty($postValues) && isset($postValues['wallet'])) {
             // Get Cart
-            $cartHash = $this->getRequest()->getParam('id');
+            $cartHash = $postValues('id') ?? null;
             $quote = $this->quoteService->getQuote($cartHash);
 
-            if (!$this->setShippingAddress($quote, $wallet)) {
+            if (!$this->setShippingAddress($quote, $postValues['wallet'])) {
                 return $this->commonResponse(false, true);
             }
             $data = $this->getShippingMethods($quote);
@@ -126,7 +126,7 @@ class GetShippingMethods extends Common
      */
     protected function getShippingMethods(&$quote)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
+        $this->logging->addDebug(__METHOD__ . '|1|');
 
         $quote->getPayment()->setMethod(Applepay::CODE);
         $quote->getShippingAddress()->setCollectShippingRates(true);
@@ -150,7 +150,7 @@ class GetShippingMethods extends Common
                 ];
             }
 
-            $this->logger->addDebug(__METHOD__ . '|2|');
+            $this->logging->addDebug(__METHOD__ . '|2|');
 
             $quote->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
             $quote->setTotalsCollectedFlag(false);
@@ -166,7 +166,7 @@ class GetShippingMethods extends Common
             $this->quoteRepository->save($quote);
             $this->cart->saveQuote();
 
-            $this->logger->addDebug(__METHOD__ . '|3|');
+            $this->logging->addDebug(__METHOD__ . '|3|');
 
             return $data;
         }

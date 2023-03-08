@@ -40,7 +40,7 @@ use Magento\Sales\Model\Order;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class SaveOrder extends Common
+class SaveOrder extends AbstractApplepay
 {
     /**
      * @var QuoteManagement

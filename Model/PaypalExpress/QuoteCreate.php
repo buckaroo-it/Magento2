@@ -269,25 +269,25 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * Create quote if in product page
      *
-     * @param array $form_data
-     * @param ShippingAddressRequestInterface $shipping_address
+     * @param array $formData
      *
      * @return Quote
      */
-    protected function createQuote(array $form_data)
+    protected function createQuote(array $formData)
     {
         try {
+            /** @var QuoteBuilderInterface $quoteBuilder */
             $quoteBuilder = $this->quoteBuilderInterfaceFactory->create();
-            $quoteBuilder->setFormData($form_data);
+            $quoteBuilder->setFormData($formData);
             return $quoteBuilder->build();
         } catch (\Throwable $th) {
             $this->logger->addDebug(__METHOD__ . $th->getMessage());
             throw new PaypalExpressException(__("Failed to create quote"), 1, $th);
         }
     }
-    protected function validateData($form_data)
+    protected function validateData($formData)
     {
-        if (!is_array($form_data)) {
+        if (!is_array($formData)) {
             throw new PaypalExpressException(__("Invalid order data"), 1);
         }
     }

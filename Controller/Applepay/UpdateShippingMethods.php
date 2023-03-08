@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,37 +20,42 @@
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Service\Applepay\QuoteService;
-use Magento\Checkout\Model\Cart;
-use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\Reflection\DataObjectProcessor;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Quote\Model\QuoteRepository;
+use Magento\Checkout\Model\Session as CheckoutSession;
 
-class UpdateShippingMethods extends Common
+class UpdateShippingMethods extends AbstractApplepay
 {
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
 
-    private \Magento\Checkout\Model\Session $checkoutSession;
-
+    /**
+     * @var QuoteRepository
+     */
     private QuoteRepository $quoteRepository;
 
+    /**
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log $logging
+     * @param QuoteRepository $quoteRepository
+     * @param CheckoutSession $checkoutSession
+     */
     public function __construct(
-        Context                                           $context,
-        Log                                               $logger,
-        \Magento\Quote\Model\Quote\TotalsCollector        $totalsCollector,
-        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
-        QuoteRepository                                   $quoteRepository,
-        \Magento\Checkout\Model\Session                   $checkoutSession,
-        CustomerSession                                   $customerSession = null
+        JsonFactory      $resultJsonFactory,
+        RequestInterface $request,
+        Log              $logging,
+        QuoteRepository  $quoteRepository,
+        CheckoutSession  $checkoutSession,
     ) {
         parent::__construct(
-            $context,
-            $logger,
-            $totalsCollector,
-            $converter,
-            $customerSession
+            $resultJsonFactory,
+            $request,
+            $logging
         );
 
         $this->checkoutSession = $checkoutSession;
@@ -63,18 +67,18 @@ class UpdateShippingMethods extends Common
      */
     public function execute()
     {
-        $isPost = $this->getRequest()->getPostValue();
+        $postValues = $this->getParams();
         $errorMessage = false;
         $data = [];
 
-        if ($isPost && $wallet = $this->getRequest()->getParam('wallet')) {
+        if (!empty($postValues) && isset($postValues['wallet'])) {
             try {
                 // Get Cart
                 $quote = $this->checkoutSession->getQuote();
 
                 // Set Shipping Method
                 $quote->getShippingAddress()->setCollectShippingRates(true);
-                $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
+                $quote->getShippingAddress()->setShippingMethod($postValues['wallet']['identifier']);
 
                 // Recalculate Totals after setting new shipping method
                 $quote->setTotalsCollectedFlag(false);
@@ -85,7 +89,7 @@ class UpdateShippingMethods extends Common
                 $this->quoteRepository->save($quote);
                 $data = [
                     'shipping_methods' => [
-                        'code' => $wallet['identifier']
+                        'code' => $postValues['wallet']['identifier']
                     ],
                     'totals' => $totals
                 ];
@@ -95,7 +99,6 @@ class UpdateShippingMethods extends Common
         } else {
             $errorMessage = "The request for updating shipping method is wrong.";
         }
-
 
         return $this->commonResponse($data, $errorMessage);
     }

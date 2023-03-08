@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -22,47 +21,37 @@
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Buckaroo\Magento2\Service\Applepay\Add as AddService;
-use Magento\Framework\App\Action\Context;
 
-class Add implements HttpPostActionInterface
+class Add extends AbstractApplepay
 {
     /**
-     * @var JsonFactory
-     */
-    protected $resultJsonFactory;
-    /**
-     * @var Context
-     */
-    protected $context;
-    /**
-     * @var AddService|null
+     * @var AddService
      */
     protected $addService;
-    /**
-     * @var Log $logging
-     */
-    public $logging;
 
     /**
      * @param JsonFactory $resultJsonFactory
-     * @param Context $context
-     * @param AddService|null $addService
+     * @param RequestInterface $request
+     * @param Log $logging
+     * @param AddService $addService
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
-        Context $context,
+        RequestInterface $request,
         Log $logging,
         AddService $addService
     ) {
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->context = $context;
+        parent::__construct(
+            $resultJsonFactory,
+            $request,
+            $logging
+        );
         $this->addService = $addService;
-        $this->logging = $logging;
     }
 
     /**
@@ -73,18 +62,11 @@ class Add implements HttpPostActionInterface
      */
     public function execute()
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->context->getRequest()->getParams(), true));
-        $data = $this->addService->process($this->context->getRequest());
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->getParams(), true));
+        $data = $this->addService->process($this->getParams());
+        $errorMessage = $data['error'] ?? false;
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($data, true));
 
-        $errorMessage = $data['error'] ?? null;
-        if ($errorMessage || empty($data)) {
-            $response = ['success' => 'false', 'error' => $errorMessage];
-        } else {
-            $response = ['success' => 'true', 'data' => $data];
-        }
-
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($response, true));
-        $resultJson = $this->resultJsonFactory->create();
-        return $resultJson->setData($response);
+        return $this->commonResponse($data, $errorMessage);
     }
 }
