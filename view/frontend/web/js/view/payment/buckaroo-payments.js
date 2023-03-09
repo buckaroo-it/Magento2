@@ -134,10 +134,6 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarnain'
             },
             {
-                type: 'buckaroo_magento2_emandate',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/emandate'
-            },
-            {
                 type: 'buckaroo_magento2_applepay',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/applepay'
             },
