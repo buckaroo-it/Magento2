@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Service\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Service\AddProductToCartService;
+use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
+use Buckaroo\Magento2\Model\Service\ExpressMethodsException;
+use Buckaroo\Magento2\Model\Service\QuoteAddressService;
+use Buckaroo\Magento2\Model\Service\QuoteException;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -18,6 +23,7 @@ use Magento\Quote\Model\Quote\AddressFactory as BaseQuoteAddressFactory;
 use Magento\Quote\Model\ShippingAddressManagementInterface;
 use Magento\Quote\Model\QuoteRepository;
 use Buckaroo\Magento2\Service\Applepay\ShippingMethod as AppleShippingMethod;
+use Buckaroo\Magento2\Model\Service\QuoteService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -41,6 +47,26 @@ class Add
      * @var Log $logging
      */
     public $logging;
+
+    /**
+     * @var QuoteService
+     */
+    private $quoteService;
+
+    /**
+     * @var AddProductToCartService
+     */
+    private $addProductToCartService;
+
+    /**
+     * @var QuoteAddressService
+     */
+    private $quoteAddressService;
+
+    /**
+     * @var ApplePayFormatData
+     */
+    private ApplePayFormatData $applePayFormatData;
 
 
     /**
@@ -68,7 +94,11 @@ class Add
         AppleShippingMethod $appleShippingMethod,
         \Magento\Checkout\Model\Session $checkoutSession,
         Log $logging,
-        QuoteRepository $quoteRepository
+        QuoteRepository $quoteRepository,
+        QuoteService $quoteService,
+        AddProductToCartService $addProductToCartService,
+        QuoteAddressService $quoteAddressService,
+        ApplePayFormatData $applePayFormatData
     ) {
         $this->cartRepository = $cartRepository;
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
@@ -81,47 +111,37 @@ class Add
         $this->checkoutSession = $checkoutSession;
         $this->logging = $logging;
         $this->quoteRepository = $quoteRepository;
+        $this->quoteService = $quoteService;
+        $this->addProductToCartService = $addProductToCartService;
+        $this->quoteAddressService = $quoteAddressService;
+        $this->applePayFormatData = $applePayFormatData;
     }
 
     /**
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     * @throws ExpressMethodsException
      */
     public function process($request)
     {
         // Get Cart
         $cartHash = $request->getParam('id');
-        $cart = $this->getCart($cartHash);
-
-        // Remove all items from Cart
-        $cart->removeAllItems();
+        $cart = $this->quoteService->getEmptyQuote($cartHash);
 
         // Add product to cart
-        $product = $request->getParam('product');
-        $this->addProductToCart($product, $cart);
+        $product = $this->applePayFormatData->getProductObject($request->getParam('product'));
+        $cart = $this->addProductToCartService->addProductToCart($product, $cart);
 
         // Get Shipping Address From Request
-        $wallet = $request->getParam('wallet');
-        $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
+        $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($request->getParam('wallet'));
 
         // Add Shipping Address on Quote
-        /** @var $shippingAddress \Magento\Quote\Model\Quote\Address */
-        $shippingAddress = $this->quoteAddressFactory->create();
-        $shippingAddress->addData($shippingAddressData);
+        $cart = $this->quoteAddressService->addAddressToQuote($shippingAddressRequest, $cart);
+        $cart = $this->quoteAddressService->assignAddressToQuote($cart->getShippingAddress(), $cart);
 
-        // Validate Shipping Address
-        $errors = $shippingAddress->validate();
-        if (is_array($errors)) {
-            return ['success' => 'false', 'error' => $errors];
-        }
+        // Set Shipping Method
+        addFirstShippingMethod($cart->getShippingAddress());
 
-        try {
-            $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
-        } catch (\Exception $e) {
-            $this->logging->addDebug(__METHOD__ . '|9.1|' .  $e->getMessage());
-            return ['success' => 'false', 'error' => $e->getMessage()];
-        }
-        $this->quoteRepository->save($cart);
         $shippingMethodsResult = [];
         $this->logging->addDebug(__METHOD__ . '|9.2|');
         //this delivery address is already assigned to the cart
@@ -142,6 +162,12 @@ class Add
             $this->logging->addDebug(__METHOD__ . '|9.45 exception|' . $e->getMessage());
         }
         $this->logging->addDebug(__METHOD__ . '|9.5|');
+
+        //Set Payment Method
+
+
+
+        // Calculate Quote Totals
         $cart->setTotalsCollectedFlag(false);
         $cart->collectTotals();
         $this->logging->addDebug(__METHOD__ . '|9.6|');
@@ -156,6 +182,7 @@ class Add
             'totals' => $totals
         ];
     }
+
     public function gatherTotals($address, $quoteTotals)
     {
         $totals = [
