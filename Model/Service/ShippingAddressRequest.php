@@ -28,9 +28,9 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
 {
     protected $city;
 
-    protected $country_code;
+    protected $countryCode;
 
-    protected $postal_code;
+    protected $postalCode;
 
     protected $state;
 
@@ -72,16 +72,16 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
      */
     public function getCountryCode(): string
     {
-        return $this->country_code;
+        return $this->countryCode;
     }
 
     /**
      * @inheritDoc
      */
-    public function setCountryCode(string $country_code)
+    public function setCountryCode(string $countryCode)
     {
-        $this->validateRequired($country_code, 'country_code');
-        $this->country_code = $country_code;
+        $this->validateRequired($countryCode, 'countryCode');
+        $this->countryCode = $countryCode;
     }
 
     /**
@@ -97,7 +97,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
      */
     public function setPostalCode(string $postalCode)
     {
-        $this->validateRequired($postalCode, 'postal_code');
+        $this->validateRequired($postalCode, 'postalCode');
         $this->postalCode = $postalCode;
     }
 

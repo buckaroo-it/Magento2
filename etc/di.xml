@@ -66,6 +66,8 @@
 
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\OrderDataItem" />
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\ShippingAddress" />
+    <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Service\ShippingAddressRequest" />
+
 
     <preference for="Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\OrderCreate" />
 

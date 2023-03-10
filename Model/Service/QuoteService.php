@@ -145,12 +145,52 @@ class QuoteService
      *
      * @return Quote
      */
-    protected function setPaymentMethod($quote, $paymentMethod)
+    public function setPaymentMethod($quote, $paymentMethod)
     {
         $payment = $quote->getPayment();
         $payment->setMethod($paymentMethod);
         $quote->setPayment($payment);
 
         return $quote;
+    }
+
+    /**
+     * Calculate quote totals, set store id required for quote masking,
+     * set customer email required for order validation
+     * @return Quote
+     */
+    public function calculateQuoteTotals($quote)
+    {
+        $quote->setStoreId($quote->getStore()->getId());
+
+        if ($quote->getCustomerEmail() === null) {
+            $quote->setCustomerEmail('no-reply@example.com');
+        }
+        $quote
+            ->setTotalsCollectedFlag(false)
+            ->collectTotals();
+
+        $this->cartRepository->save($quote);
+
+        return $quote;
+    }
+
+    /**
+     * Format Totals
+     *
+     * @param $address
+     * @param $quoteTotals
+     * @return array
+     */
+    public function gatherTotals($address, $quoteTotals)
+    {
+        $totals = [
+            'subtotal' => $quoteTotals['subtotal']->getValue(),
+            'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
+            'shipping' => $address->getData('shipping_incl_tax'),
+            'grand_total' => $quoteTotals['grand_total']->getValue()
+        ];
+
+        return $totals;
     }
 }

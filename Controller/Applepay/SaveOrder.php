@@ -29,6 +29,8 @@ use Magento\Customer\Model\Group;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Registry;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
@@ -96,8 +98,9 @@ class SaveOrder extends AbstractApplepay
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __construct(
-        Context $context,
-        Log $logger,
+        JsonFactory $resultJsonFactory,
+        RequestInterface $request,
+        Log $logging,
         QuoteManagement $quoteManagement,
         CustomerSession $customerSession,
         DataObjectFactory $objectFactory,
@@ -105,16 +108,12 @@ class SaveOrder extends AbstractApplepay
         OrderRepositoryInterface $orderRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         CheckoutSession $checkoutSession,
-        ConfigProviderFactory $configProviderFactory,
-        TotalsCollector $totalsCollector,
-        ShippingMethodConverter $converter
+        ConfigProviderFactory $configProviderFactory
     ) {
         parent::__construct(
-            $context,
-            $logger,
-            $totalsCollector,
-            $converter,
-            $customerSession
+            $resultJsonFactory,
+            $request,
+            $logging
         );
 
         $this->quoteManagement = $quoteManagement;

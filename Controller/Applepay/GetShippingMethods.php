@@ -34,7 +34,7 @@ use Magento\Quote\Api\Data\EstimateAddressInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Quote\Model\QuoteRepository;
-use Buckaroo\Magento2\Service\Applepay\QuoteService;
+use Buckaroo\Magento2\Model\Service\QuoteService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)

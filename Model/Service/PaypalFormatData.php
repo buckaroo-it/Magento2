@@ -2,24 +2,34 @@
 
 namespace Buckaroo\Magento2\Model\Service;
 
+use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
 use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
+use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterfaceFactory;
 
 class PaypalFormatData implements FormatFormDataInterface
 {
     /**
-     * @var \Magento\Framework\DataObjectFactory
+     * @var DataObjectFactory
      */
-    private \Magento\Framework\DataObjectFactory $dataObjectFactory;
+    private DataObjectFactory $dataObjectFactory;
 
     /**
-     * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
+     * @var ShippingAddressRequestInterfaceFactory
+     */
+    private $shippingAddrRequestFactory;
+
+    /**
+     * @param DataObjectFactory $dataObjectFactory
+     * @param ShippingAddressRequestInterfaceFactory $shippingAddrRequestFactory
      */
     public function __construct(
-        \Magento\Framework\DataObjectFactory $dataObjectFactory,
+        DataObjectFactory                      $dataObjectFactory,
+        ShippingAddressRequestInterfaceFactory $shippingAddrRequestFactory,
     ) {
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->shippingAddrRequestFactory = $shippingAddrRequestFactory;
     }
-
     /**
      * @param array $productData
      * @return DataObject
@@ -37,8 +47,18 @@ class PaypalFormatData implements FormatFormDataInterface
         return $dataObject->setData($data);
     }
 
-    public function getShippingAddressFormData(array $formData): DataObject
+    public function getShippingAddressObject(array $addressData): ShippingAddressRequestInterface
     {
-        // TODO: Implement getShippingAddressFormData() method.
+        /** @var  ShippingAddressRequest $shippingAddressRequest */
+        $shippingAddressRequest = $this->shippingAddrRequestFactory->create();
+
+        $shippingAddressRequest->setCountryCode(
+            isset($addressData['countryCode']) ? strtoupper($addressData['countryCode']) : 'NL'
+        );
+        $shippingAddressRequest->setPostalCode($addressData['postalCode']);
+        $shippingAddressRequest->setCity($addressData['locality']);
+        $shippingAddressRequest->setState($addressData['administrativeArea'] ?? 'unknown');
+
+        return $shippingAddressRequest;
     }
 }

@@ -3,22 +3,57 @@
 namespace Buckaroo\Magento2\Model\Service;
 
 use Magento\Quote\Api\Data\AddressInterface;
-use Magento\Quote\Api\Data\ShippingMethodInterface;
+use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address;
 
 class ShippingMethodsService
 {
     /**
+     * @var \Magento\Quote\Api\ShipmentEstimationInterface
+     */
+    protected $shipmentEstimation;
+
+    public function __construct(
+        ShipmentEstimationInterface $shipmentEstimation,
+    ) {
+        $this->shipmentEstimation = $shipmentEstimation;
+    }
+
+    /**
      * Get shipping methods by address
      *
      * @param Quote $quote
      * @param AddressInterface $address
-     * @return ShippingMethodInterface[]
+     * @return array
      */
     public function getAvailableShippingMethods($quote, $address)
     {
-        return $this->shipmentEstimation->estimateByExtendedAddress($quote, $address);
+        if (empty($address->getShippingMethod())) {
+            $shippingMethods = $this->shipmentEstimation->estimateByExtendedAddress(
+                $quote->getId(),
+                $quote->getShippingAddress()
+            );
+
+            if (count($shippingMethods)) {
+                foreach ($shippingMethods as $shippingMethod) {
+                    $shippingMethodsResult[] = [
+                        'carrier_title' => $shippingMethod->getCarrierTitle(),
+                        'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                        'method_code' => $shippingMethod->getCarrierCode() . '_' .  $shippingMethod->getMethodCode(),
+                        'method_title' => $shippingMethod->getMethodTitle(),
+                    ];
+                }
+
+                $shippingMethod = array_shift($shippingMethods);
+                $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
+
+            }
+        }
+        $address->setCollectShippingRates(true);
+        $address->collectShippingRates();
+
+        return $shippingMethodsResult;
     }
 
     /**
@@ -29,7 +64,7 @@ class ShippingMethodsService
      *
      * @return Quote
      */
-    protected function addFirstShippingMethod(Address $address, Quote $quote)
+    public function addFirstShippingMethod(Address $address, Quote $quote)
     {
         if ($address->getShippingMethod() === null) {
             $shippingMethods = $this->shipmentEstimation->estimateByExtendedAddress(
