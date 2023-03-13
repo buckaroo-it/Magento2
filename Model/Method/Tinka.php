@@ -93,12 +93,12 @@ class Tinka extends AbstractMethod
                 "GroupID" => "",
                 "_" => $billingAddress->getEmail()
             ],
-//                [
-//                    "Name"=> "PrefixLastName",
-//                    "Group"=> "BillingCustomer",
-//                    "GroupID"=> "",
-//                    "_"=> $billingAddress->getPrefix()
-//                ],
+            [
+                "Name"=> "Initials",
+                "Group"=> "",
+                "GroupID"=> "",
+                "_"=> $this->getInitials($billingAddress)
+            ],
             [
                 "Name"=> "City",
                 "Group"=> "BillingCustomer",
@@ -571,5 +571,12 @@ class Tinka extends AbstractMethod
             return TinkaActiveService::CREDIT;
         }
         return $activeService;
+    }
+
+    public function getInitials($address): string
+    {
+        return strtoupper(substr($address->getFirstname(), 0, 1)) .
+        strtoupper(substr($address->getFirstname(), 0, 1));
+        
     }
 }

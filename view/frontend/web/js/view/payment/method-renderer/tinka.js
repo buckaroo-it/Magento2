@@ -74,7 +74,9 @@ define(
                     showNLBEFields: true,
                     activeAddress: null,
                     value:'',
-                    isDateValid: true,
+                    isDateValid: false,
+                    showPhone: false,
+                    phone: null
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.tinka.paymentFeeLabel,
@@ -97,7 +99,8 @@ define(
                         [
                             'dateValidate',
                             'value',
-                            'isDateValid'
+                            'isDateValid',
+                            'phone'
                         ]
                     );
 
@@ -141,6 +144,15 @@ define(
                         this
                     );
 
+                    this.showPhone =  ko.computed(
+                        function () {
+                            return this.activeAddress().telephone === null ||
+                            this.activeAddress().telephone === undefined ||
+                            this.activeAddress().telephone.trim().length === 0
+                        },
+                        this
+                    );
+
                     this.dateValidate.subscribe(this.isDobValid,this);
                     return this;
                 },
@@ -154,11 +166,40 @@ define(
                     this.isDateValid(isDateValid);
                 },
 
-                validate() {
-                    if(this.showNLBEFields()) {
-                        return this.isDateValid();
+                validateField(element) {
+                    return $(element).valid();
+                },
+
+
+
+                getActiveValidationFields() {
+                    let fields = [];
+                    if(this.showPhone()) {
+                        fields.push('buckaroo_magento2_tinka_Telephone')
                     }
-                    return true;
+
+                    if(this.showNLBEFields()) {
+                        fields.push('buckaroo_magento2_tinka_DoB')
+                    }
+                    return fields;
+                },
+
+
+                validate() {
+                    let fields = this.getActiveValidationFields();
+
+                    const valid = fields.map(
+                        function(field) {
+                            return this.validateField(field)
+                        },
+                        this
+                    ).reduce(
+                        function(prev, cur) {
+                            return prev && cur
+                        },
+                        true
+                    );
+                    return valid;
                 },
 
                 /**
@@ -213,6 +254,7 @@ define(
                         "additional_data": {
                             "customer_billingName" : this.billingName(),
                             "customer_DoB" : this.dateValidate(),
+                            "customer_telephone": this.phone()
                         }
                     };
                 }
