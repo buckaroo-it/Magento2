@@ -57,7 +57,7 @@ class GetShippingMethods extends AbstractApplepay
         RequestInterface   $request,
         Log                $logging,
         QuoteService       $quoteService,
-        ApplePayFormatData $applePayFormatData,
+        ApplePayFormatData $applePayFormatData
     ) {
         parent::__construct(
             $resultJsonFactory,

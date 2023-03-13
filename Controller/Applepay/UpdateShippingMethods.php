@@ -50,7 +50,7 @@ class UpdateShippingMethods extends AbstractApplepay
         RequestInterface $request,
         Log              $logging,
         QuoteRepository  $quoteRepository,
-        CheckoutSession  $checkoutSession,
+        CheckoutSession  $checkoutSession
     ) {
         parent::__construct(
             $resultJsonFactory,
