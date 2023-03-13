@@ -28,14 +28,11 @@ use Buckaroo\Magento2\Model\Service\QuoteAddressService;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Group;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Registry;
-use Magento\Quote\Model\Cart\ShippingMethodConverter;
-use Magento\Quote\Model\Quote\TotalsCollector;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -84,10 +81,16 @@ class SaveOrder extends AbstractApplepay
     private QuoteAddressService $quoteAddressService;
 
     /**
+     * @var CustomerSession
+     */
+    private CustomerSession $customerSession;
+
+    /**
      * Save Order Constructor
      *
-     * @param Context $context
-     * @param Log $logger
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log $logging
      * @param QuoteManagement $quoteManagement
      * @param CustomerSession $customerSession
      * @param DataObjectFactory $objectFactory
@@ -96,8 +99,7 @@ class SaveOrder extends AbstractApplepay
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param CheckoutSession $checkoutSession
      * @param ConfigProviderFactory $configProviderFactory
-     * @param TotalsCollector $totalsCollector
-     * @param ShippingMethodConverter $converter
+     * @param QuoteAddressService $quoteAddressService
      * @throws Exception
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)

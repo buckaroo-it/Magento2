@@ -26,7 +26,11 @@ class Add
      */
     private $applePayFormatData;
 
-
+    /**
+     * @param Log $logger
+     * @param QuoteService $quoteService
+     * @param ApplePayFormatData $applePayFormatData
+     */
     public function __construct(
         Log                     $logger,
         QuoteService            $quoteService,
