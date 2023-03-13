@@ -35,7 +35,7 @@ class AddProductToCartService
     public function __construct(
         CartRepositoryInterface $cartRepository,
         ProductRepositoryInterface $productRepository,
-        DataObjectFactory $dataObjectFactory,
+        DataObjectFactory $dataObjectFactory
     ) {
         $this->cartRepository = $cartRepository;
         $this->productRepository = $productRepository;
