@@ -15,7 +15,7 @@ class ShippingMethodsService
     protected $shipmentEstimation;
 
     public function __construct(
-        ShipmentEstimationInterface $shipmentEstimation,
+        ShipmentEstimationInterface $shipmentEstimation
     ) {
         $this->shipmentEstimation = $shipmentEstimation;
     }

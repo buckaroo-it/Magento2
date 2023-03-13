@@ -89,7 +89,7 @@ class QuoteService
         QuoteAddressService             $quoteAddressService,
         ShippingMethodsService          $shippingMethodsService,
         CheckoutSession                 $checkoutSession,
-        QuoteBuilderInterfaceFactory    $quoteBuilderInterfaceFactory,
+        QuoteBuilderInterfaceFactory    $quoteBuilderInterfaceFactory
     ) {
         $this->logger = $logger;
         $this->cartRepository = $cartRepository;
