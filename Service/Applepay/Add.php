@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Buckaroo\Magento2\Service\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -34,7 +32,7 @@ class Add
     public function __construct(
         Log                     $logger,
         QuoteService            $quoteService,
-        ApplePayFormatData      $applePayFormatData,
+        ApplePayFormatData      $applePayFormatData
     ) {
         $this->logger = $logger;
         $this->quoteService = $quoteService;
