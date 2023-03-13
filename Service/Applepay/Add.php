@@ -7,9 +7,6 @@ namespace Buckaroo\Magento2\Service\Applepay;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
-use Buckaroo\Magento2\Model\Service\ExpressMethodsException;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Buckaroo\Magento2\Model\Service\QuoteService;
 
 class Add
@@ -41,9 +38,10 @@ class Add
     }
 
     /**
-     * @throws NoSuchEntityException
-     * @throws LocalizedException
-     * @throws ExpressMethodsException
+     * Add Product to Cart on Applepay
+     *
+     * @param $request
+     * @return array|false
      */
     public function process($request)
     {

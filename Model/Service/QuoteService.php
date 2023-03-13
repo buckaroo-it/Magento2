@@ -261,6 +261,9 @@ class QuoteService
      */
     public function getAvailableShippingMethods(): array
     {
-        return $this->shippingMethodsService->getAvailableShippingMethods($this->quote, $this->quote->getShippingAddress());
+        return $this->shippingMethodsService->getAvailableShippingMethods(
+            $this->quote,
+            $this->quote->getShippingAddress()
+        );
     }
 }

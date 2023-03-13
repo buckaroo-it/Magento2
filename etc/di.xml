@@ -541,20 +541,7 @@
 
     <type name="Buckaroo\Magento2\Gateway\Response\RestoreQuoteHandler">
         <arguments>
-            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
             <argument name="cartRepository" xsi:type="object">Magento\Quote\Model\QuoteRepository\Proxy</argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Service\Applepay\Quote">
-        <arguments>
-            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Service\Applepay\Quote">
-        <arguments>
-            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
         </arguments>
     </type>
 

@@ -34,6 +34,7 @@ class ShippingMethodsService
             $quote->getShippingAddress()
         );
 
+        $shippingMethodsResult = [];
         if (count($shippingMethods)) {
             foreach ($shippingMethods as $shippingMethod) {
                 $shippingMethodsResult[] = [
