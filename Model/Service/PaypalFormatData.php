@@ -25,7 +25,7 @@ class PaypalFormatData implements FormatFormDataInterface
      */
     public function __construct(
         DataObjectFactory                      $dataObjectFactory,
-        ShippingAddressRequestInterfaceFactory $shippingAddrRequestFactory,
+        ShippingAddressRequestInterfaceFactory $shippingAddrRequestFactory
     ) {
         $this->dataObjectFactory = $dataObjectFactory;
         $this->shippingAddrRequestFactory = $shippingAddrRequestFactory;
