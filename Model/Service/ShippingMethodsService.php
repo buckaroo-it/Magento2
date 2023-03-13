@@ -29,27 +29,26 @@ class ShippingMethodsService
      */
     public function getAvailableShippingMethods($quote, $address)
     {
-        if (empty($address->getShippingMethod())) {
-            $shippingMethods = $this->shipmentEstimation->estimateByExtendedAddress(
-                $quote->getId(),
-                $quote->getShippingAddress()
-            );
+        $shippingMethods = $this->shipmentEstimation->estimateByExtendedAddress(
+            $quote->getId(),
+            $quote->getShippingAddress()
+        );
 
-            if (count($shippingMethods)) {
-                foreach ($shippingMethods as $shippingMethod) {
-                    $shippingMethodsResult[] = [
-                        'carrier_title' => $shippingMethod->getCarrierTitle(),
-                        'price_incl_tax' => round($shippingMethod->getAmount(), 2),
-                        'method_code' => $shippingMethod->getCarrierCode() . '_' .  $shippingMethod->getMethodCode(),
-                        'method_title' => $shippingMethod->getMethodTitle(),
-                    ];
-                }
-
-                $shippingMethod = array_shift($shippingMethods);
-                $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
-
+        if (count($shippingMethods)) {
+            foreach ($shippingMethods as $shippingMethod) {
+                $shippingMethodsResult[] = [
+                    'carrier_title' => $shippingMethod->getCarrierTitle(),
+                    'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                    'method_code' => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
+                    'method_title' => $shippingMethod->getMethodTitle(),
+                ];
             }
+
+            $shippingMethod = array_shift($shippingMethods);
+            $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
+
         }
+
         $address->setCollectShippingRates(true);
         $address->collectShippingRates();
 

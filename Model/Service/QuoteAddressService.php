@@ -118,6 +118,7 @@ class QuoteAddressService
             $address->setTelephone('unknown');
             $address->setEmail('no-reply@example.com');
             $address->setStreet('unknown');
+            $quote->setShippingAddress($address);
         }
     }
 
@@ -126,6 +127,7 @@ class QuoteAddressService
      * required for quote validation
      *
      * @param ShippingAddressRequestInterface $shipping_address
+     * @param Quote $quote
      *
      * @return void
      */
@@ -142,6 +144,7 @@ class QuoteAddressService
             $address->setPostcode($shipping_address->getPostalCode());
             $address->setCity($shipping_address->getCity());
             $address->setRegion($shipping_address->getState());
+            $quote->setBillingAddress($address);
         }
     }
 
