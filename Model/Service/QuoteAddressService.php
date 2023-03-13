@@ -166,7 +166,7 @@ class QuoteAddressService
     /**
      * Set Shipping Address on SaveOrder
      */
-    protected function setShippingAddress(&$quote, $data)
+    public function setShippingAddress(&$quote, $data)
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
 
@@ -181,7 +181,7 @@ class QuoteAddressService
     /**
      * Set Billing Address on SaveOrder
      */
-    protected function setBillingAddress(&$quote, $data)
+    public function setBillingAddress(&$quote, $data)
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
 
