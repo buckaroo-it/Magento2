@@ -143,29 +143,9 @@ abstract class AbstractApplepay implements HttpPostActionInterface
         return $address;
     }
 
-    /**
-     * Return Json Response from array
-     *
-     * @param array|string $data
-     * @param string|bool $errorMessage
-     * @return Json
-     */
-    protected function commonResponse($data, $errorMessage)
-    {
-        if ($errorMessage || empty($data)) {
-            $response = ['success' => 'false', 'error' => $errorMessage];
-        } else {
-            $response = ['success' => 'true', 'data' => $data];
-        }
-        $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, true);
-
-        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
-        return $resultJson->setData($response);
-    }
-
     protected function setShippingAddress(&$quote, $data)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
+        $this->logging->addDebug(__METHOD__ . '|1|');
 
         $shippingAddress = $this->processAddressFromWallet($data, 'shipping');
         $quote->getShippingAddress()->addData($shippingAddress);
@@ -177,7 +157,7 @@ abstract class AbstractApplepay implements HttpPostActionInterface
 
     protected function setBillingAddress(&$quote, $data)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
+        $this->logging->addDebug(__METHOD__ . '|1|');
 
         $billingAddress = $this->processAddressFromWallet($data, 'billing');
         $quote->getBillingAddress()->addData($billingAddress);
@@ -189,8 +169,8 @@ abstract class AbstractApplepay implements HttpPostActionInterface
 
     protected function setCommonAddressProceed($errors, $addressType)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-        $this->logger->addDebug(var_export($errors, true));
+        $this->logging->addDebug(__METHOD__ . '|1|');
+        $this->logging->addDebug(var_export($errors, true));
 
         $errorFields = [];
         if ($errors && is_array($errors)) {
@@ -198,20 +178,17 @@ abstract class AbstractApplepay implements HttpPostActionInterface
                 if (($arguments = $error->getArguments()) && !empty($arguments['fieldName'])) {
                     if ($arguments['fieldName'] === 'postcode') {
                         $errorFields[] = $arguments['fieldName'];
-                        $this->logger->addDebug(var_export($error->getArguments()['fieldName'], true));
-                        $this->messageManager->addErrorMessage(__(
-                            'Error: ' . $addressType . ' address: postcode is required'
-                        ));
+                        $this->logging->addDebug(var_export($error->getArguments()['fieldName'], true));
                     }
                 }
             }
         }
 
         if (empty($errorFields)) {
-            $this->logger->addDebug(__METHOD__ . '|2|');
+            $this->logging->addDebug(__METHOD__ . '|2|');
             return true;
         } else {
-            $this->logger->addDebug(__METHOD__ . '|3|');
+            $this->logging->addDebug(__METHOD__ . '|3|');
             return false;
         }
     }
