@@ -77,6 +77,7 @@ class GetShippingMethods extends AbstractApplepay
     public function execute()
     {
         $postValues = $this->getParams();
+        $this->logging->addDebug(__METHOD__ . '|1| post Values: ' . var_export($postValues, true));
 
         $data = [];
         $errorMessage = false;
@@ -85,10 +86,6 @@ class GetShippingMethods extends AbstractApplepay
                 // Get Cart
                 $cartHash = $postValues['id'] ?? null;
                 $this->quoteService->getEmptyQuote($cartHash);
-
-                // Add product to cart
-                $product = $this->applePayFormatData->getProductObject($postValues['product']);
-                $this->quoteService->addProductToCart($product);
 
                 // Get Shipping Address From Request
                 $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($postValues['wallet']);

@@ -230,7 +230,7 @@ class SaveOrder extends AbstractApplepay
 
             $this->quoteManagement->submit($quote);
         } catch (\Throwable $th) {
-            $this->logging->addDebug(__METHOD__ . '|exception|' . var_export($th->getMessage()));
+            $this->logging->addDebug(__METHOD__ . '|exception|' . var_export($th->getMessage(), true));
         }
 
     }
