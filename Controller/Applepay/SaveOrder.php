@@ -164,11 +164,10 @@ class SaveOrder extends AbstractApplepay
             // Get Cart
             $quote = $this->checkoutSession->getQuote();
 
-            // Set Shipping & Billing Address
-            if (!$this->quoteAddressService->setShippingAddress($quote, $payment['shippingContact'])) {
+            if (!$this->setShippingAddress($quote, $payment['shippingContact'])) {
                 return $this->commonResponse(false, true);
             }
-            if (!$this->quoteAddressService->setBillingAddress($quote, $payment['billingContact'])) {
+            if (!$this->setBillingAddress($quote, $payment['billingContact'])) {
                 return $this->commonResponse(false, true);
             }
 

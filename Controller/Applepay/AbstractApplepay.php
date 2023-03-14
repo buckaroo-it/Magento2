@@ -26,6 +26,7 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Quote\Model\Quote\Address;
 use Magento\Quote\Model\Quote\Address\Total as AddressTotal;
 
@@ -103,5 +104,115 @@ abstract class AbstractApplepay implements HttpPostActionInterface
 
         $resultJson = $this->resultJsonFactory->create();
         return $resultJson->setData($response);
+    }
+
+    /**
+     * Process Address From Wallet
+     *
+     * @param array $wallet
+     * @param string $type
+     * @return array
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
+    public function processAddressFromWallet($wallet, $type = 'shipping')
+    {
+        $address = [
+            'prefix' => '',
+            'firstname' => $wallet['givenName'] ?? '',
+            'middlename' => '',
+            'lastname' => $wallet['familyName'] ?? '',
+            'street' => [
+                '0' => $wallet['addressLines'][0] ?? '',
+                '1' => $wallet['addressLines'][1] ?? null
+            ],
+            'city' => $wallet['locality'] ?? '',
+            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
+            'region' => $wallet['administrativeArea'] ?? '',
+            'region_id' => '',
+            'postcode' => $wallet['postalCode'] ?? '',
+            'telephone' => $wallet['phoneNumber'] ?? 'N/A',
+            'fax' => '',
+            'vat_id' => ''
+        ];
+        $address['street'] = implode("\n", $address['street']);
+        if ($type == 'shipping') {
+            $address['email'] = $wallet['emailAddress'] ?? '';
+        }
+
+        return $address;
+    }
+
+    /**
+     * Return Json Response from array
+     *
+     * @param array|string $data
+     * @param string|bool $errorMessage
+     * @return Json
+     */
+    protected function commonResponse($data, $errorMessage)
+    {
+        if ($errorMessage || empty($data)) {
+            $response = ['success' => 'false', 'error' => $errorMessage];
+        } else {
+            $response = ['success' => 'true', 'data' => $data];
+        }
+        $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, true);
+
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        return $resultJson->setData($response);
+    }
+
+    protected function setShippingAddress(&$quote, $data)
+    {
+        $this->logger->addDebug(__METHOD__ . '|1|');
+
+        $shippingAddress = $this->processAddressFromWallet($data, 'shipping');
+        $quote->getShippingAddress()->addData($shippingAddress);
+        $quote->setShippingAddress($quote->getShippingAddress());
+
+        $errors = $quote->getShippingAddress()->validate();
+        return $this->setCommonAddressProceed($errors, 'shipping');
+    }
+
+    protected function setBillingAddress(&$quote, $data)
+    {
+        $this->logger->addDebug(__METHOD__ . '|1|');
+
+        $billingAddress = $this->processAddressFromWallet($data, 'billing');
+        $quote->getBillingAddress()->addData($billingAddress);
+        $quote->setBillingAddress($quote->getBillingAddress());
+
+        $errors = $quote->getBillingAddress()->validate();
+        return $this->setCommonAddressProceed($errors, 'billing');
+    }
+
+    protected function setCommonAddressProceed($errors, $addressType)
+    {
+        $this->logger->addDebug(__METHOD__ . '|1|');
+        $this->logger->addDebug(var_export($errors, true));
+
+        $errorFields = [];
+        if ($errors && is_array($errors)) {
+            foreach ($errors as $error) {
+                if (($arguments = $error->getArguments()) && !empty($arguments['fieldName'])) {
+                    if ($arguments['fieldName'] === 'postcode') {
+                        $errorFields[] = $arguments['fieldName'];
+                        $this->logger->addDebug(var_export($error->getArguments()['fieldName'], true));
+                        $this->messageManager->addErrorMessage(__(
+                            'Error: ' . $addressType . ' address: postcode is required'
+                        ));
+                    }
+                }
+            }
+        }
+
+        if (empty($errorFields)) {
+            $this->logger->addDebug(__METHOD__ . '|2|');
+            return true;
+        } else {
+            $this->logger->addDebug(__METHOD__ . '|3|');
+            return false;
+        }
     }
 }
