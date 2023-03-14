@@ -70,13 +70,13 @@ define(
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_tinka',
                     billingName: null,
                     country: '',
-                    dateValidate: null,
+                    dateValidate: '',
                     showNLBEFields: true,
                     activeAddress: null,
                     value:'',
-                    isDateValid: false,
                     showPhone: false,
-                    phone: null
+                    phone: null,
+                    validationState: {}
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.tinka.paymentFeeLabel,
@@ -99,8 +99,8 @@ define(
                         [
                             'dateValidate',
                             'value',
-                            'isDateValid',
-                            'phone'
+                            'phone',
+                            'validationState'
                         ]
                     );
 
@@ -134,16 +134,6 @@ define(
                         this
                     );
 
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            if(this.showNLBEFields()) {
-                                return this.isDateValid();
-                            }
-                            return true;
-                        },
-                        this
-                    );
-
                     this.showPhone =  ko.computed(
                         function () {
                             return this.activeAddress().telephone === null ||
@@ -153,21 +143,34 @@ define(
                         this
                     );
 
-                    this.dateValidate.subscribe(this.isDobValid,this);
+                    this.buttoncheck = ko.computed(
+                        function () {
+                            const state = this.validationState();
+                            const valid = this.getActiveValidationFields().map((field) => {
+                                if(state[field] !== undefined) {
+                                    return state[field];
+                                }
+                                return false;
+                            }).reduce(
+                                function(prev, cur) {
+                                    return prev && cur
+                                },
+                                true
+                            )
+                            return valid;
+                        },
+                        this
+                    );
+
                     return this;
                 },
 
-                isDobValid() {
-                    let isDateValid = false;
 
-                    if($(`#buckaroo_magento2_tinka_DoB`).length) {
-                        isDateValid = $(`#buckaroo_magento2_tinka_DoB`).valid();
-                    }
-                    this.isDateValid(isDateValid);
-                },
-
-                validateField(element) {
-                    return $(element).valid();
+                validateField(data, event) {
+                    const isValid = $(event.target).valid();
+                    let state = this.validationState();
+                    state[event.target.id] = isValid;
+                    this.validationState(state);
                 },
 
 
@@ -185,22 +188,7 @@ define(
                 },
 
 
-                validate() {
-                    let fields = this.getActiveValidationFields();
-
-                    const valid = fields.map(
-                        function(field) {
-                            return this.validateField(field)
-                        },
-                        this
-                    ).reduce(
-                        function(prev, cur) {
-                            return prev && cur
-                        },
-                        true
-                    );
-                    return valid;
-                },
+             
 
                 /**
                  * Place order.
@@ -219,7 +207,7 @@ define(
                         event.preventDefault();
                     }
 
-                    if (this.validate() && additionalValidators.validate()) {
+                    if (additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
                         placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
 

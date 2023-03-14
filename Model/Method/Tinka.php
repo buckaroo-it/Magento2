@@ -63,6 +63,13 @@ class Tinka extends AbstractMethod
             $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $dobDate);
         }
 
+        if (isset($data['additional_data']['customer_telephone'])) {
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_telephone',
+                $data['additional_data']['customer_telephone']
+            );
+        }
+
         if (isset($data['additional_data']['buckaroo_skip_validation'])) {
             $this->getInfoInstance()->setAdditionalInformation(
                 'buckaroo_skip_validation',
@@ -73,6 +80,21 @@ class Tinka extends AbstractMethod
         return $this;
     }
 
+    private function getPhoneNumber($payment, $billingAddress)
+    {
+
+        $telephone = $billingAddress->getTelephone();
+
+        if($telephone !== null) {
+            return $telephone;
+        }
+
+        $telephone = $payment->getAdditionalInformation('customer_telephone');
+        if(!empty($telephone)) {
+            return $telephone;
+        }
+        return '';
+    }
     /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
@@ -84,7 +106,7 @@ class Tinka extends AbstractMethod
         $billingAddress = $payment->getOrder()->getBillingAddress();
         $billingStreetFormat   = $this->formatStreet($billingAddress->getStreet());
 
-        $telephone = $billingAddress->getTelephone();
+        $telephone = $this->getPhoneNumber($payment, $billingAddress);
 
         $billingData = [
             [
