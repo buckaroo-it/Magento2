@@ -175,7 +175,7 @@ class SaveOrder extends AbstractApplepay
             $this->submitQuote($quote, $extra);
 
             // Handle the response
-            $this->handleResponse();
+            $data = $this->handleResponse();
         }
 
         return $this->commonResponse($data, $errorMessage);
@@ -218,7 +218,7 @@ class SaveOrder extends AbstractApplepay
     /**
      * Handle the response after placing order
      *
-     * @return void
+     * @return array
      */
     private function handleResponse()
     {
@@ -241,6 +241,8 @@ class SaveOrder extends AbstractApplepay
                 }
             }
         }
+
+        return $data;
     }
 
     /**
