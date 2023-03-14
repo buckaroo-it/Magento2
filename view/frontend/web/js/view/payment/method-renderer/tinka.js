@@ -70,7 +70,7 @@ define(
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_tinka',
                     billingName: null,
                     country: '',
-                    dateValidate: '',
+                    dateValidate: null,
                     showNLBEFields: true,
                     activeAddress: null,
                     value:'',
@@ -162,6 +162,7 @@ define(
                         this
                     );
 
+                   
                     return this;
                 },
 
@@ -173,7 +174,17 @@ define(
                     this.validationState(state);
                 },
 
-
+                validateDob(data, event) {
+                    if(event.originalEvent) {
+                        //jquery date picker triggers on load blur event, will trigger validation only if a user event is called
+                        const dobId = 'buckaroo_magento2_tinka_DoB';
+                        
+                        const isValid = $(`#${dobId}`).valid();
+                        let state = this.validationState();
+                        state[dobId] = isValid;
+                        this.validationState(state);
+                    }
+                },
 
                 getActiveValidationFields() {
                     let fields = [];
