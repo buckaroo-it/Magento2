@@ -47,10 +47,6 @@ class SaveOrder extends AbstractApplepay
      */
     protected $quoteManagement;
     /**
-     * @var DataObjectFactory
-     */
-    private $objectFactory;
-    /**
      * @var Registry|null
      */
     protected $registry = null;
@@ -66,6 +62,10 @@ class SaveOrder extends AbstractApplepay
      * @var \Magento\Checkout\Model\ConfigProviderInterface
      */
     protected $accountConfig;
+    /**
+     * @var DataObjectFactory
+     */
+    private $objectFactory;
     /**
      * @var OrderRepositoryInterface
      */
@@ -106,18 +106,18 @@ class SaveOrder extends AbstractApplepay
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __construct(
-        JsonFactory $resultJsonFactory,
-        RequestInterface $request,
-        Log $logging,
-        QuoteManagement $quoteManagement,
-        CustomerSession $customerSession,
-        DataObjectFactory $objectFactory,
-        Registry $registry,
+        JsonFactory              $resultJsonFactory,
+        RequestInterface         $request,
+        Log                      $logging,
+        QuoteManagement          $quoteManagement,
+        CustomerSession          $customerSession,
+        DataObjectFactory        $objectFactory,
+        Registry                 $registry,
         OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        CheckoutSession $checkoutSession,
-        ConfigProviderFactory $configProviderFactory,
-        QuoteAddressService $quoteAddressService
+        SearchCriteriaBuilder    $searchCriteriaBuilder,
+        CheckoutSession          $checkoutSession,
+        ConfigProviderFactory    $configProviderFactory,
+        QuoteAddressService      $quoteAddressService
     ) {
         parent::__construct(
             $resultJsonFactory,
@@ -134,10 +134,10 @@ class SaveOrder extends AbstractApplepay
         $this->checkoutSession = $checkoutSession;
         $this->quoteAddressService = $quoteAddressService;
         $this->accountConfig = $configProviderFactory->get('account');
-
     }
 
     //phpcs:ignore:Generic.Metrics.NestingLevel
+
     /**
      * Save Order
      *
@@ -152,8 +152,7 @@ class SaveOrder extends AbstractApplepay
         $errorMessage = false;
         $data = [];
 
-        if (
-            $isPost
+        if ($isPost
             && ($payment = $isPost['payment'])
             && ($extra = $isPost['extra'])
         ) {
@@ -164,10 +163,11 @@ class SaveOrder extends AbstractApplepay
             // Get Cart
             $quote = $this->checkoutSession->getQuote();
 
-            if (!$this->setShippingAddress($quote, $payment['shippingContact'])) {
+            // Set Address
+            if (!$this->quoteAddressService->setShippingAddress($quote, $payment['shippingContact'])) {
                 return $this->commonResponse(false, true);
             }
-            if (!$this->setBillingAddress($quote, $payment['billingContact'])) {
+            if (!$this->quoteAddressService->setBillingAddress($quote, $payment['billingContact'])) {
                 return $this->commonResponse(false, true);
             }
 
@@ -175,25 +175,7 @@ class SaveOrder extends AbstractApplepay
             $this->submitQuote($quote, $extra);
 
             // Handle the response
-            if ($this->registry && $this->registry->registry('buckaroo_response')) {
-                $data = $this->registry->registry('buckaroo_response')[0];
-                $this->logging->addDebug(__METHOD__ . '|4|' . var_export($data, true));
-                if (!empty($data->RequiredAction->RedirectURL)) {
-                    //test mode
-                    $this->logging->addDebug(__METHOD__ . '|5|');
-                    $data = [
-                        'RequiredAction' => $data->RequiredAction
-                    ];
-                } else {
-                    //live mode
-                    $this->logging->addDebug(__METHOD__ . '|6|');
-                    if (isset($data['Status']['Code']['Code']) && $data['Status']['Code']['Code'] == '190'
-                        && isset($data['Order'])
-                    ) {
-                        $this->processBuckarooResponse($data);
-                    }
-                }
-            }
+            $this->handleResponse();
         }
 
         return $this->commonResponse($data, $errorMessage);
@@ -231,7 +213,34 @@ class SaveOrder extends AbstractApplepay
         } catch (\Throwable $th) {
             $this->logging->addDebug(__METHOD__ . '|exception|' . var_export($th->getMessage(), true));
         }
+    }
 
+    /**
+     * Handle the response after placing order
+     *
+     * @return void
+     */
+    private function handleResponse()
+    {
+        if ($this->registry && $this->registry->registry('buckaroo_response')) {
+            $data = $this->registry->registry('buckaroo_response')[0];
+            $this->logging->addDebug(__METHOD__ . '|4|' . var_export($data, true));
+            if (!empty($data->RequiredAction->RedirectURL)) {
+                //test mode
+                $this->logging->addDebug(__METHOD__ . '|5|');
+                $data = [
+                    'RequiredAction' => $data->RequiredAction
+                ];
+            } else {
+                //live mode
+                $this->logging->addDebug(__METHOD__ . '|6|');
+                if (isset($data['Status']['Code']['Code']) && $data['Status']['Code']['Code'] == '190'
+                    && isset($data['Order'])
+                ) {
+                    $this->processBuckarooResponse($data);
+                }
+            }
+        }
     }
 
     /**
