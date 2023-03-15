@@ -56,8 +56,6 @@
     <preference for="Buckaroo\Magento2\Model\Service\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Service\QuoteBuilder" />
 
     <!-- paypal-express -->
-    <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />
-
     <preference for="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteCreate" />
 
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\QuoteCreate" />
@@ -65,7 +63,6 @@
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem" />
 
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\OrderDataItem" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\ShippingAddress" />
     <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Service\ShippingAddressRequest" />
 
 

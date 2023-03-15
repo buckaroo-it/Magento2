@@ -22,12 +22,11 @@
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface;
+use Buckaroo\Magento2\Model\Service\QuoteBuilderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Quote\Model\Quote;
@@ -108,7 +107,7 @@ class QuoteService
      * @return CartInterface
      * @throws NoSuchEntityException
      */
-    public function getQuote($cartHash)
+    public function getQuote($cartHash = null)
     {
         if ($cartHash) {
             try {
@@ -265,5 +264,28 @@ class QuoteService
             $this->quote,
             $this->quote->getShippingAddress()
         );
+    }
+
+    /**
+     * Set First Shipping Method
+     *
+     * @return Quote
+     */
+    public function addFirstShippingMethod()
+    {
+        return $this->shippingMethodsService->addFirstShippingMethod(
+            $this->quote->getShippingAddress(),
+            $this->quote
+        );
+    }
+
+    /**
+     * Return modified quote
+     *
+     * @return Quote
+     */
+    public function getQuoteObject()
+    {
+        return $this->quote;
     }
 }

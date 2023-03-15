@@ -22,16 +22,12 @@
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
-use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 
 class ShippingAddressRequest implements ShippingAddressRequestInterface
 {
     protected $city;
-
     protected $countryCode;
-
     protected $postalCode;
-
     protected $state;
 
     /**

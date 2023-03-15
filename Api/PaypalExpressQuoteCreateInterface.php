@@ -21,21 +21,21 @@
 
 namespace Buckaroo\Magento2\Api;
 
-use Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface;
+use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
 
 interface PaypalExpressQuoteCreateInterface
 {
-  /**
-   * Get order breakdown after shipping is applied
-   *
-   * @param \Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface $shipping_address
-   * @param string $page
-   * @param \Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface[]|null $order_data
-   * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface
-   */
+    /**
+     * Get order breakdown after shipping is applied
+     *
+     * @param \Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface $shippingAddress
+     * @param string $page
+     * @param \Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface[]|null $orderData
+     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface
+     */
     public function execute(
-        ShippingAddressRequestInterface $shipping_address,
+        ShippingAddressRequestInterface $shippingAddress,
         string $page,
-        $order_data = null
+        $orderData = null
     );
 }
