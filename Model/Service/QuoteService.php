@@ -31,6 +31,9 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Quote\Model\Quote;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class QuoteService
 {
     /**
@@ -75,8 +78,12 @@ class QuoteService
     protected $quote;
 
     /**
+     * @param Log $logger
      * @param CartRepositoryInterface $cartRepository
      * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
+     * @param AddProductToCartService $addProductToCartService
+     * @param QuoteAddressService $quoteAddressService
+     * @param ShippingMethodsService $shippingMethodsService
      * @param CheckoutSession $checkoutSession
      * @param QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory
      */

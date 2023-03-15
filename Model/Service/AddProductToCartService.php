@@ -95,34 +95,4 @@ class AddProductToCartService
 
         return $cart;
     }
-
-    /**
-     * Convert array into Data Object
-     *
-     * @param array $productArray
-     * @return DataObject
-     */
-    private function convertArrayIntoDataObject(array $productArray): DataObject
-    {
-        $buyRequest = $this->dataObjectFactory->create(
-            ['data' => [
-                'product' => $productArray['id'],
-                'selected_configurable_option' => '',
-                'related_product' => '',
-                'item' => $productArray['id'],
-                'super_attribute' => $productArray['selected_options'] ?? '',
-                'qty' => $productArray['qty'],
-            ]]
-        );
-
-        // OR
-
-        $data = [];
-        foreach ($productArray as $productKeyValue) {
-            $data[$productKeyValue->getName()] = $productKeyValue->getValue();
-        }
-        $dataObject = $this->dataObjectFactory->create();
-
-        return $dataObject->setData($data);
-    }
 }
