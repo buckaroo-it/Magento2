@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -83,9 +84,7 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
 
         $cancel_ppe = $this->configProviderPPE->getCancelPpe();
 
-        if (
-            $cancel_ppe && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])
-        ) {
+        if ($cancel_ppe && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])) {
             try {
                 $this->logging->addDebug(__METHOD__ . '|sendCancelResponse|');
                 $this->sendCancelResponse($originalKey);
@@ -98,8 +97,7 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
     private function sendCancelResponse($key)
     {
         $active = $this->configProviderPPE->getActive();
-        $mode = ($active == \Buckaroo\Magento2\Helper\Data::MODE_LIVE) ?
-        \Buckaroo\Magento2\Helper\Data::MODE_LIVE : \Buckaroo\Magento2\Helper\Data::MODE_TEST;
+        $mode = ($active == Data::MODE_LIVE) ? Data::MODE_LIVE : Data::MODE_TEST;
 
         $this->client->setSecretKey($this->encryptor->decrypt($this->configProviderAccount->getSecretKey()));
         $this->client->setWebsiteKey($this->encryptor->decrypt($this->configProviderAccount->getMerchantKey()));

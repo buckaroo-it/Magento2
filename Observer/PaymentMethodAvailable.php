@@ -49,25 +49,25 @@ class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterfa
         $method = $observer->getMethodInstance();
 
         $checkCustomerGroup = $this->helper->checkCustomerGroup($method->getCode());
-        if (
-            $method->getCode() === 'buckaroo_magento2_billink'
+        if ($method->getCode() === 'buckaroo_magento2_billink'
             && !$checkCustomerGroup
         ) {
             $checkCustomerGroup = $this->helper->checkCustomerGroup($method->getCode(), true);
         }
         if (!$checkCustomerGroup) {
             $this->setNotAvailableResult($observer);
-            return false;
+            return;
         }
 
         if ($method->getCode() !== 'buckaroo_magento2_pospayment') {
             $pospaymentMethodInstance = $this->paymentHelper->getMethodInstance('buckaroo_magento2_pospayment');
+            // Here it is cyclic event loop in observer:
+            // BuckarooAdapter::isAvailable ⇢ Adapter::isAvailable ⇢ payment_method_is_active Observer
             if ($pospaymentMethodInstance->isAvailable($observer->getEvent()->getQuote())) {
                 $showMethod = false;
                 //check custom set payment methods what should be visible in addition to POS
                 if ($otherPaymentMethods = $pospaymentMethodInstance->getOtherPaymentMethods()) {
-                    if (
-                        $this->helper->isBuckarooMethod($method->getCode())
+                    if ($this->helper->isBuckarooMethod($method->getCode())
                         && in_array(
                             $this->helper->getBuckarooMethod($method->getCode()),
                             explode(',', $otherPaymentMethods)
