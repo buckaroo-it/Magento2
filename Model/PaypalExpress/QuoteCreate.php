@@ -48,6 +48,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      */
     private $quoteService;
 
+    /**
+     * @param QuoteCreateResponseInterfaceFactory $responseFactory
+     * @param QuoteService $quoteService
+     * @param Log $logger
+     */
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
         QuoteService $quoteService,
@@ -57,7 +62,10 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $this->quoteService = $quoteService;
         $this->logger = $logger;
     }
-    /** @inheritDoc */
+
+    /**
+     * @inheritDoc
+     */
     public function execute(
         ShippingAddressRequestInterface $shippingAddress,
         string $page,
