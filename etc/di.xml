@@ -496,14 +496,6 @@
         <plugin name="buckarooGuestPaymentInformationManagement" type="Buckaroo\Magento2\Plugin\GuestPaymentMethodManagement"/>
     </type>
 
-    <type name="Magento\Framework\Console\CommandListInterface">
-        <arguments>
-            <argument name="commands" xsi:type="array">
-                <item name="buckaroo_pushsend" xsi:type="object">Buckaroo\Magento2\Console\Command\PushSend\Proxy</item>
-            </argument>
-        </arguments>
-    </type>
-
     <!-- Buckaroo Payment Provider Gateway -->
     <type name="Buckaroo\Magento2\Model\Adapter\BuckarooAdapter">
         <arguments>
