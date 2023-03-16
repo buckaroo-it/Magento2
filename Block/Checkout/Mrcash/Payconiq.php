@@ -21,6 +21,6 @@
 
 namespace Buckaroo\Magento2\Block\Checkout\Mrcash;
 
-class Pay extends \Buckaroo\Magento2\Block\Checkout\Payconiq\Pay
+class Payconiq extends \Buckaroo\Magento2\Block\Checkout\Payconiq\Pay
 {
 }
