@@ -42,16 +42,12 @@
      <event name="controller_action_predispatch_sales_order_view">
         <observer name="buckaroo_magento2_show_in_test_mode" instance="Buckaroo\Magento2\Observer\AddInTestModeMessage" />
     </event>
-    
+
     <event name="sales_order_payment_cancel">
         <observer name="buckaroo_magento2_void_cm3_payment" instance="Buckaroo\Magento2\Observer\VoidCm3Payment" />
     </event>
     <event name="sales_order_shipment_save_after">
         <observer name="buckaroo_magento2_shipment_save_after" instance="Buckaroo\Magento2\Observer\SalesOrderShipmentAfter" />
-    </event>
-
-    <event name="payment_method_is_active">
-        <observer name="buckaroo_magento2_payment_method_is_active" instance="Buckaroo\Magento2\Observer\PaymentMethodAvailable" />
     </event>
 
     <event name="controller_action_predispatch_checkout_index_index">

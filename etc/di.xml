@@ -529,6 +529,8 @@
                 <item name="based_on_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnIPValidator</item>
                 <item name="based_on_amount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnAmountValidator</item>
                 <item name="based_on_currency" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator</item>
+                <item name="based_on_customer_group" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCustomerGroupValidator</item>
+                <item name="based_on_pos_settings" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnPOSValidator</item>
             </argument>
             <argument name="chainBreakingValidators" xsi:type="array">
                 <item name="account_config" xsi:type="string">account_config</item>
@@ -536,6 +538,8 @@
                 <item name="based_on_ip" xsi:type="string">based_on_ip</item>
                 <item name="based_on_amount" xsi:type="string">based_on_amount</item>
                 <item name="based_on_currency" xsi:type="string">based_on_currency</item>
+                <item name="based_on_customer_group" xsi:type="string">based_on_customer_group</item>
+                <item name="based_on_pos_settings" xsi:type="string">based_on_pos_settings</item>
             </argument>
         </arguments>
     </virtualType>
