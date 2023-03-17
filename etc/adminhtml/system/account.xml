@@ -206,6 +206,7 @@
                 <label>Debug email</label>
                 <comment><![CDATA[Debug information will be sent to these comma-separated email addresses.]]></comment>
                 <config_path>buckaroo_magento2/account/debug_email</config_path>
+                <backend_model>Buckaroo\Magento2\Model\Config\Backend\DebugEmails</backend_model>
             </field>
 
             <field id="limit_by_ip" translate="label comment" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
