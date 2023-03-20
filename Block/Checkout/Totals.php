@@ -1,7 +1,7 @@
 <?php
 
 /**
- * NOTICE OF LICENSE
+ * NOTICE OF LICENSE.
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
@@ -24,28 +24,19 @@ namespace Buckaroo\Magento2\Block\Checkout;
 class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
 {
     /**
-     * Template file path
+     * Template file path.
      *
      * @var string
      */
     protected $_template = 'checkout/totals.phtml';
 
     /**
-     * Buckaroo fee helper
+     * Buckaroo fee helper.
      *
      * @var \Buckaroo\Magento2\Helper\PaymentFee
      */
     protected $helper;
 
-    /**
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Magento\Customer\Model\Session                  $customerSession
-     * @param \Magento\Checkout\Model\Session                  $checkoutSession
-     * @param \Magento\Sales\Model\Config                      $salesConfig
-     * @param \Buckaroo\Magento2\Helper\PaymentFee                  $helper
-     * @param array                                            $layoutProcessors
-     * @param array                                            $data
-     */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Customer\Model\Session $customerSession,
@@ -61,7 +52,7 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
     }
 
     /**
-     * Return information for showing
+     * Return information for showing.
      *
      * @return array
      */
@@ -75,9 +66,10 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
         $total = $this->getTotal();
         $totals = $this->helper->getTotals($total);
         foreach ($totals as $total) {
-            $label = (string)$total['label'];
+            $label = (string) $total['label'];
             $values[$label] = $total['value'];
         }
+
         return $values;
     }
 }

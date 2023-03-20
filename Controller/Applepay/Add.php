@@ -1,7 +1,7 @@
 <?php
 
 /**
- * NOTICE OF LICENSE
+ * NOTICE OF LICENSE.
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
@@ -21,12 +21,12 @@
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
+use Buckaroo\Magento2\Service\Applepay\Add as AddService;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Service\Applepay\Add as AddService;
-use Magento\Framework\App\Action\Context;
 
 class Add implements HttpPostActionInterface
 {
@@ -34,20 +34,17 @@ class Add implements HttpPostActionInterface
      * @var JsonFactory
      */
     protected $resultJsonFactory;
+
     /**
      * @var Context
      */
     protected $context;
+
     /**
-     * @var AddService|null
+     * @var null|AddService
      */
     protected $addService;
 
-    /**
-     * @param JsonFactory $resultJsonFactory
-     * @param Context $context
-     * @param AddService|null $addService
-     */
     public function __construct(
         JsonFactory $resultJsonFactory,
         Context $context,
@@ -59,10 +56,11 @@ class Add implements HttpPostActionInterface
     }
 
     /**
-     * Add Applepay
+     * Add Applepay.
+     *
+     * @throws NoSuchEntityException
      *
      * @return Json
-     * @throws NoSuchEntityException
      */
     public function execute()
     {
@@ -76,6 +74,7 @@ class Add implements HttpPostActionInterface
         }
 
         $resultJson = $this->resultJsonFactory->create();
+
         return $resultJson->setData($response);
     }
 }
