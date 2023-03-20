@@ -74,7 +74,9 @@ define(
                     showNLBEFields: true,
                     activeAddress: null,
                     value:'',
-                    isDateValid: true,
+                    showPhone: false,
+                    phone: null,
+                    validationState: {}
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.tinka.paymentFeeLabel,
@@ -97,7 +99,8 @@ define(
                         [
                             'dateValidate',
                             'value',
-                            'isDateValid'
+                            'phone',
+                            'validationState'
                         ]
                     );
 
@@ -131,35 +134,72 @@ define(
                         this
                     );
 
-                    this.buttoncheck = ko.computed(
+                    this.showPhone =  ko.computed(
                         function () {
-                            if(this.showNLBEFields()) {
-                                return this.isDateValid();
-                            }
-                            return true;
+                            return this.activeAddress().telephone === null ||
+                            this.activeAddress().telephone === undefined ||
+                            this.activeAddress().telephone.trim().length === 0
                         },
                         this
                     );
 
-                    this.dateValidate.subscribe(this.isDobValid,this);
+                    this.buttoncheck = ko.computed(
+                        function () {
+                            const state = this.validationState();
+                            const valid = this.getActiveValidationFields().map((field) => {
+                                if(state[field] !== undefined) {
+                                    return state[field];
+                                }
+                                return false;
+                            }).reduce(
+                                function(prev, cur) {
+                                    return prev && cur
+                                },
+                                true
+                            )
+                            return valid;
+                        },
+                        this
+                    );
+
+                   
                     return this;
                 },
 
-                isDobValid() {
-                    let isDateValid = false;
 
-                    if($(`#buckaroo_magento2_tinka_DoB`).length) {
-                        isDateValid = $(`#buckaroo_magento2_tinka_DoB`).valid();
-                    }
-                    this.isDateValid(isDateValid);
+                validateField(data, event) {
+                    const isValid = $(event.target).valid();
+                    let state = this.validationState();
+                    state[event.target.id] = isValid;
+                    this.validationState(state);
                 },
 
-                validate() {
+                validateDob(data, event) {
+                    if(event.originalEvent) {
+                        //jquery date picker triggers on load blur event, will trigger validation only if a user event is called
+                        const dobId = 'buckaroo_magento2_tinka_DoB';
+                        
+                        const isValid = $(`#${dobId}`).valid();
+                        let state = this.validationState();
+                        state[dobId] = isValid;
+                        this.validationState(state);
+                    }
+                },
+
+                getActiveValidationFields() {
+                    let fields = [];
+                    if(this.showPhone()) {
+                        fields.push('buckaroo_magento2_tinka_Telephone')
+                    }
+
                     if(this.showNLBEFields()) {
-                        return this.isDateValid();
+                        fields.push('buckaroo_magento2_tinka_DoB')
                     }
-                    return true;
+                    return fields;
                 },
+
+
+             
 
                 /**
                  * Place order.
@@ -178,7 +218,7 @@ define(
                         event.preventDefault();
                     }
 
-                    if (this.validate() && additionalValidators.validate()) {
+                    if (additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
                         placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
 
@@ -213,6 +253,7 @@ define(
                         "additional_data": {
                             "customer_billingName" : this.billingName(),
                             "customer_DoB" : this.dateValidate(),
+                            "customer_telephone": this.phone()
                         }
                     };
                 }

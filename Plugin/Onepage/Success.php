@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Plugin\Onepage;
 
 use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Action\Context;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
@@ -35,13 +36,16 @@ class Success {
      */
     protected $resultRedirectFactory;
 
+    protected $logger;
     /**
      * @param Context $context
      */
     public function __construct(
-        Context $context
+        Context $context,
+        Log $logger
     ) {
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
+        $this->logger = $logger;
     }
     
     /** 
@@ -53,6 +57,14 @@ class Success {
        
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
+
+        $this->logger->addDebug(
+            var_export([
+                $order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING,
+                $this->paymentInTransit($payment),
+                $order->getStatus() === Order::STATE_CANCELED
+            ], true)
+        );
 
         if(
             $this->isBuckarooPayment($payment) &&
@@ -83,12 +95,16 @@ class Success {
     /**
      * Check if user is on the payment provider page
      *
-     * @param OrderPaymentInterface $payment
+     * @param OrderPaymentInterface|null $payment
      *
      * @return boolean
      */
-    protected function paymentInTransit(OrderPaymentInterface $payment)
+    protected function paymentInTransit(OrderPaymentInterface $payment = null)
     {
+        if($payment === null) {
+            return false;
+        }
+        
         return $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
     }
 }
