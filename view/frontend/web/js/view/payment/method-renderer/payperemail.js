@@ -45,30 +45,33 @@ define(
 
         return Component.extend(
             {
-                defaults                : {
-                    template : 'Buckaroo_Magento2/payment/buckaroo_magento2_payperemail',
+                defaults: {
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_payperemail',
                     selectedGender: null,
                     genderList: null,
                     firstName: null,
+                    middleName: null,
                     lastName: null,
                     email: null,
                     CustomerFirstName: null,
+                    CustomerMiddleName: null,
                     CustomerLastName: null,
                     CustomerEmail: null,
                     BillingFirstName: null,
+                    BillingMiddleName: null,
                     BillingLastName: null,
                     BillingEmail: null,
                     genderValidate: null
                 },
-                redirectAfterPlaceOrder : true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.payperemail.paymentFeeLabel,
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                redirectAfterPlaceOrder: true,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.payperemail.paymentFeeLabel,
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 
                 /**
                  * @override
                  */
-                initialize : function (options) {
+                initialize: function (options) {
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
                     }
@@ -82,12 +85,15 @@ define(
                             'selectedGender',
                             'genderList',
                             'firstName',
+                            'middleName',
                             'lastName',
                             'email',
                             'CustomerFirstName',
+                            'CustomerMiddleName',
                             'CustomerLastName',
                             'CustomerEmail',
                             'BillingFirstName',
+                            'BillingMiddleName',
                             'BillingLastName',
                             'BillingEmail',
                             'genderValidate',
@@ -98,8 +104,9 @@ define(
                     if (quote.billingAddress()) {
                         this.firstName = quote.billingAddress().firstname;
                         this.lastName = quote.billingAddress().lastname;
+                        this.middleName = quote.billingAddress().middlename;
                     }
-                    this.email          = customerData.email || quote.guestEmail;
+                    this.email = customerData.email || quote.guestEmail;
 
                     /**
                      * Observe customer first & lastname
@@ -111,6 +118,14 @@ define(
                         this
                     );
                     this.BillingFirstName(this.CustomerFirstName());
+
+                    this.CustomerMiddleName = ko.computed(
+                        function () {
+                            return this.middleName;
+                        },
+                        this
+                    );
+                    this.BillingMiddleName(this.CustomerMiddleName());
 
                     this.CustomerLastName = ko.computed(
                         function () {
@@ -128,11 +143,11 @@ define(
                     );
                     this.BillingEmail(this.CustomerEmail());
 
-                    this.gendersList = function() {
+                    this.gendersList = function () {
 
                         return window.checkoutConfig.payment.buckaroo.payperemail.genderList;
                     }
-                    
+
                     /**
                      * observe radio buttons
                      * check if selected
@@ -144,7 +159,7 @@ define(
                         this.selectPaymentMethod();
                         return true;
                     };
-                    
+
 
                     this.getSelectedGender = function () {
                         return this.selectedGender();
@@ -158,15 +173,16 @@ define(
                         this.selectPaymentMethod();
                     };
 
-                    this.BillingFirstName.subscribe(runValidation,this);
-                    this.BillingLastName.subscribe(runValidation,this);
-                    this.BillingEmail.subscribe(runValidation,this);
+                    this.BillingFirstName.subscribe(runValidation, this);
+                    this.BillingMiddleName.subscribe(runValidation, this);
+                    this.BillingLastName.subscribe(runValidation, this);
+                    this.BillingEmail.subscribe(runValidation, this);
 
-                    var check = function ()
-                    {
+                    var check = function () {
                         return (
                             this.selectedGender() !== null &&
                             this.BillingFirstName() !== null &&
+                            this.BillingMiddleName() !== null &&
                             this.BillingLastName() !== null &&
                             this.BillingEmail() !== null &&
                             this.validate()
@@ -176,10 +192,11 @@ define(
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
-                     this.buttoncheck = ko.computed(
+                    this.buttoncheck = ko.computed(
                         function () {
                             this.selectedGender();
                             this.BillingFirstName();
+                            this.BillingMiddleName();
                             this.BillingLastName();
                             this.BillingEmail();
                             this.dummy();
@@ -243,16 +260,16 @@ define(
                 validate: function () {
                     return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
                 },
-
                 getData: function () {
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_gender" : this.selectedGender(),
-                            "customer_billingFirstName" : this.BillingFirstName(),
-                            "customer_billingLastName" : this.BillingLastName(),
-                            "customer_email" : this.BillingEmail()
+                            "customer_gender": this.selectedGender(),
+                            "customer_billingFirstName": this.BillingFirstName(),
+                            "customer_billingMiddleName": this.BillingMiddleName(),
+                            "customer_billingLastName": this.BillingLastName(),
+                            "customer_email": this.BillingEmail()
                         }
                     };
                 },
