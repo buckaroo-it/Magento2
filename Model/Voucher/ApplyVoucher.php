@@ -13,7 +13,8 @@ use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
 use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
-
+use Magento\Framework\Phrase;
+use Magento\Framework\Webapi\Exception;
 
 class ApplyVoucher implements ApplyVoucherInterface
 {
@@ -65,6 +66,7 @@ class ApplyVoucher implements ApplyVoucherInterface
 
     public function apply(string $voucherCode)
     {
+        
         try {
             $quote = $this->getQuote();
 
@@ -73,22 +75,34 @@ class ApplyVoucher implements ApplyVoucherInterface
                 $this->build($quote, $voucherCode)->send()
             );
         } catch (ApiException $th) {
-            throw $th;
+            $this->renderException($th->getMessage());
         } catch (NoQuoteException $th) {
-            throw $th;
+            $this->renderException($th->getMessage());
         } catch (\Throwable $th) {
             $this->logger->addDebug((string)$th);
-            throw new ApiException(__('Unknown buckaroo error has occurred'), 0, $th);
+            $this->renderException(__('Unknown buckaroo error has occurred'));
         }
     }
-
+ 
+    public function renderException(string $message)
+    {
+        throw new Exception(
+            new Phrase($message)
+        );
+    }
     protected function getResponse(Quote $quote, $response)
     {
 
         $this->giftcardResponse->set($response, $quote);
 
         if ($this->giftcardResponse->getErrorMessage() !== null) {
-            throw new ApiException($this->giftcardResponse->getErrorMessage());
+            $message = $this->giftcardResponse->getErrorMessage();
+            $messageParts = explode(":", $message);
+
+            if(isset($messageParts[1])) {
+                $message = $messageParts[1];
+            }
+            throw new ApiException($message);
         }
         return $this->payResponseFactory->create()->setData(
             array_merge(
