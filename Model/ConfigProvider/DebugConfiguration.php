@@ -48,11 +48,15 @@ class DebugConfiguration extends AbstractConfigProvider
      */
     public function getDebugEmails()
     {
-        $debugEmails = trim($this->accountConfig->getDebugEmail());
-        $debugEmails = explode(',', (string)$debugEmails);
+        $debugEmails = $this->accountConfig->getDebugEmail();
+        if(!is_scalar($debugEmails)) {
+            return;
+        }
+
+        $debugEmails = explode(',', preg_replace('/\s+/', '', (string)$debugEmails));
 
         return array_filter($debugEmails, function($debugEmail) {
-            return filter_var(trim($debugEmail), FILTER_VALIDATE_EMAIL);
+            return filter_var($debugEmail, FILTER_VALIDATE_EMAIL);
         });
     }
 
