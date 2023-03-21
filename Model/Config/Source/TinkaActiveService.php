@@ -27,7 +27,6 @@ class TinkaActiveService implements OptionSourceInterface
 {
 
     public const CREDIT = "Credit";
-    public const INVOICED = "Invoiced";
     public const INVOICE = "Invoice";
     public const ZERO_PERCENT_CREDIT = "ZeroPercentCredit";
     public const ZERO_PERCENT_24MONTHS = "ZeroPercent24Months";
@@ -37,7 +36,6 @@ class TinkaActiveService implements OptionSourceInterface
 
     public const LIST = [
         self::CREDIT,
-        self::INVOICED,
         self::ZERO_PERCENT_24MONTHS,
         self::ZERO_PERCENT_36MONTHS,
         self::ZERO_PERCENT_CREDIT,
