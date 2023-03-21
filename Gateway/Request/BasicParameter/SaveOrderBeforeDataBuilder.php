@@ -5,6 +5,7 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 class SaveOrderBeforeDataBuilder implements BuilderInterface
@@ -15,15 +16,24 @@ class SaveOrderBeforeDataBuilder implements BuilderInterface
     protected $configProviderAccount;
 
     /**
-     * @param Account $configProviderAccount
+     * @var OrderRepositoryInterface
      */
-    public function __construct(Account $configProviderAccount)
-    {
+    protected $orderRepository;
+
+    /**
+     * @param Account $configProviderAccount
+     * @param OrderRepositoryInterface $orderRepository
+     */
+    public function __construct(
+        Account $configProviderAccount,
+        OrderRepositoryInterface $orderRepository
+    ) {
         $this->configProviderAccount = $configProviderAccount;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
-     * Save Order Before Request
+     * Save Order Before Request.
      *
      * @param array $buildSubject
      * @return array|void
@@ -42,7 +52,7 @@ class SaveOrderBeforeDataBuilder implements BuilderInterface
             }
 
             $order->setStatus($newStatus);
-            $order->save();
+            $this->orderRepository->save($order);
         }
 
         return [];
