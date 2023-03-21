@@ -53,8 +53,49 @@
     float:left; width: 100%; margin-bottom: 20px;
 }
 
+.payment-method-second-col .fieldset > .field > .label {
+    font-weight: normal;
+}
+
+.payment-method-second-col input,
+.payment-method-second-col select {
+    border-radius: 5px;
+    background-color: #fefefe;
+}
+.payment-method-second-col input:focus,
+.payment-method-second-col select:focus,
+.payment-method-second-col input.mage-error:focus,
+.payment-method-second-col select.mage-error:focus {
+    box-shadow: none;
+    border-bottom: 2px solid #007bff;
+}
+
+.payment-method-second-col input.mage-error,
+.payment-method-second-col select.mage-error {
+    border:1px solid #c2c2c2;
+    border-bottom: 2px solid #dc3545;
+}
+
+.payment-method-second-col input.valid,
+.payment-method-second-col select.valid {
+    border:1px solid #c2c2c2;
+    border-bottom: 2px solid #28a745;
+}
 .action.action-update {
     margin-top: 20px;
+}
+
+.payment-method-second-col input::placeholder { 
+    color: #c0c0c0;
+    opacity: 1; 
+}
+  
+.payment-method-second-col input:-ms-input-placeholder {
+    color: #c0c0c0;
+}
+  
+.payment-method-second-col input::-ms-input-placeholder {
+    color: #c0c0c0;
 }
 
 @media screen and (min-width: 1200px ){
@@ -285,16 +326,6 @@
     opacity: 1;
 }
 
-#Saluation {
-    /*float:left; */
-    /*width: 100%; */
-    padding-left: 10px;
-    /*margin-top: 4px; */
-}
-#Saluation li {
-    list-style:none;
-    /*float:left; width: 30%; */
-}
 
 /* ===================== Billink ============================ */
 .buckaroo_magento2_billink .payment-method-second-col input:disabled{
@@ -348,262 +379,36 @@
 /* ================================================================================================================== */
 /* Creditcards ====================================================================================================== */
 /* ================================================================================================================== */
-
-.card.styled *{
-    box-sizing: border-box;
-}
-
-.card.styled .field {
-    margin: 0;
-}
-
-.card.styled .field .field {
-    margin: 0 0 5px 0;
-}
-
-.card.styled .field label {
-    margin-bottom: 0;
-    font-family: "Courier New", "Helvetica Neue", Verdana, Arial, sans-serif;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 300;
-}
-
-.card.styled .field select {
-    font-size: 12px;
-}
-
-/* Creditcards Front ================================================================================================ */
-
-.card.styled .card_front {
-    background: #e2e2e2;
-    float:left;
-    max-width: 320px;
+.bk-credicards {
     width: 100%;
-    min-height: 200px;
-    padding: 12px 20px;
-    border-radius:8px;
-    z-index: 20;
-    position: relative;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='32' viewBox='0 0 16 32'%3E%3Cg fill='%239C92AC' fill-opacity='0.12'%3E%3Cpath fill-rule='evenodd' d='M0 24h4v2H0v-2zm0 4h6v2H0v-2zm0-8h2v2H0v-2zM0 0h4v2H0V0zm0 4h2v2H0V4zm16 20h-6v2h6v-2zm0 4H8v2h8v-2zm0-8h-4v2h4v-2zm0-20h-6v2h6V0zm0 4h-4v2h4V4zm-2 12h2v2h-2v-2zm0-8h2v2h-2V8zM2 8h10v2H2V8zm0 8h10v2H2v-2zm-2-4h14v2H0v-2zm4-8h6v2H4V4zm0 16h6v2H4v-2zM6 0h2v2H6V0zm0 24h2v2H6v-2z'/%3E%3C/g%3E%3C/svg%3E");
 }
-
-.card.styled .card_front .card_kind {
-    text-align: right;
+.bk-creditcards .fieldset .label {
+    margin-bottom: 4px;
 }
-
-.card.styled .card_front .card_kind img {
-    width: 56px;
-    height: 35px;
-}
-
-/* Creditcards Back ================================================================================================= */
-
-.card.styled .card_back {
-    background: #e2e2e2;
-    float:left;
-    max-width: 320px;
+.bk-card-number-input-wrap .control input {
     width: 100%;
-    min-height: 200px;
-    z-index: 10;
-    position: relative;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='32' viewBox='0 0 16 32'%3E%3Cg fill='%239C92AC' fill-opacity='0.12'%3E%3Cpath fill-rule='evenodd' d='M0 24h4v2H0v-2zm0 4h6v2H0v-2zm0-8h2v2H0v-2zM0 0h4v2H0V0zm0 4h2v2H0V4zm16 20h-6v2h6v-2zm0 4H8v2h8v-2zm0-8h-4v2h4v-2zm0-20h-6v2h6V0zm0 4h-4v2h4V4zm-2 12h2v2h-2v-2zm0-8h2v2h-2V8zM2 8h10v2H2V8zm0 8h10v2H2v-2zm-2-4h14v2H0v-2zm4-8h6v2H4V4zm0 16h6v2H4v-2zM6 0h2v2H6V0zm0 24h2v2H6v-2z'/%3E%3C/g%3E%3C/svg%3E");
-    clear: both;
-    border-radius: 8px;
-    margin: 10px 0 10px 0;
 }
 
-.card.styled .card_back .magnet_stripe {
-    height: 50px;
-    width: 100%;
-    background: black;
-    margin:30px 0 15px 0;
-}
-
-.card.styled .card_back .card_security {
-    padding: 5px 20px 5px 20px;
-    background: #f5f5f5;
-    float: left;
-    width: 100%;
-    background-image: linear-gradient(transparent 50%, rgba(179, 206, 239, 0.2) 50%);
-    background-size: 7px 4px;
-    max-height: 48px;
-}
-
-.card.styled .card_back .card_security input {
-    margin-top: 4px;
-}
-
-/* Information */
-
-.card .card_back .card_info svg {
-    height : 20px;
-    width: 20px;
-    cursor: pointer;
-    fill: #989898;
-}
-
-.card .card_back .card_info .popup {
-    font-family: "Helvetica Neue", Verdana, Arial, sans-serif;
-    text-transform :none;
-    display :none;
-    background: white;
-    padding: 20px;
-    position: absolute;
-    width: 200px;
-    left: -179px;
-    top: 30px;
-    box-shadow: 1px 2px 3px rgba(144, 144, 144, 0.6196078431372549);
-    z-index: 100;
-}
-
-.card .card_back .card_info .popup:before {
-    position: absolute;
-    left: 187px;
-    top: -14px;
-    content: '';
-    width: 0;
-    height: 0;
-    border-right: 7px solid transparent;
-    border-bottom: 7px solid #d4d4d4;
-    border-top: 7px solid transparent;
-    border-left: 7px solid transparent;
-}
-
-.card .card_back .card_info .popup:after {
-    position: absolute;
-    left: 187px;
-    top: -13px;
-    content: '';
-    width: 0;
-    height: 0;
-    border-right: 7px solid transparent;
-    border-bottom: 7px solid #fff;
-    border-top: 7px solid transparent;
-    border-left: 7px solid transparent;
-}
-
-.card .card_back .card_info:hover .popup {
-    display :block;
-}
-
-.card .card_back .card_info {
-    text-align: right;
-    margin-top: 10px;
+.bk-card-number-input-wrap {
     position: relative;
 }
-
-/* Column structure ================================================================================================= */
-
-.card.styled .width-100 {
-    width: 100%;
-    float:left;
+.bk-card-image {
+    position: absolute;
+    right: 5px;
+    top: 5px;
 }
 
-.card.styled .width-65-l {
-    width: 65%;
-    float:left;
+.bk-cvc-date-wrap {
+    display: flex;
+    justify-content: space-between;
 }
-
-.card.styled .width-25-l {
-    width: 25%;
-    float:left;
+.bk-date {
+    margin-right: 5px;
 }
-
-.card.styled .width-70 {
-    width: 70%;
-    float:left;
+.bk-cvc {
+    margin-left: 5px;
 }
-
-
-.card.styled .width-50-l {
-    width: 48%;
-    float:left;
-}
-
-.card.styled .width-50-r {
-    width: 48%;
-    float:right;
-}
-
-.card.styled .width-40-l {
-    width: 40%;
-    float:left;
-}
-
-.card.styled .width-10 {
-    width: 10%;
-    float:left;
-}
-
-/* Theme specific exceptions ======================================================================================== */
-
-.magento-blank .checkout-payment-method .payment-method-content .card.styled .fieldset > .field {
-    margin: 0;
-}
-
-.magento-blank .buckaroo_magento2_creditcards .card.styled .fieldset > .field:not(.choice) > .control {
-    margin-top: 0 !important;
-}
-
-.magento-blank .buckaroo_magento2_creditcards .card.styled .fieldset > .field:not(.choice) > .label {
-    padding-top: 0 !important;
-}
-
-.magento-luma .buckaroo_magento2_creditcards .card.styled  .fieldset.card_back > .field:not(.choice) > .label,
-.magento-blank .buckaroo_magento2_creditcards .card.styled  .fieldset.card_back > .field:not(.choice) > .label {
-    width: 65% !important;
-
-    margin-top: 9px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    float: left;
-}
-
-.magento-blank .buckaroo_magento2_creditcards .card.styled .fieldset.card_back > .field:not(.choice) > .control {
-    width: 25% !important;
-}
-
-.magento-blank .opc-wrapper .fieldset > .field.required > label:after {
-    top: unset;
-}
-
-.magento-blank .buckaroo_magento2_creditcards .fieldset .styled > .field:not(.choice) > .label {
-    width: auto !important;
-}
-
-.magento-luma .buckaroo_magento2_creditcards .fieldset > .field.card_security,
-.magento-blank .buckaroo_magento2_creditcards .fieldset > .field.card_security {
-    float:left;
-    width: 100%;
-}
-
-.magento-luma .buckaroo_magento2_creditcards .card:not(.styled) .fieldset > .field:not(.choice) > .control.card-info-input,
-.magento-blank .buckaroo_magento2_creditcards .fieldset > .field:not(.choice) > .control.card-info-input {
-    width: 90% !important;
-    float :left;
-}
-
-.magento-luma .buckaroo_magento2_creditcards .card:not(.styled) .card_info,
-.magento-blank .buckaroo_magento2_creditcards .card:not(.styled) .card_info {
-    width: 10%;
-    float:left;
-    margin-top: 5px;
-    text-align: center;
-}
-
-@media screen and (min-width: 768px){
-    .magento-blank .buckaroo_magento2_creditcards .card:not(.styled) .card_info {
-        margin-top: 15px;
-    }
-}
-
-
-.card.styled .field-error, .card.styled div.mage-error[generated] {
-    margin-top: -3px;
-    margin-bottom: 5px;
-}
-
+/*======================end creditcards======================================*/
 .giftcard-delete:before {
     font-size: 18px;
     line-height: 20px;

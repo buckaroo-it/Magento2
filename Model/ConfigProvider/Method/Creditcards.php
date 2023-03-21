@@ -53,7 +53,6 @@ class Creditcards extends AbstractConfigProvider
     const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
         'buckaroo_magento2_creditcards/sellers_protection_unauthorizedpayment_eligible';
     const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_creditcards';
-    const XPATH_USE_CARD_DESIGN = 'payment/buckaroo_magento2_creditcards/card_design';
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcards/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_creditcards/allowspecific';
     const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_creditcards/specificcountry';
@@ -97,7 +96,6 @@ class Creditcards extends AbstractConfigProvider
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'creditcards' => $issuers,
                         'defaultCardImage' => $this->getImageUrl('svg/creditcards', 'svg'),
-                        'useCardDesign' => $this->useCardDesign(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -141,13 +139,5 @@ class Creditcards extends AbstractConfigProvider
         }
 
         return $issuers;
-    }
-
-    /**
-     * @return bool
-     */
-    private function useCardDesign()
-    {
-        return $this->scopeConfig->getValue(self::XPATH_USE_CARD_DESIGN, ScopeInterface::SCOPE_STORE);
     }
 }

@@ -47,13 +47,6 @@
             <config_path>payment/buckaroo_magento2_creditcards/sort_order</config_path>
         </field>
 
-        <field id="card_design" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Card design</label>
-            <comment><![CDATA[Enable or disable card design.]]></comment>
-            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>payment/buckaroo_magento2_creditcards/card_design</config_path>
-        </field>
-
         <field id="allowed_creditcards" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Allowed Creditcards</label>
             <comment><![CDATA[Select payment method specific Creditcards.]]></comment>
