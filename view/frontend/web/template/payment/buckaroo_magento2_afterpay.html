@@ -11,7 +11,7 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/afterpay.svg') }" />
+                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/afterpay.svg') }" alt="afterpay logo" />
             </div>
         </div>
     </div>
@@ -52,10 +52,8 @@
                             <input id="buckaroo_magento2_afterpay_Telephone"
                                    type="text"
                                    class="input-text field"
-                                   data-bind="
-                                   valueUpdate: 'keyup',
-                                   value: telephoneNumber,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true })}"
+                                   data-bind="valueUpdate: 'keyup', value: telephoneNumber"
+                                   data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_afterpay][customer_telephone]">
                         </div>
                     </div>
@@ -73,15 +71,15 @@
                                    datepicker: {
                                         storage: dateValidate,
                                         options: {
-                                            changeMonth: true,
+                                            changeMonth: true,setSelectedGender
                                             changeYear: true,
                                             yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
                                             dateFormat: 'dd/MM/yy'
                                         }
                                    },
                                    valueUpdate: 'change',
-                                   value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true })}"
+                                   value: dateValidate"
+                                   data-validate="{required:true, 'validate-date-au':true, 'validateAge': true}"
                                    name="payment[buckaroo_magento2_afterpay][customer_DoB]">
                         </div>
                     </div>
@@ -98,8 +96,8 @@
                                    type="text"
                                    data-bind="
                                    value: bankaccountnumber,
-                                   valueUpdate: 'keyup',
-                                   attr: {'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })}"
+                                   valueUpdate: 'keyup'"
+                                   data-validate="{required:true, IBAN:true}"
                                    name="payment[buckaroo_magento2_afterpay][customer_iban]">
                         </div>
                     </div>
@@ -138,15 +136,8 @@
                                    name="payment[buckaroo_magento2_afterpay][COCNumber]"
                                    class="input-text field"
                                    type="text"
-                                   data-bind="
-                                       valueUpdate: 'keyup',
-                                       value: CocNumber,
-                                       attr: {
-                                            'data-validate': JSON.stringify({
-                                                'required': true,
-                                                'minlength': 8
-                                            }),
-                                        }">
+                                   data-bind="valueUpdate: 'keyup', value: CocNumber"
+                                   data-validate="{required:true, minlength:8}"/>
                         </div>
                     </div>
 
@@ -159,9 +150,8 @@
                                    type="text"
                                    data-bind="
                                        valueUpdate: 'keyup',
-                                       value: CompanyName,
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true, 'min-words': 1 })
-                                        }">
+                                       value: CompanyName"
+                                   data-validate="{required:true, 'min-words':18}"/>
                         </div>
                     </div>
                     <!-- /ko -->
@@ -174,9 +164,8 @@
                             <input id="buckaroo_magento2_afterpay_TermsCondition"
                                    class="field"
                                    type="checkbox"
-                                   data-bind="
-                                   checked: termsValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true})}"
+                                   data-bind="checked: termsValidate"
+                                   data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_afterpay][termsCondition]">
                             <span>
                                 <a target="_blank"

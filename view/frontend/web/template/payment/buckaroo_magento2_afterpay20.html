@@ -37,29 +37,27 @@
                                    class="input-text field"
                                    type="text"
                                    name="payment[buckaroo_magento2_afterpay20][buckaroo_identification_number]"
+                                   data-validate="{required:true}"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                    valueUpdate: 'blur',
-                                   value: identificationValidate
-                                   ">
+                                   value: identificationValidate"/>
                         </div>
                     </div>
                     <!-- /ko -->
 
-                     <!-- ko if: showCOC -->
-                     <div class="field required">
-                        <legend class="label"> <span data-bind="i18n: 'COC Number:'"> </span> </legend>
+                    <!-- ko if: showCOC -->
+                    <div class="field required">
+                        <legend class="label"><span data-bind="i18n: 'COC Number:'"> </span></legend>
                         <div class="control">
                             <input id="buckaroo_magento2_afterpay20_coc"
                                    class="input-text field"
                                    type="text"
                                    name="payment[buckaroo_magento2_afterpay20][customer_coc]"
                                    maxlength="8"
+                                   data-validate="{required:true, 'validateCOC': true}"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCOC': true }) },
-                                   valueUpdate: 'blur',
-                                   value: customerCoc
-                                   ">
+                                       valueUpdate: 'blur',
+                                       value: customerCoc"/>
                         </div>
                     </div>
                     <!-- /ko -->
@@ -83,8 +81,8 @@
                             <input id="buckaroo_magento2_afterpay20_Telephone"
                                    type="text"
                                    class="input-text field"
+                                   data-validate="{required:true, 'phoneValidation': true}"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'phoneValidation': true, 'required': true }) },
                                    checked: phoneValidate,
                                    valueUpdate: 'blur',
                                    value: phoneValidate"
@@ -112,10 +110,9 @@
                                         }
                                    },
                                    valueUpdate: 'change',
-                                   value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true })}"
-                                   name="payment[buckaroo_magento2_afterpay20][customer_DoB]">
-                            
+                                   value: dateValidate"
+                                   data-validate="{'required': true, 'validate-date-au': true, 'validateAge': true}"
+                                   name="payment[buckaroo_magento2_afterpay20][customer_DoB]"/>
                         </div>
                     </div>
                     <!-- /ko -->
@@ -129,9 +126,9 @@
                                    type="checkbox"
                                    data-bind="
                                    checked: termsValidate,
-                                   event: { change: selectPaymentMethod },
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true})}"
-                                   name="payment[buckaroo_magento2_afterpay20][termsCondition]">
+                                   event: { change: selectPaymentMethod }"
+                                   data-validate="{required:true}"
+                                   name="payment[buckaroo_magento2_afterpay20][termsCondition]"/>
                             <span>
                                 <a target="_blank"
                                    data-bind="

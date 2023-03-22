@@ -47,18 +47,19 @@
                         <!--/ko-->
 
                         <!-- ko if: selectionType == '2' -->
-                            <select id="buckaroo_magento2_ideal_issuer" class="field"
-                                    data-bind="value: idealIssuer,
-                                    event: { change: setSelectedBankDropDown },
-                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
-                                    name="bank">
+                            <select id="buckaroo_magento2_ideal_issuer"
+                                    class="field"
+                                    name="bank"
+                                    data-bind="
+                                    value: idealIssuer,
+                                    event: { change: setSelectedBankDropDown }"
+                                    data-validate="{'required-entry':true}">
                                 <option data-bind="i18n: 'Select a bank', 'value': ''"></option>
                                 <!-- ko foreach: banktypes -->
                                     <option data-bind="i18n: name, 'value': code"></option>
                                 <!--/ko-->
                             </select>
                         <!--/ko-->
-
                     </div>
                 </div>
             </div>

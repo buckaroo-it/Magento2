@@ -68,20 +68,20 @@
                             <input id="buckaroo_magento2_capayablepostpay_DoB"
                                    class="field"
                                    type="text"
+                                   name="payment[buckaroo_magento2_capayablepostpay][customer_DoB]"
                                    data-bind="
-                                           datepicker: {
-                                                storage: dateValidate,
-                                                options: {
-                                                    changeMonth: true,
-                                                    changeYear: true,
-                                                    yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
-                                                    dateFormat: 'dd/MM/yy'
-                                                }
-                                           },
-                                           valueUpdate: 'blur',
-                                           value: dateValidate,
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true })}"
-                                   name="payment[buckaroo_magento2_capayablepostpay][customer_DoB]">
+                                   datepicker: {
+                                        storage: dateValidate,
+                                        options: {
+                                            changeMonth: true,
+                                            changeYear: true,
+                                            yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
+                                            dateFormat: 'dd/MM/yy'
+                                        }
+                                   },
+                                   valueUpdate: 'blur',
+                                   value: dateValidate"
+                                   data-validate="{required:true}"/>
                         </div>
                         <div for="buckaroo_magento2_capayablepostpay_DoB" generated="true" class="mage-error" id="dob-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
                     </div>
@@ -104,13 +104,13 @@
                         <label class="label" for="buckaroo_magento2_capayablepostpay_COCNumber"> <span data-bind="i18n: 'COC Number:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_capayablepostpay_COCNumber"
-                                   name="payment[buckaroo_magento2_capayablepostpay][COCNumber]"
                                    class="input-text field"
                                    type="text"
+                                   name="payment[buckaroo_magento2_capayablepostpay][COCNumber]"
                                    data-bind="
                                        valueUpdate: 'keyup',
-                                       value: CocNumber,
-                                       attr: { 'data-validate': JSON.stringify({'required': true, 'minlength': 8}) }">
+                                       value: CocNumber"
+                                   data-validate="{required:true, minlength:8}"/>
                         </div>
                     </div>
 
@@ -118,13 +118,13 @@
                         <label class="label" for="buckaroo_magento2_capayablepostpay_CompanyName"> <span data-bind="i18n: 'Company Name:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_capayablepostpay_CompanyName"
-                                   name="payment[buckaroo_magento2_capayablepostpay][CompanyName]"
                                    class="input-text field"
                                    type="text"
+                                   name="payment[buckaroo_magento2_capayablepostpay][CompanyName]"
                                    data-bind="
-                                       valueUpdate: 'keyup',
-                                       value: CompanyName,
-                                       attr: { 'data-validate': JSON.stringify({'required': true, 'min-words': 1 })}">
+                                   valueUpdate: 'keyup',
+                                   value: CompanyName"
+                                   data-validate="{required:true, 'min-words':1}"/>
                         </div>
                     </div>
                     <!-- /ko -->

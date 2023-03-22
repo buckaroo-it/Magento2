@@ -45,18 +45,18 @@
                         <label class="label" for="buckaroo_magento2_tinka_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_tinka_Telephone"
-                                   type="text"
                                    class="input-text field"
+                                   type="text"
+                                   name="payment[buckaroo_magento2_tinka][customer_telephone]"
                                    data-bind="
                                    valueUpdate: 'blur',
                                    value: phone,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true })},
                                    event: { blur: validateField }"
-                                   name="payment[buckaroo_magento2_tinka][customer_telephone]">
+                                   data-validate="{required:true}"/>
                         </div>
                     </div>
                     <!-- /ko -->
-                    
+
                     <!-- ko if: showNLBEFields -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_tinka_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
@@ -65,6 +65,7 @@
                             <input id="buckaroo_magento2_tinka_DoB"
                                    class="field"
                                    type="text"
+                                   name="payment[buckaroo_magento2_tinka][customer_DoB]"
                                    data-bind="
                                    datepicker: {
                                         storage: dateValidate,
@@ -77,9 +78,8 @@
                                    },
                                    valueUpdate: 'blur',
                                    value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true })},
                                    event: { blur: validateDob }"
-                                   name="payment[buckaroo_magento2_tinka][customer_DoB]">
+                                   data-validate="{'required':true, 'validate-date-au':true, 'validateAge':true}"/>
                         </div>
                     </div>
                     <!-- /ko -->

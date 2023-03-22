@@ -38,15 +38,14 @@
 
                         </label>
                         <div class="control">
-                            <input id="bicnumber" class="input-text field _error" type="text"
+                            <input id="bicnumber"
+                                   class="input-text field _error"
+                                   type="text"
+                                   name="payment[buckaroo_magento2_giropay][customer_bic]"
                                    data-bind="
-                                    value: bicnumber,
-                                    valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true,  'BIC':true  })
-                                    }
-                                   "
-                                   name="payment[buckaroo_magento2_giropay][customer_bic]">
+                                   value: bicnumber,
+                                   valueUpdate: 'keyup'"
+                                   data-validate="{required:true, BIC:true}"/>
                         </div>
                     </div>
 

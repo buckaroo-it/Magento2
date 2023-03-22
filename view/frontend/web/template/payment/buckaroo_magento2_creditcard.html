@@ -36,22 +36,25 @@
                         <!-- ko if: selectionType == '1' -->
                             <!-- ko foreach: creditcards -->
                                 <label class="card-types">
-                                    <img class="card-types-img" data-bind="attr: {
+                                    <img class="card-types-img"
+                                         data-bind="attr: {
                                              'src': img,
                                              'width': 30,
                                              'height': 20 }"
-                                            />
+                                         alt="card types"/>
                                     <input class="card-types-input" type="radio" data-bind="value: code, click: $parent.setSelectedCard" data-validate="{'validate-one-required-by-name':true}" name="card"> <!-- ko text: name --><!--/ko-->
                                 </label>
                             <!--/ko-->
                         <!--/ko-->
 
                         <!-- ko if: selectionType == '2' -->
-                            <select id="buckaroo_magento2_creditcard_issuer" class="field"
-                                    data-bind="value: creditcardIssuer,
-                                    event: { change: setSelectedBankDropDown },
-                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
-                                    name="card">
+                            <select id="buckaroo_magento2_creditcard_issuer"
+                                    class="field"
+                                    name="card"
+                                    data-bind="
+                                    value: creditcardIssuer,
+                                    event: { change: setSelectedBankDropDown }"
+                                    data-validate="{'required-entry':true}">
                                 <option data-bind="i18n: 'Select a Credit Card or Debit Card', 'value': ''"></option>
                                 <!-- ko foreach: creditcards -->
                                     <option data-bind="i18n: name, 'value': code"></option>

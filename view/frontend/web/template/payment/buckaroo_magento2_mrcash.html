@@ -47,11 +47,11 @@
                                        class="input-text field"
                                        name="payment[buckaroo_magento2_mrcash][cardholdername]"
                                        data-bind="
-                            valueUpdate: 'blur',
-                            value: CardHolderName,
-                            textInput: CardHolderName(),
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardHolderName': true }) },
-                            event: { blur: encryptCardDetails }">
+                                       valueUpdate: 'blur',
+                                       value: CardHolderName,
+                                       textInput: CardHolderName(),
+                                       event: { blur: encryptCardDetails }"
+                                       data-validate="{required:true, validateCardHolderName:true}"/>
                             </div>
                         </div>
 
@@ -63,22 +63,24 @@
                                        class="input-text field"
                                        name="payment[buckaroo_magento2_mrcash][cardnumber]"
                                        data-bind="
-                            valueUpdate: 'blur',
-                            value: CardNumber,
-                            textInput: CardNumber(),
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }) },
-                            event: { blur: encryptCardDetails }">
+                                       valueUpdate: 'blur',
+                                       value: CardNumber,
+                                       textInput: CardNumber(),
+                                       event: { blur: encryptCardDetails }"
+                                       data-validate="{required:true, validateCardNumber:true}"/>
                             </div>
                         </div>
 
                         <div class="field required width-50-l" >
                             <label class="label" for="buckaroo_magento2_mrcash_expirationmonth"><span data-bind="i18n: 'Month:'"></span></label>
                             <div class="control">
-                                <select id="buckaroo_magento2_mrcash_expirationmonth" class="field"
-                                        data-bind="value: ExpirationMonth,
-                                        attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
+                                <select id="buckaroo_magento2_mrcash_expirationmonth"
+                                        class="field"
+                                        name="payment[buckaroo_magento2_mrcash][expirationmonth]"
+                                        data-bind="
+                                        value: ExpirationMonth,
                                         event: { change: validateMonth }"
-                                        name="payment[buckaroo_magento2_mrcash][expirationmonth]">
+                                        data-validate="{'required-entry':true}">
                                     <!-- ko foreach: months -->
                                     <option data-bind="i18n: label, 'value': value"></option>
                                     <!--/ko-->
@@ -89,12 +91,14 @@
                         <div class="field required width-50-r" >
                             <label class="label" for="buckaroo_magento2_mrcash_expirationyear"><span data-bind="i18n: 'Year:'"></span></label>
                             <div class="control">
-                                <select id="buckaroo_magento2_mrcash_expirationyear" class="field"
-                                        data-bind="value: ExpirationYear,
-                                                   attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
-                                                   event: { change: validateYear, blur: validateYear },
-                                                   foreach: getYears()"
-                                        name="payment[buckaroo_magento2_mrcash][expirationyear]">
+                                <select id="buckaroo_magento2_mrcash_expirationyear"
+                                        class="field"
+                                        name="payment[buckaroo_magento2_mrcash][expirationyear]"
+                                        data-bind="
+                                        value: ExpirationYear,
+                                        event: { change: validateYear, blur: validateYear },
+                                        foreach: getYears()"
+                                        data-validate="{'required-entry':true}">
                                     <option data-bind="i18n: label, 'value': value"></option>
                                 </select>
                             </div>

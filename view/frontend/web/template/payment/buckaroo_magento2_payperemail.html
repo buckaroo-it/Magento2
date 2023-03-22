@@ -37,13 +37,17 @@
                         <div class="control">
                             <ul id="Saluation">
                                 <li>
-                                    <select id="buckaroo_magento2_payperemail_genderSelect" name="payment[buckaroo_magento2_payperemail[customer_gender]" class="field"
-                                    data-bind="options: gendersList(),
-                                     optionsText: $t('genderTitle'),
-                                     optionsValue: 'genderType',
-                                     optionsCaption: $t('-- Please Select Your Gender--'),
-                                     value: getSelectedGender,
-                                     event: { change: setSelectedGender }, attr: { 'data-validate': JSON.stringify({ 'required': true })}" class="select">
+                                    <select id="buckaroo_magento2_payperemail_genderSelect"
+                                            class="field select"
+                                            name="payment[buckaroo_magento2_payperemail[customer_gender]"
+                                            data-bind="
+                                            options: gendersList(),
+                                            optionsText: $t('genderTitle'),
+                                            optionsValue: 'genderType',
+                                            optionsCaption: $t('-- Please Select Your Gender--'),
+                                            value: getSelectedGender,
+                                            event: { change: setSelectedGender }"
+                                            data-validate="{required:true}">
                                      </select>
                                 </li>
                             </ul>
@@ -57,13 +61,12 @@
                             <input id="buckaroo_magento2_payperemail_BillingFirstName"
                                    class="input-text field"
                                    type="text"
-                                   data-bind="
-                                       valueUpdate: 'keyup',
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                       value: BillingFirstName,
-                                       textInput: CustomerFirstName()"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingFirstName]"
-                                   >
+                                   data-bind="
+                                   valueUpdate: 'keyup',
+                                   value: BillingFirstName,
+                                   textInput: CustomerFirstName()"
+                                   data-validate="{required:true}"/>
                         </div>
                     </div>
 
@@ -73,13 +76,11 @@
                             <input id="buckaroo_magento2_payperemail_BillingMiddleName"
                                    class="input-text field"
                                    type="text"
-                                   data-bind="
-                                       valueUpdate: 'keyup',
-                                       attr: { 'data-validate': JSON.stringify({ 'required': false }) },
-                                       value: BillingMiddleName,
-                                       textInput: CustomerMiddleName()"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingMiddleName]"
-                                   >
+                                   data-bind="
+                                   valueUpdate: 'keyup',
+                                   value: BillingMiddleName,
+                                   textInput: CustomerMiddleName()"/>
                         </div>
                     </div>
                     <div class="field required">
@@ -88,27 +89,26 @@
                             <input id="buckaroo_magento2_payperemail_BillingLastName"
                                    class="input-text field"
                                    type="text"
-                                   data-bind="
-                                       valueUpdate: 'keyup',
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                       value: BillingLastName,
-                                       textInput: CustomerLastName()"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingLastName]"
-                            >
+                                   data-bind="
+                                   valueUpdate: 'keyup',
+                                   value: BillingLastName,
+                                   textInput: CustomerLastName()"
+                                   data-validate="{required:true}"/>
                         </div>
                     </div>
                     <div class="field required" >
                         <label class="label" for="buckaroo_magento2_payperemail_Email"> <span data-bind="i18n: 'Email:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_payperemail_Email"
-                                   type="text"
                                    class="input-text field"
+                                   type="text"
+                                   name="payment[buckaroo_magento2_payperemail][customer_email]"
                                    data-bind="
-                                       valueUpdate: 'keyup',
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-email': true })},
-                                       value: BillingEmail,
-                                       textInput: CustomerEmail()"
-                                   name="payment[buckaroo_magento2_payperemail][customer_email]">
+                                   valueUpdate: 'keyup',
+                                   value: BillingEmail,
+                                   textInput: CustomerEmail()"
+                                   data-validate="{required:true, 'validate-email':true}"/>
                         </div>
                     </div>
 

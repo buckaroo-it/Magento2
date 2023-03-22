@@ -1,5 +1,5 @@
 <div class="buckaroo_magento2_klarna payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
-    
+
     <div class="payment-method-title field choice bk-payment">
         <div class="bk-payment-wrap">
             <div class="bk-radio-wrap">
@@ -23,14 +23,18 @@
                 <label class="label" for="buckaroo_magento2_klarna_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                 <div class="control">
                     <ul id="Saluation">
-                        <li>            
-                            <select id="buckaroo_magento2_klarna_genderSelect" name="payment[buckaroo_magento2_klarna][customer_gender]" class="select"
-                            data-bind="options: gendersList(),
-                             optionsText: $t('genderTitle'),
-                             optionsValue: 'genderType',
-                             optionsCaption: $t('-- Please Select Your Gender--'),
-                             value: getSelectedGender,
-                             event: { change: setSelectedGender }, attr: { 'data-validate': JSON.stringify({ 'required': true })}">
+                        <li>
+                            <select id="buckaroo_magento2_klarna_genderSelect"
+                                    class="select"
+                                    name="payment[buckaroo_magento2_klarna][customer_gender]"
+                                    data-bind="
+                                    options: gendersList(),
+                                    optionsText: $t('genderTitle'),
+                                    optionsValue: 'genderType',
+                                    optionsCaption: $t('-- Please Select Your Gender--'),
+                                    value: getSelectedGender,
+                                    event: { change: setSelectedGender }"
+                                    data-validate="{required:true}">
                              </select>
                         </li>
                     </ul>

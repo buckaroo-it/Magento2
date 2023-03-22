@@ -38,14 +38,14 @@
                         </label>
                         <div class="control">
                             <input id="bankaccountholder" class="input-text field" type="text"
+                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_account_name]"
                                    data-bind="
                                     value: bankaccountholder,
                                     valueUpdate: 'keyup',
                                     attr: {
                                         'data-validate': JSON.stringify({ 'required': true, 'min-words': minimumWords() })
                                     }
-                                   "
-                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_account_name]">
+                                   "/>
                         </div>
                     </div>
 
@@ -54,15 +54,14 @@
                             <span data-bind="i18n: 'Bank account number'"> </span>
                         </label>
                         <div class="control">
-                            <input id="bankaccountnumber" class="input-text field" type="text"
+                            <input id="bankaccountnumber"
+                                   class="input-text field"
+                                   type="text"
+                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_iban]"
                                    data-bind="
-                                    value: bankaccountnumber,
-                                    valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })
-                                    }
-                                   "
-                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_iban]">
+                                   value: bankaccountnumber,
+                                   valueUpdate: 'keyup'"
+                                   data-validate="{required:true, IBAN: true}"/>
                         </div>
                     </div>
 
@@ -72,15 +71,14 @@
                             <span data-bind="i18n: 'BIC Number'"> </span>
                         </label>
                         <div class="control">
-                            <input id="bicnumber" class="input-text field" type="text"
+                            <input id="bicnumber"
+                                   class="input-text field"
+                                   type="text"
+                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_bic]"
                                    data-bind="
-                                    value: bicnumber,
-                                    valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'BIC':true })
-                                    }
-                                   "
-                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_bic]">
+                                   value: bicnumber,
+                                   valueUpdate: 'keyup'"
+                                   data-validate="{'required': true, 'BIC':true}"/>
                         </div>
                     </div>
                     <!-- /ko -->
