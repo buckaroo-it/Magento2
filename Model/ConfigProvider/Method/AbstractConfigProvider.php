@@ -260,7 +260,19 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getSpecificCountry($store = null)
     {
         $configuredSpecificCountry = trim((string)$this->getConfigFromXpath(static::XPATH_SPECIFIC_COUNTRY, $store));
-        if (empty($configuredSpecificCountry)) return [];
+
+        //if the country config is null in the store get the config value from the global('default') settings
+        if (empty($configuredSpecificCountry)) {
+            $configuredSpecificCountry = $this->scopeConfig->getValue(
+                static::XPATH_SPECIFIC_COUNTRY
+            );
+        };
+
+        if (empty($configuredSpecificCountry)) 
+        {
+            return [];
+        }
+
         $configuredSpecificCountry = explode(',', $configuredSpecificCountry);
 
         return $configuredSpecificCountry;
