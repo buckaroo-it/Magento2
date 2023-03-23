@@ -455,3 +455,4 @@
 "The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.","Se ha iniciado el proceso de reembolso, pero está pendiente de aprobación. Inicie sesión en Buckaroo Plaza para aprobar el reembolso y finalizarlo."
 "PIN / Security code:","PIN / Código de seguridad:"
 "-- Please Select Your Gender--","Por favor seleccione su género"
+"Determines the active payment method service ("Credit" is the default method). More information can be found on <a href="https://docs.buckaroo.io/docs/tinka">https://docs.buckaroo.io/docs/tinka</a>","Seleccione el servicio de método de pago deseado para Tinka ("Credit" es el método predeterminado). Se puede encontrar más información en <a href="https://docs.buckaroo.io/docs/tinka">https://docs.buckaroo.io/docs/tinka</a>"
