@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Checkout\Model\Session;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Store\Model\Store;
 
 class ShippingMethodManagement
 {
@@ -73,7 +74,7 @@ class ShippingMethodManagement
             $this->helper->addDebug(__METHOD__ . '|1|');
             if (
                 $this->accountConfig->getCartKeepAlive($order->getStore())
-                && $this->isNeedRecreate()
+                && $this->isNeedRecreate($order->getStore())
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
                 if (
@@ -95,7 +96,15 @@ class ShippingMethodManagement
         }
     }
 
-    public function isNeedRecreate()
+    /**
+     * Function that is used by external plugins
+     *
+     * @param Store $store
+     * @return false
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function isNeedRecreate($store)
     {
         return false;
     }
