@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Model\Service;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -43,7 +44,7 @@ class AddProductToCartService
     }
 
     /**
-     * Add Product Selected to cart
+     * Add Product Selected to cart.
      *
      * @param DataObject $product
      * @param Quote $cart
@@ -65,33 +66,6 @@ class AddProductToCartService
 
         $cart->addProduct($productToBeAdded, $product);
         $this->cartRepository->save($cart);
-
-        return $cart;
-    }
-
-    /**
-     * Add product to quote
-     *
-     * @param DataObject $productDataObject
-     * @param Quote $cart
-     * @return Quote
-     * @throws NoSuchEntityException
-     * @throws AddProductException
-     * @throws LocalizedException
-     */
-    protected function addProduct($productDataObject, $cart): Quote
-    {
-        $productId = $productDataObject->getData('product');
-        if ($productId === null) {
-            throw new AddProductException("A product is required", 1);
-        }
-        try {
-            $product = $this->productRepository->getById($productId);
-        } catch (NoSuchEntityException $e) {
-            throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $productId]));
-        }
-
-        $cart->addProduct($product, $productDataObject);
 
         return $cart;
     }

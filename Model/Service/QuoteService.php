@@ -22,7 +22,7 @@
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\Service\QuoteBuilderInterface;
+use Buckaroo\Magento2\Model\Service\QuoteBuilderInterfaceFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -73,7 +73,7 @@ class QuoteService
     private QuoteAddressService $quoteAddressService;
 
     /**
-     * @var \Magento\Quote\Model\Quote
+     * @var Quote
      */
     protected $quote;
 
