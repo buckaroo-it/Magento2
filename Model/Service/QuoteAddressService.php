@@ -172,7 +172,6 @@ class QuoteAddressService
 
         $shippingAddress = $this->processAddressFromWallet($data);
         $quote->getShippingAddress()->addData($shippingAddress);
-        $quote->setShippingAddress($quote->getShippingAddress());
 
         $errors = $quote->getShippingAddress()->validate();
         return $this->setCommonAddressProceed($errors, 'shipping');
@@ -187,7 +186,6 @@ class QuoteAddressService
 
         $billingAddress = $this->processAddressFromWallet($data, 'billing');
         $quote->getBillingAddress()->addData($billingAddress);
-        $quote->setBillingAddress($quote->getBillingAddress());
 
         $errors = $quote->getBillingAddress()->validate();
         return $this->setCommonAddressProceed($errors, 'billing');
