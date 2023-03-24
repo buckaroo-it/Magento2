@@ -28,8 +28,19 @@ use Buckaroo\Magento2\Model\Session as BuckarooSession;
 
 class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterface
 {
+    /**
+     * @var BuckarooSession
+     */
     protected $buckarooSession;
+
+    /**
+     * @var Log
+     */
     protected $logging;
+
+    /**
+     * @var Manager
+     */
     protected $moduleManager;
 
     /**
@@ -37,10 +48,16 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
      */
     protected $orderManagement;
 
+    /**
+     * @param BuckarooSession $buckarooSession
+     * @param Log $logging
+     * @param Manager $moduleManager
+     * @param OrderManagementInterface $orderManagement
+     */
     public function __construct(
-        BuckarooSession $buckarooSession,
-        Log $logging,
-        Manager $moduleManager,
+        BuckarooSession          $buckarooSession,
+        Log                      $logging,
+        Manager                  $moduleManager,
         OrderManagementInterface $orderManagement
     ) {
         $this->buckarooSession = $buckarooSession;
@@ -71,14 +88,13 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/BuckarooAdapter.php:880
             $payment = $order->getPayment();
-            if (
-                in_array(
-                    $payment->getMethodInstance()->getCode(),
-                    ['buckaroo_magento2_afterpay','buckaroo_magento2_afterpay2','buckaroo_magento2_klarnakp']
-                )
+            if (in_array(
+                $payment->getMethodInstance()->getCode(),
+                ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2', 'buckaroo_magento2_klarnakp']
+            )
             ) {
                 try {
-                    $order->addStatusHistoryComment('Buckaroo: failed to authorize an order', false);
+                    $order->addCommentToStatusHistory('Buckaroo: failed to authorize an order');
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                     $payment->save();
                     //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch

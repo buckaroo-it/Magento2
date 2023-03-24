@@ -62,7 +62,6 @@
     .buckaroo_magento2_klarna .payment-method-second-col,
     .buckaroo_magento2_klarnakp .payment-method-second-col,
     .buckaroo_magento2_klarnain .payment-method-second-col,
-    .buckaroo_magento2_emandate .payment-method-second-col,
     .buckaroo_magento2_applepay .payment-method-second-col,
     .buckaroo_magento2_capayablein3 .payment-method-second-col,
     .buckaroo_magento2_capayablepostpay .payment-method-second-col,
@@ -91,7 +90,6 @@
     .buckaroo_magento2_klarna .payment-method-billing-address,
     .buckaroo_magento2_klarnakp .payment-method-billing-address,
     .buckaroo_magento2_klarnain .payment-method-billing-address,
-    .buckaroo_magento2_emandate .payment-method-billing-address,
     .buckaroo_magento2_applepay .payment-method-billing-address,
     .buckaroo_magento2_capayablein3 .payment-method-billing-address,
     .buckaroo_magento2_capayablepostpay .payment-method-billing-address,
@@ -123,7 +121,6 @@
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_emandate .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .label,
@@ -151,7 +148,6 @@
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field:not(.choice) > .control,
-    .magento-blank .buckaroo_magento2_emandate .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .control
@@ -177,7 +173,6 @@
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field.choice:before,
-    .magento-blank .buckaroo_magento2_emandate .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field.choice:before
@@ -691,32 +686,6 @@
     /*float:left; width: 30%; */
 }
 
-/* ===================== Emandate ================================ */
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types{
-    float:left;
-    width: 100%;
-}
-
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types-img{
-    vertical-align:middle;
-    margin-right:10px;
-}
-
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types-input{
-    margin-top:10px;
-}
-
-.buckaroo_magento2_emandate .buckaroo_magento2_image_title:after {
-    background: url(../images/buckaroo_magento2_emandate_title.png) no-repeat;
-    float: right;
-    margin-right: 10px;
-    margin-top: -1px;
-    background-size: auto 25px;
-    width: 30px;
-    height: 25px;
-    content: ' ';
-}
-
 /* ===================== Apple Pay ================================ */
 .buckaroo_magento2_applepay .buckaroo_magento2_image_title:after {
     background: url(../images/buckaroo_magento2_applepay_title.png) no-repeat;
@@ -976,19 +945,6 @@
     /* KBC */
     .buckaroo_magento2_kbc .buckaroo_magento2_image_title:before {
         background: url(../images/buckaroo_magento2_kbc_title.png) no-repeat;
-        float: left;
-        margin-right: 10px;
-        margin-top: -1px;
-        background-size: auto 25px;
-        width: 40px;
-        height: 30px;
-        content: ' ';
-    }
-
-
-    /* Emandate */
-    .buckaroo_magento2_emandate .buckaroo_magento2_image_title:before {
-        background: url(../images/buckaroo_magento2_emandate_title.png) no-repeat;
         float: left;
         margin-right: 10px;
         margin-top: -1px;

@@ -81,15 +81,13 @@ class GroupTransactionRegister implements ObserverInterface
             $this->logger->addDebug(__METHOD__ . '|5|' . var_export([$order->getTotalPaid(), $item['amount']], true));
             $totalPaid = $order->getTotalPaid() + $item['amount'];
             $baseTotalPaid = $order->getBaseTotalPaid() + $item['amount'];
-            if (
-                ($totalPaid < $order->getGrandTotal())
+            if (($totalPaid < $order->getGrandTotal())
                 || ($this->helper->areEqualAmounts($totalPaid, $order->getGrandTotal()))
             ) {
                 $this->logger->addDebug(__METHOD__ . '|10|');
                 $order->setTotalPaid($totalPaid);
             }
-            if (
-                ($baseTotalPaid < $order->getBaseGrandTotal())
+            if (($baseTotalPaid < $order->getBaseGrandTotal())
                 || ($this->helper->areEqualAmounts($baseTotalPaid, $order->getBaseGrandTotal()))
             ) {
                 $this->logger->addDebug(__METHOD__ . '|15|');

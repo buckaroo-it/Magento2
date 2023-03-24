@@ -486,7 +486,6 @@ class SetupModuleDataPatch implements DataPatchInterface
         $this->updateMerchantKeyConfiguration($this->moduleDataSetup); // 1.14.0
         $this->replaceTigBuckaroo(); // 1.18.0
         $this->installAlreadyPayColumns($this->moduleDataSetup); // 1.19.1
-        $this->fixLanguageCodes($this->moduleDataSetup); // 1.22.0
         $this->zeroizeGiftcardsPaymentFee($this->moduleDataSetup); // 1.25.1
         $this->giftcardPartialRefund($this->moduleDataSetup); // 1.25.2
         $this->setCustomerIDIN($this->moduleDataSetup);
@@ -1308,28 +1307,6 @@ class SetupModuleDataPatch implements DataPatchInterface
             'creditmemo',
             'buckaroo_already_paid',
             ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL]
-        );
-
-        return $this;
-    }
-
-    /**
-     * @param ModuleDataSetupInterface $setup
-     *
-     * @return $this
-     */
-    protected function fixLanguageCodes(ModuleDataSetupInterface $setup)
-    {
-        $setup->getConnection()->query(
-            "UPDATE "
-            . $setup->getTable('core_config_data')
-            . " SET value='nl' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='nl_NL'"
-        );
-
-        $setup->getConnection()->query(
-            "UPDATE "
-            . $setup->getTable('core_config_data')
-            . " SET value='en' WHERE path='payment/buckaroo_magento2_emandate/language' AND value='en_US'"
         );
 
         return $this;

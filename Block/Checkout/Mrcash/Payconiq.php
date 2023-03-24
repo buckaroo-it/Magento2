@@ -19,20 +19,8 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\Config\Source;
+namespace Buckaroo\Magento2\Block\Checkout\Mrcash;
 
-class EmandateLanguage implements \Magento\Framework\Option\ArrayInterface
+class Payconiq extends \Buckaroo\Magento2\Block\Checkout\Payconiq\Pay
 {
-    const EMANDATE_LANGUAGE_DUTCH = 'nl';
-    const EMANDATE_LANGUAGE_ENGLISH = 'en';
-
-    public function toOptionArray()
-    {
-        $options = [];
-
-        $options[] = ['value' => self::EMANDATE_LANGUAGE_DUTCH, 'label' => __('Dutch')];
-        $options[] = ['value' => self::EMANDATE_LANGUAGE_ENGLISH, 'label' => __('English')];
-
-        return $options;
-    }
 }

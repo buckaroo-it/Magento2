@@ -24,7 +24,9 @@ namespace Buckaroo\Magento2\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 
 class AddInTestModeMessage implements ObserverInterface
@@ -54,7 +56,7 @@ class AddInTestModeMessage implements ObserverInterface
     public function execute(Observer $observer)
     {
         if ($this->isPaymentInTestMode()) {
-            $this->messageManager->addErrorMessage(
+            $this->messageManager->addWarningMessage(
                 __('The payment for this order was made in test mode')
             );
         }
@@ -67,21 +69,24 @@ class AddInTestModeMessage implements ObserverInterface
     {
         $order = $this->getOrder();
 
-        return $order !== null &&
-            $order->getPayment() !== null &&
+        if (!($order instanceof OrderInterface)) {
+            throw new NotFoundException(__('Order was not find by order ID'));
+        }
+
+        return $order->getPayment() !== null &&
             $order->getPayment()->getAdditionalInformation(self::PAYMENT_IN_TEST_MODE) === true;
     }
 
     /**
      * Get order by request order id
      *
-     * @return \Magento\Sales\Api\Data\OrderInterface|null
+     * @return OrderInterface|null
      */
     protected function getOrder()
     {
         $orderId = $this->request->getParam('order_id');
         if ($orderId === null || !is_scalar($orderId)) {
-            return;
+            return null;
         }
         return $this->orderRepository->get(
             (int)$orderId

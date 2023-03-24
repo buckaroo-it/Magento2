@@ -58,7 +58,6 @@
 .buckaroo_magento2_payment_giftcards,
 .buckaroo_magento2_payment_eps,
 .buckaroo_magento2_payment_kbc,
-.buckaroo_magento2_payment_emandate,
 .buckaroo_magento2_payment_applepay,
 .buckaroo_magento2_payment_card_mastercard,
 .buckaroo_magento2_payment_card_maestro,
@@ -315,19 +314,6 @@
     margin-top: -3px;
     background-size: auto 25px;
     width: 40px;
-    height: 30px;
-    content: ' ';
-    display :block;
-}
-
-/* Emandate */
-.buckaroo_magento2_payment_emandate:before {
-    background: url(../images/buckaroo_magento2_emandate_title.png) no-repeat;
-    float: left;
-    margin-right: 10px;
-    margin-top: -3px;
-    background-size: auto 25px;
-    width: 30px;
     height: 30px;
     content: ' ';
     display :block;

@@ -72,7 +72,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
         self::CUSTOMER_IDENTIFICATIONNUMBER,
         self::CUSTOMER_DOB,
         self::CUSTOMER_TELEPHONE,
-        self::CUSTOMER_BILLINGFIRSTNAME ,
+        self::CUSTOMER_BILLINGFIRSTNAME,
         self::CUSTOMER_BILLINGLASTNAME,
         self::CUSTOMER_EMAIL,
         self::CUSTOMER_IBAN,
@@ -125,8 +125,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
 
         $paymentInfo = $this->readPaymentModelArgument($observer);
 
-        if (
-            in_array($paymentInfo->getMethodInstance()->getCode(), $this->termsConditionDepends)
+        if (in_array($paymentInfo->getMethodInstance()->getCode(), $this->termsConditionDepends)
             && !isset($additionalData[self::TERMS_CONDITION])
         ) {
             return;
