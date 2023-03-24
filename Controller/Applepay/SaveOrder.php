@@ -24,15 +24,15 @@ namespace Buckaroo\Magento2\Controller\Applepay;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\Service\QuoteAddressService;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Group;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Registry;
-use Magento\Quote\Model\Cart\ShippingMethodConverter;
-use Magento\Quote\Model\Quote\TotalsCollector;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -40,16 +40,12 @@ use Magento\Sales\Model\Order;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class SaveOrder extends Common
+class SaveOrder extends AbstractApplepay
 {
     /**
      * @var QuoteManagement
      */
     protected $quoteManagement;
-    /**
-     * @var DataObjectFactory
-     */
-    private $objectFactory;
     /**
      * @var Registry|null
      */
@@ -67,6 +63,10 @@ class SaveOrder extends Common
      */
     protected $accountConfig;
     /**
+     * @var DataObjectFactory
+     */
+    private $objectFactory;
+    /**
      * @var OrderRepositoryInterface
      */
     private OrderRepositoryInterface $orderRepository;
@@ -76,10 +76,21 @@ class SaveOrder extends Common
     private SearchCriteriaBuilder $searchCriteriaBuilder;
 
     /**
+     * @var QuoteAddressService
+     */
+    private QuoteAddressService $quoteAddressService;
+
+    /**
+     * @var CustomerSession
+     */
+    private CustomerSession $customerSession;
+
+    /**
      * Save Order Constructor
      *
-     * @param Context $context
-     * @param Log $logger
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log $logging
      * @param QuoteManagement $quoteManagement
      * @param CustomerSession $customerSession
      * @param DataObjectFactory $objectFactory
@@ -88,33 +99,30 @@ class SaveOrder extends Common
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param CheckoutSession $checkoutSession
      * @param ConfigProviderFactory $configProviderFactory
-     * @param TotalsCollector $totalsCollector
-     * @param ShippingMethodConverter $converter
+     * @param QuoteAddressService $quoteAddressService
      * @throws Exception
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __construct(
-        Context $context,
-        Log $logger,
-        QuoteManagement $quoteManagement,
-        CustomerSession $customerSession,
-        DataObjectFactory $objectFactory,
-        Registry $registry,
+        JsonFactory              $resultJsonFactory,
+        RequestInterface         $request,
+        Log                      $logging,
+        QuoteManagement          $quoteManagement,
+        CustomerSession          $customerSession,
+        DataObjectFactory        $objectFactory,
+        Registry                 $registry,
         OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        CheckoutSession $checkoutSession,
-        ConfigProviderFactory $configProviderFactory,
-        TotalsCollector $totalsCollector,
-        ShippingMethodConverter $converter
+        SearchCriteriaBuilder    $searchCriteriaBuilder,
+        CheckoutSession          $checkoutSession,
+        ConfigProviderFactory    $configProviderFactory,
+        QuoteAddressService      $quoteAddressService
     ) {
         parent::__construct(
-            $context,
-            $logger,
-            $totalsCollector,
-            $converter,
-            $customerSession
+            $resultJsonFactory,
+            $request,
+            $logging
         );
 
         $this->quoteManagement = $quoteManagement;
@@ -124,10 +132,12 @@ class SaveOrder extends Common
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->checkoutSession = $checkoutSession;
+        $this->quoteAddressService = $quoteAddressService;
         $this->accountConfig = $configProviderFactory->get('account');
     }
 
     //phpcs:ignore:Generic.Metrics.NestingLevel
+
     /**
      * Save Order
      *
@@ -138,49 +148,34 @@ class SaveOrder extends Common
      */
     public function execute()
     {
-        $isPost = $this->getRequest()->getPostValue();
+        $isPost = $this->getParams();
         $errorMessage = false;
         $data = [];
 
-        if (
-            $isPost
-            && ($payment = $this->getRequest()->getParam('payment'))
-            && ($extra = $this->getRequest()->getParam('extra'))
+        if ($isPost
+            && ($payment = $isPost['payment'])
+            && ($extra = $isPost['extra'])
         ) {
-            $this->logger->addDebug(__METHOD__ . '|1|');
-            $this->logger->addDebug(var_export($payment, true));
-            $this->logger->addDebug(var_export($extra, true));
+            $this->logging->addDebug(__METHOD__ . '|1|');
+            $this->logging->addDebug(var_export($payment, true));
+            $this->logging->addDebug(var_export($extra, true));
 
+            // Get Cart
             $quote = $this->checkoutSession->getQuote();
 
-            if (!$this->setShippingAddress($quote, $payment['shippingContact'])) {
+            // Set Address
+            if (!$this->quoteAddressService->setShippingAddress($quote, $payment['shippingContact'])) {
                 return $this->commonResponse(false, true);
             }
-            if (!$this->setBillingAddress($quote, $payment['billingContact'])) {
+            if (!$this->quoteAddressService->setBillingAddress($quote, $payment['billingContact'])) {
                 return $this->commonResponse(false, true);
             }
 
+            // Place Order
             $this->submitQuote($quote, $extra);
 
-            if ($this->registry && $this->registry->registry('buckaroo_response')) {
-                $data = $this->registry->registry('buckaroo_response')[0];
-                $this->logger->addDebug(__METHOD__ . '|4|' . var_export($data, true));
-                if (!empty($data->RequiredAction->RedirectURL)) {
-                    //test mode
-                    $this->logger->addDebug(__METHOD__ . '|5|');
-                    $data = [
-                        'RequiredAction' => $data->RequiredAction
-                    ];
-                } else {
-                    //live mode
-                    $this->logger->addDebug(__METHOD__ . '|6|');
-                    if (isset($data['Status']['Code']['Code']) && $data['Status']['Code']['Code'] == '190'
-                        && isset($data['Order'])
-                    ) {
-                        $this->processBuckarooResponse($data);
-                    }
-                }
-            }
+            // Handle the response
+            $data = $this->handleResponse();
         }
 
         return $this->commonResponse($data, $errorMessage);
@@ -196,7 +191,7 @@ class SaveOrder extends Common
      */
     private function submitQuote($quote, $extra)
     {
-        $this->logger->addDebug(__METHOD__ . '|2|');
+        $this->logging->addDebug(__METHOD__ . '|2|');
 
         try {
             if (!($this->customerSession->getCustomer() && $this->customerSession->getCustomer()->getId())) {
@@ -216,9 +211,38 @@ class SaveOrder extends Common
 
             $this->quoteManagement->submit($quote);
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . '|exception|' . var_export($th->getMessage()));
+            $this->logging->addDebug(__METHOD__ . '|exception|' . var_export($th->getMessage(), true));
+        }
+    }
+
+    /**
+     * Handle the response after placing order
+     *
+     * @return array
+     */
+    private function handleResponse()
+    {
+        if ($this->registry && $this->registry->registry('buckaroo_response')) {
+            $data = $this->registry->registry('buckaroo_response')[0];
+            $this->logging->addDebug(__METHOD__ . '|4|' . var_export($data, true));
+            if (!empty($data->RequiredAction->RedirectURL)) {
+                //test mode
+                $this->logging->addDebug(__METHOD__ . '|5|');
+                $data = [
+                    'RequiredAction' => $data->RequiredAction
+                ];
+            } else {
+                //live mode
+                $this->logging->addDebug(__METHOD__ . '|6|');
+                if (isset($data['Status']['Code']['Code']) && $data['Status']['Code']['Code'] == '190'
+                    && isset($data['Order'])
+                ) {
+                    $this->processBuckarooResponse($data);
+                }
+            }
         }
 
+        return $data;
     }
 
     /**
@@ -243,7 +267,7 @@ class SaveOrder extends Common
 
             $store = $order->getStore();
             $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
-            $this->logger->addDebug(__METHOD__ . '|7|' . var_export($url, true));
+            $this->logging->addDebug(__METHOD__ . '|7|' . var_export($url, true));
             $data = [
                 'RequiredAction' => [
                     'RedirectURL' => $url

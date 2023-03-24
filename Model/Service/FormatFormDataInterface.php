@@ -19,23 +19,26 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Api;
+namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
+use Magento\Framework\DataObject;
 
-interface PaypalExpressQuoteCreateInterface
+interface FormatFormDataInterface
 {
     /**
-     * Get order breakdown after shipping is applied
+     * Get Product Object By Request
      *
-     * @param \Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface $shippingAddress
-     * @param string $page
-     * @param \Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface[]|null $orderData
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface
+     * @param array $productData
+     * @return DataObject
      */
-    public function execute(
-        ShippingAddressRequestInterface $shippingAddress,
-        string $page,
-        $orderData = null
-    );
+    public function getProductObject(array $productData): DataObject;
+
+    /**
+     * Get Shipping Address Object By Request
+     *
+     * @param array $addressData
+     * @return ShippingAddressRequestInterface
+     */
+    public function getShippingAddressObject(array $addressData): ShippingAddressRequestInterface;
 }

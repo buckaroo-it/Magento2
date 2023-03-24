@@ -156,8 +156,8 @@ define([
      */
     setShipping(data) {
       return $.post(urlBuilder.build("rest/default/V1/buckaroo/paypal-express/quote/create"), {
-        shipping_address: data.shipping_address,
-        order_data: this.getOrderData(),
+        shippingAddress: data.shipping_address,
+        orderData: this.getOrderData(),
         page: this.page,
       });
     },

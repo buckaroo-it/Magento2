@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE.
  *
@@ -21,60 +20,53 @@
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Buckaroo\Magento2\Service\Applepay\Add as AddService;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Action\HttpPostActionInterface;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Buckaroo\Magento2\Service\Applepay\Add as AddService;
 
-class Add implements HttpPostActionInterface
+class Add extends AbstractApplepay
 {
     /**
-     * @var JsonFactory
-     */
-    protected $resultJsonFactory;
-
-    /**
-     * @var Context
-     */
-    protected $context;
-
-    /**
-     * @var null|AddService
+     * @var AddService
      */
     protected $addService;
 
+    /**
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log $logging
+     * @param AddService $addService
+     */
     public function __construct(
         JsonFactory $resultJsonFactory,
-        Context $context,
-        AddService $addService = null
+        RequestInterface $request,
+        Log $logging,
+        AddService $addService
     ) {
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->context = $context;
+        parent::__construct(
+            $resultJsonFactory,
+            $request,
+            $logging
+        );
         $this->addService = $addService;
     }
 
     /**
-     * Add Applepay.
-     *
-     * @throws NoSuchEntityException
+     * Add Applepay
      *
      * @return Json
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
-        $data = $this->addService->process($this->context->getRequest());
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->getParams(), true));
+        $data = $this->addService->process($this->getParams());
+        $errorMessage = $data['error'] ?? false;
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($data, true));
 
-        $errorMessage = $data['error'] ?? null;
-        if ($errorMessage || empty($data)) {
-            $response = ['success' => 'false', 'error' => $errorMessage];
-        } else {
-            $response = ['success' => 'true', 'data' => $data];
-        }
-
-        $resultJson = $this->resultJsonFactory->create();
-
-        return $resultJson->setData($response);
+        return $this->commonResponse($data, $errorMessage);
     }
 }

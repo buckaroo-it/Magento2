@@ -19,16 +19,16 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\PaypalExpress;
+namespace Buckaroo\Magento2\Model\Service;
 
 use Magento\Customer\Model\Group;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\DataObjectFactory;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
-use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface;
-use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 
 class QuoteBuilder implements QuoteBuilderInterface
 {
@@ -57,12 +57,17 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected $formData;
 
-
     /**
-     * @var \Magento\Quote\Model\Quote
+     * @var Quote
      */
     protected $quote;
 
+    /**
+     * @param QuoteFactory $quoteFactory
+     * @param ProductRepositoryInterface $productRepository
+     * @param DataObjectFactory $dataObjectFactory
+     * @param CustomerSession $customer
+     */
     public function __construct(
         QuoteFactory $quoteFactory,
         ProductRepositoryInterface $productRepository,
@@ -75,16 +80,18 @@ class QuoteBuilder implements QuoteBuilderInterface
         $this->customer = $customer;
     }
 
-    public function setFormData(array $formData)
+    /**
+     * @inheritDoc
+     */
+    public function setFormData(array $formData): void
     {
         $this->formData = $this->formatFormData($formData);
     }
+
     /**
-     * Build quote from form data and session without persisting it
-     *
-     * @return \Magento\Quote\Model\Quote
+     * @inheritDoc
      */
-    public function build()
+    public function build(): Quote
     {
         $this->quote = $this->quoteFactory->create();
         $this->addProduct();
@@ -105,22 +112,24 @@ class QuoteBuilder implements QuoteBuilderInterface
             );
             $this->quote->setCheckoutMethod(Onepage::METHOD_REGISTER);
         } else {
-            $this->quote->setCustomerId(null)
+            $this->quote->setCustomerId(0)
                 ->setCustomerIsGuest(true)
                 ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
         }
     }
+
     /**
      * Add product to quote
      *
      * @return void
-     * @throws \Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException
+     * @throws AddProductException
+     * @throws LocalizedException
      */
     protected function addProduct()
     {
         $productId = $this->formData->getData('product');
         if ($productId === null) {
-            throw new PaypalExpressException("A product is required", 1);
+            throw new AddProductException("Product ID is required.", 1);
         }
         $product = $this->productRepository->getById($productId);
         $this->quote->addProduct($product, $this->formData);
@@ -128,15 +137,15 @@ class QuoteBuilder implements QuoteBuilderInterface
     /**
      * Format form data
      *
-     * @param array $form_data
+     * @param array $formData
      *
      * @return \Magento\Framework\DataObject
      */
-    protected function formatFormData(array $form_data)
+    protected function formatFormData(array $formData)
     {
         $data = [];
 
-        foreach ($form_data as $orderKeyValue) {
+        foreach ($formData as $orderKeyValue) {
             $data[$orderKeyValue->getName()] = $orderKeyValue->getValue();
         }
         $dataObject = $this->dataObjectFactory->create();

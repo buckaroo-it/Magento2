@@ -19,23 +19,8 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\PaypalExpress;
+namespace Buckaroo\Magento2\Model\Service;
 
-interface QuoteBuilderInterface
+class ExpressMethodsException extends \Exception
 {
-    /**
-     * Set form data
-     *
-     * @param array $formData
-     *
-     * @return void
-     */
-    public function setFormData(array $formData);
-
-    /**
-     * Build quote from form data and session
-     *
-     * @return \Magento\Quote\Model\Quote
-     */
-    public function build();
 }

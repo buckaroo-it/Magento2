@@ -52,9 +52,10 @@
     <preference for="Buckaroo\Magento2\Api\GiftcardTransactionInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactions"/>
     <!-- end gifcard rest api -->
 
-    <!-- paypal-express -->
-    <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />
+    <!-- express payment methods: applepay and paypal-express -->
+    <preference for="Buckaroo\Magento2\Model\Service\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Service\QuoteBuilder" />
 
+    <!-- paypal-express -->
     <preference for="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteCreate" />
 
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\QuoteCreate" />
@@ -62,7 +63,8 @@
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem" />
 
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\OrderDataItem" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\ShippingAddress" />
+    <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Service\ShippingAddressRequest" />
+
 
     <preference for="Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\OrderCreate" />
 
@@ -516,7 +518,7 @@
 
     <type name="Buckaroo\Magento2\Gateway\Response\RestoreQuoteHandler">
         <arguments>
-            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+            <argument name="cartRepository" xsi:type="object">Magento\Quote\Model\QuoteRepository\Proxy</argument>
         </arguments>
     </type>
 

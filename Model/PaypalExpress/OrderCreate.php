@@ -135,7 +135,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      *
      * @return string
      */
-    protected function createOrder(
+    protected function  createOrder(
         string $paypalOrderId,
         string $cartId
     ) {

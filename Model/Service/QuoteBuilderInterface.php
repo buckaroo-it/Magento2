@@ -19,23 +19,25 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Api;
+namespace Buckaroo\Magento2\Model\Service;
 
-use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
+use Magento\Quote\Model\Quote;
 
-interface PaypalExpressQuoteCreateInterface
+interface QuoteBuilderInterface
 {
     /**
-     * Get order breakdown after shipping is applied
+     * Set form data
      *
-     * @param \Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface $shippingAddress
-     * @param string $page
-     * @param \Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface[]|null $orderData
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface
+     * @param array $formData
+     *
+     * @return void
      */
-    public function execute(
-        ShippingAddressRequestInterface $shippingAddress,
-        string $page,
-        $orderData = null
-    );
+    public function setFormData(array $formData): void;
+
+    /**
+     * Build quote from form data and session
+     *
+     * @return Quote
+     */
+    public function build(): Quote;
 }

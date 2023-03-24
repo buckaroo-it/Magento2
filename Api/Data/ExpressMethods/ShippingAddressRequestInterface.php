@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
+namespace Buckaroo\Magento2\Api\Data\ExpressMethods;
 
 interface ShippingAddressRequestInterface
 {
@@ -35,20 +35,20 @@ interface ShippingAddressRequestInterface
     /**
      * Set country code
      *
-     * @param string $country_code
+     * @param string $countryCode
      *
      * @return void
      */
-    public function setCountryCode(string $country_code);
+    public function setCountryCode(string $countryCode);
 
     /**
      * Set postal code
      *
-     * @param string $postal_code
+     * @param string $postalCode
      *
      * @return void
      */
-    public function setPostalCode(string $postal_code);
+    public function setPostalCode(string $postalCode);
 
     /**
      * Set state
