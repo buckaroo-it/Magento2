@@ -56,11 +56,19 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
     private $customerSession;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param Log                                                 $logger
-     * @param \Magento\Sales\Model\Order                          $order
-     *
+     * @param \Magento\Framework\App\Action\Context $context
+     * @param Log $logger
+     * @param \Magento\Sales\Model\Order $order
+     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param \Magento\Framework\Data\Form\FormKey $formKey
+     * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param \Magento\Customer\Model\Session $customerSession
      * @throws \Buckaroo\Magento2\Exception
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,

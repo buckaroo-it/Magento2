@@ -26,7 +26,8 @@ class SaveOrderBeforeDataBuilder implements BuilderInterface
      * Save Order Before Request
      *
      * @param array $buildSubject
-     * @return array|void
+     * @return array
+     * @throws \Exception
      */
     public function build(array $buildSubject)
     {
