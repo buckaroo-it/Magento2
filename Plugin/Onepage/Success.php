@@ -37,9 +37,14 @@ class Success
      */
     protected $resultRedirectFactory;
 
+    /**
+     * @var Log
+     */
     protected $logger;
+
     /**
      * @param Context $context
+     * @param Log $logger
      */
     public function __construct(
         Context $context,
@@ -49,11 +54,10 @@ class Success
         $this->logger = $logger;
     }
     
-    /** 
-     * If the user visits the payment complete page when doing a payment
-     * or when the order is canceled redirect to cart
+    /**
+     * If the user visits the payment complete page when doing a payment or when the order is canceled redirect to cart
      */
-    public function aroundExecute(\Magento\Checkout\Controller\Onepage\Success $checkoutSuccess, callable $proceed) 
+    public function aroundExecute(\Magento\Checkout\Controller\Onepage\Success $checkoutSuccess, callable $proceed)
     {
 
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
@@ -67,11 +71,12 @@ class Success
             ], true)
         );
 
-        if(
-            $this->isBuckarooPayment($payment) &&
+        if ($this->isBuckarooPayment($payment) &&
             (
-                ($order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING &&  $this->paymentInTransit($payment)) ||
-                $order->getStatus() === Order::STATE_CANCELED
+                ($order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING
+                    && $this->paymentInTransit($payment)
+                )
+                || $order->getStatus() === Order::STATE_CANCELED
             )
         ) {
             return $this->resultRedirectFactory->create()->setPath('checkout/cart');
@@ -89,10 +94,11 @@ class Success
     public function isBuckarooPayment($payment)
     {
         if (!$payment instanceof OrderPaymentInterface) {
-           return false;
+            return false;
         }
         return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
     }
+
     /**
      * Check if user is on the payment provider page
      *
@@ -102,10 +108,10 @@ class Success
      */
     protected function paymentInTransit(OrderPaymentInterface $payment = null)
     {
-        if($payment === null) {
+        if ($payment === null) {
             return false;
         }
 
-        return $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
+        return $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
     }
 }
