@@ -25,6 +25,8 @@ class Tinka extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_tinka';
 
+    public const XPATH_ACTIVE_SERVICE = 'payment/buckaroo_magento2_tinka/activeservice';
+
     /**
      * @var array
      */

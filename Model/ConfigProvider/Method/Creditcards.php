@@ -79,8 +79,7 @@ class Creditcards extends AbstractConfigProvider
                     'creditcards' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'creditcards' => $issuers,
-                        'defaultCardImage' => $this->getImageUrl('buckaroo_magento2_creditcard_title'),
-                        'useCardDesign' => $this->useCardDesign(),
+                        'defaultCardImage' => $this->getImageUrl('svg/creditcards', 'svg'),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -93,24 +92,19 @@ class Creditcards extends AbstractConfigProvider
      *
      * @return array
      */
-    public function formatIssuers(): array
+    public function formatIssuers()
     {
         $issuers = parent::formatIssuers();
         $allowed = explode(',', (string)$this->getAllowedIssuers());
 
+        $issuers = $this->issuers;
+
         foreach ($issuers as $key => $issuer) {
             $issuers[$key]['active'] = in_array($issuer['code'], $allowed);
+            $issuers[$key]['img'] = $this->getCreditcardLogo($issuer['code']);
         }
 
         return $issuers;
-    }
-
-    /**
-     * @return bool
-     */
-    private function useCardDesign()
-    {
-        return $this->scopeConfig->getValue(static::XPATH_USE_CARD_DESIGN, ScopeInterface::SCOPE_STORE);
     }
 
     /**

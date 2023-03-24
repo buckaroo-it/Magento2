@@ -304,7 +304,6 @@ define(
                         }
 
                         $('.buckaroo_magento2_' + self.currentGiftcard + ' input[name="payment[method]"]').click();
-
                     });
 
                 },

@@ -97,10 +97,15 @@ class Giftcards extends AbstractConfigProvider
         );
 
         foreach (explode(',', (string)$availableCards) as $value) {
+            $logo = $this->getLogo($value);
+            if(isset($allGiftCards[$value]['logo'])) {
+                $logo = $url . $allGiftCards[$value]['logo'];
+            }
+
             $cards[] = [
                 'code'  => $value,
                 'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',
-                'logo'  => isset($allGiftCards[$value]['logo']) ? $url . $allGiftCards[$value]['logo'] : false,
+                'logo'  => $logo,
                 'sort'  => isset($allGiftCards[$value]['sort']) ? $allGiftCards[$value]['sort'] : '99',
             ];
         }
@@ -157,5 +162,28 @@ class Giftcards extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    protected function getLogo(string $code): string
+    {
+        $mappings = [
+            "ajaxgiftcard" => "ajaxgiftcard",
+            "boekenbon" => "boekenbon",
+            "cjpbetalen" => "cjp",
+            "digitalebioscoopbon" => "nationaletuinbon",
+            "fashioncheque" => "fashioncheque",
+            "fashionucadeaukaart" => "fashiongiftcard",
+            "nationaletuinbon" => "nationalebioscoopbon",
+            "nationaleentertainmentcard" => "nationaleentertainmentcard",
+            "podiumcadeaukaart" => "podiumcadeaukaart",
+            "sportfitcadeau" => "sport-fitcadeau",
+            "vvvgiftcard" => "vvvgiftcard"
+        ];
+
+        if(isset($mappings[$code])) {
+            return  $this->getImageUrl("giftcards/{$mappings[$code]}", "svg");
+        }
+
+        return $this->getImageUrl("svg/giftcards","svg");
     }
 }

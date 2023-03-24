@@ -132,7 +132,6 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                 }
             }
 
-
             $this->helper->addDebug(__METHOD__ . '|50|');
             $this->helper->setRestoreQuoteLastOrder(false);
         }

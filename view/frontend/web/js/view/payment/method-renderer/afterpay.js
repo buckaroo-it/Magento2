@@ -93,6 +93,24 @@ define(
             $.mage.__('Enter Valid IBAN')
         );
 
+        $.validator.addMethod('validateAge', function (value) {
+            if (value && (value.length > 0)) {
+                var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+                if (value.match(dateReg)) {
+                    var birthday = +new Date(
+                        value.substr(6, 4),
+                        value.substr(3, 2) - 1,
+                        value.substr(0, 2),
+                        0, 0, 0
+                    );
+                    return ~~((Date.now() - birthday) / (31557600000)) >= 18;
+                }
+            }
+            return false;
+        },
+        $.mage.__('You should be at least 18 years old.')
+        );
+
         return Component.extend(
             {
                 defaults                : {
@@ -282,20 +300,8 @@ define(
                      */
 
                     var runValidation = function () {
-
-                        let self = this;
                         $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
                         this.selectPaymentMethod();
-
-                        if (this.calculateAge(this.dateValidate()) >= 18) {
-                            $('#' + this.getCode() + '_DoB-error').hide();
-                            $('#' + this.getCode() + '_DoB').removeClass('mage-error');
-                        } else {
-                            setTimeout(function () {
-                                $('#' + self.getCode() + '_DoB-error').show();
-                                $('#' + self.getCode() + '_DoB').addClass('mage-error');
-                            },200);
-                        }
                     };
 
                     this.telephoneNumber.subscribe(runValidation,this);
@@ -339,24 +345,6 @@ define(
                         this.validate()
                         );
                     };
-
-                    this.calculateAge = function (specifiedDate) {
-                        if (specifiedDate && (specifiedDate.length > 0)) {
-                            var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/ ;
-                            if (specifiedDate.match(dateReg)) {
-                                var birthday = +new Date(
-                                    specifiedDate.substr(6, 4),
-                                    specifiedDate.substr(3, 2) - 1,
-                                    specifiedDate.substr(0, 2),
-                                    0,
-                                    0,
-                                    0
-                                );
-                                return ~~((Date.now() - birthday) / (31557600000));
-                            }
-                        }
-                        return false;
-                    }
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
@@ -371,9 +359,6 @@ define(
                             this.CompanyName();
                             this.dummy();
 
-                            if ((this.calculateAge(this.dateValidate()) < 18)) {
-                                return false;
-                            }
                             /**
                              * Run If Else function to select the right fields to validate.
                              * Other fields will be ignored.
@@ -497,4 +482,3 @@ define(
         );
     }
 );
-

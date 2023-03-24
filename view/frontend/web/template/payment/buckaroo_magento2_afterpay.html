@@ -1,10 +1,19 @@
 <div class="buckaroo_magento2_afterpay payment-method" data-bind="click: magentoTerms(), css: {'_active': (getCode() == isChecked())}">
-    <div class="payment-method-title field choice">
-        <input type="radio"
-               name="payment[method]"
-               class="radio"
-               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()">
-        <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': getCode()}"><span data-bind="text: getTitle()"></span></label>
+    <div class="payment-method-title field choice bk-payment">
+        <div class="bk-payment-wrap">
+            <div class="bk-radio-wrap">
+                <input type="radio"
+                       name="payment[method]"
+                       class="radio"
+                       data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+                <label class="label" data-bind="attr: {'for': getCode()}" >
+                    <!-- ko text: getTitle() --><!-- /ko -->
+                </label>
+            </div>
+            <div class="bk-img-wrap">
+                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/afterpay.svg') }" />
+            </div>
+        </div>
     </div>
 
     <div class="payment-method-content">
@@ -56,7 +65,7 @@
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_afterpay_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <span><sup data-bind="i18n: '(DD/MM/YYYY)' "></sup></span>
-                        <div class="control">
+                        <div class="control addon">
                             <input id="buckaroo_magento2_afterpay_DoB"
                                    class="field"
                                    type="text"
@@ -72,10 +81,8 @@
                                    },
                                    valueUpdate: 'change',
                                    value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
-                                   name="payment[buckaroo_magento2_afterpay][customer_DoB]"
-                                   aria-required="true" aria-invalid="true" aria-describedby="buckaroo_magento2_afterpay_DoB-error">
-                            <div for="buckaroo_magento2_afterpay_DoB" class="mage-error" id="buckaroo_magento2_afterpay_DoB-error" style="display: none;"><span data-bind="i18n: 'You should be at least 18 years old.' "></span></div>
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true })}"
+                                   name="payment[buckaroo_magento2_afterpay][customer_DoB]">
                         </div>
                     </div>
                     <!-- /ko -->

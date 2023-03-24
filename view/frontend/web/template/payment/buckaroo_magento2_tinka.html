@@ -1,10 +1,19 @@
-<div class="buckaroo_magento2_tinka payment-method" data-bind="click: magentoTerms(), css: {'_active': (getCode() == isChecked())}">
-    <div class="payment-method-title field choice">
-        <input type="radio"
-               name="payment[method]"
-               class="radio"
-               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()">
-        <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': getCode()}"><span data-bind="text: getTitle()"></span></label>
+<div class="buckaroo_magento2_tinka payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice bk-payment">
+        <div class="bk-payment-wrap">
+            <div class="bk-radio-wrap">
+                <input type="radio"
+                       name="payment[method]"
+                       class="radio"
+                       data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+                <label class="label" data-bind="attr: {'for': getCode()}" >
+                    <!-- ko text: getTitle() --><!-- /ko -->
+                </label>
+            </div>
+            <div class="bk-img-wrap">
+                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }" />
+            </div>
+        </div>
     </div>
 
     <div class="payment-method-content">
@@ -19,44 +28,40 @@
             <form data-bind="mageInit: { 'validation': [] },
                 attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
-
-                    <!-- ko if: showIdentification -->
-                    <div class="field required">
-                        <legend class="label"> <span data-bind="i18n: 'Identification number:'"> </span> </legend>
-                        <div class="control">
-                            <input id="buckaroo_magento2_tinka_Identificationnumber"
-                                   class="input-text field"
-                                   type="text"
-                                   name="payment[buckaroo_magento2_tinka][buckaroo_identification_number]"
-                                   data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                   checked: identificationValidate
-                                   valueUpdate: 'blur',
-                                   value: identificationValidate
-                                   ">
-                        </div>
-                    </div>
-                    <!-- /ko -->
-
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_tinka_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_tinka_BillingName"
                                    class="input-text field"
                                    type="text"
-                                   data-bind="
-                                   value: BillingName,
-                                   textInput: CustomerName()"
+                                   data-bind="value: billingName"
                                    name="payment[buckaroo_magento2_tinka][customer_billingName]"
                                    disabled >
                         </div>
                     </div>
 
+                    <!-- ko if: showPhone -->
+                    <div class="field required" >
+                        <label class="label" for="buckaroo_magento2_tinka_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
+                        <div class="control">
+                            <input id="buckaroo_magento2_tinka_Telephone"
+                                   type="text"
+                                   class="input-text field"
+                                   data-bind="
+                                   valueUpdate: 'blur',
+                                   value: phone,
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true })},
+                                   event: { blur: validateField }"
+                                   name="payment[buckaroo_magento2_tinka][customer_telephone]">
+                        </div>
+                    </div>
+                    <!-- /ko -->
+                    
                     <!-- ko if: showNLBEFields -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_tinka_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <span><sup data-bind="i18n: '(DD/MM/YYYY)' "></sup></span>
-                        <div class="control">
+                        <div class="control addon">
                             <input id="buckaroo_magento2_tinka_DoB"
                                    class="field"
                                    type="text"
@@ -70,11 +75,11 @@
                                             dateFormat: 'dd/mm/yy'
                                         }
                                    },
-                                   valueUpdate: 'change',
+                                   valueUpdate: 'blur',
                                    value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true })},
+                                   event: { blur: validateDob }"
                                    name="payment[buckaroo_magento2_tinka][customer_DoB]">
-                            <div for="buckaroo_magento2_tinka_DoB" generated="true" class="mage-error" id="buckaroo_magento2_tinka_DoB-error" style="display: none;"><span data-bind="i18n: 'You should be at least 18 years old.' "></span></div>
                         </div>
                     </div>
                     <!-- /ko -->

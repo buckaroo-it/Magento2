@@ -43,8 +43,8 @@ class Klarnain extends AbstractConfigProvider
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'paymentFee'        => $this->getPaymentFee(),
                         'genderList' => [
-                            ['genderType' => 'male', 'genderTitle' => 'He/him'],
-                            ['genderType' => 'female', 'genderTitle' => 'She/her']
+                            ['genderType' => 'male', 'genderTitle' => __('He/him')],
+                            ['genderType' => 'female', 'genderTitle' => __('She/her')]
                         ]
                     ],
                     'response' => [],

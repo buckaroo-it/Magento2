@@ -1,10 +1,19 @@
 <div class="buckaroo_magento2_creditcards payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
-    <div class="payment-method-title field choice">
-        <input type="radio"
-               name="payment[method]"
-               class="radio"
-               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()">
-        <label class="buckaroo_magento2_image_title label" data-bind="attr: {'for': getCode()}" ><span data-bind="text: getTitle()"></span></label>
+    <div class="payment-method-title field choice bk-payment">
+        <div class="bk-payment-wrap">
+            <div class="bk-radio-wrap">
+                <input type="radio"
+                       name="payment[method]"
+                       class="radio"
+                       data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+                <label class="label" data-bind="attr: {'for': getCode()}" >
+                    <!-- ko text: getTitle() --><!-- /ko -->
+                </label>
+            </div>
+            <div class="bk-img-wrap">
+                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }" />
+            </div>
+        </div>
     </div>
 
     <div class="payment-method-content">
@@ -17,34 +26,14 @@
         <div class="payment-method-second-col billing-address-form">
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
-                <fieldset class="fieldset payment card styled">
-                          <!--data-bind="css: CardDesign ? 'styled' : 'blank'">-->
-
-                    <div class="fieldset card_front width-100">
-
-                        <div class="card_kind">
-                            <img class="issuer-img" data-bind="attr: {
-                                     'src': issuerImage(),
-                                     'width': 70,
-                                     'height': 35 }"
-                            />
-                        </div>
-
-                        <select id="buckaroo_magento2_creditcards_issuer" class="field" style="display: none;"
-                                data-bind="value: CardIssuer,
-                                event: { change: validateIssuer },
-                                attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
-                                name="payment[buckaroo_magento2_creditcards][issuer]">
-                            <option data-bind="i18n: 'Select a card', 'value': ''"></option>
-                            <!-- ko foreach: creditcards -->
-                                <!-- ko if: active -->
-                                    <option data-bind="i18n: name, 'value': code"></option>
-                                <!--/ko-->
-                            <!--/ko-->
-                        </select>
-
-                        <div class="field required width-100" >
-                            <label class="label" for="buckaroo_magento2_creditcards_cardholdername"> <span data-bind="i18n: 'Cardholder:'"> </span> </label>
+                <fieldset class="fieldset bk-creditcards">
+                    <input id="buckaroo_magento2_creditcards_issuer"
+                    type="hidden"
+                    name="payment[buckaroo_magento2_creditcards][issuer]"
+                    data-bind="value: cardIssuer">
+                    <div class="fieldset">
+                        <div class="field required">
+                            <label class="label" for="buckaroo_magento2_creditcards_cardholdername"> <span data-bind="i18n: 'Name on card:'"> </span> </label>
                             <div class="control">
                                 <input id="buckaroo_magento2_creditcards_cardholdername"
                                        type="text"
@@ -52,91 +41,92 @@
                                        name="payment[buckaroo_magento2_creditcards][cardholdername]"
                                        data-bind="
                             valueUpdate: 'blur',
-                            value: CardHolderName,
-                            textInput: CardHolderName(),
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardHolderName': true }) },
-                            event: { blur: encryptCardDetails }">
+                            value: cardHolderName,
+                            attr: {
+                                'data-validate': JSON.stringify({ 'required': true, 'validateCardHolderName': true }),
+                                'placeholder': 'John Doe'
+                             },
+                            event: { blur: validateField }">
                             </div>
                         </div>
 
-                        <div class="field required width-100" >
-                            <label class="label" for="buckaroo_magento2_creditcards_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
-                            <div class="control">
-                                <input id="buckaroo_magento2_creditcards_cardnumber"
-                                       type="text"
-                                       class="input-text field"
-                                       name="payment[buckaroo_magento2_creditcards][cardnumber]"
-                                       data-bind="
-                            valueUpdate: 'blur',
-                            value: CardNumber,
-                            textInput: CardNumber(),
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }) },
-                            event: { blur: encryptCardDetails, change: processCard }">
-                            </div>
+                        <div class="field required bk-card-number">
+                            <label class="label" for="buckaroo_magento2_creditcards_cardnumber">
+                                <span data-bind="i18n: 'Card number:'"> </span>
+                            </label>
+                                <div class="bk-card-number-input-wrap">
+                                    <div class="control">
+                                        <input id="buckaroo_magento2_creditcards_cardnumber"
+                                               type="text"
+                                               class="input-text field"
+                                               name="payment[buckaroo_magento2_creditcards][cardnumber]"
+                                               data-bind="
+                                    valueUpdate: 'input',
+                                    value: formatedCardNumber,
+                                    attr: {
+                                        'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }),
+                                        'maxlength': 23,
+                                        'placeholder': '0000 0000 0000 0000'
+                                    },
+                                    event: { blur: validateCardNumber }">
+                                    </div>
+                                    <div class="bk-card-image">
+                                        <img class="issuer-img" data-bind="attr: {
+                                                 'src': issuerImage,
+                                                 'width': 30,
+                                                 'height': 32 }"
+                                        />
+                                    </div>
+                                </div>
                         </div>
-
-                        <div class="field required width-50-l" >
-                            <label class="label" for="buckaroo_magento2_creditcards_expirationmonth"><span data-bind="i18n: 'Month:'"></span></label>
-                            <div class="control">
-                                <select id="buckaroo_magento2_creditcards_expirationmonth" class="field"
-                                        data-bind="value: ExpirationMonth,
-                                        attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
-                                        event: { change: validateMonth }"
-                                        name="payment[buckaroo_magento2_creditcards][expirationmonth]">
-                                    <!-- ko foreach: months -->
-                                    <option data-bind="i18n: label, 'value': value"></option>
-                                    <!--/ko-->
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="field required width-50-r" >
-                            <label class="label" for="buckaroo_magento2_creditcards_expirationyear"><span data-bind="i18n: 'Year:'"></span></label>
-                            <div class="control">
-                                <select id="buckaroo_magento2_creditcards_expirationyear" class="field"
-                                        data-bind="value: ExpirationYear,
-                                                   attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
-                                                   event: { change: validateYear },
-                                                   foreach: getYears()"
-                                        name="payment[buckaroo_magento2_creditcards][expirationyear]">
-                                    <option data-bind="i18n: label, 'value': value"></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="fieldset card_back width-100">
-
-                        <div class="magnet_stripe width-100"></div>
-
-                        <div class="field required card_security width-100" >
-                            <label class="label width-65-l" for="buckaroo_magento2_creditcards_cvc"> <span data-bind="i18n: 'Security Code:'"> </span> </label>
-                            <div class="control card-info-input width-25-l">
-                                <input id="buckaroo_magento2_creditcards_cvc"
-                                       type="text"
-                                       class="input-text field"
-                                       name="payment[buckaroo_magento2_creditcards][cvc]"
-                                       data-bind="
-                            valueUpdate: 'blur',
-                            value: Cvc,
-                            textInput: Cvc(),
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCvc': true }) },
-                            event: { blur: encryptCardDetails }">
-                            </div>
-                            <div class="card_info width-10">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="510" height="510" viewBox="0 0 510 510">
-                                    <path d="M229.5 382.5h51v-153h-51V382.5zM255 0C114.8 0 0 114.8 0 255s114.8 255 255 255 255-114.7 255-255S395.3 0 255 0zM255 459c-112.2 0-204-91.8-204-204S142.8 51 255 51s204 91.8 204 204S367.2 459 255 459zM229.5 178.5h51v-51h-51V178.5z"></path>
-                                </svg>
-                                <div class="popup">
-                                    <span data-bind="i18n: 'Or CVV or CVC.' "> </span>
-                                    <br/><br/>
-                                    <span data-bind="i18n: 'A 3 or 4 digit code located to the right of signature strip on the back of your card, separate from the card number.' "></span>
+                        <div class="bk-cvc-date-wrap field required ">
+                            <div class="field required bk-date">
+                                <label class="label" for="buckaroo_magento2_creditcards_expireDate">
+                                    <span data-bind="i18n: 'Expiration:'"></span>
+                                </label>
+                                <div class="control">
+                                    <input id="buckaroo_magento2_creditcards_expireDate"
+                                           type="text"
+                                           class="input-text field"
+                                           name="payment[buckaroo_magento2_creditcards][expireDate]"
+                                           data-bind="
+                                valueUpdate: 'input',
+                                value: formatedExpirationDate,
+                                attr: { 
+                                    'data-validate': JSON.stringify(
+                                        { 'required': true,  'bkValidateMonth': true, 'bkValidateYear': true }
+                                    ),
+                                    'maxlength': 5,
+                                    'placeholder': 'MM/YY'
+                                },
+                                event: { blur: validateField }">
                                 </div>
                             </div>
+                            <div class="field required bk-cvc">
+                                <label class="label" for="buckaroo_magento2_creditcards_cvc">
+                                    <span data-bind="i18n: 'CVC / CVV:'"></span>
+                                </label>
+                                <div class="control">
+                                    <input id="buckaroo_magento2_creditcards_cvc"
+                                           type="text"
+                                           class="input-text field"
+                                           name="payment[buckaroo_magento2_creditcards][cvc]"
+                                           data-bind="
+                                    valueUpdate: 'blur',
+                                    value: cvc,
+                                    attr: {
+                                        'data-validate': JSON.stringify({ 'required': true, 'validateCvc': true }),
+                                        'maxlength': 4,
+                                        'placeholder': '123'
+                                    },
+                                    event: { blur: validateField }">
+                                </div>
+                               
+                            </div>
                         </div>
-                    </div>
+                        </div>
 
-                    <div class="field width-100">
+                    <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>
                 </fieldset>

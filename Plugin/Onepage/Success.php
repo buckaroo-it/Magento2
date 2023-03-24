@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -22,6 +21,7 @@
 namespace Buckaroo\Magento2\Plugin\Onepage;
 
 use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Action\Context;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
@@ -37,26 +37,37 @@ class Success
      */
     protected $resultRedirectFactory;
 
+    protected $logger;
     /**
      * @param Context $context
      */
     public function __construct(
-        Context $context
+        Context $context,
+        Log $logger
     ) {
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
+        $this->logger = $logger;
     }
-
-    /**
+    
+    /** 
      * If the user visits the payment complete page when doing a payment
      * or when the order is canceled redirect to cart
      */
-    public function aroundExecute(\Magento\Checkout\Controller\Onepage\Success $checkoutSuccess, callable $proceed)
+    public function aroundExecute(\Magento\Checkout\Controller\Onepage\Success $checkoutSuccess, callable $proceed) 
     {
 
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
 
-        if (
+        $this->logger->addDebug(
+            var_export([
+                $order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING,
+                $this->paymentInTransit($payment),
+                $order->getStatus() === Order::STATE_CANCELED
+            ], true)
+        );
+
+        if(
             $this->isBuckarooPayment($payment) &&
             (
                 ($order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING &&  $this->paymentInTransit($payment)) ||
@@ -78,19 +89,23 @@ class Success
     public function isBuckarooPayment($payment)
     {
         if (!$payment instanceof OrderPaymentInterface) {
-            return false;
+           return false;
         }
         return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
     }
     /**
      * Check if user is on the payment provider page
      *
-     * @param OrderPaymentInterface $payment
+     * @param OrderPaymentInterface|null $payment
      *
      * @return boolean
      */
-    protected function paymentInTransit(OrderPaymentInterface $payment)
+    protected function paymentInTransit(OrderPaymentInterface $payment = null)
     {
-        return $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
+        if($payment === null) {
+            return false;
+        }
+
+        return $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
     }
 }

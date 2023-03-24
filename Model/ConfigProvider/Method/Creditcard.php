@@ -131,9 +131,9 @@ class Creditcard extends AbstractConfigProvider
             }
         }
 
-        $issuers = parent::formatIssuers();
-        foreach ($issuers as $item) {
+        foreach ($this->getIssuers() as $item) {
             $item['sort'] = $sortedArray[$item['name']] ?? self::DEFAULT_SORT_VALUE;
+            $item['img'] = $this->getCreditcardLogo($item['code']);
             $allCreditcard[$item['code']] = $item;
         }
 
