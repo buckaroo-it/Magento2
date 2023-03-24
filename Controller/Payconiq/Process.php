@@ -141,6 +141,20 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 
         $transaction = $this->getTransaction();
         $this->order = $transaction->getOrder();
+
+        if ($this->customerSession->getCustomerId() == $this->order->getCustomerId()) {
+            $this->logger->addError('Customer is different then the customer that start payconiq process request.');
+            $this->messageManager->addErrorMessage(
+                'Customer is different then the customer that start payconiq process request.'
+            );
+            return $this->handleProcessedResponse(
+                'checkout',
+                [
+                    '_fragment' => 'payment',
+                    '_query' => ['bk_e' => 1]
+                ]
+            );
+        }
         $this->quote->load($this->order->getQuoteId());
 
         // @codingStandardsIgnoreStart

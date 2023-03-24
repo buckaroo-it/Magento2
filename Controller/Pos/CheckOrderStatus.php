@@ -53,6 +53,8 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
     private $formKey;
     private $helper;
 
+    private $customerSession;
+
     /**
      * @param \Magento\Framework\App\Action\Context               $context
      * @param Log                                                 $logger
@@ -69,7 +71,8 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\Data\Form\FormKey $formKey,
-        \Buckaroo\Magento2\Helper\Data $helper
+        \Buckaroo\Magento2\Helper\Data $helper,
+        \Magento\Customer\Model\Session $customerSession
     ) {
         parent::__construct($context);
         $this->logger             = $logger;
@@ -80,6 +83,7 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
         $this->urlBuilder         = $urlBuilder;
         $this->formKey            = $formKey;
         $this->helper             = $helper;
+        $this->customerSession    = $customerSession;
     }
 
     /**
@@ -90,12 +94,12 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__.'|1|');
+        $this->logger->addDebug(__METHOD__ . '|1|');
         $response = ['success' => 'false', 'redirect' => ''];
 
         if (($params = $this->getRequest()->getParams()) && !empty($params['orderId'])) {
             $this->order->loadByIncrementId($params['orderId']);
-            if ($this->order->getId()) {
+            if ($this->customerSession->getCustomerId() === $this->order->getCustomerId() && $this->order->getId()) {
                 $store = $this->order->getStore();
                 $url = '';
 
