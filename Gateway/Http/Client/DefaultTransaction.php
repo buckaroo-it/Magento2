@@ -61,7 +61,7 @@ class DefaultTransaction implements ClientInterface
         LoggerInterface $logger,
         Logger $customLogger,
         BuckarooAdapter $adapter,
-        $action = TransactionType::PAY
+        string $action = TransactionType::PAY
     ) {
         $this->logger = $logger;
         $this->customLogger = $customLogger;
