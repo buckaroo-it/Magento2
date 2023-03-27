@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Predefined;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\UrlInterface;
@@ -133,6 +134,9 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     /** @var Factory */
     protected $configProviderMethodFactory;
 
+    /** @var Predefined */
+    protected $configProviderPredefined;
+
     /**
      * @var Log $logging
      */
@@ -164,6 +168,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         FormKey $formKey,
         Encryptor $encryptor,
         Factory $configProviderMethodFactory,
+        Predefined $configProviderPredefined,
         Log $logging,
         $amount = null,
         $currency = null
@@ -171,6 +176,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         $this->scopeConfig = $scopeConfig;
         $this->softwareData = $softwareData;
         $this->configProviderAccount = $configProviderAccount;
+        $this->configProviderPredefined = $configProviderPredefined;
         $this->transaction = $transaction;
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
@@ -486,6 +492,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      */
     public function getHeaders()
     {
+        $store = null;
         if ($this->getOrder() && ($store = $this->getOrder()->getStore())) {
             $localeCountry = $this->scopeConfig->getValue('general/locale/code', ScopeInterface::SCOPE_STORE, $store);
             $localeCountry = str_replace('_', '-', $localeCountry);
@@ -553,6 +560,13 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
                 'KeyInfo' => ' ',
             ],
             false
+        );
+
+        $headers[] = new \SoapHeader(
+            'http://schemas.microsoft.com/ws/2005/05/addressing/none',
+            'To',
+            $this->configProviderPredefined->getLocationLiveWeb($store),
+            true
         );
 
         return $headers;

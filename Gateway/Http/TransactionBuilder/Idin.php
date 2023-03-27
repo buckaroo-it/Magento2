@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Predefined;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Encryption\Encryptor;
@@ -80,6 +81,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
         FormKey $formKey,
         Encryptor $encryptor,
         Factory $configProviderMethodFactory,
+        Predefined $configProviderPredefined,
         Log $logging,
         StoreManagerInterface $storeManager,
         CustomerSession $customerSession
@@ -98,6 +100,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
             $formKey,
             $encryptor,
             $configProviderMethodFactory,
+            $configProviderPredefined,
             $logging
         );
     }
