@@ -46,10 +46,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     private \Buckaroo\Magento2\Helper\Data $helper;
 
-    /**
-     * @var QuoteRecreate
-     */
-    private $quoteRecreate;
+ 
 
     /**
      * @var \Magento\Quote\Api\CartRepositoryInterface
@@ -73,14 +70,12 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Magento\Checkout\Model\Session                 $checkoutSession,
         \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
         \Buckaroo\Magento2\Helper\Data                  $helper,
-        QuoteRecreate                                   $quoteRecreate,
         \Magento\Quote\Api\CartRepositoryInterface      $quoteRepository,
         \Buckaroo\Magento2\Model\Service\Order          $orderService
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->accountConfig = $accountConfig;
         $this->helper = $helper;
-        $this->quoteRecreate = $quoteRecreate;
         $this->quoteRepository = $quoteRepository;
         $this->orderService = $orderService;
     }
@@ -96,6 +91,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->helper->addDebug(__METHOD__ . '|1|');
 
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
+        $previousOrderId = $lastRealOrder->getId();
+
         if ($payment = $lastRealOrder->getPayment()) {
             if ($this->shouldSkipFurtherEventHandling()
                 || strpos($payment->getMethod(), 'buckaroo_magento2') === false
@@ -126,7 +123,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
-                    $this->cancelLastOrder($lastRealOrder);
+                    $this->setOrderToCancel($previousOrderId);
                 }
             }
 
@@ -143,12 +140,17 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * Cancel Last Order when the payment process has not been completed
+     * Set previous order id on the payment object for the next payment
      *
-     * @param \Magento\Sales\Model\Order $order
-     * @return bool
+     * @param int $previousOrderId
+     *
+     * @return void
      */
-    private function cancelLastOrder($order) {
-        return $this->orderService->cancel($order, $order->getStatus());
+    private function setOrderToCancel($previousOrderId)
+    {
+        $this->checkoutSession->getQuote()
+        ->getPayment()
+        ->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
+        $this->quoteRepository->save($this->checkoutSession->getQuote());
     }
 }
