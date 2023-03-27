@@ -565,11 +565,41 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         $headers[] = new \SoapHeader(
             'http://schemas.microsoft.com/ws/2005/05/addressing/none',
             'To',
-            $this->configProviderPredefined->getLocationLiveWeb($store),
+            $this->getLocationWsdl($store),
             true
         );
 
         return $headers;
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \Buckaroo\Magento2\Exception|\LogicException
+     */
+    private function getLocationWsdl()
+    {
+        $mode = $this->configProviderAccount->getActive();
+
+        switch ($mode) {
+            case \Buckaroo\Magento2\Helper\Data::MODE_TEST:
+                $wsdl = $this->configProviderPredefined->getLocationTestWeb();
+                break;
+            case \Buckaroo\Magento2\Helper\Data::MODE_LIVE:
+                $wsdl = $this->configProviderPredefined->getLocationLiveWeb();
+                break;
+            default:
+                throw new \Buckaroo\Magento2\Exception(
+                    __(
+                        "Invalid mode set: %1",
+                        [
+                            $mode
+                        ]
+                    )
+                );
+        }
+
+        return $wsdl;
     }
 
     protected function getIp($order)
