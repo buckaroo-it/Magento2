@@ -268,10 +268,9 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             );
         };
 
-        if (empty($configuredSpecificCountry)) 
-        {
+        if (empty($configuredSpecificCountry)) {
             return [];
-        }
+        };
 
         $configuredSpecificCountry = explode(',', $configuredSpecificCountry);
 
