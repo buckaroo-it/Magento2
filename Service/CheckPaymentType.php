@@ -46,5 +46,4 @@ class CheckPaymentType
 
         return $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT) == true;
     }
-
 }
