@@ -212,6 +212,10 @@
                     <item name="type" xsi:type="string">idin</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Idin</item>
                 </item>
+                 <item name="refund_partial" xsi:type="array">
+                    <item name="type" xsi:type="string">refund_partial</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\RefundPartial</item>
+                </item> 
             </argument>
         </arguments>
     </type>

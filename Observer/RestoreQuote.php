@@ -21,13 +21,15 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\Method\Giftcards;
-use Buckaroo\Magento2\Model\Method\Payconiq;
-use Buckaroo\Magento2\Model\Service\Order;
-use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 use Magento\Checkout\Model\Session;
+use Buckaroo\Magento2\Model\Service\Order;
+use Buckaroo\Magento2\Model\Method\Payconiq;
+use Buckaroo\Magento2\Model\Method\Giftcards;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 
 class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 {
@@ -62,6 +64,17 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     protected $orderService;
 
     /**
+     * @var \Buckaroo\Magento2\Model\Giftcard\Remove
+     */
+    protected $giftcardRemoveService;
+
+     /**
+     * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
+     */
+    protected $groupTransaction;
+
+
+    /**
      * @param Session $checkoutSession
      * @param Account $accountConfig
      * @param Data $helper
@@ -75,7 +88,9 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Buckaroo\Magento2\Helper\Data                  $helper,
         QuoteRecreate                                   $quoteRecreate,
         \Magento\Quote\Api\CartRepositoryInterface      $quoteRepository,
-        \Buckaroo\Magento2\Model\Service\Order          $orderService
+        \Buckaroo\Magento2\Model\Service\Order          $orderService,
+        GiftcardRemove $giftcardRemoveService,
+        PaymentGroupTransaction $groupTransaction
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->accountConfig = $accountConfig;
@@ -83,6 +98,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->quoteRecreate = $quoteRecreate;
         $this->quoteRepository = $quoteRepository;
         $this->orderService = $orderService;
+        $this->giftcardRemoveService = $giftcardRemoveService;
+        $this->groupTransaction = $groupTransaction;
     }
 
     /**
@@ -126,6 +143,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
+                    $this->rollbackPartialPayment($lastRealOrder->getIncrementId());
                     $this->cancelLastOrder($lastRealOrder);
                 }
             }
@@ -150,5 +168,18 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     private function cancelLastOrder($order) {
         return $this->orderService->cancel($order, $order->getStatus());
+    }
+
+    public function rollbackPartialPayment($incrementId)
+    {
+        try {
+            $transactions = $this->groupTransaction->getGroupTransactionItems($incrementId);
+            foreach ($transactions as $transaction) {
+                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $incrementId);
+            }
+        } catch (\Throwable $th) {
+            $this->helper->addDebug(__METHOD__ . (string)$th);
+        }
+       
     }
 }
