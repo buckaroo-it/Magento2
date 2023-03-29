@@ -154,7 +154,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -226,7 +226,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getAllowedCreditcards($store = null)
     {
@@ -238,7 +238,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getMastercardUnsecureHold($store = null)
     {
@@ -250,7 +250,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getVisaUnsecureHold($store = null)
     {
@@ -262,7 +262,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getMaestroUnsecureHold($store = null)
     {
@@ -274,7 +274,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSort($store = null)
     {

@@ -73,7 +73,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -93,7 +93,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtection($store = null)
     {
@@ -105,7 +105,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtectionEligible($store = null)
     {
@@ -117,7 +117,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtectionIneligible($store = null)
     {
@@ -129,7 +129,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
     {
@@ -141,7 +141,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
     {

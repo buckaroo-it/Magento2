@@ -85,7 +85,7 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setAction($action)
     {

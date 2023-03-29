@@ -8,7 +8,7 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 class PaymentMethodDataBuilder implements BuilderInterface
 {
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject)
     {

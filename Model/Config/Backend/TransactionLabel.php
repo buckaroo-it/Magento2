@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Model\Config\Backend;
 class TransactionLabel extends \Magento\Framework\App\Config\Value
 {
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function _afterLoad()
     {

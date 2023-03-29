@@ -126,7 +126,7 @@ class RoundingWarning extends \Magento\Backend\Block\Template
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function _toHtml()
     {

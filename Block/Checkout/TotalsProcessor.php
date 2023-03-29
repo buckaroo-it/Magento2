@@ -32,7 +32,7 @@ class TotalsProcessor extends AbstractTotalsProcessor implements LayoutProcessor
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function process($jsLayout)
     {

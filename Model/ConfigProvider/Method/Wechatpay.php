@@ -26,7 +26,7 @@ class Wechatpay extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_wechatpay';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

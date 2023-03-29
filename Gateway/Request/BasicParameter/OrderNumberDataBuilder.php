@@ -10,7 +10,7 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 class OrderNumberDataBuilder implements BuilderInterface
 {
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject): array
     {

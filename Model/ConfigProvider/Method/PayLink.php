@@ -30,7 +30,7 @@ class PayLink extends AbstractConfigProvider
     public const XPATH_PAYLINK_PAYMENT_METHOD = 'payment/buckaroo_magento2_paylink/payment_method';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -67,7 +67,7 @@ class PayLink extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getPaymentMethod($store = null)
     {

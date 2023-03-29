@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,53 +17,59 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Http\Client;
 
-use Exception;
-use Psr\Log\LoggerInterface;
-use Magento\Payment\Model\Method\Logger;
+use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
+use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
-use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
-use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Payment\Model\Method\Logger;
+use Psr\Log\LoggerInterface;
 
+/**
+ * Default Gateway Client
+ */
 class DefaultTransaction implements ClientInterface
 {
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     /**
+     * Logs payment related information used for debug
+     *
      * @var Logger
      */
-    protected $customLogger;
+    protected Logger $paymentLogger;
 
     /**
      * @var BuckarooAdapter
      */
-    protected $adapter;
+    protected BuckarooAdapter $adapter;
 
+    /**
+     * @var string
+     */
     protected string $action;
 
     /**
-     * Constructor
-     *
      * @param LoggerInterface $logger
-     * @param Logger $customLogger
+     * @param Logger $paymentLogger
      * @param BuckarooAdapter $adapter
      * @param string $action
      */
     public function __construct(
         LoggerInterface $logger,
-        Logger $customLogger,
+        Logger $paymentLogger,
         BuckarooAdapter $adapter,
-        $action = TransactionType::PAY
+        string $action = TransactionType::PAY
     ) {
         $this->logger = $logger;
-        $this->customLogger = $customLogger;
+        $this->paymentLogger = $paymentLogger;
         $this->adapter = $adapter;
         $this->action = $action;
     }
@@ -85,13 +90,13 @@ class DefaultTransaction implements ClientInterface
 
         try {
             $response['object'] = $this->process($paymentMethod, $data);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $message = __($e->getMessage() ?: 'Sorry, but something went wrong');
             $this->logger->critical($message);
             throw new ClientException($message);
         } finally {
-            $log['response'] = (array) $response['object'];
-            $this->customLogger->debug($log);
+            $log['response'] = (array)$response['object'];
+            $this->paymentLogger->debug($log);
         }
 
         return $response;
@@ -99,6 +104,7 @@ class DefaultTransaction implements ClientInterface
 
     /**
      * Process http request
+     *
      * @param string $paymentMethod
      * @param array $data
      */

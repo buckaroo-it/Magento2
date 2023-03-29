@@ -81,7 +81,7 @@ class QuoteBuilder implements QuoteBuilderInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function setFormData(array $formData): void
     {
@@ -89,7 +89,7 @@ class QuoteBuilder implements QuoteBuilderInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(): Quote
     {

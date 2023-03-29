@@ -83,7 +83,7 @@ class BuckarooFee extends AbstractConfigProvider
 
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getTaxClass($store = null)
     {
@@ -95,7 +95,7 @@ class BuckarooFee extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getPaymentFeeTax($store = null)
     {
@@ -107,7 +107,7 @@ class BuckarooFee extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getPriceDisplayCart($store = null)
     {
@@ -119,7 +119,7 @@ class BuckarooFee extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getPriceDisplaySales($store = null)
     {

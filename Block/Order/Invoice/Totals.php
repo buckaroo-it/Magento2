@@ -51,7 +51,7 @@ class Totals extends InvoiceTotals
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getTotals($area = null)
     {

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
@@ -52,49 +52,49 @@ class Certificate extends AbstractModel implements CertificateInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getCertificate()
+    public function getCertificate(): string
     {
         return $this->getData('certificate');
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->getData('name');
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): string
     {
         return $this->getData('created_at');
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function setCertificate($certificate)
+    public function setCertificate(string $certificate): CertificateInterface
     {
         return $this->setData('certificate', $certificate);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function setName($name)
+    public function setName(string $name): CertificateInterface
     {
         return $this->setData('name', $name);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt(string $createdAt): CertificateInterface
     {
         return $this->setData('created_at', $createdAt);
     }

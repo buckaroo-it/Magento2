@@ -27,7 +27,7 @@ use Magento\Framework\Setup\SchemaSetupInterface;
 class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 {
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {

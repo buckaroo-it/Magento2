@@ -33,7 +33,7 @@ class Voucher extends AbstractConfigProvider
     ];
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

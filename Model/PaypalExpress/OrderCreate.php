@@ -108,7 +108,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function execute(
         string $paypalOrderId,

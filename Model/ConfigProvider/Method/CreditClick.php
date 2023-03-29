@@ -26,7 +26,7 @@ class CreditClick extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_creditclick';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

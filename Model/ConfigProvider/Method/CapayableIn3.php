@@ -38,7 +38,7 @@ class CapayableIn3 extends AbstractConfigProvider
     ];
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

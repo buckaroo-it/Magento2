@@ -54,7 +54,7 @@ class PrivateKey implements ConfigProviderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getConfig($store = null)
     {

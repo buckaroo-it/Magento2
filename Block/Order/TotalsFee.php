@@ -51,7 +51,7 @@ class TotalsFee extends Totals
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getTotals($area = null)
     {

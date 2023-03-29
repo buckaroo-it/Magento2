@@ -1454,7 +1454,7 @@ class SetupModuleDataPatch implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getVersion()
     {
@@ -1462,7 +1462,7 @@ class SetupModuleDataPatch implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases()
     {

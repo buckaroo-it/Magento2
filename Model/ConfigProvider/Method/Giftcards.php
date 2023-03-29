@@ -129,7 +129,7 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getAllowedGiftcards($store = null)
     {
@@ -141,7 +141,7 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getGroupGiftcards($store = null)
     {
@@ -153,7 +153,7 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSort($store = null)
     {

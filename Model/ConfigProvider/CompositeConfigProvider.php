@@ -39,7 +39,7 @@ class CompositeConfigProvider implements \Magento\Checkout\Model\ConfigProviderI
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getConfig()
     {

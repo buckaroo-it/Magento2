@@ -42,7 +42,7 @@ class States extends AbstractConfigProvider
     const XPATH_STATES_ORDER_STATE_INCORRECT    = 'buckaroo_magento2/states/order_state_incorrect';
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getConfig($store = null)
     {
@@ -57,7 +57,7 @@ class States extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getOrderStateNew($store = null)
     {
@@ -69,7 +69,7 @@ class States extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getOrderStateSuccess($store = null)
     {
@@ -81,7 +81,7 @@ class States extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getOrderStateFailed($store = null)
     {
@@ -93,7 +93,7 @@ class States extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getOrderStatePending($store = null)
     {
@@ -105,7 +105,7 @@ class States extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getOrderStateIncorrect($store = null)
     {

@@ -28,7 +28,7 @@ class Giropay extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_giropay';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

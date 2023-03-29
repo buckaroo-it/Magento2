@@ -81,7 +81,7 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function _toHtml()
     {

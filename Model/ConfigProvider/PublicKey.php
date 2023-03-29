@@ -75,7 +75,7 @@ KEY;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getConfig($store = null)
     {

@@ -26,7 +26,7 @@ class ClientIPDataBuilder implements BuilderInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject)
     {

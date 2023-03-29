@@ -56,7 +56,7 @@ class NotificationDataProvider extends \Magento\Ui\DataProvider\AbstractDataProv
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getData()
     {
@@ -64,7 +64,7 @@ class NotificationDataProvider extends \Magento\Ui\DataProvider\AbstractDataProv
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getMeta()
     {

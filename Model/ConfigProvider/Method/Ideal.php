@@ -36,7 +36,7 @@ class Ideal extends AbstractConfigProvider
     ];
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -64,7 +64,7 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSelectionType($store = null)
     {

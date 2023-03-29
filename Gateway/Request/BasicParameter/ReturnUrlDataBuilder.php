@@ -43,7 +43,7 @@ class ReturnUrlDataBuilder implements BuilderInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject)
     {

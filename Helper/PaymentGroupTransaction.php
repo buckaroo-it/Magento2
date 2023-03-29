@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,15 +20,12 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use Magento\Framework\App\Helper\Context;
-use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Sales\Model\Order as OrderModel;
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Model\Order\Payment\Transaction;
 use Buckaroo\Magento2\Model\GroupTransactionFactory;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory as GroupTransactionCollectionFactory;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 
 class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -88,16 +84,16 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     public function saveGroupTransaction($response)
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($response, true));
-        $groupTransaction           = $this->groupTransactionFactory->create();
-        $data['order_id']           = $response['Invoice'];
-        $data['transaction_id']     = $response['Key'];
+        $groupTransaction = $this->groupTransactionFactory->create();
+        $data['order_id'] = $response['Invoice'];
+        $data['transaction_id'] = $response['Key'];
         $data['relatedtransaction'] = $response['RequiredAction']['PayRemainderDetails']['GroupTransaction'] ?? null;
-        $data['servicecode']        = $response['ServiceCode'];
-        $data['currency']           = $response['Currency'];
-        $data['amount']             = $response['AmountDebit'];
-        $data['type']               = $response['RelatedTransactions'][0]['RelationType'] ?? null;
-        $data['status']             = $response['Status']['Code']['Code'];
-        $data['created_at']         = $this->dateTime->gmtDate();
+        $data['servicecode'] = $response['ServiceCode'];
+        $data['currency'] = $response['Currency'];
+        $data['amount'] = $response['AmountDebit'];
+        $data['type'] = $response['RelatedTransactions'][0]['RelationType'] ?? null;
+        $data['status'] = $response['Status']['Code']['Code'];
+        $data['created_at'] = $this->dateTime->gmtDate();
         $groupTransaction->setData($data);
         return $groupTransaction->save();
     }
@@ -220,13 +216,14 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
             ->getCollection()
             ->addFieldToFilter('transaction_id', ['eq' => $trx_id])->getItems();
     }
+
     /**
      * Get successful group transactions for orderId
      * with giftcard label
      *
      * @param string|null $orderId
      *
-     *@return \Buckaroo\Magento2\Model\GroupTransaction[]
+     * @return \Buckaroo\Magento2\Model\GroupTransaction[]
      */
     public function getActiveItemsWithName($orderId)
     {
@@ -252,6 +249,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
             );
         return $collection->getItems();
     }
+
     /**
      * Get successful group transaction dor transaction id
      * with giftcard label
@@ -276,6 +274,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
             );
         return $collection->getFirstItem();
     }
+
     /**
      * Set status to all transactions in a group
      *
@@ -287,15 +286,15 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     public function setGroupTransactionsStatus(string $groupTransactionId, string $status)
     {
         $this->resourceModel
-        ->getConnection()
-        ->update(
-            $this->resourceModel->getTable('buckaroo_magento2_group_transaction'),
-            [
-                'status' => $status
-            ],
-            [
-                'relatedtransaction = ?' => $groupTransactionId
-            ]
-        );
+            ->getConnection()
+            ->update(
+                $this->resourceModel->getTable('buckaroo_magento2_group_transaction'),
+                [
+                    'status' => $status
+                ],
+                [
+                    'relatedtransaction = ?' => $groupTransactionId
+                ]
+            );
     }
 }

@@ -43,7 +43,7 @@ class CanViewNotification implements VisibilityConditionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function isVisible(array $arguments)
     {
@@ -51,7 +51,7 @@ class CanViewNotification implements VisibilityConditionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getName()
     {

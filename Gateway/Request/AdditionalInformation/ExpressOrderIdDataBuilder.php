@@ -10,7 +10,7 @@ use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 class ExpressOrderIdDataBuilder extends AbstractDataBuilder
 {
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject): array
     {

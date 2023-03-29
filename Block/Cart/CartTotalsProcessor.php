@@ -32,7 +32,7 @@ class CartTotalsProcessor extends AbstractTotalsProcessor implements LayoutProce
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function process($jsLayout)
     {

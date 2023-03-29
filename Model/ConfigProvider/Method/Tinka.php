@@ -35,7 +35,7 @@ class Tinka extends AbstractConfigProvider
     ];
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

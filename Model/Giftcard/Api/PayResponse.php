@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,52 +17,63 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
-use Magento\Framework\DataObject;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface;
+use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
+use Magento\Framework\DataObject;
 
 class PayResponse extends DataObject implements PayResponseInterface, PayResponseSetInterface
 {
     /**
-     * @var  \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory
+     * @var TransactionResponseInterfaceFactory
      */
-    protected $trResponseFactory;
+    protected TransactionResponseInterfaceFactory $trResponseFactory;
 
+    /**
+     * @param TransactionResponseInterfaceFactory $trResponseFactory
+     * @param array $data
+     */
     public function __construct(
-        TransactionResponseInterfaceFactory $trResponseFactory
+        TransactionResponseInterfaceFactory $trResponseFactory,
+        array $data = []
     ) {
+        parent::__construct($data);
         $this->trResponseFactory = $trResponseFactory;
     }
+
     /**
      * Get RemainderAmount
      *
-     * @api
      * @return float
+     * @api
      */
-    public function getRemainderAmount()
+    public function getRemainderAmount(): float
     {
         return (float)$this->getData('remainderAmount');
     }
+
     /**
      * Get AlreadyPaid
      *
-     * @api
      * @return float
+     * @api
      */
-    public function getAlreadyPaid()
+    public function getAlreadyPaid(): float
     {
         return (float)$this->getData('alreadyPaid');
     }
+
     /**
      * Get newly created transaction with giftcard name
      *
-     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface
+     * @return TransactionResponseInterface
      */
-    public function getTransaction()
+    public function getTransaction(): TransactionResponseInterface
     {
         return $this->trResponseFactory->create()->addData(
             $this->getData('transaction')->getData()
@@ -73,22 +83,21 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
     /**
      * Get user message
      *
-     * @api
      * @return string|null
+     * @api
      */
-    public function getMessage()
+    public function getMessage(): ?string
     {
         return $this->getData('message');
     }
 
-
-     /**
+    /**
      * Get user remaining amount message
      *
-     * @api
      * @return string|null
+     * @api
      */
-    public function getRemainingAmountMessage()
+    public function getRemainingAmountMessage(): ?string
     {
         return $this->getData('remainingAmountMessage');
     }

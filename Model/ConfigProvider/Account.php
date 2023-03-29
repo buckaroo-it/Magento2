@@ -93,7 +93,7 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getConfig($store = null)
     {

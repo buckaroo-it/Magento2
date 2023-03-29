@@ -31,7 +31,7 @@ class P24 extends AbstractConfigProvider
     protected $methodCode = self::CODE;
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

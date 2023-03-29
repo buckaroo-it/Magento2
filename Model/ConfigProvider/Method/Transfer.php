@@ -37,7 +37,7 @@ class Transfer extends AbstractConfigProvider
         'payment/buckaroo_magento2_transfer/payment_method_after_expiry';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -61,7 +61,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getDueDate($store = null)
     {
@@ -89,7 +89,7 @@ class Transfer extends AbstractConfigProvider
 
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getActiveStatusCm3($store = null)
     {
@@ -101,7 +101,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSchemeKey($store = null)
     {
@@ -113,7 +113,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getMaxStepIndex($store = null)
     {
@@ -125,7 +125,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getCm3DueDate($store = null)
     {
@@ -137,7 +137,7 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getPaymentMethodAfterExpiry($store = null)
     {

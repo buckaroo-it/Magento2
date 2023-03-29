@@ -40,57 +40,57 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     protected $resource;
 
     /** @var GroupTransactionFactory */
-    protected $GroupTransactionFactory;
+    protected $groupTransactionFactory;
 
     /** @var GroupTransactionCollectionFactory */
-    protected $GroupTransactionCollectionFactory;
+    protected $groupTransactionCollectionFactory;
 
     /** @var SearchResultsInterfaceFactory */
     protected $searchResultsFactory;
 
     public function __construct(
         GroupTransactionResource $resource,
-        GroupTransactionFactory $GroupTransactionFactory,
-        GroupTransactionCollectionFactory $GroupTransactionCollectionFactory,
+        GroupTransactionFactory $groupTransactionFactory,
+        GroupTransactionCollectionFactory $groupTransactionCollectionFactory,
         SearchResultsInterfaceFactory $searchResultsFactory
     ) {
         $this->resource = $resource;
-        $this->GroupTransactionCollectionFactory = $GroupTransactionCollectionFactory;
-        $this->GroupTransactionFactory = $GroupTransactionFactory;
+        $this->GroupTransactionCollectionFactory = $groupTransactionCollectionFactory;
+        $this->GroupTransactionFactory = $groupTransactionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function save(GroupTransactionInterface $GroupTransaction)
+    public function save(GroupTransactionInterface $groupTransaction)
     {
         try {
-            $this->resource->save($GroupTransaction);
+            $this->resource->save($groupTransaction);
         } catch (\Exception $exception) {
             throw new CouldNotSaveException(__($exception->getMessage()));
         }
 
-        return $GroupTransaction;
+        return $groupTransaction;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getById($GroupTransactionId)
+    public function getById($groupTransactionId)
     {
-        $GroupTransaction = $this->GroupTransactionFactory->create();
-        $GroupTransaction->load($GroupTransactionId);
+        $groupTransaction = $this->GroupTransactionFactory->create();
+        $groupTransaction->load($groupTransactionId);
 
-        if (!$GroupTransaction->getId()) {
-            throw new NoSuchEntityException(__('GroupTransaction with id "%1" does not exist.', $GroupTransactionId));
+        if (!$groupTransaction->getId()) {
+            throw new NoSuchEntityException(__('GroupTransaction with id "%1" does not exist.', $groupTransactionId));
         }
 
-        return $GroupTransaction;
+        return $groupTransaction;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getList(SearchCriteria $searchCriteria)
     {
@@ -174,12 +174,12 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function delete(GroupTransactionInterface $GroupTransaction)
+    public function delete(GroupTransactionInterface $groupTransaction)
     {
         try {
-            $this->resource->delete($GroupTransaction);
+            $this->resource->delete($groupTransaction);
         } catch (\Exception $exception) {
             throw new CouldNotDeleteException(__($exception->getMessage()));
         }
@@ -188,12 +188,12 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function deleteById($GroupTransactionId)
+    public function deleteById($groupTransactionId)
     {
-        $GroupTransaction = $this->getById($GroupTransactionId);
+        $groupTransaction = $this->getById($groupTransactionId);
 
-        return $this->delete($GroupTransaction);
+        return $this->delete($groupTransaction);
     }
 }

@@ -26,7 +26,7 @@ class Belfius extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_belfius';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

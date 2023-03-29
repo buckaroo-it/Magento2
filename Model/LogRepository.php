@@ -93,7 +93,7 @@ class LogRepository implements LogRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function save(
         \Buckaroo\Magento2\Api\Data\LogInterface $log
@@ -123,7 +123,7 @@ class LogRepository implements LogRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function get($logId)
     {
@@ -136,7 +136,7 @@ class LogRepository implements LogRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getList(
         \Magento\Framework\Api\SearchCriteriaInterface $criteria
@@ -164,7 +164,7 @@ class LogRepository implements LogRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function delete(
         \Buckaroo\Magento2\Api\Data\LogInterface $log
@@ -183,7 +183,7 @@ class LogRepository implements LogRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function deleteById($logId)
     {

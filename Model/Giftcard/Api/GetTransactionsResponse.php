@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,42 +17,53 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
-use Magento\Framework\DataObject;
-use Magento\Quote\Model\QuoteIdMaskFactory;
-use Magento\Quote\Api\CartRepositoryInterface;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
 use Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Framework\DataObject;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 
 class GetTransactionsResponse extends DataObject implements GetTransactionsResponseInterface
 {
     /**
      * @var \Magento\Quote\Model\QuoteIdMaskFactory
      */
-    protected $quoteIdMaskFactory;
+    protected QuoteIdMaskFactory $quoteIdMaskFactory;
 
     /**
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
-    protected $cartRepository;
+    protected CartRepositoryInterface $cartRepository;
 
     /**
      * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
      */
-    protected $groupTransaction;
+    protected PaymentGroupTransaction $groupTransaction;
 
     /**
      * @var  \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory
      */
-    protected $trResponseFactory;
+    protected TransactionResponseInterfaceFactory $trResponseFactory;
 
+    /**
+     * @var Quote
+     */
+    protected Quote $quote;
 
-    protected $quote;
-
+    /**
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param CartRepositoryInterface $cartRepository
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param TransactionResponseInterfaceFactory $trResponseFactory
+     * @param string|null $cartId
+     * @throws NoQuoteException
+     */
     public function __construct(
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
@@ -73,7 +83,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      * @api
      * @return float
      */
-    public function getRemainderAmount()
+    public function getRemainderAmount(): float
     {
         return $this->quote->getGrandTotal() - $this->getAlreadyPaid();
     }
@@ -83,7 +93,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      * @api
      * @return float
      */
-    public function getAlreadyPaid()
+    public function getAlreadyPaid(): float
     {
         return $this->groupTransaction->getGroupTransactionAmount(
             $this->quote->getReservedOrderId()
@@ -109,7 +119,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      * @param string $cartId
      * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
      */
-    public function getTransactions()
+    public function getTransactions(): array
     {
         return $this->formatFound(
             $this->groupTransaction->getActiveItemsWithName(
@@ -124,7 +134,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      *
      * @return Quote
      */
-    protected function getQuote($cartId)
+    protected function getQuote(?string $cartId): Quote
     {
         try {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');

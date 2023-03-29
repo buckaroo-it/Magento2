@@ -138,7 +138,7 @@ class Log extends Logger
         return $this->addRecord(Logger::ERROR, $message);
     }
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function debug($message, array $context = []): void
     {

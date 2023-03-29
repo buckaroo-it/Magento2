@@ -53,7 +53,7 @@ class IdinDataBuilder implements BuilderInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject): array
     {
@@ -72,7 +72,7 @@ class IdinDataBuilder implements BuilderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getReturnUrl()
     {
@@ -87,7 +87,7 @@ class IdinDataBuilder implements BuilderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setReturnUrl($url)
     {

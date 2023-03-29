@@ -26,7 +26,7 @@ class Sofortbanking extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_sofortbanking';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

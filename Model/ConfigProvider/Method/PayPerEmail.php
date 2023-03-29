@@ -156,7 +156,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getActiveStatusCm3($store = null)
     {
@@ -168,7 +168,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSchemeKey($store = null)
     {
@@ -180,7 +180,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getMaxStepIndex($store = null)
     {
@@ -192,7 +192,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getCm3DueDate($store = null)
     {
@@ -204,7 +204,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getPaymentMethodAfterExpiry($store = null)
     {
@@ -216,7 +216,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getVisibleFrontBack($store = null)
     {
@@ -228,7 +228,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getIsVisibleForAreaCode($store = null)
     {
@@ -240,7 +240,7 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getEnableB2b($store = null)
     {

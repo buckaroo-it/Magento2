@@ -38,7 +38,7 @@ class Afterpay2 extends AbstractConfigProvider
     public const XPATH_AFTERPAY2_NO_TAX              = 'payment/buckaroo_magento2_afterpay2/no_tax';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

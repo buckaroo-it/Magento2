@@ -37,7 +37,7 @@ class Pospayment extends AbstractConfigProvider
     ];
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -60,7 +60,7 @@ class Pospayment extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getOtherPaymentMethods($store = null)
     {

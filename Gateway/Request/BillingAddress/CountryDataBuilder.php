@@ -11,7 +11,7 @@ use Magento\Sales\Api\Data\OrderAddressInterface;
 class CountryDataBuilder implements BuilderInterface
 {
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject): array
     {

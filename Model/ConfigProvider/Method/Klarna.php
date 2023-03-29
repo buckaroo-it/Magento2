@@ -26,7 +26,7 @@ class Klarna extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_klarna';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {

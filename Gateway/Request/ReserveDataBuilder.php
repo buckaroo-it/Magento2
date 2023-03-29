@@ -12,7 +12,7 @@ use Magento\Sales\Api\Data\OrderAddressInterface;
 class ReserveDataBuilder implements BuilderInterface
 {
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject): array
     {

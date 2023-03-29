@@ -41,7 +41,7 @@ class Paypal extends AbstractConfigProvider
     public const XPATH_PAYPAL_EXPRESS_MERCHANT_ID          = 'payment/buckaroo_magento2_paypal/express_merchant_id';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -60,7 +60,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtection($store = null)
     {
@@ -72,7 +72,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtectionEligible($store = null)
     {
@@ -84,7 +84,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtectionIneligible($store = null)
     {
@@ -96,7 +96,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
     {
@@ -108,7 +108,7 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
     {

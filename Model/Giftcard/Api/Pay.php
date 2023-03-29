@@ -71,7 +71,7 @@ class Pay implements PayWithGiftcardInterface
         $this->payResponseFactory = $payResponseFactory;
     }
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function pay(string $cartId, string $giftcardId, PayRequestInterface $payment)
     {

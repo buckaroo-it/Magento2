@@ -23,7 +23,7 @@ class OriginalTransactionKeyDataBuilder extends AbstractDataBuilder
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject): array
     {

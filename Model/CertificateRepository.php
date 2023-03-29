@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,6 +20,11 @@
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
+use Buckaroo\Magento2\Api\Data\CertificateInterface;
+use Buckaroo\Magento2\Model\ResourceModel\Certificate as CertificateResource;
+use Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection as CertificateCollection;
+use Buckaroo\Magento2\Model\ResourceModel\Certificate\CollectionFactory as CertificateCollectionFactory;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Api\SearchResultsInterfaceFactory;
@@ -28,11 +32,6 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Api\Data\CertificateInterface;
-use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
-use Buckaroo\Magento2\Model\ResourceModel\Certificate as CertificateResource;
-use Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection as CertificateCollection;
-use Buckaroo\Magento2\Model\ResourceModel\Certificate\CollectionFactory as CertificateCollectionFactory;
 
 class CertificateRepository implements CertificateRepositoryInterface
 {
@@ -67,9 +66,9 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function save(CertificateInterface $certificate)
+    public function save(CertificateInterface $certificate): CertificateInterface
     {
         try {
             $this->resource->save($certificate);
@@ -81,9 +80,9 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getById($certificateId)
+    public function getById($certificateId): CertificateInterface
     {
         $certificate = $this->certificateFactory->create();
         $certificate->load($certificateId);
@@ -96,9 +95,9 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getList(SearchCriteria $searchCriteria)
+    public function getList(SearchCriteria $searchCriteria): SearchResultsInterface
     {
         /** @var SearchResultsInterface $searchResults */
         $searchResults = $this->searchResultsFactory->create();
@@ -180,9 +179,9 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function delete(CertificateInterface $certificate)
+    public function delete(CertificateInterface $certificate): bool
     {
         try {
             $this->resource->delete($certificate);
@@ -194,9 +193,9 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function deleteById($certificateId)
+    public function deleteById($certificateId): bool
     {
         $certificate = $this->getById($certificateId);
 

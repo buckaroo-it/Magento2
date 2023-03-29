@@ -27,7 +27,7 @@ class Pay extends \Magento\Framework\View\Element\Template
     protected $response;
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function _construct()
     {

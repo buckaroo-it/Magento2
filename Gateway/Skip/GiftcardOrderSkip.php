@@ -22,7 +22,7 @@ class GiftcardOrderSkip implements SkipCommandInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function isSkip(array $commandSubject): bool
     {

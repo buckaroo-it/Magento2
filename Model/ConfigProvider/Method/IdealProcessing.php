@@ -35,7 +35,7 @@ class IdealProcessing extends AbstractConfigProvider
     ];
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig($store = null)
     {

@@ -61,7 +61,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function save(GiftcardInterface $giftcard)
     {
@@ -75,7 +75,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getById($giftcardId)
     {
@@ -90,7 +90,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getList(SearchCriteria $searchCriteria)
     {
@@ -174,7 +174,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function delete(GiftcardInterface $giftcard)
     {
@@ -188,7 +188,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function deleteById($giftcardId)
     {

@@ -2,19 +2,18 @@
 
 namespace Buckaroo\Magento2\Model\Voucher;
 
-use Magento\Quote\Model\Quote;
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Checkout\Model\Session;
-use Magento\Quote\Model\QuoteIdMaskFactory;
-use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Api\ApplyVoucherInterface;
+use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
-use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface;
-use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -56,6 +55,15 @@ class ApplyVoucher implements ApplyVoucherInterface
      */
     private $logger;
 
+    /**
+     * @param ApplyVoucherRequestInterface $voucherRequest
+     * @param GiftcardResponse $giftcardResponse
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param CartRepositoryInterface $cartRepository
+     * @param PayResponseSetInterfaceFactory $payResponseFactory
+     * @param Session $checkoutSession
+     * @param Log $logger
+     */
     public function __construct(
         ApplyVoucherRequestInterface $voucherRequest,
         GiftcardResponse $giftcardResponse,

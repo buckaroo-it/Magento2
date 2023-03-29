@@ -26,8 +26,8 @@ use Buckaroo\Magento2\Api\Data\InvoiceInterface;
 
 class Invoice extends AbstractModel implements InvoiceInterface
 {
-    const FIELD_INVOICE_TRANSACTION_ID = 'invoice_transaction_id';
-    const FIELD_INVOICE_NUMBER = 'invoice_number';
+    public const FIELD_INVOICE_TRANSACTION_ID = 'invoice_transaction_id';
+    public const FIELD_INVOICE_NUMBER = 'invoice_number';
 
     // @codingStandardsIgnoreLine
     protected $_eventPrefix = 'buckaroo_magento2_invoice';
@@ -44,7 +44,7 @@ class Invoice extends AbstractModel implements InvoiceInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setInvoiceTransactionId($value)
     {
@@ -52,7 +52,7 @@ class Invoice extends AbstractModel implements InvoiceInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getInvoiceTransactionId()
     {
@@ -60,7 +60,7 @@ class Invoice extends AbstractModel implements InvoiceInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setInvoiceNumber($value)
     {
@@ -68,7 +68,7 @@ class Invoice extends AbstractModel implements InvoiceInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getInvoiceNumber()
     {

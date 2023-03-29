@@ -64,7 +64,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function execute(
         ShippingAddressRequestInterface $shippingAddress,

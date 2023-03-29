@@ -25,7 +25,7 @@ class DescriptionDataBuilder implements BuilderInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject)
     {

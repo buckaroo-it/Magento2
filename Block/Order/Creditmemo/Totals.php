@@ -51,7 +51,7 @@ class Totals extends CreditmemoTotals
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getTotals($area = null)
     {

@@ -65,7 +65,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setName($name)
     {
@@ -73,7 +73,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setCreatedAt($createdAt)
     {
@@ -81,7 +81,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setRefundedAmount($refundedAmount)
     {

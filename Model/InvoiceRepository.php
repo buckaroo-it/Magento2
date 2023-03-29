@@ -61,7 +61,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function save(InvoiceInterface $invoice)
     {
@@ -75,7 +75,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getById($invoiceId)
     {
@@ -90,7 +90,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getList(SearchCriteria $searchCriteria)
     {
@@ -174,7 +174,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function delete(InvoiceInterface $invoice)
     {
@@ -188,7 +188,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function deleteById($invoiceId)
     {

@@ -26,7 +26,7 @@ class Alipay extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_alipay';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig(): array
     {

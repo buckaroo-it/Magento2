@@ -9,7 +9,7 @@ use Magento\Sales\Api\Data\OrderAddressInterface;
 class ReserveBillingDataBuilder extends AbstractDataBuilder
 {
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function build(array $buildSubject): array
     {

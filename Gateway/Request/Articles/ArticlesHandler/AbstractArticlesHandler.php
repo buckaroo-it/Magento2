@@ -80,7 +80,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getOrderArticlesData($order, $payment): array
     {
@@ -115,7 +115,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getInvoiceArticlesData($order, $payment): array
     {

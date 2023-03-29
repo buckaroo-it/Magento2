@@ -36,7 +36,7 @@ class Refund extends AbstractConfigProvider
     const XPATH_REFUND_ALLOW_PUSH   = 'buckaroo_magento2/refund/allow_push';
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getConfig($store = null)
     {
@@ -48,7 +48,7 @@ class Refund extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getEnabled($store = null)
     {
@@ -60,7 +60,7 @@ class Refund extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAllowPush($store = null)
     {

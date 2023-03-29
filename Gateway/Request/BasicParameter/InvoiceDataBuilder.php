@@ -80,7 +80,7 @@ class InvoiceDataBuilder implements BuilderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setOrder($order)
     {
