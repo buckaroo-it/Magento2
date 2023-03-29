@@ -27,11 +27,14 @@ use Magento\Tax\Model\Calculation;
 use Magento\Payment\Model\InfoInterface;
 use Buckaroo\Magento2\Plugin\Method\Klarna;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
 use Buckaroo\Magento2\Observer\AddInTestModeMessage;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Sales\Model\Order;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -698,7 +701,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         parent::order($payment, $amount);
 
         $this->eventManager->dispatch('buckaroo_order_before', ['payment' => $payment]);
-
+        $this->cancelPreviousPendingOrder($payment);
         $this->payment = $payment;
 
         $transactionBuilder = $this->getOrderTransactionBuilder($payment);
@@ -927,6 +930,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->eventManager->dispatch('buckaroo_authorize_before', ['payment' => $payment]);
 
+        $this->cancelPreviousPendingOrder($payment);
         $this->payment = $payment;
 
         $transactionBuilder = $this->getAuthorizeTransactionBuilder($payment);
@@ -2650,5 +2654,44 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (empty($specificCountries)) return false;
         $availableCountries = explode(',', $specificCountries);
         return in_array($country, $availableCountries);
+    }
+
+    /**
+     * Cancel previous order that comes from a restored quote
+     *
+     * @param InfoInterface $payment
+     *
+     * @return void
+     */
+    private function cancelPreviousPendingOrder(InfoInterface $payment)
+    {
+        try {
+            $orderId = $payment->getAdditionalInformation('buckaroo_cancel_order_id');
+
+            if (is_null($orderId)) {
+                return;
+            }
+
+            /** @var \Magento\Sales\Api\OrderRepositoryInterface */
+            $orderRepository = $this->objectManager->get(OrderRepositoryInterface::class);
+
+            $order = $orderRepository->get((int)$orderId);
+
+            if($order->getState() === Order::STATE_NEW) {
+                $orderManagement = $this->objectManager->get(OrderManagementInterface::class);
+                $orderManagement->cancel($order->getEntityId());
+                $order->addCommentToStatusHistory(
+                    __('Canceled on browser back button')
+                )
+                ->setIsCustomerNotified(false)
+                ->setEntityName('invoice')
+                ->save();
+            }
+
+
+        } catch (\Throwable $th) {
+            $this->logger2->addError(__METHOD__." ".(string)$th);
+        }
+        
     }
 }
