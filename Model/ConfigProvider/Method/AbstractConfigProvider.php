@@ -266,11 +266,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             $configuredSpecificCountry = $this->scopeConfig->getValue(
                 static::XPATH_SPECIFIC_COUNTRY
             );
-        };
+        }
 
         if (empty($configuredSpecificCountry)) {
             return [];
-        };
+        }
 
         $configuredSpecificCountry = explode(',', $configuredSpecificCountry);
 
