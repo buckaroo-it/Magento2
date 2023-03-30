@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,16 +20,26 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Grid\Renderer;
 
+use Magento\Backend\Block\Context;
 use Magento\Backend\Block\Widget\Grid\Column\Renderer\AbstractRenderer;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Image extends AbstractRenderer
 {
+    /**
+     * @var StoreManagerInterface
+     */
     private $storeManager;
 
+    /**
+     * @param Context $context
+     * @param StoreManagerInterface $storemanager
+     * @param array $data
+     */
     public function __construct(
-        \Magento\Backend\Block\Context $context,
+        Context $context,
         StoreManagerInterface $storemanager,
         array $data = []
     ) {
@@ -40,9 +49,11 @@ class Image extends AbstractRenderer
     }
 
     /**
+     * Renders grid column
+     *
      * @param DataObject $row
      * @return string
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     public function render(DataObject $row)
     {
