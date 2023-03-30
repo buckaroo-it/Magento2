@@ -12,6 +12,7 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
      * @var Factory
      */
     public $configProviderMethodFactory;
+    private Log $logging;
 
     public function __construct(
         Factory $configProviderMethodFactory,
