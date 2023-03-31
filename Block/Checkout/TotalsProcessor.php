@@ -1,31 +1,47 @@
 <?php
-
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
  */
 
 namespace Buckaroo\Magento2\Block\Checkout;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
 use Magento\Checkout\Model\Layout\AbstractTotalsProcessor;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class TotalsProcessor extends AbstractTotalsProcessor implements LayoutProcessorInterface
 {
     /**
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory
+     * @var Factory
      */
     protected $configProviderFactory;
 
     /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory         $configProviderFactory
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Factory $configProviderFactory
      *
      * @codeCoverageIgnore
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+        ScopeConfigInterface $scopeConfig,
+        Factory $configProviderFactory
     ) {
         parent::__construct($scopeConfig);
         $this->configProviderFactory = $configProviderFactory;
@@ -37,7 +53,7 @@ class TotalsProcessor extends AbstractTotalsProcessor implements LayoutProcessor
     public function process($jsLayout)
     {
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Account $configProvider
+         * @var Account $configProvider
          */
         $configProvider = $this->configProviderFactory->get('account');
         $paymentFeeLabel = $configProvider->getPaymentFeeLabel();

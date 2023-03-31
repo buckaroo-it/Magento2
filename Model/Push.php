@@ -237,7 +237,7 @@ class Push implements PushInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      *
      * @todo Once Magento supports variable parameters, modify this method to no longer require a Request object
      *

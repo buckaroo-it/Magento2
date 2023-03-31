@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,22 +20,36 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\System\Config;
 
-use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Backend\Block\Widget\Button;
 use Magento\Config\Block\System\Config\Form\Field;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\Exception\LocalizedException;
 
 class CredentialsChecker extends Field
 {
+    /**
+     * @var string
+     */
     protected $_template = 'Buckaroo_Magento2::credentials_checker.phtml';
 
+    /**
+     * @inheritdoc
+     */
     public function render(AbstractElement $element)
     {
         $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
         return parent::render($element);
     }
 
+    /**
+     * Get Test Credentials button html
+     *
+     * @return string
+     * @throws LocalizedException
+     */
     public function getHtml()
     {
-        return $this->getLayout()->createBlock(\Magento\Backend\Block\Widget\Button::class)->setData([
+        return $this->getLayout()->createBlock(Button::class)->setData([
             'id' => 'buckaroo_magento2_credentials_checker_button',
             'label' => __('Test Credentials')
         ])->toHtml();
@@ -45,7 +58,7 @@ class CredentialsChecker extends Field
     /**
      * Return element html
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

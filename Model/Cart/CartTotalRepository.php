@@ -107,7 +107,7 @@ class CartTotalRepository extends MagentoTotalRepository
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritdoc
      *
      * @param int $cartId The cart ID.
      * @return Totals Quote totals data.

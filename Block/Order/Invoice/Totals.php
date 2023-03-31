@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,11 +20,11 @@
 
 namespace Buckaroo\Magento2\Block\Order\Invoice;
 
+use Buckaroo\Magento2\Helper\PaymentFee;
 use Magento\Framework\DataObject;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Block\Order\Invoice\Totals as InvoiceTotals;
-use Buckaroo\Magento2\Helper\PaymentFee;
 
 class Totals extends InvoiceTotals
 {
@@ -35,10 +34,10 @@ class Totals extends InvoiceTotals
     protected $helper = null;
 
     /**
-     * @param Context    $context
-     * @param Registry   $registry
+     * @param Context $context
+     * @param Registry $registry
      * @param PaymentFee $helper
-     * @param array      $data
+     * @param array $data
      */
     public function __construct(
         Context $context,
