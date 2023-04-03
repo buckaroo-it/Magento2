@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,10 +21,10 @@
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Quote\Model\QuoteRepository;
-use Magento\Checkout\Model\Session as CheckoutSession;
 
 class UpdateShippingMethods extends AbstractApplepay
 {
@@ -46,11 +46,11 @@ class UpdateShippingMethods extends AbstractApplepay
      * @param CheckoutSession $checkoutSession
      */
     public function __construct(
-        JsonFactory      $resultJsonFactory,
+        JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        Log              $logging,
-        QuoteRepository  $quoteRepository,
-        CheckoutSession  $checkoutSession
+        Log $logging,
+        QuoteRepository $quoteRepository,
+        CheckoutSession $checkoutSession
     ) {
         parent::__construct(
             $resultJsonFactory,

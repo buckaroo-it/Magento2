@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -24,11 +23,11 @@ namespace Buckaroo\Magento2\Controller\Applepay;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
+use Buckaroo\Magento2\Model\Service\QuoteService;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Model\Service\QuoteService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -53,10 +52,10 @@ class GetShippingMethods extends AbstractApplepay
      * @param ApplePayFormatData $applePayFormatData
      */
     public function __construct(
-        JsonFactory        $resultJsonFactory,
-        RequestInterface   $request,
-        Log                $logging,
-        QuoteService       $quoteService,
+        JsonFactory $resultJsonFactory,
+        RequestInterface $request,
+        Log $logging,
+        QuoteService $quoteService,
         ApplePayFormatData $applePayFormatData
     ) {
         parent::__construct(
@@ -72,7 +71,6 @@ class GetShippingMethods extends AbstractApplepay
      * Return Shipping Methods
      *
      * @return Json
-     * @throws NoSuchEntityException
      */
     public function execute()
     {
