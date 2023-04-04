@@ -21,12 +21,13 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Response;
 
-use Magento\Sales\Model\Order;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
+use Buckaroo\Magento2\Logging\Log;
 
 class Giftcard
 {
@@ -52,17 +53,37 @@ class Giftcard
      */
     protected $orderManagement;
 
+    /**
+     * @var \Magento\Quote\Api\Data\CartInterface
+     */
+    protected $quote;
+
+    /**
+     * @var \Buckaroo\Magento2\Model\Giftcard\Remove
+     */
+    protected $giftcardRemoveService;
+
+    /**
+     * @var \Buckaroo\Magento2\Logging\Log
+     */
+    protected $logger;
+
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
         QuoteManagement $quoteManagement,
-        OrderManagementInterface $orderManagement
+        OrderManagementInterface $orderManagement,
+        GiftcardRemove $giftcardRemoveService,
+        Log $logger
+
         )
     {
         $this->priceCurrency = $priceCurrency;
         $this->groupTransaction = $groupTransaction;
         $this->quoteManagement = $quoteManagement;
         $this->orderManagement = $orderManagement;
+        $this->giftcardRemoveService = $giftcardRemoveService;
+        $this->logger = $logger;
     }
     /**
      * Set raw response data
@@ -200,6 +221,7 @@ class Giftcard
             ->setIsCustomerNotified(false)
             ->setEntityName('invoice')
             ->save();
+            $this->rollbackAllPartialPayments($order);
         }
     }
 
@@ -231,5 +253,18 @@ class Giftcard
         return $order;
 
         
+    }
+
+    public function rollbackAllPartialPayments($order)
+    {
+        try {
+            $transactions = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
+            foreach ($transactions as $transaction) {
+                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $order->getIncrementId());
+            }
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__ . (string)$th);
+        }
+       
     }
 }
