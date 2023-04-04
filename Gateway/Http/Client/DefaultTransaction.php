@@ -77,7 +77,7 @@ class DefaultTransaction implements ClientInterface
     /**
      * @inheritdoc
      */
-    public function placeRequest(TransferInterface $transferObject)
+    public function placeRequest(TransferInterface $transferObject): array
     {
         $data = $transferObject->getBody();
         $log = [
@@ -107,6 +107,8 @@ class DefaultTransaction implements ClientInterface
      *
      * @param string $paymentMethod
      * @param array $data
+     * @return TransactionResponse
+     * @throws \Throwable
      */
     protected function process(string $paymentMethod, array $data): TransactionResponse
     {

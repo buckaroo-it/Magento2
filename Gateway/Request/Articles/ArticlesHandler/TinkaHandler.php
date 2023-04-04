@@ -10,11 +10,11 @@ class TinkaHandler extends AbstractArticlesHandler
      * @return array
      */
     public function getArticleArrayLine(
-        $articleDescription,
+        ?string $articleDescription,
         $articleId,
-        $articleQuantity,
-        $articleUnitPrice,
-        $articleVat = ''
+        int $articleQuantity,
+        float $articleUnitPrice,
+        string $articleVat = ''
     ) {
         return [
             'unitCode' => $articleId,
@@ -28,7 +28,7 @@ class TinkaHandler extends AbstractArticlesHandler
      * @return array
      */
     public function getArticleRefundArrayLine(
-        $articleDescription,
+        ?string $articleDescription,
         $articleId,
         $articleQuantity,
         $articleUnitPrice,

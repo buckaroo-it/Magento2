@@ -1,12 +1,31 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Command;
 
+use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapperInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
-use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -69,9 +88,10 @@ class GatewayCommand implements CommandInterface
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $client
      * @param LoggerInterface $logger
-     * @param HandlerInterface $handler
-     * @param ValidatorInterface $validator
+     * @param HandlerInterface|null $handler
+     * @param ValidatorInterface|null $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
+     * @param SkipCommandInterface|null $skipCommand
      */
     public function __construct(
         BuilderInterface            $requestBuilder,
@@ -134,7 +154,7 @@ class GatewayCommand implements CommandInterface
     /**
      * Tries to map error messages from validation result and logs processed message.
      * Throws an exception with mapped message or default error.
-     *BP
+     *
      * @param ResultInterface $result
      * @throws CommandException
      */
