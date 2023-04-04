@@ -115,6 +115,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'code' => 'REVOLT21',
             'imgName' => 'revolut'
         ],
+        [
+            'name' => 'Yoursafe',
+            'code' => 'BITSNL2A',
+            'imgName' => 'yoursafe'
+        ],
     ];
 
     /**
