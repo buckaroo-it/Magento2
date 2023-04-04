@@ -33,20 +33,16 @@
                 <fieldset class="fieldset payment">
 
                     <div class="field required">
-                        <legend class="label"> <span data-bind="i18n: 'Salutation:'"> </span> </legend>
+                        <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
-                            <ul id="Saluation">
-                                <li>
-                                    <select id="buckaroo_magento2_payperemail_genderSelect" name="payment[buckaroo_magento2_payperemail[customer_gender]" class="field"
-                                    data-bind="options: gendersList(),
-                                     optionsText: $t('genderTitle'),
-                                     optionsValue: 'genderType',
-                                     optionsCaption: $t('-- Please Select Your Gender--'),
-                                     value: getSelectedGender,
-                                     event: { change: setSelectedGender }, attr: { 'data-validate': JSON.stringify({ 'required': true })}" class="select">
-                                     </select>
-                                </li>
-                            </ul>
+                            <select id="buckaroo_magento2_payperemail_genderSelect" name="payment[buckaroo_magento2_payperemail[customer_gender]" class="field"
+                            data-bind="options: gendersList(),
+                                optionsText: $t('genderTitle'),
+                                optionsValue: 'genderType',
+                                optionsCaption: $t('-- Please Select Your Gender--'),
+                                value: getSelectedGender,
+                                event: { change: setSelectedGender }, attr: { 'data-validate': JSON.stringify({ 'required': true })}" class="select">
+                                </select>
                             <div for="gender" generated="true" class="mage-error" id="gender-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
                         </div>
                     </div>
@@ -67,7 +63,7 @@
                         </div>
                     </div>
 
-                    <div class="field required">
+                    <div class="field">
                         <label class="label" for="buckaroo_magento2_payperemail_BillingMiddleName"> <span data-bind="i18n: 'Billing Middle Name:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_payperemail_BillingMiddleName"
@@ -75,7 +71,6 @@
                                    type="text"
                                    data-bind="
                                        valueUpdate: 'keyup',
-                                       attr: { 'data-validate': JSON.stringify({ 'required': false }) },
                                        value: BillingMiddleName,
                                        textInput: CustomerMiddleName()"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingMiddleName]"
