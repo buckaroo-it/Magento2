@@ -25,7 +25,7 @@ use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 /**
- * @inheritDoc
+ * @inheritdoc
  */
 class IssuerDataBuilder implements BuilderInterface
 {

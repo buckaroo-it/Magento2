@@ -49,7 +49,7 @@ class AddInTestModeMessage implements ObserverInterface
         $this->orderRepository = $orderRepository;
     }
     /**
-     * @inheritDoc
+     * @inheritdoc
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

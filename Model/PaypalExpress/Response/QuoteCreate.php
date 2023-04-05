@@ -61,26 +61,26 @@ class QuoteCreate implements QuoteCreateResponseInterface
         $this->quoteIdMaskResource = $quoteIdMaskResource;
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getBreakdown()
     {
         $totalBreakdown = $this->totalBreakdownFactory->create(["quote" => $this->quote]);
         return $totalBreakdown;
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getCurrencyCode()
     {
         return $this->quote->getQuoteCurrencyCode();
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getValue()
     {
         return number_format($this->quote->getGrandTotal(), 2);
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getCartId()
     {
         $quoteIdMask = $this->quoteIdMaskFactory->create();

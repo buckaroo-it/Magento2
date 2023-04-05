@@ -1,19 +1,42 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Model\Order;
 
 class CurrencyDataBuilder implements BuilderInterface
 {
     private const KEY_CURRENCY = 'currency';
 
-    /** @var Factory */
-    private $configProviderMethodFactory;
+    /**
+     * @var Factory
+     */
+    private Factory $configProviderMethodFactory;
 
     /**
      * @var string
@@ -38,7 +61,8 @@ class CurrencyDataBuilder implements BuilderInterface
 
     /**
      * @inheritdoc
-     * @throws Exception
+     *
+     * @throws Exception|LocalizedException
      */
     public function build(array $buildSubject): array
     {
@@ -52,13 +76,50 @@ class CurrencyDataBuilder implements BuilderInterface
     }
 
     /**
+     * Set Allowed Currencies
+     *
+     * @param MethodInterface $methodInstance
+     * @return $this
+     * @throws Exception
+     */
+    private function setAllowedCurrencies(MethodInterface $methodInstance): CurrencyDataBuilder
+    {
+        $method = $methodInstance->getCode();
+        if (!$method) {
+            throw new Exception(
+                __("The payment method code it is not set.")
+            );
+        }
+        $configProvider = $this->configProviderMethodFactory->get($method);
+        $this->allowedCurrencies = $configProvider->getAllowedCurrencies();
+
+        return $this;
+    }
+
+    /**
+     * Get Allowed Currencies
+     *
+     * @param MethodInterface|null $methodInstance
+     * @return array
+     * @throws Exception
+     */
+    public function getAllowedCurrencies(MethodInterface $methodInstance = null): array
+    {
+        if (empty($this->allowedCurrencies)) {
+            $this->setAllowedCurrencies($methodInstance);
+        }
+
+        return $this->allowedCurrencies;
+    }
+
+    /**
      * Get Currency
      *
      * @param Order|null $order
      * @return string
      * @throws Exception
      */
-    public function getCurrency($order = null)
+    public function getCurrency(Order $order = null): string
     {
         if (empty($this->currency)) {
             $this->setCurrency($order);
@@ -74,7 +135,7 @@ class CurrencyDataBuilder implements BuilderInterface
      * @return $this
      * @throws Exception
      */
-    public function setCurrency($order)
+    public function setCurrency(Order $order): CurrencyDataBuilder
     {
         $allowedCurrencies = $this->getAllowedCurrencies();
         if (in_array($order->getOrderCurrencyCode(), $allowedCurrencies)) {
@@ -82,47 +143,10 @@ class CurrencyDataBuilder implements BuilderInterface
         } elseif (in_array($order->getBaseCurrencyCode(), $allowedCurrencies)) {
             $this->currency = $order->getBaseCurrencyCode();
         } else {
-            throw new \Buckaroo\Magento2\Exception(
+            throw new Exception(
                 __("The selected payment method does not support the selected currency or the store's base currency.")
             );
         }
-
-        return $this;
-    }
-
-    /**
-     * Get Allowed Currencies
-     *
-     * @param \Buckaroo\Magento2\Model\Method\BuckarooAdapter $methodInstance
-     * @return array
-     * @throws Exception
-     */
-    public function getAllowedCurrencies($methodInstance = null)
-    {
-        if (empty($this->allowedCurrencies)) {
-            $this->setAllowedCurrencies($methodInstance);
-        }
-
-        return $this->allowedCurrencies;
-    }
-
-    /**
-     * Set Allowed Currencies
-     *
-     * @param \Buckaroo\Magento2\Model\Method\BuckarooAdapter $methodInstance
-     * @return $this
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    private function setAllowedCurrencies($methodInstance)
-    {
-        $method = $methodInstance->getCode();
-        if(!$method) {
-            throw new \Buckaroo\Magento2\Exception(
-                __("The payment method code it is not set.")
-            );
-        }
-        $configProvider = $this->configProviderMethodFactory->get($method);
-        $this->allowedCurrencies = $configProvider->getAllowedCurrencies();
 
         return $this;
     }

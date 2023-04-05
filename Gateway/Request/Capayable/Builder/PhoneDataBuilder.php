@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,25 +17,32 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
 
-use Magento\Sales\Api\Data\OrderAddressInterface;
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class PhoneDataBuilder extends AbstractDataBuilder
 {
-    protected $phoneFormatter;
+    /**
+     * @var PhoneFormatter
+     */
+    protected PhoneFormatter $phoneFormatter;
 
-
+    /**
+     * @param PhoneFormatter $phoneFormatter
+     */
     public function __construct(PhoneFormatter $phoneFormatter)
     {
         $this->phoneFormatter = $phoneFormatter;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
@@ -49,6 +55,13 @@ class PhoneDataBuilder extends AbstractDataBuilder
             ]
         ];
     }
+
+    /**
+     * Format phone number
+     *
+     * @param OrderAddressInterface $billingAddress
+     * @return mixed
+     */
     protected function getCleanPhone(OrderAddressInterface $billingAddress)
     {
         $phoneData = $this->phoneFormatter->format(

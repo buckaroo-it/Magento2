@@ -35,13 +35,13 @@ class BreakdownItem implements BreakdownItemInterface
         $this->currencyCode = $currencyCode;
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getCurrencyCode()
     {
         return $this->currencyCode;
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getValue()
     {
         return number_format($this->total, 2);

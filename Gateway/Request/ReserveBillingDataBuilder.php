@@ -1,5 +1,22 @@
 <?php
-
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
@@ -38,32 +55,32 @@ class ReserveBillingDataBuilder extends AbstractDataBuilder
                 $careOf = 'Company';
             }
             $billingData['recipient'] = [
-                'careOf' => $careOf,
+                'careOf'    => $careOf,
                 'firstName' => $billingAddress->getFirstname(),
-                'lastName' => $billingAddress->getLastName(),
+                'lastName'  => $billingAddress->getLastName(),
             ];
         } else {
             $billingData['recipient'] = [
-                'category' => $category,
-                'gender' => $gender,
+                'category'  => $category,
+                'gender'    => $gender,
                 'firstName' => $billingAddress->getFirstname(),
-                'lastName' => $billingAddress->getLastName(),
+                'lastName'  => $billingAddress->getLastName(),
                 'birthDate' => $birthDayStamp
             ];
         }
 
         $billingData['address'] = [
-            'street' => $streetFormat['street'],
-            'houseNumber' => '',
+            'street'                => $streetFormat['street'],
+            'houseNumber'           => '',
             'houseNumberAdditional' => '',
-            'zipcode' => $billingAddress->getPostcode(),
-            'city' => $billingAddress->getCity(),
-            'country' => $billingAddress->getCountryId()
+            'zipcode'               => $billingAddress->getPostcode(),
+            'city'                  => $billingAddress->getCity(),
+            'country'               => $billingAddress->getCountryId()
         ];
 
         if (!empty($telephone)) {
             $billingData['phone'] = [
-                'mobile' => $telephone,
+                'mobile'   => $telephone,
                 'landline' => $telephone
             ];
         }
@@ -86,18 +103,19 @@ class ReserveBillingDataBuilder extends AbstractDataBuilder
     }
 
     /**
-     * @param $street
+     * Get street fragments
      *
+     * @param string[] $street
      * @return array
      */
-    public function formatStreet($street)
+    public function formatStreet(array $street): array
     {
         $street = implode(' ', $street);
 
         $format = [
-            'house_number' => '',
+            'house_number'    => '',
             'number_addition' => '',
-            'street' => $street,
+            'street'          => $street,
         ];
 
         if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {

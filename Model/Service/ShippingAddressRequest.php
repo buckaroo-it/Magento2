@@ -54,7 +54,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      * @throws ExpressMethodsException
      */
     public function setCity(string $city)

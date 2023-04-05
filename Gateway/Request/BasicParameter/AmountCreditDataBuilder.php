@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Service\DataBuilderService;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;

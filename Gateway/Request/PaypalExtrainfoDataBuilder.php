@@ -1,5 +1,22 @@
 <?php
-
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
@@ -14,15 +31,17 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
     /**
      * @var Paypal
      */
-    protected $configProviderPaypal;
+    protected Paypal $configProviderPaypal;
+
     /**
      * @var PaypalStateCodes
      */
-    private $paypalStateCodes;
+    private PaypalStateCodes $paypalStateCodes;
+
     /**
      * @var PayReminderService
      */
-    private $payReminderService;
+    private PayReminderService $payReminderService;
 
     /**
      * @param Paypal $configProviderPaypal
@@ -46,14 +65,10 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
-        $sellersProtectionActive = (bool) $this->configProviderPaypal->getSellersProtection();
-
-        if (!$sellersProtectionActive) {
-            return [];
-        }
-
+        $sellersProtectionActive = (bool)$this->configProviderPaypal->getSellersProtection();
         $shippingAddress = $this->getOrder()->getShippingAddress();
-        if (!$shippingAddress) {
+
+        if (!$sellersProtectionActive || !$shippingAddress) {
             return [];
         }
 
@@ -63,18 +78,18 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
         }
 
         $data = [
-            'customer'  => [
-                'name'      => mb_substr($shippingAddress->getName(), 0, 32)
+            'customer'        => [
+                'name' => mb_substr($shippingAddress->getName(), 0, 32)
             ],
-            'address'   => [
-                'street'       => mb_substr($shippingAddress->getStreetLine(1), 0, 100),
-                'city'          => mb_substr($shippingAddress->getCity(), 0, 40),
-                'state'         => $this->getStateOrProvince($shippingAddress),
-                'zipcode'       => mb_substr($shippingAddress->getPostcode(), 0, 20),
-                'country'       => $shippingAddress->getCountryId(),
+            'address'         => [
+                'street'  => mb_substr($shippingAddress->getStreetLine(1), 0, 100),
+                'city'    => mb_substr($shippingAddress->getCity(), 0, 40),
+                'state'   => $this->getStateOrProvince($shippingAddress),
+                'zipcode' => mb_substr($shippingAddress->getPostcode(), 0, 20),
+                'country' => $shippingAddress->getCountryId(),
             ],
-            'phone'             => [
-                'mobile'        => $shippingAddress->getTelephone() ?? ''
+            'phone'           => [
+                'mobile' => $shippingAddress->getTelephone() ?? ''
             ],
             'addressOverride' => true
         ];

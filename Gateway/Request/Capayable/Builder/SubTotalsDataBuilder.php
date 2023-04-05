@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,7 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
@@ -27,6 +25,9 @@ use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
 class SubTotalsDataBuilder extends AbstractDataBuilder
 {
+    /**
+     * @inheritdoc
+     */
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
@@ -36,7 +37,7 @@ class SubTotalsDataBuilder extends AbstractDataBuilder
         $discount = $this->getDiscount();
         if ($discount < 0) {
             $subTotals[] = [
-                'name'  => 'Discount',
+                'name' => 'Discount',
                 'value' => $discount
             ];
         }
@@ -44,7 +45,7 @@ class SubTotalsDataBuilder extends AbstractDataBuilder
         $fee = $this->getFee();
         if ($fee > 0) {
             $subTotals[] = [
-                'name'  => 'Payment Fee',
+                'name' => 'Payment Fee',
                 'value' => $fee
             ];
         }
@@ -52,7 +53,7 @@ class SubTotalsDataBuilder extends AbstractDataBuilder
         $shipping = $this->getShipping();
         if ($shipping > 0) {
             $subTotals[] = [
-                'name'  => 'Shipping Costs',
+                'name' => 'Shipping Costs',
                 'value' => $shipping
             ];
         }
@@ -80,9 +81,13 @@ class SubTotalsDataBuilder extends AbstractDataBuilder
      *
      * @return float
      */
-    protected function getFee()
+    protected function getFee(): float
     {
-        return round((float)$this->getOrder()->getBuckarooFee() + (float)$this->getOrder()->getBuckarooFeeTaxAmount(), 2);
+        return round(
+            (float)$this->getOrder()->getBuckarooFee()
+            + (float)$this->getOrder()->getBuckarooFeeTaxAmount(),
+            2
+        );
     }
 
     /**
@@ -90,7 +95,7 @@ class SubTotalsDataBuilder extends AbstractDataBuilder
      *
      * @return float
      */
-    protected function getShipping()
+    protected function getShipping(): float
     {
         return round((float)$this->getOrder()->getShippingInclTax(), 2);
     }

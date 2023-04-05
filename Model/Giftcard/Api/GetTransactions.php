@@ -36,7 +36,7 @@ class GetTransactions implements GiftcardTransactionInterface
     {
         $this->responseFactory = $responseFactory;
     }
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function get(string $cartId)
     {
         try {

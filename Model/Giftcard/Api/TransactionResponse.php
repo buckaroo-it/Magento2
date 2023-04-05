@@ -26,25 +26,25 @@ use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface;
 
 class TransactionResponse extends DataObject implements TransactionResponseInterface
 {
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getTransactionId()
     {
         return $this->getData('transaction_id');
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getName()
     {
         return $this->getData('label');
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getAmount()
     {
         return (float)$this->getData('amount');
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function getCurrency()
     {
         return $this->getData('currency');
