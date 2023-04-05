@@ -1,13 +1,32 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\Request\Http;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Buckaroo\Transaction\Response\TransactionResponse;
 
 class ResponseCodeSDKValidator extends AbstractValidator
 {
@@ -51,16 +70,9 @@ class ResponseCodeSDKValidator extends AbstractValidator
      */
     public function validate(array $validationSubject)
     {
-        if (!isset($validationSubject['response']['object'])) {
-            return $this->createResult(
-                false,
-                [__('Response does not exist')]
-            );
-        }
+        $response = $validationSubject['response']['object'] ?? null;
 
-        $response = $validationSubject['response']['object'];
-
-        if (!($response instanceof TransactionResponse)) {
+        if ($response === null && !($response instanceof TransactionResponse)) {
             return $this->createResult(
                 false,
                 [__('Data must be an instance of "TransactionResponse"')]
@@ -116,6 +128,8 @@ class ResponseCodeSDKValidator extends AbstractValidator
     }
 
     /**
+     * Get Buckaroo status code
+     *
      * @return int|null
      */
     public function getStatusCode()
@@ -126,8 +140,7 @@ class ResponseCodeSDKValidator extends AbstractValidator
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         }
 
-        if (
-            (!isset($statusCode) || $statusCode == null)
+        if ((!isset($statusCode) || $statusCode == null)
             && $this->request->getParam('cancel')
         ) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');
