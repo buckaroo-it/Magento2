@@ -24,6 +24,7 @@ class Kbc extends AbstractConfigProvider
     const XPATH_KBC_PAYMENT_FEE           = 'payment/buckaroo_magento2_kbc/payment_fee';
     const XPATH_KBC_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_kbc/payment_fee_label';
     const XPATH_KBC_ACTIVE                = 'payment/buckaroo_magento2_kbc/active';
+    const XPATH_KBC_DESCRIPTION           = 'payment/buckaroo_magento2_kbc/description';
     const XPATH_KBC_ACTIVE_STATUS         = 'payment/buckaroo_magento2_kbc/active_status';
     const XPATH_KBC_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_kbc/order_status_success';
     const XPATH_KBC_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_kbc/order_status_failed';
@@ -57,6 +58,7 @@ class Kbc extends AbstractConfigProvider
                 'buckaroo' => [
                     'kbc' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ]
                 ]

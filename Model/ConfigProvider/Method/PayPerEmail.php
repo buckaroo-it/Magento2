@@ -38,6 +38,7 @@ class PayPerEmail extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_payperemail/specificcountry';
 
     const XPATH_PAYPEREMAIL_ACTIVE               = 'payment/buckaroo_magento2_payperemail/active';
+    const XPATH_PAYPEREMAIL_DESCRIPTION          = 'payment/buckaroo_magento2_payperemail/description';
     const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
     const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_payperemail/payment_fee_label';
     const XPATH_PAYPEREMAIL_ACTIVE_STATUS        = 'payment/buckaroo_magento2_payperemail/active_status';
@@ -81,6 +82,7 @@ class PayPerEmail extends AbstractConfigProvider
                 'buckaroo' => [
                     'payperemail' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'genderList' => [
                             ['genderType' => 1, 'genderTitle' => __('He/him')],

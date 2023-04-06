@@ -24,6 +24,7 @@ class Pospayment extends AbstractConfigProvider
     const XPATH_POSPAYMENT_PAYMENT_FEE           = 'payment/buckaroo_magento2_pospayment/payment_fee';
     const XPATH_POSPAYMENT_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_pospayment/payment_fee_label';
     const XPATH_POSPAYMENT_ACTIVE                = 'payment/buckaroo_magento2_pospayment/active';
+    const XPATH_POSPAYMENT_DESCRIPTION           = 'payment/buckaroo_magento2_pospayment/description';
     const XPATH_POSPAYMENT_ACTIVE_STATUS         = 'payment/buckaroo_magento2_pospayment/active_status';
     const XPATH_POSPAYMENT_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_pospayment/order_status_success';
     const XPATH_POSPAYMENT_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_pospayment/order_status_failed';
@@ -65,6 +66,7 @@ class Pospayment extends AbstractConfigProvider
                 'buckaroo' => [
                     'pospayment' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ]
                 ]

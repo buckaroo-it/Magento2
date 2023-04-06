@@ -48,6 +48,7 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.p24.paymentFeeLabel,
+                paymentDescription : window.checkoutConfig.payment.buckaroo.p24.description,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

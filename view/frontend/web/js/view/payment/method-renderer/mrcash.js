@@ -78,6 +78,7 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.mrcash.paymentFeeLabel,
+                paymentDescription : window.checkoutConfig.payment.buckaroo.mrcash.description,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 useClientSide : window.checkoutConfig.payment.buckaroo.mrcash.useClientSide,

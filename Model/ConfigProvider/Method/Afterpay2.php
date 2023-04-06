@@ -35,6 +35,7 @@ class Afterpay2 extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_afterpay2/specificcountry';
 
     const XPATH_AFTERPAY2_ACTIVE                 = 'payment/buckaroo_magento2_afterpay2/active';
+    const XPATH_AFTERPAY2_DESCRIPTION            = 'payment/buckaroo_magento2_afterpay2/description';
     const XPATH_AFTERPAY2_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay2/payment_fee';
     const XPATH_AFTERPAY2_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_afterpay2/payment_fee_label';
     const XPATH_AFTERPAY2_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay2/send_email';
@@ -76,6 +77,7 @@ class Afterpay2 extends AbstractConfigProvider
                     'afterpay2' => [
                         'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),

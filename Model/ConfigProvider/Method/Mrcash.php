@@ -31,6 +31,7 @@ class Mrcash extends AbstractConfigProvider
     const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
     const XPATH_MRCASH_PAYMENT_FEE_LABEL        = 'payment/buckaroo_magento2_mrcash/payment_fee_label';
     const XPATH_MRCASH_ACTIVE                   = 'payment/buckaroo_magento2_mrcash/active';
+    const XPATH_MRCASH_DESCRIPTION              = 'payment/buckaroo_magento2_mrcash/description';
     const XPATH_MRCASH_ACTIVE_STATUS            = 'payment/buckaroo_magento2_mrcash/active_status';
     const XPATH_MRCASH_ORDER_STATUS_SUCCESS     = 'payment/buckaroo_magento2_mrcash/order_status_success';
     const XPATH_MRCASH_ORDER_STATUS_FAILED      = 'payment/buckaroo_magento2_mrcash/order_status_failed';
@@ -87,6 +88,7 @@ class Mrcash extends AbstractConfigProvider
                 'buckaroo' => [
                     'mrcash' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'useClientSide' => (int) $this->useClientSide(),
                         'redirecturl' => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()

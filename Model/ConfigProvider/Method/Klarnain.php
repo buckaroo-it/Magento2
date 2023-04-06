@@ -30,6 +30,7 @@ class Klarnain extends AbstractConfigProvider
     const XPATH_ALLOW_SPECIFIC                = 'payment/buckaroo_magento2_klarnain/allowspecific';
     const XPATH_SPECIFIC_COUNTRY              = 'payment/buckaroo_magento2_klarnain/specificcountry';
     const XPATH_KLARNAIN_ACTIVE                 = 'payment/buckaroo_magento2_klarnain/active';
+    const XPATH_KLARNAIN_DESCRIPTION            = 'payment/buckaroo_magento2_klarnain/description';
     const XPATH_KLARNAIN_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnain/payment_fee';
     const XPATH_KLARNAIN_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarnain/payment_fee_label';
     const XPATH_KLARNAIN_SEND_EMAIL             = 'payment/buckaroo_magento2_klarnain/send_email';
@@ -68,6 +69,7 @@ class Klarnain extends AbstractConfigProvider
                     'klarnain' => [
                         'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),

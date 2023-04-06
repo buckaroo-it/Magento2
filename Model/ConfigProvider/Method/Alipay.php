@@ -25,6 +25,7 @@ class Alipay extends AbstractConfigProvider
     const XPATH_ALIPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_alipay/payment_fee';
     const XPATH_ALIPAY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_alipay/payment_fee_label';
     const XPATH_ALIPAY_ACTIVE                = 'payment/buckaroo_magento2_alipay/active';
+    const XPATH_ALIPAY_DESCRIPTION           = 'payment/buckaroo_magento2_alipay/description';
     const XPATH_ALIPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_alipay/active_status';
     const XPATH_ALIPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_alipay/order_status_success';
     const XPATH_ALIPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_alipay/order_status_failed';
@@ -50,6 +51,7 @@ class Alipay extends AbstractConfigProvider
                 'buckaroo' => [
                     'alipay' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

@@ -106,6 +106,7 @@ define(
                     minimumWords: 2
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.sepadirectdebit.paymentFeeLabel,
+                paymentDescription : window.checkoutConfig.payment.buckaroo.sepadirectdebit.description,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

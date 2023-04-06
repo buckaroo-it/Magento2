@@ -51,6 +51,7 @@ define(
                 },
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                paymentDescription : window.checkoutConfig.payment.buckaroo.applepay.description,
                 submit: false,
 
                 /**

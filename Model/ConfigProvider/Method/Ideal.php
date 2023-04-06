@@ -25,6 +25,7 @@ class Ideal extends AbstractConfigProvider
     const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
     const XPATH_IDEAL_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_ideal/payment_fee_label';
     const XPATH_IDEAL_ACTIVE                = 'payment/buckaroo_magento2_ideal/active';
+    const XPATH_IDEAL_DESCRIPTION           = 'payment/buckaroo_magento2_ideal/description';
     const XPATH_IDEAL_ACTIVE_STATUS         = 'payment/buckaroo_magento2_ideal/active_status';
     const XPATH_IDEAL_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_ideal/order_status_success';
     const XPATH_IDEAL_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_ideal/order_status_failed';
@@ -73,6 +74,7 @@ class Ideal extends AbstractConfigProvider
                     'ideal' => [
                         'banks' => $issuers,
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'selectionType' => $selectionType,
                     ],

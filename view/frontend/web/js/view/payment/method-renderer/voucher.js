@@ -53,6 +53,7 @@ define(
                     isFormValid: false
                 },
                 paymentFeeLabel: window.checkoutConfig.payment.buckaroo.voucher.paymentFeeLabel,
+                paymentDescription : window.checkoutConfig.payment.buckaroo.voucher.description,
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 

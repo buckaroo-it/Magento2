@@ -25,6 +25,7 @@ class Trustly extends AbstractConfigProvider
     const XPATH_TRUSTLY_PAYMENT_FEE           = 'payment/buckaroo_magento2_trustly/payment_fee';
     const XPATH_TRUSTLY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_trustly/payment_fee_label';
     const XPATH_TRUSTLY_ACTIVE                = 'payment/buckaroo_magento2_trustly/active';
+    const XPATH_TRUSTLY_DESCRIPTION           = 'payment/buckaroo_magento2_trustly/description';
     const XPATH_TRUSTLY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_trustly/active_status';
     const XPATH_TRUSTLY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_trustly/order_status_success';
     const XPATH_TRUSTLY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_trustly/order_status_failed';
@@ -63,6 +64,7 @@ class Trustly extends AbstractConfigProvider
                 'buckaroo' => [
                     'trustly' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

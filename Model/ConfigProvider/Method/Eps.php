@@ -27,6 +27,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Eps extends AbstractConfigProvider
 {
     const XPATH_EPS_ACTIVE                 = 'payment/buckaroo_magento2_eps/active';
+    const XPATH_EPS_DESCRIPTION            = 'payment/buckaroo_magento2_eps/description';
     const XPATH_EPS_PAYMENT_FEE            = 'payment/buckaroo_magento2_eps/payment_fee';
     const XPATH_EPS_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_eps/payment_fee_label';
     const XPATH_EPS_SEND_EMAIL             = 'payment/buckaroo_magento2_eps/send_email';
@@ -64,6 +65,7 @@ class Eps extends AbstractConfigProvider
                     'eps' => [
                         'sendEmail' => (bool) $this->getSendEmail(),
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ]
                 ]

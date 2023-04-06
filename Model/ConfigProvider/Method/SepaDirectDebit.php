@@ -25,6 +25,7 @@ class SepaDirectDebit extends AbstractConfigProvider
     const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee';
     const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee_label';
     const XPATH_SEPADIRECTDEBIT_ACTIVE = 'payment/buckaroo_magento2_sepadirectdebit/active';
+    const XPATH_SEPADIRECTDEBIT_DESCRIPTION  = 'payment/buckaroo_magento2_sepadirectdebit/description';
     const XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS = 'payment/buckaroo_magento2_sepadirectdebit/active_status';
     const XPATH_SEPADIRECTDEBIT_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_sepadirectdebit/order_status_success';
     const XPATH_SEPADIRECTDEBIT_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_sepadirectdebit/order_status_failed';
@@ -57,6 +58,7 @@ class SepaDirectDebit extends AbstractConfigProvider
                 'buckaroo' => [
                     'sepadirectdebit' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

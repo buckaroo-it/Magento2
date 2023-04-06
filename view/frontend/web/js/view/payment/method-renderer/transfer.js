@@ -45,6 +45,7 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_transfer'
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.transfer.paymentFeeLabel,
+                paymentDescription : window.checkoutConfig.payment.buckaroo.transfer.description,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

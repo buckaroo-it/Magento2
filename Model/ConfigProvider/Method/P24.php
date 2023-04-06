@@ -25,6 +25,7 @@ class P24 extends AbstractConfigProvider
     const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
     const XPATH_P24_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_p24/payment_fee_label';
     const XPATH_P24_ACTIVE                = 'payment/buckaroo_magento2_p24/active';
+    const XPATH_P24_DESCRIPTION           = 'payment/buckaroo_magento2_p24/description';
     const XPATH_P24_ACTIVE_STATUS         = 'payment/buckaroo_magento2_p24/active_status';
     const XPATH_P24_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_p24/order_status_success';
     const XPATH_P24_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_p24/order_status_failed';
@@ -50,6 +51,7 @@ class P24 extends AbstractConfigProvider
                 'buckaroo' => [
                     'p24' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

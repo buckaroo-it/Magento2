@@ -39,6 +39,7 @@ class Payconiq extends AbstractConfigProvider
     const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
     const XPATH_PAYCONIQ_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_payconiq/payment_fee_label';
     const XPATH_PAYCONIQ_ACTIVE                           = 'payment/buckaroo_magento2_payconiq/active';
+    const XPATH_PAYCONIQ_DESCRIPTION                      = 'payment/buckaroo_magento2_payconiq/description';
     const XPATH_PAYCONIQ_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_payconiq/active_status';
     const XPATH_PAYCONIQ_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_payconiq/order_status_success';
     const XPATH_PAYCONIQ_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_payconiq/order_status_failed';
@@ -102,6 +103,7 @@ class Payconiq extends AbstractConfigProvider
                 'buckaroo' => [
                     'payconiq' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'description'   => $this->getDescription(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'redirecturl' => self::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
                     ],

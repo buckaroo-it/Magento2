@@ -50,6 +50,7 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.payconiq.paymentFeeLabel,
+                paymentDescription : window.checkoutConfig.payment.buckaroo.payconiq.description,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

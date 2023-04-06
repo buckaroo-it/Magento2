@@ -37,6 +37,12 @@
             <config_path>payment/buckaroo_magento2_giftcards/title</config_path>
         </field>
 
+        <field id="description" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Description</label>
+            <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
+            <config_path>payment/buckaroo_magento2_giftcards/description</config_path>
+        </field>
+
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend sort order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
