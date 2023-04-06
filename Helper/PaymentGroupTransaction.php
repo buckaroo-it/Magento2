@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -24,13 +24,14 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\GroupTransactionFactory;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory as GroupTransactionCollectionFactory;
+use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 
-class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelper
+class PaymentGroupTransaction extends AbstractHelper
 {
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     * @var DateTime
      */
     protected $dateTime;
 
@@ -40,12 +41,12 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     protected $groupTransactionFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory
+     * @var GroupTransactionCollectionFactory
      */
     protected $grTrCollectionFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction
+     * @var GroupTransaction
      */
     protected $resourceModel;
 
@@ -65,9 +66,9 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
      * @param GroupTransaction $resourceModel
      */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
+        Context $context,
         GroupTransactionFactory $groupTransactionFactory,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        DateTime $dateTime,
         Log $logging,
         GroupTransactionCollectionFactory $grTrCollectionFactory,
         GroupTransaction $resourceModel
@@ -81,6 +82,12 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         $this->resourceModel = $resourceModel;
     }
 
+    /**
+     * Saves a group transaction in the database.
+     *
+     * @param array $response
+     * @return mixed
+     */
     public function saveGroupTransaction($response)
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($response, true));
@@ -98,6 +105,12 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return $groupTransaction->save();
     }
 
+    /**
+     * Updates a group transaction in the database.
+     *
+     * @param array $item
+     * @return mixed
+     */
     public function updateGroupTransaction($item)
     {
         $groupTransaction = $this->groupTransactionFactory->create();
@@ -118,13 +131,19 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return is_array($groupTransactions) && count($groupTransactions) > 0;
     }
 
-    public function getGroupTransactionItems($order_id)
+    /**
+     * Retrieves the group transaction items for a given order ID.
+     *
+     * @param string|int $orderId
+     * @return array
+     */
+    public function getGroupTransactionItems($orderId)
     {
         $collection = $this->groupTransactionFactory->create()
             ->getCollection()
             ->addFieldToFilter(
                 'order_id',
-                ['eq' => $order_id]
+                ['eq' => $orderId]
             )
             ->addFieldToFilter(
                 'status',
@@ -140,22 +159,27 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     /**
      * Get already paid amount from db
      *
-     * @param string|null $order_id
-     *
+     * @param string|int|null $orderId
      * @return float
      */
-    public function getAlreadyPaid($order_id)
+    public function getAlreadyPaid($orderId)
     {
-        if ($order_id === null) {
+        if ($orderId === null) {
             return 0;
         }
-        return $this->getGroupTransactionAmount($order_id);
+        return $this->getGroupTransactionAmount($orderId);
     }
 
-    public function getGroupTransactionAmount($order_id)
+    /**
+     * Calculates the total amount of group transactions for a given order ID.
+     *
+     * @param string|int $orderId
+     * @return float|int
+     */
+    public function getGroupTransactionAmount($orderId)
     {
         $total = 0;
-        foreach ($this->getGroupTransactionItems($order_id) as $value) {
+        foreach ($this->getGroupTransactionItems($orderId) as $value) {
             if ($value['status'] == '190') {
                 $total += $value['amount'] - (float)$value['refunded_amount'];
             }
@@ -192,37 +216,52 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         return null;
     }
 
-    public function getGroupTransactionItemsNotRefunded($order_id)
+    /**
+     * Retrieves the group transaction items that have not been refunded for a given order ID.
+     *
+     * @param string|int $orderId
+     * @return array
+     */
+    public function getGroupTransactionItemsNotRefunded($orderId)
     {
         $collection = $this->groupTransactionFactory->create()
             ->getCollection()
-            ->addFieldToFilter('order_id', ['eq' => $order_id])
+            ->addFieldToFilter('order_id', ['eq' => $orderId])
             ->addFieldToFilter('refunded_amount', ['null' => true]);
         return array_values($collection->getItems());
     }
 
-
-    public function getGroupTransactionById($entity_id)
+    /**
+     * Retrieves the group transaction item for a given entity ID.
+     *
+     * @param int|string $entityId
+     * @return mixed
+     */
+    public function getGroupTransactionById($entityId)
     {
         $collection = $this->groupTransactionFactory->create()
             ->getCollection()
-            ->addFieldToFilter('entity_id', ['eq' => $entity_id]);
+            ->addFieldToFilter('entity_id', ['eq' => $entityId]);
         return $collection->getItems();
     }
 
-    public function getGroupTransactionByTrxId($trx_id)
+    /**
+     * Retrieves the group transaction item for a given transaction ID.
+     *
+     * @param int|string $trxId
+     * @return mixed
+     */
+    public function getGroupTransactionByTrxId($trxId)
     {
         return $this->groupTransactionFactory->create()
             ->getCollection()
-            ->addFieldToFilter('transaction_id', ['eq' => $trx_id])->getItems();
+            ->addFieldToFilter('transaction_id', ['eq' => $trxId])->getItems();
     }
 
     /**
-     * Get successful group transactions for orderId
-     * with giftcard label
+     * Get successful group transactions for orderId with giftcard label
      *
      * @param string|null $orderId
-     *
      * @return \Buckaroo\Magento2\Model\GroupTransaction[]
      */
     public function getActiveItemsWithName($orderId)
@@ -251,11 +290,9 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     }
 
     /**
-     * Get successful group transaction dor transaction id
-     * with giftcard label
+     * Get successful group transaction dor transaction id with giftcard label
      *
-     * @param string $orderId
-     *
+     * @param string $transactionId
      * @return \Buckaroo\Magento2\Model\GroupTransaction
      */
     public function getByTransactionIdWithName(string $transactionId)
@@ -280,7 +317,6 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
      *
      * @param string $groupTransactionId
      * @param string $status
-     *
      * @return void
      */
     public function setGroupTransactionsStatus(string $groupTransactionId, string $status)

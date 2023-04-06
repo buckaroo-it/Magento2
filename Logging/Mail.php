@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -25,16 +24,24 @@ use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 
 class Mail
 {
-    /** @var DebugConfiguration */
+    /**
+     * @var DebugConfiguration
+     */
     private $debugConfiguration;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $message = [];
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $mailSubject = 'Buckaroo_Magento2 log mail';
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $mailFrom = 'nobody@buckaroo.nl';
 
     /**
@@ -49,6 +56,8 @@ class Mail
 
     /**
      * Mail the debug message to the debug recipients
+     *
+     * @return void
      */
     public function mailMessage()
     {
@@ -72,6 +81,8 @@ class Mail
     }
 
     /**
+     * Reset the message
+     *
      * @return $this
      */
     public function resetMessage()
@@ -84,8 +95,7 @@ class Mail
     /**
      * Add $message to the message array, and cast to string if an array or object
      *
-     * @param $message
-     *
+     * @param mixed $message
      * @return $this
      */
     public function addToMessage($message)
@@ -101,6 +111,8 @@ class Mail
     }
 
     /**
+     * Get message
+     *
      * @return array
      */
     public function getMessage()
@@ -123,6 +135,8 @@ class Mail
     }
 
     /**
+     * Get mail subject
+     *
      * @return string
      */
     public function getMailSubject()
@@ -131,8 +145,9 @@ class Mail
     }
 
     /**
-     * @param string $mailSubject
+     * Set mail subject
      *
+     * @param string $mailSubject
      * @return $this
      */
     public function setMailSubject($mailSubject)
@@ -143,6 +158,8 @@ class Mail
     }
 
     /**
+     * Get mail from
+     *
      * @return string
      */
     public function getMailFrom()
@@ -151,8 +168,9 @@ class Mail
     }
 
     /**
-     * @param string $mailFrom
+     * Set mail from
      *
+     * @param string $mailFrom
      * @return $this
      */
     public function setMailFrom($mailFrom)

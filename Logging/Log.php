@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -32,18 +31,34 @@ class Log extends Logger
 {
     public const BUCKAROO_LOG_TRACE_DEPTH_DEFAULT = 10;
 
-    /** @var DebugConfiguration */
+    /**
+     * @var DebugConfiguration
+     */
     private DebugConfiguration $debugConfiguration;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected array $message = [];
 
+    /**
+     * @var int
+     */
     private static $processUid = 0;
 
+    /**
+     * @var Session
+     */
     protected Session $checkoutSession;
 
+    /**
+     * @var SessionManager
+     */
     protected SessionManager $session;
 
+    /**
+     * @var \Magento\Customer\Model\Session
+     */
     protected \Magento\Customer\Model\Session $customerSession;
 
     /**
@@ -59,8 +74,8 @@ class Log extends Logger
      */
     public function __construct(
         DebugConfiguration $debugConfiguration,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\Session\SessionManager $sessionManager,
+        Session $checkoutSession,
+        SessionManager $sessionManager,
         \Magento\Customer\Model\Session $customerSession,
         array $handlers = [],
         array $processors = [],
@@ -77,8 +92,12 @@ class Log extends Logger
     /**
      * @inheritdoc
      */
-    public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
-    {
+    public function addRecord(
+        int $level,
+        string $message,
+        array $context = [],
+        DateTimeImmutable $datetime = null
+    ): bool {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
         }
@@ -125,6 +144,8 @@ class Log extends Logger
     }
 
     /**
+     * Logs a debug message.
+     *
      * @param string $message
      * @return bool
      */
@@ -133,10 +154,17 @@ class Log extends Logger
         return $this->addRecord(Logger::DEBUG, $message);
     }
 
+    /**
+     * Logs an error message.
+     *
+     * @param string $message
+     * @return bool
+     */
     public function addError(string $message): bool
     {
         return $this->addRecord(Logger::ERROR, $message);
     }
+
     /**
      * @inheritdoc
      */
