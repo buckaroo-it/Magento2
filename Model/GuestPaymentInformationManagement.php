@@ -74,7 +74,8 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
             $cartManagement,
             $paymentInformationManagement,
             $quoteIdMaskFactory,
-            $cartRepository
+            $cartRepository,
+            $logger
         );
         $this->registry = $registry;
         $this->logger = $logger;

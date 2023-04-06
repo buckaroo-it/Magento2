@@ -55,6 +55,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
      * @var \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction
      */
     protected $resourceModel;
+    private Log $logging;
 
     /**
      */
@@ -71,11 +72,10 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         parent::__construct($context);
 
         $this->groupTransactionFactory = $groupTransactionFactory;
-        $this->dateTime                = $dateTime;
-
-        $this->order       = $order;
+        $this->dateTime = $dateTime;
+        $this->order = $order;
         $this->transaction = $transaction;
-        $this->logging     = $logging;
+        $this->logging = $logging;
         $this->grTrCollectionFactory = $grTrCollectionFactory;
         $this->resourceModel = $resourceModel;
     }
