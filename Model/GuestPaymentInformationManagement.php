@@ -71,27 +71,21 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         ProductMetadataInterface $productMetadata
     ) {
         $magentoVersion = $productMetadata->getVersion();
+        $lastParam = null;
 
         if (version_compare($magentoVersion, '2.4.6', '>=')) {
-            parent::__construct(
-                $billingAddressManagement,
-                $paymentMethodManagement,
-                $cartManagement,
-                $paymentInformationManagement,
-                $quoteIdMaskFactory,
-                $cartRepository,
-                $logger
-            );
-        } else {
-            parent::__construct(
-                $billingAddressManagement,
-                $paymentMethodManagement,
-                $cartManagement,
-                $paymentInformationManagement,
-                $quoteIdMaskFactory,
-                $cartRepository
-            );
+            $lastParam = $logger;
         }
+
+        parent::__construct(
+            $billingAddressManagement,
+            $paymentMethodManagement,
+            $cartManagement,
+            $paymentInformationManagement,
+            $quoteIdMaskFactory,
+            $cartRepository,
+            $lastParam
+        );
 
         $this->registry = $registry;
         $this->logger = $logger;
