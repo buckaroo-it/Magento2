@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model;
 use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaymentInformationManagement;
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Magento\Framework\App\ProductMetadataInterface;
 
 // @codingStandardsIgnoreStart
 class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
@@ -66,17 +67,32 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         \Magento\Framework\Registry $registry,
         \Psr\Log\LoggerInterface $logger,
         Factory $configProviderMethodFactory,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        ProductMetadataInterface $productMetadata
     ) {
-        parent::__construct(
-            $billingAddressManagement,
-            $paymentMethodManagement,
-            $cartManagement,
-            $paymentInformationManagement,
-            $quoteIdMaskFactory,
-            $cartRepository,
-            $logger
-        );
+        $magentoVersion = $productMetadata->getVersion();
+
+        if (version_compare($magentoVersion, '2.4.6', '>=')) {
+            parent::__construct(
+                $billingAddressManagement,
+                $paymentMethodManagement,
+                $cartManagement,
+                $paymentInformationManagement,
+                $quoteIdMaskFactory,
+                $cartRepository,
+                $logger
+            );
+        } else {
+            parent::__construct(
+                $billingAddressManagement,
+                $paymentMethodManagement,
+                $cartManagement,
+                $paymentInformationManagement,
+                $quoteIdMaskFactory,
+                $cartRepository
+            );
+        }
+
         $this->registry = $registry;
         $this->logger = $logger;
         $this->configProviderMethodFactory  = $configProviderMethodFactory;
