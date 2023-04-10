@@ -80,7 +80,7 @@
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_capayablein3_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <span><sup data-bind="i18n: '(DD/MM/YYYY)' "></sup></span>
-                        <div class="control">
+                        <div class="control addon">
                             <input id="buckaroo_magento2_capayablein3_DoB"
                                    class="field"
                                    type="text"
@@ -88,6 +88,8 @@
                                            datepicker: {
                                                 storage: dateValidate,
                                                 options: {
+                                                    beforeShow: dp.addPickerClass,
+                                                    onClose: dp.removePickerClass,
                                                     changeMonth: true,
                                                     changeYear: true,
                                                     yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
@@ -96,7 +98,7 @@
                                            },
                                            valueUpdate: 'blur',
                                            value: dateValidate,
-                                           attr: { 'data-validate': JSON.stringify({ 'required': true })}"
+                                           attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
                                    name="payment[buckaroo_magento2_capayablein3][customer_DoB]">
                         </div>
                         <div for="buckaroo_magento2_capayablein3_DoB" generated="true" class="mage-error" id="dob-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>

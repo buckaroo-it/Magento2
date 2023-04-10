@@ -48,7 +48,6 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_payperemail',
                     selectedGender: null,
-                    genderList: null,
                     firstName: null,
                     middleName: null,
                     lastName: null,
@@ -67,7 +66,7 @@ define(
                 paymentFeeLabel: window.checkoutConfig.payment.buckaroo.payperemail.paymentFeeLabel,
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-
+                genderList: window.checkoutConfig.payment.buckaroo.payperemail.genderList,
                 /**
                  * @override
                  */
@@ -83,7 +82,6 @@ define(
                     this._super().observe(
                         [
                             'selectedGender',
-                            'genderList',
                             'firstName',
                             'middleName',
                             'lastName',
@@ -142,11 +140,6 @@ define(
                         this
                     );
                     this.BillingEmail(this.CustomerEmail());
-
-                    this.gendersList = function () {
-
-                        return window.checkoutConfig.payment.buckaroo.payperemail.genderList;
-                    }
 
                     /**
                      * observe radio buttons

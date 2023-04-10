@@ -30,6 +30,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common',
+        'buckaroo/checkout/datepicker',
         'Magento_Customer/js/model/customer',
         'Magento_Ui/js/lib/knockout/bindings/datepicker',
         'Magento_Checkout/js/action/select-billing-address',
@@ -46,6 +47,7 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         checkoutCommon,
+        dp,
         customer,
         selectBillingAddress,
     ) {
@@ -154,6 +156,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 isCustomerLoggedIn: customer.isLoggedIn,
                 isB2B: window.checkoutConfig.payment.buckaroo.afterpay20.is_b2b,
+                dp:dp,
                 /**
                  * @override
                  */

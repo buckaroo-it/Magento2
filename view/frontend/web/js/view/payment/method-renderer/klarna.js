@@ -46,12 +46,12 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_klarna',
                     selectedGender: null,
-                    genderList: null
                 },
                 redirectAfterPlaceOrder: true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarna.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                genderList: window.checkoutConfig.payment.buckaroo.klarna.genderList,
 
                 /**
                  * @override
@@ -72,39 +72,21 @@ define(
                         ]
                     );
 
-                    this.gendersList = function() {
-
-                        return window.checkoutConfig.payment.buckaroo.klarna.genderList;
-                    }
                     
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedGender = function () {
-                        var el = document.getElementById("buckaroo_magento2_klarna_genderSelect");
-                        this.selectedGender(el.options[el.selectedIndex].value);
-                        this.selectPaymentMethod();
-                        return true;
-                    };
-
-                    this.getSelectedGender = function () {
-                        return this.selectedGender();
-                    }
-                                       
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
                     this.buttoncheck = ko.computed(
                     function () {
-                        var result = (this.selectedGender != null);
-                        return result;
+                        return this.selectedGender() != null;
                         },
                         this
                     );
 
                     return this;
+                },
+                validateField(data, event) {
+                    $(event.target).valid();
                 },
 
                 /**

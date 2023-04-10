@@ -72,6 +72,8 @@
                                    datepicker: {
                                         storage: dateValidate,
                                         options: {
+                                            beforeShow: dp.addPickerClass,
+                                            onClose: dp.removePickerClass,
                                             changeMonth: true,
                                             changeYear: true,
                                             yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
@@ -158,7 +160,7 @@
                                    data-bind="
                                        valueUpdate: 'keyup',
                                        value: CompanyName,
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true, 'min-words': 1 })
+                                       attr: { 'data-validate': JSON.stringify({ 'required': true })
                                         }">
                         </div>
                     </div>

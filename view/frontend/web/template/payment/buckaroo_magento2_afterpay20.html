@@ -105,6 +105,8 @@
                                    datepicker: {
                                         storage: dateValidate,
                                         options: {
+                                            beforeShow: dp.addPickerClass,
+                                            onClose: dp.removePickerClass,
                                             changeMonth: true,
                                             changeYear: true,
                                             yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),

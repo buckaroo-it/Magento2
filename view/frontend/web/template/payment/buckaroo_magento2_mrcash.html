@@ -27,20 +27,17 @@
 
         <div class="payment-method-second-col billing-address-form">
 
-            <input id="buckaroo_magento2_mrcash_clientSideModeCc" class="bank-types-input" type="radio" checked="checked"
-                   data-bind="click: setClientSideMode.bind($data, 'cc')" name="payment[buckaroo_magento2_mrcash][clientsidemode]">
+            <input id="buckaroo_magento2_mrcash_clientSideModeCc" class="bank-types-input" type="radio" value="cc"
+                   data-bind="checked: clientSideMode" name="payment[buckaroo_magento2_mrcash][clientsidemode]">
             <label for="buckaroo_magento2_mrcash_clientSideModeCc"><span data-bind="i18n: 'Bancontact card'"></span></label>
             <br>
 
-            <!-- ko if: isCcMode -->
+            <!-- ko if: clientSideMode() == 'cc' -->
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}" id="buckaroo_magento2_mrcash_clientSideModeCc_block">
-                <fieldset class="fieldset payment card styled">
-
-                    <div class="fieldset card_front width-100">
-
-                        <div class="field required width-100" >
-                            <label class="label" for="buckaroo_magento2_mrcash_cardholdername"> <span data-bind="i18n: 'Cardholder:'"> </span> </label>
+                <fieldset class="fieldset bk-mrcash">
+                        <div class="field required">
+                            <label class="label" for="buckaroo_magento2_mrcash_cardholdername"> <span data-bind="i18n: 'Name on card:'"> </span> </label>
                             <div class="control">
                                 <input id="buckaroo_magento2_mrcash_cardholdername"
                                        type="text"
@@ -48,60 +45,56 @@
                                        name="payment[buckaroo_magento2_mrcash][cardholdername]"
                                        data-bind="
                             valueUpdate: 'blur',
-                            value: CardHolderName,
-                            textInput: CardHolderName(),
+                            value: cardHolderName,
                             attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardHolderName': true }) },
-                            event: { blur: encryptCardDetails }">
+                            event: { blur: validateField }">
                             </div>
                         </div>
 
-                        <div class="field required width-100" >
-                            <label class="label" for="buckaroo_magento2_mrcash_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
-                            <div class="control">
-                                <input id="buckaroo_magento2_mrcash_cardnumber"
-                                       type="text"
-                                       class="input-text field"
-                                       name="payment[buckaroo_magento2_mrcash][cardnumber]"
-                                       data-bind="
-                            valueUpdate: 'blur',
-                            value: CardNumber,
-                            textInput: CardNumber(),
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }) },
-                            event: { blur: encryptCardDetails }">
+                        <div class="bk-card-date-wrap">
+                            <div class="field required bk-card-number" >
+                                <label class="label" for="buckaroo_magento2_mrcash_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
+                                <div class="control">
+                                    <input id="buckaroo_magento2_mrcash_cardnumber"
+                                        type="text"
+                                        class="input-text field"
+                                        name="payment[buckaroo_magento2_mrcash][cardnumber]"
+                                        data-bind="
+                                        valueUpdate: 'input',
+                                        value: formatedCardNumber,
+                                        attr: {
+                                            'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }),
+                                            'maxlength': 23,
+                                            'placeholder': '0000 0000 0000 0000'
+                                        },
+                                        event: { blur: validateField }">
+                                </div>
+                            </div>
+
+                            <div class="field required bk-date">
+                                <label class="label" for="buckaroo_magento2_mrcash_expireDate">
+                                    <span data-bind="i18n: 'Expiration:'"></span>
+                                </label>
+                                <div class="control">
+                                    <input id="buckaroo_magento2_mrcash_expireDate"
+                                        type="text"
+                                        class="input-text field"
+                                        name="payment[buckaroo_magento2_mrcash][expireDate]"
+                                        data-bind="
+                                valueUpdate: 'input',
+                                value: formatedExpirationDate,
+                                attr: { 
+                                    'data-validate': JSON.stringify(
+                                        { 'required': true,  'bkValidateMonth': true, 'bkValidateYear': true }
+                                    ),
+                                    'maxlength': 5,
+                                    'placeholder': 'MM/YY'
+                                },
+                                event: { blur: validateField }">
+                                </div>
                             </div>
                         </div>
-
-                        <div class="field required width-50-l" >
-                            <label class="label" for="buckaroo_magento2_mrcash_expirationmonth"><span data-bind="i18n: 'Month:'"></span></label>
-                            <div class="control">
-                                <select id="buckaroo_magento2_mrcash_expirationmonth" class="field"
-                                        data-bind="value: ExpirationMonth,
-                                        attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
-                                        event: { change: validateMonth }"
-                                        name="payment[buckaroo_magento2_mrcash][expirationmonth]">
-                                    <!-- ko foreach: months -->
-                                    <option data-bind="i18n: label, 'value': value"></option>
-                                    <!--/ko-->
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="field required width-50-r" >
-                            <label class="label" for="buckaroo_magento2_mrcash_expirationyear"><span data-bind="i18n: 'Year:'"></span></label>
-                            <div class="control">
-                                <select id="buckaroo_magento2_mrcash_expirationyear" class="field"
-                                        data-bind="value: ExpirationYear,
-                                                   attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) },
-                                                   event: { change: validateYear, blur: validateYear },
-                                                   foreach: getYears()"
-                                        name="payment[buckaroo_magento2_mrcash][expirationyear]">
-                                    <option data-bind="i18n: label, 'value': value"></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="field width-100">
+                    <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>
                 </fieldset>
@@ -109,7 +102,7 @@
             <!--/ko-->
 
             <input id="buckaroo_magento2_mrcash_clientSideModeMobile" class="bank-types-input" type="radio"
-                   data-bind="click: setClientSideMode.bind($data, 'mobile')" name="payment[buckaroo_magento2_mrcash][clientsidemode]">
+                   data-bind="checked: clientSideMode" value="mobile" name="payment[buckaroo_magento2_mrcash][clientsidemode]">
             <label for="buckaroo_magento2_mrcash_clientSideModeMobile"><span data-bind="i18n: 'Bancontact QR'"></span></label>
 
         </div>
@@ -125,7 +118,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() }
+                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

@@ -28,7 +28,8 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'buckaroo/checkout/datepicker'
     ],
     function (
         $,
@@ -39,7 +40,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        dp
     ) {
         'use strict';
 
@@ -63,7 +65,8 @@ define(
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablepostpay.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
+                dp:dp,
+                
                 /**
                  * @override
                  */

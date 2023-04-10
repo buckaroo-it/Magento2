@@ -29,6 +29,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common',
+        'buckaroo/checkout/datepicker',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
         /*,
          'jquery/validate'*/
@@ -42,7 +43,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        dp
     ) {
         'use strict';
 
@@ -58,7 +60,6 @@ define(
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_billink',
                     businessMethod: null,
                     selectedGender: null,
-                    genderList: null,
                     chamberOfCommerce: null,
                     firstName: '',
                     lastName: '',
@@ -66,7 +67,6 @@ define(
                     BillingName: null,
                     country: '',
                     dateValidate: null,
-                    genderValidate: null,
                     chamberOfCommerceValidate: null,
                     VATNumberValidate: null,
                     phoneValidate: null,
@@ -83,6 +83,8 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,
+                genderList: window.checkoutConfig.payment.buckaroo.billink.genderList,
+                dp:dp,
 
                 /**
                  * @override
@@ -100,14 +102,12 @@ define(
                         [
                             'businessMethod',
                             'selectedGender',
-                            'genderList',
                             'firstname',
                             'lastname',
                             'CustomerName',
                             'BillingName',
                             'country',
                             'dateValidate',
-                            'genderValidate',
                             'chamberOfCommerceValidate',
                             'VATNumberValidate',
                             'phoneValidate',
@@ -237,30 +237,9 @@ define(
                             this.updateShowFields();
                         }.bind(this)
                     );
-                    
-                    this.gendersList = function() {
-
-                        return window.checkoutConfig.payment.buckaroo.billink.genderList;
-                    }
-                    
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
                     var self = this;
-                    this.setSelectedGender = function () {
-                        var el = document.getElementById("buckaroo_magento2_bilink_genderSelect");
-                        this.selectedGender = el.options[el.selectedIndex].value;
-                        this.selectPaymentMethod();
-                        return true;
-                    };
-
-                    this.getSelectedGender = function () {
-                        return this.selectedGender;
-                    }
-
                     this.validatePhone = function() {
-
+                        
                         function returnSuccess() {
                             $('#' + self.getCode() + '_Telephone-error').hide();
                             $('#' + self.getCode() + '_Telephone').removeClass('mage-error');
@@ -322,9 +301,6 @@ define(
 
                     var runValidation = function () {
                         var elements = $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])');
-                        // if (this.country != 'NL' && this.country != 'BE') {
-                            elements = elements.filter(':not([name*="customer_gender"])');
-                        // }
                         elements.valid();
 
                         if (this.calculateAge(this.dateValidate()) >= 18) {
@@ -340,7 +316,6 @@ define(
 
                     this.termsValidate.subscribe(runValidation,this);
                     this.dateValidate.subscribe(runValidation,this);
-                    this.genderValidate.subscribe(runValidation,this);
                     this.chamberOfCommerceValidate.subscribe(runValidation,this);
                     this.VATNumberValidate.subscribe(runValidation,this);
                     this.phoneValidate.subscribe(runValidation,this);

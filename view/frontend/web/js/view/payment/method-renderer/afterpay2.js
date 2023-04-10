@@ -29,6 +29,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common',
+        'buckaroo/checkout/datepicker',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
         /*,
          'jquery/validate'*/
@@ -42,7 +43,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        dp
     ) {
         'use strict';
 
@@ -136,6 +138,7 @@ define(
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay2.paymentFeeLabel,
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                dp:dp,
 
                 /**
                  * @override
@@ -378,7 +381,6 @@ define(
 
                     return this;
                 },
-
                 /**
                  * Place order.
                  *
