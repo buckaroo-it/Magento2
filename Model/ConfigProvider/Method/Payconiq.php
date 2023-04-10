@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,11 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -67,15 +69,24 @@ class Payconiq extends AbstractConfigProvider
         $this->formKey = $formKey;
     }
 
-    private function getFormKey()
+    /**
+     * Get Magento Form Key
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    private function getFormKey(): string
     {
         return $this->formKey->getFormKey();
     }
 
     /**
      * @inheritdoc
+     *
+     * @throws Exception
+     * @throws LocalizedException
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
@@ -93,7 +104,10 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get Sellers Protection
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtection($store = null)
     {
@@ -105,7 +119,10 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get Sellers Protection Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionEligible($store = null)
     {
@@ -117,7 +134,10 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get Sellers Protection Ineligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionIneligible($store = null)
     {
@@ -129,7 +149,10 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get Sellers Protection Itemnotreceived Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
     {
@@ -141,7 +164,10 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get Sellers Protection Unauthorizedpayment Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
     {

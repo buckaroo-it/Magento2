@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -110,7 +109,6 @@ class Afterpay2 extends AbstractConfigProvider
      * Get the config values for the high tax classes.
      *
      * @param null|int|string $store
-     *
      * @return bool|mixed
      */
     public function getHighTaxClasses($store = null)
@@ -128,7 +126,6 @@ class Afterpay2 extends AbstractConfigProvider
      * Get the config values for the middle tax classes
      *
      * @param null|int|string $store
-     *
      * @return bool|mixed
      */
     public function getMiddleTaxClasses($store = null)
@@ -146,7 +143,6 @@ class Afterpay2 extends AbstractConfigProvider
      * Get the config values for the low tax classes
      *
      * @param null|int|string $store
-     *
      * @return bool|mixed
      */
     public function getLowTaxClasses($store = null)
@@ -164,7 +160,6 @@ class Afterpay2 extends AbstractConfigProvider
      * Get the config values for the zero tax classes
      *
      * @param null|int|string $store
-     *
      * @return bool|mixed
      */
     public function getZeroTaxClasses($store = null)
@@ -199,7 +194,6 @@ class Afterpay2 extends AbstractConfigProvider
      * Get the methods name
      *
      * @param int|string $method
-     *
      * @return bool|string
      */
     public function getPaymentMethodName($method = null)

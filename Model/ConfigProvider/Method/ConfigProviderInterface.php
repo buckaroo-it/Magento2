@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -88,28 +87,37 @@ interface ConfigProviderInterface
     public function getOrderStatusFailed($store = null);
 
     /**
+     * Get Allowed Currencies for specific payment method or get defaults
+     *
      * @return array
      */
     public function getAllowedCurrencies();
 
     /**
+     * Get Base Allowed Currencies
+     *
      * @return array
      */
     public function getBaseAllowedCurrencies();
 
     /**
+     * Returns an array of base allowed countries.
+     *
      * @return array
      */
     public function getBaseAllowedCountries();
 
     /**
+     * Get buckaroo payment fee
+     *
      * @return string
      */
     public function getBuckarooPaymentFeeLabel();
 
     /**
-     * @param string $imgName
+     * Generate the url to the desired asset.
      *
+     * @param string $imgName
      * @return string
      */
     public function getImageUrl($imgName);

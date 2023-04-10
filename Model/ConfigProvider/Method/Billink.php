@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,12 +20,12 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 
 class Billink extends AbstractConfigProvider
 {
@@ -34,6 +33,9 @@ class Billink extends AbstractConfigProvider
 
     public const XPATH_BILLINK_BUSINESS = 'payment/buckaroo_magento2_billink/business';
 
+    /**
+     * @var BuckarooHelper
+     */
     private BuckarooHelper $helper;
 
     /**

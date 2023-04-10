@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
 use Magento\Store\Model\ScopeInterface;
 
 class SepaDirectDebit extends AbstractConfigProvider
@@ -37,8 +37,10 @@ class SepaDirectDebit extends AbstractConfigProvider
 
     /**
      * @inheritdoc
+     *
+     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
@@ -46,7 +48,7 @@ class SepaDirectDebit extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'sepadirectdebit' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -55,7 +57,10 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Check if Credit Management is enabled
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getActiveStatusCm3($store = null)
     {
@@ -67,7 +72,10 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Credit Management Scheme Key
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSchemeKey($store = null)
     {
@@ -79,7 +87,10 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get Max level of the Credit Management steps
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getMaxStepIndex($store = null)
     {
@@ -91,7 +102,10 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get credit managment due date, amount of days after the order date
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getCm3DueDate($store = null)
     {
@@ -103,7 +117,10 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get payment method which can be used after the payment due date.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getPaymentMethodAfterExpiry($store = null)
     {

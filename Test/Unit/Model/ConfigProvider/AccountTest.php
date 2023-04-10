@@ -42,9 +42,8 @@ class AccountTest extends BaseTest
         $expectedKeys = [
             'active', 'secret_key', 'merchant_key', 'merchant_guid', 'transaction_label', 'certificate_file',
             'order_confirmation_email', 'invoice_email', 'success_redirect', 'failure_redirect', 'cancel_on_failed',
-            'digital_signature', 'debug_email', 'limit_by_ip', 'fee_percentage_mode',
-            'payment_fee_label', 'order_status_new', 'order_status_pending', 'order_status_success',
-            'order_status_failed', 'create_order_before_transaction'
+            'debug_email', 'limit_by_ip', 'fee_percentage_mode', 'payment_fee_label', 'order_status_new',
+            'order_status_pending', 'order_status_success', 'order_status_failed', 'create_order_before_transaction'
         ];
 
         $instance = $this->getInstance();

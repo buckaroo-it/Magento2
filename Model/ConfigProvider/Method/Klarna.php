@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,8 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
+
+use Buckaroo\Magento2\Exception;
 
 class Klarna extends AbstractConfigProvider
 {
@@ -27,8 +29,10 @@ class Klarna extends AbstractConfigProvider
 
     /**
      * @inheritdoc
+     *
+     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];
@@ -39,11 +43,11 @@ class Klarna extends AbstractConfigProvider
         return [
             'payment' => [
                 'buckaroo' => [
-                    'klarna' => [
+                    'klarna'   => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'paymentFee'        => $this->getPaymentFee(),
-                        'genderList' => [
+                        'genderList'        => [
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')]
                         ]

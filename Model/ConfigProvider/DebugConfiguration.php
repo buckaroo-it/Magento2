@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
@@ -25,19 +25,26 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class DebugConfiguration extends AbstractConfigProvider
 {
-    /** @var Account */
-    private $accountConfig;
+    /**
+     * @var Account
+     */
+    private Account $accountConfig;
 
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Account $account
+     */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         Account $account
     ) {
         $this->accountConfig = $account;
-
         parent::__construct($scopeConfig);
     }
 
     /**
+     * Get Log level
+     *
      * @return mixed
      */
     public function getLogLevel()
@@ -46,9 +53,11 @@ class DebugConfiguration extends AbstractConfigProvider
     }
 
     /**
+     * Get array of emails where debug information will be sent
+     *
      * @return array
      */
-    public function getDebugEmails()
+    public function getDebugEmails(): array
     {
         $debugEmails = $this->accountConfig->getDebugEmail();
         if (!is_scalar($debugEmails)) {
@@ -63,8 +72,9 @@ class DebugConfiguration extends AbstractConfigProvider
     }
 
     /**
-     * @param $level
+     * Is Logger active
      *
+     * @param int|string $level
      * @return bool
      */
     public function canLog($level)
@@ -73,6 +83,11 @@ class DebugConfiguration extends AbstractConfigProvider
         return in_array($level, $logTypes);
     }
 
+    /**
+     * Get Debug backtrace logging depth
+     *
+     * @return mixed
+     */
     public function getDebugBacktraceDepth()
     {
         return $this->accountConfig->getLogDbtraceDepth();
