@@ -38,11 +38,26 @@
             <config_path>payment/buckaroo_magento2_afterpay2/title</config_path>
         </field>
 
-        <field id="description" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Description</label>
+        <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Frontend subtext</label>
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
-            <config_path>payment/buckaroo_magento2_afterpay2/description</config_path>
+            <config_path>payment/buckaroo_magento2_afterpay2/subtext</config_path>
         </field>
+        
+        <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Frontend subtext style</label>
+            <comment><![CDATA[Choose a font style for the subtext.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\SubtextStyle</source_model>
+            <config_path>payment/buckaroo_magento2_afterpay2/subtext_style</config_path>
+        </field>
+
+        <field id="subtext_color" translate="label comment" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Frontend subtext color</label>
+            <comment><![CDATA[Choose a font color for the subtext.]]></comment>
+            <config_path>payment/buckaroo_magento2_afterpay2/subtext_color</config_path>
+            <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+        </field>
+
 
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend sort order</label>

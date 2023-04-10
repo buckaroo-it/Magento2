@@ -29,6 +29,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/applepay/pay',
+        'buckaroo/checkout/common',
         'BuckarooSDK'
     ],
     function (
@@ -40,7 +41,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        applepayPay
+        applepayPay,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -51,7 +53,8 @@ define(
                 },
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                paymentDescription : window.checkoutConfig.payment.buckaroo.applepay.description,
+                subtext : window.checkoutConfig.payment.buckaroo.applepay.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('applepay'),
                 submit: false,
 
                 /**

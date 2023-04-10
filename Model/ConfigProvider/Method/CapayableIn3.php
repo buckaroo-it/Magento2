@@ -31,7 +31,9 @@ class CapayableIn3 extends AbstractConfigProvider
     const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
     const XPATH_CAPAYABLEIN3_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_capayablein3/payment_fee_label';
     const XPATH_CAPAYABLEIN3_ACTIVE               = 'payment/buckaroo_magento2_capayablein3/active';
-    const XPATH_CAPAYABLEIN3_DESCRIPTION          = 'payment/buckaroo_magento2_capayablein3/description';
+    const XPATH_CAPAYABLEIN3_SUBTEXT              = 'payment/buckaroo_magento2_capayablein3/subtext';
+    const XPATH_CAPAYABLEIN3_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_capayablein3/subtext_style';
+    const XPATH_CAPAYABLEIN3_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_capayablein3/subtext_color';
     const XPATH_CAPAYABLEIN3_ACTIVE_STATUS        = 'payment/buckaroo_magento2_capayablein3/active_status';
     const XPATH_CAPAYABLEIN3_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_capayablein3/order_status_success';
     const XPATH_CAPAYABLEIN3_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_capayablein3/order_status_failed';
@@ -69,7 +71,9 @@ class CapayableIn3 extends AbstractConfigProvider
                 'buckaroo' => [
                     'capayablein3' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
-                        'description'   => $this->getDescription(),
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

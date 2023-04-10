@@ -50,7 +50,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarnain.paymentFeeLabel,
-                paymentDescription : window.checkoutConfig.payment.buckaroo.klarnain.description,
+                subtext : window.checkoutConfig.payment.buckaroo.klarnain.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('klarnain'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

@@ -101,7 +101,8 @@ define(
                     issuerImage     : window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditcards.paymentFeeLabel,
-                paymentDescription : window.checkoutConfig.payment.buckaroo.creditcards.description,
+                subtext : window.checkoutConfig.payment.buckaroo.creditcards.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('creditcards'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 creditcards : window.checkoutConfig.payment.buckaroo.creditcards.creditcards,

@@ -31,7 +31,9 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Transfer extends AbstractConfigProvider
 {
     const XPATH_TRANSFER_ACTIVE                 = 'payment/buckaroo_magento2_transfer/active';
-    const XPATH_TRANSFER_DESCRIPTION            = 'payment/buckaroo_magento2_transfer/description';
+    const XPATH_TRANSFER_SUBTEXT                = 'payment/buckaroo_magento2_transfer/subtext';
+    const XPATH_TRANSFER_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_transfer/subtext_style';
+    const XPATH_TRANSFER_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_transfer/subtext_color';
     const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
     const XPATH_TRANSFER_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_transfer/payment_fee_label';
     const XPATH_TRANSFER_SEND_EMAIL             = 'payment/buckaroo_magento2_transfer/send_email';
@@ -75,7 +77,9 @@ class Transfer extends AbstractConfigProvider
                     'transfer' => [
                         'sendEmail' => (bool) $this->getSendEmail(),
                         'paymentFeeLabel' => $paymentFeeLabel,
-                        'description'   => $this->getDescription(),
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ]
                 ]

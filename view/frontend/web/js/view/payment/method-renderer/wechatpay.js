@@ -48,7 +48,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.wechatpay.paymentFeeLabel,
-                paymentDescription : window.checkoutConfig.payment.buckaroo.wechatpay.description,
+                subtext : window.checkoutConfig.payment.buckaroo.wechatpay.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('wechatpay'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

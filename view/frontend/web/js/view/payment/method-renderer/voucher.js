@@ -29,7 +29,8 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'Magento_Ui/js/modal/alert',
         'mage/url',
-        'mage/translate'
+        'mage/translate',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -41,7 +42,8 @@ define(
         selectPaymentMethodAction,
         alert,
         url,
-        $t
+        $t,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -53,7 +55,8 @@ define(
                     isFormValid: false
                 },
                 paymentFeeLabel: window.checkoutConfig.payment.buckaroo.voucher.paymentFeeLabel,
-                paymentDescription : window.checkoutConfig.payment.buckaroo.voucher.description,
+                subtext : window.checkoutConfig.payment.buckaroo.voucher.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('voucher'),
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 

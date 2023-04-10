@@ -25,7 +25,9 @@ class Wechatpay extends AbstractConfigProvider
     const XPATH_WECHATPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_wechatpay/payment_fee';
     const XPATH_WECHATPAY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_wechatpay/payment_fee_label';
     const XPATH_WECHATPAY_ACTIVE                = 'payment/buckaroo_magento2_wechatpay/active';
-    const XPATH_WECHATPAY_DESCRIPTION           = 'payment/buckaroo_magento2_wechatpay/description';
+    const XPATH_WECHATPAY_SUBTEXT               = 'payment/buckaroo_magento2_wechatpay/subtext';
+    const XPATH_WECHATPAY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_wechatpay/subtext_style';
+    const XPATH_WECHATPAY_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_wechatpay/subtext_color';
     const XPATH_WECHATPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_wechatpay/active_status';
     const XPATH_WECHATPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_wechatpay/order_status_success';
     const XPATH_WECHATPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_wechatpay/order_status_failed';
@@ -51,7 +53,9 @@ class Wechatpay extends AbstractConfigProvider
                 'buckaroo' => [
                     'wechatpay' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
-                        'description'   => $this->getDescription(),
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

@@ -30,7 +30,9 @@ class Klarnakp extends AbstractConfigProvider
     const XPATH_ALLOW_SPECIFIC                = 'payment/buckaroo_magento2_klarnakp/allowspecific';
     const XPATH_SPECIFIC_COUNTRY              = 'payment/buckaroo_magento2_klarnakp/specificcountry';
     const XPATH_KLARNAKP_ACTIVE                 = 'payment/buckaroo_magento2_klarnakp/active';
-    const XPATH_KLARNAKP_DESCRIPTION            = 'payment/buckaroo_magento2_klarnakp/description';
+    const XPATH_KLARNAKP_SUBTEXT                = 'payment/buckaroo_magento2_klarnakp/subtext';
+    const XPATH_KLARNAKP_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_klarnakp/subtext_style';
+    const XPATH_KLARNAKP_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_klarnakp/subtext_color';
     const XPATH_KLARNAKP_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnakp/payment_fee';
     const XPATH_KLARNAKP_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarnakp/payment_fee_label';
     const XPATH_KLARNAKP_SEND_EMAIL             = 'payment/buckaroo_magento2_klarnakp/send_email';
@@ -70,7 +72,9 @@ class Klarnakp extends AbstractConfigProvider
                     'klarnakp' => [
                         'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'description'   => $this->getDescription(),
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),

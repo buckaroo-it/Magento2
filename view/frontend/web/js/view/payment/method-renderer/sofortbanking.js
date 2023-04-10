@@ -48,7 +48,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.sofortbanking.paymentFeeLabel,
-                paymentDescription : window.checkoutConfig.payment.buckaroo.sofortbanking.description,
+                subtext : window.checkoutConfig.payment.buckaroo.sofortbanking.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('sofortbanking'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

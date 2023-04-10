@@ -50,7 +50,8 @@ define(
                 redirectAfterPlaceOrder: false,
                 selectedBank: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.emandate.paymentFeeLabel,
-                paymentDescription : window.checkoutConfig.payment.buckaroo.emandate.description,
+                subtext : window.checkoutConfig.payment.buckaroo.emandate.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('emandate'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

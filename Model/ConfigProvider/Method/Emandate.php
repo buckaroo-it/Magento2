@@ -25,7 +25,9 @@ class Emandate extends AbstractConfigProvider
     const XPATH_EMANDATE_PAYMENT_FEE           = 'payment/buckaroo_magento2_emandate/payment_fee';
     const XPATH_EMANDATE_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_emandate/payment_fee_label';
     const XPATH_EMANDATE_ACTIVE                = 'payment/buckaroo_magento2_emandate/active';
-    const XPATH_EMANDATE_DESCRIPTION           = 'payment/buckaroo_magento2_emandate/description';
+    const XPATH_EMANDATE_SUBTEXT               = 'payment/buckaroo_magento2_emandate/subtext';
+    const XPATH_EMANDATE_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_emandate/subtext_style';
+    const XPATH_EMANDATE_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_emandate/subtext_color';
     const XPATH_EMANDATE_ACTIVE_STATUS         = 'payment/buckaroo_magento2_emandate/active_status';
     const XPATH_EMANDATE_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_emandate/order_status_success';
     const XPATH_EMANDATE_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_emandate/order_status_failed';
@@ -118,7 +120,9 @@ class Emandate extends AbstractConfigProvider
                     'emandate' => [
                         'banks' => $issuers,
                         'paymentFeeLabel' => $paymentFeeLabel,
-                        'description'   => $this->getDescription(),
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

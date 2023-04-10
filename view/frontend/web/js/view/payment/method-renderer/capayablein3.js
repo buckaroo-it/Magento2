@@ -105,7 +105,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablein3.paymentFeeLabel,
-                paymentDescription : window.checkoutConfig.payment.buckaroo.capayablein3.description,
+                subtext : window.checkoutConfig.payment.buckaroo.capayablein3.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('capayablein3'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

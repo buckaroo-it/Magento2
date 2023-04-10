@@ -25,7 +25,9 @@ class Voucher extends AbstractConfigProvider
     const XPATH_VOUCHER_PAYMENT_FEE           = 'payment/buckaroo_magento2_voucher/payment_fee';
     const XPATH_VOUCHER_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_voucher/payment_fee_label';
     const XPATH_VOUCHER_ACTIVE                = 'payment/buckaroo_magento2_voucher/active';
-    const XPATH_VOUCHER_DESCRIPTION           = 'payment/buckaroo_magento2_voucher/description';
+    const XPATH_VOUCHER_SUBTEXT               = 'payment/buckaroo_magento2_voucher/subtext';
+    const XPATH_VOUCHER_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_voucher/subtext_style';
+    const XPATH_VOUCHER_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_voucher/subtext_color';
     const XPATH_VOUCHER_ACTIVE_STATUS         = 'payment/buckaroo_magento2_voucher/active_status';
     const XPATH_VOUCHER_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_voucher/order_status_success';
     const XPATH_VOUCHER_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_voucher/order_status_failed';
@@ -66,7 +68,9 @@ class Voucher extends AbstractConfigProvider
                 'buckaroo' => [
                     'voucher' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
-                        'description'   => $this->getDescription(),
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

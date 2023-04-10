@@ -35,7 +35,9 @@ class Afterpay extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_afterpay/specificcountry';
 
     const XPATH_AFTERPAY_ACTIVE                 = 'payment/buckaroo_magento2_afterpay/active';
-    const XPATH_AFTERPAY_DESCRIPTION            = 'payment/buckaroo_magento2_afterpay/description';
+    const XPATH_AFTERPAY_SUBTEXT                = 'payment/buckaroo_magento2_afterpay/subtext';
+    const XPATH_AFTERPAY_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_afterpay/subtext_style';
+    const XPATH_AFTERPAY_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_afterpay/subtext_color';
     const XPATH_AFTERPAY_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay/payment_fee';
     const XPATH_AFTERPAY_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_afterpay/payment_fee_label';
     const XPATH_AFTERPAY_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay/send_email';
@@ -78,7 +80,9 @@ class Afterpay extends AbstractConfigProvider
                     'afterpay' => [
                         'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'description'   => $this->getDescription(),
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),
