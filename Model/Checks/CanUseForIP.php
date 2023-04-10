@@ -1,4 +1,23 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Checks;
 
@@ -23,17 +42,25 @@ class CanUseForIP implements SpecificationInterface
      */
     protected Data $developmentHelper;
 
+    /**
+     * @param Factory $configProviderFactory
+     * @param Data $developmentHelper
+     */
     public function __construct(Factory $configProviderFactory, Data $developmentHelper)
     {
         $this->configProviderFactory = $configProviderFactory;
         $this->developmentHelper = $developmentHelper;
     }
 
-
     /**
+     * Check whether payment method is applicable to quote
+     *
+     * @param MethodInterface $paymentMethod
+     * @param Quote $quote
+     * @return bool
      * @throws Exception
      */
-    public function isApplicable(MethodInterface $paymentMethod, Quote $quote)
+    public function isApplicable(MethodInterface $paymentMethod, Quote $quote): bool
     {
         /**
          * @var Account $accountConfig

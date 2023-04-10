@@ -355,9 +355,9 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      * Get Send order confirmation email
      *
      * @param null|int|string $store
-     * @return mixed|null
+     * @return bool
      */
-    public function getOrderEmail($store = null)
+    public function getOrderEmail($store = null): bool
     {
         return (bool)$this->getMethodConfigValue(static::XPATH_ORDER_EMAIL, $store);
     }
