@@ -1,29 +1,48 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Method;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory;
-use Magento\Developer\Helper\Data;
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Exception\NotFoundException;
+use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Pricing\Helper\Data;
 use Magento\Payment\Gateway\Command\CommandManagerInterface;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
 use Magento\Payment\Gateway\Config\ValueHandlerPoolInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
 use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
-use Magento\Framework\Event\ManagerInterface;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\Adapter;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Psr\Log\LoggerInterface;
-use Magento\Quote\Api\Data\CartInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
+class BuckarooAdapter extends Adapter
 {
     public const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
     public const BUCKAROO_ALL_TRANSACTIONS = 'buckaroo_all_transactions';
@@ -45,29 +64,28 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     public $buckarooPaymentMethodCode;
 
     /**
+     * @var Factory
+     */
+    public Factory $configProviderMethodFactory;
+
+    /**
+     * @var Data
+     */
+    public Data $priceHelper;
+
+    /**
      * @var ObjectManagerInterface
      */
-    protected $objectManager;
+    protected ObjectManagerInterface $objectManager;
 
     /**
-     * @var \Magento\Framework\App\Request\Http
+     * @var RequestInterface
      */
-    protected $request;
-
-    /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
-     */
-    public $configProviderMethodFactory;
-
-    /**
-     * @var \Magento\Framework\Pricing\Helper\Data
-     */
-    public $priceHelper;
-
+    protected RequestInterface $request;
     /**
      * @var int
      */
-    protected $payRemainder = 0;
+    protected int $payRemainder = 0;
 
     /**
      * @param ManagerInterface $eventManager
@@ -77,8 +95,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      * @param string $formBlockType
      * @param string $infoBlockType
      * @param ObjectManagerInterface $objectManager
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
-     * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
+     * @param Factory $configProviderMethodFactory
+     * @param Data $priceHelper
      * @param RequestInterface|null $request
      * @param CommandPoolInterface|null $commandPool
      * @param ValidatorPoolInterface|null $validatorPool
@@ -96,8 +114,8 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         $formBlockType,
         $infoBlockType,
         ObjectManagerInterface $objectManager,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper,
+        Factory $configProviderMethodFactory,
+        Data $priceHelper,
         RequestInterface $request = null,
         CommandPoolInterface $commandPool = null,
         ValidatorPoolInterface $validatorPool = null,
@@ -127,11 +145,20 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     }
 
     /**
+     * Set Buckaroo Payment
+     *
+     * @return array|string|string[]
+     */
+    protected function setBuckarooPaymentMethodCode()
+    {
+        return str_replace('buckaroo_magento2_', '', $this->getCode());
+    }
+
+    /**
      * @inheritdoc
      * This is a temporary workaround for https://github.com/magento/magento2/issues/33869.
      * It sets the info instance before the method gets executed. Otherwise, the validator doesn't get called
      * correctly.
-     * @throws NotFoundException
      */
     public function isAvailable(CartInterface $quote = null)
     {
@@ -144,14 +171,14 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
             $result = $validator->validate(
                 [
                     'paymentMethodInstance' => $this,
-                    'quote' => $quote
+                    'quote'                 => $quote
                 ]
             );
             if (!$result->isValid()) {
                 return false;
             }
-        } // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock
-        catch (\Exception $e) {
+            // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock
+        } catch (\Exception $e) {
             // pass
         }
 
@@ -182,11 +209,10 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
         return parent::void($payment);
     }
 
-
     /**
      * @inheritdoc
      */
-    public function canUseForCountry($country)
+    public function canUseForCountry($country): bool
     {
         try {
             $validator = $this->getValidatorPool()->get('country');
@@ -196,14 +222,16 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
 
         $result = $validator->validate([
             'methodInstance' => $this,
-            'country' => $country,
-            'storeId' => $this->getStore()
+            'country'        => $country,
+            'storeId'        => $this->getStore()
         ]);
 
         return $result->isValid();
     }
 
     /**
+     * Can process post data received on push or on redirect
+     *
      * @param OrderPaymentInterface|InfoInterface $payment
      * @param PushRequestInterface $postData
      *
@@ -211,16 +239,19 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function canProcessPostData($payment, PushRequestInterface $postData)
+    public function canProcessPostData($payment, PushRequestInterface $postData): bool
     {
         return true;
     }
 
     /**
+     * Process custom post data received on push or on redirect
+     *
      * @param OrderPaymentInterface|InfoInterface $payment
      * @param array $postData
+     * @throws \Exception
      */
-    public function processCustomPostData($payment, $postData)
+    public function processCustomPostData($payment, array $postData)
     {
         if ($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
             $order = $payment->getOrder();
@@ -237,52 +268,9 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     }
 
     /**
-     * @param \Magento\Framework\DataObject $data
+     * Can create invoice on push
      *
-     * @return array
-     */
-    public function assignDataConvertToArray(\Magento\Framework\DataObject $data)
-    {
-        if (!is_array($data)) {
-            $data = $data->convertToArray();
-        }
-
-        return $data;
-    }
-
-    protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay', $newServiceAction = 'PayRemainder')
-    {
-        /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction */
-        $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
-        $incrementId = $payment->getOrder()->getIncrementId();
-
-        $originalTransactionKey = $paymentGroupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
-        if ($originalTransactionKey !== null) {
-            $serviceAction = $newServiceAction;
-            $transactionBuilder->setOriginalTransactionKey($originalTransactionKey);
-
-            $alreadyPaid = $paymentGroupTransaction->getAlreadyPaid($incrementId);
-            if ($alreadyPaid > 0) {
-                $this->payRemainder = $this->getPayRemainderAmount($payment, $alreadyPaid);
-                $transactionBuilder->setAmount($this->payRemainder);
-            }
-        }
-        return $serviceAction;
-    }
-
-    protected function getPayRemainderAmount($payment, $alreadyPaid)
-    {
-        return $payment->getOrder()->getGrandTotal() - $alreadyPaid;
-    }
-
-    protected function setBuckarooPaymentMethodCode()
-    {
-        return str_replace('buckaroo_magento2_', '', $this->getCode());
-    }
-
-    /**
      * @param PushRequestInterface $responseData
-     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -297,10 +285,12 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
     }
 
     /**
+     * Get payment method title
+     *
      * @return string
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws BuckarooException
      */
-    public function getTitle()
+    public function getTitle(): string
     {
         $title = $this->getConfigData('title');
 
@@ -308,13 +298,16 @@ class BuckarooAdapter extends \Magento\Payment\Model\Method\Adapter
             return $title;
         }
 
-        $paymentFee = trim($this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode)->getPaymentFee());
+        $paymentFee = trim((string)$this->configProviderMethodFactory
+            ->get($this->buckarooPaymentMethodCode)
+            ->getPaymentFee());
+
         if (!$paymentFee || (float)$paymentFee < 0.01) {
             return $title;
         }
 
         if (strpos($paymentFee, '%') === false) {
-            $title .= ' + ' . $this->priceHelper->currency(number_format($paymentFee, 2), true, false);
+            $title .= ' + ' . $this->priceHelper->currency(number_format((float)$paymentFee, 2), true, false);
         } else {
             $title .= ' + ' . $paymentFee;
         }

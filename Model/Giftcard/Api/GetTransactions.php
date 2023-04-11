@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,25 +17,31 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
-use Buckaroo\Magento2\Api\GiftcardTransactionInterface;
-use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
 use Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterfaceFactory;
+use Buckaroo\Magento2\Api\GiftcardTransactionInterface;
 
 class GetTransactions implements GiftcardTransactionInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterfaceFactory
+     * @var GetTransactionsResponseInterfaceFactory
      */
-    protected $responseFactory;
+    protected GetTransactionsResponseInterfaceFactory $responseFactory;
 
+    /**
+     * @param GetTransactionsResponseInterfaceFactory $responseFactory
+     */
     public function __construct(GetTransactionsResponseInterfaceFactory $responseFactory)
     {
         $this->responseFactory = $responseFactory;
     }
-    /** @inheritdoc */
+
+    /**
+     * @inheritdoc
+     */
     public function get(string $cartId)
     {
         try {

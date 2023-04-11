@@ -27,28 +27,28 @@ interface TransactionResponseInterface
      *
      * @return string
      */
-    public function getTransactionId();
+    public function getTransactionId(): string;
 
     /**
      * Get giftcard name
      *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Get amount
      *
      * @return float
      */
-    public function getAmount();
+    public function getAmount(): float;
 
     /**
      * Get currency
      *
      * @return string
      */
-    public function getCurrency();
+    public function getCurrency(): string;
 
     /**
      * Set data

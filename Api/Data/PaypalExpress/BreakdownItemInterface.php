@@ -27,12 +27,12 @@ interface BreakdownItemInterface
      *
      * @return string
      */
-    public function getCurrencyCode();
+    public function getCurrencyCode(): string;
 
     /**
      * Get amount
      *
      * @return string
      */
-    public function getValue();
+    public function getValue(): string;
 }

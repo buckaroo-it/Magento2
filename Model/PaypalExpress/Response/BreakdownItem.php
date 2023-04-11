@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
 
@@ -25,24 +25,38 @@ use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface;
 
 class BreakdownItem implements BreakdownItemInterface
 {
-    protected $total;
+    /**
+     * @var float
+     */
+    protected float $total;
 
-    protected $currencyCode;
+    /**
+     * @var string
+     */
+    protected string $currencyCode;
 
+    /**
+     * @param float $total
+     * @param string $currencyCode
+     */
     public function __construct(float $total, string $currencyCode)
     {
         $this->total = $total;
         $this->currencyCode = $currencyCode;
     }
 
-    /** @inheritdoc */
-    public function getCurrencyCode()
+    /**
+     * @inheritdoc
+     */
+    public function getCurrencyCode(): string
     {
         return $this->currencyCode;
     }
 
-    /** @inheritdoc */
-    public function getValue()
+    /**
+     * @inheritdoc
+     */
+    public function getValue(): string
     {
         return number_format($this->total, 2);
     }

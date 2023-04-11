@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Notification;
 
@@ -29,10 +29,12 @@ class CanViewNotification implements VisibilityConditionInterface
     /**
      * @var string
      */
-    private static $conditionName = 'can_view_buckaroo_notification';
+    private static string $conditionName = 'can_view_buckaroo_notification';
 
-    /** @var FlagManager $flagManager */
-    private $flagManager;
+    /**
+     * @var FlagManager
+     */
+    private FlagManager $flagManager;
 
     /**
      * @param FlagManager $flagManager
@@ -45,15 +47,15 @@ class CanViewNotification implements VisibilityConditionInterface
     /**
      * @inheritdoc
      */
-    public function isVisible(array $arguments)
+    public function isVisible(array $arguments): bool
     {
-        return ! (bool) $this->flagManager->getFlagData('buckaroo_magento2_view_install_screen');
+        return !$this->flagManager->getFlagData('buckaroo_magento2_view_install_screen');
     }
 
     /**
      * @inheritdoc
      */
-    public function getName()
+    public function getName(): string
     {
         return self::$conditionName;
     }

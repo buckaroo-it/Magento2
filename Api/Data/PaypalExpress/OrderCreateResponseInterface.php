@@ -27,5 +27,5 @@ interface OrderCreateResponseInterface
      *
      * @return string
      */
-    public function getCartId();
+    public function getCartId(): string;
 }

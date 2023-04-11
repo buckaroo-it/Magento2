@@ -27,17 +27,17 @@ interface PayRequestInterface
      *
      * @return string
      */
-    public function getCardNumber();
+    public function getCardNumber(): string;
 
     /**
      * Giftcard pin
      *
      * @return string
      */
-    public function getCardPin();
+    public function getCardPin(): string;
 
     /**
-     * set giftcard number
+     * Set giftcard number
      *
      * @param string $cardNumber
      * @return void
@@ -45,7 +45,7 @@ interface PayRequestInterface
     public function setCardNumber(string $cardNumber);
 
     /**
-     * set giftcard pin
+     * Set giftcard pin
      *
      * @param string $cardPin
      * @return void
