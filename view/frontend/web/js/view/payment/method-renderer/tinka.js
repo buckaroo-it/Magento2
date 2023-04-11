@@ -165,7 +165,14 @@ define(
                         this
                     );
 
-                   
+                    this.dateValidate.subscribe(function() {
+                        const dobId = 'buckaroo_magento2_tinka_DoB';
+                        const isValid = $(`#${dobId}`).valid();
+                        let state = this.validationState();
+                        state[dobId] = isValid;
+                        this.validationState(state);
+                     }, this);
+
                     return this;
                 },
 
@@ -175,18 +182,6 @@ define(
                     let state = this.validationState();
                     state[event.target.id] = isValid;
                     this.validationState(state);
-                },
-
-                validateDob(data, event) {
-                    if(event.originalEvent) {
-                        //jquery date picker triggers on load blur event, will trigger validation only if a user event is called
-                        const dobId = 'buckaroo_magento2_tinka_DoB';
-                        
-                        const isValid = $(`#${dobId}`).valid();
-                        let state = this.validationState();
-                        state[dobId] = isValid;
-                        this.validationState(state);
-                    }
                 },
 
                 getActiveValidationFields() {

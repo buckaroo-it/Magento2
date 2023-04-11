@@ -81,7 +81,6 @@
                     <!-- ko if: showNLBEFields -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_billink_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
-                        <span><sup data-bind="i18n: '(DD/MM/YYYY)' "></sup></span>
                         <div class="control">
                             <input id="buckaroo_magento2_billink_DoB"
                                    class="field"
@@ -100,7 +99,10 @@
                                    },
                                    valueUpdate: 'change',
                                    value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true })}"
+                                   attr: {
+                                    'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true }),
+                                    placeholder: $t('DD/MM/YYYY')
+                                   }"
                                    name="payment[buckaroo_magento2_billink][customer_DoB]">
                             <div for="buckaroo_magento2_billink_DoB" generated="true" class="mage-error" id="buckaroo_magento2_billink_DoB-error" style="display: none;"><span data-bind="i18n: 'You should be at least 18 years old.' "></span></div>
                         </div>

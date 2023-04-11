@@ -93,6 +93,11 @@
     font-weight: normal;
 }
 
+.payment-method-second-col input:disabled {
+    background-color: #e3e3e3;
+    color: #6e6e6e;
+    opacity: 1;
+}
 .payment-method-second-col input,
 .payment-method-second-col select {
     border-radius: 5px;
