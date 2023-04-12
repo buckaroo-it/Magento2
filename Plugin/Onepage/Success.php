@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Plugin\Onepage;
 
+use Buckaroo\Magento2\Service\CheckPaymentType;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Action\Context;
@@ -43,15 +44,23 @@ class Success
     protected $logger;
 
     /**
+     * @var CheckPaymentType
+     */
+    protected $checkPaymentType;
+
+    /**
      * @param Context $context
      * @param Log $logger
+     * @param CheckPaymentType $checkPaymentType
      */
     public function __construct(
         Context $context,
-        Log $logger
+        Log $logger,
+        CheckPaymentType $checkPaymentType
     ) {
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
         $this->logger = $logger;
+        $this->checkPaymentType = $checkPaymentType;
     }
     
     /**
@@ -66,15 +75,15 @@ class Success
         $this->logger->addDebug(
             var_export([
                 $order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING,
-                $this->paymentInTransit($payment),
+                $this->checkPaymentType->isPaymentInTransit($payment),
                 $order->getStatus() === Order::STATE_CANCELED
             ], true)
         );
 
-        if ($this->isBuckarooPayment($payment) &&
+        if ($this->checkPaymentType->isBuckarooPayment($payment) &&
             (
                 ($order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING
-                    && $this->paymentInTransit($payment)
+                    && $this->checkPaymentType->isPaymentInTransit($payment)
                 )
                 || $order->getStatus() === Order::STATE_CANCELED
             )
@@ -82,36 +91,5 @@ class Success
             return $this->resultRedirectFactory->create()->setPath('checkout/cart');
         }
         return $proceed();
-    }
-
-    /**
-     * Is one of our payment methods
-     *
-     * @param OrderPaymentInterface|null $payment
-     *
-     * @return boolean
-     */
-    public function isBuckarooPayment($payment)
-    {
-        if (!$payment instanceof OrderPaymentInterface) {
-            return false;
-        }
-        return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
-    }
-
-    /**
-     * Check if user is on the payment provider page
-     *
-     * @param OrderPaymentInterface|null $payment
-     *
-     * @return boolean
-     */
-    protected function paymentInTransit(OrderPaymentInterface $payment = null)
-    {
-        if ($payment === null) {
-            return false;
-        }
-
-        return $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
     }
 }

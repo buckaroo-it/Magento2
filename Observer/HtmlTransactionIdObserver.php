@@ -21,12 +21,25 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Service\CheckPaymentType;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class HtmlTransactionIdObserver implements ObserverInterface
 {
+    /**
+     * @var CheckPaymentType
+     */
+    private $checkPaymentType;
+
+    /**
+     * @param CheckPaymentType $checkPaymentType
+     */
+    public function __construct(CheckPaymentType $checkPaymentType)
+    {
+        $this->checkPaymentType = $checkPaymentType;
+    }
     /**
      * Update txn_id to a link for the plaza transaction
      *
@@ -40,7 +53,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
         $order = $transaction->getOrder();
         $txnIdArray = explode("-", $transaction->getTxnId());
         $txnId = reset($txnIdArray);
-        if ($this->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
+        if ($this->checkPaymentType->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
             $transaction->setData(
                 'html_txn_id',
                 sprintf(
@@ -51,19 +64,5 @@ class HtmlTransactionIdObserver implements ObserverInterface
                 )
             );
         }
-    }
-
-    /**
-     * Is one of our payment methods
-     *
-     * @param OrderPaymentInterface|null $payment
-     * @return boolean
-     */
-    public function isBuckarooPayment($payment)
-    {
-        if (!$payment instanceof OrderPaymentInterface) {
-            return false;
-        }
-        return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
     }
 }
