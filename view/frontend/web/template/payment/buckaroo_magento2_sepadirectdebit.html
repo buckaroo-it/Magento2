@@ -43,8 +43,9 @@
                                     value: bankaccountholder,
                                     valueUpdate: 'keyup',
                                     attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'min-words': minimumWords() })
-                                    }
+                                        'data-validate': JSON.stringify({ 'required': true, 'min-words': 2 })
+                                    },
+                                    event: { blur: validateField }
                                    "
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_account_name]">
                         </div>
@@ -62,7 +63,8 @@
                                     valueUpdate: 'keyup',
                                     attr: {
                                         'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })
-                                    }
+                                    },
+                                    event: { blur: validateField }
                                    "
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_iban]">
                         </div>
@@ -81,7 +83,8 @@
                                     valueUpdate: 'keyup',
                                     attr: {
                                         'data-validate': JSON.stringify({ 'required': true, 'BIC':true })
-                                    }
+                                    },
+                                    event: { blur: validateField }
                                    "
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_bic]">
                         </div>
@@ -109,7 +112,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !accountNumberIsValid()}
+                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck()}
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>
