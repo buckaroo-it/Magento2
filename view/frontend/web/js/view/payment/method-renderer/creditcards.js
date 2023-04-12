@@ -280,7 +280,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    console.log('selectPaymentMethod');
                     window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
 
                     this.getData().then(function(data) {

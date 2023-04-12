@@ -163,7 +163,6 @@ define(
 
                     var runValidation = function () {
                         $('.' + this.getCode() + ' .payment [data-validate]').valid();
-                        this.selectPaymentMethod();
                     };
                     this.bankaccountholder.subscribe(runValidation,this);
                     this.bankaccountnumber.subscribe(runValidation,this);

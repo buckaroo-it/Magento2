@@ -149,7 +149,6 @@ define(
                     this.setSelectedGender = function () {
                         var el = document.getElementById("buckaroo_magento2_payperemail_genderSelect");
                         this.selectedGender(el.options[el.selectedIndex].value);
-                        this.selectPaymentMethod();
                         return true;
                     };
 
@@ -163,7 +162,6 @@ define(
                      */
                     var runValidation = function () {
                         $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
-                        this.selectPaymentMethod();
                     };
 
                     this.BillingFirstName.subscribe(runValidation, this);

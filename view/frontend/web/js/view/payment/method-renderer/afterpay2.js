@@ -304,7 +304,6 @@ define(
 
                     var runValidation = function () {
                         $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
-                        this.selectPaymentMethod();
                     };
 
                     this.telephoneNumber.subscribe(runValidation,this);

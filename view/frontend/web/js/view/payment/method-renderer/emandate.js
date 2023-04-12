@@ -73,7 +73,6 @@ define(
                     var self = this;
                     this.setSelectedBank = function (value) {
                         self.selectedBank(value);
-                        self.selectPaymentMethod();
                         return true;
                     };
 

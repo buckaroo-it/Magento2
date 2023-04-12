@@ -84,7 +84,6 @@ define(
                     this.bicnumber.subscribe(
                         function () {
                             $('.' + this.getCode() + ' .payment [data-validate]').valid();
-                            this.selectPaymentMethod();
                         },
                         this
                     );
@@ -96,7 +95,6 @@ define(
                     this.bicnumber.subscribe(
                         function () {
                             $('.' + this.getCode() + ' .payment [data-validate]').valid();
-                            this.selectPaymentMethod();
                         },
                         this
                     );

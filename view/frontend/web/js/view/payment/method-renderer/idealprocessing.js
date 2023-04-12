@@ -83,7 +83,6 @@ define(
                     var self = this;
                     this.setSelectedBank = function (value) {
                         self.selectedBank(value);
-                        self.selectPaymentMethod();
                         return true;
                     };
 
@@ -109,7 +108,6 @@ define(
                 setSelectedBankDropDown: function() {
                     var el = document.getElementById("buckaroo_magento2_idealp_issuer");
                     this.selectedBank(el.options[el.selectedIndex].valu);
-                    this.selectPaymentMethod();
                     return true;
                 },
 

@@ -88,8 +88,6 @@ define(
                             data: { voucherCode: voucherCode }
                         }).done(function (data) {
                             self.code(null);
-                            self.selectPaymentMethod();
-
                             if (data.remainder_amount == 0) {
                                 self.placeOrder(null, null);
                             }
@@ -117,7 +115,6 @@ define(
                         }).error((err) => {
                             if (err.responseJSON && err.responseJSON.message) {
                                 self.displayErrorModal(self, err.responseJSON.message);
-                                self.selectPaymentMethod();
                             }
                         });
                     }
