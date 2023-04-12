@@ -55,6 +55,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
 
     /**
      * @inheritdoc
+     *
      * @throws ExpressMethodsException
      */
     public function setCity(string $city)
@@ -70,7 +71,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
      * @param string $name
      *
      * @return void
-     * @throws \Buckaroo\Magento2\Model\Service\ExpressMethodsException
+     * @throws ExpressMethodsException
      */
     protected function validateRequired($value, string $name)
     {

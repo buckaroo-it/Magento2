@@ -1,4 +1,23 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
 
@@ -6,6 +25,9 @@ use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteRepository;
 use Magento\Quote\Model\ShippingAddressManagementInterface;
@@ -13,33 +35,33 @@ use Magento\Quote\Model\ShippingAddressManagementInterface;
 class QuoteAddressService
 {
     /**
-     * @var \Magento\Customer\Model\Session
+     * @var CustomerSession
      */
-    protected $customerSession;
+    protected CustomerSession $customerSession;
 
     /**
-     * @var \Magento\Quote\Model\QuoteRepository
+     * @var QuoteRepository
      */
-    protected $quoteRepository;
+    protected QuoteRepository $quoteRepository;
 
     /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     * @var CustomerRepositoryInterface
      */
-    protected $customerRepository;
+    protected CustomerRepositoryInterface $customerRepository;
     /**
-     * @var \Buckaroo\Magento2\Logging\Log
+     * @var Log
      */
-    protected $logger;
+    protected Log $logger;
 
     /**
-     * @var \Magento\Quote\Model\Quote
+     * @var Quote
      */
-    protected $quote;
+    protected Quote $quote;
 
     /**
      * @var ShippingAddressManagementInterface
      */
-    private $shippingAddressManagement;
+    private ShippingAddressManagementInterface $shippingAddressManagement;
 
     /**
      * @param CustomerSession $customerSession
@@ -66,9 +88,12 @@ class QuoteAddressService
      * Add address from paypal express to quote
      *
      * @param ShippingAddressRequestInterface $shippingAddress
+     * @param Quote $cart
      * @return Quote
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function addAddressToQuote(ShippingAddressRequestInterface $shippingAddress, $cart)
+    public function addAddressToQuote(ShippingAddressRequestInterface $shippingAddress, Quote $cart): Quote
     {
         if ($this->customerSession->isLoggedIn()) {
             $cart->assignCustomerWithAddressChange(
@@ -92,24 +117,23 @@ class QuoteAddressService
     /**
      * Fill any fields missing from the addresses
      *
-     * @param ShippingAddressRequestInterface $shipping_address
-     * @param $quote
+     * @param ShippingAddressRequestInterface $shippingAddress
+     * @param Quote $quote
      * @return void
      */
-    protected function maybeFillAnyMissingAddressFields(ShippingAddressRequestInterface $shipping_address, $quote)
+    protected function maybeFillAnyMissingAddressFields(ShippingAddressRequestInterface $shippingAddress, Quote $quote)
     {
         $this->maybeFillShippingAddressFields($quote);
-        $this->maybeFillBillingAddressFields($shipping_address, $quote);
+        $this->maybeFillBillingAddressFields($shippingAddress, $quote);
     }
 
     /**
-     * If we didn't find any default shipping address we fill the empty fields
-     * required for quote validation
+     * If we didn't find any default shipping address we fill the empty fields required for quote validation
      *
      * @param Quote $quote
      * @return void
      */
-    protected function maybeFillShippingAddressFields($quote)
+    protected function maybeFillShippingAddressFields(Quote $quote)
     {
         $address = $quote->getShippingAddress();
         if ($address->getId() === null) {
@@ -123,50 +147,14 @@ class QuoteAddressService
     }
 
     /**
-     * If we didn't find any default billing address we fill the empty fields
-     * required for quote validation
-     *
-     * @param ShippingAddressRequestInterface $shipping_address
-     * @param Quote $quote
-     *
-     * @return void
-     */
-    protected function maybeFillBillingAddressFields(ShippingAddressRequestInterface $shipping_address, $quote)
-    {
-        $address = $quote->getBillingAddress();
-        if ($address->getId() === null) {
-            $address->setFirstname('unknown');
-            $address->setLastname('unknown');
-            $address->setTelephone('unknown');
-            $address->setEmail('no-reply@example.com');
-            $address->setStreet('unknown');
-            $address->setCountryId($shipping_address->getCountryCode());
-            $address->setPostcode($shipping_address->getPostalCode());
-            $address->setCity($shipping_address->getCity());
-            $address->setRegion($shipping_address->getState());
-            $quote->setBillingAddress($address);
-        }
-    }
-
-    public function assignAddressToQuote($shippingAddress, $cart)
-    {
-        try {
-            $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
-        } catch (\Exception $e) {
-            $this->logger->addDebug(__METHOD__ . '|9.1|' .  $e->getMessage());
-            throw new ExpressMethodsException(__(
-                'Assign Shipping Address to Quote failed.'
-            ));
-        }
-        $this->quoteRepository->save($cart);
-
-        return $cart;
-    }
-
-    /**
      * Set Shipping Address on SaveOrder
+     *
+     * @param Quote $quote
+     * @param array $data
+     * @return true
+     * @throws ExpressMethodsException
      */
-    public function setShippingAddress(&$quote, $data)
+    public function setShippingAddress(Quote &$quote, array $data): bool
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
 
@@ -178,20 +166,51 @@ class QuoteAddressService
     }
 
     /**
-     * Set Billing Address on SaveOrder
+     * Process Address From Wallet
+     *
+     * @param array $wallet
+     * @param string $type
+     * @return array
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function setBillingAddress(&$quote, $data)
+    public function processAddressFromWallet(array $wallet, string $type = 'shipping'): array
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
+        $address = [
+            'prefix'     => '',
+            'firstname'  => $wallet['givenName'] ?? 'Test',
+            'middlename' => '',
+            'lastname'   => $wallet['familyName'] ?? 'Acceptatie',
+            'street'     => [
+                '0' => $wallet['addressLines'][0] ?? 'Hoofdstraat',
+                '1' => $wallet['addressLines'][1] ?? '80'
+            ],
+            'city'       => $wallet['locality'] ?? 'Heerenveen',
+            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '8441ER',
+            'region'     => $wallet['administrativeArea'] ?? 'Friesland',
+            'region_id'  => '',
+            'postcode'   => $wallet['postalCode'] ?? '8441ER',
+            'telephone'  => $wallet['phoneNumber'] ?? 'N/A',
+            'fax'        => '',
+            'vat_id'     => ''
+        ];
+        $address['street'] = implode("\n", $address['street']);
+        if ($type == 'shipping') {
+            $address['email'] = $wallet['emailAddress'] ?? '';
+        }
 
-        $billingAddress = $this->processAddressFromWallet($data, 'billing');
-        $quote->getBillingAddress()->addData($billingAddress);
-
-        $errors = $quote->getBillingAddress()->validate();
-        return $this->setCommonAddressProceed($errors, 'billing');
+        return $address;
     }
 
-    protected function setCommonAddressProceed($errors, $addressType)
+    /**
+     * Return true or throw an error if post code is not valid
+     *
+     * @param array|bool $errors
+     * @param string $addressType
+     * @return true
+     * @throws ExpressMethodsException
+     */
+    protected function setCommonAddressProceed($errors, string $addressType): bool
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
         $this->logger->addDebug(var_export($errors, true));
@@ -213,39 +232,69 @@ class QuoteAddressService
     }
 
     /**
-     * Process Address From Wallet
+     * If we didn't find any default billing address we fill the empty fields required for quote validation
      *
-     * @param array $wallet
-     * @param string $type
-     * @return array
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @param ShippingAddressRequestInterface $shippingAddress
+     * @param Quote $quote
+     *
+     * @return void
      */
-    public function processAddressFromWallet($wallet, $type = 'shipping')
+    protected function maybeFillBillingAddressFields(ShippingAddressRequestInterface $shippingAddress, Quote $quote)
     {
-        $address = [
-            'prefix' => '',
-            'firstname' => $wallet['givenName'] ?? 'Test',
-            'middlename' => '',
-            'lastname' => $wallet['familyName'] ?? 'Acceptatie',
-            'street' => [
-                '0' => $wallet['addressLines'][0] ?? 'Hoofdstraat',
-                '1' => $wallet['addressLines'][1] ?? '80'
-            ],
-            'city' => $wallet['locality'] ?? 'Heerenveen',
-            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '8441ER',
-            'region' => $wallet['administrativeArea'] ?? 'Friesland',
-            'region_id' => '',
-            'postcode' => $wallet['postalCode'] ?? '8441ER',
-            'telephone' => $wallet['phoneNumber'] ?? 'N/A',
-            'fax' => '',
-            'vat_id' => ''
-        ];
-        $address['street'] = implode("\n", $address['street']);
-        if ($type == 'shipping') {
-            $address['email'] = $wallet['emailAddress'] ?? '';
+        $address = $quote->getBillingAddress();
+        if ($address->getId() === null) {
+            $address->setFirstname('unknown');
+            $address->setLastname('unknown');
+            $address->setTelephone('unknown');
+            $address->setEmail('no-reply@example.com');
+            $address->setStreet('unknown');
+            $address->setCountryId($shippingAddress->getCountryCode());
+            $address->setPostcode($shippingAddress->getPostalCode());
+            $address->setCity($shippingAddress->getCity());
+            $address->setRegion($shippingAddress->getState());
+            $quote->setBillingAddress($address);
         }
+    }
 
-        return $address;
+    /**
+     * Set Billing Address on SaveOrder
+     *
+     * @param Quote $quote
+     * @param array $data
+     * @return true
+     * @throws ExpressMethodsException
+     */
+    public function setBillingAddress(Quote &$quote, array $data): bool
+    {
+        $this->logger->addDebug(__METHOD__ . '|1|');
+
+        $billingAddress = $this->processAddressFromWallet($data, 'billing');
+        $quote->getBillingAddress()->addData($billingAddress);
+
+        $errors = $quote->getBillingAddress()->validate();
+        return $this->setCommonAddressProceed($errors, 'billing');
+    }
+
+    /**
+     * Assign address to quote
+     *
+     * @param AddressInterface $shippingAddress
+     * @param Quote $cart
+     * @return Quote
+     * @throws ExpressMethodsException
+     */
+    public function assignAddressToQuote(AddressInterface $shippingAddress, Quote $cart): Quote
+    {
+        try {
+            $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
+        } catch (\Exception $e) {
+            $this->logger->addDebug(__METHOD__ . '|9.1|' . $e->getMessage());
+            throw new ExpressMethodsException(__(
+                'Assign Shipping Address to Quote failed.'
+            ));
+        }
+        $this->quoteRepository->save($cart);
+
+        return $cart;
     }
 }

@@ -17,8 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Api;
+
+use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface;
 
 interface ApplyVoucherInterface
 {
@@ -26,8 +29,7 @@ interface ApplyVoucherInterface
      * Rest method for applying vouchers
      *
      * @param string $voucherCode
-     *
-     * @return \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface
+     * @return PayResponseInterface
      */
-    public function apply(string $voucherCode);
+    public function apply(string $voucherCode): PayResponseInterface;
 }

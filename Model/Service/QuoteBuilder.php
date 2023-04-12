@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,39 +20,40 @@
 
 namespace Buckaroo\Magento2\Model\Service;
 
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Checkout\Model\Type\Onepage;
 use Magento\Customer\Model\Group;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
-use Magento\Checkout\Model\Type\Onepage;
-use Magento\Framework\DataObjectFactory;
-use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Customer\Model\Session as CustomerSession;
 
 class QuoteBuilder implements QuoteBuilderInterface
 {
     /**
-     * @var \Magento\Quote\Model\QuoteFactory
+     * @var QuoteFactory
      */
     protected $quoteFactory;
 
     /**
-     * @var \Magento\Framework\DataObjectFactory
+     * @var DataObjectFactory
      */
     protected $productRepository;
 
     /**
-     * @var \Magento\Framework\DataObjectFactory
+     * @var DataObjectFactory
      */
     protected $dataObjectFactory;
 
     /**
-     * @var \Magento\Customer\Model\Session
+     * @var CustomerSession
      */
     protected $customer;
 
     /**
-     * @var Magento\Framework\DataObject|null
+     * @var DataObject|null
      */
     protected $formData;
 
@@ -89,6 +89,25 @@ class QuoteBuilder implements QuoteBuilderInterface
     }
 
     /**
+     * Format form data
+     *
+     * @param array $formData
+     *
+     * @return DataObject
+     */
+    protected function formatFormData(array $formData)
+    {
+        $data = [];
+
+        foreach ($formData as $orderKeyValue) {
+            $data[$orderKeyValue->getName()] = $orderKeyValue->getValue();
+        }
+        $dataObject = $this->dataObjectFactory->create();
+
+        return $dataObject->setData($data);
+    }
+
+    /**
      * @inheritdoc
      */
     public function build(): Quote
@@ -97,6 +116,23 @@ class QuoteBuilder implements QuoteBuilderInterface
         $this->addProduct();
         $this->setUser();
         return $this->quote;
+    }
+
+    /**
+     * Add product to quote
+     *
+     * @return void
+     * @throws AddProductException
+     * @throws LocalizedException
+     */
+    protected function addProduct()
+    {
+        $productId = $this->formData->getData('product');
+        if ($productId === null) {
+            throw new AddProductException("Product ID is required.", 1);
+        }
+        $product = $this->productRepository->getById($productId);
+        $this->quote->addProduct($product, $this->formData);
     }
 
     /**
@@ -116,40 +152,5 @@ class QuoteBuilder implements QuoteBuilderInterface
                 ->setCustomerIsGuest(true)
                 ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
         }
-    }
-
-    /**
-     * Add product to quote
-     *
-     * @return void
-     * @throws AddProductException
-     * @throws LocalizedException
-     */
-    protected function addProduct()
-    {
-        $productId = $this->formData->getData('product');
-        if ($productId === null) {
-            throw new AddProductException("Product ID is required.", 1);
-        }
-        $product = $this->productRepository->getById($productId);
-        $this->quote->addProduct($product, $this->formData);
-    }
-    /**
-     * Format form data
-     *
-     * @param array $formData
-     *
-     * @return \Magento\Framework\DataObject
-     */
-    protected function formatFormData(array $formData)
-    {
-        $data = [];
-
-        foreach ($formData as $orderKeyValue) {
-            $data[$orderKeyValue->getName()] = $orderKeyValue->getValue();
-        }
-        $dataObject = $this->dataObjectFactory->create();
-
-        return $dataObject->setData($data);
     }
 }

@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Service\QuoteBuilderInterfaceFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
@@ -244,7 +245,7 @@ class QuoteService
      * @param DataObject $product
      * @return void
      * @throws NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function addProductToCart($product)
     {
@@ -254,6 +255,10 @@ class QuoteService
     /**
      * Add Address To Cart
      *
+     * @param $shippingAddressRequest
+     * @return void
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
     public function addAddressToQuote($shippingAddressRequest)
     {

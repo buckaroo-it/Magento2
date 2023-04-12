@@ -468,14 +468,8 @@ class Push
     public function initCreditmemo(array $creditData)
     {
         try {
-            /**
-             * @var Creditmemo $creditmemo
-             */
             $creditmemo = $this->creditmemoFactory->createByOrder($this->order, $creditData);
 
-            /**
-             * @var \Magento\Sales\Model\Order\Creditmemo\Item $creditmemoItem
-             */
             foreach ($creditmemo->getAllItems() as $creditmemoItem) {
                 /**
                  * @noinspection PhpUndefinedMethodInspection

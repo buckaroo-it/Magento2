@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -22,14 +21,15 @@
 namespace Buckaroo\Magento2\Model\Service\Plugin\Mpi;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
-use phpseclib3\Math\BigInteger\Engines\PHP\Reductions\MontgomeryMult;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Magento\Framework\Exception\LocalizedException;
 
 class Push
 {
     /**
      * @var Creditcard
      */
-    protected $configProviderCreditcard;
+    protected Creditcard $configProviderCreditcard;
 
     /**
      * @param Creditcard $configProviderCreditcard
@@ -41,12 +41,14 @@ class Push
     }
 
     /**
-     * @param \Buckaroo\Magento2\Model\Push $push
-     * @param boolean                  $result
+     * After Process Succeeded Push
      *
+     * @param \Buckaroo\Magento2\Model\Push $push
+     * @param boolean $result
      * @return boolean
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws LocalizedException
      */
     public function afterProcessSucceededPush(
         \Buckaroo\Magento2\Model\Push $push,
@@ -56,11 +58,11 @@ class Push
         $method = $payment->getMethod();
 
         if (strpos($method, 'buckaroo_magento2') === false) {
-            return $this;
+            return $result;
         }
 
         /**
-         * @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $paymentMethodInstance
+         * @var BuckarooAdapter $paymentMethodInstance
          */
         $paymentMethodInstance = $payment->getMethodInstance();
         $card = $paymentMethodInstance->getInfoInstance()->getAdditionalInformation('card_type');
@@ -72,8 +74,7 @@ class Push
         $authenticationFunction = 'getService' . ucfirst($card) . 'Authentication';
         $enrolledFunction = 'getService' . ucfirst($card) . 'Enrolled';
 
-        if (
-            empty($push->pushRequst->$authenticationFunction())
+        if (empty($push->pushRequst->$authenticationFunction())
             || empty($push->pushRequst->$enrolledFunction())
         ) {
             return $result;
@@ -84,13 +85,13 @@ class Push
         if ($authentication == 'U' || $authentication == 'N') {
             switch ($card) {
                 case 'maestro':
-                    $putOrderOnHold = (bool) $this->configProviderCreditcard->getMaestroUnsecureHold();
+                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getMaestroUnsecureHold();
                     break;
                 case 'visa':
-                    $putOrderOnHold = (bool) $this->configProviderCreditcard->getVisaUnsecureHold();
+                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getVisaUnsecureHold();
                     break;
                 case 'mastercard':
-                    $putOrderOnHold = (bool) $this->configProviderCreditcard->getMastercardUnsecureHold();
+                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getMastercardUnsecureHold();
                     break;
                 default:
                     $putOrderOnHold = false;
@@ -100,7 +101,7 @@ class Push
             if ($putOrderOnHold) {
                 $push->order
                     ->hold()
-                    ->addStatusHistoryComment(
+                    ->addCommentToStatusHistory(
                         __('Order has been put on hold, because it is unsecure.')
                     );
 

@@ -1,14 +1,35 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Voucher;
 
 use Buckaroo\Magento2\Api\ApplyVoucherInterface;
+use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
 use Magento\Checkout\Model\Session;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -16,32 +37,34 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 
 /**
+ * Class ApplyVoucher
+ *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ApplyVoucher implements ApplyVoucherInterface
 {
     /**
-     * @var \Magento\Quote\Model\QuoteIdMaskFactory
+     * @var QuoteIdMaskFactory
      */
     protected $quoteIdMaskFactory;
 
     /**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var CartRepositoryInterface
      */
     protected $cartRepository;
 
     /**
-     * @var \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory
+     * @var PayResponseSetInterfaceFactory
      */
     protected $payResponseFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface
+     * @var ApplyVoucherRequestInterface
      */
     protected $voucherRequest;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     protected $checkoutSession;
 
@@ -82,7 +105,10 @@ class ApplyVoucher implements ApplyVoucherInterface
         $this->logger = $logger;
     }
 
-    public function apply(string $voucherCode)
+    /**
+     * @inheritdoc
+     */
+    public function apply(string $voucherCode): PayResponseInterface
     {
         try {
             $quote = $this->getQuote();
@@ -101,12 +127,30 @@ class ApplyVoucher implements ApplyVoucherInterface
         }
     }
 
-    public function renderException(string $message)
+    /**
+     * Get quote from session
+     *
+     * @return Quote
+     * @throws NoQuoteException
+     */
+    protected function getQuote()
     {
-        throw new Exception(
-            new Phrase($message)
-        );
+        try {
+            return $this->checkoutSession->getQuote();
+        } catch (\Throwable $th) {
+            throw new NoQuoteException(__("The cart isn't active."), 0, $th);
+        }
     }
+
+    /**
+     * Get response based on the quote and API response.
+     *
+     * @param Quote $quote
+     * @param mixed $response
+     * @return mixed
+     * @throws ApiException
+     * @throws LocalizedException
+     */
     protected function getResponse(Quote $quote, $response)
     {
 
@@ -125,16 +169,20 @@ class ApplyVoucher implements ApplyVoucherInterface
             array_merge(
                 [
                     'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
-                    'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid($quote),
-                    'transaction' => $this->giftcardResponse->getCreatedTransaction()
+                    'alreadyPaid'     => $this->giftcardResponse->getAlreadyPaid($quote),
+                    'transaction'     => $this->giftcardResponse->getCreatedTransaction()
                 ],
                 $this->getUserMessages()
             )
         );
     }
 
-
-    protected function getUserMessages()
+    /**
+     * Get response based on the quote and API response.
+     *
+     * @return array
+     */
+    protected function getUserMessages(): array
     {
 
         $remainingAmountMessage = '';
@@ -159,36 +207,36 @@ class ApplyVoucher implements ApplyVoucherInterface
         }
         return [
             'remainingAmountMessage' => $remainingAmountMessage,
-            'message' => $textMessage
+            'message'                => $textMessage
         ];
     }
+
     /**
-     * Build giftcard request
+     * Build gift card request
      *
      * @param Quote $quote
-     * @param string $giftcardId
+     * @param string $voucherCode
      *
-     * @return VoucherRequest
+     * @return ApplyVoucherRequestInterface
      */
-    protected function build(Quote $quote, string $voucherCode)
+    protected function build(Quote $quote, string $voucherCode): ApplyVoucherRequestInterface
     {
-
         return $this->voucherRequest
             ->setVoucherCode($voucherCode)
             ->setQuote($quote);
     }
 
     /**
-     * Get quote from session
+     * Render and throw an exception with the provided message.
      *
-     * @return Quote
+     * @param string $message
+     * @return void
+     * @throws Exception
      */
-    protected function getQuote()
+    public function renderException(string $message)
     {
-        try {
-            return $this->checkoutSession->getQuote();
-        } catch (\Throwable $th) {
-            throw new NoQuoteException(__("The cart isn't active."), 0, $th);
-        }
+        throw new Exception(
+            new Phrase($message)
+        );
     }
 }
