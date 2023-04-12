@@ -2108,12 +2108,12 @@ class Push implements PushInterface
     protected function isFailedGroupTransaction(): bool
     {
         return $this->pushRequst->hasPostData(
-                'transaction_type',
-                self::BUCK_PUSH_GROUPTRANSACTION_TYPE
-            ) && $this->pushRequst->hasPostData(
-                'statuscode',
-                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
-            );
+            'transaction_type',
+            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+        ) && $this->pushRequst->hasPostData(
+            'statuscode',
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
+        );
     }
 
     /**
