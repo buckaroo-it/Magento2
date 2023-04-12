@@ -242,7 +242,7 @@ class Data extends AbstractHelper
      * @param string $keyPrefix
      * @return array
      */
-    public function getTransactionAdditionalInfo(array $array, $rawInfo = [], $keyPrefix = '')
+    public function getTransactionAdditionalInfo(array $array, array $rawInfo = [], string $keyPrefix = ''): array
     {
         foreach ($array as $key => $value) {
             $key = $keyPrefix . $key;

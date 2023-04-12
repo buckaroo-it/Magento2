@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,9 +17,16 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\GroupTransactionInterface;
+use Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction as GroupTransactionResource;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\Collection as GroupTransactionCollection;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory as GroupTransactionCollectionFactory;
+use Magento\Framework\Api\Search\FilterGroup;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Api\SearchResultsInterfaceFactory;
@@ -28,26 +34,35 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Api\Data\GroupTransactionInterface;
-use Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface;
-use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction as GroupTransactionResource;
-use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\Collection as GroupTransactionCollection;
-use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory as GroupTransactionCollectionFactory;
 
 class GroupTransactionRepository implements GroupTransactionRepositoryInterface
 {
-    /** @var GroupTransactionResource */
-    protected $resource;
+    /**
+     * @var GroupTransactionResource
+     */
+    protected GroupTransactionResource $resource;
 
-    /** @var GroupTransactionFactory */
-    protected $groupTransactionFactory;
+    /**
+     * @var GroupTransactionFactory
+     */
+    protected GroupTransactionFactory $groupTransactionFactory;
 
-    /** @var GroupTransactionCollectionFactory */
-    protected $groupTransactionCollectionFactory;
+    /**
+     * @var GroupTransactionCollectionFactory
+     */
+    protected GroupTransactionCollectionFactory $groupTransactionCollectionFactory;
 
-    /** @var SearchResultsInterfaceFactory */
-    protected $searchResultsFactory;
+    /**
+     * @var SearchResultsInterfaceFactory
+     */
+    protected SearchResultsInterfaceFactory $searchResultsFactory;
 
+    /**
+     * @param GroupTransactionResource $resource
+     * @param GroupTransactionFactory $groupTransactionFactory
+     * @param GroupTransactionCollectionFactory $groupTransactionCollectionFactory
+     * @param SearchResultsInterfaceFactory $searchResultsFactory
+     */
     public function __construct(
         GroupTransactionResource $resource,
         GroupTransactionFactory $groupTransactionFactory,
@@ -55,15 +70,15 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
         SearchResultsInterfaceFactory $searchResultsFactory
     ) {
         $this->resource = $resource;
-        $this->GroupTransactionCollectionFactory = $groupTransactionCollectionFactory;
-        $this->GroupTransactionFactory = $groupTransactionFactory;
+        $this->groupTransactionCollectionFactory = $groupTransactionCollectionFactory;
+        $this->groupTransactionFactory = $groupTransactionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
     }
 
     /**
      * @inheritdoc
      */
-    public function save(GroupTransactionInterface $groupTransaction)
+    public function save(GroupTransactionInterface $groupTransaction): GroupTransactionInterface
     {
         try {
             $this->resource->save($groupTransaction);
@@ -77,29 +92,14 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     /**
      * @inheritdoc
      */
-    public function getById($groupTransactionId)
-    {
-        $groupTransaction = $this->GroupTransactionFactory->create();
-        $groupTransaction->load($groupTransactionId);
-
-        if (!$groupTransaction->getId()) {
-            throw new NoSuchEntityException(__('GroupTransaction with id "%1" does not exist.', $groupTransactionId));
-        }
-
-        return $groupTransaction;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getList(SearchCriteria $searchCriteria)
+    public function getList(SearchCriteria $searchCriteria): SearchResultsInterface
     {
         /** @var SearchResultsInterface $searchResults */
         $searchResults = $this->searchResultsFactory->create();
         $searchResults->setSearchCriteria($searchCriteria);
 
         /** @var GroupTransactionCollection $collection */
-        $collection = $this->GroupTransactionCollectionFactory->create();
+        $collection = $this->groupTransactionCollectionFactory->create();
 
         foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
             $this->handleFilterGroups($filterGroup, $collection);
@@ -115,16 +115,18 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     }
 
     /**
-     * @param \Magento\Framework\Api\Search\FilterGroup $filterGroup
-     * @param GroupTransactionCollection                        $collection
+     * Handle filter groups for the given collection by applying filters from the filter group.
+     *
+     * @param FilterGroup $filterGroup
+     * @param GroupTransactionCollection $collection
      */
-    private function handleFilterGroups($filterGroup, $collection)
+    private function handleFilterGroups(FilterGroup $filterGroup, GroupTransactionCollection $collection)
     {
-        $fields     = [];
+        $fields = [];
         $conditions = [];
         foreach ($filterGroup->getFilters() as $filter) {
-            $condition    = $filter->getConditionType() ? $filter->getConditionType() : 'eq';
-            $fields[]     = $filter->getField();
+            $condition = $filter->getConditionType() ? $filter->getConditionType() : 'eq';
+            $fields[] = $filter->getField();
             $conditions[] = [$condition => $filter->getValue()];
         }
 
@@ -134,10 +136,12 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     }
 
     /**
+     * Handle sort orders for the given search criteria and collection.
+     *
      * @param SearchCriteria $searchCriteria
      * @param GroupTransactionCollection $collection
      */
-    private function handleSortOrders($searchCriteria, $collection)
+    private function handleSortOrders(SearchCriteria $searchCriteria, GroupTransactionCollection $collection)
     {
         $sortOrders = $searchCriteria->getSortOrders();
 
@@ -155,12 +159,14 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     }
 
     /**
+     * Get search result items based on search criteria and collection.
+     *
      * @param SearchCriteria $searchCriteria
      * @param GroupTransactionCollection $collection
      *
      * @return array
      */
-    private function getSearchResultItems($searchCriteria, $collection)
+    private function getSearchResultItems(SearchCriteria $searchCriteria, GroupTransactionCollection $collection): array
     {
         $collection->setCurPage($searchCriteria->getCurrentPage());
         $collection->setPageSize($searchCriteria->getPageSize());
@@ -176,7 +182,32 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     /**
      * @inheritdoc
      */
-    public function delete(GroupTransactionInterface $groupTransaction)
+    public function deleteById($groupTransactionId): bool
+    {
+        $groupTransaction = $this->getById($groupTransactionId);
+
+        return $this->delete($groupTransaction);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getById($groupTransactionId)
+    {
+        $groupTransaction = $this->groupTransactionFactory->create();
+        $groupTransaction->load($groupTransactionId);
+
+        if (!$groupTransaction->getId()) {
+            throw new NoSuchEntityException(__('GroupTransaction with id "%1" does not exist.', $groupTransactionId));
+        }
+
+        return $groupTransaction;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete(GroupTransactionInterface $groupTransaction): bool
     {
         try {
             $this->resource->delete($groupTransaction);
@@ -185,15 +216,5 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
         }
 
         return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function deleteById($groupTransactionId)
-    {
-        $groupTransaction = $this->getById($groupTransactionId);
-
-        return $this->delete($groupTransaction);
     }
 }

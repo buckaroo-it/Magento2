@@ -36,7 +36,7 @@ interface GiftcardRepositoryInterface
      * @return GiftcardInterface
      * @throws CouldNotSaveException
      */
-    public function save(GiftcardInterface $giftcard);
+    public function save(GiftcardInterface $giftcard): GiftcardInterface;
 
     /**
      * Get gift card by id

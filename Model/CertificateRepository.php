@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
@@ -25,6 +26,7 @@ use Buckaroo\Magento2\Api\Data\CertificateInterface;
 use Buckaroo\Magento2\Model\ResourceModel\Certificate as CertificateResource;
 use Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection as CertificateCollection;
 use Buckaroo\Magento2\Model\ResourceModel\Certificate\CollectionFactory as CertificateCollectionFactory;
+use Magento\Framework\Api\Search\FilterGroup;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Api\SearchResultsInterfaceFactory;
@@ -33,24 +35,35 @@ use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class CertificateRepository implements CertificateRepositoryInterface
 {
-    /** @var CertificateResource */
-    protected $resource;
-
-    /** @var CertificateFactory */
-    protected $certificateFactory;
-
-    /** @var CertificateCollectionFactory */
-    protected $certificateCollectionFactory;
-
-    /** @var SearchResultsInterfaceFactory */
-    protected $searchResultsFactory;
+    /**
+     * @var CertificateResource
+     */
+    protected CertificateResource $resource;
 
     /**
-     * @param CertificateResource           $resource
-     * @param CertificateFactory            $certificateFactory
-     * @param CertificateCollectionFactory  $certificateCollectionFactory
+     * @var CertificateFactory
+     */
+    protected CertificateFactory $certificateFactory;
+
+    /**
+     * @var CertificateCollectionFactory
+     */
+    protected CertificateCollectionFactory $certificateCollectionFactory;
+
+    /**
+     * @var SearchResultsInterfaceFactory
+     */
+    protected SearchResultsInterfaceFactory $searchResultsFactory;
+
+    /**
+     * @param CertificateResource $resource
+     * @param CertificateFactory $certificateFactory
+     * @param CertificateCollectionFactory $certificateCollectionFactory
      * @param SearchResultsInterfaceFactory $searchResultsFactory
      */
     public function __construct(
@@ -82,21 +95,6 @@ class CertificateRepository implements CertificateRepositoryInterface
     /**
      * @inheritdoc
      */
-    public function getById($certificateId): CertificateInterface
-    {
-        $certificate = $this->certificateFactory->create();
-        $certificate->load($certificateId);
-
-        if (!$certificate->getId()) {
-            throw new NoSuchEntityException(__('Certificate with id "%1" does not exist.', $certificateId));
-        }
-
-        return $certificate;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getList(SearchCriteria $searchCriteria): SearchResultsInterface
     {
         /** @var SearchResultsInterface $searchResults */
@@ -120,16 +118,19 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
-     * @param \Magento\Framework\Api\Search\FilterGroup $filterGroup
-     * @param CertificateCollection                     $collection
+     * Handle filter groups for the given collection by applying filters from the filter group.
+     *
+     * @param FilterGroup $filterGroup
+     * @param CertificateCollection $collection
+     * @return void
      */
-    private function handleFilterGroups($filterGroup, $collection)
+    private function handleFilterGroups(FilterGroup $filterGroup, CertificateCollection $collection)
     {
-        $fields     = [];
+        $fields = [];
         $conditions = [];
         foreach ($filterGroup->getFilters() as $filter) {
-            $condition    = $filter->getConditionType() ? $filter->getConditionType() : 'eq';
-            $fields[]     = $filter->getField();
+            $condition = $filter->getConditionType() ? $filter->getConditionType() : 'eq';
+            $fields[] = $filter->getField();
             $conditions[] = [$condition => $filter->getValue()];
         }
 
@@ -139,10 +140,12 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
+     * Handle sort orders for the given search criteria and collection.
+     *
      * @param SearchCriteria $searchCriteria
      * @param CertificateCollection $collection
      */
-    private function handleSortOrders($searchCriteria, $collection)
+    private function handleSortOrders(SearchCriteria $searchCriteria, CertificateCollection $collection)
     {
         $sortOrders = $searchCriteria->getSortOrders();
 
@@ -150,7 +153,6 @@ class CertificateRepository implements CertificateRepositoryInterface
             return;
         }
 
-        /** @var SortOrder $sortOrder */
         foreach ($sortOrders as $sortOrder) {
             $collection->addOrder(
                 $sortOrder->getField(),
@@ -160,12 +162,14 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
+     * Get search result items based on search criteria and collection.
+     *
      * @param SearchCriteria $searchCriteria
      * @param CertificateCollection $collection
      *
      * @return array
      */
-    private function getSearchResultItems($searchCriteria, $collection)
+    private function getSearchResultItems(SearchCriteria $searchCriteria, CertificateCollection $collection): array
     {
         $collection->setCurPage($searchCriteria->getCurrentPage());
         $collection->setPageSize($searchCriteria->getPageSize());
@@ -181,6 +185,31 @@ class CertificateRepository implements CertificateRepositoryInterface
     /**
      * @inheritdoc
      */
+    public function deleteById($certificateId): bool
+    {
+        $certificate = $this->getById($certificateId);
+
+        return $this->delete($certificate);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getById($certificateId): CertificateInterface
+    {
+        $certificate = $this->certificateFactory->create();
+        $certificate->load($certificateId);
+
+        if (!$certificate->getId()) {
+            throw new NoSuchEntityException(__('Certificate with id "%1" does not exist.', $certificateId));
+        }
+
+        return $certificate;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function delete(CertificateInterface $certificate): bool
     {
         try {
@@ -190,15 +219,5 @@ class CertificateRepository implements CertificateRepositoryInterface
         }
 
         return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function deleteById($certificateId): bool
-    {
-        $certificate = $this->getById($certificateId);
-
-        return $this->delete($certificate);
     }
 }

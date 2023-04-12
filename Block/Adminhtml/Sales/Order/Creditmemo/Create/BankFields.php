@@ -89,7 +89,7 @@ class BankFields extends Template
     /**
      * Returns the Payment Method name. If something goes wrong, this will return false.
      *
-     * @return string | false (when not found)
+     * @return string|false (when not found)
      * @throws LocalizedException
      */
     public function getPaymentMethod()

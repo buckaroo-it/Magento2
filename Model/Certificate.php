@@ -100,11 +100,12 @@ class Certificate extends AbstractModel implements CertificateInterface
     }
 
     /**
-     * @param boolean $skipEncryptionOnSave
+     * Skip encryption on save
      *
+     * @param boolean $skipEncryptionOnSave
      * @return $this
      */
-    public function setSkipEncryptionOnSave($skipEncryptionOnSave)
+    public function setSkipEncryptionOnSave(bool $skipEncryptionOnSave): Certificate
     {
         $this->skipEncryptionOnSave = $skipEncryptionOnSave;
 
@@ -112,9 +113,11 @@ class Certificate extends AbstractModel implements CertificateInterface
     }
 
     /**
+     * Is skip encryption on save active
+     *
      * @return boolean
      */
-    public function isSkipEncryptionOnSave()
+    public function isSkipEncryptionOnSave(): bool
     {
         return $this->skipEncryptionOnSave;
     }
