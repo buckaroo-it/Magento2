@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,36 +17,46 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Ui\DataProvider\Modifier;
 
+use Buckaroo\Magento2\Ui\Renderer\NotificationRenderer;
 use Magento\Framework\App\CacheInterface;
-use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Directory\ReadFactory;
 use Magento\Framework\Module\Dir\Reader;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Ui\DataProvider\Modifier\ModifierInterface;
-use Buckaroo\Magento2\Ui\Renderer\NotificationRenderer;
 
 /**
  * @see \Magento\ReleaseNotification\Ui\DataProvider\Modifier\Notifications
  */
 class Notifications implements ModifierInterface
 {
-    /** @var CacheInterface $cacheStorage */
+    /**
+     * @var CacheInterface
+     */
     private $cacheStorage;
 
-    /** @var ReadFactory $readFactory */
+    /**
+     * @var ReadFactory
+     */
     private $readFactory;
 
-    /** @var Reader $moduleReader */
+    /**
+     * @var Reader
+     */
     private $moduleReader;
 
-    /** @var SerializerInterface $serializer */
+    /**
+     * @var SerializerInterface
+     */
     private $serializer;
 
-    /** @var NotificationRenderer $renderer */
-    private $renderer;
+    /**
+     * @var NotificationRenderer
+     */
+    private NotificationRenderer $renderer;
 
     /**
      * @param CacheInterface $cacheStorage
@@ -73,7 +82,7 @@ class Notifications implements ModifierInterface
     /**
      * @inheritdoc
      */
-    public function modifyData(array $data)
+    public function modifyData(array $data): array
     {
         return $data;
     }
@@ -81,7 +90,7 @@ class Notifications implements ModifierInterface
     /**
      * @inheritdoc
      */
-    public function modifyMeta(array $meta)
+    public function modifyMeta(array $meta): array
     {
         $modalContent = $this->getNotificationContent();
 
@@ -101,6 +110,16 @@ class Notifications implements ModifierInterface
     }
 
     /**
+     * Returns the json data
+     *
+     * @return string
+     */
+    private function getNotificationContent(): string
+    {
+        return '';
+    }
+
+    /**
      * Builds the notification modal by modifying $meta for the ui component.
      *
      * @param array $meta
@@ -112,7 +131,7 @@ class Notifications implements ModifierInterface
     private function buildNotificationMeta(array $meta, array $page, bool $isLastPage): array
     {
         $meta['notification_modal_' . $page['name']]['arguments']['data']['config'] = [
-            'isTemplate' => false,
+            'isTemplate'    => false,
             'componentType' => \Magento\Ui\Component\Modal::NAME
         ];
 
@@ -123,17 +142,17 @@ class Notifications implements ModifierInterface
 
         if ($isLastPage) {
             $meta['notification_modal_' . $page['name']]['arguments']['data']['config']['options'] = [
-                'title' => $this->renderer->getNotificationTitle($page),
+                'title'   => $this->renderer->getNotificationTitle($page),
                 'buttons' => [
                     [
-                        'text' => 'Done',
+                        'text'    => 'Done',
                         'actions' => [
                             [
                                 'targetName' => '${ $.name }',
                                 'actionName' => 'closeReleaseNotes'
                             ]
                         ],
-                        'class' => 'release-notification-button-next'
+                        'class'   => 'release-notification-button-next'
                     ]
                 ],
             ];
@@ -157,23 +176,12 @@ class Notifications implements ModifierInterface
      * @param array $meta
      * @return array
      */
-    private function hideNotification(array $meta)
+    private function hideNotification(array $meta): array
     {
         $meta['notification_modal_1']['arguments']['data']['config']['options'] = [
             'autoOpen' => false
         ];
 
         return $meta;
-    }
-
-    /**
-     * Returns the json data
-     *
-     * @return array
-     * @throws FileSystemException
-     */
-    private function getNotificationContent()
-    {
-        return '';
     }
 }

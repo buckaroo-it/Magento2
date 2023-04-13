@@ -1,13 +1,12 @@
 <?php
-// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,16 +17,20 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Setup;
 
+use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
+use Magento\Framework\Setup\UpgradeSchemaInterface;
 
-class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
+class UpgradeSchema implements UpgradeSchemaInterface
 {
     /**
      * @inheritdoc
+     * @throws \Zend_Db_Exception
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -71,7 +74,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 $installer->getTable('buckaroo_magento2_group_transaction'),
                 'refunded_amount',
                 [
-                    'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'type'     => Table::TYPE_TEXT,
                     'nullable' => true,
                     'comment'  => 'RefundedAmount',
                 ]
@@ -81,7 +84,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 $installer->getTable('buckaroo_magento2_giftcard'),
                 'is_partial_refundable',
                 [
-                    'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+                    'type'     => Table::TYPE_BOOLEAN,
                     'nullable' => true,
                     'comment'  => 'Giftcard partial refund',
                 ]
@@ -94,8 +97,9 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
     }
 
     /**
-     * @param SchemaSetupInterface $installer
+     * Create gift card table
      *
+     * @param SchemaSetupInterface $installer
      * @throws \Zend_Db_Exception
      */
     protected function createGiftcardTable(SchemaSetupInterface $installer)
@@ -104,7 +108,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'entity_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+            Table::TYPE_INTEGER,
             null,
             [
                 'identity' => true,
@@ -117,7 +121,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'servicecode',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -127,7 +131,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'label',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -137,7 +141,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'is_partial_refundable',
-            \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+            Table::TYPE_BOOLEAN,
             null,
             [
                 'nullable' => false,
@@ -147,7 +151,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'logo',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             255,
             [
                 'nullable' => true,
@@ -161,8 +165,9 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
     }
 
     /**
-     * @param SchemaSetupInterface $installer
+     * Create buckaroo invoice table
      *
+     * @param SchemaSetupInterface $installer
      * @throws \Zend_Db_Exception
      */
     protected function createInvoiceTable(SchemaSetupInterface $installer)
@@ -171,7 +176,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'entity_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+            Table::TYPE_INTEGER,
             null,
             [
                 'identity' => true,
@@ -184,7 +189,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'invoice_transaction_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -194,7 +199,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'invoice_number',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -208,8 +213,9 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
     }
 
     /**
-     * @param SchemaSetupInterface $installer
+     * Create group transaction table
      *
+     * @param SchemaSetupInterface $installer
      * @throws \Zend_Db_Exception
      *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
@@ -220,7 +226,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'entity_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+            Table::TYPE_INTEGER,
             null,
             [
                 'identity' => true,
@@ -233,7 +239,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'order_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -243,7 +249,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'transaction_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -253,7 +259,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'relatedtransaction',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -263,7 +269,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'servicecode',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -273,7 +279,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'currency',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -283,7 +289,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'amount',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -293,7 +299,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'type',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -303,7 +309,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'status',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            Table::TYPE_TEXT,
             null,
             [
                 'nullable' => false,
@@ -313,7 +319,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
 
         $table->addColumn(
             'created_at',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+            Table::TYPE_TIMESTAMP,
             null,
             [],
             'Created At'
@@ -324,9 +330,9 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
     }
 
     /**
-     * @param SchemaSetupInterface $installer
+     * Create an index for optimization
      *
-     * @throws \Zend_Db_Exception
+     * @param SchemaSetupInterface $installer
      */
     protected function createOptimizationIndexes(SchemaSetupInterface $installer)
     {

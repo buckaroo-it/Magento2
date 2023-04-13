@@ -1,13 +1,12 @@
 <?php
-// phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,17 +17,23 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Setup;
 
+use Magento\Framework\Registry;
+use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 
-class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
+class InstallSchema implements InstallSchemaInterface
 {
-    protected $registry;
+    /**
+     * @var Registry
+     */
+    protected Registry $registry;
 
-    public function __construct(\Magento\Framework\Registry $registry)
+    public function __construct(Registry $registry)
     {
         $this->registry = $registry;
     }
@@ -36,13 +41,14 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
     /**
      * Installs DB schema for a module
      *
-     * @param SchemaSetupInterface   $setup
+     * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context
      *
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @throws \Zend_Db_Exception
      */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -232,6 +238,5 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
 
             $installer->getConnection()->createTable($table);
         }
-
     }
 }

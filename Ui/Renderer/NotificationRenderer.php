@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Ui\Renderer;
 
@@ -29,11 +29,15 @@ use Magento\Framework\View\Asset\Repository as AssetRepository;
  */
 class NotificationRenderer
 {
-    /** @var Escaper $escaper */
-    private $escaper;
+    /**
+     * @var Escaper $escaper
+     */
+    private Escaper $escaper;
 
-    /** @var AssetRepository $assetRepository */
-    private $assetRepository;
+    /**
+     * @var AssetRepository $assetRepository
+     */
+    private AssetRepository $assetRepository;
 
     /**
      * @param Escaper $escaper
@@ -53,7 +57,7 @@ class NotificationRenderer
      * @param array $page
      * @return string
      */
-    public function getNotificationTitle(array $page)
+    public function getNotificationTitle(array $page): string
     {
         $title = $this->escaper->escapeHtml($page['mainContent']['title']);
         $content = "";
@@ -75,7 +79,7 @@ class NotificationRenderer
      * @param array $page
      * @return string
      */
-    public function getNotificationContent(array $page)
+    public function getNotificationContent(array $page): string
     {
         $content = $this->buildMainContent($page['mainContent']);
         $content .= $this->buildSubHeadings($page['subHeading']);
@@ -90,7 +94,7 @@ class NotificationRenderer
      * @param array $mainContent
      * @return string
      */
-    private function buildMainContent(array $mainContent)
+    private function buildMainContent(array $mainContent): string
     {
         $content = $this->buildContentTextAreas($mainContent['content']);
         $content .= $this->buildLists($mainContent['lists']);
@@ -104,7 +108,7 @@ class NotificationRenderer
      * @param array $contentAreas
      * @return string
      */
-    private function buildContentTextAreas(array $contentAreas)
+    private function buildContentTextAreas(array $contentAreas): string
     {
         $content = "";
         $lastContentArea = end($contentAreas);
@@ -127,7 +131,7 @@ class NotificationRenderer
      * @param array $lists
      * @return string
      */
-    private function buildLists(array $lists)
+    private function buildLists(array $lists): string
     {
         $content = "<ul>";
 
@@ -143,59 +147,13 @@ class NotificationRenderer
     }
 
     /**
-     * Builds the HTML for the highlighted sub heads for the overview page in the notification ui component
-     *
-     * @param array $subHeadings
-     * @return string
-     */
-    private function buildSubHeadings(array $subHeadings)
-    {
-        $content = "";
-
-        foreach ($subHeadings as $subHeading) {
-            if (! empty($subHeading['imageUrl'])) {
-                $imageUrl = $this->assetRepository->getUrl($subHeading['imageUrl']);
-                $content .= "<div class='buckaroo-highlight-item'>";
-                $content .= '<img src="' . $this->escaper->escapeUrl($imageUrl) . '" />';
-            } else {
-                $content .= "<div class='highlight-item-no-image'>";
-            }
-
-            $content .= "<h3>";
-            $content .= $this->escaper->escapeHtml($subHeading['title']);
-            $content .= "</h3>";
-            $content .= "<p>";
-            $content .= $this->formatContentWithLinks($subHeading['content']);
-            $content .= "</p>";
-            $content .= "</div>";
-        }
-
-        return $content;
-    }
-
-    /**
-     * Builds the HTML for the footer content in the notification ui component
-     *
-     * @param array $footer
-     * @return string
-     */
-    private function buildFooter(array $footer)
-    {
-        $content = "<p>";
-        $content .= $this->escaper->escapeHtml($footer['content']);
-        $content .= "</p>";
-
-        return $this->formatContentWithLinks($content);
-    }
-
-    /**
      * Searches a given string for a URL, formats it to an HTML anchor tag, and returns the original string in the
      * correct HTML format.
      *
      * @param string $content
      * @return string
      */
-    private function formatContentWithLinks($content)
+    private function formatContentWithLinks(string $content): string
     {
         $urlRegex = '#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#';
         $urlTextRegex = '/\[(.*?)\]/';
@@ -223,5 +181,51 @@ class NotificationRenderer
         }
 
         return $content;
+    }
+
+    /**
+     * Builds the HTML for the highlighted sub heads for the overview page in the notification ui component
+     *
+     * @param array $subHeadings
+     * @return string
+     */
+    private function buildSubHeadings(array $subHeadings): string
+    {
+        $content = "";
+
+        foreach ($subHeadings as $subHeading) {
+            if (!empty($subHeading['imageUrl'])) {
+                $imageUrl = $this->assetRepository->getUrl($subHeading['imageUrl']);
+                $content .= "<div class='buckaroo-highlight-item'>";
+                $content .= '<img src="' . $this->escaper->escapeUrl($imageUrl) . '" />';
+            } else {
+                $content .= "<div class='highlight-item-no-image'>";
+            }
+
+            $content .= "<h3>";
+            $content .= $this->escaper->escapeHtml($subHeading['title']);
+            $content .= "</h3>";
+            $content .= "<p>";
+            $content .= $this->formatContentWithLinks($subHeading['content']);
+            $content .= "</p>";
+            $content .= "</div>";
+        }
+
+        return $content;
+    }
+
+    /**
+     * Builds the HTML for the footer content in the notification ui component
+     *
+     * @param array $footer
+     * @return string
+     */
+    private function buildFooter(array $footer): string
+    {
+        $content = "<p>";
+        $content .= $this->escaper->escapeHtml($footer['content']);
+        $content .= "</p>";
+
+        return $this->formatContentWithLinks($content);
     }
 }

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,26 +17,31 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Formatter;
 
-use Magento\Sales\Api\Data\OrderAddressInterface;
 use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
 use Buckaroo\Magento2\Service\Formatter\Address\StreetFormatter;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class AddressFormatter
 {
-    /** @var StreetFormatter */
-    private $streetFormatter;
+    /**
+     * @var StreetFormatter
+     */
+    private StreetFormatter $streetFormatter;
 
-    /** @var PhoneFormatter */
-    private $phoneFormatter;
+    /**
+     * @var PhoneFormatter
+     */
+    private PhoneFormatter $phoneFormatter;
 
     /**
      * AddressFormatter constructor.
      *
      * @param StreetFormatter $streetFormatter
-     * @param PhoneFormatter  $phoneFormatter
+     * @param PhoneFormatter $phoneFormatter
      */
     public function __construct(
         StreetFormatter $streetFormatter,
@@ -48,37 +52,38 @@ class AddressFormatter
     }
 
     /**
-     * @param OrderAddressInterface $address
+     * Format street and telephone by order address
      *
+     * @param OrderAddressInterface $address
      * @return array
      */
-    public function format($address)
+    public function format(OrderAddressInterface $address): array
     {
-        $formattedAddress = [
-            'street' => $this->formatStreet($address->getStreet()),
+        return [
+            'street'    => $this->formatStreet($address->getStreet()),
             'telephone' => $this->formatTelephone($address->getTelephone(), $address->getCountryId())
         ];
-
-        return $formattedAddress;
     }
 
     /**
-     * @param $street
+     * Format street
      *
+     * @param array $street
      * @return array
      */
-    public function formatStreet($street)
+    public function formatStreet(array $street): array
     {
         return $this->streetFormatter->format($street);
     }
 
     /**
-     * @param $phoneNumber
-     * @param $country
+     * Format phone number
      *
+     * @param string $phoneNumber
+     * @param string $country
      * @return array
      */
-    public function formatTelephone($phoneNumber, $country)
+    public function formatTelephone(string $phoneNumber, string $country): array
     {
         return $this->phoneFormatter->format($phoneNumber, $country);
     }

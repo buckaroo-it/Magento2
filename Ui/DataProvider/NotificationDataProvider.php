@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,15 +17,20 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Ui\DataProvider;
 
 use Buckaroo\Magento2\Ui\DataProvider\Modifier\Notifications;
+use Magento\Framework\Api\Filter;
+use Magento\Ui\DataProvider\AbstractDataProvider;
 
-class NotificationDataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
+class NotificationDataProvider extends AbstractDataProvider
 {
-    /** @var Notifications $modifier */
-    private $modifier;
+    /**
+     * @var Notifications $modifier
+     */
+    private Notifications $modifier;
 
     /**
      * @param string $name
@@ -58,7 +62,7 @@ class NotificationDataProvider extends \Magento\Ui\DataProvider\AbstractDataProv
     /**
      * @inheritdoc
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
@@ -66,18 +70,18 @@ class NotificationDataProvider extends \Magento\Ui\DataProvider\AbstractDataProv
     /**
      * @inheritdoc
      */
-    public function getMeta()
+    public function getMeta(): array
     {
         return $this->modifier->modifyMeta($this->meta);
     }
 
     /**
-     * @param \Magento\Framework\Api\Filter $filter
+     * @param Filter $filter
      * @return null
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function addFilter(\Magento\Framework\Api\Filter $filter)
+    public function addFilter(Filter $filter)
     {
         return null;
     }

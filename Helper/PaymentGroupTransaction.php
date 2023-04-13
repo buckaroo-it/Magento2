@@ -191,9 +191,9 @@ class PaymentGroupTransaction extends AbstractHelper
      * Get last transaction from group transaction filter by order
      *
      * @param string|int $orderId
-     * @return \Buckaroo\Magento2\Model\GroupTransaction|null
+     * @return string|null
      */
-    public function getGroupTransactionOriginalTransactionKey($orderId)
+    public function getGroupTransactionOriginalTransactionKey($orderId): ?string
     {
         if ($orderId === null) {
             return null;

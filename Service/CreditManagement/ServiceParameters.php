@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,20 +17,30 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\CreditManagement;
 
+use Buckaroo\Magento2\Exception;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class ServiceParameters
 {
-    /** @var ServiceParameters\CreateCombinedInvoice */
-    private $createCombinedInvoice;
+    /**
+     * @var ServiceParameters\CreateCombinedInvoice
+     */
+    private ServiceParameters\CreateCombinedInvoice $createCombinedInvoice;
 
-    /** @var ServiceParameters\CreateCreditNote */
-    private $createCreditNote;
+    /**
+     * @var ServiceParameters\CreateCreditNote
+     */
+    private ServiceParameters\CreateCreditNote $createCreditNote;
 
+    /**
+     * @param ServiceParameters\CreateCombinedInvoice $createCombinedInvoice
+     * @param ServiceParameters\CreateCreditNote $createCreditNote
+     */
     public function __construct(
         ServiceParameters\CreateCombinedInvoice $createCombinedInvoice,
         ServiceParameters\CreateCreditNote $createCreditNote
@@ -41,43 +50,42 @@ class ServiceParameters
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param string                              $configProviderType
-     * @param array                               $filterParameter
+     * Generates parameters for creating a combined invoice
      *
+     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param string $configProviderType
+     * @param array $filterParameter
      * @return array
+     * @throws Exception
      */
-    public function getCreateCombinedInvoice($payment, $configProviderType, $filterParameter = [])
+    public function getCreateCombinedInvoice($payment, string $configProviderType, array $filterParameter = []): array
     {
         $requestParameter = $this->createCombinedInvoice->get($payment, $configProviderType);
 
-        $requestParameter = $this->filterParameter($requestParameter, $filterParameter);
-
-        return $requestParameter;
+        return $this->filterParameter($requestParameter, $filterParameter);
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array                               $filterParameter
+     * Generates parameters for creating a credit note
      *
+     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param array $filterParameter
      * @return array
      */
-    public function getCreateCreditNote($payment, $filterParameter = [])
+    public function getCreateCreditNote($payment, array $filterParameter = []): array
     {
         $requestParameter = $this->createCreditNote->get($payment);
-
-        $requestParameter = $this->filterParameter($requestParameter, $filterParameter);
-
-        return $requestParameter;
+        return $this->filterParameter($requestParameter, $filterParameter);
     }
 
     /**
+     * Filters request parameters based on the provided filter parameters.
+     *
      * @param array $requestParameters
      * @param array $filterParameter
-     *
-     * @return mixed
+     * @return array
      */
-    public function filterParameter($requestParameters, $filterParameter)
+    public function filterParameter(array $requestParameters, array $filterParameter): array
     {
         if (!isset($requestParameters['RequestParameter'])) {
             return $requestParameters;
