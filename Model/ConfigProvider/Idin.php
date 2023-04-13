@@ -114,9 +114,9 @@ class Idin extends AbstractConfigProvider
     /**
      * @param Account $configProviderAccount
      * @param StoreManagerInterface $storeManager
-     * @param Session $customerSession
+     * @param CustomerSession $customerSession
      * @param ProductFactory $productFactory
-     * @param Session $checkoutSession
+     * @param CheckoutSession $checkoutSession
      * @param ScopeConfigInterface $scopeConfig
      * @param AddressFactory $addressFactory
      * @param CustomerRepository $customerRepository
@@ -124,9 +124,9 @@ class Idin extends AbstractConfigProvider
     public function __construct(
         Account $configProviderAccount,
         StoreManagerInterface $storeManager,
-        Session $customerSession,
+        CustomerSession $customerSession,
         ProductFactory $productFactory,
-        Session $checkoutSession,
+        CheckoutSession $checkoutSession,
         ScopeConfigInterface $scopeConfig,
         AddressFactory $addressFactory,
         CustomerRepository $customerRepository
