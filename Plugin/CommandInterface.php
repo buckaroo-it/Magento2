@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,39 +17,42 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
-use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 
 class CommandInterface
 {
     /**
      * @var Log $logging
      */
-    public $logging;
+    public Log $logging;
 
     /**
      * @var Factory
      */
-    public $configProviderMethodFactory;
+    public Factory $configProviderMethodFactory;
 
     /**
      * @var Data
      */
-    public $helper;
+    public Data $helper;
 
     /**
-     * @param Log $logging
      * @param Factory $configProviderMethodFactory
+     * @param Log $logging
+     * @param Data $helper
      */
     public function __construct(
         Factory $configProviderMethodFactory,
@@ -63,10 +65,13 @@ class CommandInterface
     }
 
     /**
+     * Around plugin for executing authorize and order command. It will update status and state for the order.
+     *
      * @param MagentoCommandInterface $commandInterface
-     * @param \Closure                $proceed
-     * @param OrderPaymentInterface   $payment
-     * @param OrderInterface          $order
+     * @param \Closure $proceed
+     * @param OrderPaymentInterface $payment
+     * @param string|float|int $amount
+     * @param OrderInterface $order
      *
      * @return mixed
      *
@@ -103,8 +108,11 @@ class CommandInterface
     }
 
     /**
+     * Update order state and status based on the payment method
+     *
      * @param OrderInterface|Order $order
-     * @param MethodInterface      $methodInstance
+     * @param MethodInterface $methodInstance
+     * @throws Exception
      */
     private function updateOrderStateAndStatus(OrderInterface $order, MethodInterface $methodInstance)
     {
@@ -113,16 +121,15 @@ class CommandInterface
 
         $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
 
-        if (
-            (
-            (
-                preg_match('/afterpay/', $methodInstance->getCode())
-                && $this->helper->getOriginalTransactionKey($order->getIncrementId())
-            )
-            || (
-                preg_match('/eps/', $methodInstance->getCode())
-                && ($this->helper->getMode($methodInstance->getCode()) != Data::MODE_LIVE)
-            )
+        if ((
+                (
+                    preg_match('/afterpay/', $methodInstance->getCode())
+                    && $this->helper->getOriginalTransactionKey($order->getIncrementId())
+                )
+                || (
+                    preg_match('/eps/', $methodInstance->getCode())
+                    && ($this->helper->getMode($methodInstance->getCode()) != Data::MODE_LIVE)
+                )
             )
             && ($orderStatus == 'pending')
             && ($order->getState() === Order::STATE_PROCESSING)

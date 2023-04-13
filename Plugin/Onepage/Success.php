@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,30 +17,34 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin\Onepage;
 
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\Action\Context;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Helper\Data as BuckarooDataHelper;
+use Magento\Checkout\Controller\Onepage\Success as ControllerOnePageSuccess;
 
 /**
- * Override Onepage checkout success controller class
+ * Override One page checkout success controller class
  */
 class Success
 {
     /**
-     * @var \Magento\Framework\Controller\Result\RedirectFactory
+     * @var RedirectFactory
      */
-    protected $resultRedirectFactory;
+    protected RedirectFactory $resultRedirectFactory;
 
     /**
      * @var Log
      */
-    protected $logger;
+    protected Log $logger;
 
     /**
      * @param Context $context
@@ -53,13 +57,16 @@ class Success
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
         $this->logger = $logger;
     }
-    
+
     /**
      * If the user visits the payment complete page when doing a payment or when the order is canceled redirect to cart
+     *
+     * @param ControllerOnePageSuccess $checkoutSuccess
+     * @param callable $proceed
+     * @return Redirect
      */
-    public function aroundExecute(\Magento\Checkout\Controller\Onepage\Success $checkoutSuccess, callable $proceed)
+    public function aroundExecute(ControllerOnePageSuccess $checkoutSuccess, callable $proceed): Redirect
     {
-
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
 
@@ -85,33 +92,31 @@ class Success
     }
 
     /**
-     * Is one of our payment methods
-     *
-     * @param OrderPaymentInterface|null $payment
-     *
-     * @return boolean
-     */
-    public function isBuckarooPayment($payment)
-    {
-        if (!$payment instanceof OrderPaymentInterface) {
-            return false;
-        }
-        return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
-    }
-
-    /**
      * Check if user is on the payment provider page
      *
      * @param OrderPaymentInterface|null $payment
-     *
      * @return boolean
      */
-    protected function paymentInTransit(OrderPaymentInterface $payment = null)
+    protected function paymentInTransit(OrderPaymentInterface $payment = null): bool
     {
         if ($payment === null) {
             return false;
         }
 
-        return $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
+        return $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT) == true;
+    }
+
+    /**
+     * Is one of our payment methods
+     *
+     * @param OrderPaymentInterface|null $payment
+     * @return boolean
+     */
+    public function isBuckarooPayment(?OrderPaymentInterface $payment): bool
+    {
+        if (!$payment instanceof OrderPaymentInterface) {
+            return false;
+        }
+        return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
     }
 }

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
@@ -28,15 +28,14 @@ class TotalsCollector
     /**
      * Reset quote reward point amount
      *
-     * @param \Magento\Quote\Model\Quote\TotalsCollector $subject
-     * @param Quote                                      $quote
-     *
+     * @param Quote\TotalsCollector $subject
+     * @param Quote $quote
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforeCollect(
-        \Magento\Quote\Model\Quote\TotalsCollector $subject,
+        Quote\TotalsCollector $subject,
         Quote $quote
     ) {
         /**

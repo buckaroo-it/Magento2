@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -32,18 +31,37 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class GroupTransactionRegister implements ObserverInterface
 {
-    /** @var Account */
+    /**
+     * @var Account
+     */
     private $accountConfig;
 
-    /** @var InvoiceSender */
+    /**
+     * @var InvoiceSender
+     */
     private $invoiceSender;
+
+    /**
+     * @var Log
+     */
     private $logger;
+
+    /**
+     * @var Data
+     */
     private $helper;
+
+    /**
+     * @var PaymentGroupTransaction
+     */
     private PaymentGroupTransaction $groupTransaction;
 
     /**
-     * @param Account       $accountConfig
+     * @param Account $accountConfig
      * @param InvoiceSender $invoiceSender
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param Log $logger
+     * @param Data $helper
      */
     public function __construct(
         Account $accountConfig,
@@ -60,7 +78,10 @@ class GroupTransactionRegister implements ObserverInterface
     }
 
     /**
+     * Set total paid by a group transaction for sales_order_invoice_pay event
+     *
      * @param Observer $observer
+     * @return void
      */
     public function execute(Observer $observer)
     {

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,12 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order\Payment\Transaction;
 
 class HtmlTransactionIdObserver implements ObserverInterface
 {
@@ -35,7 +36,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        /** @var \Magento\Sales\Model\Order\Payment\Transaction $transaction */
+        /** @var Transaction $transaction */
         $transaction = $observer->getDataObject();
         $order = $transaction->getOrder();
         $txnIdArray = explode("-", $transaction->getTxnId());
@@ -59,7 +60,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
      * @param OrderPaymentInterface|null $payment
      * @return boolean
      */
-    public function isBuckarooPayment($payment)
+    public function isBuckarooPayment(?OrderPaymentInterface $payment): bool
     {
         if (!$payment instanceof OrderPaymentInterface) {
             return false;

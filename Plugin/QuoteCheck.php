@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
@@ -35,17 +36,17 @@ class QuoteCheck
     /**
      * @var ManagerInterface
      */
-    protected $messageManager;
+    protected ManagerInterface $messageManager;
 
     /**
      * @var Quote
      */
-    protected $quote;
+    protected Quote $quote;
 
     /**
      * @var PaymentGroupTransaction
      */
-    protected $groupTransaction;
+    protected PaymentGroupTransaction $groupTransaction;
 
     /**
      * Plugin constructor.
@@ -91,7 +92,7 @@ class QuoteCheck
      * @param Cart $subject
      * @throws \Exception
      */
-    public function allowedMethod($subject)
+    public function allowedMethod(Cart $subject)
     {
         if ($this->getAlreadyPaid($subject->getQuote()) > 0) {
             //phpcs:ignore:Magento2.Exceptions.DirectThrow
@@ -105,7 +106,7 @@ class QuoteCheck
      * @param Quote $quote
      * @return float
      */
-    private function getAlreadyPaid(Quote $quote)
+    private function getAlreadyPaid(Quote $quote): float
     {
         return $this->groupTransaction->getAlreadyPaid($quote->getReservedOrderId());
     }
@@ -118,7 +119,7 @@ class QuoteCheck
      * @return array
      * @throws \Exception
      */
-    public function beforeAddProductsByIds(Cart $subject, $productIds)
+    public function beforeAddProductsByIds(Cart $subject, array $productIds): array
     {
         $this->allowedMethod($subject);
 
@@ -133,7 +134,7 @@ class QuoteCheck
      * @return array
      * @throws \Exception
      */
-    public function beforeUpdateItems(Cart $subject, $data)
+    public function beforeUpdateItems(Cart $subject, array $data): array
     {
         $this->allowedMethod($subject);
 
@@ -153,7 +154,7 @@ class QuoteCheck
         Cart $subject,
         $requestInfo = null,
         $updatingParams = null
-    ) {
+    ): array {
         $this->allowedMethod($subject);
 
         return [$requestInfo, $updatingParams];
@@ -167,7 +168,7 @@ class QuoteCheck
      * @return int[]|array
      * @throws \Exception
      */
-    public function beforeRemoveItem(Cart $subject, $itemId)
+    public function beforeRemoveItem(Cart $subject, int $itemId): array
     {
         $this->allowedMethod($subject);
 

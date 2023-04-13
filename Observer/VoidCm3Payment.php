@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -23,8 +22,10 @@ namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Magento\Sales\Model\Order\Payment;
 
 class VoidCm3Payment implements ObserverInterface
 {
@@ -38,20 +39,28 @@ class VoidCm3Payment implements ObserverInterface
      */
     private $voidCommand;
 
-    public function __construct(PaymentDataObjectFactory $paymentDataObjectFactory, CommandInterface $voidCommand)
-    {
+    /**
+     * @param PaymentDataObjectFactory $paymentDataObjectFactory
+     * @param CommandInterface $voidCommand
+     */
+    public function __construct(
+        PaymentDataObjectFactory $paymentDataObjectFactory,
+        CommandInterface $voidCommand
+    ) {
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->voidCommand = $voidCommand;
     }
+
     /**
      * A CM3 payment doesn't always use the Authorize payment flow.
      * Perform the payment void() call when in those cases so the necessary SOAP calls are been made.
      *
      * @param Observer $observer
+     * @throws CommandException
      */
     public function execute(Observer $observer)
     {
-        /* @var $payment \Magento\Sales\Model\Order\Payment */
+        /* @var $payment Payment */
         $payment = $observer->getPayment();
 
         if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {

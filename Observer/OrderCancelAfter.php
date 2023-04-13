@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,9 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Gateway\Http\Client\Json;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
@@ -28,28 +29,54 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order;
 
-class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
+class OrderCancelAfter implements ObserverInterface
 {
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
+    /**
+     * @var Json
+     */
     protected $client;
 
-    /** @var Encryptor $encryptor */
+    /**
+     * @var Encryptor
+     */
     private $encryptor;
 
+    /**
+     * @var Account
+     */
     protected $configProviderAccount;
 
+    /**
+     * @var PayPerEmail
+     */
     protected $configProviderPPE;
 
+    /**
+     * @var Log
+     */
     protected $logging;
 
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Json $client
+     * @param Encryptor $encryptor
+     * @param Account $configProviderAccount
+     * @param PayPerEmail $configProviderPPE
+     * @param Log $logging
+     */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        \Buckaroo\Magento2\Gateway\Http\Client\Json $client,
+        Json $client,
         Encryptor $encryptor,
         Account $configProviderAccount,
         PayPerEmail $configProviderPPE,
@@ -64,32 +91,33 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Do cancel request to payment engine for Pay Per Email payment method after order cancel
+     *
+     * @param Observer $observer
      * @return void
+     * @throws LocalizedException
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        /* @var $order \Magento\Sales\Model\Order */
+        /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
 
         $payment = $order->getPayment();
 
         $originalKey = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
 
-        $cancel_ppe = $this->configProviderPPE->getCancelPpe();
+        $cancelPPE = $this->configProviderPPE->getCancelPpe();
 
-        if ($cancel_ppe && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])) {
+        if ($cancelPPE && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])) {
             try {
                 $this->logging->addDebug(__METHOD__ . '|sendCancelResponse|');
                 $this->sendCancelResponse($originalKey);
                 //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
+                // empty block
             }
         }
     }

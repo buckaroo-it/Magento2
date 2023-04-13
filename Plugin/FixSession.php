@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,29 +17,38 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
-use Magento\Framework\HTTP\Header;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\HTTP\Header;
+use Magento\Framework\Session\SessionManager;
 use Magento\Framework\Stdlib\Cookie\PhpCookieManager;
 use Magento\Framework\Stdlib\Cookie\PublicCookieMetadata;
-use Magento\Framework\Session\SessionManager;
 
 class FixSession
 {
     /**
      * @var Header
      */
-    protected $header;
+    protected Header $header;
 
     /**
      * @var Log
      */
-    protected $logger;
+    protected Log $logger;
 
-    protected $sessionManager;
+    /**
+     * @var SessionManager
+     */
+    protected SessionManager $sessionManager;
 
+    /**
+     * @param Header $header
+     * @param Log $logger
+     * @param SessionManager $sessionManager
+     */
     public function __construct(
         Header $header,
         Log $logger,
@@ -52,9 +60,11 @@ class FixSession
     }
 
     /**
+     * Fix the issue when customers get logged out or lose cart content on Magento storefront
+     *
      * @param PhpCookieManager $subject
-     * @param $name
-     * @param $value
+     * @param string $name
+     * @param string $value
      * @param PublicCookieMetadata|null $metadata
      * @return array
      *
@@ -62,15 +72,14 @@ class FixSession
      */
     public function beforeSetPublicCookie(
         PhpCookieManager $subject,
-        $name,
-        $value,
+        string $name,
+        string $value,
         PublicCookieMetadata $metadata = null
     ) {
-        if ($metadata && method_exists($metadata, 'getSameSite') && ($name == $this->sessionManager->getName())) {
-            if ($metadata->getSameSite() != 'None') {
-                $metadata->setSecure(true);
-                $metadata->setSameSite('None');
-            }
+        if (($metadata && method_exists($metadata, 'getSameSite') && ($name == $this->sessionManager->getName()))
+            && $metadata->getSameSite() != 'None') {
+            $metadata->setSecure(true);
+            $metadata->setSameSite('None');
         }
         return [$name, $value, $metadata];
     }
