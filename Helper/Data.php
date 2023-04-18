@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Helper;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Config\Source\Business;
+use Buckaroo\Magento2\Service\CheckPaymentType;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
@@ -149,6 +150,11 @@ class Data extends AbstractHelper
     private $customerSession;
 
     /**
+     * @var CheckPaymentType
+     */
+    public $checkPaymentType;
+
+    /**
      * @param Context $context
      * @param Account $configProviderAccount
      * @param Factory $configProviderMethodFactory
@@ -177,7 +183,8 @@ class Data extends AbstractHelper
         ScopeDefiner $scopeDefiner,
         Json $json,
         State $state,
-        CustomerSession $customerSession
+        CustomerSession $customerSession,
+        CheckPaymentType $checkPaymentType
     ) {
         parent::__construct($context);
 
@@ -193,6 +200,7 @@ class Data extends AbstractHelper
         $this->json = $json;
         $this->state = $state;
         $this->customerSession = $customerSession;
+        $this->checkPaymentType = $checkPaymentType;
     }
 
     /**
@@ -599,7 +607,7 @@ class Data extends AbstractHelper
      */
     public function checkCustomerGroup(string $paymentMethod, bool $forceB2C = false): bool
     {
-        if ($this->isBuckarooMethod($paymentMethod)) {
+        if ($this->checkPaymentType->isBuckarooMethod($paymentMethod)) {
             $paymentMethodCode = $this->getBuckarooMethod($paymentMethod);
             $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
             $configCustomerGroup = $configProvider->getSpecificCustomerGroup();
