@@ -73,7 +73,7 @@ class Success
      * @param callable $proceed
      * @return Redirect|Page
      */
-    public function aroundExecute(ControllerOnePageSuccess $checkoutSuccess, callable $proceed): Page|Redirect
+    public function aroundExecute(ControllerOnePageSuccess $checkoutSuccess, callable $proceed)
     {
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
