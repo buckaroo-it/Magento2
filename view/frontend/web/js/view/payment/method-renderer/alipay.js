@@ -48,6 +48,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.alipay.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.alipay.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('alipay'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

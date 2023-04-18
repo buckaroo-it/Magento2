@@ -47,6 +47,8 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_kbc'
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.kbc.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.kbc.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('kbc'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

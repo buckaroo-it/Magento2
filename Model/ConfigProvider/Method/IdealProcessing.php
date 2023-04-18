@@ -28,6 +28,9 @@ class IdealProcessing extends AbstractConfigProvider
     const XPATH_IDEALPROCESSING_PAYMENT_FEE          = 'payment/buckaroo_magento2_idealprocessing/payment_fee';
     const XPATH_IDEALPROCESSING_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_idealprocessing/payment_fee_label';
     const XPATH_IDEALPROCESSING_ACTIVE               = 'payment/buckaroo_magento2_idealprocessing/active';
+    const XPATH_IDEALPROCESSING_SUBTEXT              = 'payment/buckaroo_magento2_idealprocessing/subtext';
+    const XPATH_IDEALPROCESSING_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_idealprocessing/subtext_style';
+    const XPATH_IDEALPROCESSING_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_idealprocessing/subtext_color';
     const XPATH_IDEALPROCESSING_ACTIVE_STATUS        = 'payment/buckaroo_magento2_idealprocessing/active_status';
     const XPATH_IDEALPROCESSING_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_idealprocessing/order_status_success';
     const XPATH_IDEALPROCESSING_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_idealprocessing/order_status_failed';
@@ -70,6 +73,9 @@ class IdealProcessing extends AbstractConfigProvider
                     'idealprocessing' => [
                         'banks' => $issuers,
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'selectionType' => $selectionType,
                     ],

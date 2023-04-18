@@ -25,6 +25,9 @@ class Sofortbanking extends AbstractConfigProvider
     const XPATH_SOFORTBANKING_PAYMENT_FEE           = 'payment/buckaroo_magento2_sofortbanking/payment_fee';
     const XPATH_SOFORTBANKING_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_sofortbanking/payment_fee_label';
     const XPATH_SOFORTBANKING_ACTIVE                = 'payment/buckaroo_magento2_sofortbanking/active';
+    const XPATH_SOFORTBANKING_SUBTEXT               = 'payment/buckaroo_magento2_sofortbanking/subtext';
+    const XPATH_SOFORTBANKING_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_sofortbanking/subtext_style';
+    const XPATH_SOFORTBANKING_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_sofortbanking/subtext_color';
     const XPATH_SOFORTBANKING_ACTIVE_STATUS         = 'payment/buckaroo_magento2_sofortbanking/active_status';
     const XPATH_SOFORTBANKING_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_sofortbanking/order_status_success';
     const XPATH_SOFORTBANKING_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_sofortbanking/order_status_failed';
@@ -50,6 +53,9 @@ class Sofortbanking extends AbstractConfigProvider
                 'buckaroo' => [
                     'sofortbanking' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

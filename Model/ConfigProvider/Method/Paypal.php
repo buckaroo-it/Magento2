@@ -34,6 +34,9 @@ class Paypal extends AbstractConfigProvider
     const XPATH_PAYPAL_PAYMENT_FEE                      = 'payment/buckaroo_magento2_paypal/payment_fee';
     const XPATH_PAYPAL_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_paypal/payment_fee_label';
     const XPATH_PAYPAL_ACTIVE                           = 'payment/buckaroo_magento2_paypal/active';
+    const XPATH_PAYPAL_SUBTEXT                          = 'payment/buckaroo_magento2_paypal/subtext';
+    const XPATH_PAYPAL_SUBTEXT_STYLE                    = 'payment/buckaroo_magento2_paypal/subtext_style';
+    const XPATH_PAYPAL_SUBTEXT_COLOR                    = 'payment/buckaroo_magento2_paypal/subtext_color';
     const XPATH_PAYPAL_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_paypal/active_status';
     const XPATH_PAYPAL_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_paypal/order_status_success';
     const XPATH_PAYPAL_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_paypal/order_status_failed';
@@ -71,6 +74,9 @@ class Paypal extends AbstractConfigProvider
                 'buckaroo' => [
                     'paypal' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

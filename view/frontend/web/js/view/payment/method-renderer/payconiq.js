@@ -28,7 +28,8 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'mageUtils',
-        'mage/url'
+        'mage/url',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -39,7 +40,8 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         utils,
-        url
+        url,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -50,6 +52,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.payconiq.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.payconiq.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('payconiq'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 
