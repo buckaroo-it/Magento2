@@ -53,9 +53,7 @@
                             <input id="buckaroo_magento2_capayablein3_BillingName"
                                    class="input-text field"
                                    type="text"
-                                   data-bind="
-                                           value: BillingName,
-                                           textInput: CustomerName()"
+                                   data-bind="value: billingName"
                                    name="payment[buckaroo_magento2_capayablein3][customer_billingName]"
                                    disabled >
                         </div>
@@ -69,9 +67,10 @@
                                    type="text"
                                    class="input-text field"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'phoneValidation': true, 'required': true }) },
+                                   attr: { 'data-validate': JSON.stringify({ 'in3phoneValidation': true, 'required': true }) },
                                    valueUpdate: 'blur',
-                                   value: phone"
+                                   value: phone,
+                                   event: { blur: validateField }"
                                    name="payment[buckaroo_magento2_capayablein3][customer_telephone]">
                         </div>
                     </div>
@@ -103,7 +102,6 @@
                                            }"
                                    name="payment[buckaroo_magento2_capayablein3][customer_DoB]">
                         </div>
-                        <div for="buckaroo_magento2_capayablein3_DoB" generated="true" class="mage-error" id="dob-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
                     </div>
 
                     <div class="field">

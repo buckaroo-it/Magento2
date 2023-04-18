@@ -183,7 +183,7 @@ define(
                  */
 
                 validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col  form').valid();
+                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
                 selectPaymentMethod: function () {

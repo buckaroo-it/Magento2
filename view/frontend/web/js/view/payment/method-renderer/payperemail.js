@@ -197,8 +197,9 @@ define(
                  */
 
                 validate: function () {
-                    return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
+                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
+
                 getData: function () {
                     return {
                         "method": this.item.method,
