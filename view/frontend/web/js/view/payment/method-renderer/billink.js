@@ -207,7 +207,6 @@ define(
                         function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                console.log(field, state[field]);
                                 if(state[field] !== undefined) {
                                     return state[field];
                                 }

@@ -323,22 +323,6 @@ define(
                     return fields;
                 },
 
-                validateAll() {
-                    let fields = this.getActiveValidationFields();
-
-                    const valid = fields.map(
-                        function(field) {
-                            return this.validateField(field)
-                        },
-                        this
-                    ).reduce(
-                        function(prev, cur) {
-                            return prev && cur
-                        },
-                        true
-                    );
-                    return valid;
-                },
 
                 validateField: function(id) {
                     this.messageContainer.clear();
@@ -370,7 +354,7 @@ define(
                         selectBillingAddress(quote.shippingAddress());
                     }
 
-                    if (this.validateAll() && additionalValidators.validate()) {
+                    if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
 
                         //resave dpd cookies with '/' path , otherwise in some cases they won't be available at backend side
@@ -425,18 +409,7 @@ define(
                  */
 
                 validate: function () {
-                    if (
-                        document.querySelector('.action.primary.checkout')
-                        &&
-                        !$('.action.primary.checkout').is(':visible')
-                    ) {
-                        return true;
-                    }
-                    var elements = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
-                    if (elements.length) {
-                        return elements.valid();
-                    }
-                    return true;
+                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
                 getData: function () {
