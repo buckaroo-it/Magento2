@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,24 +17,23 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class Idin extends \Magento\Framework\App\Action\Action
+class Idin extends Action
 {
-    /**
-     * @var Log
-     */
-    private $logger;
-
     /**
      * @var BuilderInterface
      */
@@ -48,6 +46,10 @@ class Idin extends \Magento\Framework\App\Action\Action
      * @var ClientInterface
      */
     protected ClientInterface $clientInterface;
+    /**
+     * @var Log
+     */
+    private Log $logger;
 
     /**
      *
@@ -56,7 +58,6 @@ class Idin extends \Magento\Framework\App\Action\Action
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $clientInterface
      * @param Log $logger
-     * @throws Exception
      */
     public function __construct(
         Context $context,
@@ -66,16 +67,16 @@ class Idin extends \Magento\Framework\App\Action\Action
         Log $logger
     ) {
         parent::__construct($context);
-        $this->logger             = $logger;
+        $this->logger = $logger;
         $this->requestDataBuilder = $requestDataBuilder;
-        $this->transferFactory    = $transferFactory;
-        $this->clientInterface    = $clientInterface;
+        $this->transferFactory = $transferFactory;
+        $this->clientInterface = $clientInterface;
     }
 
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      */
     public function execute()
     {
@@ -94,7 +95,7 @@ class Idin extends \Magento\Framework\App\Action\Action
 
             $response = $this->clientInterface->placeRequest($transferO);
 
-            if (isset($response["object"]) && $response["object"] instanceof \Buckaroo\Transaction\Response\TransactionResponse) {
+            if (isset($response["object"]) && $response["object"] instanceof TransactionResponse) {
                 $response = $response["object"]->toArray();
             } else {
                 return $this->json(
@@ -110,14 +111,15 @@ class Idin extends \Magento\Framework\App\Action\Action
 
         return $this->json($response);
     }
+
     /**
      * Return json response
      *
      * @param array $data
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      */
-    protected function json($data)
+    protected function json(array $data): ResponseInterface
     {
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($data);
     }

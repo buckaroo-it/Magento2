@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,33 +20,51 @@
 
 namespace Buckaroo\Magento2\Helper;
 
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Config\Source\Business;
 use Buckaroo\Magento2\Service\CheckPaymentType;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\GroupTransaction;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Config\Model\Config\ScopeDefiner;
 use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Group;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\State;
-use Magento\Customer\Model\Session;
-use Magento\Customer\Model\Group;
-use Magento\Framework\App\Area;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\HTTP\Header;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Data extends AbstractHelper
 {
-    const MODE_INACTIVE = 0;
-    const MODE_TEST     = 1;
-    const MODE_LIVE     = 2;
+    public const MODE_INACTIVE = 0;
+    public const MODE_TEST = 1;
+    public const MODE_LIVE = 2;
 
-    const M2_ORDER_STATE_PENDING = 'pending';
-
+    public const M2_ORDER_STATE_PENDING = 'pending';
+    /**
+     * @var Account
+     */
+    public $configProviderAccount;
+    /**
+     * @var Factory
+     */
+    public $configProviderMethodFactory;
     /**
      * Buckaroo_Magento2 status codes
      *
@@ -72,45 +89,64 @@ class Data extends AbstractHelper
          */
         'BUCKAROO_MAGENTO2_ORDER_FAILED'                     => 11014,
     ];
-
+    /**
+     * @var array
+     */
     protected $debugConfig = [];
 
     /**
-     * @var Account
-     */
-    public $configProviderAccount;
-
-    /**
-     * @var Factory
-     */
-    public $configProviderMethodFactory;
-
-    /**
-     * @var \Magento\Framework\HTTP\Header
+     * @var Header
      */
     protected $httpHeader;
 
-    protected $_checkoutSession;
-
-    protected $groupTransaction;
-
-    protected $logger;
-
-    protected $customerRepository;
-
-    private $staticCache = [];
-
-    /** @var StoreManagerInterface */
-    private $storeManager;
-
-    private $scopeDefiner;
+    /**
+     * @var CheckoutSession
+     */
+    protected $checkoutSession;
 
     /**
-     * @var \Magento\Framework\Serialize\Serializer\Json
+     * @var PaymentGroupTransaction
+     */
+    protected $groupTransaction;
+
+    /**
+     * @var Log
+     */
+    protected $logger;
+
+    /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $customerRepository;
+
+    /**
+     * @var Json
      */
     protected $json;
 
+    /**
+     * @var array
+     */
+    private $staticCache = [];
+
+    /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
+     * @var ScopeDefiner
+     */
+    private $scopeDefiner;
+
+    /**
+     * @var State
+     */
     private $state;
+
+    /**
+     * @var CustomerSession
+     */
     private $customerSession;
 
     /**
@@ -122,23 +158,32 @@ class Data extends AbstractHelper
      * @param Context $context
      * @param Account $configProviderAccount
      * @param Factory $configProviderMethodFactory
-     *
+     * @param Header $httpHeader
+     * @param CheckoutSession $checkoutSession
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param Log $logger
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param StoreManagerInterface $storeManager
+     * @param ScopeDefiner $scopeDefiner
+     * @param Json $json
+     * @param State $state
+     * @param CustomerSession $customerSession
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Context $context,
         Account $configProviderAccount,
         Factory $configProviderMethodFactory,
-        \Magento\Framework\HTTP\Header $httpHeader,
-        \Magento\Checkout\Model\Session $checkoutSession,
+        Header $httpHeader,
+        CheckoutSession $checkoutSession,
         PaymentGroupTransaction $groupTransaction,
         Log $logger,
         CustomerRepositoryInterface $customerRepository,
         StoreManagerInterface $storeManager,
-        \Magento\Config\Model\Config\ScopeDefiner $scopeDefiner,
-        \Magento\Framework\Serialize\Serializer\Json $json,
+        ScopeDefiner $scopeDefiner,
+        Json $json,
         State $state,
-        Session $customerSession,
+        CustomerSession $customerSession,
         CheckPaymentType $checkPaymentType
     ) {
         parent::__construct($context);
@@ -146,8 +191,8 @@ class Data extends AbstractHelper
         $this->configProviderAccount = $configProviderAccount;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->httpHeader = $httpHeader;
-        $this->_checkoutSession  = $checkoutSession;
-        $this->groupTransaction  = $groupTransaction;
+        $this->checkoutSession = $checkoutSession;
+        $this->groupTransaction = $groupTransaction;
         $this->logger = $logger;
         $this->customerRepository = $customerRepository;
         $this->storeManager = $storeManager;
@@ -161,11 +206,10 @@ class Data extends AbstractHelper
     /**
      * Return the requested status $code, or null if not found
      *
-     * @param $code
-     *
+     * @param string $code
      * @return int|null
      */
-    public function getStatusCode($code)
+    public function getStatusCode(string $code): ?int
     {
         if (isset($this->statusCodes[$code])) {
             return $this->statusCodes[$code];
@@ -176,9 +220,8 @@ class Data extends AbstractHelper
     /**
      * Return the requested status key with the value, or null if not found
      *
-     * @param int $value
-     *
-     * @return mixed|null
+     * @param int|string $value
+     * @return false|int|string|null
      */
     public function getStatusByValue($value)
     {
@@ -194,19 +237,20 @@ class Data extends AbstractHelper
      *
      * @return array
      */
-    public function getStatusCodes()
+    public function getStatusCodes(): array
     {
         return $this->statusCodes;
     }
 
     /**
-     * @param array  $array
-     * @param array  $rawInfo
-     * @param string $keyPrefix
+     * Returns the additional transaction information
      *
+     * @param array $array
+     * @param array $rawInfo
+     * @param string $keyPrefix
      * @return array
      */
-    public function getTransactionAdditionalInfo(array $array, $rawInfo = [], $keyPrefix = '')
+    public function getTransactionAdditionalInfo(array $array, array $rawInfo = [], string $keyPrefix = ''): array
     {
         foreach ($array as $key => $value) {
             $key = $keyPrefix . $key;
@@ -227,21 +271,24 @@ class Data extends AbstractHelper
     }
 
     /**
-     * @param null|string $paymentMethod
+     * Get the active mode for the given payment method and store.
      *
-     * @return int
-     * @throws \Buckaroo\Magento2\Exception
+     * @param string|null $paymentMethod
+     * @param string|int|null $store
+     * @return mixed
+     *
+     * @throws BuckarooException
      */
-    public function getMode($paymentMethod = null, $store = null)
+    public function getMode(string $paymentMethod = null, $store = null): int
     {
-        $baseMode =  $this->configProviderAccount->getActive();
+        $baseMode = $this->configProviderAccount->getActive();
 
         if (!$paymentMethod || !$baseMode) {
             return $baseMode;
         }
 
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
+         * @var AbstractConfigProvider $configProvider
          */
         $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
         if ($store === null) {
@@ -256,33 +303,29 @@ class Data extends AbstractHelper
     /**
      * Return if browser is in mobile mode
      *
-     * @return array
+     * @return bool
      */
-    public function isMobile()
+    public function isMobile(): bool
     {
         $useragent = $_SERVER['HTTP_USER_AGENT'];
         return preg_match(
-            '/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i',
-            $useragent
-        ) || preg_match(
-            '/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i',
-            substr($useragent, 0, 4)
-        );
+                '/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i',
+                $useragent
+            ) || preg_match(
+                '/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i',
+                substr($useragent, 0, 4)
+            );
     }
 
-    public function getOriginalTransactionKey($orderId)
+    /**
+     * Get original transaction key
+     *
+     * @param string|int $orderId
+     * @return GroupTransaction|null
+     */
+    public function getOriginalTransactionKey($orderId): ?GroupTransaction
     {
         return $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId);
-    }
-
-    public function getOrderId()
-    {
-        $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
-        if (!$orderId) {
-            $orderId = $this->_checkoutSession->getQuote()->reserveOrderId()->getReservedOrderId();
-            $this->_checkoutSession->getQuote()->save();
-        }
-        return $orderId;
     }
 
     /**
@@ -290,64 +333,120 @@ class Data extends AbstractHelper
      *
      * @return bool
      */
-    public function isGroupTransaction()
+    public function isGroupTransaction(): bool
     {
         return $this->groupTransaction->isGroupTransaction($this->getOrderId());
     }
 
     /**
+     * Retrieve the reserved order ID for the current quote
+     *
+     * If the order ID is not yet reserved, reserve it now and save the quote.
+     *
+     * @return string
+     *
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getOrderId()
+    {
+        $orderId = $this->checkoutSession->getQuote()->getReservedOrderId();
+        if (!$orderId) {
+            $orderId = $this->checkoutSession->getQuote()->reserveOrderId()->getReservedOrderId();
+            $this->checkoutSession->getQuote()->save();
+        }
+        return $orderId;
+    }
+
+    /**
+     * Returns the current quote object.
+     *
+     * @return CartInterface|Quote
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getQuote()
+    {
+        return $this->checkoutSession->getQuote();
+    }
+
+    /**
+     * Retrieve the sorted order of the credit card types to display on the checkout page
+     *
+     * @return mixed
+     * @throws NoSuchEntityException
+     */
+    public function getConfigCardSort()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/buckaroo_magento2_creditcard/sorted_creditcards',
+            $this->scopeDefiner->getScope(),
+            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ?
+                $this->storeManager->getStore() :
+                null
+        );
+    }
+
+    /**
      * Get current store
      *
-     * @return \Magento\Store\Api\Data\StoreInterface|null
+     * @return StoreInterface|null
      */
-    public function getStore()
+    public function getStore(): ?StoreInterface
     {
         try {
             return $this->storeManager->getStore();
         } catch (\Exception $e) {
-            $this->logger->addDebug(__METHOD__ . (string)$e);
+            $this->logger->addDebug(__METHOD__ . $e);
             return null;
         }
     }
 
-    public function getConfigCardSort()
+    /**
+     * Add debug message
+     *
+     * @param string $messages
+     * @return void
+     */
+    public function addDebug(string $messages)
     {
-        $configValue = $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_creditcard/sorted_creditcards',
-            $this->scopeDefiner->getScope(),
-            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
-        );
-
-        return $configValue;
+        $this->logger->addDebug($messages);
     }
 
+    /**
+     * Retrieve the sort order for the available gift card types
+     *
+     * @return mixed
+     * @throws NoSuchEntityException
+     */
     public function getConfigGiftCardsSort()
     {
-        $configValue = $this->scopeConfig->getValue(
+        return $this->scopeConfig->getValue(
             'payment/buckaroo_magento2_giftcards/sorted_giftcards',
             $this->scopeDefiner->getScope(),
-            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
+            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ?
+                $this->storeManager->getStore() :
+                null
         );
-
-        return $configValue;
     }
 
     /**
      * Try to fetch customer details for PPE method in admin area
      *
      * @return array
+     * @throws NoSuchEntityException If customer with the specified ID does not exist.
+     * @throws LocalizedException
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     //phpcs:ignore:Generic.Metrics.NestingLevel
-    public function getPPeCustomerDetails()
+    public function getPPeCustomerDetails(): ?array
     {
         $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(), true));
         if (($customerId = $this->_getRequest()->getParam('customer_id')) && ((int)$customerId > 0)) {
             $this->logger->addDebug(__METHOD__ . '|5|');
-            if (
-                !isset($this->staticCache['getPPeCustomerDetails'])
+            if (!isset($this->staticCache['getPPeCustomerDetails'])
                 && ($customer = $this->customerRepository->getById((int)$customerId))
             ) {
                 $this->logger->addDebug(__METHOD__ . '|15|');
@@ -362,41 +461,47 @@ class Data extends AbstractHelper
                 }
                 $this->logger->addDebug(var_export([$customer->getEmail()], true));
                 $this->staticCache['getPPeCustomerDetails'] = [
-                    'email' => $customer->getEmail(),
+                    'email'     => $customer->getEmail(),
                     'firstName' => $billingAddress ? $billingAddress->getFirstName() : '',
-                    'lastName' => $billingAddress ? $billingAddress->getLastName() : '',
+                    'lastName'  => $billingAddress ? $billingAddress->getLastName() : '',
                 ];
             }
         }
 
-        if ($order = $this->_getRequest()->getParam('order')) {
-            if (isset($order['billing_address'])) {
-                $this->logger->addDebug(__METHOD__ . '|30|');
-                $this->staticCache['getPPeCustomerDetails'] = [
-                    'email' => !empty($this->staticCache['getPPeCustomerDetails']['email']) ?
-                        $this->staticCache['getPPeCustomerDetails']['email'] : '',
-                    'firstName' => $order['billing_address']['firstname'],
-                    'lastName' => $order['billing_address']['lastname'],
-                ];
-            }
+        if ($order = $this->_getRequest()->getParam('order')
+            && isset($order['billing_address'])) {
+            $this->logger->addDebug(__METHOD__ . '|30|');
+            $this->staticCache['getPPeCustomerDetails'] = [
+                'email'     => !empty($this->staticCache['getPPeCustomerDetails']['email']) ?
+                    $this->staticCache['getPPeCustomerDetails']['email'] : '',
+                'firstName' => $order['billing_address']['firstname'],
+                'lastName'  => $order['billing_address']['lastname'],
+            ];
+
         }
 
-        if (
-            ($payment = $this->_getRequest()->getParam('payment'))
+        if (($payment = $this->_getRequest()->getParam('payment'))
             && ($payment['method'] == 'buckaroo_magento2_payperemail')
         ) {
             $this->logger->addDebug(__METHOD__ . '|40|');
             $this->staticCache['getPPeCustomerDetails'] = [
-                'email' => $payment['customer_email'],
+                'email'     => $payment['customer_email'],
                 'firstName' => $payment['customer_billingFirstName'],
-                'lastName' => $payment['customer_billingLastName'],
+                'lastName'  => $payment['customer_billingLastName'],
             ];
         }
 
         return $this->staticCache['getPPeCustomerDetails'] ?? null;
     }
 
-    public function areEqualAmounts($amount1, $amount2)
+    /**
+     * Check if two amounts are equal within a reasonable margin of error.
+     *
+     * @param float $amount1
+     * @param float $amount2
+     * @return bool
+     */
+    public function areEqualAmounts($amount1, $amount2): bool
     {
         if ($amount2 == 0) {
             return $amount1 == $amount2;
@@ -405,80 +510,98 @@ class Data extends AbstractHelper
         }
     }
 
-    public function getRestoreQuoteLastOrder()
+    /**
+     * Retrieve the value of the restore quote last order flag from the checkout session
+     *
+     * @return bool
+     */
+    public function getRestoreQuoteLastOrder(): bool
     {
-        return $this->_checkoutSession->getRestoreQuoteLastOrder();
+        return $this->checkoutSession->getRestoreQuoteLastOrder();
     }
 
+    /**
+     * Sets the value of the 'restore quote last order' flag in the checkout session.
+     *
+     * @param bool $value
+     * @return bool
+     */
     public function setRestoreQuoteLastOrder($value)
     {
-        return $this->_checkoutSession->setRestoreQuoteLastOrder($value);
+        return $this->checkoutSession->setRestoreQuoteLastOrder($value);
     }
 
-    public function getQuote()
-    {
-        return $this->_checkoutSession->getQuote();
-    }
-
-    public function addDebug($messages)
-    {
-        $this->logger->addDebug($messages);
-    }
-
+    /**
+     * Returns the current checkout session object.
+     *
+     * @return CheckoutSession
+     */
     public function getCheckoutSession()
     {
-        return $this->_checkoutSession;
+        return $this->checkoutSession;
     }
 
+    /**
+     * Returns an instance of the JSON object.
+     *
+     * @return Json
+     */
     public function getJson()
     {
         return $this->json;
     }
 
+    /**
+     * Get payment methods
+     *
+     * @return array[]
+     */
     public function getPaymentMethodsList()
     {
         return [
-            ['value' => 'afterpay',               'label' => __('Riverty | Afterpay (old)')],
-            ['value' => 'afterpay2',       'label' => __('Riverty | Afterpay 2 (old)')],
-            ['value' => 'afterpay20',       'label' => __('Riverty | Afterpay')],
-            ['value' => 'alipay',       'label' => __('Alipay')],
-            ['value' => 'applepay',       'label' => __('Apple Pay')],
-            ['value' => 'billink',       'label' => __('Billink')],
-            ['value' => 'capayablein3',       'label' => __('In3')],
-            ['value' => 'creditcard',       'label' => __('Creditcards')],
-            ['value' => 'creditcards',       'label' => __('Creditcards (Client sided)')],
-            ['value' => 'eps',       'label' => __('EPS')],
-            ['value' => 'giftcards',       'label' => __('Giftcards')],
-            ['value' => 'giropay',       'label' => __('Giropay')],
-            ['value' => 'ideal',       'label' => __('iDEAL')],
-            ['value' => 'idealprocessing',       'label' => __('iDEAL Processing')],
-            ['value' => 'kbc',       'label' => __('KBC')],
-            ['value' => 'klarna',       'label' => __('Klarna Pay later (pay)')],
-            ['value' => 'klarnain',       'label' => __('Klarna Slice it')],
-            ['value' => 'klarnakp',       'label' => __('Klarna Pay later (authorize/capture)')],
-            ['value' => 'mrcash',       'label' => __('Bancontact / Mister Cash')],
-            ['value' => 'p24',       'label' => __('Przelewy24')],
-            ['value' => 'payconiq',       'label' => __('Payconiq')],
-            ['value' => 'paylink',       'label' => __('PayLink')],
-            ['value' => 'paypal',       'label' => __('Paypal')],
-            ['value' => 'payperemail',       'label' => __('PayPerEmail')],
-            ['value' => 'pospayment',       'label' => __('Point of Sale')],
-            ['value' => 'sepadirectdebit',       'label' => __('SEPA direct debit')],
-            ['value' => 'sofortbanking',       'label' => __('SOFORT')],
-            ['value' => 'belfius',       'label' => __('Belfius')],
-            ['value' => 'tinka',       'label' => __('Tinka')],
-            ['value' => 'transfer',       'label' => __('Bank Transfer')],
-            ['value' => 'trustly',       'label' => __('Trustly')],
-            ['value' => 'wechatpay',       'label' => __('WeChatPay')],
+            ['value' => 'afterpay', 'label' => __('Riverty | Afterpay (old)')],
+            ['value' => 'afterpay2', 'label' => __('Riverty | Afterpay 2 (old)')],
+            ['value' => 'afterpay20', 'label' => __('Riverty | Afterpay')],
+            ['value' => 'alipay', 'label' => __('Alipay')],
+            ['value' => 'applepay', 'label' => __('Apple Pay')],
+            ['value' => 'billink', 'label' => __('Billink')],
+            ['value' => 'capayablein3', 'label' => __('In3')],
+            ['value' => 'creditcard', 'label' => __('Creditcards')],
+            ['value' => 'creditcards', 'label' => __('Creditcards (Client sided)')],
+            ['value' => 'eps', 'label' => __('EPS')],
+            ['value' => 'giftcards', 'label' => __('Giftcards')],
+            ['value' => 'giropay', 'label' => __('Giropay')],
+            ['value' => 'ideal', 'label' => __('iDEAL')],
+            ['value' => 'idealprocessing', 'label' => __('iDEAL Processing')],
+            ['value' => 'kbc', 'label' => __('KBC')],
+            ['value' => 'klarna', 'label' => __('Klarna Pay later (pay)')],
+            ['value' => 'klarnain', 'label' => __('Klarna Slice it')],
+            ['value' => 'klarnakp', 'label' => __('Klarna Pay later (authorize/capture)')],
+            ['value' => 'mrcash', 'label' => __('Bancontact / Mister Cash')],
+            ['value' => 'p24', 'label' => __('Przelewy24')],
+            ['value' => 'payconiq', 'label' => __('Payconiq')],
+            ['value' => 'paylink', 'label' => __('PayLink')],
+            ['value' => 'paypal', 'label' => __('Paypal')],
+            ['value' => 'payperemail', 'label' => __('PayPerEmail')],
+            ['value' => 'pospayment', 'label' => __('Point of Sale')],
+            ['value' => 'sepadirectdebit', 'label' => __('SEPA direct debit')],
+            ['value' => 'sofortbanking', 'label' => __('SOFORT')],
+            ['value' => 'belfius', 'label' => __('Belfius')],
+            ['value' => 'tinka', 'label' => __('Tinka')],
+            ['value' => 'transfer', 'label' => __('Bank Transfer')],
+            ['value' => 'trustly', 'label' => __('Trustly')],
+            ['value' => 'wechatpay', 'label' => __('WeChatPay')],
         ];
     }
 
     /**
+     * Check if customer group is allowed for the payment method
+     *
      * @param string $paymentMethod
      * @param bool $forceB2C
      * @return bool
-     * @throws \Buckaroo\Magento2\Exception
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws BuckarooException
+     * @throws LocalizedException
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -489,8 +612,7 @@ class Data extends AbstractHelper
             $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
             $configCustomerGroup = $configProvider->getSpecificCustomerGroup();
 
-            if (
-                !$forceB2C
+            if (!$forceB2C
                 && (
                     ($paymentMethodCode == 'billink')
                     || (
@@ -529,6 +651,36 @@ class Data extends AbstractHelper
         return true;
     }
 
+    /**
+     * Checks if a given payment method is a Buckaroo method
+     *
+     * @param string $paymentMethod
+     * @return bool
+     */
+    public function isBuckarooMethod(string $paymentMethod): bool
+    {
+        return strpos($paymentMethod, 'buckaroo_magento2_') !== false;
+    }
+
+    /**
+     * Extracts the Buckaroo payment method code from the full payment method code.
+     *
+     * @param string $paymentMethod
+     * @return string
+     */
+    public function getBuckarooMethod(string $paymentMethod): string
+    {
+        return strtolower(str_replace('buckaroo_magento2_', '', $paymentMethod));
+    }
+
+    /**
+     * Checks if the customer group in the admin area is allowed to use the Buckaroo payment method.
+     *
+     * @param array $configCustomerGroupArr
+     * @return bool
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
     private function checkCustomerGroupAdminArea(array $configCustomerGroupArr): bool
     {
         if (($customerId = $this->_getRequest()->getParam('customer_id')) && ($customerId > 0)) {
@@ -541,6 +693,12 @@ class Data extends AbstractHelper
         return true;
     }
 
+    /**
+     * Check if the current logged in customer's group matches with the allowed customer groups
+     *
+     * @param array $configCustomerGroupArr
+     * @return bool
+     */
     private function checkCustomerGroupFrontArea(array $configCustomerGroupArr): bool
     {
         if ($this->customerSession->isLoggedIn()) {
@@ -555,11 +713,13 @@ class Data extends AbstractHelper
         return true;
     }
 
-    public function getBuckarooMethod(string $paymentMethod): string
-    {
-        return strtolower(str_replace('buckaroo_magento2_', '', $paymentMethod));
-    }
-
+    /**
+     * Get order status by state
+     *
+     * @param $order
+     * @param $orderState
+     * @return mixed
+     */
     public function getOrderStatusByState($order, $orderState)
     {
         $orderStatus = $order->getPayment()->getMethodInstance()->getConfigData('order_status');

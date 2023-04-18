@@ -1,8 +1,28 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
-use Magento\Quote\Model\Quote\Item;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay;
+use Magento\Sales\Model\Order;
 
 class AfterpayOldHandler extends AbstractArticlesHandler
 {
@@ -13,26 +33,15 @@ class AfterpayOldHandler extends AbstractArticlesHandler
     public const DEFAULT_TAX_CATEGORY = 4;
 
     /**
-     * Get Item Tax
-     *
-     * @param Item|\Magento\Sales\Model\Order\Item $item
-     * @return float
-     */
-    protected function getItemTax($item): float
-    {
-        return $this->getTaxCategory($this->getOrder());
-    }
-
-    /**
-     * @return array
+     * @inheritdoc
      */
     public function getArticleArrayLine(
-        $articleDescription,
+        ?string $articleDescription,
         $articleId,
         $articleQuantity,
         $articleUnitPrice,
         $articleVat = ''
-    ) {
+    ): array {
         return [
             'identifier' => $articleId,
             'description' => $articleDescription,
@@ -42,9 +51,40 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         ];
     }
 
-    protected function getTaxCategory($order)
+    /**
+     * @inheritdoc
+     */
+    public function getArticleRefundArrayLine(
+        ?string $articleDescription,
+        $articleId,
+        $articleQuantity,
+        $articleUnitPrice,
+        $articleVat = ''
+    ): array {
+        return [
+            'identifier' => $articleId,
+            'description' => $articleDescription,
+            'vatCategory' => $articleVat ?: self::DEFAULT_TAX_CATEGORY,
+            'quantity' => $articleQuantity,
+            'price' => $articleUnitPrice
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    protected function getItemTax($item): float
     {
-        $storeId = (int) $order->getStoreId();
+        return $this->getTaxCategory($this->getOrder());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getTaxCategory(Order $order)
+    {
+        $storeId = (int)$order->getStoreId();
         $taxClassId = $this->configProviderBuckarooFee->getTaxClass($storeId);
 
         $taxCategory = self::DEFAULT_TAX_CATEGORY;
@@ -53,14 +93,14 @@ class AfterpayOldHandler extends AbstractArticlesHandler
             return $taxCategory;
         }
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay $afterPayConfig
+         * @var Afterpay $afterPayConfig
          */
         $afterPayConfig = $this->configProviderMethodFactory->get($this->getPayment()->getMethod());
 
-        $highClasses   = explode(',', (string)$afterPayConfig->getHighTaxClasses($storeId));
+        $highClasses = explode(',', (string)$afterPayConfig->getHighTaxClasses($storeId));
         $middleClasses = explode(',', (string)$afterPayConfig->getMiddleTaxClasses($storeId));
-        $lowClasses    = explode(',', (string)$afterPayConfig->getLowTaxClasses($storeId));
-        $zeroClasses   = explode(',', (string)$afterPayConfig->getZeroTaxClasses($storeId));
+        $lowClasses = explode(',', (string)$afterPayConfig->getLowTaxClasses($storeId));
+        $zeroClasses = explode(',', (string)$afterPayConfig->getZeroTaxClasses($storeId));
 
         if (in_array($taxClassId, $highClasses)) {
             $taxCategory = self::HIGH_TAX_CATEGORY;
@@ -70,16 +110,13 @@ class AfterpayOldHandler extends AbstractArticlesHandler
             $taxCategory = self::LOW_TAX_CATEGORY;
         } elseif (in_array($taxClassId, $zeroClasses)) {
             $taxCategory = self::ZERO_TAX_CATEGORY;
-        } else {
-            $taxCategory = self::DEFAULT_TAX_CATEGORY;
         }
 
         return $taxCategory;
     }
 
     /**
-     * @param Item|\Magento\Sales\Model\Order\Invoice\Item|\Magento\Sales\Model\Order\Creditmemo\Item $item
-     * @return mixed|string|null
+     * @inheritdoc
      */
     protected function getIdentifier($item)
     {
@@ -87,11 +124,9 @@ class AfterpayOldHandler extends AbstractArticlesHandler
     }
 
     /**
-     * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
-     *
-     * @return array
+     * @inheritdoc
      */
-    protected function getShippingCostsLine($order, &$itemsTotalAmount = 0)
+    protected function getShippingCostsLine($order, int &$itemsTotalAmount = 0): array
     {
         $shippingCostsArticle = [];
 
@@ -105,31 +140,5 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         $itemsTotalAmount += $shippingAmount;
 
         return $shippingCostsArticle;
-    }
-
-    /**
-     * Get the structure of the array returned to request for refunded items
-     *
-     * @param $articleDescription
-     * @param $articleId
-     * @param $articleQuantity
-     * @param $articleUnitPrice
-     * @param string $articleVat
-     * @return array
-     */
-    public function getArticleRefundArrayLine(
-        $articleDescription,
-        $articleId,
-        $articleQuantity,
-        $articleUnitPrice,
-        $articleVat = ''
-    ): array {
-        return [
-            'identifier' => $articleId,
-            'description' => $articleDescription,
-            'vatCategory' => $articleVat ?: self::DEFAULT_TAX_CATEGORY,
-            'quantity' => $articleQuantity,
-            'price' => $articleUnitPrice
-        ];
     }
 }

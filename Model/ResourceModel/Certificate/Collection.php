@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,7 +20,9 @@
 
 namespace Buckaroo\Magento2\Model\ResourceModel\Certificate;
 
-class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractCollection
+use Magento\Sales\Model\ResourceModel\Collection\AbstractCollection;
+
+class Collection extends AbstractCollection
 {
     /**
      * @var string

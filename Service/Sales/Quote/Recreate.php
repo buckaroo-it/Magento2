@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,40 +17,51 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Sales\Quote;
+
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Cart;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\Quote;
 
 class Recreate
 {
     /**
+     * @var Log
+     */
+    protected Log $logger;
+    /**
      * @var Cart
      */
-    private $cart;
-
-    protected $logger;
+    private Cart $cart;
 
     /**
-     * @param Cart                    $cart
+     * @param Cart $cart
+     * @param Log $logger
      */
     public function __construct(
-        \Magento\Checkout\Model\Cart $cart,
-        \Buckaroo\Magento2\Logging\Log $logger
+        Cart $cart,
+        Log $logger
     ) {
-        $this->cart                 = $cart;
-        $this->logger               = $logger;
+        $this->cart = $cart;
+        $this->logger = $logger;
     }
 
     /**
-     * @param Order $order
+     * Reintialize the quote
      *
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @param Quote $quote
+     * @return false|mixed
+     * @throws \Exception
      */
-    public function recreate($quote)
+    public function recreate(Quote $quote)
     {
         // @codingStandardsIgnoreStart
         try {
             $quote->setIsActive(true);
-            $quote->setTriggerRecollect('1');
+            $quote->setTriggerRecollect(1);
             $quote->setReservedOrderId(null);
             $quote->setBuckarooFee(null);
             $quote->setBaseBuckarooFee(null);
@@ -63,7 +73,7 @@ class Recreate
             $this->cart->setQuote($quote);
             $this->cart->save();
             return $quote;
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+        } catch (NoSuchEntityException $e) {
             //No such entity
             $this->logger->addError($e->getMessage());
         }

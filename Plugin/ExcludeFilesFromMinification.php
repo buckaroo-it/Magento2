@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
@@ -26,14 +26,16 @@ use Magento\Framework\View\Asset\Minification;
 class ExcludeFilesFromMinification
 {
     /**
+     * Excludes Buckaroo client side javascript file from minification
+     *
      * @param Minification $subject
      * @param callable $proceed
-     * @param $contentType
+     * @param string $contentType
      * @return mixed
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function aroundGetExcludes(Minification $subject, callable $proceed, $contentType)
+    public function aroundGetExcludes(Minification $subject, callable $proceed, string $contentType)
     {
         $result = $proceed($contentType);
         if ($contentType != 'js') {

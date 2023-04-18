@@ -82,7 +82,7 @@
     </type>
 
     <type name="Magento\Checkout\Model\Cart">
-        <plugin name="interceptUpdateProductToCart" type="Buckaroo\Magento2\Block\Cart\QuoteCheck"/>
+        <plugin name="interceptUpdateProductToCart" type="Buckaroo\Magento2\Plugin\QuoteCheck"/>
     </type>
 
     <type name="Magento\Framework\Stdlib\Cookie\PhpCookieManager">

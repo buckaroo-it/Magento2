@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,36 +17,39 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin\Onepage;
 
-use Buckaroo\Magento2\Service\CheckPaymentType;
-use Magento\Sales\Model\Order;
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\App\Action\Context;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Helper\Data as BuckarooDataHelper;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Service\CheckPaymentType;
+use Magento\Checkout\Controller\Onepage\Success as ControllerOnePageSuccess;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\View\Result\Page;
+use Magento\Sales\Model\Order;
 
 /**
- * Override Onepage checkout success controller class
+ * Override One page checkout success controller class
  */
 class Success
 {
     /**
-     * @var \Magento\Framework\Controller\Result\RedirectFactory
+     * @var RedirectFactory
      */
-    protected $resultRedirectFactory;
+    protected RedirectFactory $resultRedirectFactory;
 
     /**
      * @var Log
      */
-    protected $logger;
+    protected Log $logger;
 
     /**
      * @var CheckPaymentType
      */
-    protected $checkPaymentType;
+    protected CheckPaymentType $checkPaymentType;
 
     /**
      * @param Context $context
@@ -62,13 +65,16 @@ class Success
         $this->logger = $logger;
         $this->checkPaymentType = $checkPaymentType;
     }
-    
+
     /**
      * If the user visits the payment complete page when doing a payment or when the order is canceled redirect to cart
+     *
+     * @param ControllerOnePageSuccess $checkoutSuccess
+     * @param callable $proceed
+     * @return Redirect|Page
      */
-    public function aroundExecute(\Magento\Checkout\Controller\Onepage\Success $checkoutSuccess, callable $proceed)
+    public function aroundExecute(ControllerOnePageSuccess $checkoutSuccess, callable $proceed)
     {
-
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
 

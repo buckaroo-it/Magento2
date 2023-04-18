@@ -1,4 +1,23 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Applepay;
 
@@ -12,17 +31,17 @@ class Add
     /**
      * @var Log
      */
-    private $logger;
+    private Log $logger;
 
     /**
      * @var QuoteService
      */
-    private $quoteService;
+    private QuoteService $quoteService;
 
     /**
      * @var ApplePayFormatData
      */
-    private $applePayFormatData;
+    private ApplePayFormatData $applePayFormatData;
 
     /**
      * @param Log $logger
@@ -30,9 +49,9 @@ class Add
      * @param ApplePayFormatData $applePayFormatData
      */
     public function __construct(
-        Log                     $logger,
-        QuoteService            $quoteService,
-        ApplePayFormatData      $applePayFormatData
+        Log $logger,
+        QuoteService $quoteService,
+        ApplePayFormatData $applePayFormatData
     ) {
         $this->logger = $logger;
         $this->quoteService = $quoteService;
@@ -40,12 +59,12 @@ class Add
     }
 
     /**
-     * Add Product to Cart on Applepay
+     * Add Product to Cart on Apple Pay
      *
-     * @param $request
+     * @param array $request
      * @return array|false
      */
-    public function process($request)
+    public function process(array $request)
     {
         try {
             // Get Cart
@@ -76,7 +95,7 @@ class Add
 
             return [
                 'shipping_methods' => $shippingMethods,
-                'totals' => $totals
+                'totals'           => $totals
             ];
         } catch (\Exception $exception) {
             $this->logger->addDebug(__METHOD__ . '|exception|' . $exception->getMessage());

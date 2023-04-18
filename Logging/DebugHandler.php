@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -28,21 +27,35 @@ use Monolog\Logger;
 
 class DebugHandler extends Base
 {
-    // @codingStandardsIgnoreLine
+    /**
+     * @var int
+     */
     protected $loggerType = Logger::DEBUG;
 
-    // @codingStandardsIgnoreLine
+    /**
+     * @var string
+     */
     protected $fileName = '';
 
+    /**
+     * @var DriverInterface
+     */
     protected $filesystem;
 
+    /**
+     * @var DirectoryList
+     */
     protected $dir;
 
+    /**
+     * @param DriverInterface $filesystem
+     * @param DirectoryList $dir
+     */
     public function __construct(
         DriverInterface $filesystem,
         DirectoryList $dir
     ) {
-        $this->dir      = $dir;
+        $this->dir = $dir;
         $this->fileName = '/var/log/Buckaroo/' . date('Y-m-d') . '.log';
 
         parent::__construct($filesystem);

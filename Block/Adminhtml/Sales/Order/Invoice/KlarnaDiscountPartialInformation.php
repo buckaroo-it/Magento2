@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,44 +20,65 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice;
 
-class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\Template
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Magento\Backend\Block\Template\Context;
+use Magento\Framework\View\Element\Template;
+use Magento\Sales\Api\Data\OrderInterface;
+
+class KlarnaDiscountPartialInformation extends Template
 {
+    /**
+     * @var OrderInterface
+     */
     protected $order;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
+     * @var Factory
      */
     protected $configProviderFactory;
 
     /**
      * RoundingWarning constructor.
      *
-     * @param \Magento\Sales\Api\Data\OrderInterface            $order
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory
-     * @param \Magento\Backend\Block\Template\Context           $context
-     * @param array                                             $data
+     * @param OrderInterface $order
+     * @param Factory $configProviderFactory
+     * @param Context $context
+     * @param array $data
      */
     public function __construct(
-        \Magento\Sales\Api\Data\OrderInterface $order,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory,
-        \Magento\Backend\Block\Template\Context $context,
+        OrderInterface $order,
+        Factory $configProviderFactory,
+        Context $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
 
-        $this->order                 = $order;
+        $this->order = $order;
         $this->configProviderFactory = $configProviderFactory;
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function _toHtml()
+    {
+        if (!$this->shouldShowWarning()) {
+            return '';
+        }
+
+        return parent::_toHtml();
+    }
+
+    /**
+     * Should show the warning regarding partial discount
+     *
      * @return bool
      * @throws \LogicException
-     * @throws \Buckaroo\Magento2\Exception
      */
     protected function shouldShowWarning()
     {
-        if ($order_id = $this->getRequest()->getParam('order_id')) {
-            $order   = $this->order->load($order_id);
+        if ($orderId = $this->getRequest()->getParam('order_id')) {
+            $order = $this->order->load($orderId);
             $payment = $order->getPayment();
 
             /**
@@ -78,17 +98,5 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
         }
 
         return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _toHtml()
-    {
-        if (!$this->shouldShowWarning()) {
-            return '';
-        }
-
-        return parent::_toHtml();
     }
 }

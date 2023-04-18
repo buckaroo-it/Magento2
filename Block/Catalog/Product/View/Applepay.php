@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,29 +20,35 @@
 
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
 
 class Applepay extends Template
 {
-    /** @var Cart */
+    /**
+     * @var Cart
+     */
     private $cart;
 
-    /** @var CompositeConfigProvider */
+    /**
+     * @var CompositeConfigProvider
+     */
     private $compositeConfigProvider;
 
-    /** @var ApplepayConfig */
+    /**
+     * @var ApplepayConfig
+     */
     private $applepayConfigProvider;
 
     /**
-     * @param Context                 $context
-     * @param Cart                    $cart
+     * @param Context $context
+     * @param Cart $cart
      * @param CompositeConfigProvider $compositeConfigProvider
-     * @param ApplepayConfig          $applepayConfigProvider
-     * @param array                   $data
+     * @param ApplepayConfig $applepayConfigProvider
+     * @param array $data
      */
     public function __construct(
         Context $context,
@@ -60,48 +65,43 @@ class Applepay extends Template
     }
 
     /**
-     * @return bool
-     */
-    public function canShowButton()
-    {
-        $result = false;
-
-        if (
-            $this->cart->getSummaryQty()
-            &&
-            ($this->applepayConfigProvider->getActive() != 0)
-            &&
-            ($this->applepayConfigProvider->getAvailableButtons())
-            &&
-            (in_array('Cart', $this->applepayConfigProvider->getAvailableButtons()))
-        ) {
-            $result = true;
-        }
-
-        return $result;
-    }
-
-    /**
+     * Can show apple pay button on product page
+     *
      * @return bool
      */
     public function canShowProductButton()
     {
-        $result = false;
-
-        if (
-            ($this->applepayConfigProvider->getActive() != 0)
-            &&
-            ($this->applepayConfigProvider->getAvailableButtons())
-            &&
-            (in_array('Product', $this->applepayConfigProvider->getAvailableButtons()))
+        if (($this->applepayConfigProvider->getActive() != 0)
+            && ($this->applepayConfigProvider->getAvailableButtons())
+            && (in_array('Product', $this->applepayConfigProvider->getAvailableButtons()))
         ) {
-            $result = true;
+            return true;
         }
 
-        return $result;
+        return false;
     }
 
     /**
+     * Can show apple pay button on cart
+     *
+     * @return bool
+     */
+    public function canShowButton()
+    {
+        if ($this->cart->getSummaryQty()
+            && ($this->applepayConfigProvider->getActive() != 0)
+            && ($this->applepayConfigProvider->getAvailableButtons())
+            && (in_array('Cart', $this->applepayConfigProvider->getAvailableButtons()))
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get checkout config
+     *
      * @return false|string
      */
     public function getCheckoutConfig()
@@ -114,6 +114,8 @@ class Applepay extends Template
     }
 
     /**
+     * Get apple pay config
+     *
      * @return false|string
      */
     public function getApplepayConfig()

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -154,7 +153,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -187,8 +186,9 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @param string $cardType
+     * Get card name by card type
      *
+     * @param string $cardType
      * @return string
      *
      * @throws \InvalidArgumentException
@@ -207,8 +207,9 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @param string $cardType
+     * Get card code by card type
      *
+     * @param string $cardType
      * @return string
      *
      * @throws \InvalidArgumentException
@@ -226,7 +227,10 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Get the list with allowed credit cards
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getAllowedCreditcards($store = null)
     {
@@ -238,7 +242,10 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Hold orders which have no MasterCard SecureCode.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getMastercardUnsecureHold($store = null)
     {
@@ -250,7 +257,10 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Hold orders which have no Visa SecureCode.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getVisaUnsecureHold($store = null)
     {
@@ -262,7 +272,10 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Hold orders which have no Maestro SecureCode.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getMaestroUnsecureHold($store = null)
     {
@@ -274,7 +287,10 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Get the order of credit cards
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSort($store = null)
     {

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
@@ -28,11 +28,12 @@ use Magento\Sales\Model\Order;
 class CreateCreditNote
 {
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * Set services parameters for credit not credit management
      *
+     * @param OrderPaymentInterface|InfoInterface $payment
      * @return array
      */
-    public function get($payment)
+    public function get($payment): array
     {
         $savedfInvoiceKey = $payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
@@ -43,7 +44,7 @@ class CreateCreditNote
         /** @var Order $order */
         $order = $payment->getOrder();
 
-        $services = [
+        return [
             'Name'             => 'CreditManagement3',
             'Action'           => 'CreateCreditNote',
             'Version'          => 1,
@@ -66,7 +67,5 @@ class CreateCreditNote
                 ],
             ],
         ];
-
-        return $services;
     }
 }

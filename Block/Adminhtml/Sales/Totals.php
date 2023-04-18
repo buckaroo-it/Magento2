@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,32 +20,39 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales;
 
-class Totals extends \Magento\Framework\View\Element\Template
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Magento\Framework\DataObject;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Sales\Model\Order\Creditmemo;
+
+class Totals extends Template
 {
     /**
-     * @var \Buckaroo\Magento2\Helper\PaymentFee
+     * @var PaymentFee
      */
     protected $helper = null;
 
     /**
-     * @var \Magento\Framework\Pricing\PriceCurrencyInterface
+     * @var PriceCurrencyInterface
      */
-    protected $_currency;
+    protected $currency;
 
     /**
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Buckaroo\Magento2\Helper\PaymentFee $helper
-     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $currency
+     * @param Context $context
+     * @param PaymentFee $helper
+     * @param PriceCurrencyInterface $currency
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Buckaroo\Magento2\Helper\PaymentFee $helper,
-        \Magento\Framework\Pricing\PriceCurrencyInterface $currency,
+        Context $context,
+        PaymentFee $helper,
+        PriceCurrencyInterface $currency,
         array $data = []
     ) {
         $this->helper = $helper;
-        $this->_currency = $currency;
+        $this->currency = $currency;
         parent::__construct($context, $data);
     }
 
@@ -58,39 +64,12 @@ class Totals extends \Magento\Framework\View\Element\Template
     public function initTotals()
     {
         $parent = $this->getParentBlock();
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         $source = $parent->getSource();
         $totals = $this->getTotalsForCreditmemo($source);
         foreach ($totals as $total) {
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
-            $this->getParentBlock()->addTotalBefore(new \Magento\Framework\DataObject($total), 'grand_total');
+            $this->getParentBlock()->addTotalBefore(new DataObject($total), 'grand_total');
         }
         return $this;
-    }
-
-    public function getTotals()
-    {
-        $parent = $this->getParentBlock();
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $source = $parent->getSource();
-
-        return $this->getTotalsForCreditmemo($source);
-    }
-
-    /**
-     * Get currency symbol for current locale and currency code
-     *
-     * @return string
-     */
-    public function getCurrentCurrencySymbol()
-    {
-        return $this->_currency->getCurrency()->getCurrencySymbol();
     }
 
     /**
@@ -102,7 +81,7 @@ class Totals extends \Magento\Framework\View\Element\Template
      */
     protected function getTotalsForCreditmemo($source)
     {
-        if ($source instanceof \Magento\Sales\Model\Order\Creditmemo) {
+        if ($source instanceof Creditmemo) {
             $creditTotals = $this->helper->getTotals($source);
             $order = $source->getOrder();
             $invoice = $source->getInvoice();
@@ -125,18 +104,20 @@ class Totals extends \Magento\Framework\View\Element\Template
         return $this->helper->getTotals($source);
     }
 
-    private function getTotalsByCode($totals, $code)
+    /**
+     * Get creditmemo totals
+     *
+     * @return array
+     */
+    public function getTotals()
     {
-        return array_filter($totals, function ($total) use ($code) {
-            return $total['code'] === $code;
-        });
-    }
+        $parent = $this->getParentBlock();
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $source = $parent->getSource();
 
-    private function getTotalsExceptCode($totals, $code)
-    {
-        return array_filter($totals, function ($total) use ($code) {
-            return $total['code'] !== $code;
-        });
+        return $this->getTotalsForCreditmemo($source);
     }
 
     /**
@@ -150,12 +131,48 @@ class Totals extends \Magento\Framework\View\Element\Template
     private function isCreditmemoTotalSelected($creditTotals, $saleTotal)
     {
         foreach ($creditTotals as $creditTotal) {
-            if (
-                isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
-            ) {
+            if (isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Get specific totals by code
+     *
+     * @param array $totals
+     * @param string $code
+     * @return array
+     */
+    private function getTotalsByCode($totals, $code)
+    {
+        return array_filter($totals, function ($total) use ($code) {
+            return $total['code'] === $code;
+        });
+    }
+
+    /**
+     * Get all totals excluding the total with the code
+     *
+     * @param array $totals
+     * @param string $code
+     * @return array
+     */
+    private function getTotalsExceptCode($totals, $code)
+    {
+        return array_filter($totals, function ($total) use ($code) {
+            return $total['code'] !== $code;
+        });
+    }
+
+    /**
+     * Get currency symbol for current locale and currency code
+     *
+     * @return string
+     */
+    public function getCurrentCurrencySymbol()
+    {
+        return $this->currency->getCurrency()->getCurrencySymbol();
     }
 }

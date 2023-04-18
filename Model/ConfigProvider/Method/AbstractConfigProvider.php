@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,13 +20,15 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Checkout\Model\ConfigProviderInterface as CheckoutConfigProvider;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Magento\Checkout\Model\ConfigProviderInterface as CheckoutConfigProvider;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
 
 /**
  * @SuppressWarnings(PHPMD.NumberOfChildren)
@@ -39,7 +40,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const CODE = 'buckaroo';
 
     public const XPATH_ACTIVE = 'active';
-    public const XPATH_AVAILABLE_IN_BACKEND  = 'available_in_backend';
+    public const XPATH_AVAILABLE_IN_BACKEND = 'available_in_backend';
     public const XPATH_ORDER_EMAIL = 'order_email';
     public const XPATH_PAYMENT_FEE = 'payment_fee';
     public const XPATH_PAYMENT_FEE_LABEL = 'payment_fee_label';
@@ -68,58 +69,58 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     protected $issuers = [
         [
-            'name' => 'ABN AMRO',
-            'code' => 'ABNANL2A',
+            'name'    => 'ABN AMRO',
+            'code'    => 'ABNANL2A',
             'imgName' => 'abnamro'
         ],
         [
-            'name' => 'ASN Bank',
-            'code' => 'ASNBNL21',
+            'name'    => 'ASN Bank',
+            'code'    => 'ASNBNL21',
             'imgName' => 'asnbank'
         ],
         [
-            'name' => 'Bunq Bank',
-            'code' => 'BUNQNL2A',
+            'name'    => 'Bunq Bank',
+            'code'    => 'BUNQNL2A',
             'imgName' => 'bunq'
         ],
         [
-            'name' => 'ING',
-            'code' => 'INGBNL2A',
+            'name'    => 'ING',
+            'code'    => 'INGBNL2A',
             'imgName' => 'ing'
         ],
         [
-            'name' => 'Knab Bank',
-            'code' => 'KNABNL2H',
+            'name'    => 'Knab Bank',
+            'code'    => 'KNABNL2H',
             'imgName' => 'knab'
         ],
         [
-            'name' => 'Rabobank',
-            'code' => 'RABONL2U',
+            'name'    => 'Rabobank',
+            'code'    => 'RABONL2U',
             'imgName' => 'rabobank'
         ],
         [
-            'name' => 'RegioBank',
-            'code' => 'RBRBNL21',
+            'name'    => 'RegioBank',
+            'code'    => 'RBRBNL21',
             'imgName' => 'regiobank'
         ],
         [
-            'name' => 'SNS Bank',
-            'code' => 'SNSBNL2A',
+            'name'    => 'SNS Bank',
+            'code'    => 'SNSBNL2A',
             'imgName' => 'sns'
         ],
         [
-            'name' => 'Triodos Bank',
-            'code' => 'TRIONL2U',
+            'name'    => 'Triodos Bank',
+            'code'    => 'TRIONL2U',
             'imgName' => 'triodos'
         ],
         [
-            'name' => 'Van Lanschot',
-            'code' => 'FVLBNL22',
+            'name'    => 'Van Lanschot',
+            'code'    => 'FVLBNL22',
             'imgName' => 'vanlanschot'
         ],
         [
-            'name' => 'Revolut',
-            'code' => 'REVOLT21',
+            'name'    => 'Revolut',
+            'code'    => 'REVOLT21',
             'imgName' => 'revolut'
         ],
     ];
@@ -145,10 +146,10 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     protected $paymentFeeHelper;
 
     /**
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
      */
     public function __construct(
         Repository $assetRepo,
@@ -167,57 +168,9 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     * Retrieve the list of issuers.
+     * Get Allowed Currencies for specific payment method or get defaults
      *
-     * @return array
-     */
-    public function getIssuers()
-    {
-        return $this->issuers;
-    }
-
-    /**
-     * Format the issuers list so the img index is filled with the correct url.
-     *
-     * @return array
-     */
-    protected function formatIssuers()
-    {
-        return array_map(
-            function ($issuer) {
-                if(isset($issuer['imgName'])) {
-                    $issuer['img'] = $this->getImageUrl("ideal/{$issuer['imgName']}", "svg");
-                }
-                return $issuer;
-            },
-            $this->getIssuers()
-        );
-    }
-
-    public function getCreditcardLogo(string $code): string
-    {
-        if($code === 'cartebleuevisa') {
-            $code = 'cartebleue';
-        }
-
-        return $this->getImageUrl("creditcards/{$code}", "svg");
-    }
-
-    /**
-     * Generate the url to the desired asset.
-     *
-     * @param string $imgName
-     * @param string $extension
-     *
-     * @return string
-     */
-    public function getImageUrl($imgName, string $extension = 'png')
-    {
-        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$imgName}.{$extension}");
-    }
-
-    /**
-     * @param null|int|\Magento\Store\Model\Store $store
+     * @param null|int|Store $store
      *
      * @return array
      */
@@ -231,81 +184,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             return $this->getBaseAllowedCurrencies();
         }
 
-        $configuredAllowedCurrencies = explode(',', $configuredAllowedCurrencies);
-
-        return $configuredAllowedCurrencies;
-    }
-
-    /**
-     * @return array
-     */
-    public function getBaseAllowedCurrencies()
-    {
-        return $this->allowedCurrencies;
-    }
-
-    /**
-     * @return array
-     */
-    public function getBaseAllowedCountries()
-    {
-        return $this->allowedCountries;
-    }
-
-    /**
-     * @param null|int|\Magento\Store\Model\Store $store
-     *
-     * @return array
-     */
-    public function getSpecificCountry($store = null)
-    {
-        $configuredSpecificCountry = trim((string)$this->getConfigFromXpath(static::XPATH_SPECIFIC_COUNTRY, $store));
-        if (empty($configuredSpecificCountry)) {
-            return [];
-        }
-        $configuredSpecificCountry = explode(',', $configuredSpecificCountry);
-
-        return $configuredSpecificCountry;
-    }
-
-    /**
-     * @param null|int|\Magento\Store\Model\Store $store
-     *
-     * @return mixed
-     */
-    public function getAllowSpecific($store = null)
-    {
-        return $this->getConfigFromXpath(static::XPATH_ALLOW_SPECIFIC, $store);
-    }
-
-    /**
-     * @param null|int|\Magento\Store\Model\Store $store
-     *
-     * @return mixed
-     */
-    public function getSpecificCustomerGroup($store = null)
-    {
-        return $this->getMethodConfigValue(static::XPATH_SPECIFIC_CUSTOMER_GROUP, $store);
-    }
-
-    /**
-     * @param null|int|\Magento\Store\Model\Store $store
-     *
-     * @return mixed
-     */
-    public function getSpecificCustomerGroupB2B($store = null)
-    {
-        return $this->getMethodConfigValue(static::XPATH_SPECIFIC_CUSTOMER_GROUP_B2B, $store);
-    }
-
-    /**
-     * @param string|bool $method
-     *
-     * @return string
-     */
-    public function getBuckarooPaymentFeeLabel($method = false)
-    {
-        return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel($method);
+        return explode(',', $configuredAllowedCurrencies);
     }
 
     /**
@@ -327,6 +206,101 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
+    }
+
+    /**
+     * Get Base Allowed Currencies
+     *
+     * @return array
+     */
+    public function getBaseAllowedCurrencies()
+    {
+        return $this->allowedCurrencies;
+    }
+
+    /**
+     * Returns the URL for the logo image of the specified credit card type.
+     *
+     * @param string $code
+     * @return string
+     */
+    public function getCreditcardLogo(string $code): string
+    {
+        if ($code === 'cartebleuevisa') {
+            $code = 'cartebleue';
+        }
+
+        return $this->getImageUrl("creditcards/{$code}", "svg");
+    }
+
+    /**
+     * Returns an array of base allowed countries.
+     *
+     * @return array
+     */
+    public function getBaseAllowedCountries()
+    {
+        return $this->allowedCountries;
+    }
+
+    /**
+     * Returns an array of specific countries configured for the specified store.
+     *
+     * @param null|int|Store $store
+     * @return array
+     */
+    public function getSpecificCountry($store = null)
+    {
+        $configuredSpecificCountry = trim((string)$this->getConfigFromXpath(static::XPATH_SPECIFIC_COUNTRY, $store));
+        if (empty($configuredSpecificCountry)) {
+            return [];
+        }
+        return explode(',', $configuredSpecificCountry);
+    }
+
+    /**
+     * Is payment methods used only from applicable countries
+     *
+     * @param null|int|Store $store
+     * @return mixed
+     */
+    public function getAllowSpecific($store = null)
+    {
+        return $this->getConfigFromXpath(static::XPATH_ALLOW_SPECIFIC, $store);
+    }
+
+    /**
+     * Allow customer groups
+     *
+     * @param null|int|Store $store
+     * @return mixed
+     */
+    public function getSpecificCustomerGroup($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_SPECIFIC_CUSTOMER_GROUP, $store);
+    }
+
+    /**
+     * Allow customer groups for B2B clients
+     *
+     * @param null|int|Store $store
+     * @return mixed
+     */
+    public function getSpecificCustomerGroupB2B($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_SPECIFIC_CUSTOMER_GROUP_B2B, $store);
+    }
+
+    /**
+     * Get buckaroo payment fee
+     *
+     * @param string|bool $method
+     * @return string
+     * @throws Exception
+     */
+    public function getBuckarooPaymentFeeLabel($method = false)
+    {
+        return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel($method);
     }
 
     /**
@@ -355,9 +329,9 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      * Get Send order confirmation email
      *
      * @param null|int|string $store
-     * @return mixed|null
+     * @return bool
      */
-    public function getOrderEmail($store = null)
+    public function getOrderEmail($store = null): bool
     {
         return (bool)$this->getMethodConfigValue(static::XPATH_ORDER_EMAIL, $store);
     }
@@ -371,7 +345,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getPaymentFee($store = null)
     {
-        $paymentFee =  $this->getMethodConfigValue(static::XPATH_PAYMENT_FEE, $store);
+        $paymentFee = $this->getMethodConfigValue(static::XPATH_PAYMENT_FEE, $store);
         return $paymentFee ? (float)$paymentFee : false;
     }
 
@@ -428,5 +402,46 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getLimitByIp($store = null)
     {
         return $this->getMethodConfigValue(static::XPATH_LIMIT_BY_IP, $store);
+    }
+
+    /**
+     * Format the issuers list so the img index is filled with the correct url.
+     *
+     * @return array
+     */
+    protected function formatIssuers()
+    {
+        return array_map(
+            function ($issuer) {
+                if (isset($issuer['imgName'])) {
+                    $issuer['img'] = $this->getImageUrl("ideal/{$issuer['imgName']}", "svg");
+                }
+                return $issuer;
+            },
+            $this->getIssuers()
+        );
+    }
+
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$imgName}.{$extension}");
+    }
+
+    /**
+     * Retrieve the list of issuers.
+     *
+     * @return array
+     */
+    public function getIssuers()
+    {
+        return $this->issuers;
     }
 }

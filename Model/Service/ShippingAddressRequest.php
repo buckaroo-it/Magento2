@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
 
@@ -25,13 +25,28 @@ use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
 
 class ShippingAddressRequest implements ShippingAddressRequestInterface
 {
-    protected $city;
-    protected $countryCode;
-    protected $postalCode;
-    protected $state;
+    /**
+     * @var string
+     */
+    protected string $city;
 
     /**
-     * @inheritDoc
+     * @var string
+     */
+    protected string $countryCode;
+
+    /**
+     * @var string
+     */
+    protected string $postalCode;
+
+    /**
+     * @var string
+     */
+    protected string $state;
+
+    /**
+     * @inheritdoc
      */
     public function getCity(): string
     {
@@ -39,7 +54,9 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
+     *
+     * @throws ExpressMethodsException
      */
     public function setCity(string $city)
     {
@@ -54,9 +71,9 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
      * @param string $name
      *
      * @return void
-     * @throws \Buckaroo\Magento2\Model\Service\ExpressMethodsException
+     * @throws ExpressMethodsException
      */
-    protected function validateRequired($value, $name)
+    protected function validateRequired($value, string $name)
     {
         if (strlen(trim($value)) === 0) {
             throw new ExpressMethodsException("Parameter `{$name}` is required");
@@ -64,7 +81,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getCountryCode(): string
     {
@@ -72,7 +89,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function setCountryCode(string $countryCode)
     {
@@ -81,7 +98,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getPostalCode(): string
     {
@@ -89,7 +106,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function setPostalCode(string $postalCode)
     {
@@ -98,7 +115,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getState(): string
     {
@@ -106,7 +123,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function setState(string $state)
     {

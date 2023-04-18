@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,44 +17,46 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Validator;
 
-class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
+use Buckaroo\Magento2\Model\ConfigProvider\PublicKey;
+use Buckaroo\Magento2\Model\ValidatorInterface;
+
+class TransactionResponse implements ValidatorInterface
 {
     /**
      * @var \StdClass
      */
-    protected $transaction;
+    protected \StdClass $transaction;
 
     /**
      * @var string
      */
-    protected $responseXml;
+    protected string $responseXml;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\PublicKey
+     * @var PublicKey
      */
-    protected $publicKeyConfigProvider;
+    protected PublicKey $publicKeyConfigProvider;
 
     /**
      * TransactionResponse constructor.
      *
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\PublicKey $publicKeyConfigProvider
+     * @param PublicKey $publicKeyConfigProvider
      */
-    public function __construct(\Buckaroo\Magento2\Model\ConfigProvider\PublicKey $publicKeyConfigProvider)
+    public function __construct(PublicKey $publicKeyConfigProvider)
     {
         $this->publicKeyConfigProvider = $publicKeyConfigProvider;
     }
 
     /**
-     * @param array|object $data
+     * @inheritdoc
      *
-     * @return boolean
-     *
-     * @throws \InvalidArgumentException
+     * @throw \InvalidArgumentException
      */
-    public function validate($data)
+    public function validate($data): bool
     {
         if (empty($data[0]) || !$data[0] instanceof \StdClass) {
             throw new \InvalidArgumentException(
@@ -80,9 +81,11 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
     }
 
     /**
+     * Validate signature
+     *
      * @return boolean
      */
-    protected function validateSignature()
+    protected function validateSignature(): bool
     {
         $verified = false;
 
@@ -112,12 +115,12 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
         $xPath->registerNamespace('soap', 'http://schemas.xmlsoap.org/soap/envelope/');
 
         // Get the SignedInfo nodeset
-        $SignedInfoQuery        = '//wsse:Security/sig:Signature/sig:SignedInfo';
-        $SignedInfoQueryNodeSet = $xPath->query($SignedInfoQuery);
-        $SignedInfoNodeSet      = $SignedInfoQueryNodeSet->item(0);
+        $signedInfoQuery        = '//wsse:Security/sig:Signature/sig:SignedInfo';
+        $signedInfoQueryNodeSet = $xPath->query($signedInfoQuery);
+        $signedInfoNodeSet      = $signedInfoQueryNodeSet->item(0);
 
         // Canonicalize nodeset
-        $signedInfo = $SignedInfoNodeSet->C14N(true, false);
+        $signedInfo = $signedInfoNodeSet->C14N(true, false);
 
         $keyIdentifier = '//wsse:Security/sig:Signature/sig:KeyInfo/wsse:SecurityTokenReference/wsse:KeyIdentifier';
         $keyIdentifierList = $xPath->query($keyIdentifier);
@@ -144,9 +147,11 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
     }
 
     /**
+     * Validate digest
+     *
      * @return boolean
      */
-    protected function validateDigest()
+    protected function validateDigest(): bool
     {
         $verified = false;
 

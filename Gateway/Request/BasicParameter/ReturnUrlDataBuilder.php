@@ -1,4 +1,23 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
@@ -14,19 +33,22 @@ class ReturnUrlDataBuilder implements BuilderInterface
     /**
      * @var null|string
      */
-    protected $returnUrl = null;
+    protected ?string $returnUrl = null;
 
     /**
      * @var Order
      */
     protected Order $order;
 
-    /** @var FormKey */
+    /**
+     * @var FormKey
+     */
     private FormKey $formKey;
 
-    /** @var UrlInterface */
+    /**
+     * @var UrlInterface
+     */
     protected UrlInterface $urlBuilder;
-
 
     /**
      * TransactionBuilder constructor.
@@ -43,9 +65,9 @@ class ReturnUrlDataBuilder implements BuilderInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function build(array $buildSubject)
+    public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
@@ -60,7 +82,14 @@ class ReturnUrlDataBuilder implements BuilderInterface
         ];
     }
 
-    public function getReturnUrl($order)
+    /**
+     * Get return url for payment engine
+     *
+     * @param Order $order
+     * @return string|null
+     * @throws LocalizedException
+     */
+    public function getReturnUrl(Order $order): ?string
     {
         if ($this->returnUrl === null) {
             $url = $this->urlBuilder->setScope($order->getStoreId());
@@ -72,7 +101,13 @@ class ReturnUrlDataBuilder implements BuilderInterface
         return $this->returnUrl;
     }
 
-    public function setReturnUrl($url)
+    /**
+     * Set return url
+     *
+     * @param string $url
+     * @return $this
+     */
+    public function setReturnUrl(string $url): ReturnUrlDataBuilder
     {
         $routeUrl = $this->urlBuilder->getRouteUrl($url);
         $this->returnUrl = $routeUrl;
@@ -81,10 +116,12 @@ class ReturnUrlDataBuilder implements BuilderInterface
     }
 
     /**
+     * Get magento form key
+     *
      * @return string
      * @throws LocalizedException
      */
-    public function getFormKey()
+    public function getFormKey(): string
     {
         return $this->formKey->getFormKey();
     }

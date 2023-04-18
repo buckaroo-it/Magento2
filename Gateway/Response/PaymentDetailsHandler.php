@@ -1,12 +1,31 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Response;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\Registry;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class PaymentDetailsHandler implements HandlerInterface
@@ -28,7 +47,7 @@ class PaymentDetailsHandler implements HandlerInterface
      * @param Registry $registry
      */
     public function __construct(
-        Data     $helper,
+        Data $helper,
         Registry $registry
     ) {
         $this->helper = $helper;
@@ -69,7 +88,7 @@ class PaymentDetailsHandler implements HandlerInterface
      *
      * @return array
      */
-    public function getTransactionAdditionalInfo(array $array)
+    public function getTransactionAdditionalInfo(array $array): array
     {
         return $this->helper->getTransactionAdditionalInfo($array);
     }
@@ -80,7 +99,7 @@ class PaymentDetailsHandler implements HandlerInterface
      * @param string $key
      * @param array $value
      */
-    protected function addToRegistry(string $key, $value)
+    protected function addToRegistry(string $key, array $value)
     {
         // if the key doesn't exist or is empty, the data can be directly added and registered
         if (!$this->registry->registry($key)) {

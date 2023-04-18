@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,34 +17,41 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Sales\Transaction;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Payment;
+use Magento\Sales\Model\Order\Payment as PaymentOrder;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\OrderStatusFactory;
 
 class Cancel
 {
-    /** @var Account */
-    private $account;
-
-    /** @var OrderPaymentRepositoryInterface */
-    private $orderPaymentRepository;
-
-    /** @var OrderStatusFactory */
-    private $orderStatusFactory;
+    /**
+     * @var Account
+     */
+    private Account $account;
 
     /**
-     * @param OrderStatusFactory              $orderStatusFactory
+     * @var OrderPaymentRepositoryInterface
+     */
+    private OrderPaymentRepositoryInterface $orderPaymentRepository;
+
+    /**
+     * @var OrderStatusFactory
+     */
+    private OrderStatusFactory $orderStatusFactory;
+
+    /**
+     * @param OrderStatusFactory $orderStatusFactory
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
-     * @param Account                         $account
+     * @param Account $account
      */
     public function __construct(
         OrderStatusFactory $orderStatusFactory,
@@ -58,10 +64,13 @@ class Cancel
     }
 
     /**
-     * @param TransactionInterface|Transaction $transaction
+     * Cancels a transaction, updates the order status, and cancels the order
+     * if the configuration is set to cancel on failed transactions.
      *
-     * @throws \Exception
+     * @param TransactionInterface|Transaction $transaction
+     * @return void
      * @throws LocalizedException
+     * @throws \Exception
      */
     public function cancel($transaction)
     {
@@ -80,14 +89,28 @@ class Cancel
     }
 
     /**
-     * @param Order $order
+     * Cancels a payment associated with the given transaction.
      *
+     * @param TransactionInterface|Transaction $transaction
+     * @throws LocalizedException
+     */
+    private function cancelPayment($transaction)
+    {
+        /** @var OrderPaymentInterface|Payment $payment */
+        $payment = $this->orderPaymentRepository->get($transaction->getPaymentId());
+        $payment->getMethodInstance()->cancel($payment);
+    }
+
+    /**
+     * Cancels an order and sets the appropriate additional information
+     *
+     * @param PaymentOrder|Order $order
      * @throws \Exception
      * @throws LocalizedException
      */
     private function cancelOrder($order)
     {
-        /** @var Payment $payment */
+        /** @var PaymentOrder $payment */
         $payment = $order->getPayment();
         $paymentCode = $payment->getMethodInstance()->getCode();
 
@@ -100,8 +123,9 @@ class Cancel
     }
 
     /**
-     * @param Order $order
+     * Updates the status of an order after cancelation, adding a history comment with the new status.
      *
+     * @param PaymentOrder|Order $order
      * @throws \Exception
      */
     private function updateStatus($order)
@@ -113,19 +137,7 @@ class Cancel
             $newStatus = false;
         }
 
-        $order->addStatusHistoryComment($comment, $newStatus);
+        $order->addCommentToStatusHistory($comment, $newStatus);
         $order->save();
-    }
-
-    /**
-     * @param TransactionInterface|Transaction $transaction
-     *
-     * @throws LocalizedException
-     */
-    private function cancelPayment($transaction)
-    {
-        /** @var OrderPaymentInterface|Payment $payment */
-        $payment = $this->orderPaymentRepository->get($transaction->getPaymentId());
-        $payment->getMethodInstance()->cancel($payment);
     }
 }

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,14 +20,22 @@
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
-use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\Controller\ResultFactory;
 use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
+use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Phrase;
+use Magento\Quote\Model\Quote;
 
-class Giftcard extends \Magento\Framework\App\Action\Action
+class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
     /**
      * @var Log
@@ -36,30 +43,30 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
-     * @var \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
+     * @var GiftcardInterface
      */
     protected $giftcardRequest;
 
     /**
-     * @var \Buckaroo\Magento2\Model\Giftcard\Response\Giftcard
+     * @var GiftcardResponse
      */
     protected $giftcardResponse;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     protected $checkoutSession;
 
     /**
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param Context $context
+     * @param Session $checkoutSession
      * @param GiftcardInterface $giftcardRequest
      * @param GiftcardResponse $giftcardResponse
      * @param Log $logger
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Checkout\Model\Session $checkoutSession,
+        Context $context,
+        Session $checkoutSession,
         GiftcardInterface $giftcardRequest,
         GiftcardResponse $giftcardResponse,
         Log $logger
@@ -74,7 +81,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      * @throws \Exception
      */
     public function execute()
@@ -107,6 +114,12 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         }
     }
 
+    /**
+     * Return response with error message
+     *
+     * @param Phrase|string $message
+     * @return mixed
+     */
     protected function displayError($message)
     {
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData([
@@ -114,14 +127,21 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         ]);
     }
 
-    protected function getGiftcardResponse(Quote $quote, $response)
+    /**
+     * Get inline giftcard response
+     *
+     * @param Quote $quote
+     * @param TransactionResponse $response
+     * @return mixed
+     * @throws ApiException
+     */
+    protected function getGiftcardResponse(Quote $quote, TransactionResponse $response)
     {
         $this->giftcardResponse->set($response, $quote);
 
         if ($this->giftcardResponse->getErrorMessage() !== null) {
             throw new ApiException($this->giftcardResponse->getErrorMessage());
         }
-
 
         $buttonMessage = '';
 

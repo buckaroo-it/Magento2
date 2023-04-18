@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -22,11 +22,10 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\Controller\ResultFactory;
 use Magento\Quote\Model\Quote\Address;
 use Magento\Quote\Model\Quote\Address\Total as AddressTotal;
 
@@ -35,15 +34,17 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * @var Log $logging
      */
-    public $logging;
+    public Log $logging;
+
     /**
      * @var JsonFactory
      */
-    protected $resultJsonFactory;
+    protected JsonFactory $resultJsonFactory;
+
     /**
      * @var RequestInterface $request
      */
-    protected $request;
+    protected RequestInterface $request;
 
     /**
      * @param JsonFactory $resultJsonFactory
@@ -51,9 +52,9 @@ abstract class AbstractApplepay implements HttpPostActionInterface
      * @param Log $logging
      */
     public function __construct(
-        JsonFactory      $resultJsonFactory,
+        JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        Log              $logging
+        Log $logging
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->request = $request;
@@ -77,7 +78,7 @@ abstract class AbstractApplepay implements HttpPostActionInterface
      * @param AddressTotal[] $quoteTotals
      * @return array
      */
-    public function gatherTotals($address, $quoteTotals): array
+    public function gatherTotals(Address $address, array $quoteTotals): array
     {
         return [
             'subtotal' => $quoteTotals['subtotal']->getValue(),

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -24,6 +23,7 @@ namespace Buckaroo\Magento2\Model\Config\Backend;
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\Config\Value;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\File\ReadFactory;
@@ -37,34 +37,46 @@ use Buckaroo\Magento2\Model\CertificateFactory;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Certificate extends \Magento\Framework\App\Config\Value
+class Certificate extends Value
 {
     /**
      * @var ReadFactory
      */
     protected $readFactory;
 
-    /** @var WriterInterface */
+    /**
+     * @var WriterInterface
+     */
     protected $writer;
 
-    /** @var CertificateFactory */
+    /**
+     * @var CertificateFactory
+     */
     protected $certificateFactory;
 
-    /** @var CertificateRepositoryInterface */
-    protected $certificateRepository;
-    protected $file;
     /**
-     * @param Context                                   $context
-     * @param Registry                                  $registry
-     * @param ScopeConfigInterface                      $config
-     * @param TypeListInterface                         $cacheTypeList
-     * @param ReadFactory                               $readFactory
-     * @param WriterInterface                           $writer
-     * @param CertificateFactory                        $certificateFactory
-     * @param CertificateRepositoryInterface            $certificateRepository
-     * @param AbstractResource                          $resource
-     * @param AbstractDb                                $resourceCollection
-     * @param array                                     $data
+     * @var CertificateRepositoryInterface
+     */
+    protected $certificateRepository;
+
+    /**
+     * @var File
+     */
+    protected $file;
+
+    /**
+     * @param Context $context
+     * @param Registry $registry
+     * @param ScopeConfigInterface $config
+     * @param TypeListInterface $cacheTypeList
+     * @param ReadFactory $readFactory
+     * @param WriterInterface $writer
+     * @param CertificateFactory $certificateFactory
+     * @param CertificateRepositoryInterface $certificateRepository
+     * @param File $file
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -77,9 +89,9 @@ class Certificate extends \Magento\Framework\App\Config\Value
         WriterInterface $writer,
         CertificateFactory $certificateFactory,
         CertificateRepositoryInterface $certificateRepository,
+        File $file,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
-        File $file,
         array $data = []
     ) {
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
@@ -156,7 +168,6 @@ class Certificate extends \Magento\Framework\App\Config\Value
      * Check if extension is valid
      *
      * @param String $filename Name of uplpaded file
-     *
      * @return bool
      */
     protected function validExtension($filename)

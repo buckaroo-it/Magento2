@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,22 +20,31 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Config\Support;
 
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Data\Form\Element\Renderer\RendererInterface;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Framework\Module\ModuleResource;
+use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
 
-class SupportTab extends \Magento\Framework\View\Element\Template implements RendererInterface
+class SupportTab extends Template implements RendererInterface
 {
+    /**
+     * @var string
+     */
     protected $_template = 'supportTab.phtml';
 
-    /** @var array  */
+    /**
+     * @var array
+     */
     private $phpVersionSupport = [
         '2.3' => ['7.3' => ['+'], '7.4' => ['+']],
         '2.4' => ['7.4' => ['+'], '8.1' => ['+']],
     ];
 
     /**
-     * @var \Magento\Framework\Setup\ModuleContextInterface
+     * @var ModuleContextInterface
      */
     private $moduleContext;
 
@@ -48,14 +56,14 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     /**
      * Override the parent constructor to require our own dependencies.
      *
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Magento\Framework\Module\ModuleResource         $moduleContext
-     * @param SoftwareData                                     $softwareData
-     * @param array                                            $data
+     * @param Context $context
+     * @param ModuleResource $moduleContext
+     * @param SoftwareData $softwareData
+     * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\Module\ModuleResource $moduleContext,
+        Context $context,
+        ModuleResource $moduleContext,
         SoftwareData $softwareData,
         array $data = []
     ) {
@@ -66,8 +74,9 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     }
 
     /**
-     * @param AbstractElement $element
+     * Render form element as HTML
      *
+     * @param AbstractElement $element
      * @return string
      */
     public function render(AbstractElement $element)
@@ -84,16 +93,16 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     /**
      * Retrieve the version number from constant
      *
-     * @return bool|false|string
+     * @return string
      */
-    public function getVersionNumber()
+    public function getVersionNumber(): string
     {
-        $version = $this->softwareData->getModuleVersion();
-
-        return $version;
+        return $this->softwareData->getModuleVersion();
     }
 
     /**
+     * PHP Version Check
+     *
      * @return bool|int
      */
     public function phpVersionCheck()
@@ -107,10 +116,9 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
 
         $magentoMajorMinor = $magentoVersion[0] . '.' . $magentoVersion[1];
         $phpMajorMinor = $phpVersion[0] . '.' . $phpVersion[1];
-        $phpPatch = (int) $phpVersion[2];
+        $phpPatch = (int)$phpVersion[2];
 
-        if (
-            !isset($this->phpVersionSupport[$magentoMajorMinor]) ||
+        if (!isset($this->phpVersionSupport[$magentoMajorMinor]) ||
             !isset($this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor])
         ) {
             return 0;
@@ -130,19 +138,9 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
         return -1;
     }
 
-    public function getPhpVersionArray()
-    {
-        $version = false;
-        if (defined('PHP_VERSION')) {
-            $version = explode('.', PHP_VERSION);
-        } elseif (function_exists('phpversion')) {
-            $version = explode('.', phpversion());
-        }
-
-        return $version;
-    }
-
     /**
+     * Get Magento Versions
+     *
      * @return array|bool
      */
     public function getMagentoVersionArray()
@@ -158,6 +156,25 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     }
 
     /**
+     * Get PHP Versions
+     *
+     * @return false|string[]
+     */
+    public function getPhpVersionArray()
+    {
+        $version = false;
+        if (defined('PHP_VERSION')) {
+            $version = explode('.', PHP_VERSION);
+        } elseif (function_exists('phpversion')) {
+            $version = explode('.', phpversion());
+        }
+
+        return $version;
+    }
+
+    /**
+     * Get Magento Version Tidy
+     *
      * @return array|bool
      */
     public function getMagentoVersionTidyString()

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -22,33 +21,42 @@
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Serialize\Serializer\Json;
 
 class MyParcelNLBuckarooPlugin
 {
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
-    protected $checkoutSession;
+    protected Session $checkoutSession;
 
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * @var RequestInterface
      */
-    protected $request;
+    protected RequestInterface $request;
 
     /**
-     * @var \Magento\Framework\Serialize\Serializer\Json
+     * @var Json
      */
-    protected $json;
+    protected Json $json;
 
     /**
      * @var Log
      */
-    protected $logger;
+    protected Log $logger;
 
+    /**
+     * @param Session $checkoutSession
+     * @param RequestInterface $request
+     * @param Json $json
+     * @param Log $logger
+     */
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\App\RequestInterface $request,
-        \Magento\Framework\Serialize\Serializer\Json $json,
+        Session $checkoutSession,
+        RequestInterface $request,
+        Json $json,
         Log $logger
     ) {
         $this->checkoutSession    = $checkoutSession;
@@ -57,6 +65,12 @@ class MyParcelNLBuckarooPlugin
         $this->logger = $logger;
     }
 
+    /**
+     * Saves the MyParcelNL delivery options data to the checkout session
+     * before executing the getFromDeliveryOptions method.
+     *
+     * @return void
+     */
     public function beforeGetFromDeliveryOptions()
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
@@ -64,9 +78,7 @@ class MyParcelNLBuckarooPlugin
         if ($result = file_get_contents('php://input')) {
             if ($jsonDecoded = $this->json->unserialize($result)) {
                 $this->logger->addDebug(__METHOD__ . '|2|' . var_export($jsonDecoded, true));
-
-                if (
-                    !empty($jsonDecoded['deliveryOptions']) &&
+                if (!empty($jsonDecoded['deliveryOptions']) &&
                     !empty($jsonDecoded['deliveryOptions'][0]['deliveryType']) &&
                     ($jsonDecoded['deliveryOptions'][0]['deliveryType'] == 'pickup') &&
                     !empty($jsonDecoded['deliveryOptions'][0]['pickupLocation'])

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,15 +17,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Magento\Sales\Api\Data\OrderItemInterface;
 
 class ArticlesDataBuilder extends AbstractDataBuilder
 {
+    /**
+     * @inheritdoc
+     */
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
@@ -35,16 +37,16 @@ class ArticlesDataBuilder extends AbstractDataBuilder
 
         foreach ($this->getOrder()->getAllItems() as $item) {
 
-            /** @var \Magento\Sales\Api\Data\OrderItemInterface $item */
+            /** @var OrderItemInterface $item */
             if ($item->getParentItem() != null) {
                 continue;
             }
 
             $articles[] = [
-                'identifier'        => $item->getSku(),
-                'description'       => $item->getName(),
-                'quantity'          => $item->getQtyOrdered(),
-                'price'             => $item->getBasePriceInclTax()
+                'identifier'  => $item->getSku(),
+                'description' => $item->getName(),
+                'quantity'    => $item->getQtyOrdered(),
+                'price'       => $item->getBasePriceInclTax()
             ];
         }
         return [
