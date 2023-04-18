@@ -21,16 +21,15 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin\Onepage;
 
+use Buckaroo\Magento2\Helper\Data as BuckarooDataHelper;
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Service\CheckPaymentType;
+use Magento\Checkout\Controller\Onepage\Success as ControllerOnePageSuccess;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\View\Result\Page;
 use Magento\Sales\Model\Order;
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\App\Action\Context;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use Buckaroo\Magento2\Helper\Data as BuckarooDataHelper;
-use Magento\Checkout\Controller\Onepage\Success as ControllerOnePageSuccess;
 
 /**
  * Override One page checkout success controller class
@@ -50,7 +49,7 @@ class Success
     /**
      * @var CheckPaymentType
      */
-    protected $checkPaymentType;
+    protected CheckPaymentType $checkPaymentType;
 
     /**
      * @param Context $context
@@ -72,9 +71,9 @@ class Success
      *
      * @param ControllerOnePageSuccess $checkoutSuccess
      * @param callable $proceed
-     * @return Redirect
+     * @return Redirect|Page
      */
-    public function aroundExecute(ControllerOnePageSuccess $checkoutSuccess, callable $proceed): Redirect
+    public function aroundExecute(ControllerOnePageSuccess $checkoutSuccess, callable $proceed): Page|Redirect
     {
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
