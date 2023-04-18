@@ -119,8 +119,6 @@ class Afterpay extends AbstractMethod
             $dobDate = (!$dobDate ? $additionalData['customer_DoB'] : $dobDate->format('Y-m-d'));
             $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $dobDate);
 
-            dd($additionalData['selectedBusiness']);
-
             if (isset($additionalData['selectedBusiness'])) {
 
                 if( $additionalData['selectedBusiness'] == self::BUSINESS_METHOD_B2B) {
