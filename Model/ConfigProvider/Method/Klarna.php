@@ -45,6 +45,9 @@ class Klarna extends AbstractConfigProvider
                 'buckaroo' => [
                     'klarna'   => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'paymentFee'        => $this->getPaymentFee(),
                         'genderList'        => [

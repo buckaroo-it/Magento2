@@ -52,6 +52,9 @@ class Voucher extends AbstractConfigProvider
                 'buckaroo' => [
                     'voucher' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

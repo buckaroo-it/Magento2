@@ -50,10 +50,14 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const XPATH_LIMIT_BY_IP = 'limit_by_ip';
 
     public const XPATH_ALLOWED_CURRENCIES = 'allowed_currencies';
-    public const XPATH_ALLOW_SPECIFIC = 'allowspecific';
+    public const XPATH_ALLOW_SPECIFIC   = 'allowspecific';
     public const XPATH_SPECIFIC_COUNTRY = 'specificcountry';
-    public const XPATH_SPECIFIC_CUSTOMER_GROUP = 'specificcustomergroup';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP     = 'specificcustomergroup';
     public const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B = 'specificcustomergroupb2b';
+
+    public const XPATH_SUBTEXT       = 'subtext';
+    public const XPATH_SUBTEXT_STYLE = 'subtext_style';
+    public const XPATH_SUBTEXT_COLOR = 'subtext_color';
 
     /**
      * The asset repository to generate the correct url to our assets.
@@ -122,6 +126,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'name'    => 'Revolut',
             'code'    => 'REVOLT21',
             'imgName' => 'revolut'
+        ],
+        [
+            'name' => 'Yoursafe',
+            'code' => 'BITSNL2A',
+            'imgName' => 'yoursafe'
         ],
     ];
 
@@ -252,9 +261,18 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getSpecificCountry($store = null)
     {
         $configuredSpecificCountry = trim((string)$this->getConfigFromXpath(static::XPATH_SPECIFIC_COUNTRY, $store));
+
+        //if the country config is null in the store get the config value from the global('default') settings
+        if (empty($configuredSpecificCountry)) {
+            $configuredSpecificCountry = $this->scopeConfig->getValue(
+                static::XPATH_SPECIFIC_COUNTRY
+            );
+        }
+
         if (empty($configuredSpecificCountry)) {
             return [];
         }
+
         return explode(',', $configuredSpecificCountry);
     }
 
@@ -443,5 +461,38 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getIssuers()
     {
         return $this->issuers;
+    }
+
+    /**
+     * Get subtext
+     *
+     * @param null|int|Store $store
+     * @return mixed
+     */
+    public function getSubtext($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_SUBTEXT, $store);
+    }
+
+    /**
+     * Get subtext style
+     *
+     * @param null|int|Store $store
+     * @return mixed
+     */
+    public function getSubtextStyle($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_SUBTEXT_STYLE, $store);
+    }
+
+    /**
+     * Get subtext color
+     *
+     * @param null|int|Store $store
+     * @return mixed
+     */
+    public function getSubtextColor($store = null)
+    {
+        return $this->getMethodConfigValue(static::XPATH_SUBTEXT_COLOR, $store);
     }
 }

@@ -48,6 +48,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.trustly.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.trustly.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('trustly'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

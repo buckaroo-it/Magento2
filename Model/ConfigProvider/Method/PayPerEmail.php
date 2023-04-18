@@ -61,15 +61,18 @@ class PayPerEmail extends AbstractConfigProvider
                 'buckaroo' => [
                     'payperemail' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'genderList' => [
+                        'genderList'        => [
                             ['genderType' => 1, 'genderTitle' => __('He/him')],
                             ['genderType' => 2, 'genderTitle' => __('She/her')],
                             ['genderType' => 0, 'genderTitle' => __('They/them')],
                             ['genderType' => 9, 'genderTitle' => __('I prefer not to say')]
                         ]
                     ],
-                    'response' => [],
+                    'response'    => [],
                 ],
             ],
         ];

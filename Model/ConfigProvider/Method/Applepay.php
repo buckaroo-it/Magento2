@@ -107,6 +107,9 @@ class Applepay extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'applepay' => [
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'storeName' => $storeName,
                         'currency' => $currency,

@@ -31,7 +31,7 @@ class Billink extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_billink';
 
-    public const XPATH_BILLINK_BUSINESS = 'payment/buckaroo_magento2_billink/business';
+    public const XPATH_BILLINK_BUSINESS      = 'payment/buckaroo_magento2_billink/business';
 
     /**
      * @var BuckarooHelper
@@ -74,6 +74,9 @@ class Billink extends AbstractConfigProvider
                     'billink'  => [
                         'sendEmail'         => (bool) $this->getOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'b2b' => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
                         'genderList' => [

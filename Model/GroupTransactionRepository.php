@@ -217,4 +217,19 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
 
         return true;
     }
+    public function getTransactionByIdAndOrderId(string $transactionId, string $orderId)
+    {
+        /** @var GroupTransactionCollection $collection */
+        $collection = $this->GroupTransactionCollectionFactory->create();
+
+        return $collection->addFieldToFilter(
+            'transaction_id',
+            ['eq' => $transactionId]
+        )
+        ->addFieldToFilter(
+            'order_id',
+            ['eq' => $orderId]
+        )
+        ->getLastItem();
+    }
 }

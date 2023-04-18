@@ -45,6 +45,9 @@ class Klarnain extends AbstractConfigProvider
                 'buckaroo' => [
                     'klarnain' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'paymentFee'        => $this->getPaymentFee(),
                         'genderList'        => [

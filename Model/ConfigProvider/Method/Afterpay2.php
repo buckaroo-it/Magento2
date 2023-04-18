@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Config\Source\Afterpay2PaymentMethods;
 use Buckaroo\Magento2\Model\Config\Source\Business;
 use Magento\Store\Model\ScopeInterface;
@@ -28,16 +29,18 @@ class Afterpay2 extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_afterpay2';
 
-    public const XPATH_AFTERPAY2_BUSINESS            = 'payment/buckaroo_magento2_afterpay2/business';
-    public const XPATH_AFTERPAY2_PAYMENT_METHODS     = 'payment/buckaroo_magento2_afterpay2/payment_method';
-    public const XPATH_AFTERPAY2_HIGH_TAX            = 'payment/buckaroo_magento2_afterpay2/high_tax';
-    public const XPATH_AFTERPAY2_MIDDLE_TAX          = 'payment/buckaroo_magento2_afterpay2/middle_tax';
-    public const XPATH_AFTERPAY2_LOW_TAX             = 'payment/buckaroo_magento2_afterpay2/low_tax';
-    public const XPATH_AFTERPAY2_ZERO_TAX            = 'payment/buckaroo_magento2_afterpay2/zero_tax';
-    public const XPATH_AFTERPAY2_NO_TAX              = 'payment/buckaroo_magento2_afterpay2/no_tax';
+    public const XPATH_AFTERPAY2_BUSINESS        = 'payment/buckaroo_magento2_afterpay2/business';
+    public const XPATH_AFTERPAY2_PAYMENT_METHODS = 'payment/buckaroo_magento2_afterpay2/payment_method';
+    public const XPATH_AFTERPAY2_HIGH_TAX        = 'payment/buckaroo_magento2_afterpay2/high_tax';
+    public const XPATH_AFTERPAY2_MIDDLE_TAX      = 'payment/buckaroo_magento2_afterpay2/middle_tax';
+    public const XPATH_AFTERPAY2_LOW_TAX         = 'payment/buckaroo_magento2_afterpay2/low_tax';
+    public const XPATH_AFTERPAY2_ZERO_TAX        = 'payment/buckaroo_magento2_afterpay2/zero_tax';
+    public const XPATH_AFTERPAY2_NO_TAX          = 'payment/buckaroo_magento2_afterpay2/no_tax';
 
     /**
      * @inheritdoc
+     *
+     * @throws Exception
      */
     public function getConfig()
     {
@@ -51,13 +54,16 @@ class Afterpay2 extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'afterpay2' => [
-                        'sendEmail'         => (bool) $this->getOrderEmail(),
+                        'sendEmail'         => $this->getOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),
                     ],
-                    'response' => [],
+                    'response'  => [],
                 ],
             ],
         ];
@@ -73,7 +79,7 @@ class Afterpay2 extends AbstractConfigProvider
      */
     public function getBusiness()
     {
-        $business = (int) $this->scopeConfig->getValue(
+        $business = (int)$this->scopeConfig->getValue(
             static::XPATH_AFTERPAY2_BUSINESS,
             ScopeInterface::SCOPE_STORE
         );
@@ -97,7 +103,7 @@ class Afterpay2 extends AbstractConfigProvider
      */
     public function getPaymentMethod()
     {
-        $paymentMethod = (int) $this->scopeConfig->getValue(
+        $paymentMethod = (int)$this->scopeConfig->getValue(
             static::XPATH_AFTERPAY2_PAYMENT_METHODS,
             ScopeInterface::SCOPE_STORE
         );
@@ -206,9 +212,9 @@ class Afterpay2 extends AbstractConfigProvider
 
         if ($method) {
             if ($method == '1') {
-                    $paymentMethodName = 'afterpayacceptgiro';
+                $paymentMethodName = 'afterpayacceptgiro';
             } elseif ($method == '2') {
-                    $paymentMethodName = 'afterpaydigiaccept';
+                $paymentMethodName = 'afterpaydigiaccept';
             }
         }
 

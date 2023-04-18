@@ -110,6 +110,7 @@ class PaymentGroupTransaction extends AbstractHelper
      *
      * @param array $item
      * @return mixed
+     * @throws \Exception
      */
     public function updateGroupTransaction($item)
     {

@@ -53,18 +53,26 @@ use Magento\Store\Model\StoreManagerInterface;
 class Data extends AbstractHelper
 {
     public const MODE_INACTIVE = 0;
-    public const MODE_TEST = 1;
-    public const MODE_LIVE = 2;
+    public const MODE_TEST     = 1;
+    public const MODE_LIVE     = 2;
 
     public const M2_ORDER_STATE_PENDING = 'pending';
+
     /**
      * @var Account
      */
     public $configProviderAccount;
+
     /**
      * @var Factory
      */
     public $configProviderMethodFactory;
+
+    /**
+     * @var CheckPaymentType
+     */
+    public $checkPaymentType;
+
     /**
      * Buckaroo_Magento2 status codes
      *
@@ -89,6 +97,7 @@ class Data extends AbstractHelper
          */
         'BUCKAROO_MAGENTO2_ORDER_FAILED'                     => 11014,
     ];
+
     /**
      * @var array
      */
@@ -150,11 +159,6 @@ class Data extends AbstractHelper
     private $customerSession;
 
     /**
-     * @var CheckPaymentType
-     */
-    public $checkPaymentType;
-
-    /**
      * @param Context $context
      * @param Account $configProviderAccount
      * @param Factory $configProviderMethodFactory
@@ -168,6 +172,7 @@ class Data extends AbstractHelper
      * @param Json $json
      * @param State $state
      * @param CustomerSession $customerSession
+     * @param CheckPaymentType $checkPaymentType
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -461,23 +466,25 @@ class Data extends AbstractHelper
                 }
                 $this->logger->addDebug(var_export([$customer->getEmail()], true));
                 $this->staticCache['getPPeCustomerDetails'] = [
-                    'email'     => $customer->getEmail(),
-                    'firstName' => $billingAddress ? $billingAddress->getFirstName() : '',
-                    'lastName'  => $billingAddress ? $billingAddress->getLastName() : '',
+                    'email'      => $customer->getEmail(),
+                    'firstName'  => $billingAddress ? $billingAddress->getFirstName() : '',
+                    'lastName'   => $billingAddress ? $billingAddress->getLastName() : '',
+                    'middleName' => $billingAddress ? $billingAddress->getMiddlename() : '',
                 ];
             }
         }
 
-        if ($order = $this->_getRequest()->getParam('order')
-            && isset($order['billing_address'])) {
-            $this->logger->addDebug(__METHOD__ . '|30|');
-            $this->staticCache['getPPeCustomerDetails'] = [
-                'email'     => !empty($this->staticCache['getPPeCustomerDetails']['email']) ?
-                    $this->staticCache['getPPeCustomerDetails']['email'] : '',
-                'firstName' => $order['billing_address']['firstname'],
-                'lastName'  => $order['billing_address']['lastname'],
-            ];
-
+        if ($order = $this->_getRequest()->getParam('order')) {
+            if (isset($order['billing_address'])) {
+                $this->logger->addDebug(__METHOD__ . '|30|');
+                $this->staticCache['getPPeCustomerDetails'] = [
+                    'email'      => !empty($this->staticCache['getPPeCustomerDetails']['email']) ?
+                        $this->staticCache['getPPeCustomerDetails']['email'] : '',
+                    'firstName'  => $order['billing_address']['firstname'],
+                    'lastName'   => $order['billing_address']['lastname'],
+                    'middleName' => $order['billing_address']['middlename'],
+                ];
+            }
         }
 
         if (($payment = $this->_getRequest()->getParam('payment'))
@@ -485,9 +492,10 @@ class Data extends AbstractHelper
         ) {
             $this->logger->addDebug(__METHOD__ . '|40|');
             $this->staticCache['getPPeCustomerDetails'] = [
-                'email'     => $payment['customer_email'],
-                'firstName' => $payment['customer_billingFirstName'],
-                'lastName'  => $payment['customer_billingLastName'],
+                'email'      => $payment['customer_email'],
+                'firstName'  => $payment['customer_billingFirstName'],
+                'lastName'   => $payment['customer_billingLastName'],
+                'middleName' => $payment['customer_billingMiddleName'],
             ];
         }
 
@@ -674,6 +682,25 @@ class Data extends AbstractHelper
     }
 
     /**
+     * Get order status by state
+     *
+     * @param $order
+     * @param $orderState
+     * @return mixed
+     */
+    public function getOrderStatusByState($order, $orderState)
+    {
+        $orderStatus = $order->getPayment()->getMethodInstance()->getConfigData('order_status');
+        $states = $order->getConfig()->getStateStatuses($orderState);
+
+        if (!$orderStatus || !array_key_exists($orderStatus, $states)) {
+            $orderStatus = $order->getConfig()->getStateDefaultStatus($orderState);
+        }
+
+        return $orderStatus;
+    }
+
+    /**
      * Checks if the customer group in the admin area is allowed to use the Buckaroo payment method.
      *
      * @param array $configCustomerGroupArr
@@ -711,24 +738,5 @@ class Data extends AbstractHelper
             }
         }
         return true;
-    }
-
-    /**
-     * Get order status by state
-     *
-     * @param $order
-     * @param $orderState
-     * @return mixed
-     */
-    public function getOrderStatusByState($order, $orderState)
-    {
-        $orderStatus = $order->getPayment()->getMethodInstance()->getConfigData('order_status');
-        $states = $order->getConfig()->getStateStatuses($orderState);
-
-        if (!$orderStatus || !array_key_exists($orderStatus, $states)) {
-            $orderStatus = $order->getConfig()->getStateDefaultStatus($orderState);
-        }
-
-        return $orderStatus;
     }
 }

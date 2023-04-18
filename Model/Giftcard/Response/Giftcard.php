@@ -20,16 +20,18 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Response;
 
+use Magento\Quote\Model\QuoteManagement;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\QuoteManagement;
+use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\OrderManagementInterface;
 
 class Giftcard
 {
@@ -57,7 +59,14 @@ class Giftcard
      * @var OrderManagementInterface
      */
     protected $orderManagement;
-
+    /**
+     * @var \Buckaroo\Magento2\Model\Giftcard\Remove
+     */
+    protected $giftcardRemoveService;
+    /**
+     * @var \Buckaroo\Magento2\Logging\Log
+     */
+    protected $logger;
     /**
      * @var CartInterface
      */
@@ -67,12 +76,16 @@ class Giftcard
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
         QuoteManagement $quoteManagement,
-        OrderManagementInterface $orderManagement
+        OrderManagementInterface $orderManagement,
+        GiftcardRemove $giftcardRemoveService,
+        Log $logger
     ) {
         $this->priceCurrency = $priceCurrency;
         $this->groupTransaction = $groupTransaction;
         $this->quoteManagement = $quoteManagement;
         $this->orderManagement = $orderManagement;
+        $this->giftcardRemoveService = $giftcardRemoveService;
+        $this->logger = $logger;
     }
 
     /**
@@ -93,62 +106,6 @@ class Giftcard
         } else {
             $this->cancelOrder();
         }
-    }
-
-    /**
-     * Save group transaction data
-     *
-     * @return void
-     */
-    protected function saveGroupTransaction()
-    {
-        $this->groupTransaction->saveGroupTransaction($this->response->data());
-    }
-
-    /**
-     * Cancel order for failed group transaction
-     *
-     * @return void
-     * @throws LocalizedException
-     */
-    protected function cancelOrder()
-    {
-        $order = $this->createOrderFromQuote();
-        if (
-            $order instanceof OrderInterface &&
-            $order->getEntityId() !== null
-        ) {
-            $this->orderManagement->cancel($order->getEntityId());
-            $order->addCommentToStatusHistory($this->getErrorMessage())
-                ->setIsCustomerNotified(false)
-                ->setEntityName('invoice')
-                ->save();
-        }
-    }
-
-    /**
-     * Create order from quote
-     *
-     * @return AbstractExtensibleModel|OrderInterface|object|null
-     * @throws LocalizedException
-     */
-    protected function createOrderFromQuote()
-    {
-        //fix missing email validation
-        if ($this->quote->getCustomerEmail() == null) {
-            $this->quote->setCustomerEmail(
-                $this->quote->getBillingAddress()->getEmail()
-            );
-        }
-
-        $order = $this->quoteManagement->submit($this->quote);
-
-        //keep the quote active but remove the canceled order from it
-        $this->quote->setIsActive(true);
-        $this->quote->setOrigOrderId(null);
-        $this->quote->setReservedOrderId(null);
-        $this->quote->save();
-        return $order;
     }
 
     /**
@@ -262,5 +219,76 @@ class Giftcard
             return null;
         }
         return $this->response->data()['RequiredAction']['PayRemainderDetails']['Currency'];
+
+    }
+
+    public function rollbackAllPartialPayments($order)
+    {
+        try {
+            $transactions = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
+            foreach ($transactions as $transaction) {
+                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $order->getIncrementId());
+            }
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__ . (string)$th);
+        }
+
+    }
+
+    /**
+     * Save group transaction data
+     *
+     * @return void
+     */
+    protected function saveGroupTransaction()
+    {
+        $this->groupTransaction->saveGroupTransaction($this->response->data());
+    }
+
+    /**
+     * Cancel order for failed group transaction
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function cancelOrder()
+    {
+        $order = $this->createOrderFromQuote();
+        if (
+            $order instanceof OrderInterface &&
+            $order->getEntityId() !== null
+        ) {
+            $this->orderManagement->cancel($order->getEntityId());
+            $order->addCommentToStatusHistory($this->getErrorMessage())
+                ->setIsCustomerNotified(false)
+                ->setEntityName('invoice')
+                ->save();
+            $this->rollbackAllPartialPayments($order);
+        }
+    }
+
+    /**
+     * Create order from quote
+     *
+     * @return AbstractExtensibleModel|OrderInterface|object|null
+     * @throws LocalizedException
+     */
+    protected function createOrderFromQuote()
+    {
+        //fix missing email validation
+        if ($this->quote->getCustomerEmail() == null) {
+            $this->quote->setCustomerEmail(
+                $this->quote->getBillingAddress()->getEmail()
+            );
+        }
+
+        $order = $this->quoteManagement->submit($this->quote);
+
+        //keep the quote active but remove the canceled order from it
+        $this->quote->setIsActive(true);
+        $this->quote->setOrigOrderId(null);
+        $this->quote->setReservedOrderId(null);
+        $this->quote->save();
+        return $order;
     }
 }

@@ -38,6 +38,7 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Psr\Log\LoggerInterface;
+use Magento\Framework\App\ProductMetadataInterface;
 
 /**
  * Class GuestPaymentInformationManagement
@@ -78,7 +79,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      * @param LoggerInterface $logger
      * @param Factory $configProviderMethodFactory
      * @param OrderRepositoryInterface $orderRepository
-     *
+     * @param ProductMetadataInterface $productMetadata
      * @codeCoverageIgnore
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -93,16 +94,26 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         Registry $registry,
         LoggerInterface $logger,
         Factory $configProviderMethodFactory,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        ProductMetadataInterface $productMetadata
     ) {
+        $magentoVersion = $productMetadata->getVersion();
+        $lastParam = null;
+
+        if (version_compare($magentoVersion, '2.4.6', '>=')) {
+            $lastParam = $logger;
+        }
+
         parent::__construct(
             $billingAddressManagement,
             $paymentMethodManagement,
             $cartManagement,
             $paymentInformationManagement,
             $quoteIdMaskFactory,
-            $cartRepository
+            $cartRepository,
+            $lastParam
         );
+
         $this->registry = $registry;
         $this->logger = $logger;
         $this->configProviderMethodFactory = $configProviderMethodFactory;

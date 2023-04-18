@@ -28,6 +28,9 @@ class  PayLink extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_paylink';
 
+    public const XPATH_PAYLINK_SUBTEXT        = 'payment/buckaroo_magento2_paylink/subtext';
+    public const XPATH_PAYLINK_SUBTEXT_STYLE  = 'payment/buckaroo_magento2_paylink/subtext_style';
+    public const XPATH_PAYLINK_SUBTEXT_COLOR  = 'payment/buckaroo_magento2_paylink/subtext_color';
     public const XPATH_PAYLINK_PAYMENT_METHOD = 'payment/buckaroo_magento2_paylink/payment_method';
 
     /**
@@ -48,6 +51,9 @@ class  PayLink extends AbstractConfigProvider
                 'buckaroo' => [
                     'paylink'  => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                     'response' => [],

@@ -49,6 +49,9 @@ class SepaDirectDebit extends AbstractConfigProvider
                 'buckaroo' => [
                     'sepadirectdebit' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

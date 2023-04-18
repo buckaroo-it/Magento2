@@ -40,7 +40,10 @@ class Wechatpay extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'wechatpay' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

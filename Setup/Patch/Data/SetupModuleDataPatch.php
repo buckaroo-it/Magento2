@@ -432,6 +432,8 @@ class SetupModuleDataPatch implements DataPatchInterface
      */
     private Config $eavConfig;
 
+    private Config $eavConfig;
+
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param SalesSetupFactory $salesSetupFactory

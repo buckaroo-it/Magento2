@@ -56,6 +56,20 @@
         </div>
     </div>
 
+    <div class="admin__field">
+        <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingMiddleName">
+            <span><?= $block->escapeHtml(__('Billing Middle Name:')); ?></span>
+        </label>
+        <div class="admin__field-control control">
+            <input id="buckaroo_magento2_payperemail_BillingMiddleName"
+                   class="input-text field"
+                   type="text"
+                   value="<?= $customerDetails ? $block->escapeHtml($customerDetails['middleName']) : ''; ?>"
+                   name="payment[customer_billingMiddleName]"
+            >
+        </div>
+    </div>
+
     <div class="admin__field _required">
         <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingLastName">
             <span><?= $block->escapeHtml(__('Billing Last Name:')); ?></span>
@@ -95,6 +109,7 @@
         ['email', 'buckaroo_magento2_payperemail_Email'],
         ['order-billing_address_firstname', 'buckaroo_magento2_payperemail_BillingFirstName'],
         ['order-billing_address_lastname', 'buckaroo_magento2_payperemail_BillingLastName'],
+        ['order-billing_address_middlename', 'buckaroo_magento2_payperemail_BillingFirstName'],    
     ].forEach(function (item) {
         if (document.getElementById(item[1]) && (document.getElementById(item[1]).value.length == 0) &&
             document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)

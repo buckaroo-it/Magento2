@@ -77,6 +77,9 @@ class Mrcash extends AbstractConfigProvider
                 'buckaroo' => [
                     'mrcash' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'useClientSide'     => (int)$this->useClientSide(),
                         'redirecturl'       => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()

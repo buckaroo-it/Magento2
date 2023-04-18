@@ -300,6 +300,10 @@ class Push implements PushInterface
         }
 
         if ($this->isGroupTransactionInfo()) {
+            if($this->isCanceledGroupTransaction()) {
+                $this->cancelGroupTransactionOrder();
+                return true;
+            }
             if ($this->isGroupTransactionFailed()) {
                 $this->savePartGroupTransaction();
             } else {
@@ -2190,7 +2194,7 @@ class Push implements PushInterface
      * @return void
      * @throws LocalizedException
      */
-    protected function cancelOrder(string $reservedOrderId)
+    protected function cancelOrder(string $reservedOrderId, $historyComment = 'Giftcard has expired')
     {
         $order = $this->order->loadByIncrementId($reservedOrderId);
 
@@ -2208,7 +2212,7 @@ class Push implements PushInterface
             $orderManagement->cancel($order->getEntityId());
 
             $order->addCommentToStatusHistory(
-                __('Giftcard has expired')
+                __($historyComment)
             )
             ->setIsCustomerNotified(false)
             ->setEntityName('invoice')
@@ -2246,5 +2250,40 @@ class Push implements PushInterface
         $quote->setReservedOrderId(null);
         $quote->save();
         return $order;
+    }
+
+    /**
+     * Cancel order when group transaction is canceled
+     *
+     * @return void
+     */
+    public function cancelGroupTransactionOrder()
+    {
+        if(
+            isset($this->postData['brq_invoicenumber']) &&
+            is_string($this->postData['brq_invoicenumber'])
+        ) {
+            $this->cancelOrder(
+                $this->postData['brq_invoicenumber'],
+                'Inline giftcard order was canceled'
+            );
+        }
+    }
+
+    /**
+     * Check if the request is a canceled group transaction
+     *
+     * @return boolean
+     */
+    public function isCanceledGroupTransaction()
+    {
+        return $this->hasPostData(
+            'brq_transaction_type',
+            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+        ) &&
+        $this->hasPostData(
+            'brq_statuscode',
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
+        );
     }
 }

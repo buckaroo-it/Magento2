@@ -34,6 +34,10 @@ class Payconiq extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_payconiq';
 
+    public const XPATH_PAYCONIQ_SUBTEXT       = 'payment/buckaroo_magento2_payconiq/subtext';
+    public const XPATH_PAYCONIQ_SUBTEXT_STYLE = 'payment/buckaroo_magento2_payconiq/subtext_style';
+    public const XPATH_PAYCONIQ_SUBTEXT_COLOR = 'payment/buckaroo_magento2_payconiq/subtext_color';
+
     public const XPATH_PAYCONIQ_SELLERS_PROTECTION               =
         'payment/buckaroo_magento2_payconiq/sellers_protection';
     public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      =
@@ -95,6 +99,9 @@ class Payconiq extends AbstractConfigProvider
                 'buckaroo' => [
                     'payconiq' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'redirecturl' => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
                     ],

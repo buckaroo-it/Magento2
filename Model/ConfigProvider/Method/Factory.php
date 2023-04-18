@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Phrase;
 
 class Factory
 {
@@ -73,7 +74,7 @@ class Factory
 
         if (empty($configProviderClass)) {
             throw new BuckarooException(
-                new \Magento\Framework\Phrase(
+                new Phrase(
                     'Unknown ConfigProvider type requested: %1.',
                     [$providerType]
                 )

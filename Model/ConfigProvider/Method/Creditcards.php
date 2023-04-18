@@ -76,9 +76,12 @@ class Creditcards extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'creditcards' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'creditcards' => $issuers,
-                        'defaultCardImage' => $this->getImageUrl('svg/creditcards', 'svg'),
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
+                        'creditcards'       => $issuers,
+                        'defaultCardImage'  => $this->getImageUrl('svg/creditcards', 'svg'),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

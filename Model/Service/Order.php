@@ -75,6 +75,7 @@ class Order
      * @var ResourceConnection
      */
     protected $resourceConnection;
+    private Factory $configProviderFactory;
 
     /**
      * @var Factory
