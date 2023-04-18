@@ -49,26 +49,47 @@ class SetupModuleDataPatch implements DataPatchInterface
      * @var SalesSetupFactory
      */
     protected $salesSetupFactory;
+
     /**
      * @var QuoteSetupFactory
      */
     protected $quoteSetupFactory;
+
     /**
      * @var CertificateCollection
      */
     protected $certificateCollection;
+
     /**
      * @var GiftcardCollection
      */
     protected $giftcardCollection;
+
     /**
      * @var Encryptor
      */
     protected $encryptor;
+
     /**
      * @var Registry
      */
     protected $registry;
+
+    /**
+     * @var ModuleDataSetupInterface
+     */
+    private $moduleDataSetup;
+
+    /**
+     * @var EavSetupFactory
+     */
+    private $eavSetupFactory;
+
+    /**
+     * @var Config
+     */
+    private Config $eavConfig;
+
     /**
      * @var array
      */
@@ -122,6 +143,7 @@ class SetupModuleDataPatch implements DataPatchInterface
             'label' => 'Webshop Giftcard'
         ]
     ];
+
     /**
      * @var array
      */
@@ -419,20 +441,6 @@ class SetupModuleDataPatch implements DataPatchInterface
             'value' => 'zwerfkeicadeaukaart',
         ],
     ];
-    /**
-     * @var ModuleDataSetupInterface
-     */
-    private $moduleDataSetup;
-    /**
-     * @var EavSetupFactory
-     */
-    private $eavSetupFactory;
-    /**
-     * @var Config
-     */
-    private Config $eavConfig;
-
-    private Config $eavConfig;
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup

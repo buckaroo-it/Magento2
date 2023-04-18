@@ -58,7 +58,6 @@ class PhoneFormatter
         'DE' => ['0', '0', '4', '9'],
         'AT' => ['0', '0', '4', '3'],
     ];
-    private Log $logger;
 
     /**
      * @param Log $logger

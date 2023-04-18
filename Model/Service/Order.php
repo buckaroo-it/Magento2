@@ -75,7 +75,6 @@ class Order
      * @var ResourceConnection
      */
     protected $resourceConnection;
-    private Factory $configProviderFactory;
 
     /**
      * @var Factory
@@ -119,6 +118,7 @@ class Order
      * Cancel expired transfer orders for all stores.
      *
      * @return $this
+     * @throws BuckarooException
      */
     public function cancelExpiredTransferOrders()
     {
