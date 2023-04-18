@@ -79,9 +79,9 @@ class BuckarooAdapter extends Adapter
     protected ObjectManagerInterface $objectManager;
 
     /**
-     * @var RequestInterface
+     * @var RequestInterface|null
      */
-    protected RequestInterface $request;
+    protected ?RequestInterface $request;
     /**
      * @var int
      */

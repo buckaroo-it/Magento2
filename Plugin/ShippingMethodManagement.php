@@ -89,7 +89,7 @@ class ShippingMethodManagement
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function beforeGet(int $cartId)
+    public function beforeGet(\Magento\Quote\Model\ShippingMethodManagement $subject, int $cartId)
     {
         if (($lastRealOrder = $this->checkoutSession->getLastRealOrder())
             && ($payment = $lastRealOrder->getPayment())
