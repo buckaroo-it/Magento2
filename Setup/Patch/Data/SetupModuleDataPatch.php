@@ -480,23 +480,6 @@ class SetupModuleDataPatch implements DataPatchInterface
     {
         $this->moduleDataSetup->getConnection()->startSetup();
 
-        if ($this->registry->registry('tig_buckaroo_upgrade')) {
-            $this->replaceSpecificField(
-                'sales_order_status',
-                'status',
-                'tig_buckaroo',
-                'buckaroo_magento2'
-            );
-            $this->replaceSpecificField(
-                'sales_order_status_state',
-                'status',
-                'tig_buckaroo',
-                'buckaroo_magento2'
-            );
-            $this->moduleDataSetup->getConnection()->endSetup();
-            return false;
-        }
-
         $this->installOrderStatusses($this->moduleDataSetup); // 0.1.1
         $this->encryptCertificates(); // 0.9.4
         $this->installBaseGiftcards($this->moduleDataSetup, $this->giftcardArray); // 1.3.0
@@ -504,7 +487,6 @@ class SetupModuleDataPatch implements DataPatchInterface
         $this->updateFailureRedirectConfiguration($this->moduleDataSetup); // 1.5.0
         $this->updateSecretKeyConfiguration($this->moduleDataSetup); // 1.14.0
         $this->updateMerchantKeyConfiguration($this->moduleDataSetup); // 1.14.0
-        $this->replaceTigBuckaroo(); // 1.18.0
         $this->zeroizeGiftcardsPaymentFee($this->moduleDataSetup); // 1.25.1
         $this->giftcardPartialRefund($this->moduleDataSetup); // 1.25.2
         $this->setCustomerIDIN($this->moduleDataSetup);
@@ -727,41 +709,6 @@ class SetupModuleDataPatch implements DataPatchInterface
     }
 
     /**
-     * Replace tig_buckaroo with buckaroo_magento2
-     *
-     * @return $this
-     */
-    protected function replaceTigBuckaroo(): SetupModuleDataPatch
-    {
-        $this->replaceSpecificField(
-            'sales_order_payment',
-            'method',
-            'tig_buckaroo',
-            'buckaroo_magento2'
-        );
-        $this->replaceSpecificField(
-            'sales_order_grid',
-            'payment_method',
-            'tig_buckaroo',
-            'buckaroo_magento2'
-        );
-        $this->replaceSpecificField(
-            'sales_invoice_grid',
-            'payment_method',
-            'tig_buckaroo',
-            'buckaroo_magento2'
-        );
-        $this->replaceSpecificField(
-            'quote_payment',
-            'method',
-            'tig_buckaroo',
-            'buckaroo_magento2'
-        );
-
-        return $this;
-    }
-
-    /**
      * Return zero for gift cards payment fee
      *
      * @param ModuleDataSetupInterface $setup
@@ -909,25 +856,6 @@ class SetupModuleDataPatch implements DataPatchInterface
                 'global'     => ScopedAttributeInterface::SCOPE_STORE,
                 'default'    => '0',
             ]
-        );
-    }
-
-    /**
-     * Replace field from table
-     *
-     * @param string $tableName
-     * @param string $fieldName
-     * @param string $search
-     * @param string $replace
-     * @return void
-     */
-    private function replaceSpecificField(string $tableName, string $fieldName, string $search, string $replace)
-    {
-        $tableName = $this->moduleDataSetup->getTable($tableName);
-        $this->moduleDataSetup->getConnection()->update(
-            $tableName,
-            [$fieldName => new \Zend_Db_Expr("REPLACE($fieldName, $search, $replace)")],
-            [$fieldName . ' LIKE ?' => '%' . $search . '%']
         );
     }
 
