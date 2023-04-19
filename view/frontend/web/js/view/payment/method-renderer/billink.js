@@ -137,6 +137,8 @@ define(
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.billink.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.billink.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('billink'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,

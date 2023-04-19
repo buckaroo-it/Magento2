@@ -25,6 +25,9 @@ class Belfius extends AbstractConfigProvider
     const XPATH_BELFIUS_PAYMENT_FEE           = 'payment/buckaroo_magento2_belfius/payment_fee';
     const XPATH_BELFIUS_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_belfius/payment_fee_label';
     const XPATH_BELFIUS_ACTIVE                = 'payment/buckaroo_magento2_belfius/active';
+    const XPATH_BELFIUS_SUBTEXT               = 'payment/buckaroo_magento2_belfius/subtext';
+    const XPATH_BELFIUS_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_belfius/subtext_style';
+    const XPATH_BELFIUS_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_belfius/subtext_color';
     const XPATH_BELFIUS_ACTIVE_STATUS         = 'payment/buckaroo_magento2_belfius/active_status';
     const XPATH_BELFIUS_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_belfius/order_status_success';
     const XPATH_BELFIUS_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_belfius/order_status_failed';
@@ -50,6 +53,9 @@ class Belfius extends AbstractConfigProvider
                 'buckaroo' => [
                     'belfius' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

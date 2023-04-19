@@ -48,6 +48,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarnakp.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.klarnakp.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('klarnakp'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

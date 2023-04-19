@@ -63,6 +63,8 @@ define(
                 },
                 redirectAfterPlaceOrder: true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablepostpay.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.capayablepostpay.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('capayablepostpay'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 dp:dp,

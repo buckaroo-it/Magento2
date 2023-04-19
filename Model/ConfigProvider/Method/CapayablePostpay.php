@@ -31,6 +31,9 @@ class CapayablePostpay extends AbstractConfigProvider
     const XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablepostpay/payment_fee';
     const XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_capayablepostpay/payment_fee_label';
     const XPATH_CAPAYABLEPOSTPAY_ACTIVE               = 'payment/buckaroo_magento2_capayablepostpay/active';
+    const XPATH_CAPAYABLEPOSTPAY_SUBTEXT              = 'payment/buckaroo_magento2_capayablepostpay/subtext';
+    const XPATH_CAPAYABLEPOSTPAY_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_capayablepostpay/subtext_style';
+    const XPATH_CAPAYABLEPOSTPAY_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_capayablepostpay/subtext_color';
     const XPATH_CAPAYABLEPOSTPAY_ACTIVE_STATUS        = 'payment/buckaroo_magento2_capayablepostpay/active_status';
     const XPATH_CAPAYABLEPOSTPAY_ORDER_STATUS_SUCCESS = 'payment/'.
         'buckaroo_magento2_capayablepostpay/order_status_success';
@@ -69,6 +72,9 @@ class CapayablePostpay extends AbstractConfigProvider
                 'buckaroo' => [
                     'capayablepostpay' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

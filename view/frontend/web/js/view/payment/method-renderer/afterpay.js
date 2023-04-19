@@ -134,6 +134,9 @@ define(
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.afterpay.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('afterpay'),
+
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 dp:dp,

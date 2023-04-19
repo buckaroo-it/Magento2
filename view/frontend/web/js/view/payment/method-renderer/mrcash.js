@@ -28,6 +28,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'mageUtils',
+        'buckaroo/checkout/common',
         'BuckarooClientSideEncryption'
     ],
     function (
@@ -38,7 +39,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        utils
+        utils,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -88,6 +90,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.mrcash.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.mrcash.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('mrcash'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 useClientSide : window.checkoutConfig.payment.buckaroo.mrcash.useClientSide,

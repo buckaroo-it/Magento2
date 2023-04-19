@@ -343,6 +343,7 @@ class Data extends AbstractHelper
                     'email' => $customer->getEmail(),
                     'firstName' => $billingAddress ? $billingAddress->getFirstName() : '',
                     'lastName' => $billingAddress ? $billingAddress->getLastName() : '',
+                    'middleName' => $billingAddress ? $billingAddress->getMiddlename() : '',
                 ];
             }
         }
@@ -355,6 +356,7 @@ class Data extends AbstractHelper
                         $this->staticCache['getPPeCustomerDetails']['email'] : '',
                     'firstName' => $order['billing_address']['firstname'],
                     'lastName' => $order['billing_address']['lastname'],
+                    'middleName' => $order['billing_address']['middlename'],
                 ];
             }
         }
@@ -367,6 +369,7 @@ class Data extends AbstractHelper
                 'email' => $payment['customer_email'],
                 'firstName' => $payment['customer_billingFirstName'],
                 'lastName' => $payment['customer_billingLastName'],
+                'middleName' => $payment['customer_billingMiddleName'],
             ];
         }
 

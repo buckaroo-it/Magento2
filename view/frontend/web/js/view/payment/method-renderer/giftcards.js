@@ -86,6 +86,8 @@ define(
                 allgiftcards: [],
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.giftcards.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.giftcards.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('giftcards'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentGiftcard : false,

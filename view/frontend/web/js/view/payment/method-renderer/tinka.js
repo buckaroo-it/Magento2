@@ -82,6 +82,8 @@ define(
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.tinka.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.tinka.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('tinka'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 dp: dp,
