@@ -287,7 +287,10 @@ define(
                 selectPaymentMethod: function () {
                     window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
 
-                    selectPaymentMethodAction(this.getData());
+                    selectPaymentMethodAction({
+                        "method": this.item.method,
+                        "po_number": null,
+                    });
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
                 },

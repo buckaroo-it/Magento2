@@ -234,7 +234,8 @@ define(
                 getActiveValidationFields() {
                     let fields = [
                         'buckaroo_magento2_billink_TermsCondition',
-                        'buckaroo_magento2_billink_DoB'
+                        'buckaroo_magento2_billink_DoB',
+                        'buckaroo_magento2_bilink_genderSelect'
                     ];
                     if(this.showPhone()) {
                         fields.push('buckaroo_magento2_billink_Telephone')
