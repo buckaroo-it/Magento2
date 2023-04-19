@@ -21,6 +21,9 @@
     display: block;
     font-size: 1.35rem;
 }
+.bk-mrcash {
+    margin-top: 10px;
+}
 .checkout-payment-method .payment-method-title.bk-payment {
     padding: 15px 0;
 }
