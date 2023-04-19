@@ -43,8 +43,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     $installer->getTable('tig_buckaroo_giftcard'),
                     $installer->getTable('buckaroo_magento2_giftcard')
                 );
-                $installer->getConnection()->query(
-                    "ALTER TABLE " . $installer->getTable('buckaroo_magento2_giftcard') . " COMMENT = 'Buckaroo Giftcard'"
+                $installer->getConnection()->changeTableComment(
+                    $installer->getTable('buckaroo_magento2_giftcard'),
+                    'Buckaroo Giftcard'
                 );
             } else {
                 $this->createGiftcardTable($installer);
@@ -57,16 +58,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     $installer->getTable('tig_buckaroo_invoice'),
                     $installer->getTable('buckaroo_magento2_invoice')
                 );
-                $installer->getConnection()->query(
-                    "ALTER TABLE " . $installer->getTable('buckaroo_magento2_invoice') . " COMMENT = 'Buckaroo Invoice'"
+                $installer->getConnection()->changeTableComment(
+                    $installer->getTable('buckaroo_magento2_invoice'),
+                    'Buckaroo Invoice'
                 );
             } else {
                 $this->createInvoiceTable($installer);
             }
-        }
-
-        if (!$installer->tableExists('buckaroo_magento2_group_transaction')) {
-            $this->createGroupTransactionTable($installer);
         }
 
         if (version_compare($context->getVersion(), '1.25.2', '<')) {
@@ -208,123 +206,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
         );
 
         $table->setComment('Buckaroo Invoice');
-
-        $installer->getConnection()->createTable($table);
-    }
-
-    /**
-     * Create group transaction table
-     *
-     * @param SchemaSetupInterface $installer
-     * @throws \Zend_Db_Exception
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     */
-    protected function createGroupTransactionTable(SchemaSetupInterface $installer)
-    {
-        $table = $installer->getConnection()->newTable($installer->getTable('buckaroo_magento2_group_transaction'));
-
-        $table->addColumn(
-            'entity_id',
-            Table::TYPE_INTEGER,
-            null,
-            [
-                'identity' => true,
-                'unsigned' => true,
-                'nullable' => false,
-                'primary'  => true,
-            ],
-            'Entity ID'
-        );
-
-        $table->addColumn(
-            'order_id',
-            Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'orderId'
-        );
-
-        $table->addColumn(
-            'transaction_id',
-            Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Transaction Id'
-        );
-
-        $table->addColumn(
-            'relatedtransaction',
-            Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Related Transaction'
-        );
-
-        $table->addColumn(
-            'servicecode',
-            Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'ServiceCode'
-        );
-
-        $table->addColumn(
-            'currency',
-            Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Currency'
-        );
-
-        $table->addColumn(
-            'amount',
-            Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'AmountDebit'
-        );
-
-        $table->addColumn(
-            'type',
-            Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'RelationType'
-        );
-
-        $table->addColumn(
-            'status',
-            Table::TYPE_TEXT,
-            null,
-            [
-                'nullable' => false,
-            ],
-            'Status'
-        );
-
-        $table->addColumn(
-            'created_at',
-            Table::TYPE_TIMESTAMP,
-            null,
-            [],
-            'Created At'
-        );
-        $table->setComment('Buckaroo Group Transaction');
 
         $installer->getConnection()->createTable($table);
     }

@@ -33,8 +33,6 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection as CertificateCollection;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
-use Magento\Quote\Setup\QuoteSetupFactory;
-use Magento\Sales\Setup\SalesSetupFactory;
 use Magento\Store\Model\Store;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Eav\Model\Config;
@@ -45,16 +43,6 @@ use Magento\Customer\Model\Customer;
  */
 class SetupModuleDataPatch implements DataPatchInterface
 {
-    /**
-     * @var SalesSetupFactory
-     */
-    protected $salesSetupFactory;
-
-    /**
-     * @var QuoteSetupFactory
-     */
-    protected $quoteSetupFactory;
-
     /**
      * @var CertificateCollection
      */
@@ -444,8 +432,6 @@ class SetupModuleDataPatch implements DataPatchInterface
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
-     * @param SalesSetupFactory $salesSetupFactory
-     * @param QuoteSetupFactory $quoteSetupFactory
      * @param GiftcardCollection $giftcardCollection
      * @param CertificateCollection $certificateCollection
      * @param Encryptor $encryptor
@@ -455,8 +441,6 @@ class SetupModuleDataPatch implements DataPatchInterface
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
-        SalesSetupFactory $salesSetupFactory,
-        QuoteSetupFactory $quoteSetupFactory,
         GiftcardCollection $giftcardCollection,
         CertificateCollection $certificateCollection,
         Encryptor $encryptor,
@@ -465,8 +449,6 @@ class SetupModuleDataPatch implements DataPatchInterface
         Config $eavConfig
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
-        $this->salesSetupFactory = $salesSetupFactory;
-        $this->quoteSetupFactory = $quoteSetupFactory;
         $this->giftcardCollection = $giftcardCollection;
         $this->certificateCollection = $certificateCollection;
         $this->encryptor = $encryptor;
@@ -499,42 +481,30 @@ class SetupModuleDataPatch implements DataPatchInterface
         $this->moduleDataSetup->getConnection()->startSetup();
 
         if ($this->registry->registry('tig_buckaroo_upgrade')) {
-            $this->moduleDataSetup->getConnection()->query(
-                "SET FOREIGN_KEY_CHECKS=0"
+            $this->replaceSpecificField(
+                'sales_order_status',
+                'status',
+                'tig_buckaroo',
+                'buckaroo_magento2'
             );
-            $this->moduleDataSetup->getConnection()->query(
-                "UPDATE "
-                . $this->moduleDataSetup->getTable('sales_order_status')
-                . " SET status = replace(status, 'tig_buckaroo','buckaroo_magento2') WHERE status LIKE '%tig_buckaroo%'"
+            $this->replaceSpecificField(
+                'sales_order_status_state',
+                'status',
+                'tig_buckaroo',
+                'buckaroo_magento2'
             );
-            $this->moduleDataSetup->getConnection()->query(
-                "UPDATE "
-                . $this->moduleDataSetup->getTable('sales_order_status_state')
-                . " SET status = replace(status, 'tig_buckaroo','buckaroo_magento2') WHERE status LIKE '%tig_buckaroo%'"
-            );
-            $this->moduleDataSetup->getConnection()->query(
-                "SET FOREIGN_KEY_CHECKS=1"
-            );
+            $this->moduleDataSetup->getConnection()->endSetup();
             return false;
         }
 
         $this->installOrderStatusses($this->moduleDataSetup); // 0.1.1
-        $this->installPaymentFeeColumns($this->moduleDataSetup); // 0.1.3
-        $this->expandPaymentFeeColumns($this->moduleDataSetup); // 0.1.4
-        $this->installInvoicePaymentFeeTaxAmountColumns($this->moduleDataSetup); // 0.1.5
-        $this->installOrderPaymentFeeTaxAmountColumns($this->moduleDataSetup); // 0.1.6
         $this->encryptCertificates(); // 0.9.4
         $this->installBaseGiftcards($this->moduleDataSetup, $this->giftcardArray); // 1.3.0
         $this->installBaseGiftcards($this->moduleDataSetup, $this->giftcardAdditionalArray); // 1.3.0
         $this->updateFailureRedirectConfiguration($this->moduleDataSetup); // 1.5.0
-        $this->installPaymentFeeInclTaxColumns($this->moduleDataSetup); // 1.5.3
-        $this->installReservationNrColumn($this->moduleDataSetup); // 1.9.2
-        $this->installPushDataColumn($this->moduleDataSetup); // 1.9.2
-        $this->installIdentificationNumber($this->moduleDataSetup); // 1.9.3
         $this->updateSecretKeyConfiguration($this->moduleDataSetup); // 1.14.0
         $this->updateMerchantKeyConfiguration($this->moduleDataSetup); // 1.14.0
         $this->replaceTigBuckaroo(); // 1.18.0
-        $this->installAlreadyPayColumns($this->moduleDataSetup); // 1.19.1
         $this->zeroizeGiftcardsPaymentFee($this->moduleDataSetup); // 1.25.1
         $this->giftcardPartialRefund($this->moduleDataSetup); // 1.25.2
         $this->setCustomerIDIN($this->moduleDataSetup);
@@ -634,269 +604,6 @@ class SetupModuleDataPatch implements DataPatchInterface
     }
 
     /**
-     * Add buckaroo fee columns on quote, quote_address, order, invoice, credit memo
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @return $this
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     */
-    protected function installPaymentFeeColumns(ModuleDataSetupInterface $setup): SetupModuleDataPatch
-    {
-        $quoteInstaller = $this->quoteSetupFactory->create(['resourceName' => 'quote_setup', 'setup' => $setup]);
-
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $quoteInstaller->addAttribute(
-            'quote',
-            'buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote',
-            'base_buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'base_buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'base_buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_invoiced',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'base_buckaroo_fee_invoiced',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_refunded',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'base_buckaroo_fee_refunded',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'invoice',
-            'base_buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'invoice',
-            'buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'base_buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'buckaroo_fee',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        return $this;
-    }
-
-    /**
-     * Add more buckaroo fee columns on quote, quote_address, order
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @return $this
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     */
-    protected function expandPaymentFeeColumns(ModuleDataSetupInterface $setup): SetupModuleDataPatch
-    {
-        $quoteInstaller = $this->quoteSetupFactory->create(['resourceName' => 'quote_setup', 'setup' => $setup]);
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $quoteInstaller->addAttribute(
-            'quote',
-            'base_buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote',
-            'buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote',
-            'buckaroo_fee_base_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote',
-            'buckaroo_fee_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'base_buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'buckaroo_fee_base_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'buckaroo_fee_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'base_buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_base_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        return $this;
-    }
-
-    /**
-     * Add more buckaroo fee columns on invoice, credit memo
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @return $this
-     */
-    protected function installInvoicePaymentFeeTaxAmountColumns(ModuleDataSetupInterface $setup): SetupModuleDataPatch
-    {
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $salesInstaller->addAttribute(
-            'invoice',
-            'buckaroo_fee_base_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'invoice',
-            'buckaroo_fee_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'buckaroo_fee_base_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'buckaroo_fee_tax_amount',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        return $this;
-    }
-
-    /**
-     * Add more buckaroo fee columns on order
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @return $this
-     */
-    protected function installOrderPaymentFeeTaxAmountColumns(ModuleDataSetupInterface $setup): SetupModuleDataPatch
-    {
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_base_tax_amount_invoiced',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_tax_amount_invoiced',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_base_tax_amount_refunded',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_tax_amount_refunded',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        return $this;
-    }
-
-    /**
      * Encrypt all previously saved, unencrypted certificates.
      *
      * @return $this
@@ -974,124 +681,6 @@ class SetupModuleDataPatch implements DataPatchInterface
     }
 
     /**
-     * Add more buckaroo fee columns on order, invoice and credit memo
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @return $this
-     */
-    protected function installPaymentFeeInclTaxColumns(ModuleDataSetupInterface $setup): SetupModuleDataPatch
-    {
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_incl_tax_invoiced',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'base_buckaroo_fee_incl_tax_invoiced',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_fee_incl_tax_refunded',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'base_buckaroo_fee_incl_tax_refunded',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'invoice',
-            'buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'invoice',
-            'base_buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'base_buckaroo_fee_incl_tax',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        return $this;
-    }
-
-    /**
-     * Add reservation number column on order
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @return $this
-     */
-    public function installReservationNrColumn(ModuleDataSetupInterface $setup): SetupModuleDataPatch
-    {
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_reservation_number',
-            ['type' => Table::TYPE_TEXT]
-        );
-
-        return $this;
-    }
-
-    /**
-     * Add push data column on order
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @return $this
-     */
-    protected function installPushDataColumn(ModuleDataSetupInterface $setup): SetupModuleDataPatch
-    {
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_push_data',
-            ['type' => Table::TYPE_TEXT]
-        );
-
-        return $this;
-    }
-
-    /**
-     * Add identification number on order
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @return $this
-     */
-    public function installIdentificationNumber(ModuleDataSetupInterface $setup): SetupModuleDataPatch
-    {
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_identification_number',
-            ['type' => Table::TYPE_TEXT]
-        );
-
-        return $this;
-    }
-
-    /**
      * Empty secret key, so it will be set with correct value
      *
      * @param ModuleDataSetupInterface $setup
@@ -1144,100 +733,29 @@ class SetupModuleDataPatch implements DataPatchInterface
      */
     protected function replaceTigBuckaroo(): SetupModuleDataPatch
     {
-        $this->moduleDataSetup->getConnection()->query(
-            "UPDATE "
-            . $this->moduleDataSetup->getTable('sales_order_payment')
-            . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
+        $this->replaceSpecificField(
+            'sales_order_payment',
+            'method',
+            'tig_buckaroo',
+            'buckaroo_magento2'
         );
-        $this->moduleDataSetup->getConnection()->query(
-            "UPDATE "
-            . $this->moduleDataSetup->getTable('sales_order_grid')
-            . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
+        $this->replaceSpecificField(
+            'sales_order_grid',
+            'payment_method',
+            'tig_buckaroo',
+            'buckaroo_magento2'
         );
-        $this->moduleDataSetup->getConnection()->query(
-            "UPDATE "
-            . $this->moduleDataSetup->getTable('sales_invoice_grid')
-            . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
+        $this->replaceSpecificField(
+            'sales_invoice_grid',
+            'payment_method',
+            'tig_buckaroo',
+            'buckaroo_magento2'
         );
-        $this->moduleDataSetup->getConnection()->query(
-            "UPDATE "
-            . $this->moduleDataSetup->getTable('quote_payment')
-            . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
-        );
-
-        return $this;
-    }
-
-    /**
-     * Add already pay columns on quote, quote_address, order, invoice, credit memo
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @return $this
-     */
-    protected function installAlreadyPayColumns(ModuleDataSetupInterface $setup): SetupModuleDataPatch
-    {
-
-        $quoteInstaller = $this->quoteSetupFactory->create(['resourceName' => 'quote_setup', 'setup' => $setup]);
-        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
-
-        $quoteInstaller->addAttribute(
-            'quote',
-            'buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote',
-            'base_buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $quoteInstaller->addAttribute(
-            'quote_address',
-            'base_buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'order',
-            'base_buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'invoice',
-            'base_buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'invoice',
-            'buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'base_buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
-        );
-
-        $salesInstaller->addAttribute(
-            'creditmemo',
-            'buckaroo_already_paid',
-            ['type' => Table::TYPE_DECIMAL]
+        $this->replaceSpecificField(
+            'quote_payment',
+            'method',
+            'tig_buckaroo',
+            'buckaroo_magento2'
         );
 
         return $this;
@@ -1391,6 +909,25 @@ class SetupModuleDataPatch implements DataPatchInterface
                 'global'     => ScopedAttributeInterface::SCOPE_STORE,
                 'default'    => '0',
             ]
+        );
+    }
+
+    /**
+     * Replace field from table
+     *
+     * @param string $tableName
+     * @param string $fieldName
+     * @param string $search
+     * @param string $replace
+     * @return void
+     */
+    private function replaceSpecificField(string $tableName, string $fieldName, string $search, string $replace)
+    {
+        $tableName = $this->moduleDataSetup->getTable($tableName);
+        $this->moduleDataSetup->getConnection()->update(
+            $tableName,
+            [$fieldName => new \Zend_Db_Expr("REPLACE($fieldName, $search, $replace)")],
+            [$fieldName . ' LIKE ?' => '%' . $search . '%']
         );
     }
 

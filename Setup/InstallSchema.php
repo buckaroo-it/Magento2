@@ -21,10 +21,15 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Setup;
 
+use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Registry;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
+use Magento\Quote\Setup\QuoteSetupFactory;
+use Magento\Sales\Setup\SalesSetupFactory;
+use Zend_Db_Exception;
+use Zend_Db_Expr;
 
 class InstallSchema implements InstallSchemaInterface
 {
@@ -33,9 +38,29 @@ class InstallSchema implements InstallSchemaInterface
      */
     protected Registry $registry;
 
-    public function __construct(Registry $registry)
-    {
+    /**
+     * @var SalesSetupFactory
+     */
+    protected SalesSetupFactory $salesSetupFactory;
+
+    /**
+     * @var QuoteSetupFactory
+     */
+    protected QuoteSetupFactory $quoteSetupFactory;
+
+    /**
+     * @param SalesSetupFactory $salesSetupFactory
+     * @param QuoteSetupFactory $quoteSetupFactory
+     * @param Registry $registry
+     */
+    public function __construct(
+        SalesSetupFactory $salesSetupFactory,
+        QuoteSetupFactory $quoteSetupFactory,
+        Registry $registry
+    ) {
         $this->registry = $registry;
+        $this->salesSetupFactory = $salesSetupFactory;
+        $this->quoteSetupFactory = $quoteSetupFactory;
     }
 
     /**
@@ -48,13 +73,39 @@ class InstallSchema implements InstallSchemaInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     * @throws \Zend_Db_Exception
+     * @throws Zend_Db_Exception
      */
-    public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
+    public function install(SchemaSetupInterface $setup, ModuleContextInterface $context): void
     {
         $installer = $setup;
         $installer->startSetup();
 
+        $this->createBuckarooCertificateTable($installer);
+        $this->createGroupTransactionTable($installer);
+
+        $this->installOrderPaymentFeeTaxAmountColumns($installer);
+        $this->installPaymentFeeColumns($installer);
+        $this->expandPaymentFeeColumns($installer);
+        $this->installInvoicePaymentFeeTaxAmountColumns($installer);
+        $this->installPaymentFeeInclTaxColumns($installer);
+        $this->installReservationNrColumn($installer);
+        $this->installPushDataColumn($installer);
+        $this->installIdentificationNumber($installer);
+        $this->installReservationNrColumn($installer);
+        $this->installAlreadyPayColumns($installer);
+
+        $installer->endSetup();
+    }
+
+    /**
+     * Create Buckaroo Certificate Table
+     *
+     * @param SchemaSetupInterface $installer
+     * @return void
+     * @throws Zend_Db_Exception
+     */
+    private function createBuckarooCertificateTable(SchemaSetupInterface $installer): void
+    {
         if (!$installer->tableExists('buckaroo_magento2_certificate')) {
             if ($installer->tableExists('tig_buckaroo_certificate')) {
                 $this->registry->register('tig_buckaroo_upgrade', 1);
@@ -62,30 +113,35 @@ class InstallSchema implements InstallSchemaInterface
                     $installer->getTable('tig_buckaroo_certificate'),
                     $installer->getTable('buckaroo_magento2_certificate')
                 );
-                $installer->getConnection()->query(
-                    "ALTER TABLE " . $installer->getTable('buckaroo_magento2_certificate') . " COMMENT = 'Buckaroo Certificate'"
+                $installer->getConnection()->changeTableComment(
+                    $installer->getTable('buckaroo_magento2_certificate'),
+                    'Buckaroo Certificate'
                 );
-                $installer->getConnection()->query(
-                    "UPDATE " . $installer->getTable('core_config_data') . " SET path = replace(path, 'tig_buckaroo','buckaroo_magento2') WHERE path LIKE '%tig_buckaroo%';"
-                );
-                $installer->getConnection()->query(
-                    "UPDATE " . $setup->getTable('sales_order_payment') . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
-                );
-                $installer->getConnection()->query(
-                    "UPDATE " . $setup->getTable('sales_order_grid') . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
-                );
-                $installer->getConnection()->query(
-                    "UPDATE " . $setup->getTable('sales_invoice_grid') . " SET payment_method = replace(payment_method, 'tig_buckaroo','buckaroo_magento2')"
-                );
-                $installer->getConnection()->query(
-                    "UPDATE " . $setup->getTable('quote_payment') . " SET method = replace(method, 'tig_buckaroo','buckaroo_magento2')"
-                );
+
+                $updateData = [
+                    ['table' => 'core_config_data', 'field' => 'path'],
+                    ['table' => 'sales_order_payment', 'field' => 'method'],
+                    ['table' => 'sales_order_grid', 'field' => 'payment_method'],
+                    ['table' => 'sales_invoice_grid', 'field' => 'payment_method'],
+                    ['table' => 'quote_payment', 'field' => 'method']
+                ];
+
+                foreach ($updateData as $data) {
+                    $tableName = $installer->getTable($data['table']);
+                    $fieldName = $data['field'];
+
+                    $installer->getConnection()->update(
+                        $tableName,
+                        [$fieldName => new Zend_Db_Expr("REPLACE($fieldName, 'tig_buckaroo', 'buckaroo_magento2')")],
+                        [$fieldName . ' LIKE ?' => '%tig_buckaroo%']
+                    );
+                }
             } else {
                 $table = $installer->getConnection()
                     ->newTable($installer->getTable('buckaroo_magento2_certificate'));
                 $table->addColumn(
                     'entity_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    Table::TYPE_INTEGER,
                     null,
                     [
                         'identity' => true,
@@ -98,7 +154,7 @@ class InstallSchema implements InstallSchemaInterface
 
                 $table->addColumn(
                     'certificate',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     null,
                     [
                         'nullable' => false,
@@ -108,7 +164,7 @@ class InstallSchema implements InstallSchemaInterface
 
                 $table->addColumn(
                     'name',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     255,
                     [
                         'nullable' => false,
@@ -118,7 +174,7 @@ class InstallSchema implements InstallSchemaInterface
 
                 $table->addColumn(
                     'created_at',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    Table::TYPE_TIMESTAMP,
                     null,
                     [],
                     'Created At'
@@ -129,13 +185,23 @@ class InstallSchema implements InstallSchemaInterface
                 $installer->getConnection()->createTable($table);
             }
         }
+    }
 
+    /**
+     * Create group transaction table
+     *
+     * @param SchemaSetupInterface $installer
+     * @return void
+     * @throws Zend_Db_Exception
+     */
+    private function createGroupTransactionTable(SchemaSetupInterface $installer): void
+    {
         if (!$installer->tableExists('buckaroo_magento2_group_transaction')) {
             $table = $installer->getConnection()
                 ->newTable($installer->getTable('buckaroo_magento2_group_transaction'));
             $table->addColumn(
                 'entity_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                Table::TYPE_INTEGER,
                 null,
                 [
                     'identity' => true,
@@ -148,7 +214,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $table->addColumn(
                 'order_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                Table::TYPE_TEXT,
                 null,
                 [
                     'nullable' => false,
@@ -158,7 +224,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $table->addColumn(
                 'transaction_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                Table::TYPE_TEXT,
                 null,
                 [
                     'nullable' => false,
@@ -168,7 +234,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $table->addColumn(
                 'relatedtransaction',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                Table::TYPE_TEXT,
                 null,
                 [
                     'nullable' => false,
@@ -178,7 +244,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $table->addColumn(
                 'servicecode',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                Table::TYPE_TEXT,
                 null,
                 [
                     'nullable' => false,
@@ -188,7 +254,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $table->addColumn(
                 'currency',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                Table::TYPE_TEXT,
                 null,
                 [
                     'nullable' => false,
@@ -198,7 +264,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $table->addColumn(
                 'amount',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                Table::TYPE_TEXT,
                 null,
                 [
                     'nullable' => false,
@@ -208,7 +274,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $table->addColumn(
                 'type',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                Table::TYPE_TEXT,
                 null,
                 [
                     'nullable' => false,
@@ -218,7 +284,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $table->addColumn(
                 'status',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                Table::TYPE_TEXT,
                 null,
                 [
                     'nullable' => false,
@@ -228,7 +294,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $table->addColumn(
                 'created_at',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                Table::TYPE_TIMESTAMP,
                 null,
                 [],
                 'Created At'
@@ -238,5 +304,443 @@ class InstallSchema implements InstallSchemaInterface
 
             $installer->getConnection()->createTable($table);
         }
+    }
+
+    /**
+     * Add more buckaroo fee columns on order
+     *
+     * @param SchemaSetupInterface $setup
+     * @return void
+     */
+    protected function installOrderPaymentFeeTaxAmountColumns(SchemaSetupInterface $setup): void
+    {
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_base_tax_amount_invoiced',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_tax_amount_invoiced',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_base_tax_amount_refunded',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_tax_amount_refunded',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+    }
+
+    /**
+     * Add buckaroo fee columns on quote, quote_address, order, invoice, credit memo
+     *
+     * @param SchemaSetupInterface $setup
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
+    protected function installPaymentFeeColumns(SchemaSetupInterface $setup): void
+    {
+        $quoteInstaller = $this->quoteSetupFactory->create(['resourceName' => 'quote_setup', 'setup' => $setup]);
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        $setup->startSetup();
+
+        $quoteInstaller->addAttribute(
+            'quote',
+            'buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote',
+            'base_buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'base_buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'base_buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_invoiced',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'base_buckaroo_fee_invoiced',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_refunded',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'base_buckaroo_fee_refunded',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'invoice',
+            'base_buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'invoice',
+            'buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'base_buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'buckaroo_fee',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+    }
+
+    /**
+     * Add more buckaroo fee columns on quote, quote_address, order
+     *
+     * @param SchemaSetupInterface $setup
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
+    protected function expandPaymentFeeColumns(SchemaSetupInterface $setup): void
+    {
+        $quoteInstaller = $this->quoteSetupFactory->create(['resourceName' => 'quote_setup', 'setup' => $setup]);
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        $quoteInstaller->addAttribute(
+            'quote',
+            'base_buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote',
+            'buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote',
+            'buckaroo_fee_base_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote',
+            'buckaroo_fee_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'base_buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'buckaroo_fee_base_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'buckaroo_fee_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'base_buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_base_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+    }
+
+    /**
+     * Add more buckaroo fee columns on invoice, credit memo
+     *
+     * @param SchemaSetupInterface $setup
+     * @return void
+     */
+    protected function installInvoicePaymentFeeTaxAmountColumns(SchemaSetupInterface $setup): void
+    {
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        $salesInstaller->addAttribute(
+            'invoice',
+            'buckaroo_fee_base_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'invoice',
+            'buckaroo_fee_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'buckaroo_fee_base_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'buckaroo_fee_tax_amount',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+    }
+
+    /**
+     * Add more buckaroo fee columns on order, invoice and credit memo
+     *
+     * @param SchemaSetupInterface $setup
+     * @return void
+     */
+    protected function installPaymentFeeInclTaxColumns(SchemaSetupInterface $setup): void
+    {
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_incl_tax_invoiced',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'base_buckaroo_fee_incl_tax_invoiced',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_fee_incl_tax_refunded',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'base_buckaroo_fee_incl_tax_refunded',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'invoice',
+            'buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'invoice',
+            'base_buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'base_buckaroo_fee_incl_tax',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+    }
+
+    /**
+     * Add reservation number column on order
+     *
+     * @param SchemaSetupInterface $setup
+     * @return void
+     */
+    public function installReservationNrColumn(SchemaSetupInterface $setup): void
+    {
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_reservation_number',
+            ['type' => Table::TYPE_TEXT]
+        );
+    }
+
+    /**
+     * Add push data column on order
+     *
+     * @param SchemaSetupInterface $setup
+     * @return void
+     */
+    protected function installPushDataColumn(SchemaSetupInterface $setup): void
+    {
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_push_data',
+            ['type' => Table::TYPE_TEXT]
+        );
+    }
+
+    /**
+     * Add identification number on order
+     *
+     * @param SchemaSetupInterface $setup
+     * @return void
+     */
+    public function installIdentificationNumber(SchemaSetupInterface $setup): void
+    {
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_identification_number',
+            ['type' => Table::TYPE_TEXT]
+        );
+    }
+
+    /**
+     * Add already pay columns on quote, quote_address, order, invoice, credit memo
+     *
+     * @param SchemaSetupInterface $setup
+     * @return void
+     */
+    protected function installAlreadyPayColumns(SchemaSetupInterface $setup): void
+    {
+        $quoteInstaller = $this->quoteSetupFactory->create(['resourceName' => 'quote_setup', 'setup' => $setup]);
+        $salesInstaller = $this->salesSetupFactory->create(['resourceName' => 'sales_setup', 'setup' => $setup]);
+
+        $quoteInstaller->addAttribute(
+            'quote',
+            'buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote',
+            'base_buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $quoteInstaller->addAttribute(
+            'quote_address',
+            'base_buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'order',
+            'base_buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'invoice',
+            'base_buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'invoice',
+            'buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'base_buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
+
+        $salesInstaller->addAttribute(
+            'creditmemo',
+            'buckaroo_already_paid',
+            ['type' => Table::TYPE_DECIMAL]
+        );
     }
 }

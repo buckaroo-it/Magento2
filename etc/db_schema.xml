@@ -21,31 +21,39 @@
  -->
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
-        <table name="buckaroo_magento2_giftcard" resource="default" engine="innodb" comment="Buckaroo Giftcard">
-            <column name="entity_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
-            <column name="servicecode" xsi:type="text" nullable="true" comment="Servicecode"/>
-            <column name="label" xsi:type="text" nullable="true" comment="Label"/>
-            <column name="is_partial_refundable" xsi:type="tinyint" padding="5" nullable="true" comment="Customer id"/>
-            <column name="logo" xsi:type="text" nullable="true" comment="Giftcard logo"/>
-            <index referenceId="BUCKAROO_MAGENTO2_GIFTCARD_ENTITY_ID" indexType="btree">
-                <column name="entity_id"/>
-            </index>
-        </table>
-        <table name="buckaroo_magento2_log" resource="default" engine="innodb" comment="Buckaroo Log">
-            <column name="log_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Log id"/>
-            <column name="channel" xsi:type="varchar" length="255" nullable="true" comment="Channel"/>
-            <column name="level" xsi:type="varchar" length="255" nullable="true" comment="Level"/>
-            <column name="message" xsi:type="text" nullable="true" comment="Message"/>
-            <column xsi:type="timestamp" name="time" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Time"/>
-            <column name="session_id" xsi:type="varchar" length="40" nullable="true" comment="Session Id"/>
-            <column name="customer_id" xsi:type="int" padding="10" nullable="true" comment="Customer id"/>
-            <column name="quote_id" xsi:type="int" padding="10" nullable="true" comment="Quote id"/>
-            <column name="order_id" xsi:type="int" padding="10" nullable="true" comment="Order id"/>
-            <index referenceId="BUCKAROO_MAGENTO2_LOG_LOG_ID" indexType="btree">
-                <column name="log_id"/>
-            </index>
-            <index referenceId="BUCKAROO_MAGENTO2_LOG_ORDER_ID" indexType="btree">
-                <column name="order_id"/>
-            </index>
-        </table>
+    <table name="buckaroo_magento2_giftcard" resource="default" engine="innodb" comment="Buckaroo Giftcard">
+        <column name="entity_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column name="servicecode" xsi:type="text" nullable="true" comment="Servicecode"/>
+        <column name="label" xsi:type="text" nullable="true" comment="Label"/>
+        <column name="is_partial_refundable" xsi:type="tinyint" padding="5" nullable="true" comment="Customer id"/>
+        <column name="logo" xsi:type="text" nullable="true" comment="Giftcard logo"/>
+        <index referenceId="BUCKAROO_MAGENTO2_GIFTCARD_ENTITY_ID" indexType="btree">
+            <column name="entity_id"/>
+        </index>
+    </table>
+
+    <table name="buckaroo_magento2_log" resource="default" engine="innodb" comment="Buckaroo Log">
+        <column name="log_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Log id"/>
+        <column name="channel" xsi:type="varchar" length="255" nullable="true" comment="Channel"/>
+        <column name="level" xsi:type="varchar" length="255" nullable="true" comment="Level"/>
+        <column name="message" xsi:type="text" nullable="true" comment="Message"/>
+        <column xsi:type="timestamp" name="time" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Time"/>
+        <column name="session_id" xsi:type="varchar" length="40" nullable="true" comment="Session Id"/>
+        <column name="customer_id" xsi:type="int" padding="10" nullable="true" comment="Customer id"/>
+        <column name="quote_id" xsi:type="int" padding="10" nullable="true" comment="Quote id"/>
+        <column name="order_id" xsi:type="int" padding="10" nullable="true" comment="Order id"/>
+        <index referenceId="BUCKAROO_MAGENTO2_LOG_LOG_ID" indexType="btree">
+            <column name="log_id"/>
+        </index>
+        <index referenceId="BUCKAROO_MAGENTO2_LOG_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+    </table>
+
+    <table name="sales_order">
+        <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount_invoiced" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Base Tax Amount Invoiced"/>
+        <column xsi:type="decimal" name="buckaroo_fee_tax_amount_invoiced" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Tax Amount Invoiced"/>
+        <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount_refunded" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Base Tax Amount Refunded"/>
+        <column xsi:type="decimal" name="buckaroo_fee_tax_amount_refunded" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Tax Amount Refunded"/>
+    </table>
 </schema>
