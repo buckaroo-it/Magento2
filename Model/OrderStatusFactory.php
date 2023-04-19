@@ -65,7 +65,7 @@ class OrderStatusFactory
     /**
      * Get status by order and status code
      *
-     * @param int $statusCode
+     * @param int|string $statusCode
      * @param Order $order
      *
      * @return string|false|null
@@ -73,7 +73,7 @@ class OrderStatusFactory
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @throws LocalizedException
      */
-    public function get(int $statusCode, Order $order)
+    public function get($statusCode, Order $order)
     {
         $status = false;
 

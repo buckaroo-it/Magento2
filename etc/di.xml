@@ -6,8 +6,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -2960,6 +2960,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">GiftcardsOrderCommand</item>
                 <item name="refund" xsi:type="string">GiftcardsRefundCommand</item>
+                <item name="remove" xsi:type="string">GiftcardsRemoveCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3000,11 +3001,35 @@
     <virtualType name="GiftcardsRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="order_request" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
                 <item name="giftcard_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\GiftcardNameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
+    <!-- END Giftcards Refund Command -->
+
+    <!-- Giftcards Remove Command -->
+    <virtualType name="GiftcardsRemoveCommand" type="BuckarooRefundCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">GiftcardsRemoveRequest</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Giftcards Refund Command - Request Builder -->
+    <virtualType name="GiftcardsRemoveRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
+                <item name="giftcard_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\GiftcardNameDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Buckaroo\Magento2\Model\Giftcard\Remove">
+        <arguments>
+            <argument name="removeCommand" xsi:type="object">GiftcardsRemoveCommand</argument>
+        </arguments>
+    </type>
     <!-- END Giftcards Refund Command -->
     <!-- END Giftcards Commands infrastructure -->
     <!-- END Payment Method: Giftcards -->

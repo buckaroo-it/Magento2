@@ -20,14 +20,14 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard;
 
-use Buckaroo\Magento2\Gateway\GatewayInterface;
-use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\RefundPartial;
-use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
 use Buckaroo\Magento2\Helper\Data as HelperData;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\GroupTransactionRepository;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Payment\Gateway\Command\CommandException;
+use Magento\Payment\Gateway\CommandInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Remove
@@ -38,19 +38,9 @@ class Remove
     protected RequestInterface $request;
 
     /**
-     * @var RefundPartial
-     */
-    protected RefundPartial $transactionBuilder;
-
-    /**
      * @var GroupTransactionRepository
      */
     protected GroupTransactionRepository $groupTransactionRepository;
-
-    /**
-     * @var GatewayInterface
-     */
-    protected GatewayInterface $gateway;
 
     /**
      * @var StoreManagerInterface
@@ -63,27 +53,37 @@ class Remove
     public HelperData $helper;
 
     /**
+     * @var PaymentDataObjectFactory
+     */
+    private $paymentDataObjectFactory;
+
+    /**
+     * @var CommandInterface
+     */
+    private $removeCommand;
+
+    /**
      * @param RequestInterface $request
-     * @param TransactionBuilderFactory $transactionBuilderFactory
      * @param GroupTransactionRepository $groupTransactionRepository
      * @param StoreManagerInterface $storeManager
-     * @param GatewayInterface $gateway
      * @param HelperData $helper
+     * @param PaymentDataObjectFactory $paymentDataObjectFactory
+     * @param CommandInterface $removeCommand
      */
     public function __construct(
         RequestInterface $request,
-        TransactionBuilderFactory $transactionBuilderFactory,
         GroupTransactionRepository $groupTransactionRepository,
         StoreManagerInterface $storeManager,
-        GatewayInterface $gateway,
-        HelperData $helper
+        HelperData $helper,
+        PaymentDataObjectFactory $paymentDataObjectFactory,
+        CommandInterface $removeCommand
     ) {
         $this->request = $request;
-        $this->transactionBuilder = $transactionBuilderFactory->get('refund_partial');
         $this->groupTransactionRepository = $groupTransactionRepository;
         $this->storeManager = $storeManager;
-        $this->gateway = $gateway;
         $this->helper = $helper;
+        $this->paymentDataObjectFactory = $paymentDataObjectFactory;
+        $this->removeCommand = $removeCommand;
     }
 
     /**
@@ -91,10 +91,12 @@ class Remove
      *
      * @param string $transactionId
      * @param string $orderId
+     * @param $payment
      * @return void
-     * @throws \Exception|RemoveException
+     * @throws RemoveException
+     * @throws CommandException
      */
-    public function remove(string $transactionId, string $orderId)
+    public function remove(string $transactionId, string $orderId, $payment)
     {
         $giftcardTransaction = $this->getGiftcardTransactionById($transactionId, $orderId);
 
@@ -104,72 +106,7 @@ class Remove
             );
         }
 
-        $transaction = $this->transactionBuilder
-            ->setRequest($this->request)
-            ->setStore($this->storeManager->getStore())
-            ->setGroupTransaction($giftcardTransaction)
-            ->setMethod('TransactionRequest')
-            ->build();
-
-        $transaction->setStore($this->storeManager->getStore());
-
-        $response = $this->gateway
-            ->setMode(
-                $this->helper->getMode('giftcards', $this->storeManager->getStore())
-            )
-            ->refund($transaction)[0];
-        $this->handleRefundResponse($response, $giftcardTransaction);
-    }
-
-    /**
-     * Handle refund response from gateway
-     *
-     * @param stdClass $response
-     * @param GroupTransaction $giftcardTransaction
-     * @return void
-     * @throws RemoveException|CouldNotSaveException
-     */
-    protected function handleRefundResponse($response, GroupTransaction $giftcardTransaction)
-    {
-        if (
-            $response->Status &&
-            $response->AmountCredit &&
-            $response->Status->Code &&
-            $response->Status->Code->Code
-
-        ) {
-
-            if ($response->Status->Code->Code == 190) {
-                $this->updateGiftcardTransactionAmount(
-                    $giftcardTransaction,
-                    (float)$response->AmountCredit
-                );
-            }
-
-            if ($response->Status->Code->Code == 690) {
-                throw new RemoveException(
-                    __('Giftcard was already removed')
-                );
-            }
-        }
-    }
-
-    /**
-     * Update giftcard transaction with the refunded amount
-     *
-     * @param GroupTransaction $giftcardTransaction
-     * @param float $amount
-     * @return void
-     * @throws CouldNotSaveException
-     */
-    protected function updateGiftcardTransactionAmount(
-        GroupTransaction $giftcardTransaction,
-        float $amount
-    ) {
-        $giftcardTransaction->setRefundedAmount(
-            $giftcardTransaction->getRefundedAmount() + $amount
-        );
-        $this->groupTransactionRepository->save($giftcardTransaction);
+//        $this->removeCommand->execute(['payment' => $this->paymentDataObjectFactory->create($payment)]);
     }
 
     /**

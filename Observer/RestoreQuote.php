@@ -148,7 +148,7 @@ class RestoreQuote implements ObserverInterface
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
-                    $this->rollbackPartialPayment($lastRealOrder->getIncrementId());
+                    $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
                     $this->setOrderToCancel($previousOrderId);
                 }
             }
@@ -176,12 +176,12 @@ class RestoreQuote implements ObserverInterface
      * @param string $incrementId
      * @return void
      */
-    public function rollbackPartialPayment(string $incrementId): void
+    public function rollbackPartialPayment(string $incrementId, $payment): void
     {
         try {
             $transactions = $this->groupTransaction->getGroupTransactionItems($incrementId);
             foreach ($transactions as $transaction) {
-                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $incrementId);
+                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $incrementId, $payment);
             }
         } catch (\Throwable $th) {
             $this->helper->addDebug(__METHOD__ . $th);
