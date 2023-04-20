@@ -37,7 +37,6 @@ define(
             },
             getSubtextStyle: function(paymentCode) {
                 let config = window.checkoutConfig.payment.buckaroo[paymentCode];
-                console.log(config);
                 if(config === undefined) {
                     return;
                 }
