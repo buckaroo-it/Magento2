@@ -747,12 +747,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         return $this;
     }
-    private function setMaxAttemptsFlags($payment, string $message)
-    {
-        $this->helper->setRestoreQuoteLastOrder($payment->getOrder()->getId());
-        $this->helper->getCheckoutSession()->setBuckarooFailedMaxAttempts(true);
-        $payment->setAdditionalInformation(self::PAYMENT_ATTEMPTS_REACHED_MESSAGE, $message);
-    }
 
     /**
      * Should be overwritten by the respective payment method class when it has a specific failure message.
@@ -2717,6 +2711,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
         
     }
+
+    /**
+     * Update session when a failed attempt is made for the quote & method
+     *
+     * @return void
+     */
     private function updateRateLimiterCount() {
 
         if ($this->getConfigData('spam_prevention') != 1) {
@@ -2743,6 +2743,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->checkForSpamLimitReach($storage);
     }
 
+    /**
+     * Check if the spamming limit is reached
+     *
+     * @param array $storage
+     *
+     * @return void
+     * @throws LimitReachException
+     */
     private function checkForSpamLimitReach($storage)
     {
         $limitReachMessage = __('Cannot create order, maximum payment attempts reached');
@@ -2758,6 +2766,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
     }
 
+    /**
+     * Check if the spam limit is reached
+     *
+     * @param array $storage
+     *
+     * @return boolean
+     */
     private function isSpamLimitReached($storage)
     {
         if ($this->getConfigData('spam_prevention') != 1) {
@@ -2782,6 +2797,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $attempts >= $limit;
     }
 
+    /**
+     * Retrieve and format number of payment attempts
+     *
+     * @return array
+     */
     private function getPaymentAttemptsStorage(): array
     {
         $checkoutSession = $this->helper->getCheckoutSession();
@@ -2799,5 +2819,20 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         return $storage;
+    }
+
+    /**
+     * Update payment with the user message, update session in order to restore the quote
+     *
+     * @param mixed $payment
+     * @param string $message
+     *
+     * @return void
+     */
+    private function setMaxAttemptsFlags($payment, string $message)
+    {
+        $this->helper->setRestoreQuoteLastOrder($payment->getOrder()->getId());
+        $this->helper->getCheckoutSession()->setBuckarooFailedMaxAttempts(true);
+        $payment->setAdditionalInformation(self::PAYMENT_ATTEMPTS_REACHED_MESSAGE, $message);
     }
 }

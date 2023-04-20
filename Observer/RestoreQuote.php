@@ -158,6 +158,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->helper->addDebug(__METHOD__ . '|55|');
     }
 
+    /**
+     * Check if order has failed from max spam payment attempts
+     *
+     * @return boolean
+     */
     public function canRestoreFailedFromSpam()
     {
         return $this->helper->getRestoreQuoteLastOrder() &&
