@@ -44,7 +44,7 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         checkoutCommon,
-        dp
+        datePicker
     ) {
         'use strict';
 
@@ -139,7 +139,7 @@ define(
 
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                dp:dp,
+                dp: datePicker,
                 businessMethod : window.checkoutConfig.payment.buckaroo.afterpay.businessMethod,
                 paymentMethod : window.checkoutConfig.payment.buckaroo.afterpay.paymentMethod,
                 /**

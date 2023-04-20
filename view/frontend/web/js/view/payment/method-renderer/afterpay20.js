@@ -47,7 +47,7 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         checkoutCommon,
-        dp,
+        datePicker,
         customer,
         selectBillingAddress,
     ) {
@@ -158,7 +158,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 isCustomerLoggedIn: customer.isLoggedIn,
                 isB2B: window.checkoutConfig.payment.buckaroo.afterpay20.is_b2b,
-                dp:dp,
+                dp: datePicker,
                 /**
                  * @override
                  */

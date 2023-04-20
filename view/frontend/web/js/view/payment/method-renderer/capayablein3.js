@@ -41,7 +41,7 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         checkoutCommon,
-        dp
+        datePicker
     ) {
         'use strict';
 
@@ -110,7 +110,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('capayablein3'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                dp:dp,
+                dp: datePicker,
 
                 /**
                  * @override

@@ -44,7 +44,7 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         checkoutCommon,
-        dp
+        datePicker
     ) {
         'use strict';
 
@@ -143,7 +143,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,
                 genderList: window.checkoutConfig.payment.buckaroo.billink.genderList,
-                dp:dp,
+                dp: datePicker,
                 isB2B: window.checkoutConfig.payment.buckaroo.billink.b2b == true,
 
                 /**
