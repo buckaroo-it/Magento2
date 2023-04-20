@@ -12,6 +12,26 @@ use Magento\Quote\Model\Quote\TotalsCollector;
 
 class ShippingMethod
 {
+    /**
+     * @var ShippingMethodConverter
+     */
+    private ShippingMethodConverter $shippingMethodConverter;
+
+    /**
+     * @var ExtensibleDataObjectConverter
+     */
+    private ExtensibleDataObjectConverter $dataObjectConverter;
+
+    /**
+     * @var TotalsCollector
+     */
+    private TotalsCollector $totalsCollector;
+
+    /**
+     * @param ExtensibleDataObjectConverter $dataObjectConverter
+     * @param ShippingMethodConverter $shippingMethodConverter
+     * @param TotalsCollector $totalsCollector
+     */
     public function __construct(
         ExtensibleDataObjectConverter $dataObjectConverter,
         ShippingMethodConverter $shippingMethodConverter,
@@ -27,7 +47,7 @@ class ShippingMethod
         $address = $cart->getShippingAddress();
 
         $address->setLimitCarrier(null);
-        $address->setQuote($cart);        
+        $address->setQuote($cart);
         $address->setCollectShippingRates(true);
         $this->totalsCollector->collectAddressTotals($cart, $address);
         $methods = [];

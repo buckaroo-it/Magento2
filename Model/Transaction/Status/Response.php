@@ -39,6 +39,8 @@ class Response implements TransactionResponseInterface
     public const STATUSCODE_CANCELLED_BY_USER     = 890;
     public const STATUSCODE_CANCELLED_BY_MERCHANT = 891;
 
+    private array $data;
+
 
     public function __construct(array $data)
     {

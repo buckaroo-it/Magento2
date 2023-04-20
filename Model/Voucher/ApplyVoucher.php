@@ -46,6 +46,16 @@ class ApplyVoucher implements ApplyVoucherInterface
      */
     protected $checkoutSession;
 
+    /**
+     * @var GiftcardResponse
+     */
+    private GiftcardResponse $giftcardResponse;
+
+    /**
+     * @var Log
+     */
+    private Log $logger;
+
     public function __construct(
         ApplyVoucherRequestInterface $voucherRequest,
         GiftcardResponse $giftcardResponse,

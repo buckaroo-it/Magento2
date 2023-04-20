@@ -59,6 +59,10 @@ class Pay implements PayWithGiftcardInterface
      */
     protected $payResponseFactory;
 
+    /**
+     * @var Log
+     */
+    private Log $logger;
 
 
     public function __construct(
