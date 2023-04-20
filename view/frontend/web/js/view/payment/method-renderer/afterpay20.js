@@ -150,6 +150,8 @@ define(
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.afterpay20.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('afterpay20'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 isCustomerLoggedIn: customer.isLoggedIn,

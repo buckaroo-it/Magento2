@@ -42,7 +42,7 @@
      <event name="controller_action_predispatch_sales_order_view">
         <observer name="buckaroo_magento2_show_in_test_mode" instance="Buckaroo\Magento2\Observer\AddInTestModeMessage" />
     </event>
-    
+
     <event name="sales_order_payment_cancel">
         <observer name="buckaroo_magento2_void_cm3_payment" instance="Buckaroo\Magento2\Observer\VoidCm3Payment" />
     </event>
@@ -58,14 +58,10 @@
         <observer name="initiate_checkout_onepage" instance="Buckaroo\Magento2\Observer\RestoreQuote" />
     </event>
 
-    <event name="checkout_onepage_controller_success_action">
-        <observer name="buckaroo_magento2_success_place_order" instance="Buckaroo\Magento2\Observer\SuccessOrder"  />
-    </event>
-    
     <event name="order_cancel_after">
         <observer name="buckaroo_magento2_order_cancel_after" instance="Buckaroo\Magento2\Observer\OrderCancelAfter" />
     </event>
-    
+
     <event name="sales_order_payment_transaction_html_txn_id">
         <observer name="paypal_transaction_html" instance="Buckaroo\Magento2\Observer\HtmlTransactionIdObserver"/>
     </event>

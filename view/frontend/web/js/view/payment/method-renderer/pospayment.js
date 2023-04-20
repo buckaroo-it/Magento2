@@ -73,6 +73,8 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_pospayment'
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.pospayment.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.pospayment.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('pospayment'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

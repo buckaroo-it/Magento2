@@ -38,6 +38,9 @@ class PayLink extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_paylink/specificcountry';
 
     const XPATH_PAYLINK_ACTIVE               = 'payment/buckaroo_magento2_paylink/active';
+    const XPATH_PAYLINK_SUBTEXT              = 'payment/buckaroo_magento2_paylink/subtext';
+    const XPATH_PAYLINK_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_paylink/subtext_style';
+    const XPATH_PAYLINK_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_paylink/subtext_color';
     const XPATH_PAYLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_paylink/payment_fee';
     const XPATH_PAYLINK_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_paylink/payment_fee_label';
     const XPATH_PAYLINK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_paylink/active_status';
@@ -75,6 +78,9 @@ class PayLink extends AbstractConfigProvider
                 'buckaroo' => [
                     'paylink' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                     'response' => [],

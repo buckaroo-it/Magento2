@@ -55,6 +55,8 @@ define(
                 selectedBankDropDown: null,
                 selectionType: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditcard.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.creditcard.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('creditcard'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 paymentFlow : window.checkoutConfig.payment.buckaroo.creditcard.paymentFlow,

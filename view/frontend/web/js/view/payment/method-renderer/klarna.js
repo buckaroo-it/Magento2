@@ -50,6 +50,8 @@ define(
                 },
                 redirectAfterPlaceOrder: true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarna.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.klarna.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('klarna'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 
