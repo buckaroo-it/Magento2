@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,53 +20,57 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
-use Magento\Store\Model\Store;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider as MethodAbstractConfigProvider;
 
 class Account extends AbstractConfigProvider
 {
     /**
      * XPATHs to configuration values for buckaroo_magento2_account
      */
-    const XPATH_ACCOUNT_ACTIVE                          = 'buckaroo_magento2/account/active';
-    const XPATH_ACCOUNT_SECRET_KEY                      = 'buckaroo_magento2/account/secret_key';
-    const XPATH_ACCOUNT_MERCHANT_KEY                    = 'buckaroo_magento2/account/merchant_key';
-    const XPATH_ACCOUNT_MERCHANT_GUID                   = 'buckaroo_magento2/account/merchant_guid';
-    const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'buckaroo_magento2/account/transaction_label';
-    const XPATH_ACCOUNT_CERTIFICATE_FILE                = 'buckaroo_magento2/account/certificate_file';
-    const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL        = 'buckaroo_magento2/account/order_confirmation_email';
-    const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL_SYNC   = 'buckaroo_magento2/account/order_confirmation_email_sync';
-    const XPATH_ACCOUNT_INVOICE_EMAIL                   = 'buckaroo_magento2/account/invoice_email';
-    const XPATH_ACCOUNT_SUCCESS_REDIRECT                = 'buckaroo_magento2/account/success_redirect';
-    const XPATH_ACCOUNT_FAILURE_REDIRECT                = 'buckaroo_magento2/account/failure_redirect';
-    const XPATH_ACCOUNT_FAILURE_REDIRECT_TO_CHECKOUT    = 'buckaroo_magento2/account/failure_redirect_to_checkout';
-    const XPATH_ACCOUNT_CANCEL_ON_FAILED                = 'buckaroo_magento2/account/cancel_on_failed';
-    const XPATH_ACCOUNT_DIGITAL_SIGNATURE               = 'buckaroo_magento2/account/digital_signature';
-    const XPATH_ACCOUNT_LOG_LEVEL                       = 'buckaroo_magento2/account/debug_types';
-    const XPATH_ACCOUNT_LOG_HANDLER                     = 'buckaroo_magento2/account/log_handler';
-    const XPATH_ACCOUNT_LOG_DBTRACE_DEPTH               = 'buckaroo_magento2/account/log_handler_db_depth';
-    const XPATH_ACCOUNT_LOG_RETENTION                   = 'buckaroo_magento2/account/log_retention';
-    const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
-    const XPATH_ACCOUNT_LIMIT_BY_IP                     = 'buckaroo_magento2/account/limit_by_ip';
-    const XPATH_ACCOUNT_FEE_PERCENTAGE_MODE             = 'buckaroo_magento2/account/fee_percentage_mode';
-    const XPATH_ACCOUNT_PAYMENT_FEE_LABEL               = 'buckaroo_magento2/account/payment_fee_label';
-    const XPATH_ACCOUNT_ORDER_STATUS_NEW                = 'buckaroo_magento2/account/order_status_new';
-    const XPATH_ACCOUNT_ORDER_STATUS_PENDING            = 'buckaroo_magento2/account/order_status_pending';
-    const XPATH_ACCOUNT_ORDER_STATUS_SUCCESS            = 'buckaroo_magento2/account/order_status_success';
-    const XPATH_ACCOUNT_ORDER_STATUS_FAILED             = 'buckaroo_magento2/account/order_status_failed';
-    const XPATH_ACCOUNT_CREATE_ORDER_BEFORE_TRANSACTION = 'buckaroo_magento2/account/create_order_before_transaction';
-    const XPATH_ACCOUNT_IP_HEADER                       = 'buckaroo_magento2/account/ip_header';
-    const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
-    const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
-    const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
+    public const XPATH_ACCOUNT_ACTIVE                          = 'buckaroo_magento2/account/active';
+    public const XPATH_ACCOUNT_SECRET_KEY                      = 'buckaroo_magento2/account/secret_key';
+    public const XPATH_ACCOUNT_MERCHANT_KEY                    = 'buckaroo_magento2/account/merchant_key';
+    public const XPATH_ACCOUNT_MERCHANT_GUID                   = 'buckaroo_magento2/account/merchant_guid';
+    public const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'buckaroo_magento2/account/transaction_label';
+    public const XPATH_ACCOUNT_CERTIFICATE_FILE                = 'buckaroo_magento2/account/certificate_file';
+    public const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL        = 'buckaroo_magento2/account/order_confirmation_email';
+    public const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL_SYNC   =
+        'buckaroo_magento2/account/order_confirmation_email_sync';
+    public const XPATH_ACCOUNT_INVOICE_EMAIL                   = 'buckaroo_magento2/account/invoice_email';
+    public const XPATH_ACCOUNT_SUCCESS_REDIRECT                = 'buckaroo_magento2/account/success_redirect';
+    public const XPATH_ACCOUNT_FAILURE_REDIRECT                = 'buckaroo_magento2/account/failure_redirect';
+    public const XPATH_ACCOUNT_FAILURE_REDIRECT_TO_CHECKOUT    =
+        'buckaroo_magento2/account/failure_redirect_to_checkout';
+    public const XPATH_ACCOUNT_CANCEL_ON_FAILED                = 'buckaroo_magento2/account/cancel_on_failed';
+    public const XPATH_ACCOUNT_LOG_LEVEL                       = 'buckaroo_magento2/account/debug_types';
+    public const XPATH_ACCOUNT_LOG_HANDLER                     = 'buckaroo_magento2/account/log_handler';
+    public const XPATH_ACCOUNT_LOG_DBTRACE_DEPTH               = 'buckaroo_magento2/account/log_handler_db_depth';
+    public const XPATH_ACCOUNT_LOG_RETENTION                   = 'buckaroo_magento2/account/log_retention';
+    public const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
+    public const XPATH_ACCOUNT_LIMIT_BY_IP                     = 'buckaroo_magento2/account/limit_by_ip';
+    public const XPATH_ACCOUNT_FEE_PERCENTAGE_MODE             = 'buckaroo_magento2/account/fee_percentage_mode';
+    public const XPATH_ACCOUNT_PAYMENT_FEE_LABEL               = 'buckaroo_magento2/account/payment_fee_label';
+    public const XPATH_ACCOUNT_ORDER_STATUS_NEW                = 'buckaroo_magento2/account/order_status_new';
+    public const XPATH_ACCOUNT_ORDER_STATUS_PENDING            = 'buckaroo_magento2/account/order_status_pending';
+    public const XPATH_ACCOUNT_ORDER_STATUS_SUCCESS            = 'buckaroo_magento2/account/order_status_success';
+    public const XPATH_ACCOUNT_ORDER_STATUS_FAILED             = 'buckaroo_magento2/account/order_status_failed';
+    public const XPATH_ACCOUNT_CREATE_ORDER_BEFORE_TRANSACTION =
+        'buckaroo_magento2/account/create_order_before_transaction';
+    public const XPATH_ACCOUNT_IP_HEADER                       = 'buckaroo_magento2/account/ip_header';
+    public const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
+    public const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
+    public const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
 
-    const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
-    const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
-    const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
-    const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS       = 'buckaroo_magento2/account/advanced_export_giftcards';
+    public const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
+    public const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
+    public const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
+    public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS       = 'buckaroo_magento2/account/advanced_export_giftcards';
 
     /**
      * @var MethodFactory
@@ -80,7 +83,7 @@ class Account extends AbstractConfigProvider
     protected $scopeConfig;
 
     /**
-     * @param MethodFactory        $methodConfigProviderFactory
+     * @param MethodFactory $methodConfigProviderFactory
      * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
@@ -93,11 +96,13 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     *
+     * @throws BuckarooException
      */
-    public function getConfig($store = null)
+    public function getConfig($store = null): array
     {
-        $config = [
+        return [
             'active'                            => $this->getActive($store),
             'secret_key'                        => $this->getSecretKey($store),
             'merchant_key'                      => $this->getMerchantKey($store),
@@ -111,7 +116,6 @@ class Account extends AbstractConfigProvider
             'failure_redirect'                  => $this->getFailureRedirect($store),
             'failure_redirect_to_checkout'      => $this->getFailureRedirectToCheckout($store),
             'cancel_on_failed'                  => $this->getCancelOnFailed($store),
-            'digital_signature'                 => $this->getDigitalSignature($store),
             'debug_types'                       => $this->getLogLevel($store),
             'debug_email'                       => $this->getDebugEmail($store),
             'log_handler'                       => $this->getLogHandler($store),
@@ -133,21 +137,17 @@ class Account extends AbstractConfigProvider
             'idin_category'                     => $this->getIdinCategory($store),
             'advanced_export_giftcards'         => $this->hasAdvancedExportGiftcards($store),
         ];
-        return $config;
     }
+
     /**
      * Returns the method specific order status when available, or returns the global order status when not.
      *
-     * @param null $paymentMethod
-     *
+     * @param string|null $paymentMethod
      * @return string
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws BuckarooException
      */
     public function getOrderStatusSuccess($paymentMethod = null)
     {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         $orderStatusSuccess = $this->getAccountOrderStatusSuccess();
 
         /**
@@ -155,7 +155,7 @@ class Account extends AbstractConfigProvider
          */
         if ($paymentMethod !== null) {
             /**
-             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $methodConfigProvider
+             * @var MethodAbstractConfigProvider $methodConfigProvider
              */
             $methodConfigProvider = $this->getMethodConfigProvider($paymentMethod);
 
@@ -172,16 +172,12 @@ class Account extends AbstractConfigProvider
     /**
      * Returns the method specific order status when available, or returns the global order status when not.
      *
-     * @param null $paymentMethod
-     *
+     * @param string|null $paymentMethod
      * @return string
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws BuckarooException
      */
     public function getOrderStatusFailed($paymentMethod = null)
     {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         $orderStatusFailed = $this->getAccountOrderStatusFailed();
 
         /**
@@ -189,7 +185,7 @@ class Account extends AbstractConfigProvider
          */
         if ($paymentMethod !== null) {
             /**
-             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $methodConfigProvider
+             * @var MethodAbstractConfigProvider $methodConfigProvider
              */
             $methodConfigProvider = $this->getMethodConfigProvider($paymentMethod);
 
@@ -206,10 +202,9 @@ class Account extends AbstractConfigProvider
     /**
      * Gets the config provider for the given payment method.
      *
-     * @param $paymentMethod
-     *
+     * @param string $paymentMethod
      * @return Method\ConfigProviderInterface
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws BuckarooException
      */
     protected function getMethodConfigProvider($paymentMethod)
     {
@@ -224,7 +219,6 @@ class Account extends AbstractConfigProvider
      *
      * @param Store $store
      * @param OrderInterface $order
-     *
      * @return string
      */
     public function getParsedLabel(Store $store, OrderInterface $order)
@@ -246,7 +240,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Active
+     * Get active. Enable or disable the Buckaroo module.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getActive($store = null)
     {
@@ -258,7 +255,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Secret Key
+     * Get Secret Key from Buckaroo Payment Engine
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSecretKey($store = null)
     {
@@ -270,7 +270,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Merchant Key
+     * Get Merchant Key/Website Key from Buckaroo Payment Engine
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getMerchantKey($store = null)
     {
@@ -282,7 +285,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Merchant Guid
+     * Get Merchant Guid from Buckaroo Payment Engine
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getMerchantGuid($store = null)
     {
@@ -294,7 +300,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Transaction Label
+     * Get transaction label for certificate file
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getTransactionLabel($store = null)
     {
@@ -306,7 +315,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Certificate File
+     * Get Certificate File
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getCertificateFile($store = null)
     {
@@ -318,7 +330,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Order Confirmation Email
+     * Should send a mail after successful creating the order.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getOrderConfirmationEmail($store = null)
     {
@@ -330,7 +345,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Order Confirmation Email Sync
+     * Send order confirmation email in sync mode
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getOrderConfirmationEmailSync($store = null)
     {
@@ -342,7 +360,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Invoice Email
+     * Send a mail after successful payment.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getInvoiceEmail($store = null)
     {
@@ -354,7 +375,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Success Redirect
+     * Redirect after successful payments
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSuccessRedirect($store = null)
     {
@@ -366,7 +390,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Failure Redirect
+     * Redirect after failed payments.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getFailureRedirect($store = null)
     {
@@ -378,7 +405,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Failure Redirect To Checkout
+     * Redirect after failed payments.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getFailureRedirectToCheckout($store = null)
     {
@@ -390,7 +420,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * 'Canceled' state on failed payment
+     * Orders will stay open after failed payments.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getCancelOnFailed($store = null)
     {
@@ -402,19 +435,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Digital Signature
-     */
-    public function getDigitalSignature($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_DIGITAL_SIGNATURE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * get Log Level
+     * Get Log level
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getLogLevel($store = null)
     {
@@ -426,7 +450,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Log Handler
+     * Get Log Handler (File/Database)
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getLogHandler($store = null)
     {
@@ -438,7 +465,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Log Dbtrace Depth
+     * Get Debug backtrace logging depth
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getLogDbtraceDepth($store = null)
     {
@@ -450,7 +480,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Log Retention
+     * Get Log retention period
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getLogRetention($store = null)
     {
@@ -462,7 +495,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Debug Email
+     * Get comma-separated emails where debug information will be sent
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getDebugEmail($store = null)
     {
@@ -474,7 +510,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Limit By Ip
+     * Display only for selected IPs
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getLimitByIp($store = null)
     {
@@ -486,7 +525,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Fee Percentage Mode
+     * Get Fee percentage mode (Subtotal/Subtotal incl. tax)
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getFeePercentageMode($store = null)
     {
@@ -498,7 +540,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Payment Fee Label
+     * Payment fee frontend label
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getPaymentFeeLabel($store = null)
     {
@@ -510,7 +555,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Order Status New
+     * Get the status that will be given to new orders
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getOrderStatusNew($store = null)
     {
@@ -522,7 +570,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Order Status Success
+     * Get the status that will be given to orders paid
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getAccountOrderStatusSuccess($store = null)
     {
@@ -533,6 +584,12 @@ class Account extends AbstractConfigProvider
         );
     }
 
+    /**
+     * Get the status that will be given to unsuccessful orders
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
     public function getAccountOrderStatusFailed($store = null)
     {
         return $this->scopeConfig->getValue(
@@ -541,8 +598,12 @@ class Account extends AbstractConfigProvider
             $store
         );
     }
+
     /**
-     * get Order Status Pending
+     * Get the status that will be given to orders pending payment
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getOrderStatusPending($store = null)
     {
@@ -554,7 +615,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Create Order Before Transaction
+     * Create order before transaction
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getCreateOrderBeforeTransaction($store = null)
     {
@@ -566,7 +630,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Ip Header
+     * Client IP detection headers (X-Forwarded-For,CF-Connecting-IP)
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getIpHeader($store = null)
     {
@@ -578,7 +645,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Cart Keep Alive
+     * Check if the cart should be restored when consumer use back button
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getCartKeepAlive($store = null)
     {
@@ -590,7 +660,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Selection Type
+     * Get selection type (Radio checkbox/Drop down)
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSelectionType($store = null)
     {
@@ -602,7 +675,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Customer Additional Info
+     * Add customer data to request
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getCustomerAdditionalInfo($store = null)
     {
@@ -614,7 +690,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Idin
+     * Enabled iDIN verification
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getIdin($store = null)
     {
@@ -626,7 +705,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Idin Mode
+     * Get iDIN mode
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getIdinMode($store = null)
     {
@@ -638,7 +720,10 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * get Idin Category
+     * Get iDIN category
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getIdinCategory($store = null)
     {

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,40 +20,37 @@
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Magento\Framework\App\Action\HttpPostActionInterface;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Service\Applepay\Add as AddService;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Service\Applepay\Add as AddService;
-use Magento\Framework\App\Action\Context;
 
-class Add implements HttpPostActionInterface
+class Add extends AbstractApplepay
 {
     /**
-     * @var JsonFactory
-     */
-    protected $resultJsonFactory;
-    /**
-     * @var Context
-     */
-    protected $context;
-    /**
-     * @var AddService|null
+     * @var AddService
      */
     protected $addService;
 
     /**
      * @param JsonFactory $resultJsonFactory
-     * @param Context $context
-     * @param AddService|null $addService
+     * @param RequestInterface $request
+     * @param Log $logging
+     * @param AddService $addService
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
-        Context $context,
-        AddService $addService = null
+        RequestInterface $request,
+        Log $logging,
+        AddService $addService
     ) {
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->context = $context;
+        parent::__construct(
+            $resultJsonFactory,
+            $request,
+            $logging
+        );
         $this->addService = $addService;
     }
 
@@ -62,20 +58,14 @@ class Add implements HttpPostActionInterface
      * Add Applepay
      *
      * @return Json
-     * @throws NoSuchEntityException
      */
     public function execute()
     {
-        $data = $this->addService->process($this->context->getRequest());
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->getParams(), true));
+        $data = $this->addService->process($this->getParams());
+        $errorMessage = $data['error'] ?? false;
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($data, true));
 
-        $errorMessage = $data['error'] ?? null;
-        if ($errorMessage || empty($data)) {
-            $response = ['success' => 'false', 'error' => $errorMessage];
-        } else {
-            $response = ['success' => 'true', 'data' => $data];
-        }
-
-        $resultJson = $this->resultJsonFactory->create();
-        return $resultJson->setData($response);
+        return $this->commonResponse($data, $errorMessage);
     }
 }

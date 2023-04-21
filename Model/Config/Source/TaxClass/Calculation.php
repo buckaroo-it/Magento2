@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,27 +17,30 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Config\Source\TaxClass;
 
-class Calculation implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Data\OptionSourceInterface;
+
+class Calculation implements OptionSourceInterface
 {
     /**#@+
      * Constants for calculation with or without taxes
      */
-    const DISPLAY_TYPE_EXCLUDING_TAX = 1;
-    const DISPLAY_TYPE_INCLUDING_TAX = 2;
+    public const DISPLAY_TYPE_EXCLUDING_TAX = 1;
+    public const DISPLAY_TYPE_INCLUDING_TAX = 2;
     /**#@-*/
 
     /**
      * @var array
      */
-    protected $options;
+    protected array $options;
 
     /**
-     * @return array
+     * @inheritdoc
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         if (!$this->options) {
             $this->options = [];

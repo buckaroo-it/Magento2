@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,9 +20,10 @@
 
 namespace Buckaroo\Magento2\Block\Widget\Button;
 
+use Magento\Backend\Block\Widget\Button\ButtonList;
 use Magento\Backend\Block\Widget\Button\Toolbar as ToolbarContext;
 use Magento\Framework\View\Element\AbstractBlock;
-use Magento\Backend\Block\Widget\Button\ButtonList;
+use Magento\Sales\Block\Adminhtml\Order\Invoice\View;
 
 class Toolbar
 {
@@ -54,7 +54,6 @@ class Toolbar
         'buckaroo_magento2_klarna',
         'buckaroo_magento2_klarnakp',
         'buckaroo_magento2_klarnain',
-        'buckaroo_magento2_emandate',
         'buckaroo_magento2_applepay',
         'buckaroo_magento2_capayablein3',
         'buckaroo_magento2_capayablepostpay',
@@ -67,43 +66,49 @@ class Toolbar
     ];
 
     /**
+     * Display cannot refund message for refunds that works only via the Buckaroo Payment Plaza
+     *
      * @param ToolbarContext $toolbar
-     * @param AbstractBlock  $context
-     * @param ButtonList     $buttonList
+     * @param AbstractBlock $context
+     * @param ButtonList $buttonList
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforePushButtons(
         ToolbarContext $toolbar,
-        \Magento\Framework\View\Element\AbstractBlock $context,
-        \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+        AbstractBlock $context,
+        ButtonList $buttonList
     ) {
-        if ($this->_isOrderInvoiceView($context)) {
-            return $this->_creditMemoNotAllowed($context, $buttonList);
+        if ($this->isOrderInvoiceView($context)) {
+            return $this->creditMemoNotAllowed($context, $buttonList);
         }
 
         return [$context, $buttonList];
     }
 
     /**
-     * @param $context
+     * Check if is invoice view
+     *
+     * @param AbstractBlock $context
      * @return bool
      */
-    private function _isOrderInvoiceView($context)
+    private function isOrderInvoiceView($context)
     {
-        if ($context instanceof \Magento\Sales\Block\Adminhtml\Order\Invoice\View) {
+        if ($context instanceof View) {
             return true;
         }
         return false;
     }
 
     /**
-     * @param $context
-     * @param $buttonList
+     * Display credit memo not allowed messages
+     *
+     * @param AbstractBlock $context
+     * @param ButtonList $buttonList
      * @return array
      */
-    private function _creditMemoNotAllowed($context, $buttonList)
+    private function creditMemoNotAllowed($context, $buttonList)
     {
         $orderPayment = $context->getInvoice()->getOrder();
         $paymentMethod = $orderPayment->getPayment()->getMethod();

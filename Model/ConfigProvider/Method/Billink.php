@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,19 +20,22 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 
 class Billink extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_billink';
 
-    public const XPATH_BILLINK_BUSINESS = 'payment/buckaroo_magento2_billink/business';
+    public const XPATH_BILLINK_BUSINESS      = 'payment/buckaroo_magento2_billink/business';
 
+    /**
+     * @var BuckarooHelper
+     */
     private BuckarooHelper $helper;
 
     /**
@@ -56,7 +58,7 @@ class Billink extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -72,13 +74,16 @@ class Billink extends AbstractConfigProvider
                     'billink'  => [
                         'sendEmail'         => (bool) $this->getOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'b2b' => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
                         'genderList' => [
-                            ['genderType' => 'male', 'genderTitle' => 'He/him'],
-                            ['genderType' => 'female', 'genderTitle' => 'She/her'],
-                            ['genderType' => 'unknown', 'genderTitle' => 'They/them'],
-                            ['genderType' => 'unknown', 'genderTitle' => 'I prefer not to say']
+                            ['genderType' => 'male', 'genderTitle' => __('He/him')],
+                            ['genderType' => 'female', 'genderTitle' => __('She/her')],
+                            ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
+                            ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
                         ],
                         'businessMethod' => $this->getBusiness()
                     ],

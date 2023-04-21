@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,45 +20,58 @@
 
 namespace Buckaroo\Magento2\Model\Order;
 
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\Unserialize\Unserialize;
+use Magento\Sales\Model\Convert\Order as ConvertOrder;
+use Magento\Sales\Model\Convert\OrderFactory;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\CreditmemoFactory as MagentoCreditmemoFactory;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Tax\Model\Config;
 
 /**
- * Factory class for @see \Magento\Sales\Model\Order\Creditmemo
+ * Factory class for @see Creditmemo
  */
 class CreditmemoFactory extends MagentoCreditmemoFactory
 {
     /**
      * Order convert object.
      *
-     * @var \Magento\Sales\Model\Convert\Order
+     * @var ConvertOrder
      */
     protected $convertor;
 
     /**
-     * @var \Magento\Tax\Model\Config
+     * @var Config
      */
     protected $taxConfig;
 
     /**
-     * @var \Magento\Framework\Unserialize\Unserialize
+     * @var Unserialize
      * @deprecated 101.0.0
      */
     protected $unserialize;
 
+    /**
+     * @var Log
+     */
     protected $logger;
 
     /**
      * Factory constructor
      *
-     * @param \Magento\Sales\Model\Convert\OrderFactory $convertOrderFactory
-     * @param \Magento\Tax\Model\Config $taxConfig
-     * @param \Magento\Framework\Serialize\Serializer\Json $serializer
+     * @param OrderFactory $convertOrderFactory
+     * @param Config $taxConfig
+     * @param Log $logger
+     * @param Json|null $serializer
      */
     public function __construct(
-        \Magento\Sales\Model\Convert\OrderFactory $convertOrderFactory,
-        \Magento\Tax\Model\Config $taxConfig,
-        \Buckaroo\Magento2\Logging\Log $logger,
-        \Magento\Framework\Serialize\Serializer\Json $serializer = null
+        OrderFactory $convertOrderFactory,
+        Config $taxConfig,
+        Log $logger,
+        Json $serializer = null
     ) {
         $this->logger = $logger;
         parent::__construct($convertOrderFactory, $taxConfig, $serializer);
@@ -68,30 +80,15 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     /**
      * Prepare order creditmemo based on order items and requested params
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param Order $order
      * @param array $data
      * @return Creditmemo
      */
-    public function createByOrder(\Magento\Sales\Model\Order $order, array $data = [])
+    public function createByOrder(Order $order, array $data = []): Creditmemo
     {
         $creditmemo = $this->convertor->toCreditmemo($order);
         $this->initBuckarooFeeData($creditmemo, $data, $order);
         return parent::createByOrder($order, $data);
-    }
-
-    /**
-     * Prepare order creditmemo based on invoice and requested params
-     *
-     * @param \Magento\Sales\Model\Order\Invoice $invoice
-     * @param array $data
-     * @return Creditmemo
-     */
-    public function createByInvoice(\Magento\Sales\Model\Order\Invoice $invoice, array $data = [])
-    {
-        $order      = $invoice->getOrder();
-        $creditmemo = $this->convertor->toCreditmemo($order);
-        $this->initBuckarooFeeData($creditmemo, $data, $invoice);
-        return parent::createByInvoice($invoice, $data);
     }
 
     /**
@@ -104,14 +101,29 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function initBuckarooFeeData($creditmemo, $data, $salesModel)
+    public function initBuckarooFeeData(Creditmemo $creditmemo, array $data, $salesModel)
     {
         if (isset($data['extension_attributes']['buckaroo_fee'])) {
-            $salesModel->setBuckarooFee((double) $data['extension_attributes']['buckaroo_fee']);
+            $salesModel->setBuckarooFee((double)$data['extension_attributes']['buckaroo_fee']);
         }
 
         if (isset($data['extension_attributes']['base_buckaroo_fee'])) {
-            $salesModel->setBaseBuckarooFee((double) $data['extension_attributes']['base_buckaroo_fee']);
+            $salesModel->setBaseBuckarooFee((double)$data['extension_attributes']['base_buckaroo_fee']);
         }
+    }
+
+    /**
+     * Prepare order creditmemo based on invoice and requested params
+     *
+     * @param Invoice $invoice
+     * @param array $data
+     * @return Creditmemo
+     */
+    public function createByInvoice(Invoice $invoice, array $data = []): Creditmemo
+    {
+        $order = $invoice->getOrder();
+        $creditmemo = $this->convertor->toCreditmemo($order);
+        $this->initBuckarooFeeData($creditmemo, $data, $invoice);
+        return parent::createByInvoice($invoice, $data);
     }
 }

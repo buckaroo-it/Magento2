@@ -68,7 +68,7 @@ define(
 
         function checkPayments()
         {
-            var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail","emandate", "tinka"];
+            var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail", "tinka"];
             p.forEach(function (item) {
                 $('.buckaroo_magento2_' + item).remove();
             });
@@ -88,6 +88,8 @@ define(
                 allgiftcards: [],
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.giftcards.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.giftcards.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('giftcards'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentGiftcard : false,
@@ -304,7 +306,6 @@ define(
                         }
 
                         $('.buckaroo_magento2_' + self.currentGiftcard + ' input[name="payment[method]"]').click();
-
                     });
 
                 },

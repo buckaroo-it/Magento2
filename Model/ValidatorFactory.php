@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,27 +17,31 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
+
+use Buckaroo\Magento2\Exception;
+use Magento\Framework\ObjectManagerInterface;
 
 class ValidatorFactory
 {
     /**
-     * @var \Magento\Framework\ObjectManagerInterface
+     * @var ObjectManagerInterface
      */
-    protected $objectManager;
+    protected ObjectManagerInterface $objectManager;
 
     /**
      * @var array
      */
-    protected $validators;
+    protected array $validators;
 
     /**
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
+     * @param ObjectManagerInterface $objectManager
      * @param array                                     $validators
      */
     public function __construct(
-        \Magento\Framework\ObjectManagerInterface $objectManager,
+        ObjectManagerInterface $objectManager,
         array $validators = []
     ) {
         $this->objectManager = $objectManager;
@@ -51,9 +54,9 @@ class ValidatorFactory
      * @param string $validatorType
      *
      * @return ValidatorInterface
-     * @throws \LogicException|\Buckaroo\Magento2\Exception
+     * @throws \LogicException|Exception
      */
-    public function get($validatorType)
+    public function get(string $validatorType)
     {
         if (empty($this->validators)) {
             throw new \LogicException('Validator adapter is not set.');
@@ -66,8 +69,8 @@ class ValidatorFactory
             }
         }
 
-        if (!isset($validatorClass) || empty($validatorClass)) {
-            throw new \Buckaroo\Magento2\Exception(
+        if (empty($validatorClass)) {
+            throw new Exception(
                 new \Magento\Framework\Phrase(
                     'Unknown validator type requested: %1.',
                     [$validatorType]

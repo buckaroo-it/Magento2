@@ -1,34 +1,64 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Resources\Constants\IPProtocolVersion;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Sales\Model\Order;
+use Zend\Stdlib\ParametersInterface;
 
 class ClientIPDataBuilder implements BuilderInterface
 {
     /**
+     * @var RequestInterface
+     */
+    protected RequestInterface $httpRequest;
+    /**
      * @var Account
      */
-    private $configProviderAccount;
+    private Account $configProviderAccount;
 
     /**
      * Constructor
      *
      * @param Account $configProviderAccount
+     * @param RequestInterface $httpRequest
      */
     public function __construct(
-        Account $configProviderAccount
+        Account $configProviderAccount,
+        RequestInterface $httpRequest
     ) {
         $this->configProviderAccount = $configProviderAccount;
+        $this->httpRequest = $httpRequest;
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function build(array $buildSubject)
+    public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
@@ -38,31 +68,42 @@ class ClientIPDataBuilder implements BuilderInterface
         return [
             'clientIP' => [
                 'address' => $ip,
-                'type'    => strpos($ip, ':') === false ? IPProtocolVersion::IPV4 : IPProtocolVersion::IPV6
+                'type'    => !str_contains($ip, ':') ? IPProtocolVersion::IPV4 : IPProtocolVersion::IPV6
             ]
         ];
     }
 
-    public function getIp($order)
+    /**
+     * Get client ip
+     *
+     * @param Order $order
+     * @return false|float|string|null
+     */
+    public function getIp(Order $order)
     {
         $ip = $order->getRemoteIp();
         $store = $order->getStore();
 
         $ipHeaders = $this->configProviderAccount->getIpHeader($store);
 
+        $headers = [];
         if ($ipHeaders) {
             $ipHeaders = explode(',', strtoupper($ipHeaders));
-            foreach ($ipHeaders as &$ipHeader) {
-                $ipHeader = 'HTTP_' . str_replace('-', '_', (string)$ipHeader);
+            foreach ($ipHeaders as $ipHeader) {
+                $headers[] = 'HTTP_' . str_replace('-', '_', (string)$ipHeader);
             }
-            $ip = $order->getPayment()->getMethodInstance()->getRemoteAddress(false, $ipHeaders);
+
+            $remoteAddress = new RemoteAddress(
+                $this->httpRequest,
+                $headers
+            );
+
+            return $remoteAddress->getRemoteAddress();
         }
 
         //trustly anyway should be w/o private ip
-        if (
-            (
-            isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) &&
-                $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly'
+        if (($order->getPayment()->getMethod() !== null &&
+                $order->getPayment()->getMethod() == 'trustly'
             ) &&
             $this->isIpPrivate($ip) &&
             $order->getXForwardedFor()
@@ -71,13 +112,24 @@ class ClientIPDataBuilder implements BuilderInterface
         }
 
         if (!$ip) {
-            $ip = $order->getPayment()->getMethodInstance()->getRemoteAddress();
+            $remoteAddress = new RemoteAddress(
+                $this->httpRequest,
+                $headers
+            );
+
+            $ip = $remoteAddress->getRemoteAddress();
         }
 
         return $ip;
     }
 
-    private function isIpPrivate($ip)
+    /**
+     * Check if it is private IP
+     *
+     * @param string $ip
+     * @return bool
+     */
+    private function isIpPrivate(string $ip): bool
     {
         if (!$ip) {
             return false;

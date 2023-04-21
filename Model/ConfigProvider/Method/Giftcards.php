@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,23 +17,27 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 class Giftcards extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_giftcards';
 
-    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS    = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
-    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS      = 'payment/buckaroo_magento2_giftcards/group_giftcards';
-    public const XPATH_GIFTCARDS_SORT                 = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
+    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
+    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS   = 'payment/buckaroo_magento2_giftcards/group_giftcards';
+    public const XPATH_GIFTCARDS_SORT              = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
 
     /**
      * @var array
@@ -43,24 +46,42 @@ class Giftcards extends AbstractConfigProvider
         'EUR',
     ];
 
-    /** @var StoreManagerInterface */
+    /**
+     * @var StoreManagerInterface
+     */
     private $storeManager;
 
+    /**
+     * @var ResourceConnection
+     */
+    private ResourceConnection $resourceConnection;
+
+    /**
+     * @param Repository $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param StoreManagerInterface $storeManager
+     * @param ResourceConnection $resourceConnection
+     */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        ResourceConnection $resourceConnection
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
         $this->storeManager = $storeManager;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
      * @inheritdoc
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws Exception|NoSuchEntityException
      */
     public function getConfig()
     {
@@ -80,13 +101,11 @@ class Giftcards extends AbstractConfigProvider
 
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resource      = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);
-        $connection    = $resource->getConnection();
-        $tableName     = $resource->getTableName('buckaroo_magento2_giftcard');
-        $result        = $connection->fetchAll("SELECT * FROM " . $tableName);
+        $connection = $this->resourceConnection->getConnection();
+        $tableName = $this->resourceConnection->getTableName('buckaroo_magento2_giftcard');
+        $result = $connection->fetchAll("SELECT * FROM " . $tableName);
         foreach ($result as $item) {
-            $item['sort'] = isset($sortedArray[$item['label']]) ? $sortedArray[$item['label']] : '99';
+            $item['sort'] = $sortedArray[$item['label']] ?? '99';
             $allGiftCards[$item['servicecode']] = $item;
         }
 
@@ -97,11 +116,16 @@ class Giftcards extends AbstractConfigProvider
         );
 
         foreach (explode(',', (string)$availableCards) as $value) {
+            $logo = $this->getLogo($value);
+            if (isset($allGiftCards[$value]['logo'])) {
+                $logo = $url . $allGiftCards[$value]['logo'];
+            }
+
             $cards[] = [
                 'code'  => $value,
-                'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',
-                'logo'  => isset($allGiftCards[$value]['logo']) ? $url . $allGiftCards[$value]['logo'] : false,
-                'sort'  => isset($allGiftCards[$value]['sort']) ? $allGiftCards[$value]['sort'] : '99',
+                'title' => $allGiftCards[$value]['label'] ?? '',
+                'logo'  => $logo,
+                'sort'  => $allGiftCards[$value]['sort'] ?? '99',
             ];
         }
 
@@ -116,6 +140,9 @@ class Giftcards extends AbstractConfigProvider
                     'avaibleGiftcards' => $cards,
                     'giftcards'        => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -124,7 +151,19 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
+     */
+    public function getSort($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_GIFTCARDS_SORT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * @inheritdoc
      */
     public function getAllowedGiftcards($store = null)
     {
@@ -136,24 +175,44 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Get giftcard logo image
+     *
+     * @param string $code
+     * @return string
+     */
+    protected function getLogo(string $code): string
+    {
+        $mappings = [
+            "ajaxgiftcard"               => "ajaxgiftcard",
+            "boekenbon"                  => "boekenbon",
+            "cjpbetalen"                 => "cjp",
+            "digitalebioscoopbon"        => "nationaletuinbon",
+            "fashioncheque"              => "fashioncheque",
+            "fashionucadeaukaart"        => "fashiongiftcard",
+            "nationaletuinbon"           => "nationalebioscoopbon",
+            "nationaleentertainmentcard" => "nationaleentertainmentcard",
+            "podiumcadeaukaart"          => "podiumcadeaukaart",
+            "sportfitcadeau"             => "sport-fitcadeau",
+            "vvvgiftcard"                => "vvvgiftcard"
+        ];
+
+        if (isset($mappings[$code])) {
+            return $this->getImageUrl("giftcards/{$mappings[$code]}", "svg");
+        }
+
+        return $this->getImageUrl("svg/giftcards", "svg");
+    }
+
+    /**
+     * Type of the giftcard inline/redirect
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getGroupGiftcards($store = null)
     {
         return $this->scopeConfig->getValue(
             static::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getSort($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_SORT,
             ScopeInterface::SCOPE_STORE,
             $store
         );

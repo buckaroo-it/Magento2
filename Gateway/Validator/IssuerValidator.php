@@ -1,49 +1,64 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
-use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Model\InfoInterface;
 
-/**
- * Class IssuerValidator
- *
- * @package Magento\Payment\Gateway\Validator
- * @api
- * @since 100.0.2
- */
 class IssuerValidator extends AbstractValidator
 {
-    /** @var ConfigProviderMethodFactory */
-    private $configProviderFactory;
-
-    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface */
-    private $config;
+    /**
+     * @var Factory
+     */
+    private Factory $configProvider;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param ConfigProviderMethodFactory $configProviderFactory
+     * @param Factory $configProvider
      */
     public function __construct(
-        ResultInterfaceFactory      $resultFactory,
-        ConfigProviderMethodFactory $configProviderFactory
+        ResultInterfaceFactory $resultFactory,
+        Factory $configProvider
     ) {
-        $this->configProviderFactory = $configProviderFactory;
+        $this->configProvider = $configProvider;
         parent::__construct($resultFactory);
     }
 
     /**
+     * Validate issuer
+     *
      * @param array $validationSubject
-     * @return ResultInterface
+     * @return bool|ResultInterface
+     * @throws NotFoundException
+     * @throws \Exception
      */
     public function validate(array $validationSubject): ResultInterface
     {
-
         $paymentInfo = SubjectReader::readPayment($validationSubject)->getPayment();
 
         $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
@@ -63,16 +78,15 @@ class IssuerValidator extends AbstractValidator
     }
 
     /**
-     * Get config provider class based on payment method name
+     * Get config provider for specific payment method
      *
      * @param InfoInterface $paymentInfo
-     * @return \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface|false
-     * @throws \Buckaroo\Magento2\Exception
+     * @return ConfigProviderInterface|false
      */
-    protected function getConfig($paymentInfo)
+    protected function getConfig(InfoInterface $paymentInfo)
     {
         try {
-            return $this->config = $this->configProviderFactory->get($paymentInfo->getMethodInstance()->getCode());
+            return $this->configProvider->get($paymentInfo->getMethodInstance()->getCode());
         } catch (\Exception $exception) {
             return false;
         }

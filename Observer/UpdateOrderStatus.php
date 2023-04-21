@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,34 +20,40 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-class UpdateOrderStatus implements \Magento\Framework\Event\ObserverInterface
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Model\Order\Payment;
+
+class UpdateOrderStatus implements ObserverInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
+     * @var Account
      */
     protected $account;
 
     /**
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $account
+     * @param Account $account
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $account
+        Account $account
     ) {
         $this->account = $account;
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Update order status by buckaroo account configuration on sales_order_payment_place_end event
      *
+     * @param Observer $observer
      * @return void
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
         /**
-         * @var $payment \Magento\Sales\Model\Order\Payment
+         * @var $payment Payment
          */
         $payment = $observer->getPayment();
 

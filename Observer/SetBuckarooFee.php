@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,24 +20,31 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-class SetBuckarooFee implements \Magento\Framework\Event\ObserverInterface
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Model\Order;
+
+class SetBuckarooFee implements ObserverInterface
 {
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Set Buckaroo fee on sales_model_service_quote_submit_before event
+     *
+     * @param Observer $observer
      * @return void
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        /* @var $order \Magento\Sales\Model\Order */
+        /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
         /**
-         * @var $quote \Magento\Quote\Model\Quote $quote
+         * @var $quote Quote $quote
          */
         $quote = $observer->getEvent()->getQuote();
 

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,11 +20,11 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Creditcards extends AbstractConfigProvider
 {
@@ -65,7 +64,7 @@ class Creditcards extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig(): array
     {
@@ -77,10 +76,12 @@ class Creditcards extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'creditcards' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'creditcards' => $issuers,
-                        'defaultCardImage' => $this->getImageUrl('buckaroo_magento2_creditcard_title'),
-                        'useCardDesign' => $this->useCardDesign(),
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
+                        'creditcards'       => $issuers,
+                        'defaultCardImage'  => $this->getImageUrl('svg/creditcards', 'svg'),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -93,28 +94,24 @@ class Creditcards extends AbstractConfigProvider
      *
      * @return array
      */
-    public function formatIssuers(): array
+    public function formatIssuers()
     {
-        $issuers = parent::formatIssuers();
         $allowed = explode(',', (string)$this->getAllowedIssuers());
 
+        $issuers = $this->issuers;
         foreach ($issuers as $key => $issuer) {
             $issuers[$key]['active'] = in_array($issuer['code'], $allowed);
+            $issuers[$key]['img'] = $this->getCreditcardLogo($issuer['code']);
         }
 
         return $issuers;
     }
 
     /**
-     * @return bool
-     */
-    private function useCardDesign()
-    {
-        return $this->scopeConfig->getValue(static::XPATH_USE_CARD_DESIGN, ScopeInterface::SCOPE_STORE);
-    }
-
-    /**
      * Get Sellers Protection
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtection($store = null)
     {
@@ -127,6 +124,9 @@ class Creditcards extends AbstractConfigProvider
 
     /**
      * Get Sellers Protection Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionEligible($store = null)
     {
@@ -139,6 +139,9 @@ class Creditcards extends AbstractConfigProvider
 
     /**
      * Get Sellers Protection Ineligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionIneligible($store = null)
     {
@@ -151,6 +154,9 @@ class Creditcards extends AbstractConfigProvider
 
     /**
      * Get Sellers Protection Itemnotreceived Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
     {
@@ -163,6 +169,9 @@ class Creditcards extends AbstractConfigProvider
 
     /**
      * Get Sellers Protection Unauthorizedpayment Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
     {
@@ -175,6 +184,9 @@ class Creditcards extends AbstractConfigProvider
 
     /**
      * Get Allowed Issuers
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getAllowedIssuers($store = null)
     {
@@ -187,6 +199,8 @@ class Creditcards extends AbstractConfigProvider
 
     /**
      * Get Active Status Cm3
+     *
+     * @return null
      */
     public function getActiveStatusCm3()
     {

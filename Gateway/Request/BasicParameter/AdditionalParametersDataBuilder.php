@@ -24,19 +24,21 @@ class AdditionalParametersDataBuilder implements BuilderInterface
      */
     public function __construct(
         string $action,
-        array  $additionalParameters = []
+        array $additionalParameters = []
     ) {
         $this->action = $action;
         $this->additionalParameters = $additionalParameters;
     }
 
     /**
+     * Set service action
+     *
      * @param array $buildSubject
      * @return array[]
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function build(array $buildSubject)
+    public function build(array $buildSubject): array
     {
         return [
             'additionalParameters' => $this->getAdditionalParameters()
@@ -44,9 +46,11 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     }
 
     /**
+     * Get additional parameters
+     *
      * @return array
      */
-    private function getAdditionalParameters()
+    private function getAdditionalParameters(): array
     {
         $parameterLine = [];
         if (!empty($this->getAction())) {
@@ -65,37 +69,60 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     }
 
     /**
+     * Get service action
+     *
      * @return string
      */
-    public function getAction()
+    public function getAction(): string
     {
         return $this->action;
     }
 
     /**
-     * {@inheritdoc}
+     * Set service action
+     *
+     * @param string $action
+     * @return $this
      */
-    public function setAction($action)
+    public function setAction(string $action): AdditionalParametersDataBuilder
     {
         $this->action = $action;
 
         return $this;
     }
 
+    /**
+     * Get all additional parameters
+     *
+     * @return array
+     */
     public function getAllAdditionalParameters(): array
     {
         return $this->additionalParameters;
     }
 
-    public function setAdditionalParameter($key, $value)
+    /**
+     * Set additional parameter with key
+     *
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function setAdditionalParameter(string $key, string $value): AdditionalParametersDataBuilder
     {
         $this->additionalParameters[$key] = $value;
 
         return $this;
     }
 
-    public function getAdditionalParameter($key)
+    /**
+     * Get additional parameter by key
+     *
+     * @param string $key
+     * @return string|null
+     */
+    public function getAdditionalParameter(string $key): ?string
     {
-        return $this->additionalParameters[$key];
+        return $this->additionalParameters[$key] ?? null;
     }
 }

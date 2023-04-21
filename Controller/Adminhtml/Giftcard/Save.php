@@ -23,21 +23,22 @@ namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Exception\LocalizedException;
 
-class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index implements HttpPostActionInterface
+class Save extends Index implements HttpPostActionInterface
 {
     /**
      * Save Giftcard in Admin
      *
-     * @return \Magento\Backend\Model\View\Result\Page|void
+     * @return ResponseInterface|void
      */
     public function execute()
     {
         $isPost = $this->getRequest()->getPost();
         if ($isPost) {
             $giftcardModel = $this->giftcardFactory->create();
-            $giftcardId    = $this->getRequest()->getParam('entity_id');
+            $giftcardId = $this->getRequest()->getParam('entity_id');
 
             if ($giftcardId) {
                 $giftcardModel->load($giftcardId);
@@ -51,18 +52,17 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index implem
                 $this->messageManager->addSuccess(__('The giftcard has been saved.'));
 
                 if ($this->getRequest()->getParam('back')) {
-                    $this->_redirect('*/*/edit', ['entity_id' => $giftcardModel->getId(), '_current' => true]);
-                    return;
+                    return $this->_redirect('*/*/edit', ['entity_id' => $giftcardModel->getId(), '_current' => true]);
+
                 }
 
-                $this->_redirect('*/*/');
-                return;
+                return $this->_redirect('*/*/');
             } catch (\Exception $e) {
                 $this->messageManager->addError($e->getMessage());
             }
 
             $this->_getSession()->setFormData($formData);
-            $this->_redirect('*/*/edit', ['id' => $giftcardId]);
+            return $this->_redirect('*/*/edit', ['id' => $giftcardId]);
         }
     }
 

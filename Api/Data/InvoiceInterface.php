@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -24,23 +23,31 @@ namespace Buckaroo\Magento2\Api\Data;
 interface InvoiceInterface
 {
     /**
-     * @param $value
+     * Set Invoice Transaction Id
+     *
+     * @param string $value
      * @return $this
      */
     public function setInvoiceTransactionId($value);
 
     /**
+     * Get Invoice Transaction Id
+     *
      * @return string
      */
     public function getInvoiceTransactionId();
 
     /**
-     * @param $value
+     * Set Invoice Number
+     *
+     * @param string $value
      * @return $this
      */
     public function setInvoiceNumber($value);
 
     /**
+     * Get Invoice Number
+     *
      * @return string
      */
     public function getInvoiceNumber();

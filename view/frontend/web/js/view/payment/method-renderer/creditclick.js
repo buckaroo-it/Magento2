@@ -47,6 +47,8 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditclick'
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditclick.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.emandate.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('emandate'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 
@@ -119,11 +121,3 @@ define(
         );
     }
 );
-
-
-
-
-
-
-
-

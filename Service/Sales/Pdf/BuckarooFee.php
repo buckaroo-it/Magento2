@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,32 +17,40 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Sales\Pdf;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\Config\Source\Display\Type;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order\Pdf\Total\DefaultTotal;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Helper\Data;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\ResourceModel\Sales\Order\Tax\CollectionFactory;
-use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Config\Source\Display\Type;
-use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 
 class BuckarooFee extends DefaultTotal
 {
-    /** @var ScopeConfigInterface */
-    private $scopeConfig;
-
-    /** @var PaymentFee */
-    private $paymentFee;
+    /**
+     * @var ScopeConfigInterface
+     */
+    private ScopeConfigInterface $scopeConfig;
 
     /**
-     * @inheritdoc
-     *
-     * @param ScopeInterface $scopeConfig
-     * @param PaymentFee     $paymentFee
+     * @var PaymentFee
+     */
+    private PaymentFee $paymentFee;
+
+    /**
+     * @param Data $taxHelper
+     * @param Calculation $taxCalculation
+     * @param CollectionFactory $ordersFactory
+     * @param ScopeConfigInterface $scopeConfig
+     * @param PaymentFee $paymentFee
+     * @param array $data
      */
     public function __construct(
         Data $taxHelper,
@@ -61,15 +68,19 @@ class BuckarooFee extends DefaultTotal
 
     /**
      * @inheritdoc
+     *
+     * @throws Exception
      */
-    public function getTotalsForDisplay()
+    public function getTotalsForDisplay(): array
     {
         $store = $this->getOrder()->getStore();
         $amount = $this->getOrder()->formatPriceTxt($this->getAmount());
         $label = $this->paymentFee->getBuckarooPaymentFeeLabel($this->getOrder());
-        $fontSize = $this->getFontSize() ? $this->getFontSize() : 7; /** @phpstan-ignore-line */
+        $fontSize = $this->getFontSize() ? $this->getFontSize() : 7;
+        /** @phpstan-ignore-line */
 
-        $amountInclTax = $this->getSource()->getBuckarooFeeInclTax(); /** @phpstan-ignore-line */
+        $amountInclTax = $this->getSource()->getBuckarooFeeInclTax();
+        /** @phpstan-ignore-line */
 
         if (!$amountInclTax) {
             /** @phpstan-ignore-next-line */
@@ -88,13 +99,15 @@ class BuckarooFee extends DefaultTotal
             case Type::DISPLAY_TYPE_BOTH:
                 $totals = [
                     [
-                        'amount' => $this->getAmountPrefix() . $amount, /** @phpstan-ignore-line */
-                        'label' => __($label . ' (Excl. Tax)') . ':',
+                        'amount'    => $this->getAmountPrefix() . $amount,
+                        /** @phpstan-ignore-line */
+                        'label'     => __($label . ' (Excl. Tax)') . ':',
                         'font_size' => $fontSize,
                     ],
                     [
-                        'amount' => $this->getAmountPrefix() . $amountInclTax, /** @phpstan-ignore-line */
-                        'label' => __($label . ' (Incl. Tax)') . ':',
+                        'amount'    => $this->getAmountPrefix() . $amountInclTax,
+                        /** @phpstan-ignore-line */
+                        'label'     => __($label . ' (Incl. Tax)') . ':',
                         'font_size' => $fontSize
                     ],
                 ];
@@ -102,8 +115,9 @@ class BuckarooFee extends DefaultTotal
             case Type::DISPLAY_TYPE_INCLUDING_TAX:
                 $totals = [
                     [
-                        'amount' => $this->getAmountPrefix() . $amountInclTax, /** @phpstan-ignore-line */
-                        'label' => __($label) . ':',
+                        'amount'    => $this->getAmountPrefix() . $amountInclTax,
+                        /** @phpstan-ignore-line */
+                        'label'     => __($label) . ':',
                         'font_size' => $fontSize,
                     ],
                 ];
@@ -111,8 +125,9 @@ class BuckarooFee extends DefaultTotal
             default:
                 $totals = [
                     [
-                        'amount' => $this->getAmountPrefix() . $amount, /** @phpstan-ignore-line */
-                        'label' => __($label) . ':',
+                        'amount'    => $this->getAmountPrefix() . $amount,
+                        /** @phpstan-ignore-line */
+                        'label'     => __($label) . ':',
                         'font_size' => $fontSize,
                     ],
                 ];

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,20 +20,21 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
+use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory;
+use Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface;
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Quote\Api\CartManagementInterface;
-use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Model\MaskedQuoteIdToQuoteId;
-use Magento\Sales\Api\OrderRepositoryInterface;
+use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface;
-use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
-use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory;
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\MaskedQuoteIdToQuoteId;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -42,49 +42,60 @@ use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory
 class OrderCreate implements PaypalExpressOrderCreateInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory
+     * @var OrderCreateResponseInterfaceFactory
      */
     protected $responseFactory;
 
     /**
-     * @var \Magento\Quote\Model\MaskedQuoteIdToQuoteId
+     * @var MaskedQuoteIdToQuoteId
      */
     protected $maskedQuoteIdToQuoteId;
 
     /**
-     * @var \Magento\Quote\Api\CartManagementInterface
+     * @var CartManagementInterface
      */
     protected $quoteManagement;
     /**
-     * @var \Magento\Customer\Model\Session
+     * @var CustomerSession
      */
     protected $customerSession;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var CheckoutSession
      */
     protected $checkoutSession;
 
     /**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var CartRepositoryInterface
      */
     protected $quoteRepository;
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var OrderRepositoryInterface
      */
     protected $orderRepository;
 
     /**
-     * @var \Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory
+     * @var OrderUpdateShippingFactory
      */
     protected $orderUpdateShippingFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Logging\Log
+     * @var Log
      */
     protected $logger;
 
+    /**
+     * @param OrderCreateResponseInterfaceFactory $responseFactory
+     * @param CartManagementInterface $quoteManagement
+     * @param MaskedQuoteIdToQuoteId $maskedQuoteIdToQuoteId
+     * @param CustomerSession $customerSession
+     * @param CheckoutSession $checkoutSession
+     * @param CartRepositoryInterface $quoteRepository
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderUpdateShippingFactory $orderUpdateShippingFactory
+     * @param Log $logger
+     */
     public function __construct(
         OrderCreateResponseInterfaceFactory $responseFactory,
         CartManagementInterface $quoteManagement,
@@ -108,7 +119,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function execute(
         string $paypalOrderId,
@@ -134,6 +145,8 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      * @param string $cartId
      *
      * @return string
+     * @throws LocalizedException
+     * @throws PaypalExpressException
      */
     protected function createOrder(
         string $paypalOrderId,
@@ -152,6 +165,41 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         return $order->getIncrementId();
     }
 
+    /**
+     * Get quote from masked quote/cart id
+     *
+     * @param string $cartId
+     * @return Quote
+     * @throws NoSuchEntityException
+     */
+    protected function getQuote($cartId)
+    {
+        return $this->quoteRepository->get(
+            $this->maskedQuoteIdToQuoteId->execute($cartId)
+        );
+    }
+
+    /**
+     * Check if quote belongs to the current logged in user
+     *
+     * @param CartInterface $quote
+     *
+     * @return void
+     * @throws PaypalExpressException
+     */
+    protected function checkQuoteBelongsToLoggedUser(CartInterface $quote)
+    {
+        if ($this->customerSession->getCustomerId() !== $quote->getCustomer()->getId()) {
+            throw new PaypalExpressException(__('Cannot create order for this user'));
+        }
+    }
+
+    /**
+     * Update shipping address
+     *
+     * @param OrderInterface $order
+     * @return void
+     */
     protected function updateOrderShipping(OrderInterface $order)
     {
         $orderUpdateShipping = $this->orderUpdateShippingFactory->create([
@@ -162,25 +210,9 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     }
 
     /**
-     * Check if quote belongs to the current logged in user
-     *
-     * @param CartInterface $quote
-     *
-     * @return void
-     * @throws \Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException
-     */
-    protected function checkQuoteBelongsToLoggedUser(CartInterface $quote)
-    {
-        if ($this->customerSession->getCustomerId() !== $quote->getCustomer()->getId()) {
-            throw new PaypalExpressException(__('Cannot create order for this user'));
-        }
-    }
-
-    /**
      * Update session with last order
      *
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
-     *
+     * @param OrderInterface $order
      * @return void
      */
     protected function setLastOrderToSession(OrderInterface $order)
@@ -191,19 +223,5 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
             ->setLastOrderId($order->getEntityId())
             ->setLastRealOrderId($order->getIncrementId())
             ->setLastOrderStatus($order->getStatus());
-    }
-
-    /**
-     * Get quote from masked quote/cart id
-     *
-     * @param string $cartId
-     *
-     * @return \Magento\Quote\Model\Quote
-     */
-    protected function getQuote($cartId)
-    {
-        return $this->quoteRepository->get(
-            $this->maskedQuoteIdToQuoteId->execute($cartId)
-        );
     }
 }

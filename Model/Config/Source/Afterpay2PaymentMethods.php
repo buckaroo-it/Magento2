@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,24 +17,27 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-class Afterpay2PaymentMethods implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Data\OptionSourceInterface;
+
+class Afterpay2PaymentMethods implements OptionSourceInterface
 {
-    const PAYMENT_METHOD_ACCEPTGIRO = 1;
-    const PAYMENT_METHOD_DIGIACCEPT = 2;
+    public const PAYMENT_METHOD_ACCEPTGIRO = 1;
+    public const PAYMENT_METHOD_DIGIACCEPT = 2;
 
     /**
      * Options getter
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         $options = [];
 
-        // These are the paymethods available at Afterpay
+        // These are the payment methods available at Afterpay
         $options[] = ['value' => self::PAYMENT_METHOD_ACCEPTGIRO, 'label' => __('Acceptgiro')];
         $options[] = ['value' => self::PAYMENT_METHOD_DIGIACCEPT, 'label' => __('Digiaccept')];
 

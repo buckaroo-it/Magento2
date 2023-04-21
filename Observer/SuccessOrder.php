@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,52 +20,59 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-class SuccessOrder implements \Magento\Framework\Event\ObserverInterface
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Cart;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Message\ManagerInterface;
+
+class SuccessOrder implements ObserverInterface
 {
     /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    private $checkoutSession;
-    /**
-     * @var \Magento\Framework\Message\ManagerInterface
+     * @var ManagerInterface
      */
     protected $messageManager;
     /**
-     * @var \Magento\Checkout\Model\Cart
+     * @var Cart
      */
     protected $cart;
     /**
-     * @var \Buckaroo\Magento2\Logging\Log
+     * @var Log
      */
     protected $logging;
+    /**
+     * @var Session
+     */
+    private $checkoutSession;
 
     /**
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \Magento\Framework\Message\ManagerInterface $messageManager
-     * @param \Magento\Checkout\Model\Cart $cart
-     * @param \Buckaroo\Magento2\Logging\Log $logging
+     * @param Session $checkoutSession
+     * @param ManagerInterface $messageManager
+     * @param Cart $cart
+     * @param Log $logging
      */
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Checkout\Model\Cart $cart,
-        \Buckaroo\Magento2\Logging\Log $logging
+        Session $checkoutSession,
+        ManagerInterface $messageManager,
+        Cart $cart,
+        Log $logging
     ) {
-        $this->checkoutSession        = $checkoutSession;
-        $this->messageManager         = $messageManager;
-        $this->cart                   = $cart;
-        $this->logging                = $logging;
+        $this->checkoutSession = $checkoutSession;
+        $this->messageManager = $messageManager;
+        $this->cart = $cart;
+        $this->logging = $logging;
     }
 
     /**
      * Empty the shopping cart
      *
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
 

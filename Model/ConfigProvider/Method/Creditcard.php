@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -41,7 +40,7 @@ class Creditcard extends AbstractConfigProvider
     private const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
     private const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
 
-    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS  = 'payment/buckaroo_magento2_creditcard/allowed_creditcards';
+    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'payment/buckaroo_magento2_creditcard/allowed_creditcards';
 
     public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD
         = 'payment/buckaroo_magento2_creditcard/mastercard_unsecure_hold';
@@ -50,10 +49,10 @@ class Creditcard extends AbstractConfigProvider
     public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD
         = 'payment/buckaroo_magento2_creditcard/maestro_unsecure_hold';
 
-    public const XPATH_CREDITCARD_SORT                 = 'payment/buckaroo_magento2_creditcard/sorted_creditcards';
-    public const XPATH_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
-    public const XPATH_PAYMENT_FLOW                    = 'payment/buckaroo_magento2_creditcard/payment_action';
-    public const DEFAULT_SORT_VALUE                    = '99';
+    public const XPATH_CREDITCARD_SORT = 'payment/buckaroo_magento2_creditcard/sorted_creditcards';
+    public const XPATH_SELECTION_TYPE  = 'buckaroo_magento2/account/selection_type';
+    public const XPATH_PAYMENT_FLOW    = 'payment/buckaroo_magento2_creditcard/payment_action';
+    public const DEFAULT_SORT_VALUE    = '99';
 
     /** @var array[] */
     protected $issuers = [
@@ -115,46 +114,28 @@ class Creditcard extends AbstractConfigProvider
     ];
 
     /**
-     * Add the active flag to the creditcard list. This is used in the checkout process.
+     * Get card name by card type
      *
-     * @return array
+     * @param string $cardType
+     * @return string
+     *
+     * @throws \InvalidArgumentException
      */
-    public function formatIssuers(): array
+    public function getCardName($cardType)
     {
-        $sort = $this->getSort();
+        $config = $this->getConfig();
 
-        if (!empty($sort)) {
-            $sorted = explode(',', trim($sort));
-            $sortedPosition = 1;
-            foreach ($sorted as $cardName) {
-                $sortedArray[$cardName] = $sortedPosition++;
+        foreach ($config['payment']['buckaroo']['creditcard']['cards'] as $card) {
+            if ($card['code'] == $cardType) {
+                return $card['name'];
             }
         }
 
-        $issuers = parent::formatIssuers();
-        foreach ($issuers as $item) {
-            $item['sort'] = $sortedArray[$item['name']] ?? self::DEFAULT_SORT_VALUE;
-            $allCreditcard[$item['code']] = $item;
-        }
-
-        $allowed = explode(',', (string)$this->getAllowedCreditcards());
-
-        $cards = [];
-        foreach ($allowed as $value) {
-            if (isset($allCreditcard[$value])) {
-                $cards[] = $allCreditcard[$value];
-            }
-        }
-
-        usort($cards, function ($cardA, $cardB) {
-            return $cardA['sort'] - $cardB['sort'];
-        });
-
-        return $cards;
+        throw new \InvalidArgumentException("No card found for card type: {$cardType}");
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getConfig()
     {
@@ -175,11 +156,14 @@ class Creditcard extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'creditcard' => [
-                        'cards' => $issuers,
-                        'paymentFeeLabel' => $paymentFeeLabel,
+                        'cards'             => $issuers,
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType' => $selectionType,
-                        'paymentFlow' => $paymentFlow,
+                        'selectionType'     => $selectionType,
+                        'paymentFlow'       => $paymentFlow,
                     ],
                 ],
             ],
@@ -187,28 +171,78 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @param string $cardType
+     * Add the active flag to the creditcard list. This is used in the checkout process.
      *
-     * @return string
-     *
-     * @throws \InvalidArgumentException
+     * @return array
      */
-    public function getCardName($cardType)
+    public function formatIssuers(): array
     {
-        $config = $this->getConfig();
+        $sort = $this->getSort();
 
-        foreach ($config['payment']['buckaroo']['creditcard']['cards'] as $card) {
-            if ($card['code'] == $cardType) {
-                return $card['name'];
+        if (!empty($sort)) {
+            $sorted = explode(',', trim($sort));
+            $sortedPosition = 1;
+            foreach ($sorted as $cardName) {
+                $sortedArray[$cardName] = $sortedPosition++;
             }
         }
 
-        throw new \InvalidArgumentException("No card found for card type: {$cardType}");
+        foreach ($this->getIssuers() as $item) {
+            $item['sort'] = $sortedArray[$item['name']] ?? self::DEFAULT_SORT_VALUE;
+            $item['img'] = $this->getCreditcardLogo($item['code']);
+            $allCreditcard[$item['code']] = $item;
+        }
+
+        $allowed = explode(',', (string)$this->getAllowedCreditcards());
+
+        $cards = [];
+        foreach ($allowed as $value) {
+            if (isset($allCreditcard[$value])) {
+                $cards[] = $allCreditcard[$value];
+            }
+        }
+
+        usort($cards, function ($cardA, $cardB) {
+            return $cardA['sort'] - $cardB['sort'];
+        });
+
+        return $cards;
     }
 
     /**
-     * @param string $cardType
+     * Get the order of credit cards
      *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSort($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_CREDITCARD_SORT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get the list with allowed credit cards
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getAllowedCreditcards($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get card code by card type
+     *
+     * @param string $cardType
      * @return string
      *
      * @throws \InvalidArgumentException
@@ -226,19 +260,10 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
-     */
-    public function getAllowedCreditcards($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * @inheritDoc
+     * Hold orders which have no MasterCard SecureCode.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getMastercardUnsecureHold($store = null)
     {
@@ -250,7 +275,10 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Hold orders which have no Visa SecureCode.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getVisaUnsecureHold($store = null)
     {
@@ -262,24 +290,15 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Hold orders which have no Maestro SecureCode.
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getMaestroUnsecureHold($store = null)
     {
         return $this->scopeConfig->getValue(
             static::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getSort($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARD_SORT,
             ScopeInterface::SCOPE_STORE,
             $store
         );

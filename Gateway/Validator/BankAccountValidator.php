@@ -1,25 +1,48 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
-use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Sales\Model\Order\Payment;
 use Zend\Validator\Iban;
 
 /**
  * Class IssuerValidator
+ *
  * @package Magento\Payment\Gateway\Validator
  * @api
  * @since 100.0.2
  */
 class BankAccountValidator extends AbstractValidator
 {
-    const BIC_NUMBER_REGEX = '^([a-zA-Z]){4}([a-zA-Z]){2}([0-9a-zA-Z]){2}([0-9a-zA-Z]{3})?$^';
+    public const BIC_NUMBER_REGEX = '^([a-zA-Z]){4}([a-zA-Z]){2}([0-9a-zA-Z]){2}([0-9a-zA-Z]{3})?$^';
 
-    private \Zend\Validator\Iban $ibanValidator;
+    /**
+     * @var Iban
+     */
+    private Iban $ibanValidator;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
@@ -27,13 +50,15 @@ class BankAccountValidator extends AbstractValidator
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        \Zend\Validator\Iban $ibanValidator
+        Iban $ibanValidator
     ) {
         $this->ibanValidator = $ibanValidator;
         parent::__construct($resultFactory);
     }
 
     /**
+     * Validates the payment information for Buckaroo gateway.
+     *
      * @param array $validationSubject
      * @return bool|ResultInterface
      * @throws NotFoundException
@@ -63,9 +88,6 @@ class BankAccountValidator extends AbstractValidator
         if ($paymentInfo instanceof Payment) {
             $billingCountry = $paymentInfo->getOrder()->getBillingAddress()->getCountryId();
         } else {
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
             $billingCountry = $paymentInfo->getQuote()->getBillingAddress()->getCountryId();
         }
 

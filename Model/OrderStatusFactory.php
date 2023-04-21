@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,34 +17,40 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order;
 
 class OrderStatusFactory
 {
     /**
      * @var Account
      */
-    protected $account;
+    protected Account $account;
 
     /**
      * @var Factory
      */
-    protected $configProviderMethodFactory;
+    protected Factory $configProviderMethodFactory;
 
     /**
      * @var Data
      */
-    protected $helper;
+    protected Data $helper;
 
     /**
      * @param Account $account
      * @param Factory $configProviderMethodFactory
-     * @param Data    $helper
+     * @param Data $helper
      */
     public function __construct(
         Account $account,
@@ -58,22 +63,25 @@ class OrderStatusFactory
     }
 
     /**
-     * @param int                        $statusCode
-     * @param \Magento\Sales\Model\Order $order
+     * Get status by order and status code
+     *
+     * @param int|string $statusCode
+     * @param Order $order
      *
      * @return string|false|null
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws LocalizedException
      */
-    public function get($statusCode, $order)
+    public function get($statusCode, Order $order)
     {
         $status = false;
 
         /**
-         * @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $paymentMethodInstance
+         * @var BuckarooAdapter $paymentMethodInstance
          */
         $paymentMethodInstance = $order->getPayment()->getMethodInstance();
-        if ($paymentMethodInstance instanceof \Buckaroo\Magento2\Model\Method\BuckarooAdapter) {
+        if ($paymentMethodInstance instanceof BuckarooAdapter) {
             $paymentMethod = $paymentMethodInstance->getCode();
         } else {
             $paymentMethod = $paymentMethodInstance->buckarooPaymentMethodCode;
@@ -82,7 +90,7 @@ class OrderStatusFactory
 
         if ($this->configProviderMethodFactory->has($paymentMethod)) {
             /**
-             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
+             * @var AbstractConfigProvider $configProvider
              */
             $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
 
@@ -119,17 +127,19 @@ class OrderStatusFactory
     }
 
     /**
-     * @param int                                                               $statusCode
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
+     * Get status for failed or success transaction
+     *
+     * @param int $statusCode
+     * @param ConfigProviderInterface $configProvider
      *
      * @return string|false|null
      */
     public function getPaymentMethodStatus(
-        $statusCode,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
+        int $statusCode,
+        ConfigProviderInterface $configProvider
     ) {
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
+         * @var AbstractConfigProvider $configProvider
          */
         $status = false;
 

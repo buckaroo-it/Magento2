@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\Exception\CouldNotSaveException;
 
@@ -29,7 +29,29 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
 
     class CheckoutManagement extends \Mageplaza\Osc\Model\CheckoutManagement
     {
-        public function updateItemQty($cartId, $itemId, $itemQty)
+        /**
+         * @var PaymentGroupTransaction
+         */
+        private PaymentGroupTransaction $paymentGroupTransaction;
+
+        /**
+         * @param PaymentGroupTransaction $paymentGroupTransaction
+         */
+        public function __construct(PaymentGroupTransaction $paymentGroupTransaction)
+        {
+            $this->paymentGroupTransaction = $paymentGroupTransaction;
+        }
+
+        /**
+         * Block updating the item qty when group transaction order already started
+         *
+         * @param int $cartId
+         * @param int $itemId
+         * @param int|float $itemQty
+         * @return mixed
+         * @throws CouldNotSaveException
+         */
+        public function updateItemQty(int $cartId, int $itemId, $itemQty)
         {
             /** @phpstan-ignore-next-line */
             if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
@@ -40,7 +62,15 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
             return parent::updateItemQty($cartId, $itemId, $itemQty);
         }
 
-        public function removeItemById($cartId, $itemId)
+        /**
+         * Block remove the item qty when group transaction order already started
+         *
+         * @param int $cartId
+         * @param int $itemId
+         * @return mixed
+         * @throws CouldNotSaveException
+         */
+        public function removeItemById(int $cartId, int $itemId)
         {
             /** @phpstan-ignore-next-line */
             if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
@@ -53,14 +83,12 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
         /**
          * Get quote already payed amount
          *
-         * @param Magento\Quote\Model\Quote $quote
-         *
+         * @param Quote $quote
          * @return float
          */
-        private function getAlreadyPaid(Quote $quote)
+        private function getAlreadyPaid(Quote $quote): float
         {
-            $groupTransaction = \Magento\Framework\App\ObjectManager::getInstance()
-            ->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+            $groupTransaction = $this->paymentGroupTransaction;
 
             return $groupTransaction->getAlreadyPaid($quote->getReservedOrderId());
         }

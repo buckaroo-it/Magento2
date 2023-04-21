@@ -43,7 +43,6 @@ class CreditcardsTest extends BaseTest
                                 'paymentFeeLabel' => 'Fee',
                                 'creditcards' => [],
                                 'defaultCardImage' => '',
-                                'useCardDesign' => '1',
                                 'allowedCurrencies' => ['EUR']
                             ]
                         ]
@@ -73,6 +72,7 @@ class CreditcardsTest extends BaseTest
                     ScopeInterface::SCOPE_STORE,
                     null
                 ]
+                [Creditcards::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls('', '1', 'EUR');
 

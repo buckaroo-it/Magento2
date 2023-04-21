@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,9 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Config\Backend;
 
+use Magento\Framework\App\Config\Value;
 use Magento\Framework\Exception\LocalizedException;
 
-class PaypalExpressMerchantId extends \Magento\Framework\App\Config\Value
+class PaypalExpressMerchantId extends Value
 {
     /**
      * Save merchant id
@@ -32,8 +32,7 @@ class PaypalExpressMerchantId extends \Magento\Framework\App\Config\Value
      */
     public function save()
     {
-        if (
-            is_array($this->getFieldsetDataValue('available_buttons')) &&
+        if (is_array($this->getFieldsetDataValue('available_buttons')) &&
             strlen($this->getValue()) === 0
         ) {
             throw new LocalizedException(__('Paypal express merchant id is required'));

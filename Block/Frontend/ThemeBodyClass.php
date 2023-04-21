@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,15 +20,21 @@
 
 namespace Buckaroo\Magento2\Block\Frontend;
 
-class ThemeBodyClass extends \Magento\Framework\View\Element\Template
+use Magento\Backend\Block\Template\Context;
+use Magento\Framework\View\Element\Template;
+
+class ThemeBodyClass extends Template
 {
+    /**
+     * @var Context
+     */
     private $contextCopy;
 
     /**
-     * @param \Magento\Backend\Block\Template\Context $context
-     * @param array                                   $data
+     * @param Context $context
+     * @param array $data
      */
-    public function __construct(\Magento\Backend\Block\Template\Context $context, array $data = [])
+    public function __construct(Context $context, array $data = [])
     {
         $this->contextCopy = $context;
         parent::__construct($context, $data);

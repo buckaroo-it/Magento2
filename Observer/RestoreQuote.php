@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,32 +20,52 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq;
-use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
 use Buckaroo\Magento2\Model\Service\Order;
 use Magento\Checkout\Model\Session;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Model\Order as OrderModel;
 
-class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
+class RestoreQuote implements ObserverInterface
 {
+    /**
+     * @var Account
+     */
+    protected $accountConfig;
+
     /**
      * @var CartRepositoryInterface
      */
     protected $quoteRepository;
+
     /**
      * @var Order
      */
     protected $orderService;
+
+    /**
+     * @var GiftcardRemove
+     */
+    protected $giftcardRemoveService;
+
+    /**
+     * @var PaymentGroupTransaction
+     */
+    protected $groupTransaction;
+
     /**
      * @var Session
      */
     private $checkoutSession;
-    /**
-     * @var Account
-     */
-    private $accountConfig;
+
     /**
      * @var Data
      */
@@ -58,39 +77,47 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      * @param Data $helper
      * @param CartRepositoryInterface $quoteRepository
      * @param Order $orderService
+     * @param GiftcardRemove $giftcardRemoveService
+     * @param PaymentGroupTransaction $groupTransaction
      */
     public function __construct(
         Session $checkoutSession,
         Account $accountConfig,
         Data $helper,
         CartRepositoryInterface $quoteRepository,
-        Order $orderService
+        Order $orderService,
+        GiftcardRemove $giftcardRemoveService,
+        PaymentGroupTransaction $groupTransaction
     ) {
         $this->orderService = $orderService;
         $this->checkoutSession = $checkoutSession;
         $this->accountConfig = $accountConfig;
         $this->helper = $helper;
         $this->quoteRepository = $quoteRepository;
+        $this->giftcardRemoveService = $giftcardRemoveService;
+        $this->groupTransaction = $groupTransaction;
     }
 
     /**
      * Restore Quote and Cancel LastRealOrder
      *
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
      * @return void
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws LocalizedException
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer): void
     {
         $this->helper->addDebug(__METHOD__ . '|1|');
 
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
+        $previousOrderId = $lastRealOrder->getId();
+
         if ($payment = $lastRealOrder->getPayment()) {
-            if (
-                $this->shouldSkipFurtherEventHandling()
+            if ($this->shouldSkipFurtherEventHandling()
                 || strpos($payment->getMethod(), 'buckaroo_magento2') === false
                 || in_array($payment->getMethod(), [Giftcards::CODE, Payconiq::CODE])
             ) {
@@ -101,8 +128,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             if ($this->accountConfig->getCartKeepAlive($lastRealOrder->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|20|');
 
-                if (
-                    $this->checkoutSession->getQuote()
+                if ($this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
@@ -115,23 +141,17 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     }
                 }
 
-                $this->helper->addDebug(__METHOD__ . '|restoreQuote|' . var_export($this->helper->getRestoreQuoteLastOrder(), true));
-                $this->helper->addDebug(__METHOD__ . '|state|' . var_export($lastRealOrder->getData('state'), true));
-                $this->helper->addDebug(__METHOD__ . '|status|' . var_export($lastRealOrder->getData('status'), true));
-                $this->helper->addDebug(__METHOD__ . '|usesRedirect|' . var_export($payment->getMethodInstance()->usesRedirect, true));
-
-                if (
-                    $this->helper->getRestoreQuoteLastOrder()
+                if ($this->helper->getRestoreQuoteLastOrder()
                     && ($lastRealOrder->getData('state') === 'new')
                     && ($lastRealOrder->getData('status') === 'pending')
                     && $payment->getMethodInstance()->usesRedirect
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
-                    $this->cancelLastOrder($lastRealOrder);
+                    $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
+                    $this->setOrderToCancel($previousOrderId);
                 }
             }
-
 
             $this->helper->addDebug(__METHOD__ . '|50|');
             $this->helper->setRestoreQuoteLastOrder(false);
@@ -145,19 +165,54 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      *
      * @return false
      */
-    public function shouldSkipFurtherEventHandling()
+    public function shouldSkipFurtherEventHandling(): bool
     {
         return false;
     }
 
     /**
+     * Rollback Partial Payment
+     *
+     * @param string $incrementId
+     * @return void
+     */
+    public function rollbackPartialPayment(string $incrementId, $payment): void
+    {
+        try {
+            $transactions = $this->groupTransaction->getGroupTransactionItems($incrementId);
+            foreach ($transactions as $transaction) {
+                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $incrementId, $payment);
+            }
+        } catch (\Throwable $th) {
+            $this->helper->addDebug(__METHOD__ . $th);
+        }
+
+    }
+
+    /**
+     * Set previous order id on the payment object for the next payment
+     *
+     * @param int $previousOrderId
+     * @return void
+     * @throws LocalizedException
+     */
+    private function setOrderToCancel(int $previousOrderId)
+    {
+        $this->checkoutSession->getQuote()
+            ->getPayment()
+            ->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
+        $this->quoteRepository->save($this->checkoutSession->getQuote());
+    }
+
+    /**
      * Cancel Last Order when the payment process has not been completed
      *
-     * @param \Magento\Sales\Model\Order $order
-     * @return bool
+     * @param OrderModel $order
+     * @return void
+     * @throws LocalizedException
      */
-    private function cancelLastOrder($order)
+    private function cancelLastOrder(OrderModel $order): void
     {
-        return $this->orderService->cancel($order, $order->getStatus());
+        $this->orderService->cancel($order, $order->getStatus());
     }
 }

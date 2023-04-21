@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,17 +20,22 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
 
-class Form extends \Magento\Backend\Block\Widget\Form\Generic
+use Magento\Backend\Block\Widget\Form\Generic;
+use Magento\Framework\Exception\LocalizedException;
+
+class Form extends Generic
 {
     /**
+     * Edit Giftcards Form
+     *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     protected function _prepareForm()
     {
         /**
-        * @var \Buckaroo\Magento2\Model\Giftcard $model
-        */
+         * @var \Buckaroo\Magento2\Model\Giftcard $model
+         */
         $model = $this->_coreRegistry->registry('buckaroo_giftcard');
 
         /**
@@ -40,7 +44,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         $form = $this->_formFactory->create(
             [
                 'data' => [
-                    'id'    => 'edit_form',
+                    'id' => 'edit_form',
                     'enctype' => 'multipart/form-data',
                     'action' => $this->getData('action'),
                     'method' => 'post'
@@ -68,10 +72,10 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             'servicecode',
             'text',
             [
-                'name'     => 'servicecode',
-                'label'    => __('Service Code'),
+                'name' => 'servicecode',
+                'label' => __('Service Code'),
                 'required' => true,
-                'value'    => $model->getServicecode()
+                'value' => $model->getServicecode()
             ]
         );
 
@@ -79,10 +83,10 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             'label',
             'text',
             [
-                'name'     => 'label',
-                'label'    => __('Label'),
+                'name' => 'label',
+                'label' => __('Label'),
                 'required' => true,
-                'value'    => $model->getLabel()
+                'value' => $model->getLabel()
             ]
         );
 
@@ -93,7 +97,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'title' => __('Giftcard logo'),
                 'label' => __('Giftcard logo'),
                 'name' => 'logo',
-                'note' => 'Allow image type: jpg, jpeg, gif, png']
+                'note' => 'Allow image type: jpg, jpeg, gif, png'
+            ]
         );
 
         $form->setValues($model->getData());

@@ -1,15 +1,34 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Data\Order;
 
 use Magento\Payment\Gateway\Data\AddressAdapterInterface;
-use Magento\Payment\Gateway\Data\Order\AddressAdapter;
 use Magento\Payment\Gateway\Data\Order\AddressAdapterFactory;
 use Magento\Payment\Gateway\Data\OrderAdapterInterface;
+use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order;
 
 /**
- * Class OrderAdapter
+ * OrderAdapter created to have access to order object
  */
 class OrderAdapter implements OrderAdapterInterface
 {
@@ -19,9 +38,9 @@ class OrderAdapter implements OrderAdapterInterface
     private Order $order;
 
     /**
-     * @var AddressAdapter
+     * @var AddressAdapterFactory
      */
-    private $addressAdapterFactory;
+    private AddressAdapterFactory $addressAdapterFactory;
 
     /**
      * @param Order $order
@@ -40,7 +59,7 @@ class OrderAdapter implements OrderAdapterInterface
      *
      * @return string
      */
-    public function getCurrencyCode()
+    public function getCurrencyCode(): string
     {
         return $this->order->getBaseCurrencyCode();
     }
@@ -50,7 +69,7 @@ class OrderAdapter implements OrderAdapterInterface
      *
      * @return string
      */
-    public function getOrderIncrementId()
+    public function getOrderIncrementId(): string
     {
         return $this->order->getIncrementId();
     }
@@ -60,7 +79,7 @@ class OrderAdapter implements OrderAdapterInterface
      *
      * @return int|null
      */
-    public function getCustomerId()
+    public function getCustomerId(): ?int
     {
         return $this->order->getCustomerId();
     }
@@ -70,7 +89,7 @@ class OrderAdapter implements OrderAdapterInterface
      *
      * @return AddressAdapterInterface|null
      */
-    public function getBillingAddress()
+    public function getBillingAddress(): ?AddressAdapterInterface
     {
         if ($this->order->getBillingAddress()) {
             return $this->addressAdapterFactory->create(
@@ -86,7 +105,7 @@ class OrderAdapter implements OrderAdapterInterface
      *
      * @return AddressAdapterInterface|null
      */
-    public function getShippingAddress()
+    public function getShippingAddress(): ?AddressAdapterInterface
     {
         if ($this->order->getShippingAddress()) {
             return $this->addressAdapterFactory->create(
@@ -100,9 +119,9 @@ class OrderAdapter implements OrderAdapterInterface
     /**
      * Returns order store id
      *
-     * @return int
+     * @return int|null
      */
-    public function getStoreId()
+    public function getStoreId(): ?int
     {
         return $this->order->getStoreId();
     }
@@ -110,7 +129,7 @@ class OrderAdapter implements OrderAdapterInterface
     /**
      * Returns order id
      *
-     * @return int
+     * @return mixed
      */
     public function getId()
     {
@@ -120,9 +139,9 @@ class OrderAdapter implements OrderAdapterInterface
     /**
      * Returns order grand total amount
      *
-     * @return float|null
+     * @return float
      */
-    public function getGrandTotalAmount()
+    public function getGrandTotalAmount(): float
     {
         return $this->order->getBaseGrandTotal();
     }
@@ -130,9 +149,9 @@ class OrderAdapter implements OrderAdapterInterface
     /**
      * Returns list of line items in the cart
      *
-     * @return \Magento\Sales\Api\Data\OrderItemInterface[]
+     * @return OrderItemInterface[]
      */
-    public function getItems()
+    public function getItems(): array
     {
         return $this->order->getItems();
     }
@@ -142,7 +161,7 @@ class OrderAdapter implements OrderAdapterInterface
      *
      * @return string|null Remote IP address.
      */
-    public function getRemoteIp()
+    public function getRemoteIp(): ?string
     {
         return $this->order->getRemoteIp();
     }
