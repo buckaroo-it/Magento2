@@ -78,7 +78,7 @@ class AmountCreditDataBuilder implements BuilderInterface
         $order = $paymentDO->getOrder()->getOrder();
 
         $baseAmountToRefund = $buildSubject['amount'] ?? $order->getBaseGrandTotal();
-        $this->refundAmount = $baseAmountToRefund;
+        $this->refundAmount = (float)$baseAmountToRefund;
 
         if ($this->refundAmount <= 0) {
             throw new \InvalidArgumentException('Credit Amount less than or equal to 0');

@@ -28,29 +28,13 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
-use Magento\Store\Model\StoreManagerInterface;
 
 class Remove
 {
     /**
-     * @var RequestInterface
-     */
-    protected RequestInterface $request;
-
-    /**
      * @var GroupTransactionRepository
      */
     protected GroupTransactionRepository $groupTransactionRepository;
-
-    /**
-     * @var StoreManagerInterface
-     */
-    protected StoreManagerInterface $storeManager;
-
-    /**
-     * @var HelperData
-     */
-    public HelperData $helper;
 
     /**
      * @var PaymentDataObjectFactory
@@ -62,26 +46,13 @@ class Remove
      */
     private $removeCommand;
 
-    /**
-     * @param RequestInterface $request
-     * @param GroupTransactionRepository $groupTransactionRepository
-     * @param StoreManagerInterface $storeManager
-     * @param HelperData $helper
-     * @param PaymentDataObjectFactory $paymentDataObjectFactory
-     * @param CommandInterface $removeCommand
-     */
+
     public function __construct(
-        RequestInterface $request,
         GroupTransactionRepository $groupTransactionRepository,
-        StoreManagerInterface $storeManager,
-        HelperData $helper,
         PaymentDataObjectFactory $paymentDataObjectFactory,
         CommandInterface $removeCommand
     ) {
-        $this->request = $request;
         $this->groupTransactionRepository = $groupTransactionRepository;
-        $this->storeManager = $storeManager;
-        $this->helper = $helper;
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->removeCommand = $removeCommand;
     }
@@ -106,7 +77,11 @@ class Remove
             );
         }
 
-//        $this->removeCommand->execute(['payment' => $this->paymentDataObjectFactory->create($payment)]);
+       $this->removeCommand->execute([
+           'payment' => $this->paymentDataObjectFactory->create($payment),
+           'giftcardTransaction' => $giftcardTransaction,
+           'amount' => $giftcardTransaction->getAmount()
+       ]);
     }
 
     /**
@@ -114,7 +89,6 @@ class Remove
      *
      * @param string $transactionId
      * @param string $orderId
-     *
      * @return GroupTransaction
      */
     protected function getGiftcardTransactionById(string $transactionId, string $orderId)

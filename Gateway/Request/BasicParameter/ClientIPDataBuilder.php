@@ -24,7 +24,6 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Resources\Constants\IPProtocolVersion;
-use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -46,16 +45,13 @@ class ClientIPDataBuilder implements BuilderInterface
      * Constructor
      *
      * @param Account $configProviderAccount
-     * @param Http $request
      * @param RequestInterface $httpRequest
      */
     public function __construct(
         Account $configProviderAccount,
-        Http $request,
         RequestInterface $httpRequest
     ) {
         $this->configProviderAccount = $configProviderAccount;
-        $this->request = $request;
         $this->httpRequest = $httpRequest;
     }
 
@@ -72,7 +68,7 @@ class ClientIPDataBuilder implements BuilderInterface
         return [
             'clientIP' => [
                 'address' => $ip,
-                'type' => strpos($ip, ':') === false ? IPProtocolVersion::IPV4 : IPProtocolVersion::IPV6
+                'type'    => !str_contains($ip, ':') ? IPProtocolVersion::IPV4 : IPProtocolVersion::IPV6
             ]
         ];
     }

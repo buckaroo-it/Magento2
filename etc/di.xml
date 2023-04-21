@@ -3012,15 +3012,19 @@
     <virtualType name="GiftcardsRemoveCommand" type="BuckarooRefundCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">GiftcardsRemoveRequest</argument>
+            <argument name="handler" xsi:type="object">Buckaroo\Magento2\Gateway\Response\GiftCardRemoveHandler</argument>
         </arguments>
     </virtualType>
 
-    <!-- Giftcards Refund Command - Request Builder -->
+    <!-- Giftcards Remove Command - Request Builder -->
     <virtualType name="GiftcardsRemoveRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
-                <item name="giftcard_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\GiftcardNameDataBuilder</item>
+                <item name="group_transaction_details" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GroupTransactionDetails</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3030,7 +3034,7 @@
             <argument name="removeCommand" xsi:type="object">GiftcardsRemoveCommand</argument>
         </arguments>
     </type>
-    <!-- END Giftcards Refund Command -->
+    <!-- END Giftcards Remove Command -->
     <!-- END Giftcards Commands infrastructure -->
     <!-- END Payment Method: Giftcards -->
 
