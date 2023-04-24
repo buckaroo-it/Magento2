@@ -110,6 +110,22 @@ class BuckarooAdapter
     }
 
     /**
+     * Get ideal issuers
+     *
+     * @return array
+     * @throws \Throwable
+     */
+    public function getIdealIssuers()
+    {
+        try {
+            return $this->buckaroo->method('ideal')->issuers();
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__ . $th);
+            throw $th;
+        }
+    }
+
+    /**
      * Get the payment method name from SDK
      *
      * @param string $method
