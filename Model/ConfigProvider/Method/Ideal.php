@@ -23,9 +23,16 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\Ideal\IssuersService;
 
 class Ideal extends AbstractConfigProvider
 {
+    protected IssuersService $issuersService;
+
     public const CODE = 'buckaroo_magento2_ideal';
 
     public const XPATH_IDEAL_SELECTION_TYPE = 'buckaroo_magento2/account/selection_type';
@@ -35,6 +42,29 @@ class Ideal extends AbstractConfigProvider
     protected $allowedCurrencies = [
         'EUR'
     ];
+
+    /**
+     * @param Repository $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     */
+    public function __construct(
+        Repository $assetRepo,
+        ScopeConfigInterface $scopeConfig,
+        AllowedCurrencies $allowedCurrencies,
+        PaymentFee $paymentFeeHelper,
+        IssuersService $issuersService
+    ) {
+        $this->issuersService = $issuersService;
+
+        parent::__construct(
+            $assetRepo,
+            $scopeConfig,
+            $allowedCurrencies,
+            $paymentFeeHelper
+        );
+    }
 
     /**
      * @inheritdoc
@@ -47,7 +77,7 @@ class Ideal extends AbstractConfigProvider
             return [];
         }
 
-        $issuers = $this->formatIssuers();
+        $issuers = $this->issuersService->get();
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         $selectionType = $this->getSelectionType();

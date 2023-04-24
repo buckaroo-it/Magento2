@@ -269,16 +269,29 @@
 }
 /* ===================== iDeal ================================ */
 .buckaroo_magento2_ideal .payment-method-second-col .bank-types,
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types,
 .buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types {
     display: flex;
     align-items: center;
     margin-top: 10px;
+    flex:1 1 100%;
 }
 .buckaroo_magento2_ideal .payment-method-second-col .bank-types-img,
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types-img,
 .buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types-img {
     margin-right:10px;
+}
+
+.fieldset > .field .bk-issuer-list.addon {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types input,
+.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types input {
+    flex: 0;
+    order: 0;
+    margin: 0;
+    padding: 0;
+    margin-right: 5px;
 }
 
 /* ===================== Credit Card =========================== */

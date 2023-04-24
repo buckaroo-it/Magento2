@@ -1,0 +1,153 @@
+<?php
+
+namespace Buckaroo\Magento2\Service\Ideal;
+
+use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
+use Magento\Framework\App\CacheInterface;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\View\Asset\Repository;
+
+class IssuersService
+{
+
+    protected const CACHE_KEY = 'buckaroo_ideal_issuers';
+
+    protected CONST CACHE_LIFETIME_SECONDS = 86400; //24hours
+
+    protected CacheInterface $cache;
+
+    protected Json $serializer;
+
+    protected Repository $assetRepo;
+
+    protected BuckarooAdapter $buckarooAdapter;
+
+    protected const ISSUERS_IMAGES = [
+        'ABNANL2A' => 'abnamro',
+        'ASNBNL21' => 'asnbank',
+        'INGBNL2A' => 'ing',
+        'RABONL2U' => 'rabobank',
+        'SNSBNL2A' => 'sns',
+        'RBRBNL21' => 'regiobank',
+        'TRIONL2U' => 'triodos',
+        'FVLBNL22' => 'vanlanschot',
+        'KNABNL2H' => 'knab',
+        'BUNQNL2A' => 'bunq',
+        'REVOLT21' => 'revolut',
+        'BITSNL2A' => 'yoursafe',
+    ];
+
+    public function __construct(
+        CacheInterface $cache,
+        Json $serializer,
+        Repository $assetRepo,
+        BuckarooAdapter $buckarooAdapter
+    ) {
+        $this->cache = $cache;
+        $this->serializer = $serializer;
+        $this->assetRepo = $assetRepo;
+        $this->buckarooAdapter = $buckarooAdapter;
+    }
+
+
+    /**
+     * Get a list of issuers
+     *
+     * @return array
+     */
+    public function get(): array
+    {
+        $issuers = $this->getCachedIssuers();
+        if($issuers === null) {
+            return $this->updateCacheIssuers();
+        }
+        return $issuers;
+    }
+
+    /**
+     * Request the issuer list from the payment engine and update the cache
+     *
+     * @return array
+     */
+    private function updateCacheIssuers(): array
+    {
+        $retrievedIssuers = $this->addLogos(
+            $this->buckarooAdapter->getIdealIssuers()
+        );
+
+        if(count($retrievedIssuers)) {
+            $this->cacheIssuers($retrievedIssuers);
+            return $retrievedIssuers;
+        }
+        return [];
+    }
+
+    private function cacheIssuers(array $issuers)
+    {
+        $this->cache->save(
+            $this->serializer->serialize($issuers),
+            self::CACHE_KEY,
+            [],
+            self::CACHE_LIFETIME_SECONDS
+        );
+    }
+
+
+    /**
+     * Get the list of issuers from cache
+     *
+     * @return array|null
+     */
+    private function getCachedIssuers(): ?array
+    {
+        $cacheData = $this->cache->load(self::CACHE_KEY);
+        if($cacheData === null || $cacheData === false) {
+            return null;
+        }
+        $issuers = $this->serializer->unserialize($cacheData);
+        if(!is_array($issuers)) {
+            return null;
+        }
+        return $issuers;
+
+    }
+
+    /**
+     * Add logo url to the list of issuer
+     *
+     * @param array $issuers
+     *
+     * @return array
+     */
+    private function addLogos(array $issuers): array
+    {
+        return array_map(
+            function($issuer) {
+                $logo = null;
+                if(
+                    isset($issuer['id']) && 
+                    isset(self::ISSUERS_IMAGES[$issuer['id']])
+                ) {
+                    $name = self::ISSUERS_IMAGES[$issuer['id']];
+                    $logo = $this->getImageUrl("ideal/{$name}");
+                }
+                $issuer['logo'] = $logo;
+                return $issuer;
+            },
+            $issuers
+        );
+    }
+    
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName)
+    {
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$imgName}.svg");
+    }
+}

@@ -30,6 +30,8 @@ class Creditcards extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcards';
 
+    protected array $issuers;
+
     public const XPATH_CREDITCARDS_SELLERS_PROTECTION = 'payment/buckaroo_magento2_creditcards/sellers_protection';
     public const XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE =
         'payment/buckaroo_magento2_creditcards/sellers_protection_eligible';
