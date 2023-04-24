@@ -21,9 +21,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 
 class InvoiceDataBuilder implements BuilderInterface
 {
@@ -47,18 +47,12 @@ class InvoiceDataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
-        if (!isset($buildSubject['payment'])
-            || !$buildSubject['payment'] instanceof PaymentDataObjectInterface
-        ) {
-            throw new \InvalidArgumentException('Payment data object should be provided');
-        }
-
-        $payment = $buildSubject['payment'];
-        $this->setOrder($payment->getOrder()->getOrder());
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $this->setOrder($paymentDO->getOrder()->getOrder());
 
         return [
             'invoice' => $this->getInvoiceId(),
-            'order' => $this->getOrder()->getIncrementId()
+            'order'   => $this->getOrder()->getIncrementId()
         ];
     }
 
@@ -67,7 +61,7 @@ class InvoiceDataBuilder implements BuilderInterface
      *
      * @return Order
      */
-    public function getOrder()
+    public function getOrder(): Order
     {
         return $this->order;
     }
@@ -94,7 +88,8 @@ class InvoiceDataBuilder implements BuilderInterface
     {
         $order = $this->getOrder();
 
-        if (empty($this->invoiceId) || (!$this->isCustomInvoiceId && ($this->invoiceId != $order->getIncrementId()))
+        if (empty($this->invoiceId)
+            || (!$this->isCustomInvoiceId && ($this->invoiceId != $order->getIncrementId()))
         ) {
             $this->setInvoiceId($order->getIncrementId(), false);
         }

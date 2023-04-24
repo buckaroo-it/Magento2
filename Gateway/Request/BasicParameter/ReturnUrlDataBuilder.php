@@ -109,8 +109,7 @@ class ReturnUrlDataBuilder implements BuilderInterface
      */
     public function setReturnUrl(string $url): ReturnUrlDataBuilder
     {
-        $routeUrl = $this->urlBuilder->getRouteUrl($url);
-        $this->returnUrl = $routeUrl;
+        $this->returnUrl = $url;
 
         return $this;
     }

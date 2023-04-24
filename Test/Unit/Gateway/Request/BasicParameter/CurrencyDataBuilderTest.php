@@ -1,36 +1,48 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
-use Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
-use Magento\Payment\Model\InfoInterface;
-use Magento\Payment\Model\MethodInterface;
-use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
-class CurrencyDataBuilderTest extends TestCase
+class CurrencyDataBuilderTest extends AbstractDataBuilderTest
 {
-    /** @var MockObject|Factory */
+    /**
+     * @var MockObject|Factory
+     */
     private $configProviderMethodFactoryMock;
 
-    /** @var MockObject|Order */
-    private $orderMock;
-
-    /** @var CurrencyDataBuilder */
+    /**
+     * @var CurrencyDataBuilder
+     */
     private $currencyDataBuilder;
 
     protected function setUp(): void
     {
-        $this->configProviderMethodFactoryMock = $this->getMockBuilder(Factory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        parent::setUp();
 
-        $this->orderMock = $this->getMockBuilder(Order::class)
+        $this->configProviderMethodFactoryMock = $this->getMockBuilder(Factory::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -50,41 +62,9 @@ class CurrencyDataBuilderTest extends TestCase
         $this->orderMock->method('getOrderCurrencyCode')->willReturn($orderCurrencyCode);
         $this->orderMock->method('getBaseCurrencyCode')->willReturn($baseCurrencyCode);
 
-        $paymentDOMock = $this->getMockBuilder(PaymentDataObjectInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $orderAdapter = $this->getMockBuilder(OrderAdapter::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $orderAdapter->expects($this->once())
-            ->method('getOrder')
-            ->willReturn($this->orderMock);
-
-        $paymentDOMock->expects($this->once())
-            ->method('getOrder')
-            ->willReturn($orderAdapter);
-
-        $infoInterface = $this->getMockBuilder(InfoInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $paymentMethodInstanceMock = $this->getMockBuilder(MethodInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $paymentMethodInstanceMock->expects($this->atMost(1))
+        $this->paymentMethodInstanceMock->expects($this->atMost(1))
             ->method('getCode')
             ->willReturn($paymentMethodCode);
-
-        $infoInterface->expects($this->atMost(1))
-            ->method('getMethodInstance')
-            ->willReturn($paymentMethodInstanceMock);
-
-        $paymentDOMock->expects($this->once())
-            ->method('getPayment')
-            ->willReturn($infoInterface);
 
         $configProvider = $this->getMockBuilder(ConfigProviderInterface::class)
             ->disableOriginalConstructor()
@@ -99,15 +79,16 @@ class CurrencyDataBuilderTest extends TestCase
             ->with($paymentMethodCode)
             ->willReturn($configProvider);
 
-        $buildSubject = [
-            'payment' => $paymentDOMock
-        ];
-
         if ($expectedResult instanceof \Buckaroo\Magento2\Exception) {
             $this->expectExceptionObject($expectedResult);
         }
 
-        $this->assertEquals($expectedResult, $this->currencyDataBuilder->build($buildSubject));
+        $this->assertEquals(
+            $expectedResult,
+            $this->currencyDataBuilder->build([
+                'payment' => $this->getPaymentDOMock()
+            ])
+        );
     }
 
     public function currencyDataProvider()

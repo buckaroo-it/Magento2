@@ -41,9 +41,6 @@ class PaymentMethodDataBuilder implements BuilderInterface
 
         $providerType = str_replace('buckaroo_magento2_', '', $method);
 
-        if ($providerType === 'capayablein3') {
-            $providerType = 'Capayable';
-        }
         return [
             'payment_method' => $providerType,
         ];

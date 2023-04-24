@@ -13,12 +13,12 @@ class AmountDebitDataBuilder implements BuilderInterface
      * The billing amount of the request. This value must be greater than 0,
      * and must match the currency format of the merchant account.
      */
-    private const AMOUNT_DEBIT = 'amountDebit';
+    public const AMOUNT_DEBIT = 'amountDebit';
 
     /**
-     * @var float
+     * @var float|null
      */
-    private float $amount;
+    private ?float $amount;
 
     /**
      * @var DataBuilderService
@@ -57,9 +57,9 @@ class AmountDebitDataBuilder implements BuilderInterface
      * Get Amount
      *
      * @param Order|null $order
-     * @return float
+     * @return float|null
      */
-    public function getAmount(Order $order = null): float
+    public function getAmount(Order $order = null): ?float
     {
         if (empty($this->amount)) {
             $this->setAmount($order);
