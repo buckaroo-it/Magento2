@@ -21,12 +21,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\PayReminder;
 
-use Buckaroo\Magento2\Gateway\Request\PayReminder\AmountDataBuilder;
+use Buckaroo\Magento2\Gateway\Request\PayReminder\OriginalTransactionKeyDataBuilder;
 use Buckaroo\Magento2\Service\PayReminderService;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use PHPUnit\Framework\MockObject\MockObject;
 
-class AmountDataBuilderTest extends AbstractDataBuilderTest
+class OriginalTransactionKeyDataBuilderTest extends AbstractDataBuilderTest
 {
     /**
      * @var MockObject|PayReminderService
@@ -34,9 +34,9 @@ class AmountDataBuilderTest extends AbstractDataBuilderTest
     private $payReminderServiceMock;
 
     /**
-     * @var AmountDataBuilder
+     * @var OriginalTransactionKeyDataBuilder
      */
-    private $amountDataBuilder;
+    private $originalTransactionKeyDataBuilder;
 
     /**
      * @inheritdoc
@@ -49,17 +49,17 @@ class AmountDataBuilderTest extends AbstractDataBuilderTest
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->amountDataBuilder = new AmountDataBuilder($this->payReminderServiceMock);
+        $this->originalTransactionKeyDataBuilder = new OriginalTransactionKeyDataBuilder($this->payReminderServiceMock);
     }
 
     /**
      * @dataProvider buildDataProvider
      *
      * @param string $serviceAction
-     * @param float $payRemainder
+     * @param string $originalTransactionKey
      * @param array $expectedResult
      */
-    public function testBuild(string $serviceAction, float $payRemainder, array $expectedResult): void
+    public function testBuild(string $serviceAction, string $originalTransactionKey, array $expectedResult): void
     {
         $incrementId = '100000001';
 
@@ -74,12 +74,12 @@ class AmountDataBuilderTest extends AbstractDataBuilderTest
 
         if ($serviceAction === 'payRemainder') {
             $this->payReminderServiceMock->expects($this->once())
-                ->method('getPayRemainder')
+                ->method('getOriginalTransactionKey')
                 ->with($this->orderMock)
-                ->willReturn($payRemainder);
+                ->willReturn($originalTransactionKey);
         }
 
-        $result = $this->amountDataBuilder->build(['payment' => $this->getPaymentDOMock()]);
+        $result = $this->originalTransactionKeyDataBuilder->build(['payment' => $this->getPaymentDOMock()]);
         $this->assertEquals($expectedResult, $result);
     }
 
@@ -89,8 +89,12 @@ class AmountDataBuilderTest extends AbstractDataBuilderTest
     public function buildDataProvider(): array
     {
         return [
-            ['payRemainder', 123.45, ['amountDebit' => 123.45]],
-            ['otherAction', 0, []],
+            [
+                'payRemainder',
+                '5EC466B0FFC745028BD74DFC9FBBFE38',
+                ['originalTransactionKey' => '5EC466B0FFC745028BD74DFC9FBBFE38']
+            ],
+            ['otherAction', '', []],
         ];
     }
 }

@@ -34,11 +34,7 @@ class PaymentMethodDataBuilder implements BuilderInterface
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
 
-        /**
-         * @var BuckarooAdapter $methodInstance
-         */
         $method = $paymentDO->getPayment()->getMethodInstance()->getCode() ?? 'buckaroo_magento2_ideal';
-
         $providerType = str_replace('buckaroo_magento2_', '', $method);
 
         return [
