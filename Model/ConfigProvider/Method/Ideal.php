@@ -31,6 +31,9 @@ use Buckaroo\Magento2\Service\Ideal\IssuersService;
 
 class Ideal extends AbstractConfigProvider
 {
+    /**
+     * @var IssuersService
+     */
     protected IssuersService $issuersService;
 
     public const CODE = 'buckaroo_magento2_ideal';
@@ -48,6 +51,7 @@ class Ideal extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param IssuersService $issuersService
      */
     public function __construct(
         Repository $assetRepo,

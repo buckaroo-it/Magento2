@@ -9,19 +9,39 @@ use Magento\Framework\View\Asset\Repository;
 
 class IssuersService
 {
-
+    /**
+     * @var string
+     */
     protected const CACHE_KEY = 'buckaroo_ideal_issuers';
 
+    /**
+     * @var int
+     */
     protected CONST CACHE_LIFETIME_SECONDS = 86400; //24hours
 
+    /**
+     * @var CacheInterface
+     */
     protected CacheInterface $cache;
 
+    /**
+     * @var Json
+     */
     protected Json $serializer;
 
+    /**
+     * @var Repository
+     */
     protected Repository $assetRepo;
 
+    /**
+     * @var BuckarooAdapter
+     */
     protected BuckarooAdapter $buckarooAdapter;
 
+    /**
+     * @var array
+     */
     protected const ISSUERS_IMAGES = [
         'ABNANL2A' => 'abnamro',
         'ASNBNL21' => 'asnbank',
@@ -37,6 +57,13 @@ class IssuersService
         'BITSNL2A' => 'yoursafe',
     ];
 
+    /**
+     * @param CacheInterface $cache
+     * @param Json $serializer
+     * @param Repository $assetRepo
+     * @param BuckarooAdapter $buckarooAdapter
+     * @return void
+     */
     public function __construct(
         CacheInterface $cache,
         Json $serializer,
@@ -82,7 +109,13 @@ class IssuersService
         return [];
     }
 
-    private function cacheIssuers(array $issuers)
+    /**
+     * Cache issuers in magento cache
+     *
+     * @param array $issuers
+     * @return void
+     */
+    private function cacheIssuers(array $issuers): void
     {
         $this->cache->save(
             $this->serializer->serialize($issuers),
@@ -116,7 +149,6 @@ class IssuersService
      * Add logo url to the list of issuer
      *
      * @param array $issuers
-     *
      * @return array
      */
     private function addLogos(array $issuers): array
@@ -142,11 +174,9 @@ class IssuersService
      * Generate the url to the desired asset.
      *
      * @param string $imgName
-     * @param string $extension
-     *
      * @return string
      */
-    public function getImageUrl($imgName)
+    public function getImageUrl(string $imgName): string
     {
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$imgName}.svg");
     }

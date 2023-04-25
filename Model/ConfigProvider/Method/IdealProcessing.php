@@ -32,6 +32,9 @@ use Magento\Store\Model\ScopeInterface;
 
 class IdealProcessing extends AbstractConfigProvider
 {
+    /**
+     * @var IssuersService
+     */
     protected IssuersService $issuersService;
     
     public const CODE = 'buckaroo_magento2_idealprocessing';
@@ -49,6 +52,7 @@ class IdealProcessing extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param IssuersService $issuersService
      */
     public function __construct(
         Repository $assetRepo,
