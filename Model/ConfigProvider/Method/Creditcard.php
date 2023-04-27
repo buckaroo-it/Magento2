@@ -170,6 +170,10 @@ class Creditcard extends AbstractConfigProvider
         ];
     }
 
+    public function getIssuers(): array
+    {
+        return $this->issuers;
+    }
     /**
      * Add the active flag to the creditcard list. This is used in the checkout process.
      *
