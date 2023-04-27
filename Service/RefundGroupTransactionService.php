@@ -122,10 +122,10 @@ class RefundGroupTransactionService
         $this->buckarooLog->addDebug(__METHOD__ . '|1|');
 
         $paymentDO = SubjectReader::readPayment($buildSubject);
-        $this->amountLeftToRefund = SubjectReader::readAmount($buildSubject);
+        $this->amountLeftToRefund = (float)SubjectReader::readAmount($buildSubject);
 
         $order = $paymentDO->getOrder()->getOrder();
-        $this->totalOrder = $order->getBaseGrandTotal();
+        $this->totalOrder = (float)$order->getBaseGrandTotal();
 
         $requestParams = $this->request->getParams();
         if (!empty($requestParams['creditmemo']['buckaroo_already_paid'])) {
