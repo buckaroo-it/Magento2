@@ -1503,24 +1503,24 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|1|');
             $this->logging->addDebug('||| $orderState: ' . '|1|' . $orderState);
             if ($this->dontSaveOrderUponSuccessPush) {
-                $this->order->addStatusToHistory($description)
+                $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
                     ->setEntityName('invoice')
                     ->setStatus($newStatus)
                     ->save();
             } else {
-                $this->order->addStatusToHistory($description, $newStatus);
+                $this->order->addCommentToStatusHistory($description, $newStatus);
             }
         } else {
             $this->logging->addDebug(__METHOD__ . '|2|');
             $this->logging->addDebug('||| $orderState: ' . '|2|' . $orderState);
             if ($this->dontSaveOrderUponSuccessPush) {
-                $this->order->addStatusToHistory($description)
+                $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
                     ->setEntityName('invoice')
                     ->save();
             } else {
-                $this->order->addStatusToHistory($description);
+                $this->order->addCommentToStatusHistory($description);
             }
         }
     }
@@ -1667,7 +1667,7 @@ class Push implements PushInterface
          */
         $payment->setTransactionAdditionalInfo(
             Transaction::RAW_DETAILS,
-            (string)$rawInfo
+            $rawInfo
         );
 
         /**

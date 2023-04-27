@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Framework\Exception\NotFoundException;
@@ -59,7 +58,7 @@ class IssuerValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $paymentInfo = SubjectReader::readPayment($validationSubject)->getPayment();
+        $paymentInfo = $validationSubject['payment'];
 
         $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
         if ($skipValidation) {

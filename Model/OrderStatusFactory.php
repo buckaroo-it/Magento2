@@ -129,13 +129,13 @@ class OrderStatusFactory
     /**
      * Get status for failed or success transaction
      *
-     * @param int $statusCode
+     * @param int|string $statusCode
      * @param ConfigProviderInterface $configProvider
      *
      * @return string|false|null
      */
     public function getPaymentMethodStatus(
-        int $statusCode,
+        int|string $statusCode,
         ConfigProviderInterface $configProvider
     ) {
         /**
