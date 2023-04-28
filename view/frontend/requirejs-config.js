@@ -17,6 +17,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 var config = {
+    config: {
+        mixins: {
+            'Buckaroo_Magento2/js/action/place-order': {
+                'Buckaroo_Magento2/js/action/amasty-place-order-mixin': true
+            },
+        },
+    },
     map: {
         '*': {
             "BuckarooSDK": "//checkout.buckaroo.nl/api/buckaroosdk/script",
