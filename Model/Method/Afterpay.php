@@ -1116,18 +1116,18 @@ class Afterpay extends AbstractMethod
      * @return string
      */
     protected function getFailureMessage($response) {
-        if (!isset($response[0]) || empty($response[0])) {
+        if (empty($response[0])) {
             return parent::getFailureMessage($response);
         }
         $transactionResponse = $response[0];
         $responseCode        = $transactionResponse->Status->Code->Code;
 
-        if(!isset($transactionResponse->Services->Service->ResponseParameter->_)) {
+        if (!isset($transactionResponse->Services->Service->ResponseParameter->_)) {
             return parent::getFailureMessage($response);
         }
 
         $message = $transactionResponse->Services->Service->ResponseParameter->_;
-        if(
+        if (
             $responseCode === 690 &&
             strpos($message, "deliveryCustomer.address.countryCode") !== false
         ) {
