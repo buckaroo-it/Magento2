@@ -37,7 +37,7 @@ class TransactionIdHandler implements HandlerInterface
      * @param array $response
      * @return void
      */
-    public function handle(array $handlingSubject, array $response)
+    public function handle(array $handlingSubject, array $response): void
     {
         $paymentDO = SubjectReader::readPayment($handlingSubject);
         /** @var OrderPaymentInterface $payment */
@@ -45,9 +45,9 @@ class TransactionIdHandler implements HandlerInterface
 
         /** @var TransactionResponse $transaction */
         $transactionResponse = SubjectReader::readTransactionResponse($response);
+        $transactionKey = $transactionResponse->getTransactionKey();
 
-        if (!empty($transactionResponse->getTransactionKey())) {
-            $transactionKey = $transactionResponse->getTransactionKey();
+        if (!empty($transactionKey)) {
 
             $payment->setTransactionId($transactionKey);
             /**

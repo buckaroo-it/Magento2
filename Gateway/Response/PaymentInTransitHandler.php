@@ -24,7 +24,6 @@ namespace Buckaroo\Magento2\Gateway\Response;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class PaymentInTransitHandler implements HandlerInterface
@@ -57,11 +56,11 @@ class PaymentInTransitHandler implements HandlerInterface
     /**
      * Set flag if user is on the payment provider page
      *
-     * @param InfoInterface $payment
+     * @param OrderPaymentInterface $payment
      * @param bool $inTransit
      * @return void
      */
-    public function setPaymentInTransit(InfoInterface $payment, bool $inTransit = true)
+    public function setPaymentInTransit(OrderPaymentInterface $payment, bool $inTransit = true): void
     {
         $payment->setAdditionalInformation(self::BUCKAROO_PAYMENT_IN_TRANSIT, $inTransit);
     }

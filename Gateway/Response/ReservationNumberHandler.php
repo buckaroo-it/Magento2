@@ -52,10 +52,9 @@ class ReservationNumberHandler implements HandlerInterface
                 return;
             }
 
-            if (isset($transactionResponse->getServiceParameters()['klarnakp_reservationnumber'])) {
-                $order->setBuckarooReservationNumber(
-                    $transactionResponse->getServiceParameters()['klarnakp_reservationnumber']
-                );
+            $serviceParameters = $transactionResponse->getServiceParameters();
+            if (isset($serviceParameters['klarnakp_reservationnumber'])) {
+                $order->setBuckarooReservationNumber($serviceParameters['klarnakp_reservationnumber']);
                 $order->save();
             }
         }
