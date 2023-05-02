@@ -10,7 +10,7 @@ define([
             require([
               'Amasty_Orderattr/js/model/attribute-sets/payment-attributes',
               'Amasty_Orderattr/js/model/validate-and-save'
-          ], function (validateAndSave, attributesForm) {
+          ], function (attributesForm, validateAndSave) {
               requestDeferred.resolve(validateAndSave(attributesForm));
           })
         } else {
