@@ -31,12 +31,12 @@ class PaymentDetailsHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var Data|MockObject
      */
-    private Data|MockObject $helper;
+    private $helper;
 
     /**
      * @var MockObject|Registry
      */
-    private Registry|MockObject $registry;
+    private $registry;
 
     /**
      * @var PaymentDetailsHandler

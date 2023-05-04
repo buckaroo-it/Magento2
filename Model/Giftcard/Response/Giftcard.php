@@ -33,6 +33,9 @@ use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Api\Data\OrderInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Giftcard
 {
     /**

@@ -31,7 +31,7 @@ class ConsumerMessageHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var MessageManager|MockObject
      */
-    protected MockObject|MessageManager $messageManager;
+    protected $messageManager;
 
     /**
      * @var ConsumerMessageHandler

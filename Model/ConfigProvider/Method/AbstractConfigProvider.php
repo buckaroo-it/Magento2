@@ -349,7 +349,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      * @param null|int|string $store
      * @return bool
      */
-    public function getOrderEmail($store = null): bool
+    public function hasOrderEmail($store = null): bool
     {
         return (bool)$this->getMethodConfigValue(static::XPATH_ORDER_EMAIL, $store);
     }

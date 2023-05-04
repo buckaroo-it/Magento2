@@ -49,15 +49,15 @@ class Afterpay20 extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'afterpay20' => [
-                        'sendEmail'         => (bool) $this->getOrderEmail(),
+                        'sendEmail'         => $this->hasOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'is_b2b'            => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C
                     ],
-                    'response' => [],
+                    'response'   => [],
                 ],
             ],
         ];

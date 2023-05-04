@@ -53,11 +53,11 @@ class Transfer extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'transfer' => [
-                        'sendEmail'         => (bool)$this->getOrderEmail(),
+                        'sendEmail'         => $this->hasOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ]
                 ]

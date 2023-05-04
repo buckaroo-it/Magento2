@@ -71,21 +71,21 @@ class Billink extends AbstractConfigProvider
         return [
             'payment' => [
                 'buckaroo' => [
-                    'billink'  => [
-                        'sendEmail'         => (bool) $this->getOrderEmail(),
+                    'billink' => [
+                        'sendEmail'         => $this->hasOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'b2b' => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
-                        'genderList' => [
+                        'b2b'               => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
+                        'genderList'        => [
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')],
                             ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
                             ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
                         ],
-                        'businessMethod' => $this->getBusiness()
+                        'businessMethod'    => $this->getBusiness()
                     ],
                     'response' => [],
                 ],

@@ -66,17 +66,19 @@ class ReturnUrlDataBuilder implements BuilderInterface
 
     /**
      * @inheritdoc
+     * @throws LocalizedException
      */
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
+        $returnUrl = $this->getReturnUrl($order);
 
         return [
-            'returnURL' => $this->getReturnUrl($order),
-            'returnURLError' => $this->getReturnUrl($order),
-            'returnURLCancel' => $this->getReturnUrl($order),
-            'returnURLReject' => $this->getReturnUrl($order),
+            'returnURL' => $returnUrl,
+            'returnURLError' => $returnUrl,
+            'returnURLCancel' => $returnUrl,
+            'returnURLReject' => $returnUrl,
             'pushURL' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
             'pushURLFailure' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push')
         ];

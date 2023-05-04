@@ -55,11 +55,11 @@ class Afterpay extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'afterpay' => [
-                        'sendEmail'         => (bool) $this->getOrderEmail(),
+                        'sendEmail'         => $this->hasOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),

@@ -146,7 +146,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getOrderEmail();
+        $result = $instance->hasOrderEmail();
 
         $this->assertEquals($expected, $result);
     }

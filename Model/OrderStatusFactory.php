@@ -135,7 +135,7 @@ class OrderStatusFactory
      * @return string|false|null
      */
     public function getPaymentMethodStatus(
-        int|string $statusCode,
+        $statusCode,
         ConfigProviderInterface $configProvider
     ) {
         /**

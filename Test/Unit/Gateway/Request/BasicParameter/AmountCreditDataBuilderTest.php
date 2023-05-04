@@ -84,7 +84,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
             'amount'  => $amount
         ];
 
-        $this->refundGroupServiceMock->method('getAmountLeftToRefund')->willReturn($amount);
+        $this->refundGroupServiceMock->method('getAmountLeftToRefund')->willReturn($amountLeftToRefund);
 
         $result = $this->amountCreditDataBuilder->build($buildSubject);
 
@@ -98,7 +98,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
     {
         return [
             [100.00, 100.00, 100.00],
-            [50.00, 75.00, 50.00],
+            [50.00, 75.00, 75.00],
             [0.01, 0.01, 0.01],
         ];
     }

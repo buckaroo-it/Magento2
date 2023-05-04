@@ -203,16 +203,4 @@ class RestoreQuote implements ObserverInterface
             ->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
         $this->quoteRepository->save($this->checkoutSession->getQuote());
     }
-
-    /**
-     * Cancel Last Order when the payment process has not been completed
-     *
-     * @param OrderModel $order
-     * @return void
-     * @throws LocalizedException
-     */
-    private function cancelLastOrder(OrderModel $order): void
-    {
-        $this->orderService->cancel($order, $order->getStatus());
-    }
 }

@@ -36,6 +36,8 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Idin config provider
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Idin extends AbstractConfigProvider
 {
