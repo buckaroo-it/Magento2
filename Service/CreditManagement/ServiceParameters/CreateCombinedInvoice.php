@@ -24,6 +24,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Method\PayPerEmail;
 
 class CreateCombinedInvoice
 {
@@ -141,7 +142,7 @@ class CreateCombinedInvoice
                 'Name' => 'MaxStepIndex',
             ],
             [
-                '_'    => $this->configProvider->getPaymentMethod(),
+                '_'    => $this->getAllowedServices($order->getPayment()),
                 'Name' => 'AllowedServices',
             ]
         ];
@@ -154,6 +155,20 @@ class CreateCombinedInvoice
         }
 
         return $ungroupedParameters;
+    }
+
+    /**
+     * @param OrderPaymentInterface|InfoInterface $payment
+     * @return string
+     */
+    private function getAllowedServices($payment): string
+    {
+        $allowedServices = $this->configProvider->getPaymentMethod();
+
+        if($payment->getMethod() === PayPerEmail::PAYMENT_METHOD_CODE) {
+            return str_replace("p24,","",$allowedServices);
+        }
+        return $allowedServices;
     }
 
     /**
@@ -182,12 +197,15 @@ class CreateCombinedInvoice
                 'Name' => 'LastName',
                 'Group' => 'Person',
             ],
-            [
+        ];
+
+        if (!empty($payment->getAdditionalInformation('customer_gender'))) {
+            $personParameters[] = [
                 '_'    => $payment->getAdditionalInformation('customer_gender'),
                 'Name' => 'Gender',
                 'Group' => 'Person',
-            ],
-        ];
+            ];
+        }
 
         return $personParameters;
     }
@@ -250,7 +268,7 @@ class CreateCombinedInvoice
         $requestParameters = [];
         $company = $billingAddress->getCompany();
 
-        if (strlen($company) <= 0) {
+        if (empty($company) || strlen($company) <= 0) {
             return $requestParameters;
         }
 

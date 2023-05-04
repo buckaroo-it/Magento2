@@ -20,6 +20,8 @@
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Model\Method\PayLink;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\UrlInterface;
 
 class PluginBefore
 {
@@ -29,10 +31,20 @@ class PluginBefore
 
     protected $configProviderMethodFactory;
 
+    /**
+     * @var UrlInterface
+     */
+    private UrlInterface $urlBuilder;
+
+    /**
+     * @var RequestInterface
+     */
+    private RequestInterface $request;
+
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Framework\UrlInterface $urlBuilder
+        UrlInterface $urlBuilder
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderRepository             = $orderRepository;
@@ -49,9 +61,9 @@ class PluginBefore
             $order          = $this->orderRepository->get($orderId);
             $state          = $order->getState();
             $config         = $this->configProviderMethodFactory->get('paylink');
-            $this->_request = $context->getRequest();
+            $this->request = $context->getRequest();
             if ($config->getActive() != '0' &&
-                $this->_request->getFullActionName() == 'sales_order_view' &&
+                $this->request->getFullActionName() == 'sales_order_view' &&
                 $state == 'new' &&
                 ($order->getPayment()->getMethod() != PayLink::PAYMENT_METHOD_CODE)
             ) {

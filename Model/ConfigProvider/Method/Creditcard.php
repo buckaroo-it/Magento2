@@ -48,6 +48,9 @@ class Creditcard extends AbstractConfigProvider
     const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
     const XPATH_CREDITCARD_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_creditcard/payment_fee_label';
     const XPATH_CREDITCARD_ACTIVE               = 'payment/buckaroo_magento2_creditcard/active';
+    const XPATH_CREDITCARD_SUBTEXT              = 'payment/buckaroo_magento2_creditcard/subtext';
+    const XPATH_CREDITCARD_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_creditcard/subtext_style';
+    const XPATH_CREDITCARD_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_creditcard/subtext_color';
     const XPATH_CREDITCARD_ACTIVE_STATUS        = 'payment/buckaroo_magento2_creditcard/active_status';
     const XPATH_CREDITCARD_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcard/order_status_success';
     const XPATH_CREDITCARD_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_creditcard/order_status_failed';
@@ -145,10 +148,10 @@ class Creditcard extends AbstractConfigProvider
             }
         }
 
-        $issuers = parent::formatIssuers();
-        foreach ($issuers as $item) {
+        foreach ($this->getIssuers() as $item) {
             $item['sort'] = isset($sorted_array[$item['name']]) ?
                 $sorted_array[$item['name']] : self::DEFAULT_SORT_VALUE;
+            $item['img'] = $this->getCreditcardLogo($item['code']);
             $allCreditcard[$item['code']] = $item;
         }
 
@@ -197,6 +200,9 @@ class Creditcard extends AbstractConfigProvider
                     'creditcard' => [
                         'cards' => $issuers,
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'selectionType' => $selectionType,
                         'paymentFlow' => $paymentFlow,

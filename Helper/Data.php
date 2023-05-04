@@ -302,7 +302,7 @@ class Data extends AbstractHelper
 
         return $configValue;
     }
-    
+
     public function getConfigGiftCardsSort()
     {
         $configValue = $this->scopeConfig->getValue(
@@ -343,6 +343,7 @@ class Data extends AbstractHelper
                     'email' => $customer->getEmail(),
                     'firstName' => $billingAddress ? $billingAddress->getFirstName() : '',
                     'lastName' => $billingAddress ? $billingAddress->getLastName() : '',
+                    'middleName' => $billingAddress ? $billingAddress->getMiddlename() : '',
                 ];
             }
         }
@@ -355,6 +356,7 @@ class Data extends AbstractHelper
                         $this->staticCache['getPPeCustomerDetails']['email'] : '',
                     'firstName' => $order['billing_address']['firstname'],
                     'lastName' => $order['billing_address']['lastname'],
+                    'middleName' => $order['billing_address']['middlename'],
                 ];
             }
         }
@@ -367,6 +369,7 @@ class Data extends AbstractHelper
                 'email' => $payment['customer_email'],
                 'firstName' => $payment['customer_billingFirstName'],
                 'lastName' => $payment['customer_billingLastName'],
+                'middleName' => $payment['customer_billingMiddleName'],
             ];
         }
 
@@ -441,7 +444,6 @@ class Data extends AbstractHelper
             ['value' => 'paypal',       'label' => __('Paypal')],
             ['value' => 'payperemail',       'label' => __('PayPerEmail')],
             ['value' => 'pospayment',       'label' => __('Point of Sale')],
-            ['value' => 'rtp',       'label' => __('Request To Pay')],
             ['value' => 'sepadirectdebit',       'label' => __('SEPA direct debit')],
             ['value' => 'sofortbanking',       'label' => __('SOFORT')],
             ['value' => 'belfius',       'label' => __('Belfius')],

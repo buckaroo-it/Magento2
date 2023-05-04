@@ -40,8 +40,16 @@ class GroupTransactionRegister implements ObserverInterface
     private $helper;
 
     /**
-     * @param Account       $accountConfig
+     * @var PaymentGroupTransaction
+     */
+    private PaymentGroupTransaction $groupTransaction;
+
+    /**
+     * @param Account $accountConfig
      * @param InvoiceSender $invoiceSender
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param Log $logger
+     * @param Data $helper
      */
     public function __construct(
         Account $accountConfig,

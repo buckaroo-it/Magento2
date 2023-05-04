@@ -16,26 +16,71 @@ use Magento\Quote\Model\Quote\AddressFactory as BaseQuoteAddressFactory;
 use Magento\Quote\Model\ShippingAddressManagementInterface;
 use Magento\Quote\Model\QuoteRepository;
 use Buckaroo\Magento2\Service\Applepay\ShippingMethod as AppleShippingMethod;
-class Add 
+
+class Add
 {
     /**
      * @var CartRepositoryInterface
      */
     private $cartRepository;
 
+    /**
+     * @var CartInterface
+     */
     private $cart;
 
+    /**
+     * @var MaskedQuoteIdToQuoteIdInterface
+     */
     private $maskedQuoteIdToQuoteId;
+
+    /**
+     * @var ProductRepositoryInterface
+     */
+    private ProductRepositoryInterface $productRepository;
+
+    /**
+     * @var BuyRequestBuilder
+     */
+    private BuyRequestBuilder $requestBuilder;
+
+    /**
+     * @var ApplepayModel
+     */
+    private ApplepayModel $applepayModel;
+
+    /**
+     * @var QuoteAddressFactory|BaseQuoteAddressFactory
+     */
+    private QuoteAddressFactory|BaseQuoteAddressFactory $quoteAddressFactory;
+
+    /**
+     * @var ShippingAddressManagementInterface
+     */
+    private ShippingAddressManagementInterface $shippingAddressManagement;
+
+    /**
+     * @var QuoteRepository|mixed
+     */
+    private mixed $quoteRepository;
+
+    /**
+     * @var ShippingMethod
+     */
+    private ShippingMethod $appleShippingMethod;
+
     /**
      * @param CartRepositoryInterface $cartRepository
      * @param CartInterface $cart
      * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
      * @param ProductRepositoryInterface $productRepository
-     * @param BuyRequestBuilder $buyRequestBuilder
+     * @param BuyRequestBuilder $requestBuilder
      * @param ApplepayModel $applepayModel
-     * @param QuoteAddressFactory $quoteAddressFactory
+     * @param BaseQuoteAddressFactory $quoteAddressFactory
+     * @param ShippingAddressManagementInterface $shippingAddressManagement
+     * @param QuoteRepository|null $quoteRepository
+     * @param ShippingMethod $appleShippingMethod
      */
-     
     public function __construct(
         CartRepositoryInterface $cartRepository,
         CartInterface $cart,
@@ -48,8 +93,7 @@ class Add
         QuoteRepository $quoteRepository = null,
         AppleShippingMethod $appleShippingMethod
 
-    )
-    {
+    ) {
         $this->cartRepository = $cartRepository;
         $this->cart = $cart;
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
@@ -59,7 +103,7 @@ class Add
         $this->quoteAddressFactory = $quoteAddressFactory;
         $this->shippingAddressManagement = $shippingAddressManagement;
         $this->quoteRepository = $quoteRepository
-        ?? ObjectManager::getInstance()->get(QuoteRepository::class);
+            ?? ObjectManager::getInstance()->get(QuoteRepository::class);
         $this->appleShippingMethod = $appleShippingMethod;
 
     }

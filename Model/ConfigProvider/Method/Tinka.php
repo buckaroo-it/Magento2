@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,6 +26,9 @@ class Tinka extends AbstractConfigProvider
     const XPATH_TINKA_PAYMENT_FEE           = 'payment/buckaroo_magento2_tinka/payment_fee';
     const XPATH_TINKA_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_tinka/payment_fee_label';
     const XPATH_TINKA_ACTIVE                = 'payment/buckaroo_magento2_tinka/active';
+    const XPATH_TINKA_SUBTEXT               = 'payment/buckaroo_magento2_tinka/subtext';
+    const XPATH_TINKA_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_tinka/subtext_style';
+    const XPATH_TINKA_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_tinka/subtext_color';
     const XPATH_TINKA_ACTIVE_STATUS         = 'payment/buckaroo_magento2_tinka/active_status';
     const XPATH_TINKA_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_tinka/order_status_success';
     const XPATH_TINKA_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_tinka/order_status_failed';
@@ -36,6 +40,7 @@ class Tinka extends AbstractConfigProvider
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_tinka/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_tinka/specificcountry';
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_tinka/specificcustomergroup';
+    const XPATH_ACTIVE_SERVICE                  = 'payment/buckaroo_magento2_tinka/activeservice';
 
     /**
      * @var array
@@ -65,6 +70,9 @@ class Tinka extends AbstractConfigProvider
                 'buckaroo' => [
                     'tinka' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

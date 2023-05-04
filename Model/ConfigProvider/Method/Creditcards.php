@@ -39,6 +39,9 @@ class Creditcards extends AbstractConfigProvider
     const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
     const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
     const XPATH_CREDITCARDS_ACTIVE = 'payment/buckaroo_magento2_creditcards/active';
+    const XPATH_CREDITCARDS_SUBTEXT                = 'payment/buckaroo_magento2_creditcards/subtext';
+    const XPATH_CREDITCARDS_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_creditcards/subtext_style';
+    const XPATH_CREDITCARDS_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_creditcards/subtext_color';
     const XPATH_CREDITCARDS_ACTIVE_STATUS = 'payment/buckaroo_magento2_creditcards/active_status';
     const XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcards/order_status_success';
     const XPATH_CREDITCARDS_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_creditcards/order_status_failed';
@@ -53,7 +56,6 @@ class Creditcards extends AbstractConfigProvider
     const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
         'buckaroo_magento2_creditcards/sellers_protection_unauthorizedpayment_eligible';
     const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_creditcards';
-    const XPATH_USE_CARD_DESIGN = 'payment/buckaroo_magento2_creditcards/card_design';
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcards/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_creditcards/allowspecific';
     const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_creditcards/specificcountry';
@@ -95,9 +97,11 @@ class Creditcards extends AbstractConfigProvider
                 'buckaroo' => [
                     'creditcards' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'creditcards' => $issuers,
-                        'defaultCardImage' => $this->getImageUrl('buckaroo_magento2_creditcard_title'),
-                        'useCardDesign' => $this->useCardDesign(),
+                        'defaultCardImage' => $this->getImageUrl('svg/creditcards', 'svg'),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -128,24 +132,18 @@ class Creditcards extends AbstractConfigProvider
      */
     public function formatIssuers()
     {
-        $issuers = parent::formatIssuers();
         $allowed = explode(',', (string)$this->scopeConfig->getValue(
             self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
             ScopeInterface::SCOPE_STORE
         ));
 
+        $issuers = $this->issuers;
+
         foreach ($issuers as $key => $issuer) {
             $issuers[$key]['active'] = in_array($issuer['code'], $allowed);
+            $issuers[$key]['img'] = $this->getCreditcardLogo($issuer['code']);
         }
 
         return $issuers;
-    }
-
-    /**
-     * @return bool
-     */
-    private function useCardDesign()
-    {
-        return $this->scopeConfig->getValue(self::XPATH_USE_CARD_DESIGN, ScopeInterface::SCOPE_STORE);
     }
 }

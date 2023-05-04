@@ -3,6 +3,7 @@
 </p>
 
 # Buckaroo Magento 2 Payments Plugin
+[![Latest release](https://badgen.net/github/release/buckaroo-it/Magento2)](https://github.com/buckaroo-it/Magento2/releases)
 
 ### Index
 - [About](#about)
@@ -28,8 +29,8 @@ Start accepting payments within a few minutes.
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- Magento version Magento 2.4.x up to 2.4.5-p1
-- PHP 7.4 , 8.0 , 8.1
+- Magento version Magento 2.4.4 up to 2.4.6
+- PHP 7.4 , 8.0 , 8.1, 8.2
 
 ### Installation
 

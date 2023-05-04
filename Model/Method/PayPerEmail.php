@@ -116,7 +116,6 @@ class PayPerEmail extends AbstractMethod
             $priceHelper,
             $data
         );
-
         $this->serviceParameters = $serviceParameters;
     }
 
@@ -221,7 +220,7 @@ class PayPerEmail extends AbstractMethod
                 'Name' => 'CustomerFirstName',
             ],
             [
-                '_'    => $payment->getAdditionalInformation('customer_billingLastName'),
+                '_'    => $payment->getAdditionalInformation('customer_billingMiddleName') . ' ' . $payment->getAdditionalInformation('customer_billingLastName'),
                 'Name' => 'CustomerLastName',
             ],
             [

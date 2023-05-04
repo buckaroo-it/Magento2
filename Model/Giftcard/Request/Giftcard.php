@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Data\Form\FormKey;
@@ -114,8 +115,23 @@ class Giftcard implements GiftcardInterface
             'pin' => 'TCSValidationCode',
         ]
     ];
+
     /**
-     *
+     * @var ScopeConfigInterface
+     */
+    private ScopeConfigInterface $scopeConfig;
+
+    /**
+     * @var UrlInterface
+     */
+    private UrlInterface $urlBuilder;
+
+    /**
+     * @var FormKey
+     */
+    private FormKey $formKey;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Account $configProviderAccount
      * @param UrlInterface $urlBuilder
@@ -124,6 +140,7 @@ class Giftcard implements GiftcardInterface
      * @param StoreManagerInterface $storeManager
      * @param Json $client
      * @param RequestInterface $httpRequest
+     * @throws NoSuchEntityException
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,

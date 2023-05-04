@@ -45,7 +45,7 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        quote, 
+        quote,
         globalMessageList,
         $t,
         url,
@@ -66,7 +66,7 @@ define(
         }
 
         function checkPayments(){
-            var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail","emandate","rtp", "tinka"];
+            var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail","emandate", "tinka"];
             p.forEach(function(item) {
                 $('.buckaroo_magento2_'+item).remove();
             });
@@ -86,11 +86,13 @@ define(
                 allgiftcards: [],
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.giftcards.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.giftcards.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('giftcards'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentGiftcard : false,
                 alreadyPayed : false,
-                
+
                 /**
              * @override
              */
@@ -228,7 +230,7 @@ define(
 
                     return text.replace('%s', this.baseCurrencyCode);
                 },
-                
+
                 getData: function () {
                     return {
                         "method": this.item.method,
@@ -250,7 +252,7 @@ define(
                         url: url.build('buckaroo/checkout/giftcard'),
                         type: 'POST',
                         dataType: 'json',
-                        showLoader: true, //use for display loader 
+                        showLoader: true, //use for display loader
                         data: {
                             card: self.currentGiftcard,
                             cardNumber: self.CardNumber._latestValue,
@@ -275,7 +277,7 @@ define(
                             // getTotalsAction([], deferred);
                             $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
 
-                            checkPayments();                            
+                            checkPayments();
                         }
                         if(data.error){
                                 alert({
@@ -303,7 +305,7 @@ define(
                         }
 
                         $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
-                    
+
                     });
 
                 },

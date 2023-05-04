@@ -21,10 +21,8 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Catalog\Model\Product\Type;
-use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Model\Config\Source\TinkaActiveService;
 
 class Tinka extends AbstractMethod
 {
@@ -65,6 +63,13 @@ class Tinka extends AbstractMethod
             $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $dobDate);
         }
 
+        if (isset($data['additional_data']['customer_telephone'])) {
+            $this->getInfoInstance()->setAdditionalInformation(
+                'customer_telephone',
+                $data['additional_data']['customer_telephone']
+            );
+        }
+
         if (isset($data['additional_data']['buckaroo_skip_validation'])) {
             $this->getInfoInstance()->setAdditionalInformation(
                 'buckaroo_skip_validation',
@@ -75,6 +80,21 @@ class Tinka extends AbstractMethod
         return $this;
     }
 
+    private function getPhoneNumber($payment, $billingAddress)
+    {
+
+        $telephone = $billingAddress->getTelephone();
+
+        if($telephone !== null) {
+            return $telephone;
+        }
+
+        $telephone = $payment->getAdditionalInformation('customer_telephone');
+        if(!empty($telephone)) {
+            return $telephone;
+        }
+        return '';
+    }
     /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
@@ -86,8 +106,7 @@ class Tinka extends AbstractMethod
         $billingAddress = $payment->getOrder()->getBillingAddress();
         $billingStreetFormat   = $this->formatStreet($billingAddress->getStreet());
 
-        $telephone = $payment->getAdditionalInformation('customer_telephone');
-        $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
+        $telephone = $this->getPhoneNumber($payment, $billingAddress);
 
         $billingData = [
             [
@@ -96,12 +115,12 @@ class Tinka extends AbstractMethod
                 "GroupID" => "",
                 "_" => $billingAddress->getEmail()
             ],
-//                [
-//                    "Name"=> "PrefixLastName",
-//                    "Group"=> "BillingCustomer",
-//                    "GroupID"=> "",
-//                    "_"=> $billingAddress->getPrefix()
-//                ],
+            [
+                "Name"=> "Initials",
+                "Group"=> "",
+                "GroupID"=> "",
+                "_"=> $this->getInitials($billingAddress)
+            ],
             [
                 "Name"=> "City",
                 "Group"=> "BillingCustomer",
@@ -324,7 +343,9 @@ class Tinka extends AbstractMethod
             'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'RequestParameter' => [
                 [
-                    '_'    => 'Credit',
+                    '_'    => $this->getActiveService(
+                        $payment->getOrder()->getStoreId()
+                    ),
                     'Name' => 'PaymentMethod',
                     "Group" => "",
                     "GroupID" => "",
@@ -562,5 +583,22 @@ class Tinka extends AbstractMethod
     public function getPaymentMethodName($payment)
     {
         return $this->buckarooPaymentMethodCode;
+    }
+
+    public function getActiveService($storeId = null)
+    {
+        $activeService = $this->getConfigData('activeservice', $storeId);
+        
+        if (!in_array($activeService, TinkaActiveService::LIST)) {
+            return TinkaActiveService::CREDIT;
+        }
+        return $activeService;
+    }
+
+    public function getInitials($address): string
+    {
+        return strtoupper(substr($address->getFirstname(), 0, 1)) .
+        strtoupper(substr($address->getFirstname(), 0, 1));
+        
     }
 }

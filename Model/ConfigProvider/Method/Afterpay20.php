@@ -35,6 +35,9 @@ class Afterpay20 extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_afterpay20/specificcountry';
 
     const XPATH_AFTERPAY20_ACTIVE                 = 'payment/buckaroo_magento2_afterpay20/active';
+    const XPATH_AFTERPAY20_SUBTEXT                = 'payment/buckaroo_magento2_afterpay20/subtext';
+    const XPATH_AFTERPAY20_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_afterpay20/subtext_style';
+    const XPATH_AFTERPAY20_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_afterpay20/subtext_color';
     const XPATH_AFTERPAY20_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay20/payment_fee';
     const XPATH_AFTERPAY20_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_afterpay20/payment_fee_label';
     const XPATH_AFTERPAY20_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay20/send_email';
@@ -74,6 +77,9 @@ class Afterpay20 extends AbstractConfigProvider
                     'afterpay20' => [
                         'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'is_b2b'     => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C
                     ],

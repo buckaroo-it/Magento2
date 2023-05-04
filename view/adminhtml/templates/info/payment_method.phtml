@@ -27,10 +27,15 @@
 <?php
 if ($giftCards = $block->getGiftCards()) {
     foreach ($giftCards as $giftCard) { ?>
-        <div class="buckaroo_magento2_payment_<?php echo $block->escapeHtml($giftCard['code']); ?>">
+        <div class="bk-payment-wrap">
+            <div class="bk-img-wrap">
+                <img src=" <?php echo $block->escapeHtml($block->getGifcardLogo($giftCard['code'])) ?>" alt=""/>
+            </div>
+            <div class="bk-label-wrap">
             <?php echo $block->escapeHtml($giftCard['label']) ?>
+            </div>
         </div>
-        <?php
+    <?php
     }
 }
 ?>
@@ -43,7 +48,13 @@ if ($method = $block->getPayPerEmailMethod()) {?>
 <?php } ?>
 
 <?php $method = $block->getMethod(); ?>
-<div class="buckaroo_magento2_payment_<?php echo $block->escapeHtml($method->buckarooPaymentMethodCode); ?>">
-    <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
+<div class="bk-payment-wrap">
+    <?php if($method->buckarooPaymentMethodCode !== 'voucher') { ?>
+        <div class="bk-img-wrap">
+                <img src=" <?php echo $block->escapeHtml($block->getPaymentLogo($method->buckarooPaymentMethodCode)) ?>" alt=""/>
+        </div>
+    <?php } ?>
+    <div class="bk-label-wrap">
+        <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
+    </div>
 </div>
-

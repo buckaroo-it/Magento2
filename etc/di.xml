@@ -35,7 +35,7 @@
     <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
-    
+
 
       <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
@@ -46,7 +46,7 @@
     <preference for="Buckaroo\Magento2\Api\PayWithGiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\Pay"/>
     <preference for="Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard"/>
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayResponse"/>
-    
+
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\TransactionResponse"/>
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactionsResponse"/>
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayRequest"/>
@@ -57,14 +57,14 @@
     <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />
 
     <preference for="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteCreate" />
-    
+
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\QuoteCreate" />
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\TotalBreakdown" />
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem" />
-    
+
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\OrderDataItem" />
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\ShippingAddress" />
-    
+
     <preference for="Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\OrderCreate" />
 
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\OrderCreate" />
@@ -212,6 +212,10 @@
                     <item name="type" xsi:type="string">idin</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Idin</item>
                 </item>
+                 <item name="refund_partial" xsi:type="array">
+                    <item name="type" xsi:type="string">refund_partial</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\RefundPartial</item>
+                </item> 
             </argument>
         </arguments>
     </type>
@@ -346,10 +350,6 @@
                 <item name="trustly" xsi:type="array">
                     <item name="type" xsi:type="string">trustly</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Trustly</item>
-                </item>
-                <item name="rtp" xsi:type="array">
-                    <item name="type" xsi:type="string">rtp</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Rtp</item>
                 </item>
                 <item name="pospayment" xsi:type="array">
                     <item name="type" xsi:type="string">pospayment</item>

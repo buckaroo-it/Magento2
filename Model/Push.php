@@ -237,6 +237,10 @@ class Push implements PushInterface
 
 
         if ($this->isGroupTransactionInfo()) {
+            if($this->isCanceledGroupTransaction()) {
+                $this->cancelGroupTransactionOrder();
+                return true;
+            }
             if ($this->isGroupTransactionFailed()) {
                 $this->savePartGroupTransaction();
             } else {
@@ -292,7 +296,7 @@ class Push implements PushInterface
          * @todo when buckaroo changes the push / response order this can be removed
          */
         if ($skipFirstPush > 0) {
-            $payment->setAdditionalInformation('skip_push', $skipFirstPush - 1);
+            $payment->setAdditionalInformation('skip_push', (int)$skipFirstPush - 1);
             $payment->save();
             throw new \Buckaroo\Magento2\Exception(
                 __('Skipped handling this push, first handle response, action will be taken on the next push.')
@@ -1986,7 +1990,7 @@ class Push implements PushInterface
      *
      * @return void
      */
-    protected function cancelOrder(string $reservedOrderId)
+    protected function cancelOrder(string $reservedOrderId, $historyComment = 'Giftcard has expired')
     {
         $order = $this->order->loadByIncrementId($reservedOrderId);
 
@@ -2005,7 +2009,7 @@ class Push implements PushInterface
             $orderManagement->cancel($order->getEntityId());
 
             $order->addCommentToStatusHistory(
-                __('Giftcard has expired')
+                __($historyComment)
             )
             ->setIsCustomerNotified(false)
             ->setEntityName('invoice')
@@ -2046,5 +2050,40 @@ class Push implements PushInterface
         return $order;
 
 
+    }
+
+    /**
+     * Cancel order when group transaction is canceled
+     *
+     * @return void
+     */
+    public function cancelGroupTransactionOrder()
+    {
+        if(
+            isset($this->postData['brq_invoicenumber']) &&
+            is_string($this->postData['brq_invoicenumber'])
+        ) {
+            $this->cancelOrder(
+                $this->postData['brq_invoicenumber'],
+                'Inline giftcard order was canceled'
+            );
+        }
+    }
+
+    /**
+     * Check if the request is a canceled group transaction
+     *
+     * @return boolean
+     */
+    public function isCanceledGroupTransaction()
+    {
+        return $this->hasPostData(
+            'brq_transaction_type',
+            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+        ) &&
+        $this->hasPostData(
+            'brq_statuscode',
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
+        );
     }
 }

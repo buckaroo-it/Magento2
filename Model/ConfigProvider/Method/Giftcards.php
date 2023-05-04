@@ -30,6 +30,9 @@ class Giftcards extends AbstractConfigProvider
     const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
     const XPATH_GIFTCARDS_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_giftcards/payment_fee_label';
     const XPATH_GIFTCARDS_ACTIVE               = 'payment/buckaroo_magento2_giftcards/active';
+    const XPATH_GIFTCARDS_SUBTEXT              = 'payment/buckaroo_magento2_giftcards/subtext';
+    const XPATH_GIFTCARDS_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_giftcards/subtext_style';
+    const XPATH_GIFTCARDS_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_giftcards/subtext_color';
     const XPATH_GIFTCARDS_ACTIVE_STATUS        = 'payment/buckaroo_magento2_giftcards/active_status';
     const XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_giftcards/order_status_success';
     const XPATH_GIFTCARDS_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_giftcards/order_status_failed';
@@ -114,10 +117,15 @@ class Giftcards extends AbstractConfigProvider
         );
 
         foreach (explode(',', (string)$availableCards) as $key => $value) {
+            $logo = $this->getLogo($value);
+            if(isset($allGiftCards[$value]['logo'])) {
+                $logo = $url . $allGiftCards[$value]['logo'];
+            }
+
             $cards[] = [
                 'code'  => $value,
                 'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',
-                'logo'  => isset($allGiftCards[$value]['logo']) ? $url . $allGiftCards[$value]['logo'] : false,
+                'logo'  => $logo,
                 'sort'  => isset($allGiftCards[$value]['sort']) ? $allGiftCards[$value]['sort'] : '99',
             ];
         }
@@ -136,6 +144,9 @@ class Giftcards extends AbstractConfigProvider
                     'avaibleGiftcards' => $cards,
                     'giftcards'        => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -166,5 +177,28 @@ class Giftcards extends AbstractConfigProvider
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
+    }
+
+    protected function getLogo(string $code): string
+    {
+        $mappings = [
+            "ajaxgiftcard" => "ajaxgiftcard",
+            "boekenbon" => "boekenbon",
+            "cjpbetalen" => "cjp",
+            "digitalebioscoopbon" => "nationaletuinbon",
+            "fashioncheque" => "fashioncheque",
+            "fashionucadeaukaart" => "fashiongiftcard",
+            "nationaletuinbon" => "nationalebioscoopbon",
+            "nationaleentertainmentcard" => "nationaleentertainmentcard",
+            "podiumcadeaukaart" => "podiumcadeaukaart",
+            "sportfitcadeau" => "sport-fitcadeau",
+            "vvvgiftcard" => "vvvgiftcard"
+        ];
+
+        if(isset($mappings[$code])) {
+            return  $this->getImageUrl("giftcards/{$mappings[$code]}", "svg");
+        }
+
+        return $this->getImageUrl("svg/giftcards","svg");
     }
 }

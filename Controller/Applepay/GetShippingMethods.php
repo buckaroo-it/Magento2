@@ -33,6 +33,16 @@ use Magento\Quote\Api\CartRepositoryInterface;
 
 class GetShippingMethods extends Common
 {
+    /**
+     * @var MaskedQuoteIdToQuoteIdInterface
+     */
+    private MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId;
+
+    /**
+     * @var CartRepositoryInterface
+     */
+    private CartRepositoryInterface $cartRepository;
+
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
