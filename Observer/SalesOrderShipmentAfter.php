@@ -37,6 +37,9 @@ use Magento\Sales\Model\Order\ShipmentFactory;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class SalesOrderShipmentAfter implements ObserverInterface
 {
     public const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
