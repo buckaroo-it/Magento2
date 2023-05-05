@@ -99,7 +99,6 @@
                     <!-- ko if: showNLBEFields -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_afterpay20_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
-                        <span><sup data-bind="i18n: '(DD/MM/YYYY)' "></sup></span>
                         <div class="control addon">
                             <input id="buckaroo_magento2_afterpay20_DoB"
                                    class="field"
@@ -108,6 +107,8 @@
                                    datepicker: {
                                         storage: dateValidate,
                                         options: {
+                                            beforeShow: dp.addPickerClass,
+                                            onClose: dp.removePickerClass,
                                             changeMonth: true,
                                             changeYear: true,
                                             yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
@@ -116,7 +117,10 @@
                                    },
                                    valueUpdate: 'change',
                                    value: dateValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true })}"
+                                   attr: {
+                                    'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true }),
+                                    placeholder: $t('DD/MM/YYYY')
+                                   }"
                                    name="payment[buckaroo_magento2_afterpay20][customer_DoB]">
 
                         </div>
@@ -132,7 +136,6 @@
                                    type="checkbox"
                                    data-bind="
                                    checked: termsValidate,
-                                   event: { change: selectPaymentMethod },
                                    attr: { 'data-validate': JSON.stringify({ 'required': true})}"
                                    name="payment[buckaroo_magento2_afterpay20][termsCondition]">
                             <span>

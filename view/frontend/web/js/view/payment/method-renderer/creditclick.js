@@ -46,6 +46,9 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditclick'
                 },
+                banktypes: [],
+                redirectAfterPlaceOrder: false,
+                selectedBank: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditclick.paymentFeeLabel,
                 subtext : window.checkoutConfig.payment.buckaroo.emandate.subtext,
                 subTextStyle : checkoutCommon.getSubtextStyle('emandate'),
@@ -53,8 +56,8 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 
                 /**
-             * @override
-             */
+                 * @override
+                 */
                 initialize : function (options) {
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
@@ -63,12 +66,37 @@ define(
                     return this._super(options);
                 },
 
+                initObservable: function () {
+                    this._super().observe(['selectedBank', 'banktypes']);
+
+                    this.banktypes = ko.observableArray(window.checkoutConfig.payment.buckaroo.emandate.banks);
+
+                    /** observe radio buttons, check if they're selected */
+                    var self = this;
+                    this.setSelectedBank = function (value) {
+                        self.selectedBank(value);
+                        return true;
+                    };
+
+                    /** Check if the required fields are filled.
+                     * If so: enable place order button (true) | if not: disable place order button (false)
+                     */
+                    this.buttoncheck = ko.computed(
+                        function () {
+                            return this.selectedBank() !== null;
+                        },
+                        this
+                    );
+
+                    return this;
+                },
+
                 /**
-             * Place order.
-             *
-             * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-             * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-             */
+                 * Place order.
+                 *
+                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
+                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
+                 */
                 placeOrder: function (data, event) {
                     var self = this,
                     placeOrder;
@@ -103,6 +131,21 @@ define(
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
+                },
+
+                getData: function () {
+                    var selectedBankCode = null;
+                    if (this.selectedBank()) {
+                        selectedBankCode = this.selectedBank().code;
+                    }
+
+                    return {
+                        "method": this.item.method,
+                        "po_number": null,
+                        "additional_data": {
+                            "issuer" : selectedBankCode
+                        }
+                    };
                 },
 
                 payWithBaseCurrency: function () {

@@ -71,12 +71,12 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * @var GiftcardResponse
      */
-    private $giftcardResponse;
+    private GiftcardResponse $giftcardResponse;
 
     /**
      * @var Log
      */
-    private $logger;
+    private Log $logger;
 
     /**
      * @param ApplyVoucherRequestInterface $voucherRequest

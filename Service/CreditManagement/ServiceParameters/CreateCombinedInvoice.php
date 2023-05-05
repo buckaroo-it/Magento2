@@ -48,7 +48,8 @@ class CreateCombinedInvoice
     }
 
     /**
-     * Get
+     * Get request parameters for CM
+     *
      * @param OrderPaymentInterface|InfoInterface $payment
      * @param string $configProviderType
      * @return array
@@ -71,8 +72,9 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * Get debtor details
      *
+     * @param OrderPaymentInterface|InfoInterface $payment
      * @return array
      */
     private function getCmRequestParameters($payment)
@@ -117,8 +119,9 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param Order $order
+     * Get invoice data
      *
+     * @param Order $order
      * @return array
      */
     private function getUngroupedCmParameters($order)
@@ -149,7 +152,7 @@ class CreateCombinedInvoice
                 'Name' => 'MaxStepIndex',
             ],
             [
-                '_'    => $this->configProvider->getPaymentMethod(),
+                '_'    => $this->getAllowedServices($order->getPayment()),
                 'Name' => 'AllowedServices',
             ]
         ];
@@ -165,8 +168,25 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * Get allowed services
      *
+     * @param OrderPaymentInterface|InfoInterface $payment
+     * @return string
+     */
+    private function getAllowedServices($payment): string
+    {
+        $allowedServices = $this->configProvider->getPaymentMethod();
+
+        if($payment->getMethod() === PayPerEmail::PAYMENT_METHOD_CODE) {
+            return str_replace("p24,","",$allowedServices);
+        }
+        return $allowedServices;
+    }
+
+    /**
+     * Get CM Person details
+     *
+     * @param OrderPaymentInterface|InfoInterface $payment
      * @return array
      */
     private function getPersonCmParameters($payment)
@@ -204,8 +224,9 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+     * Get Address CM Parameters
      *
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
      * @return array
      */
     private function getAddressCmParameters($billingAddress)
@@ -252,8 +273,9 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param $street
+     * Get CM Address
      *
+     * @param $street
      * @return array
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -314,8 +336,9 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+     * Get Company CM Parameters
      *
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
      * @return array
      */
     private function getCompanyCmParameters($billingAddress)

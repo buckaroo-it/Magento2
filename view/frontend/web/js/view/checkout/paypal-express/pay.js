@@ -51,7 +51,6 @@ define([
         },
         config
       );
-      console.log(quote);
     },
     setPage(page) {
       this.page = page;
@@ -103,12 +102,10 @@ define([
           this.displayErrorMessage(__("Cannot create payment"));
         }
       }
-      console.log("onSuccessCallback");
     },
 
     onErrorCallback(reason) {
       // custom error behavior
-      console.log(reason);
       this.displayErrorMessage(reason);
     },
     onInitCallback() {
@@ -184,8 +181,6 @@ define([
         }
 
       }
-      console.log(message);
-
       customerData.set('messages', {
         messages: [{
           type: 'error',

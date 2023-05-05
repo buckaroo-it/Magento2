@@ -46,7 +46,6 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_klarnain',
                     selectedGender: null,
-                    genderList: null
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarnain.paymentFeeLabel,
@@ -54,6 +53,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('klarnain'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                genderList: window.checkoutConfig.payment.buckaroo.klarnain.genderList,
 
                 /**
                  * @override
@@ -70,44 +70,25 @@ define(
                     this._super().observe(
                         [
                             'selectedGender',
-                            'genderList'
                         ]
                     );
-
-                    this.gendersList = function () {
-
-                        return window.checkoutConfig.payment.buckaroo.klarnain.genderList;
-                    }
-
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedGender = function () {
-                        var el = document.getElementById("buckaroo_magento2_klarnain_genderSelect");
-                        this.selectedGender(el.options[el.selectedIndex].value);
-                        this.selectPaymentMethod();
-                        return true;
-                    };
-
-                    this.getSelectedGender = function () {
-                        return this.selectedGender;
-                    }
 
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
                     this.buttoncheck = ko.computed(
-                        function () {
-                            var result = (this.selectedGender != null);
-                            return result;
+                    function () {
+                        return this.selectedGender() != null;
                         },
                         this
                     );
 
                     return this;
                 },
+                validateField(data, event) {
+                    $(event.target).valid();
+                },
+
 
                 /**
                  * Place order.
@@ -162,7 +143,7 @@ define(
 
                     return text.replace('%s', this.baseCurrencyCode);
                 },
-
+                
                 getData: function () {
                     return {
                         "method": this.item.method,

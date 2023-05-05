@@ -1,5 +1,3 @@
-<?xml version="1.0"?>
-<!--
 /**
  * NOTICE OF LICENSE
  *
@@ -18,15 +16,23 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
- -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Buckaroo_Magento2:etc/buckaroo_module.xsd">
-    <module name="Buckaroo_Magento2" setup_version="1.45.0" build_number="1769" stability="stable">
-        <sequence>
-            <module name="Magento_Payment"/>
-            <module name="Magento_ReleaseNotification"/>
-            <module name="Magento_Sales"/>
-            <module name="Magento_Checkout"/>
-            <module name="PayPal_Braintree"/>
-        </sequence>
-    </module>
-</config>
+define(
+    [
+        'jquery'
+    ],
+    function ($) {
+        'use strict';
+
+        return {
+            addPickerClass(input, inst) {
+                $(inst.dpDiv).addClass('bk-datepicker');
+            },
+
+            removePickerClass(input, inst) {
+                setTimeout(() => {
+                    $(inst.dpDiv).removeClass('bk-datepicker');
+                }, 300);
+            }
+        };
+    }
+);

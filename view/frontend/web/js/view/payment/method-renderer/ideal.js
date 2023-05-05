@@ -46,13 +46,14 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_ideal',
-                    selectedBank: '',
-                    validationState: {}
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_ideal'
                 },
-                bankTypes: window.checkoutConfig.payment.buckaroo.ideal.banks,
+                banktypes: [],
                 redirectAfterPlaceOrder: false,
-                selectionType:  window.checkoutConfig.payment.buckaroo.ideal.selectionType,
+                idealIssuer: null,
+                selectedBank: null,
+                selectedBankDropDown: null,
+                selectionType: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.ideal.paymentFeeLabel,
                 subtext : window.checkoutConfig.payment.buckaroo.ideal.subtext,
                 subTextStyle : checkoutCommon.getSubtextStyle('ideal'),
@@ -71,48 +72,53 @@ define(
                 },
 
                 initObservable: function () {
-                    this._super().observe(['selectedBank', 'validationState']);
-            
-                    /** Check used to see form is valid **/
+                    this._super().observe(['selectedBank', 'banktypes', 'selectionType']);
+
+                    this.banktypes = ko.observableArray(window.checkoutConfig.payment.buckaroo.ideal.banks);
+
+                    this.selectionType  = window.checkoutConfig.payment.buckaroo.ideal.selectionType;
+
+                /**
+                 * observe radio buttons
+                 * check if selected
+                 */
+                    var self = this;
+                    this.setSelectedBank = function (value) {
+                        self.selectedBank(value);
+                        return true;
+                    };
+
+                /**
+                 * Check if the required fields are filled. If so: enable place order button (true) | ifnot: disable place order button (false)
+                 */
                     this.buttoncheck = ko.computed(
                         function () {
-                            const state = this.validationState();
-                            const valid = [
-                                'issuer',
-                            ].map((field) => {
-                                if(state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function(prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
+                            return this.selectedBank() !== null;
                         },
                         this
                     );
 
-            
+                    $('.iosc-place-order-button').on('click', function(e){
+                        if(self.selectedBank() == null){
+                            self.messageContainer.addErrorMessage({'message': $t('You need select a bank')});
+                        }
+                    });
 
                     return this;
                 },
 
-                validateField(data, event) {
-                    const isValid = $(event.target).valid();
-                    let state = this.validationState();
-                    state['issuer'] = isValid;
-                    this.validationState(state);
+                setSelectedBankDropDown: function() {
+                    var el = document.getElementById("buckaroo_magento2_ideal_issuer");
+                    this.selectedBank(el.options[el.selectedIndex].value);
+                    return true;
                 },
 
                 /**
-                 * Place order.
-                 *
-                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
+             * Place order.
+             *
+             * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
+             * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
+             */
                 placeOrder: function (data, event) {
                     var self = this,
                     placeOrder;
@@ -150,11 +156,20 @@ define(
                 },
 
                 getData: function () {
+                    var selectedBankCode = null;
+                    if (this.selectedBank()) {
+                        selectedBankCode = this.selectedBank().code;
+                    }
+
+                    if(this.idealIssuer){
+                        selectedBankCode = this.idealIssuer;
+                    }
+
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "issuer" : this.selectedBank()
+                            "issuer" : selectedBankCode
                         }
                     };
                 },

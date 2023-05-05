@@ -50,12 +50,12 @@
         <observer name="buckaroo_magento2_shipment_save_after" instance="Buckaroo\Magento2\Observer\SalesOrderShipmentAfter" />
     </event>
 
-    <event name="controller_action_predispatch_checkout_index_index">
-        <observer name="initiate_checkout_onepage" instance="Buckaroo\Magento2\Observer\RestoreQuote" />
+    <event name="payment_method_is_active">
+        <observer name="buckaroo_magento2_payment_method_is_active" instance="Buckaroo\Magento2\Observer\PaymentMethodAvailable" />
     </event>
 
-    <event name="checkout_onepage_controller_success_action">
-        <observer name="buckaroo_magento2_success_place_order" instance="Buckaroo\Magento2\Observer\SuccessOrder"  />
+    <event name="controller_action_predispatch_checkout_index_index">
+        <observer name="initiate_checkout_onepage" instance="Buckaroo\Magento2\Observer\RestoreQuote" />
     </event>
 
     <event name="order_cancel_after">
