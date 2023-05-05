@@ -233,6 +233,7 @@ class SaveOrder extends AbstractApplepay
      */
     private function handleResponse()
     {
+        $data = [];
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             $data = $this->registry->registry('buckaroo_response')[0];
             $this->logging->addDebug(__METHOD__ . '|4|' . var_export($data, true));
