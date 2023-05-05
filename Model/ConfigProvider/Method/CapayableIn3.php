@@ -57,10 +57,10 @@ class CapayableIn3 extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'capayablein3' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],

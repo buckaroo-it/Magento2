@@ -141,9 +141,9 @@ class Process extends Action
     private $transaction;
 
     /**
-     * @var EventManager
+     * @var ManagerInterface
      */
-    private $eventManager;
+    protected $eventManager;
 
     /**
      * @var Recreate

@@ -122,10 +122,10 @@ class RefundGroupTransactionService
         $this->buckarooLog->addDebug(__METHOD__ . '|1|');
 
         $paymentDO = SubjectReader::readPayment($buildSubject);
-        $this->amountLeftToRefund = SubjectReader::readAmount($buildSubject);
+        $this->amountLeftToRefund = (float)SubjectReader::readAmount($buildSubject);
 
         $order = $paymentDO->getOrder()->getOrder();
-        $this->totalOrder = $order->getBaseGrandTotal();
+        $this->totalOrder = (float)$order->getBaseGrandTotal();
 
         $requestParams = $this->request->getParams();
         if (!empty($requestParams['creditmemo']['buckaroo_already_paid'])) {
@@ -195,11 +195,10 @@ class RefundGroupTransactionService
             $this->buckarooLog->addDebug(__METHOD__ . '|15|' . var_export([$this->amountLeftToRefund], true));
 
             $request = $this->requestDataBuilder->build($buildSubject);
-            $this->requestDataBuilder->addData([
-                'payment_method' => $transaction[1],
-                'amountCredit' => $giftCardValue,
-                'originalTransactionKey' => $transaction[0]
-            ]);
+            $request['payment_method'] = $transaction[1];
+            $request['name'] = $transaction[1];
+            $request['amountCredit'] = $giftCardValue;
+            $request['originalTransactionKey'] = $transaction[0];
 
             $transferO = $this->transferFactory->create($request);
 

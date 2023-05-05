@@ -391,7 +391,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $productPrice += $productItem->getWeeeTaxAppliedAmount();
         }
 
-        return $productPrice;
+        return (float)$productPrice;
     }
 
     /**

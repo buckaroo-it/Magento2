@@ -50,12 +50,16 @@ class ConsumerMessageHandler implements HandlerInterface
         $consumerMessageData = $response->get('ConsumerMessage');
 
         if (!empty($consumerMessageData) && $consumerMessageData['MustRead'] == 1) {
-            $this->messageManager->addSuccessMessage(
-                __($consumerMessageData['Title'])
-            );
-            $this->messageManager->addSuccessMessage(
-                __($consumerMessageData['PlainText'])
-            );
+            $title = $consumerMessageData['Title'] ?? null;
+            $plainText = $consumerMessageData['PlainText'] ?? null;
+
+            if ($title) {
+                $this->messageManager->addSuccessMessage(__($title));
+            }
+
+            if ($plainText) {
+                $this->messageManager->addSuccessMessage(__($plainText));
+            }
         }
     }
 }

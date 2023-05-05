@@ -24,7 +24,6 @@ use Buckaroo\Magento2\Exception;
 
 /**
  * @method getDueDate()
- * @method getOrderEmail()
  */
 class Eps extends AbstractConfigProvider
 {
@@ -48,7 +47,7 @@ class Eps extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'eps' => [
-                        'sendEmail'         => (bool)$this->getOrderEmail(),
+                        'sendEmail'         => $this->hasOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),

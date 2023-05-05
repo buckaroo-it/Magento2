@@ -39,6 +39,7 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
         $isValid = true;
 
         $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
+
         $quote = SubjectReader::readQuote($validationSubject);
 
         $storeId = $quote->getStoreId();

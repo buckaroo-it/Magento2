@@ -63,10 +63,11 @@ class AreaCodeValidator extends AbstractValidator
 
         $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
 
+        $isAvailableInBackend = $paymentMethodInstance->getConfigData('available_in_backend');
         $areaCode = $this->state->getAreaCode();
         if (Area::AREA_ADMINHTML === $areaCode
-            && $paymentMethodInstance->getConfigData('available_in_backend') !== null
-            && $paymentMethodInstance->getConfigData('available_in_backend') == 0
+            && $isAvailableInBackend !== null
+            && $isAvailableInBackend == 0
         ) {
             $isValid = false;
         }

@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Framework\Exception\NotFoundException;
@@ -81,11 +80,14 @@ class IssuerValidator extends AbstractValidator
      * Get config provider for specific payment method
      *
      * @param InfoInterface $paymentInfo
-     * @return ConfigProviderInterface
-     * @throws Exception
+     * @return ConfigProviderInterface|false
      */
-    protected function getConfig(InfoInterface $paymentInfo): ConfigProviderInterface
+    protected function getConfig(InfoInterface $paymentInfo)
     {
-        return $this->configProvider->get($paymentInfo->getMethod());
+        try {
+            return $this->configProvider->get($paymentInfo->getMethodInstance()->getCode());
+        } catch (\Exception $exception) {
+            return false;
+        }
     }
 }

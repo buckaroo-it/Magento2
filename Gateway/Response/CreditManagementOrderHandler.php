@@ -75,7 +75,7 @@ class CreditManagementOrderHandler implements HandlerInterface
     private function getCreditManagementService(array $services): ?array
     {
         foreach ($services as $service) {
-            if ($service['Name'] === "CreditManagement3") {
+            if (isset($service['Name']) && $service['Name'] === "CreditManagement3") {
                 return $service;
             }
         }

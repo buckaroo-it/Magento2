@@ -156,9 +156,6 @@ class BuckarooAdapter extends Adapter
 
     /**
      * @inheritdoc
-     * This is a temporary workaround for https://github.com/magento/magento2/issues/33869.
-     * It sets the info instance before the method gets executed. Otherwise, the validator doesn't get called
-     * correctly.
      */
     public function isAvailable(CartInterface $quote = null)
     {

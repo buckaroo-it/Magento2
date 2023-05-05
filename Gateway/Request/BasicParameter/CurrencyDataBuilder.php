@@ -31,7 +31,7 @@ use Magento\Sales\Model\Order;
 
 class CurrencyDataBuilder implements BuilderInterface
 {
-    private const KEY_CURRENCY = 'currency';
+    public const KEY_CURRENCY = 'currency';
 
     /**
      * @var Factory
@@ -105,7 +105,7 @@ class CurrencyDataBuilder implements BuilderInterface
      */
     public function getAllowedCurrencies(MethodInterface $methodInstance = null): array
     {
-        if (empty($this->allowedCurrencies)) {
+        if (empty($this->allowedCurrencies) && $methodInstance !== null) {
             $this->setAllowedCurrencies($methodInstance);
         }
 

@@ -35,7 +35,7 @@ class AmountCreditDataBuilder implements BuilderInterface
      * The billing amount of the request. This value must be greater than 0,
      * and must match the currency format of the merchant account.
      */
-    private const AMOUNT_CREDIT = 'amountCredit';
+    public const AMOUNT_CREDIT = 'amountCredit';
 
     /**
      * @var float

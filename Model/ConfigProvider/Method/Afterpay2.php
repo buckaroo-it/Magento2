@@ -54,7 +54,7 @@ class Afterpay2 extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'afterpay2' => [
-                        'sendEmail'         => $this->getOrderEmail(),
+                        'sendEmail'         => $this->hasOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),

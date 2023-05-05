@@ -42,9 +42,9 @@ interface ConfigProviderInterface
      * Get Send order confirmation email
      *
      * @param null|int|string $store
-     * @return mixed|null
+     * @return bool
      */
-    public function getOrderEmail($store = null);
+    public function hasOrderEmail($store = null): bool;
 
     /**
      * Get Payment fee Float Value

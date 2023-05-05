@@ -49,6 +49,7 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class Data extends AbstractHelper
 {
@@ -521,9 +522,9 @@ class Data extends AbstractHelper
     /**
      * Retrieve the value of the restore quote last order flag from the checkout session
      *
-     * @return bool
+     * @return int|string|bool
      */
-    public function getRestoreQuoteLastOrder(): bool
+    public function getRestoreQuoteLastOrder()
     {
         return $this->checkoutSession->getRestoreQuoteLastOrder();
     }
@@ -531,8 +532,8 @@ class Data extends AbstractHelper
     /**
      * Sets the value of the 'restore quote last order' flag in the checkout session.
      *
-     * @param bool $value
-     * @return bool
+     * @param int|string|bool $value
+     * @return int|string|bool
      */
     public function setRestoreQuoteLastOrder($value)
     {

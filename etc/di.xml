@@ -511,6 +511,7 @@
                 <item name="p24" xsi:type="string">przelewy24</item>
                 <item name="kbc" xsi:type="string">kbcpaymentbutton</item>
                 <item name="Capayable" xsi:type="string">in3</item>
+                <item name="capayablein3" xsi:type="string">in3</item>
                 <item name="afterpay20" xsi:type="string">afterpay</item>
                 <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
                 <item name="giftcards" xsi:type="string">giftcard</item>

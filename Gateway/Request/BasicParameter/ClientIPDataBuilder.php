@@ -101,12 +101,10 @@ class ClientIPDataBuilder implements BuilderInterface
             return $remoteAddress->getRemoteAddress();
         }
 
-        //trustly anyway should be w/o private ip
-        if (($order->getPayment()->getMethod() !== null &&
-                $order->getPayment()->getMethod() == 'trustly'
-            ) &&
-            $this->isIpPrivate($ip) &&
-            $order->getXForwardedFor()
+        // trustly anyway should be w/o private ip
+        if (($order->getPayment()->getMethod() == 'trustly')
+            && $this->isIpPrivate($ip)
+            && $order->getXForwardedFor()
         ) {
             $ip = $order->getXForwardedFor();
         }
