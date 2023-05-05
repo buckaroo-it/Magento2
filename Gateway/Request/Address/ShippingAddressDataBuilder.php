@@ -1,10 +1,31 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Address;
 
 use Buckaroo\Magento2\Gateway\Request\AddressHandlerPool;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order\Address;
 
 class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
@@ -31,8 +52,7 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
      */
     protected function getAddress(): Address
     {
-        if (
-            $this->isAddressDataDifferent($this->getPayment()) ||
+        if ($this->isAddressDataDifferent($this->getPayment()) ||
             $this->getOrder()->getShippingAddress() === null ||
             $this->getPayment()->getMethod() === Klarna::CODE ||
             $this->getPayment()->getMethod() === Klarnain::CODE
@@ -48,7 +68,7 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
      *
      * Returns true if they are the same.
      *
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return boolean
      */

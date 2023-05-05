@@ -1,37 +1,43 @@
 <?php
-
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
- */
-
-/**
- * Price display type source model
+ * NOTICE OF LICENSE
  *
- * @author             Magento Core Team <core@magentocommerce.com>
- * @codeCoverageIgnore
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\Config\Source\Display;
 
-class Type implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Data\OptionSourceInterface;
+
+class Type implements OptionSourceInterface
 {
-    /**#@+
-     * Constants for display type
-     */
-    const DISPLAY_TYPE_EXCLUDING_TAX = 1;
-    const DISPLAY_TYPE_INCLUDING_TAX = 2;
-    const DISPLAY_TYPE_BOTH = 3;
-    /**#@-*/
+    public const DISPLAY_TYPE_EXCLUDING_TAX = 1;
+    public const DISPLAY_TYPE_INCLUDING_TAX = 2;
+    public const DISPLAY_TYPE_BOTH = 3;
 
     /**
      * @var array
      */
-    protected $options;
+    protected array $options;
 
     /**
-     * @return array
+     * @inheritdoc
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         if (!$this->options) {
             $this->options = [];

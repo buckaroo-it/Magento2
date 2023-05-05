@@ -1,14 +1,27 @@
 <?php
-
 /**
- * Copyright ©  All rights reserved.
- * See COPYING.txt for license details.
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
  */
-
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\LogInterface;
 use Buckaroo\Magento2\Api\Data\LogInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\LogSearchResultsInterfaceFactory;
 use Buckaroo\Magento2\Api\LogRepositoryInterface;
@@ -18,6 +31,7 @@ use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Api\ExtensibleDataObjectConverter;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
+use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -29,27 +43,60 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class LogRepository implements LogRepositoryInterface
 {
-    protected $logFactory;
+    /**
+     * @var LogFactory
+     */
+    protected LogFactory $logFactory;
 
-    protected $dataObjectHelper;
+    /**
+     * @var DataObjectHelper
+     */
+    protected DataObjectHelper $dataObjectHelper;
 
-    protected $extensibleDataObjectConverter;
+    /**
+     * @var ExtensibleDataObjectConverter
+     */
+    protected ExtensibleDataObjectConverter $extensibleDataObjectConverter;
 
-    protected $dataObjectProcessor;
+    /**
+     * @var DataObjectProcessor
+     */
+    protected DataObjectProcessor $dataObjectProcessor;
 
-    protected $searchResultsFactory;
+    /**
+     * @var LogSearchResultsInterfaceFactory
+     */
+    protected LogSearchResultsInterfaceFactory $searchResultsFactory;
 
-    private $collectionProcessor;
+    /**
+     * @var LogInterfaceFactory
+     */
+    protected LogInterfaceFactory $dataLogFactory;
 
+    /**
+     * @var LogCollectionFactory
+     */
+    protected LogCollectionFactory $logCollectionFactory;
+
+    /**
+     * @var ResourceLog
+     */
+    protected ResourceLog $resource;
+
+    /**
+     * @var JoinProcessorInterface
+     */
+    protected JoinProcessorInterface $extensionAttributesJoinProcessor;
+
+    /**
+     * @var CollectionProcessorInterface
+     */
+    private CollectionProcessorInterface $collectionProcessor;
+
+    /**
+     * @var StoreManagerInterface
+     */
     private $storeManager;
-
-    protected $dataLogFactory;
-
-    protected $logCollectionFactory;
-
-    protected $resource;
-
-    protected $extensionAttributesJoinProcessor;
 
     /**
      * @param ResourceLog $resource
@@ -93,20 +140,14 @@ class LogRepository implements LogRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function save(
-        \Buckaroo\Magento2\Api\Data\LogInterface $log
-    ) {
-        /* if (empty($log->getStoreId())) {
-            $storeId = $this->storeManager->getStore()->getId();
-            $log->setStoreId($storeId);
-        } */
-
+    public function save(LogInterface $log)
+    {
         $logData = $this->extensibleDataObjectConverter->toNestedArray(
             $log,
             [],
-            \Buckaroo\Magento2\Api\Data\LogInterface::class
+            LogInterface::class
         );
 
         $logModel = $this->logFactory->create()->setData($logData);
@@ -123,35 +164,22 @@ class LogRepository implements LogRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function get($logId)
-    {
-        $log = $this->logFactory->create();
-        $this->resource->load($log, $logId);
-        if (!$log->getId()) {
-            throw new NoSuchEntityException(__('Log with id "%1" does not exist.', $logId));
-        }
-        return $log->getDataModel();
-    }
-
-    /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getList(
-        \Magento\Framework\Api\SearchCriteriaInterface $criteria
+        SearchCriteriaInterface $searchCriteria
     ) {
         $collection = $this->logCollectionFactory->create();
 
         $this->extensionAttributesJoinProcessor->process(
             $collection,
-            \Buckaroo\Magento2\Api\Data\LogInterface::class
+            LogInterface::class
         );
 
-        $this->collectionProcessor->process($criteria, $collection);
+        $this->collectionProcessor->process($searchCriteria, $collection);
 
         $searchResults = $this->searchResultsFactory->create();
-        $searchResults->setSearchCriteria($criteria);
+        $searchResults->setSearchCriteria($searchCriteria);
 
         $items = [];
         foreach ($collection as $model) {
@@ -164,11 +192,18 @@ class LogRepository implements LogRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function delete(
-        \Buckaroo\Magento2\Api\Data\LogInterface $log
-    ) {
+    public function deleteById($logId): bool
+    {
+        return $this->delete($this->get($logId));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete(LogInterface $log): bool
+    {
         try {
             $logModel = $this->logFactory->create();
             $this->resource->load($logModel, $log->getLogId());
@@ -183,10 +218,15 @@ class LogRepository implements LogRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function deleteById($logId)
+    public function get($logId)
     {
-        return $this->delete($this->get($logId));
+        $log = $this->logFactory->create();
+        $this->resource->load($log, $logId);
+        if (!$log->getId()) {
+            throw new NoSuchEntityException(__('Log with id "%1" does not exist.', $logId));
+        }
+        return $log->getDataModel();
     }
 }

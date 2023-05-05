@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,15 +17,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-class PublicKey implements \Magento\Checkout\Model\ConfigProviderInterface
+use Magento\Checkout\Model\ConfigProviderInterface;
+
+class PublicKey implements ConfigProviderInterface
 {
     /**
      * @var string
      */
-    protected $publicKey = <<<KEY
+    protected string $publicKey = <<<KEY
 -----BEGIN CERTIFICATE-----
 MIICeDCCAeGgAwIBAgIBADANBgkqhkiG9w0BAQUFADCBwjEUMBIGA1UEBhMLTmV0
 aGVybGFuZHMxEDAOBgNVBAgTB1V0cmVjaHQxEDAOBgNVBAcTB1V0cmVjaHQxFjAU
@@ -45,7 +47,7 @@ utpwIl+bFlxvC64V
 -----END CERTIFICATE-----
 KEY;
 
-    protected $publicKey85694BFB9716140DFF33604775A9668DAA67ECD4 = <<<KEY
+    protected string $publicKey85694BFB9716140DFF33604775A9668DAA67ECD4 = <<<KEY
 -----BEGIN CERTIFICATE-----
 MIICeTCCAeKgAwIBAgIBADANBgkqhkiG9w0BAQUFADCBwjEUMBIGA1UEBhMLTmV0
 aGVybGFuZHMxEDAOBgNVBAgTB1V0cmVjaHQxEDAOBgNVBAcTB1V0cmVjaHQxFjAU
@@ -65,9 +67,9 @@ rGiZ8AqhytAWg+r5Yw==
 KEY;
 
     /**
-     * @param null $publicKey
+     * @param string|null $publicKey
      */
-    public function __construct($publicKey = null)
+    public function __construct(string $publicKey = null)
     {
         if ($publicKey) {
             $this->publicKey = $publicKey;
@@ -75,22 +77,22 @@ KEY;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getConfig($store = null)
+    public function getConfig($store = null): array
     {
-        $config = [
+        return [
             'public_key' => $this->getPublicKey(),
         ];
-        return $config;
     }
 
     /**
      * Return public key
      *
+     * @param string $keyIdentifier
      * @return null|string
      */
-    public function getPublicKey($keyIdentifier = '')
+    public function getPublicKey(string $keyIdentifier = ''): ?string
     {
         if (isset($this->{'publicKey' . $keyIdentifier})) {
             return $this->{'publicKey' . $keyIdentifier};

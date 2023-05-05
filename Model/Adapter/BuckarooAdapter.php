@@ -1,17 +1,35 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Adapter;
 
-use Buckaroo\Config\Config;
 use Buckaroo\BuckarooClient;
-use Buckaroo\Handlers\Reply\ReplyHandler;
+use Buckaroo\Config\Config;
 use Buckaroo\Exceptions\BuckarooException;
-use Magento\Framework\Encryption\Encryptor;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Transaction\Response\TransactionResponse;
-use Buckaroo\Magento2\Gateway\Http\Client\TransactionType;
+use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Framework\Encryption\Encryptor;
 
 class BuckarooAdapter
 {
@@ -21,24 +39,32 @@ class BuckarooAdapter
     protected BuckarooClient $buckaroo;
 
     /**
-     * @var Account
-     */
-    private Account $configProviderAccount;
-
-    /**
      * @var Encryptor
      */
     protected Encryptor $encryptor;
 
+    /**
+     * @var Log
+     */
+    protected Log $logger;
+
+    /**
+     * @var array|null
+     */
     private array $mapPaymentMethods;
 
-    protected $logger;
-
+    /**
+     * @param Account $configProviderAccount
+     * @param Encryptor $encryptor
+     * @param Log $logger
+     * @param array|null $mapPaymentMethods
+     * @throws \Exception
+     */
     public function __construct(
         Account $configProviderAccount,
         Encryptor $encryptor,
-        array $mapPaymentMethods = null,
-        Log $logger
+        Log $logger,
+        array $mapPaymentMethods = null
     ) {
         $this->mapPaymentMethods = $mapPaymentMethods;
         $this->logger = $logger;
@@ -50,6 +76,15 @@ class BuckarooAdapter
         );
     }
 
+    /**
+     * Execute request using Buckaroo SDK
+     *
+     * @param string $action
+     * @param string $method
+     * @param array $data
+     * @return TransactionResponse
+     * @throws \Throwable
+     */
     public function execute(string $action, string $method, array $data): TransactionResponse
     {
         $payment = $this->buckaroo->method($this->getMethodName($method));
@@ -69,52 +104,36 @@ class BuckarooAdapter
 
             return $payment->{$action}($data);
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . (string)$th);
+            $this->logger->addDebug(__METHOD__ . $th);
             throw $th;
         }
     }
 
     /**
-     * @throws BuckarooException
+     * Get ideal issuers
+     *
+     * @return array
+     * @throws \Throwable
      */
-    public function validate($post_data, $auth_header, $uri): bool
+    public function getIdealIssuers()
     {
-        $reply_handler = new ReplyHandler($this->buckaroo->client()->config(), $post_data, $auth_header, $uri);
-        $reply_handler->validate();
-        return $reply_handler->isValid();
+        try {
+            return $this->buckaroo->method('ideal')->issuers();
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__ . $th);
+            throw $th;
+        }
     }
 
-    protected function getMethodName($method)
+    /**
+     * Get the payment method name from SDK
+     *
+     * @param string $method
+     * @return string
+     */
+    protected function getMethodName(string $method): string
     {
         return $this->mapPaymentMethods[$method] ?? $method;
-    }
-
-    /**
-     * Get credit management body
-     *
-     * @param array $data
-     */
-    protected function getCreditManagementBody(array $data)
-    {
-        return $this->buckaroo->method('credit_management')
-            ->manually()
-            ->createCombinedInvoice(
-                $data[BuilderComposite::TYPE_ORDER]
-            );
-    }
-
-    /**
-     * Get credit note body
-     *
-     * @param array $data
-     * @param string $type
-     */
-    protected function createCreditNote(array $data, $type = BuilderComposite::TYPE_REFUND)
-    {
-        return $this->buckaroo->method('credit_management')
-            ->createCreditNote(
-                $data[$type]
-            );
     }
 
     /**
@@ -130,5 +149,48 @@ class BuckarooAdapter
         return isset($data[$type]) &&
             is_array($data[$type]) &&
             count($data[$type]) > 0;
+    }
+
+    /**
+     * Get credit management body
+     *
+     * @param array $data
+     * @return TransactionResponse
+     */
+    protected function getCreditManagementBody(array $data): TransactionResponse
+    {
+        return $this->buckaroo->method('credit_management')
+            ->manually()
+            ->createCombinedInvoice(
+                $data[BuilderComposite::TYPE_ORDER]
+            );
+    }
+
+    /**
+     * Get credit note body
+     *
+     * @param array $data
+     * @param string $type
+     * @return TransactionResponse
+     */
+    protected function createCreditNote(array $data, string $type = BuilderComposite::TYPE_REFUND): TransactionResponse
+    {
+        return $this->buckaroo->method('credit_management')
+            ->createCreditNote(
+                $data[$type]
+            );
+    }
+
+    /**
+     * Validate request
+     *
+     * @throws BuckarooException
+     * @throws \Exception
+     */
+    public function validate($postData, $authHeader, $uri): bool
+    {
+        $replyHandler = new ReplyHandler($this->buckaroo->client()->config(), $postData, $authHeader, $uri);
+        $replyHandler->validate();
+        return $replyHandler->isValid();
     }
 }

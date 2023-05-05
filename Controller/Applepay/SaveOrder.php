@@ -25,14 +25,18 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\Service\QuoteAddressService;
+use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Group;
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -46,30 +50,37 @@ class SaveOrder extends AbstractApplepay
      * @var QuoteManagement
      */
     protected $quoteManagement;
+
     /**
      * @var Registry|null
      */
     protected $registry = null;
+
     /**
      * @var Order
      */
     protected $order;
+
     /**
      * @var CheckoutSession
      */
     protected $checkoutSession;
+
     /**
-     * @var \Magento\Checkout\Model\ConfigProviderInterface
+     * @var ConfigProviderInterface
      */
     protected $accountConfig;
+
     /**
      * @var DataObjectFactory
      */
     private $objectFactory;
+
     /**
      * @var OrderRepositoryInterface
      */
     private OrderRepositoryInterface $orderRepository;
+
     /**
      * @var SearchCriteriaBuilder
      */
@@ -106,18 +117,18 @@ class SaveOrder extends AbstractApplepay
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __construct(
-        JsonFactory              $resultJsonFactory,
-        RequestInterface         $request,
-        Log                      $logging,
-        QuoteManagement          $quoteManagement,
-        CustomerSession          $customerSession,
-        DataObjectFactory        $objectFactory,
-        Registry                 $registry,
+        JsonFactory $resultJsonFactory,
+        RequestInterface $request,
+        Log $logging,
+        QuoteManagement $quoteManagement,
+        CustomerSession $customerSession,
+        DataObjectFactory $objectFactory,
+        Registry $registry,
         OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder    $searchCriteriaBuilder,
-        CheckoutSession          $checkoutSession,
-        ConfigProviderFactory    $configProviderFactory,
-        QuoteAddressService      $quoteAddressService
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        CheckoutSession $checkoutSession,
+        ConfigProviderFactory $configProviderFactory,
+        QuoteAddressService $quoteAddressService
     ) {
         parent::__construct(
             $resultJsonFactory,
@@ -141,8 +152,8 @@ class SaveOrder extends AbstractApplepay
     /**
      * Save Order
      *
-     * @return \Magento\Framework\Controller\Result\Json
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return Json
+     * @throws LocalizedException
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -184,10 +195,10 @@ class SaveOrder extends AbstractApplepay
     /**
      * Submit quote
      *
-     * @param \Magento\Quote\Model\Quote $quote
+     * @param Quote $quote
      * @param array|string $extra
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     private function submitQuote($quote, $extra)
     {

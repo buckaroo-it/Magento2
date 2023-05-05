@@ -6,7 +6,7 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
+ * If you are unable to obtain it through the world-wide-web, please email
  * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
@@ -28,7 +28,6 @@
     <preference for="Buckaroo\Magento2\Api\PushInterface" type="Buckaroo\Magento2\Model\Push"/>
     <preference for="Buckaroo\Magento2\Api\PaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\PaymentInformationManagement"/>
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
-    <preference for="Magento\Quote\Model\Cart\CartTotalRepository" type="Buckaroo\Magento2\Model\Cart\CartTotalRepository" />
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
     <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" />
     <preference for="Magento\Payment\Model\Checks\CanUseForCountry\CountryProvider" type="Buckaroo\Magento2\Model\Checks\CanUseForCountry\CountryProvider" />
@@ -36,7 +35,8 @@
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
 
-    <!-- giftcard rest api -->
+
+      <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
     <preference for="Buckaroo\Magento2\Api\ApplyVoucherInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucher"/>
     <!-- end gifcard rest api -->
@@ -358,6 +358,10 @@
                     <item name="type" xsi:type="string">public_key</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\PublicKey</item>
                 </item>
+                <item name="predefined" xsi:type="array">
+                    <item name="type" xsi:type="string">predefined</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Predefined</item>
+                </item>
                 <item name="states" xsi:type="array">
                     <item name="type" xsi:type="string">states</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\States</item>
@@ -447,6 +451,7 @@
             <argument name="configProviders" xsi:type="array">
                 <item name="buckaroo_magento2_configprovider_account" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Account</item>
                 <item name="buckaroo_magento2_configprovider_buckaroofee" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee</item>
+                <item name="buckaroo_magento2_configprovider_predefined" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Predefined</item>
                 <item name="buckaroo_magento2_configprovider_privatekey" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Privatekey</item>
                 <item name="buckaroo_magento2_configprovider_publickey" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Publickey</item>
                 <item name="buckaroo_magento2_configprovider_refund" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Refund</item>
@@ -506,6 +511,7 @@
                 <item name="p24" xsi:type="string">przelewy24</item>
                 <item name="kbc" xsi:type="string">kbcpaymentbutton</item>
                 <item name="Capayable" xsi:type="string">in3</item>
+                <item name="capayablein3" xsi:type="string">in3</item>
                 <item name="afterpay20" xsi:type="string">afterpay</item>
                 <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
                 <item name="giftcards" xsi:type="string">giftcard</item>
@@ -2969,6 +2975,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">GiftcardsOrderCommand</item>
                 <item name="refund" xsi:type="string">GiftcardsRefundCommand</item>
+                <item name="remove" xsi:type="string">GiftcardsRemoveCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3009,12 +3016,40 @@
     <virtualType name="GiftcardsRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="order_request" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
                 <item name="giftcard_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\GiftcardNameDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
     <!-- END Giftcards Refund Command -->
+
+    <!-- Giftcards Remove Command -->
+    <virtualType name="GiftcardsRemoveCommand" type="BuckarooRefundCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">GiftcardsRemoveRequest</argument>
+            <argument name="handler" xsi:type="object">Buckaroo\Magento2\Gateway\Response\GiftCardRemoveHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Giftcards Remove Command - Request Builder -->
+    <virtualType name="GiftcardsRemoveRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="group_transaction_details" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GroupTransactionDetails</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Buckaroo\Magento2\Model\Giftcard\Remove">
+        <arguments>
+            <argument name="removeCommand" xsi:type="object">GiftcardsRemoveCommand</argument>
+        </arguments>
+    </type>
+    <!-- END Giftcards Remove Command -->
     <!-- END Giftcards Commands infrastructure -->
     <!-- END Payment Method: Giftcards -->
 

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -35,10 +34,14 @@ class Sort extends Field
      */
     protected $_template = 'Buckaroo_Magento2::giftcards_sort_widget.phtml';
 
+    /**
+     * @var HelperData
+     */
     private $helperData;
 
     /**
      * @param Context $context
+     * @param HelperData $helperData
      * @param array $data
      */
     public function __construct(
@@ -63,6 +66,11 @@ class Sort extends Field
         return $this->_toHtml();
     }
 
+    /**
+     * Get sorted giftcards
+     *
+     * @return mixed
+     */
     public function getConfigGiftCardsSort()
     {
         return $this->helperData->getConfigGiftCardsSort();

@@ -31,12 +31,14 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     }
 
     /**
+     * Set service action
+     *
      * @param array $buildSubject
      * @return array[]
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function build(array $buildSubject)
+    public function build(array $buildSubject): array
     {
         return [
             'additionalParameters' => $this->getAdditionalParameters()
@@ -44,16 +46,18 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     }
 
     /**
+     * Get additional parameters
+     *
      * @return array
      */
-    private function getAdditionalParameters()
+    private function getAdditionalParameters(): array
     {
         $parameterLine = [];
         if (!empty($this->getAction())) {
             $parameterLine['service_action_from_magento'] = strtolower($this->getAction());
         }
 
-        $parameterLine['initiated_by_magento'] =  1;
+        $parameterLine['initiated_by_magento'] = 1;
 
         if ($additionalParameters = $this->getAllAdditionalParameters()) {
             foreach ($additionalParameters as $key => $value) {
@@ -64,38 +68,61 @@ class AdditionalParametersDataBuilder implements BuilderInterface
         return $parameterLine;
     }
 
-    public function setAdditionalParameter($key, $value)
-    {
-        $this->additionalParameters[$key] = $value;
-
-        return $this;
-    }
-
-    public function getAdditionalParameter($key)
-    {
-        return $this->additionalParameters[$key];
-    }
-
     /**
+     * Get service action
+     *
      * @return string
      */
-    public function getAction()
+    public function getAction(): string
     {
         return $this->action;
     }
 
     /**
-     * {@inheritdoc}
+     * Set service action
+     *
+     * @param string $action
+     * @return $this
      */
-    public function setAction($action)
+    public function setAction(string $action): AdditionalParametersDataBuilder
     {
         $this->action = $action;
 
         return $this;
     }
 
+    /**
+     * Get all additional parameters
+     *
+     * @return array
+     */
     public function getAllAdditionalParameters(): array
     {
         return $this->additionalParameters;
+    }
+
+    /**
+     * Set additional parameter with key
+     *
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function setAdditionalParameter(string $key, string $value): AdditionalParametersDataBuilder
+    {
+        $this->additionalParameters[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Get additional parameter by key
+     *
+     * @param string $key
+     * @return string|null
+     */
+    public function getAdditionalParameter(string $key): ?string
+    {
+        return $this->additionalParameters[$key] ?? null;
     }
 }

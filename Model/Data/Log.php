@@ -1,40 +1,49 @@
 <?php
-
 /**
- * Copyright ©  All rights reserved.
- * See COPYING.txt for license details.
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
  */
-
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Data;
 
 use Buckaroo\Magento2\Api\Data\LogInterface;
+use Magento\Framework\Api\AbstractExtensibleObject;
 
-class Log extends \Magento\Framework\Api\AbstractExtensibleObject implements LogInterface
+class Log extends AbstractExtensibleObject implements LogInterface
 {
     /**
-     * Get log_id
-     * @return string|null
+     * @inheritdoc
      */
-    public function getLogId()
+    public function getLogId(): ?string
     {
         return $this->_get(self::LOG_ID);
     }
 
     /**
-     * Set log_id
-     * @param string $logId
-     * @return \Buckaroo\Magento2\Api\Data\LogInterface
+     * @inheritdoc
      */
-    public function setLogId($logId)
+    public function setLogId(string $logId): LogInterface
     {
         return $this->setData(self::LOG_ID, $logId);
     }
 
     /**
-     * Retrieve existing extension attributes object or create a new one.
-     * @return \Buckaroo\Magento2\Api\Data\LogExtensionInterface|null
+     * @inheritdoc
      */
     public function getExtensionAttributes()
     {
@@ -42,9 +51,7 @@ class Log extends \Magento\Framework\Api\AbstractExtensibleObject implements Log
     }
 
     /**
-     * Set an extension attributes object.
-     * @param \Buckaroo\Magento2\Api\Data\LogExtensionInterface $extensionAttributes
-     * @return $this
+     * @inheritdoc
      */
     public function setExtensionAttributes(
         \Buckaroo\Magento2\Api\Data\LogExtensionInterface $extensionAttributes
@@ -53,153 +60,129 @@ class Log extends \Magento\Framework\Api\AbstractExtensibleObject implements Log
     }
 
     /**
-     * Get channel
-     * @return string|null
+     * @inheritdoc
      */
-    public function getChannel()
+    public function getChannel(): ?string
     {
         return $this->_get(self::CHANNEL);
     }
 
     /**
-     * Set channel
-     * @param string $channel
-     * @return \Buckaroo\Magento2\Api\Data\LogInterface
+     * @inheritdoc
      */
-    public function setChannel($channel)
+    public function setChannel(string $channel): LogInterface
     {
         return $this->setData(self::CHANNEL, $channel);
     }
 
     /**
-     * Get level
-     * @return string|null
+     * @inheritdoc
      */
-    public function getLevel()
+    public function getLevel(): ?string
     {
         return $this->_get(self::LEVEL);
     }
 
     /**
-     * Set level
-     * @param string $level
-     * @return \Buckaroo\Magento2\Api\Data\LogInterface
+     * @inheritdoc
      */
-    public function setLevel($level)
+    public function setLevel(string $level): LogInterface
     {
         return $this->setData(self::LEVEL, $level);
     }
 
     /**
-     * Get message
-     * @return string|null
+     * @inheritdoc
      */
-    public function getMessage()
+    public function getMessage(): ?string
     {
         return $this->_get(self::MESSAGE);
     }
 
     /**
-     * Set message
-     * @param string $message
-     * @return \Buckaroo\Magento2\Api\Data\LogInterface
+     * @inheritdoc
      */
-    public function setMessage($message)
+    public function setMessage(string $message): LogInterface
     {
         return $this->setData(self::MESSAGE, $message);
     }
 
     /**
-     * Get time
-     * @return string|null
+     * @inheritdoc
      */
-    public function getTime()
+    public function getTime(): ?string
     {
         return $this->_get(self::TIME);
     }
 
     /**
-     * Set time
-     * @param string $time
-     * @return \Buckaroo\Magento2\Api\Data\LogInterface
+     * @inheritdoc
      */
-    public function setTime($time)
+    public function setTime(string $time): LogInterface
     {
         return $this->setData(self::TIME, $time);
     }
 
     /**
-     * Get session_id
-     * @return string|null
+     * @inheritdoc
      */
-    public function getSessionId()
+    public function getSessionId(): ?string
     {
         return $this->_get(self::SESSION_ID);
     }
 
     /**
-     * Set session_id
-     * @param string $sessionId
-     * @return \Buckaroo\Magento2\Api\Data\LogInterface
+     * @inheritdoc
      */
-    public function setSessionId($sessionId)
+    public function setSessionId(string $sessionId): LogInterface
     {
         return $this->setData(self::SESSION_ID, $sessionId);
     }
 
     /**
-     * Get customer_id
-     * @return string|null
+     * @inheritdoc
      */
-    public function getCustomerId()
+    public function getCustomerId(): ?string
     {
         return $this->_get(self::CUSTOMER_ID);
     }
 
     /**
-     * Set customer_id
-     * @param string $customerId
-     * @return \Buckaroo\Magento2\Api\Data\LogInterface
+     * @inheritdoc
      */
-    public function setCustomerId($customerId)
+    public function setCustomerId(string $customerId): LogInterface
     {
         return $this->setData(self::CUSTOMER_ID, $customerId);
     }
 
     /**
-     * Get quote_id
-     * @return string|null
+     * @inheritdoc
      */
-    public function getQuoteId()
+    public function getQuoteId(): ?string
     {
         return $this->_get(self::QUOTE_ID);
     }
 
     /**
-     * Set quote_id
-     * @param string $quoteId
-     * @return \Buckaroo\Magento2\Api\Data\LogInterface
+     * @inheritdoc
      */
-    public function setQuoteId($quoteId)
+    public function setQuoteId(string $quoteId): LogInterface
     {
         return $this->setData(self::QUOTE_ID, $quoteId);
     }
 
     /**
-     * Get order_id
-     * @return string|null
+     * @inheritdoc
      */
-    public function getOrderId()
+    public function getOrderId(): ?string
     {
         return $this->_get(self::ORDER_ID);
     }
 
     /**
-     * Set order_id
-     * @param string $orderId
-     * @return \Buckaroo\Magento2\Api\Data\LogInterface
+     * @inheritdoc
      */
-    public function setOrderId($orderId)
+    public function setOrderId(string $orderId): LogInterface
     {
         return $this->setData(self::ORDER_ID, $orderId);
     }

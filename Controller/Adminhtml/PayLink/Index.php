@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\PayLink;
 
@@ -25,13 +25,11 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\Exception\NotFoundException;
-use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\Command\CommandManagerPoolInterface;
-use Magento\Payment\Gateway\Http\ClientException;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 
 class Index extends Action implements HttpGetActionInterface
@@ -47,11 +45,6 @@ class Index extends Action implements HttpGetActionInterface
     private CommandManagerPoolInterface $commandManagerPool;
 
     /**
-     * @var ManagerInterface
-     */
-    protected $messageManager;
-
-    /**
      * @var OrderRepositoryInterface
      */
     private OrderRepositoryInterface $orderRepository;
@@ -61,26 +54,26 @@ class Index extends Action implements HttpGetActionInterface
      * @param Http $request
      * @param OrderRepositoryInterface $orderRepository
      * @param CommandManagerPoolInterface $commandManagerPool
-     * @param ManagerInterface $messageManager
      */
     public function __construct(
         Context $context,
         Http $request,
         OrderRepositoryInterface $orderRepository,
-        CommandManagerPoolInterface $commandManagerPool,
-        ManagerInterface $messageManager
+        CommandManagerPoolInterface $commandManagerPool
     ) {
         parent::__construct($context);
-        $this->request               = $request;
-        $this->orderRepository       = $orderRepository;
-        $this->commandManagerPool    = $commandManagerPool;
-        $this->messageManager        = $messageManager;
+        $this->request = $request;
+        $this->orderRepository = $orderRepository;
+        $this->commandManagerPool = $commandManagerPool;
     }
 
     /**
      * Generate PayLink from Sales Order View Admin
+     *
+     * @return ResultInterface
+     * @throws \Exception
      */
-    public function execute()
+    public function execute(): ResultInterface
     {
         $orderId = $this->request->getParam('order_id');
         $order = $this->orderRepository->get($orderId);
@@ -107,7 +100,7 @@ class Index extends Action implements HttpGetActionInterface
                     'amount' => $order->getGrandTotal()
                 ]
             );
-        } catch (NotFoundException | ClientException | CommandException $exception) {
+        } catch (NotFoundException|CommandException $exception) {
             $this->messageManager->addErrorMessage($exception->getMessage());
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('Something went wrong creating pay link.'));

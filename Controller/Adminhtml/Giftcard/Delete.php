@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,14 +20,16 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
+use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\ResponseInterface;
 
-class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index implements HttpPostActionInterface
+class Delete extends Index implements HttpPostActionInterface
 {
     /**
      * Delete Giftcard
      *
-     * @return \Magento\Backend\Model\View\Result\Page|\Magento\Framework\App\ResponseInterface
+     * @return Page|ResponseInterface
      */
     public function execute()
     {

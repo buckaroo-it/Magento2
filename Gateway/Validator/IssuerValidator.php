@@ -1,26 +1,40 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Magento\Framework\Exception\NotFoundException;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
-use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Payment\Model\InfoInterface;
 
-/**
- * Class IssuerValidator
- * @package Magento\Payment\Gateway\Validator
- * @api
- * @since 100.0.2
- */
 class IssuerValidator extends AbstractValidator
 {
-    /** @var Factory */
-    private $configProvider;
-
-    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface */
-    private $config;
+    /**
+     * @var Factory
+     */
+    private Factory $configProvider;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
@@ -35,6 +49,8 @@ class IssuerValidator extends AbstractValidator
     }
 
     /**
+     * Validate issuer
+     *
      * @param array $validationSubject
      * @return bool|ResultInterface
      * @throws NotFoundException
@@ -60,10 +76,18 @@ class IssuerValidator extends AbstractValidator
         return $this->createResult(false, [__('Please select a issuer from the list')]);
     }
 
-    protected function getConfig($paymentInfo)
+    /**
+     * Get config provider for specific payment method
+     *
+     * @param InfoInterface $paymentInfo
+     * @return ConfigProviderInterface|false
+     */
+    protected function getConfig(InfoInterface $paymentInfo)
     {
-        return $this->config = $this->configProvider->get(
-            $paymentInfo->getMethod()
-        );
+        try {
+            return $this->configProvider->get($paymentInfo->getMethodInstance()->getCode());
+        } catch (\Exception $exception) {
+            return false;
+        }
     }
 }

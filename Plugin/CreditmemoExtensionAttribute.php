@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
@@ -28,7 +28,10 @@ use Magento\Sales\Api\Data\CreditmemoSearchResultInterface;
 
 class CreditmemoExtensionAttribute
 {
-    private $buckarooFieldNames = [
+    /**
+     * @var array|string[]
+     */
+    private array $buckarooFieldNames = [
         'buckaroo_fee',
         'base_buckaroo_fee',
         'buckaroo_fee_tax_amount',
@@ -39,24 +42,52 @@ class CreditmemoExtensionAttribute
         'buckaroo_already_paid',
     ];
 
-    /** @var CreditmemoExtensionFactory */
-    private $extensionFactory;
+    /**
+     * @var CreditmemoExtensionFactory
+     */
+    private CreditmemoExtensionFactory $extensionFactory;
 
+    /**
+     * @param CreditmemoExtensionFactory $extensionFactory
+     */
     public function __construct(CreditmemoExtensionFactory $extensionFactory)
     {
         $this->extensionFactory = $extensionFactory;
     }
 
     /**
-     * @param CreditmemoRepositoryInterface $subject
-     * @param CreditmemoInterface           $creditmemo
+     * Add Buckaroo specific extension attributes to a list of credit memos after get.
      *
+     * @param CreditmemoRepositoryInterface $subject
+     * @param CreditmemoSearchResultInterface $searchResult
+     * @return CreditmemoSearchResultInterface
+     */
+    public function afterGetList(
+        CreditmemoRepositoryInterface $subject,
+        CreditmemoSearchResultInterface $searchResult
+    ): CreditmemoSearchResultInterface {
+        $orders = $searchResult->getItems();
+
+        foreach ($orders as $order) {
+            $this->afterGet($subject, $order);
+        }
+
+        return $searchResult;
+    }
+
+    /**
+     * Add Buckaroo specific extension attributes to a single credit memo after get.
+     *
+     * @param CreditmemoRepositoryInterface $subject
+     * @param CreditmemoInterface $creditmemo
      * @return CreditmemoInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function afterGet(CreditmemoRepositoryInterface $subject, CreditmemoInterface $creditmemo)
-    {
+    public function afterGet(
+        CreditmemoRepositoryInterface $subject,
+        CreditmemoInterface $creditmemo
+    ): CreditmemoInterface {
         $extensionAttributes = $creditmemo->getExtensionAttributes();
 
         if (!$extensionAttributes) {
@@ -71,22 +102,5 @@ class CreditmemoExtensionAttribute
         $creditmemo->setExtensionAttributes($extensionAttributes);
 
         return $creditmemo;
-    }
-
-    /**
-     * @param CreditmemoRepositoryInterface   $subject
-     * @param CreditmemoSearchResultInterface $searchResult
-     *
-     * @return CreditmemoSearchResultInterface
-     */
-    public function afterGetList(CreditmemoRepositoryInterface $subject, CreditmemoSearchResultInterface $searchResult)
-    {
-        $orders = $searchResult->getItems();
-
-        foreach ($orders as $order) {
-            $this->afterGet($subject, $order);
-        }
-
-        return $searchResult;
     }
 }

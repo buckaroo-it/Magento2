@@ -1,9 +1,29 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
@@ -15,11 +35,15 @@ use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class RefundGroupTransactionService
 {
-    /** @var float */
-    private $amountLeftToRefund;
+    /**
+     * @var float
+     */
+    private float $amountLeftToRefund;
 
-    /** @var float */
-    private $totalOrder;
+    /**
+     * @var float
+     */
+    private float $totalOrder;
 
     /**
      * @var BuckarooLog
@@ -27,16 +51,44 @@ class RefundGroupTransactionService
     private BuckarooLog $buckarooLog;
 
     /**
-     * @var \Magento\Framework\App\Request\Http
+     * @var Http
      */
     private $request;
 
+    /**
+     * @var PaymentGroupTransaction
+     */
     private PaymentGroupTransaction $paymentGroupTransaction;
+
+    /**
+     * @var BuilderInterface
+     */
     private BuilderInterface $requestDataBuilder;
+
+    /**
+     * @var TransferFactoryInterface
+     */
     private TransferFactoryInterface $transferFactory;
+
+    /**
+     * @var ClientInterface
+     */
     private ClientInterface $clientInterface;
+
+    /**
+     * @var HandlerInterface|null
+     */
     private ?HandlerInterface $handler;
 
+    /**
+     * @param PaymentGroupTransaction $paymentGroupTransaction
+     * @param BuckarooLog $buckarooLog
+     * @param RequestInterface $request
+     * @param BuilderInterface $requestDataBuilder
+     * @param TransferFactoryInterface $transferFactory
+     * @param ClientInterface $clientInterface
+     * @param HandlerInterface|null $handler
+     */
     public function __construct(
         PaymentGroupTransaction $paymentGroupTransaction,
         BuckarooLog $buckarooLog,
@@ -65,21 +117,18 @@ class RefundGroupTransactionService
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function refundGroupTransactions($buildSubject)
+    public function refundGroupTransactions(array $buildSubject)
     {
         $this->buckarooLog->addDebug(__METHOD__ . '|1|');
 
         $paymentDO = SubjectReader::readPayment($buildSubject);
-        $this->amountLeftToRefund = SubjectReader::readAmount($buildSubject);
+        $this->amountLeftToRefund = (float)SubjectReader::readAmount($buildSubject);
 
         $order = $paymentDO->getOrder()->getOrder();
-        $this->totalOrder = $order->getBaseGrandTotal();
+        $this->totalOrder = (float)$order->getBaseGrandTotal();
 
         $requestParams = $this->request->getParams();
-        if (
-            isset($requestParams['creditmemo']['buckaroo_already_paid'])
-            && !empty($requestParams['creditmemo']['buckaroo_already_paid'])
-        ) {
+        if (!empty($requestParams['creditmemo']['buckaroo_already_paid'])) {
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $giftCardValue) {
                 $this->createRefundGroupRequest($buildSubject, $transaction, $giftCardValue);
             }
@@ -96,8 +145,7 @@ class RefundGroupTransactionService
             $groupTransactionAmount = $this->paymentGroupTransaction->getGroupTransactionAmount(
                 $order->getIncrementId()
             );
-            if (
-                ($groupTransactionAmount > 0.01)
+            if (($groupTransactionAmount > 0.01)
                 && empty($requestParams['creditmemo']['buckaroo_already_paid'])
                 && !empty($requestParams['creditmemo']['adjustment_negative'])
             ) {
@@ -147,11 +195,10 @@ class RefundGroupTransactionService
             $this->buckarooLog->addDebug(__METHOD__ . '|15|' . var_export([$this->amountLeftToRefund], true));
 
             $request = $this->requestDataBuilder->build($buildSubject);
-            $this->requestDataBuilder->addData([
-                'payment_method' => $transaction[1],
-                'amountCredit' => $giftCardValue,
-                'originalTransactionKey' => $transaction[0]
-            ]);
+            $request['payment_method'] = $transaction[1];
+            $request['name'] = $transaction[1];
+            $request['amountCredit'] = $giftCardValue;
+            $request['originalTransactionKey'] = $transaction[0];
 
             $transferO = $this->transferFactory->create($request);
 

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,71 +17,81 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink;
+use Magento\Backend\Block\Widget\Button\ButtonList;
+use Magento\Backend\Block\Widget\Button\Toolbar;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\UrlInterface;
+use Magento\Framework\View\Element\AbstractBlock;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 class PluginBefore
 {
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var OrderRepositoryInterface
      */
-    protected $orderRepository;
+    protected OrderRepositoryInterface $orderRepository;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
+     * @var Factory
      */
-    protected $configProviderMethodFactory;
+    protected Factory $configProviderMethodFactory;
 
     /**
-     * @var \Magento\Framework\UrlInterface
+     * @var UrlInterface
      */
-    private $urlBuilder;
+    private UrlInterface $urlBuilder;
 
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * @var RequestInterface
      */
-    private $_request;
+    private $request;
 
     /**
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-     * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param Factory $configProviderMethodFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param UrlInterface $urlBuilder
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Framework\UrlInterface $urlBuilder
+        Factory $configProviderMethodFactory,
+        OrderRepositoryInterface $orderRepository,
+        UrlInterface $urlBuilder
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
-        $this->orderRepository             = $orderRepository;
-        $this->urlBuilder                  = $urlBuilder;
+        $this->orderRepository = $orderRepository;
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
-     * @param \Magento\Backend\Block\Widget\Button\Toolbar $subject
-     * @param \Magento\Framework\View\Element\AbstractBlock $context
-     * @param \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+     * Add Paylink button
+     *
+     * @param Toolbar $subject
+     * @param AbstractBlock $context
+     * @param ButtonList $buttonList
      * @return void
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws BuckarooException
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforePushButtons(
-        \Magento\Backend\Block\Widget\Button\Toolbar $subject,
-        \Magento\Framework\View\Element\AbstractBlock $context,
-        \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+        Toolbar $subject,
+        AbstractBlock $context,
+        ButtonList $buttonList
     ) {
         if ($orderId = $context->getRequest()->getParam('order_id')) {
-            $viewUrl        = $this->urlBuilder->getUrl('buckaroo/paylink/index/order', ['order_id' => $orderId]);
-            $order          = $this->orderRepository->get($orderId);
-            $state          = $order->getState();
-            $config         = $this->configProviderMethodFactory->get('paylink');
-            $this->_request = $context->getRequest();
-            if (
-                $config->getActive() != '0' &&
-                $this->_request->getFullActionName() == 'sales_order_view' &&
+            $viewUrl = $this->urlBuilder->getUrl('buckaroo/paylink/index/order', ['order_id' => $orderId]);
+            $order = $this->orderRepository->get($orderId);
+            $state = $order->getState();
+            $config = $this->configProviderMethodFactory->get('paylink');
+            $this->request = $context->getRequest();
+            if ($config->getActive() != '0' &&
+                $this->request->getFullActionName() == 'sales_order_view' &&
                 $state == 'new' &&
                 ($order->getPayment()->getMethod() != PayLink::CODE)
             ) {

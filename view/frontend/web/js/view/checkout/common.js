@@ -36,7 +36,25 @@ define(
                     }
                     window.location.replace(response.RequiredAction.RedirectURL);
                 }
-            }
+            },
+            getSubtextStyle: function(paymentCode) {
+                let config = window.checkoutConfig.payment.buckaroo[paymentCode];
+                if(config === undefined) {
+                    return;
+                }
+                let subtextColor = config.subtext_color || '#757575';
+                let subtextStyle = config.subtext_style || 'regular';
+
+                let style = { color: subtextColor }
+                if(subtextStyle == 'bold') {
+                 style.fontWeight = 'bold';
+                }
+
+                if(subtextStyle == 'italic') {
+                 style.fontStyle = 'italic';
+                }
+                return style;
+             }
 
         };
     }

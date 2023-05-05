@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,15 +17,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
 
 class Mrcash extends AbstractConfigProvider
 {
@@ -36,15 +38,17 @@ class Mrcash extends AbstractConfigProvider
 
     public const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
 
-    /** @var FormKey */
+    /**
+     * @var FormKey
+     */
     private FormKey $formKey;
 
     /**
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param FormKey $formKey
      */
     public function __construct(
         Repository $assetRepo,
@@ -59,18 +63,10 @@ class Mrcash extends AbstractConfigProvider
     }
 
     /**
-     * Get Magento Form Key
+     * @inheritdoc
      *
-     * @return string
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    private function getFormKey()
-    {
-        return $this->formKey->getFormKey();
-    }
-
-    /**
-     * @inheritDoc
+     * @throws Exception
+     * @throws LocalizedException
      */
     public function getConfig()
     {
@@ -80,10 +76,13 @@ class Mrcash extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'mrcash' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'useClientSide' => (int) $this->useClientSide(),
-                        'redirecturl' => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'useClientSide'     => (int)$this->useClientSide(),
+                        'redirecturl'       => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
                     ],
                 ],
             ],
@@ -103,5 +102,16 @@ class Mrcash extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    /**
+     * Get Magento Form Key
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    private function getFormKey(): string
+    {
+        return $this->formKey->getFormKey();
     }
 }

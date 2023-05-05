@@ -48,6 +48,8 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_giropay',
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.giropay.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.giropay.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('giropay'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 

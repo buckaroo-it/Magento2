@@ -1,10 +1,26 @@
 <?php
-
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
-use Buckaroo\Magento2\Gateway\Request\Recipient\AbstractRecipientDataBuilder;
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
 use Buckaroo\Resources\Constants\RecipientCategory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -13,23 +29,33 @@ use Magento\Store\Model\Store;
 
 class AfterpayDataBuilder extends AbstractRecipientDataBuilder
 {
+    /**
+     * @var ScopeConfigInterface
+     */
     protected ScopeConfigInterface $scopeConfig;
 
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param string $addressType
+     */
     public function __construct(ScopeConfigInterface $scopeConfig, string $addressType = 'billing')
     {
         parent::__construct($addressType);
         $this->scopeConfig = $scopeConfig;
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function buildData(): array
     {
         $data = [
-            'category' => $this->getCategory(),
-            'careOf' => $this->getCareOf(),
-            'firstName' => $this->getFirstname(),
-            'lastName' => $this->getLastName(),
+            'category'             => $this->getCategory(),
+            'careOf'               => $this->getCareOf(),
+            'firstName'            => $this->getFirstname(),
+            'lastName'             => $this->getLastName(),
             'conversationLanguage' => $this->getConversationLanguage(),
-            'customerNumber' => 'customerNumber12345'
+            'customerNumber'       => 'customerNumber12345'
         ];
 
         $category = $this->getCategory();
@@ -50,13 +76,15 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
         return $data;
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function getCategory(): string
     {
         $category = RecipientCategory::PERSON;
         $billingAddress = $this->getOrder()->getBillingAddress();
 
-        if (
-            $this->isCustomerB2B($this->getOrder()->getStoreId()) &&
+        if ($this->isCustomerB2B($this->getOrder()->getStoreId()) &&
             $billingAddress->getCountryId() === 'NL' &&
             !$this->isCompanyEmpty($billingAddress->getCompany())
         ) {
@@ -66,22 +94,33 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
         return $category;
     }
 
-    protected function getCareOf(): string
+    /**
+     * Determines whether the customer is a B2B customer based on the store configuration.
+     *
+     * @param int|null $storeId
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function isCustomerB2B(int $storeId = null): bool
     {
-        return $this->getFirstname() . ' ' . $this->getLastName();
-    }
-
-    protected function getIdentificationNumber()
-    {
-        return $this->getPayment()->getAdditionalInformation('customer_identificationNumber');
+        return $this->getConfigData('customer_type', $storeId) !== AfterpayCustomerType::CUSTOMER_TYPE_B2C;
     }
 
     /**
+     * Retrieve information from payment configuration
+     *
+     * @param string $field
+     * @param int|string|null|Store $storeId
+     * @return mixed
      * @throws LocalizedException
      */
-    private function isCustomerB2B($storeId = null): bool
+    public function getConfigData(string $field, $storeId = null)
     {
-        return $this->getConfigData('customer_type', $storeId) !== AfterpayCustomerType::CUSTOMER_TYPE_B2C;
+        if (null === $storeId) {
+            $storeId = $this->getOrder()->getStoreId();
+        }
+        $path = 'payment/' . $this->getPayment()->getMethodInstance()->getCode() . '/' . $field;
+        return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -101,7 +140,16 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function getCareOf(): string
+    {
+        return $this->getFirstname() . ' ' . $this->getLastName();
+    }
+
+    /**
      * Possible values: NL, FR, DE, FI.
+     *
      * @return string
      */
     private function getConversationLanguage(): string
@@ -116,19 +164,12 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     }
 
     /**
-     * Retrieve information from payment configuration
+     * Retrieves the customer identification number associated with the payment.
      *
-     * @param string $field
-     * @param int|string|null|Store $storeId
      * @return mixed
-     * @throws LocalizedException
      */
-    public function getConfigData(string $field, $storeId = null)
+    protected function getIdentificationNumber()
     {
-        if (null === $storeId) {
-            $storeId = $this->getOrder()->getStoreId();
-        }
-        $path = 'payment/' . $this->getPayment()->getMethodInstance()->getCode() . '/' . $field;
-        return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+        return $this->getPayment()->getAdditionalInformation('customer_identificationNumber');
     }
 }

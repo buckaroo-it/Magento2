@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,19 +17,33 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Config\Source\PaymentMethods;
 
-use Magento\Framework\Option\ArrayInterface;
+use Buckaroo\Magento2\Helper\Data;
+use Magento\Config\Model\Config;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class Pos implements ArrayInterface
+class Pos implements OptionSourceInterface
 {
-    protected $config;
-    private $helper;
+    /**
+     * @var Config
+     */
+    protected Config $config;
 
+    /**
+     * @var Data
+     */
+    private Data $helper;
+
+    /**
+     * @param Config $config
+     * @param Data $helper
+     */
     public function __construct(
-        \Magento\Config\Model\Config $config,
-        \Buckaroo\Magento2\Helper\Data $helper
+        Config $config,
+        Data $helper
     ) {
         $this->config = $config;
         $this->helper = $helper;
@@ -41,7 +54,7 @@ class Pos implements ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         $options = [
             ['value' => '', 'label' => __('hide all methods')],
@@ -49,10 +62,8 @@ class Pos implements ArrayInterface
 
         $paymentMethodsList = $this->helper->getPaymentMethodsList();
         foreach ($paymentMethodsList as $paymentMethod) {
-            if (
-                $this->config->getConfigDataValue('payment/buckaroo_magento2_' . $paymentMethod['value'] . '/active')
-                &&
-                ($paymentMethod['value'] != 'pospayment')
+            if ($this->config->getConfigDataValue('payment/buckaroo_magento2_' . $paymentMethod['value'] . '/active')
+                && ($paymentMethod['value'] != 'pospayment')
             ) {
                 $options[] = $paymentMethod;
             }

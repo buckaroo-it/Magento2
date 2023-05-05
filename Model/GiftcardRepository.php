@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,6 +20,12 @@
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\GiftcardInterface;
+use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard as GiftcardResource;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\CollectionFactory as GiftcardCollectionFactory;
+use Magento\Framework\Api\Search\FilterGroup;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Api\SearchResultsInterfaceFactory;
@@ -28,26 +33,38 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Api\Data\GiftcardInterface;
-use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
-use Buckaroo\Magento2\Model\ResourceModel\Giftcard as GiftcardResource;
-use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
-use Buckaroo\Magento2\Model\ResourceModel\Giftcard\CollectionFactory as GiftcardCollectionFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class GiftcardRepository implements GiftcardRepositoryInterface
 {
-    /** @var GiftcardResource */
+    /**
+     * @var GiftcardResource
+     */
     protected $resource;
 
-    /** @var GiftcardFactory */
-    protected $giftcardFactory;
+    /**
+     * @var GiftcardFactory
+     */
+    protected GiftcardFactory $giftcardFactory;
 
-    /** @var GiftcardCollectionFactory */
-    protected $giftcardCollectionFactory;
+    /**
+     * @var GiftcardCollectionFactory
+     */
+    protected GiftcardCollectionFactory $giftcardCollectionFactory;
 
-    /** @var SearchResultsInterfaceFactory */
-    protected $searchResultsFactory;
+    /**
+     * @var SearchResultsInterfaceFactory
+     */
+    protected SearchResultsInterfaceFactory $searchResultsFactory;
 
+    /**
+     * @param GiftcardResource $resource
+     * @param GiftcardFactory $giftcardFactory
+     * @param GiftcardCollectionFactory $giftcardCollectionFactory
+     * @param SearchResultsInterfaceFactory $searchResultsFactory
+     */
     public function __construct(
         GiftcardResource $resource,
         GiftcardFactory $giftcardFactory,
@@ -61,9 +78,9 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function save(GiftcardInterface $giftcard)
+    public function save(GiftcardInterface $giftcard): GiftcardInterface
     {
         try {
             $this->resource->save($giftcard);
@@ -75,24 +92,9 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function getById($giftcardId)
-    {
-        $giftcard = $this->giftcardFactory->create();
-        $giftcard->load($giftcardId);
-
-        if (!$giftcard->getId()) {
-            throw new NoSuchEntityException(__('Giftcard with id "%1" does not exist.', $giftcardId));
-        }
-
-        return $giftcard;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getList(SearchCriteria $searchCriteria)
+    public function getList(SearchCriteria $searchCriteria): SearchResultsInterface
     {
         /** @var SearchResultsInterface $searchResults */
         $searchResults = $this->searchResultsFactory->create();
@@ -115,16 +117,18 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * @param \Magento\Framework\Api\Search\FilterGroup $filterGroup
-     * @param GiftcardCollection                        $collection
+     * Handle filter groups for the given collection by applying filters from the filter group.
+     *
+     * @param FilterGroup $filterGroup
+     * @param GiftcardCollection $collection
      */
-    private function handleFilterGroups($filterGroup, $collection)
+    private function handleFilterGroups(FilterGroup $filterGroup, GiftcardCollection $collection)
     {
-        $fields     = [];
+        $fields = [];
         $conditions = [];
         foreach ($filterGroup->getFilters() as $filter) {
-            $condition    = $filter->getConditionType() ? $filter->getConditionType() : 'eq';
-            $fields[]     = $filter->getField();
+            $condition = $filter->getConditionType() ? $filter->getConditionType() : 'eq';
+            $fields[] = $filter->getField();
             $conditions[] = [$condition => $filter->getValue()];
         }
 
@@ -134,10 +138,12 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
+     * Handle sort orders for the given search criteria and collection.
+     *
      * @param SearchCriteria $searchCriteria
      * @param GiftcardCollection $collection
      */
-    private function handleSortOrders($searchCriteria, $collection)
+    private function handleSortOrders(SearchCriteria $searchCriteria, GiftcardCollection $collection)
     {
         $sortOrders = $searchCriteria->getSortOrders();
 
@@ -155,12 +161,14 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
+     * Get search result items based on search criteria and collection.
+     *
      * @param SearchCriteria $searchCriteria
      * @param GiftcardCollection $collection
      *
      * @return array
      */
-    private function getSearchResultItems($searchCriteria, $collection)
+    private function getSearchResultItems(SearchCriteria $searchCriteria, GiftcardCollection $collection): array
     {
         $collection->setCurPage($searchCriteria->getCurrentPage());
         $collection->setPageSize($searchCriteria->getPageSize());
@@ -174,9 +182,34 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function delete(GiftcardInterface $giftcard)
+    public function deleteById($giftcardId): bool
+    {
+        $giftcard = $this->getById($giftcardId);
+
+        return $this->delete($giftcard);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getById($giftcardId)
+    {
+        $giftcard = $this->giftcardFactory->create();
+        $giftcard->load($giftcardId);
+
+        if (!$giftcard->getId()) {
+            throw new NoSuchEntityException(__('Giftcard with id "%1" does not exist.', $giftcardId));
+        }
+
+        return $giftcard;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete(GiftcardInterface $giftcard): bool
     {
         try {
             $this->resource->delete($giftcard);
@@ -185,15 +218,5 @@ class GiftcardRepository implements GiftcardRepositoryInterface
         }
 
         return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function deleteById($giftcardId)
-    {
-        $giftcard = $this->getById($giftcardId);
-
-        return $this->delete($giftcard);
     }
 }

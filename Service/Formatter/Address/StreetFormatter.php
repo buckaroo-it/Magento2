@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,17 +17,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
 class StreetFormatter
 {
     /**
-     * @param array $street
+     * Formats the given street address array and returns a formatted array
      *
+     * @param array $street
      * @return array
      */
-    public function format($street)
+    public function format(array $street): array
     {
         $street = $this->prepareStreetString($street);
 
@@ -52,10 +53,9 @@ class StreetFormatter
      * Nondeless it could be that only the first field is parsed to the array
      *
      * @param array $street
-     *
      * @return string
      */
-    private function prepareStreetString($street)
+    private function prepareStreetString(array $street): string
     {
         $newStreet = $street[0];
 
@@ -71,11 +71,12 @@ class StreetFormatter
     }
 
     /**
-     * @param array $matches
+     *  Formats the given street address by extracting the house number and number addition
      *
+     * @param array $matches
      * @return array
      */
-    private function formatStreet($matches)
+    private function formatStreet(array $matches): array
     {
         $format = [
             'house_number'    => trim($matches[2]),
@@ -83,8 +84,8 @@ class StreetFormatter
             'street'          => trim($matches[3]),
         ];
 
-        if (!('' == $matches[1])) {
-            $format['street']          = trim($matches[1]);
+        if ('' != $matches[1]) {
+            $format['street'] = trim($matches[1]);
             $format['number_addition'] = trim($matches[3]);
         }
 

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,9 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
 use Magento\Store\Model\ScopeInterface;
 
 class Paypal extends AbstractConfigProvider
@@ -41,9 +42,11 @@ class Paypal extends AbstractConfigProvider
     public const XPATH_PAYPAL_EXPRESS_MERCHANT_ID          = 'payment/buckaroo_magento2_paypal/express_merchant_id';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
+     *
+     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
@@ -52,6 +55,9 @@ class Paypal extends AbstractConfigProvider
                 'buckaroo' => [
                     'paypal' => [
                         'paymentFeeLabel' => $paymentFeeLabel,
+                        'subtext'   => $this->getSubtext(),
+                        'subtext_style'   => $this->getSubtextStyle(),
+                        'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -60,7 +66,10 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Get Sellers Protection
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtection($store = null)
     {
@@ -72,7 +81,10 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Get Sellers Protection Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionEligible($store = null)
     {
@@ -84,7 +96,10 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Get Sellers Protection Ineligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionIneligible($store = null)
     {
@@ -96,7 +111,10 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Get Sellers Protection Unauthorizedpayment Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
     {
@@ -108,7 +126,10 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @inheritDoc
+     * Get Sellers Protection Unauthorizedpayment Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
     {
@@ -118,19 +139,33 @@ class Paypal extends AbstractConfigProvider
             $store
         );
     }
+
+    /**
+     * Enable or disable Paypal express buttons
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
     public function getExpressButtons($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTONS, $store);
     }
+
+    /**
+     * Get PayPal merchant ID
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
     public function getExpressMerchantId($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_MERCHANT_ID, $store);
     }
+
     /**
      * Test if express button is enabled for the $page
      *
      * @param string $page
-     *
      * @return boolean
      */
     public function canShowButtonForPage($page, $store = null)

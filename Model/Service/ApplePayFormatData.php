@@ -1,4 +1,22 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Model\Service;
 
@@ -24,7 +42,7 @@ class ApplePayFormatData implements FormatFormDataInterface
      * @param ShippingAddressRequestInterfaceFactory $shippingAddrRequestFactory
      */
     public function __construct(
-        DataObjectFactory                      $dataObjectFactory,
+        DataObjectFactory $dataObjectFactory,
         ShippingAddressRequestInterfaceFactory $shippingAddrRequestFactory
     ) {
         $this->dataObjectFactory = $dataObjectFactory;
@@ -45,14 +63,16 @@ class ApplePayFormatData implements FormatFormDataInterface
         }
 
         return $this->dataObjectFactory->create(
-            ['data' => [
-                'product' => $productData['id'],
-                'selected_configurable_option' => '',
-                'related_product' => '',
-                'item' => $productData['id'],
-                'super_attribute' => $productData['selected_options'] ?? '',
-                'qty' => $productData['qty'],
-            ]]
+            [
+                'data' => [
+                    'product'                      => $productData['id'],
+                    'selected_configurable_option' => '',
+                    'related_product'              => '',
+                    'item'                         => $productData['id'],
+                    'super_attribute'              => $productData['selected_options'] ?? '',
+                    'qty'                          => $productData['qty'],
+                ]
+            ]
         );
     }
 

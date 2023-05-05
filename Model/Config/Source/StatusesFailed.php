@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,30 +17,37 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-class StatusesFailed implements \Magento\Framework\Option\ArrayInterface
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\States;
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Sales\Model\Order\Config;
+
+class StatusesFailed implements OptionSourceInterface
 {
     /**
      * Core order config
      *
-     * @var \Magento\Sales\Model\Order\Config
+     * @var Config
      */
-    protected $orderConfig;
+    protected Config $orderConfig;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory
+     * @var Factory
      */
-    protected $configProviderFactory;
+    protected Factory $configProviderFactory;
 
     /**
-     * @param \Magento\Sales\Model\Order\Config          $orderConfig
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+     * @param Config $orderConfig
+     * @param Factory $configProviderFactory
      */
     public function __construct(
-        \Magento\Sales\Model\Order\Config $orderConfig,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+        Config $orderConfig,
+        Factory $configProviderFactory
     ) {
         $this->orderConfig = $orderConfig;
         $this->configProviderFactory = $configProviderFactory;
@@ -51,11 +57,12 @@ class StatusesFailed implements \Magento\Framework\Option\ArrayInterface
      * Options getter
      *
      * @return array
+     * @throws Exception
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\States $statesConfig
+         * @var States $statesConfig
          */
         $statesConfig = $this->configProviderFactory->get('states');
         $state = $statesConfig->getOrderStateFailed();

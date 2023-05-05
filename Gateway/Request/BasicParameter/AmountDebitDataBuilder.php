@@ -2,7 +2,6 @@
 
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Service\DataBuilderService;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -14,12 +13,12 @@ class AmountDebitDataBuilder implements BuilderInterface
      * The billing amount of the request. This value must be greater than 0,
      * and must match the currency format of the merchant account.
      */
-    private const AMOUNT_DEBIT = 'amountDebit';
+    public const AMOUNT_DEBIT = 'amountDebit';
 
     /**
-     * @var float
+     * @var float|null
      */
-    private $amount;
+    private ?float $amount;
 
     /**
      * @var DataBuilderService
@@ -39,26 +38,28 @@ class AmountDebitDataBuilder implements BuilderInterface
 
     /**
      * @inheritdoc
-     * @throws Exception
      */
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
 
-        return [
-            self::AMOUNT_DEBIT => $this->getAmount($order)
-        ];
+        if ($this->getAmount($order)) {
+            return [
+                self::AMOUNT_DEBIT => $this->getAmount($order)
+            ];
+        } else {
+            throw new \Exception(__('Total of the order can not be empty.'));
+        }
     }
 
     /**
      * Get Amount
      *
      * @param Order|null $order
-     * @return string|float
-     * @throws Exception
+     * @return float|null
      */
-    public function getAmount($order = null)
+    public function getAmount(Order $order = null): ?float
     {
         if (empty($this->amount)) {
             $this->setAmount($order);
@@ -72,14 +73,14 @@ class AmountDebitDataBuilder implements BuilderInterface
      *
      * @param Order $order
      * @return $this
-     * @throws Exception
      */
-    public function setAmount($order)
+    public function setAmount(Order $order): AmountDebitDataBuilder
     {
         if ($this->dataBuilderService->getElement('currency') == $order->getOrderCurrencyCode()) {
             $this->amount = $order->getGrandTotal();
+        } else {
+            $this->amount = $order->getBaseGrandTotal();
         }
-        $this->amount = $order->getBaseGrandTotal();
 
         return $this;
     }

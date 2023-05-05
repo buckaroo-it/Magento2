@@ -1,29 +1,58 @@
 <?php
-
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\AddressHandler;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Model\Order;
 
 class DPDPickupAddressHandler extends AbstractAddressHandler
 {
-    protected $quoteRepository;
+    /**
+     * @var CartRepositoryInterface
+     */
+    protected CartRepositoryInterface $quoteRepository;
 
-    public function __construct(Log $buckarooLogger, \Magento\Quote\Api\CartRepositoryInterface $quoteRepository)
+    /**
+     * @param Log $buckarooLogger
+     * @param CartRepositoryInterface $quoteRepository
+     */
+    public function __construct(Log $buckarooLogger, CartRepositoryInterface $quoteRepository)
     {
         $this->quoteRepository = $quoteRepository;
         parent::__construct($buckarooLogger);
     }
 
     /**
+     * Update shipping address by DPD Pickup point
+     *
      * @param Order $order
      * @param OrderAddressInterface $shippingAddress
      * @return Order
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
@@ -31,6 +60,7 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
     {
         if ($order->getShippingMethod() == 'dpdpickup_dpdpickup') {
             $quote = $this->quoteRepository->get($order->getQuoteId());
+            $requestData = [];
             $this->updateShippingAddressByDpdParcel($quote, $requestData);
         }
 
@@ -38,13 +68,15 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
     }
 
     /**
-     * @param $quote
-     * @param $requestData
+     * Set shipping address fields by DPD Parcel
+     *
+     * @param CartInterface $quote
+     * @param array $requestData
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
-    public function updateShippingAddressByDpdParcel($quote, &$requestData)
+    public function updateShippingAddressByDpdParcel(CartInterface $quote, array &$requestData)
     {
         $fullStreet = $quote->getDpdStreet();
         $postalCode = $quote->getDpdZipcode();
@@ -80,8 +112,7 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
             $this->updateShippingAddressCommonMapping($mapping, $requestData);
 
             foreach ($requestData as $key => $value) {
-                if (
-                    $requestData[$key]['Group'] == 'ShippingCustomer'
+                if ($requestData[$key]['Group'] == 'ShippingCustomer'
                     && $requestData[$key]['Name'] == 'StreetNumberAdditional'
                 ) {
                     unset($requestData[$key]);

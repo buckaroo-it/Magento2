@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,23 +20,27 @@
 
 namespace Buckaroo\Magento2\Api;
 
+use Buckaroo\Magento2\Api\Data\GiftcardInterface;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Api\Data\GiftcardInterface;
 
 interface GiftcardRepositoryInterface
 {
     /**
+     * Save gift card
+     *
      * @param GiftcardInterface $giftcard
      * @return GiftcardInterface
      * @throws CouldNotSaveException
      */
-    public function save(GiftcardInterface $giftcard);
+    public function save(GiftcardInterface $giftcard): GiftcardInterface;
 
     /**
+     * Get gift card by id
+     *
      * @param int|string $giftcardId
      * @return GiftcardInterface
      * @throws NoSuchEntityException
@@ -45,12 +48,16 @@ interface GiftcardRepositoryInterface
     public function getById($giftcardId);
 
     /**
+     * Get the list of gift cards
+     *
      * @param SearchCriteria $searchCriteria
      * @return SearchResultsInterface
      */
     public function getList(SearchCriteria $searchCriteria);
 
     /**
+     * Delete gift card
+     *
      * @param GiftcardInterface $giftcard
      * @return bool
      * @throws CouldNotDeleteException
@@ -58,7 +65,9 @@ interface GiftcardRepositoryInterface
     public function delete(GiftcardInterface $giftcard);
 
     /**
-     * @param $giftcardId
+     * Delete gift card by certificate id
+     *
+     * @param int|string $giftcardId
      * @return bool
      * @throws CouldNotDeleteException
      * @throws NoSuchEntityException
