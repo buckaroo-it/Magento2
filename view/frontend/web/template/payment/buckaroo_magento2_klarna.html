@@ -20,33 +20,37 @@
         </div>
     </div>
 
-        <div class="payment-method-content">
+    <div class="payment-method-content">
 
-            <div class="field required">
-                <label class="label" for="buckaroo_magento2_klarna_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
-                <div class="control">
-                    <ul id="Saluation">
-                        <li>            
-                            <select id="buckaroo_magento2_klarna_genderSelect" name="payment[buckaroo_magento2_klarna][customer_gender]" class="select"
-                            data-bind="options: gendersList(),
-                             optionsText: $t('genderTitle'),
-                             optionsValue: 'genderType',
-                             optionsCaption: $t('-- Please Select Your Gender--'),
-                             value: getSelectedGender,
-                             event: { change: setSelectedGender }, attr: { 'data-validate': JSON.stringify({ 'required': true })}">
-                             </select>
-                        </li>
-                    </ul>
-                    <div for="gender" generated="true" class="mage-error" id="gender-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
-                </div>
-            </div>
-
-            <div class="payment-method-billing-address">
+        
+        <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
 
+        <div class="payment-method-second-col billing-address-form">
+            <form data-bind="mageInit: { 'validation': [] },
+                  attr: {'data-hasrequired': $t('* Required Fields')}">
+                <fieldset class="fieldset">
+                    <div class="field required">
+                        <label class="label" for="buckaroo_magento2_klarna_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
+                        <div class="control addon">
+                            <select id="buckaroo_magento2_klarna_genderSelect" name="payment[buckaroo_magento2_klarna][customer_gender]" class="select"
+                            data-bind="options: genderList,
+                            optionsText: $t('genderTitle'),
+                            optionsValue: 'genderType',
+                            optionsCaption: $t('-- Please Select Your Gender--'),
+                            value: selectedGender,
+                            attr: { 'data-validate': JSON.stringify({ 'required': true })},
+                            event: { change: validateField }">
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        
         <div class="actions-toolbar">
             <div class="primary">
                 <button id="button-action-checkout-klarna"

@@ -48,20 +48,11 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_payperemail',
                     selectedGender: null,
-                    genderList: null,
                     firstName: null,
                     middleName: null,
                     lastName: null,
                     email: null,
-                    CustomerFirstName: null,
-                    CustomerMiddleName: null,
-                    CustomerLastName: null,
-                    CustomerEmail: null,
-                    BillingFirstName: null,
-                    BillingMiddleName: null,
-                    BillingLastName: null,
-                    BillingEmail: null,
-                    genderValidate: null
+                    validationState : {}
                 },
                 redirectAfterPlaceOrder: true,
                 paymentFeeLabel: window.checkoutConfig.payment.buckaroo.payperemail.paymentFeeLabel,
@@ -69,7 +60,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('payperemail'),
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-
+                genderList: window.checkoutConfig.payment.buckaroo.payperemail.genderList,
                 /**
                  * @override
                  */
@@ -85,129 +76,77 @@ define(
                     this._super().observe(
                         [
                             'selectedGender',
-                            'genderList',
                             'firstName',
                             'middleName',
                             'lastName',
                             'email',
-                            'CustomerFirstName',
-                            'CustomerMiddleName',
-                            'CustomerLastName',
-                            'CustomerEmail',
-                            'BillingFirstName',
-                            'BillingMiddleName',
-                            'BillingLastName',
-                            'BillingEmail',
-                            'genderValidate',
-                            'dummy'
+                            'validationState'
                         ]
                     );
+                    quote.billingAddress.subscribe(function (address) {
+                        if(address !== null) {
+                            this.firstName(address.firstname);
+                            this.lastName(address.lastname);
+                            this.middleName(address.middlename);
 
-                    if (quote.billingAddress()) {
-                        this.firstName = quote.billingAddress().firstname;
-                        this.lastName = quote.billingAddress().lastname;
-                        this.middleName = quote.billingAddress().middlename;
-                    }
-                    this.email = customerData.email || quote.guestEmail;
+                            this.updateState(
+                                'buckaroo_magento2_payperemail_BillingFirstName',
+                                address.firstname.length > 0
+                            );
+                            this.updateState(
+                                'buckaroo_magento2_payperemail_BillingLastName',
+                                address.lastname.length > 0
+                            );
+                        }
+                    }, this);
 
-                    /**
-                     * Observe customer first & lastname
-                     */
-                    this.CustomerFirstName = ko.computed(
-                        function () {
-                            return this.firstName;
-                        },
-                        this
-                    );
-                    this.BillingFirstName(this.CustomerFirstName());
-
-                    this.CustomerMiddleName = ko.computed(
-                        function () {
-                            return this.middleName;
-                        },
-                        this
-                    );
-                    this.BillingMiddleName(this.CustomerMiddleName());
-
-                    this.CustomerLastName = ko.computed(
-                        function () {
-                            return this.lastName;
-                        },
-                        this
-                    );
-                    this.BillingLastName(this.CustomerLastName());
-
-                    this.CustomerEmail = ko.computed(
-                        function () {
-                            return this.email;
-                        },
-                        this
-                    );
-                    this.BillingEmail(this.CustomerEmail());
-
-                    this.gendersList = function () {
-
-                        return window.checkoutConfig.payment.buckaroo.payperemail.genderList;
-                    }
-
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedGender = function () {
-                        var el = document.getElementById("buckaroo_magento2_payperemail_genderSelect");
-                        this.selectedGender(el.options[el.selectedIndex].value);
-                        this.selectPaymentMethod();
-                        return true;
-                    };
-
-
-                    this.getSelectedGender = function () {
-                        return this.selectedGender();
-                    }
-
-                    /**
-                     * Validation on the input fields
-                     */
-                    var runValidation = function () {
-                        $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
-                        this.selectPaymentMethod();
-                    };
-
-                    this.BillingFirstName.subscribe(runValidation, this);
-                    this.BillingMiddleName.subscribe(runValidation, this);
-                    this.BillingLastName.subscribe(runValidation, this);
-                    this.BillingEmail.subscribe(runValidation, this);
-
-                    var check = function () {
-                        return (
-                            this.selectedGender() !== null &&
-                            this.BillingFirstName() !== null &&
-                            this.BillingMiddleName() !== null &&
-                            this.BillingLastName() !== null &&
-                            this.BillingEmail() !== null &&
-                            this.validate()
+                    if(quote.guestEmail) {
+                        this.email(quote.guestEmail);
+                        this.updateState(
+                            'buckaroo_magento2_payperemail_Email',
+                            quote.guestEmail.length > 0
                         );
-                    };
+                    }
 
-                    /**
-                     * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
-                     */
+                    /** Check used to see form is valid **/
                     this.buttoncheck = ko.computed(
                         function () {
-                            this.selectedGender();
-                            this.BillingFirstName();
-                            this.BillingMiddleName();
-                            this.BillingLastName();
-                            this.BillingEmail();
-                            this.dummy();
-                            return check.bind(this)();
+                            const state = this.validationState();
+                            const valid =[
+                                "buckaroo_magento2_payperemail_genderSelect",
+                                "buckaroo_magento2_payperemail_BillingFirstName",
+                                "buckaroo_magento2_payperemail_BillingLastName",
+                                "buckaroo_magento2_payperemail_Email"
+                            ].map((field) => {
+                                if(state[field] !== undefined) {
+                                    return state[field];
+                                }
+                                return false;
+                            }).reduce(
+                                function(prev, cur) {
+                                    return prev && cur
+                                },
+                                true
+                            )
+                            return valid;
                         },
                         this
                     );
 
                     return this;
+                },
+                validateField(data, event) {
+                    const isValid = $(event.target).valid();
+                    let state = this.validationState();
+                    state[event.target.id] = isValid;
+                    this.validationState(state);
+                },
+
+
+                updateState(id, isValid) {
+                    let state = this.validationState();
+                    state[id] = isValid;
+                    this.validationState(state);
                 },
 
                 /**
@@ -260,18 +199,19 @@ define(
                  */
 
                 validate: function () {
-                    return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
+                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
+
                 getData: function () {
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
                             "customer_gender": this.selectedGender(),
-                            "customer_billingFirstName": this.BillingFirstName(),
-                            "customer_billingMiddleName": this.BillingMiddleName(),
-                            "customer_billingLastName": this.BillingLastName(),
-                            "customer_email": this.BillingEmail()
+                            "customer_billingFirstName": this.firstName(),
+                            "customer_billingMiddleName": this.middleName(),
+                            "customer_billingLastName": this.lastName(),
+                            "customer_email": this.email()
                         }
                     };
                 },

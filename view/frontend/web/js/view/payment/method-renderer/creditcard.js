@@ -85,7 +85,6 @@ define(
                     var self = this;
                     this.setSelectedCard = function (value) {
                         self.selectedCard(value);
-                        self.selectPaymentMethod();
                         return true;
                     };
 
@@ -111,7 +110,6 @@ define(
                 setSelectedBankDropDown: function() {
                     var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
                     this.selectedCard(el.options[el.selectedIndex].value);
-                    this.selectPaymentMethod();
                     return true;
                 },
 

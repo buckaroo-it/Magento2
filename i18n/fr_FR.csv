@@ -399,7 +399,7 @@
 "Month:","Mois:"
 "Card:","Carte:"
 "Card number:","Numéro de carte:"
-"Cardholder:","Titulaire de la carte:"
+"Name on card:","Titulaire de la carte:"
 "Cvc / Cvv Code:","Code CVC / CVV:"
 "Please make sure all fields are filled in correctly before proceeding.","Veuillez vous assurer que tous les champs sont remplis correctement avant de continuer."
 "Orders with discount and paid with Klarna can not be partially invoiced. %1 More Information %2","Les commandes avec remise et payées avec Klarna ne peuvent pas être partiellement facturées. %1 Plus d'information %2"
