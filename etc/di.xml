@@ -705,6 +705,20 @@
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::VERIFY</argument>
         </arguments>
     </virtualType>
+
+    <virtualType name="TransactionAuthorizePayRemainder" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="serviceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE</argument>
+            <argument name="newServiceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REMAINDER</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionPayRemainderEncrypted" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="serviceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_ENCRYPTED</argument>
+            <argument name="newServiceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REMAINDER_ENCRYPTED</argument>
+        </arguments>
+    </virtualType>
+
     <!-- END Gateway Client Types -->
 
     <!-- Message Mapper -->
@@ -1166,7 +1180,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">KlarnaOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPay</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -1539,7 +1553,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AlipayOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPay</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -2342,7 +2356,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AfterpayOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPay</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -2402,7 +2416,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AfterpayAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionAuthorize</argument>
+            <argument name="client" xsi:type="object">TransactionAuthorizePayRemainder</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -2564,7 +2578,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">AfterpayOldAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionAuthorize</argument>
+            <argument name="client" xsi:type="object">TransactionAuthorizePayRemainder</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -2678,7 +2692,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">TinkaOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPay</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -3700,7 +3714,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CreditcardEncryptedOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainderEncrypted</argument>
+            <argument name="client" xsi:type="object">TransactionPayRemainderEncrypted</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -3989,7 +4003,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">WechatpayOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPay</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>

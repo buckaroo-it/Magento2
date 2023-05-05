@@ -33,6 +33,8 @@ class TransactionPayRemainder extends DefaultTransaction
      * @var PayReminderService
      */
     private PayReminderService $payReminderService;
+    private string $serviceAction;
+    private string $newServiceAction;
 
     /**
      * Constructor
@@ -41,15 +43,21 @@ class TransactionPayRemainder extends DefaultTransaction
      * @param Logger $customLogger
      * @param BuckarooAdapter $adapter
      * @param PayReminderService $payReminderService
+     * @param string $serviceAction
+     * @param string $newServiceAction
      */
     public function __construct(
         LoggerInterface $logger,
         Logger $customLogger,
         BuckarooAdapter $adapter,
-        PayReminderService $payReminderService
+        PayReminderService $payReminderService,
+        string $serviceAction = TransactionType::PAY,
+        string $newServiceAction = TransactionType::PAY_REMAINDER
     ) {
         parent::__construct($logger, $customLogger, $adapter);
         $this->payReminderService = $payReminderService;
+        $this->serviceAction = $serviceAction;
+        $this->newServiceAction = $newServiceAction;
     }
 
     /**
@@ -58,7 +66,12 @@ class TransactionPayRemainder extends DefaultTransaction
     protected function process(string $paymentMethod, array $data): TransactionResponse
     {
         $orderIncrementId = $data['invoice'] ?? $data['order'] ?? '';
-        $serviceAction = $this->payReminderService->getServiceAction($orderIncrementId);
+
+        $serviceAction = $this->payReminderService->getServiceAction(
+            $orderIncrementId,
+            $this->serviceAction,
+            $this->newServiceAction
+        );
 
         return $this->adapter->execute($serviceAction, $paymentMethod, $data);
     }
