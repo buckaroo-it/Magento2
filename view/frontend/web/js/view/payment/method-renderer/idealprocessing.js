@@ -46,14 +46,13 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_idealprocessing'
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_idealprocessing',
+                    selectedBank: '',
+                    validationState: {}
                 },
-                banktypes: [],
+                bankTypes: window.checkoutConfig.payment.buckaroo.idealprocessing.banks,
                 redirectAfterPlaceOrder: false,
-                idealIssuer: null,
-                selectedBank: null,
-                selectedBankDropDown: null,
-                selectionType: null,
+                selectionType:  window.checkoutConfig.payment.buckaroo.idealprocessing.selectionType,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.idealprocessing.paymentFeeLabel,
                 subtext : window.checkoutConfig.payment.buckaroo.idealprocessing.subtext,
                 subTextStyle : checkoutCommon.getSubtextStyle('idealprocessing'),
@@ -61,8 +60,8 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 
                 /**
-                 * @override
-                 */
+             * @override
+             */
                 initialize : function (options) {
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
@@ -72,45 +71,40 @@ define(
                 },
 
                 initObservable: function () {
-                    this._super().observe(['selectedBank', 'banktypes', 'selectionType']);
+                    this._super().observe(['selectedBank', 'validationState']);
 
-                    this.banktypes = ko.observableArray(window.checkoutConfig.payment.buckaroo.idealprocessing.banks);
-
-                    this.selectionType  = window.checkoutConfig.payment.buckaroo.idealprocessing.selectionType;
-
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedBank = function (value) {
-                        self.selectedBank(value);
-                        return true;
-                    };
-
-                    /**
-                     * Check if the required fields are filled. If so: enable place order button (true) | ifnot: disable place order button (false)
-                     */
+                    /** Check used to see form is valid **/
                     this.buttoncheck = ko.computed(
                         function () {
-                            return this.selectedBank() !== null;
+                            const state = this.validationState();
+                            const valid = [
+                                'issuer',
+                            ].map((field) => {
+                                if(state[field] !== undefined) {
+                                    return state[field];
+                                }
+                                return false;
+                            }).reduce(
+                                function(prev, cur) {
+                                    return prev && cur
+                                },
+                                true
+                            )
+                            return valid;
                         },
                         this
                     );
 
-                    $('.iosc-place-order-button').on('click', function(e){
-                        if(self.selectedBank() == null){
-                            self.messageContainer.addErrorMessage({'message': $t('You need select a bank')});
-                        }
-                    });
-                    
+
+
                     return this;
                 },
 
-                setSelectedBankDropDown: function() {
-                    var el = document.getElementById("buckaroo_magento2_idealp_issuer");
-                    this.selectedBank(el.options[el.selectedIndex].valu);
-                    return true;
+                validateField(data, event) {
+                    const isValid = $(event.target).valid();
+                    let state = this.validationState();
+                    state['issuer'] = isValid;
+                    this.validationState(state);
                 },
 
                 /**
@@ -121,7 +115,7 @@ define(
                  */
                 placeOrder: function (data, event) {
                     var self = this,
-                        placeOrder;
+                    placeOrder;
 
                     if (event) {
                         event.preventDefault();
@@ -156,20 +150,11 @@ define(
                 },
 
                 getData: function () {
-                    var selectedBankCode = null;
-                    if (this.selectedBank()) {
-                        selectedBankCode = this.selectedBank().code;
-                    }
-
-                    if(this.idealIssuer){
-                        selectedBankCode = this.idealIssuer;
-                    }
-
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "issuer" : selectedBankCode
+                            "issuer" : this.selectedBank()
                         }
                     };
                 },
