@@ -105,7 +105,7 @@ class BuilderComposite implements BuilderInterface
     {
         $payment = SubjectReader::readPayment($buildSubject)->getPayment();
 
-        return $this->configProvider->get($payment->getMethod())->getActiveStatusCm3();
+        return (bool)$this->configProvider->get($payment->getMethod())->getActiveStatusCm3();
     }
 
     /**
