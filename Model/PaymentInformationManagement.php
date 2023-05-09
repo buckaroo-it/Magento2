@@ -176,10 +176,10 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     /**
      * Get order increment id by order id.
      *
-     * @param int $orderId
+     * @param int|string $orderId
      * @return string|null
      */
-    protected function getOrderIncrementId(int $orderId): ?string
+    protected function getOrderIncrementId($orderId): ?string
     {
         $order = $this->orderRepository->get($orderId);
         return $order->getIncrementId();
