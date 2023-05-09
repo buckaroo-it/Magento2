@@ -100,6 +100,14 @@ define(
                         }
                     }, this);
 
+                    if(customerData !== null) {
+                        this.email(customerData.email);
+                        this.updateState(
+                            'buckaroo_magento2_payperemail_Email',
+                            customerData.email.length > 0
+                        );
+                    }
+
                     if(quote.guestEmail) {
                         this.email(quote.guestEmail);
                         this.updateState(
