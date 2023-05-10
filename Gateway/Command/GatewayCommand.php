@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Command;
 
+use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapperInterface;
@@ -124,6 +125,10 @@ class GatewayCommand implements CommandInterface
      */
     public function execute(array $commandSubject)
     {
+//        if ($this->client instanceof TransactionPayRemainder) {
+//
+//        }
+
         if ($this->skipCommand !== null && $this->skipCommand->isSkip($commandSubject)) {
             return;
         }

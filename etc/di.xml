@@ -706,13 +706,13 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="TransactionAuthorizePayRemainder" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+    <virtualType name="TransactionAuthorizePayRemainder" type="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder">
         <arguments>
             <argument name="serviceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE</argument>
             <argument name="newServiceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REMAINDER</argument>
         </arguments>
     </virtualType>
-    <virtualType name="TransactionPayRemainderEncrypted" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+    <virtualType name="TransactionPayRemainderEncrypted" type="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder">
         <arguments>
             <argument name="serviceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_ENCRYPTED</argument>
             <argument name="newServiceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REMAINDER_ENCRYPTED</argument>
@@ -3721,11 +3721,27 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="AmountPayRemainderEncrypted" type="Buckaroo\Magento2\Gateway\Request\PayReminder\AmountDataBuilder">
+        <arguments>
+            <argument name="serviceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_ENCRYPTED</argument>
+            <argument name="newServiceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REMAINDER_ENCRYPTED</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="OriginalTransactionKeyEncryptedDataBuilder" type="Buckaroo\Magento2\Gateway\Request\PayReminder\OriginalTransactionKeyDataBuilder">
+        <arguments>
+            <argument name="serviceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_ENCRYPTED</argument>
+            <argument name="newServiceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REMAINDER_ENCRYPTED</argument>
+        </arguments>
+    </virtualType>
+
     <!-- CreditcardEncrypted Order Command - Request Builder -->
     <virtualType name="CreditcardEncryptedOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="amount" xsi:type="string">AmountPayRemainderEncrypted</item>
+                <item name="original_transaction_key" xsi:type="string">OriginalTransactionKeyEncryptedDataBuilder</item>
                 <item name="creditcard_encrypted" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardEncryptedDataBuilder</item>
             </argument>
         </arguments>

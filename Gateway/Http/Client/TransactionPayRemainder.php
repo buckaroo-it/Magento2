@@ -75,4 +75,18 @@ class TransactionPayRemainder extends DefaultTransaction
 
         return $this->adapter->execute($serviceAction, $paymentMethod, $data);
     }
+
+    /**
+     *
+     * @return string
+     */
+    public function getServiceAction()
+    {
+        return $this->serviceAction;
+    }
+
+    public function getNewServiceAction()
+    {
+        return $this->newServiceAction;
+    }
 }
