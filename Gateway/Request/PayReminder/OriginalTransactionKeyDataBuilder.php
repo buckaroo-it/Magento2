@@ -32,22 +32,13 @@ class OriginalTransactionKeyDataBuilder extends AbstractDataBuilder
      */
     private PayReminderService $payReminderService;
 
-    private string $serviceAction;
-    private string $newServiceAction;
-
     /**
      * @param PayReminderService $payReminderService
-     * @param string $serviceAction
-     * @param string $newServiceAction
      */
     public function __construct(
-        PayReminderService $payReminderService,
-        string $serviceAction = TransactionType::PAY,
-        string $newServiceAction = TransactionType::PAY_REMAINDER
+        PayReminderService $payReminderService
     ) {
         $this->payReminderService = $payReminderService;
-        $this->serviceAction = $serviceAction;
-        $this->newServiceAction = $newServiceAction;
     }
 
     /**
@@ -57,13 +48,9 @@ class OriginalTransactionKeyDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
-        $serviceAction = $this->payReminderService->getServiceAction(
-            $this->getOrder()->getIncrementId(),
-            $this->serviceAction,
-            $this->newServiceAction
-        );
+        $serviceAction = $this->payReminderService->getServiceAction($this->getOrder()->getIncrementId());
 
-        if (in_array($serviceAction, [TransactionType::PAY_REMAINDER, TransactionType::PAY_REMAINDER_ENCRYPTED])) {
+        if (in_array($serviceAction, TransactionType::getPayRemainderActions())) {
             return [
                 'originalTransactionKey' => $this->payReminderService->getOriginalTransactionKey($this->getOrder())
             ];

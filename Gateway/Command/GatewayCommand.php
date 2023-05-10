@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Command;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
@@ -80,9 +81,9 @@ class GatewayCommand implements CommandInterface
     private $errorMessageMapper;
 
     /**
-     * @var SkipCommandInterface
+     * @var SkipCommandInterface|null
      */
-    private SkipCommandInterface $skipCommand;
+    private ?SkipCommandInterface $skipCommand;
 
     /**
      * @param BuilderInterface $requestBuilder
@@ -123,11 +124,13 @@ class GatewayCommand implements CommandInterface
      * @throws ClientException
      * @throws ConverterException
      */
-    public function execute(array $commandSubject)
+    public function execute(array $commandSubject): void
     {
-//        if ($this->client instanceof TransactionPayRemainder) {
-//
-//        }
+        if ($this->client instanceof TransactionPayRemainder) {
+            $paymentDO = SubjectReader::readPayment($commandSubject);
+            $orderIncrementId = $paymentDO->getOrder()->getOrder()->getIncrementId();
+            $this->client->setServiceAction($orderIncrementId);
+        }
 
         if ($this->skipCommand !== null && $this->skipCommand->isSkip($commandSubject)) {
             return;

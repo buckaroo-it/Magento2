@@ -77,16 +77,17 @@ class TransactionPayRemainder extends DefaultTransaction
     }
 
     /**
+     * Set service action before request builders
      *
+     * @param string $orderIncrementId
      * @return string
      */
-    public function getServiceAction()
+    public function setServiceAction(string $orderIncrementId): string
     {
-        return $this->serviceAction;
-    }
-
-    public function getNewServiceAction()
-    {
-        return $this->newServiceAction;
+        return $this->payReminderService->getServiceAction(
+            $orderIncrementId,
+            $this->serviceAction,
+            $this->newServiceAction
+        );
     }
 }
