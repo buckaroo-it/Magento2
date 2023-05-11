@@ -100,7 +100,7 @@ define(
                         }
                     }, this);
 
-                    if(customerData !== null) {
+                    if (typeof customerData === 'object' && customerData.hasOwnProperty('email')) {
                         this.email(customerData.email);
                         this.updateState(
                             'buckaroo_magento2_payperemail_Email',
