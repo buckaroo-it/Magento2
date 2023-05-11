@@ -252,10 +252,10 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get tax category
      *
-     * @param Order $order
+     * @param Order|Invoice $order
      * @return float|int
      */
-    protected function getTaxCategory(Order $order)
+    protected function getTaxCategory($order)
     {
         $request = $this->taxCalculation->getRateRequest(
             null,
@@ -499,7 +499,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function getShippingAmount($order): ?float
     {
-        return $order->getShippingInclTax();
+        return (float)$order->getShippingInclTax();
     }
 
     /**
