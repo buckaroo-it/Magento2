@@ -203,7 +203,7 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
      */
     public function getStatusCode(): ?string
     {
-        return $this->request["Status"]["Code"]["Code"] ?? null;
+        return (string)$this->request["Status"]["Code"]["Code"] ?? null;
     }
 
     /**

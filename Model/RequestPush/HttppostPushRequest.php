@@ -204,7 +204,7 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
      */
     public function getStatusCode(): ?string
     {
-        return $this->request['brq_statuscode'] ?? null;
+        return (string)$this->request['brq_statuscode'] ?? null;
     }
 
     /**
