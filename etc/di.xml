@@ -3292,7 +3292,7 @@
             <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
             <argument name="valueHandlerPool" xsi:type="object">VoucherValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">VoucherValidatorPool</argument>
-            <argument name="commandPool" xsi:type="object">BuckarooRemainderOrderCommand</argument>
+            <argument name="commandPool" xsi:type="object">BuckarooRemainderGatewayCommandPool</argument>
             <argument name="usesRedirect" xsi:type="boolean">false</argument>
         </arguments>
     </virtualType>
