@@ -22,9 +22,10 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Billink;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
-use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 
 class AvailableBasedOnAmountValidator extends AbstractValidator
 {
@@ -43,8 +44,15 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
         $quote = SubjectReader::readQuote($validationSubject);
 
         $storeId = $quote->getStoreId();
-        $maximum = $paymentMethodInstance->getConfigData('max_amount', $storeId);
-        $minimum = $paymentMethodInstance->getConfigData('min_amount', $storeId);
+
+        if (($quote->getShippingAddress()->getCompany() || $quote->getBillingAddress()->getCompany())
+            && in_array($paymentMethodInstance->getCode(), [Afterpay20::CODE, Billink::CODE])) {
+            $maximum = $paymentMethodInstance->getConfigData('max_amount_b2b', $storeId);
+            $minimum = $paymentMethodInstance->getConfigData('min_amount_b2b', $storeId);
+        } else {
+            $maximum = $paymentMethodInstance->getConfigData('max_amount', $storeId);
+            $minimum = $paymentMethodInstance->getConfigData('min_amount', $storeId);
+        }
 
         $total = $quote->getGrandTotal();
 
