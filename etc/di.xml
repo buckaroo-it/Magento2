@@ -721,7 +721,7 @@
     <virtualType name="TransactionInInstallmentsPayRemainder" type="Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder">
         <arguments>
             <argument name="serviceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_IN_INSTALLMENTS</argument>
-            <argument name="newServiceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REMAINDER_ENCRYPTED</argument>
+            <argument name="newServiceAction" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_REMAINDER</argument>
         </arguments>
     </virtualType>
 
