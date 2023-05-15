@@ -24,6 +24,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Method\PayPerEmail;
 
 class CreateCombinedInvoice
 {
@@ -141,7 +142,7 @@ class CreateCombinedInvoice
                 'Name' => 'MaxStepIndex',
             ],
             [
-                '_'    => $this->configProvider->getPaymentMethod(),
+                '_'    => $this->getAllowedServices($order->getPayment()),
                 'Name' => 'AllowedServices',
             ]
         ];
@@ -154,6 +155,20 @@ class CreateCombinedInvoice
         }
 
         return $ungroupedParameters;
+    }
+
+    /**
+     * @param OrderPaymentInterface|InfoInterface $payment
+     * @return string
+     */
+    private function getAllowedServices($payment): string
+    {
+        $allowedServices = $this->configProvider->getPaymentMethod();
+
+        if($payment->getMethod() === PayPerEmail::PAYMENT_METHOD_CODE) {
+            return str_replace("p24,","",$allowedServices);
+        }
+        return $allowedServices;
     }
 
     /**

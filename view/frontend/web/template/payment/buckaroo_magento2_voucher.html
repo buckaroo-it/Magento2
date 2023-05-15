@@ -34,8 +34,12 @@
                         <label class="label" for="buckaroo_magento2_voucher_code"> <span
                                 data-bind="i18n: 'Voucher code:'"> </span> </label>
                         <div class="control">
-                            <input id="buckaroo_magento2_voucher_code" name="payment[buckaroo_magento2_voucher][code]"
-                                class="input-text field" type="text" data-bind="
+                            <input id="buckaroo_magento2_voucher_code"
+                                name="payment[buckaroo_magento2_voucher][code]"
+                                class="input-text field"
+                                type="text"
+                                placeholder="1A2B-3C4D-6E7F-8G9H-1I2J"
+                                data-bind="
                                        valueUpdate: 'keyup',
                                        value: code,
                                        attr: { 'data-validate': JSON.stringify({ 'required': true })

@@ -105,7 +105,7 @@ define(
                     bankaccountnumber: '',
                     bicnumber: '',
                     isnl: false,
-                    minimumWords: 2
+                    validationState : {},
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.sepadirectdebit.paymentFeeLabel,
                 subtext : window.checkoutConfig.payment.buckaroo.sepadirectdebit.subtext,
@@ -126,79 +126,68 @@ define(
                 },
 
                 initObservable: function () {
-                    this._super().observe(['bankaccountholder', 'bankaccountnumber', 'bicnumber', 'minimumWords', 'isnl']);
+                    this._super().observe([
+                        'bankaccountholder', 
+                        'bankaccountnumber',
+                        'bicnumber',
+                        'validationState'
+                    ]);
 
-                    /**
-                     * check if country is NL, if so load: bank account number | ifnot load: bicnumber
-                     */
-                    this.updateIsNl = function(address) {
-                        var isnlComputed = ko.computed(
-                            function () {
-                                if (address === null) {
-                                    return false;
-                                }
+                    this.isnl = ko.computed(function () {
+                        return quote.billingAddress() !== null &&  quote.billingAddress().countryId == 'NL'
+                    }, this);
 
-                                return address.countryId == 'NL';
-                            },
-                            this
-                        );
-
-                        this.isnl(isnlComputed());
-                    };
-
-                    this.updateIsNl(quote.billingAddress());
-
-                    quote.billingAddress.subscribe(
-                        function (newAddress) {
-                            if (this.getCode() === this.isChecked() && newAddress && newAddress.getKey()) {
-                                this.updateIsNl(newAddress);
-                            }
-                        }.bind(this)
-                    );
 
                     /**
                      * Repair IBAN value to uppercase
                      */
                     this.bankaccountnumber.extend({ uppercase: true });
 
-                    /**
-                     * Run validation on the three inputfields
-                     */
-
-                    var runValidation = function () {
-                        $('.' + this.getCode() + ' .payment [data-validate]').valid();
-                        this.selectPaymentMethod();
-                    };
-                    this.bankaccountholder.subscribe(runValidation,this);
-                    this.bankaccountnumber.subscribe(runValidation,this);
-                    this.bicnumber.subscribe(runValidation,this);
-
-                    /**
-                     * Check if the required fields are filled. If so: enable place order button | if not: disable place order button
-                     */
-                    this.accountNumberIsValid = ko.computed(
+                    /** Check used to see form is valid **/
+                    this.buttoncheck = ko.computed(
                         function () {
-                            var isValid = (this.bankaccountholder().length >= this.minimumWords() && this.bankaccountnumber().length > 0);
-
-                            if (!this.isnl()) {
-                                isValid = (isValid && this.bicnumber().length > 0);
-                            }
-
-                            isValid = (isValid && this.validate());
-
-                            return isValid;
+                            const state = this.validationState();
+                            const valid =this.getActiveFields().map((field) => {
+                                if(state[field] !== undefined) {
+                                    return state[field];
+                                }
+                                return false;
+                            }).reduce(
+                                function(prev, cur) {
+                                    return prev && cur
+                                },
+                                true
+                            )
+                            return valid;
                         },
                         this
                     );
+                    
                     return this;
                 },
 
+                getActiveFields() {
+                    let fields = [
+                        'bankaccountholder',
+                        'bankaccountnumber',
+                    ];
+                    if(!this.isnl()) {
+                        fields.push('bicnumber');
+                    }
+                    return fields;
+                },
+                validateField(data, event) {
+                    const isValid = $(event.target).valid();
+                    let state = this.validationState();
+                    state[event.target.id] = isValid;
+                    this.validationState(state);
+                },
                 /**
                  * Run function
                  */
 
                 validate: function () {
-                    return $('.' + this.getCode() + ' .payment [data-validate]').valid();
+                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
                 selectPaymentMethod: function () {

@@ -21,6 +21,9 @@
     display: block;
     font-size: 1.35rem;
 }
+.bk-mrcash {
+    margin-top: 10px;
+}
 .checkout-payment-method .payment-method-title.bk-payment {
     padding: 15px 0;
 }
@@ -31,6 +34,39 @@
     .checkout-payment-method .payment-method-title.bk-payment {
         padding: 15px;
     }
+}
+
+#ui-datepicker-div.bk-datepicker {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 0 2px 0px rgba(0,0,0,.35);
+    padding: 10px;
+    width: 240px;
+}
+#ui-datepicker-div.bk-datepicker table,
+#ui-datepicker-div.bk-datepicker th,
+#ui-datepicker-div.bk-datepicker thead tr {
+    background:none;
+    border: none;
+    text-transform: capitalize;
+    text-align: center;
+}
+#ui-datepicker-div.bk-datepicker .ui-state-disabled,
+#ui-datepicker-div.bk-datepicker tbody td {
+    background:#f2f4f5;
+    border: 1px solid #fff;
+    border-radius:5px;
+}
+
+#ui-datepicker-div.bk-datepicker tbody td a {
+  text-align:center;
+}
+
+
+#ui-datepicker-div.bk-datepicker .ui-datepicker-header {
+    padding: 0;
+    margin: 5px 0;
 }
 
 /* ===================== Default / Overwrite Styling ============================= */
@@ -64,6 +100,11 @@
     font-weight: normal;
 }
 
+.payment-method-second-col input:disabled {
+    background-color: #e3e3e3;
+    color: #6e6e6e;
+    opacity: 1;
+}
 .payment-method-second-col input,
 .payment-method-second-col select {
     border-radius: 5px;
@@ -404,7 +445,7 @@
     right: 5px;
     top: 5px;
 }
-
+.bk-card-date-wrap,
 .bk-cvc-date-wrap {
     display: flex;
     justify-content: space-between;
@@ -414,6 +455,15 @@
 }
 .bk-cvc {
     margin-left: 5px;
+}
+
+.bk-card-date-wrap .bk-date {
+    margin: 0 0 0 5px;
+    flex: 4;
+}
+.bk-card-number {
+    margin-right: 5px;
+    flex: 6;
 }
 /*======================end creditcards======================================*/
 .giftcard-delete:before {

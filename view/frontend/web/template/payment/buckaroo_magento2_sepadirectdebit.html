@@ -41,12 +41,14 @@
                         </label>
                         <div class="control">
                             <input id="bankaccountholder" class="input-text field" type="text"
+                                   placeholder="John Doe"
                                    data-bind="
                                     value: bankaccountholder,
                                     valueUpdate: 'keyup',
                                     attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'min-words': minimumWords() })
-                                    }
+                                        'data-validate': JSON.stringify({ 'required': true, 'min-words': 2 })
+                                    },
+                                    event: { blur: validateField }
                                    "
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_account_name]">
                         </div>
@@ -58,12 +60,14 @@
                         </label>
                         <div class="control">
                             <input id="bankaccountnumber" class="input-text field" type="text"
+                                   placeholder="NL13TEST0123456789"
                                    data-bind="
                                     value: bankaccountnumber,
                                     valueUpdate: 'keyup',
                                     attr: {
                                         'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })
-                                    }
+                                    },
+                                    event: { blur: validateField }
                                    "
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_iban]">
                         </div>
@@ -76,12 +80,14 @@
                         </label>
                         <div class="control">
                             <input id="bicnumber" class="input-text field" type="text"
+                                   placeholder="AAAABBCCDDD"
                                    data-bind="
                                     value: bicnumber,
                                     valueUpdate: 'keyup',
                                     attr: {
                                         'data-validate': JSON.stringify({ 'required': true, 'BIC':true })
-                                    }
+                                    },
+                                    event: { blur: validateField }
                                    "
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_bic]">
                         </div>
@@ -109,7 +115,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !accountNumberIsValid()}
+                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck()}
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

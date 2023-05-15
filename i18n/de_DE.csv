@@ -399,7 +399,7 @@
 "Month:","Monat:"
 "Card:","Karte:"
 "Card number:","Kartennummer:"
-"Cardholder:","Kartenhalter:"
+"Name on card:","Kartenhalter:"
 "Cvc / Cvv Code:","Cvc / Cvv-Code:"
 "Please make sure all fields are filled in correctly before proceeding.","Bitte stellen Sie sicher, dass alle Felder korrekt ausgefüllt sind, bevor Sie fortfahren."
 "Orders with discount and paid with Klarna can not be partially invoiced. %1 More Information %2","Bestellungen mit Rabatt, die mit Klarna bezahlt wurden, können nicht teilweise in Rechnung gestellt werden. %1 Mehr Informationen %2"
@@ -449,3 +449,4 @@
 "Enabling this feature adds the option to hide this payment method after a certain number of failed attempts.","Durch Aktivieren dieser Funktion wird die Option hinzugefügt, diese Zahlungsmethode nach einer bestimmten Anzahl fehlgeschlagener Versuche auszublenden."
 "When this number is exceeded, the payment method will be hidden. Minimum 1, maximum 10.","Wenn diese Anzahl überschritten wird, werden die Zahlungsmethoden ausgeblendet. Mindestens 1, höchstens 10."
 "This message is shown when the payment method is hidden. Maximum 280 characters.","Diese Meldung wird angezeigt, wenn die Zahlungsmethode ausgeblendet ist. Maximal 280 Zeichen."
+"-- Please Select Your Gender--","Bitte wähle dein Geschlecht aus"

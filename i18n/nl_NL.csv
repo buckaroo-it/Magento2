@@ -403,7 +403,7 @@
 "Month:","Maand:"
 "Card:","Kaart:"
 "Card number:","Kaartnummer:"
-"Cardholder:","Kaarthouder:"
+"Name on card:","Kaarthouder:"
 "Cvc / Cvv Code:","Cvc / Cvv Code:"
 "Please make sure all fields are filled in correctly before proceeding.","Zorg ervoor dat alle velden correct zijn ingevuld voordat u doorgaat."
 "Orders with discount and paid with Klarna can not be partially invoiced. %1 More Information %2","Orders met korting en betaald met Klarna kunnen niet gedeeltelijk worden gefactureerd. %1 Meer Informatie %2"
@@ -454,3 +454,4 @@
 "Enabling this feature adds the option to hide this payment method after a certain number of failed attempts.","Met het inschakelen van deze functie voegt u de optie toe om deze betaalmethode te verbergen bij een bepaald aantal mislukte pogingen."
 "When this number is exceeded, the payment method will be hidden. Minimum 1, maximum 10.","Wanneer dit aantal wordt overschreven word de betaalmethoden verborgen. Minimaal 1, maximaal 10. "
 "This message is shown when the payment method is hidden. Maximum 280 characters.","Deze melding wordt getoond wanneer de betaalmethode is verborgen. Maximaal 280 karakters."
+"-- Please Select Your Gender--","Selecteer uw geslacht"
