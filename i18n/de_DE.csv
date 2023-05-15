@@ -399,7 +399,7 @@
 "Month:","Monat:"
 "Card:","Karte:"
 "Card number:","Kartennummer:"
-"Cardholder:","Kartenhalter:"
+"Name on card:","Kartenhalter:"
 "Cvc / Cvv Code:","Cvc / Cvv-Code:"
 "Please make sure all fields are filled in correctly before proceeding.","Bitte stellen Sie sicher, dass alle Felder korrekt ausgefüllt sind, bevor Sie fortfahren."
 "Orders with discount and paid with Klarna can not be partially invoiced. %1 More Information %2","Bestellungen mit Rabatt, die mit Klarna bezahlt wurden, können nicht teilweise in Rechnung gestellt werden. %1 Mehr Informationen %2"
@@ -447,3 +447,4 @@
 "The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.","Die Rückerstattung wurde eingeleitet, wartet jedoch auf eine Genehmigung. Melden Sie sich auf der Buckaroo Plaza an, um die Rückerstattung abzuschließen, indem Sie sie genehmigen."
 "Determines the active payment method service ("Credit" is the default method). More information can be found on <a href="https://docs.buckaroo.io/docs/tinka">https://docs.buckaroo.io/docs/tinka</a>","Wählen Sie die gewünschte Zahlungsmethode für Tinka aus ("Credit" ist die Standardmethode). Weitere Informationen finden Sie unter <a href="https://docs.buckaroo.io/docs/tinka">https://docs.buckaroo.io/docs/tinka</a>"
 "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.","Pay rejected: Bei Afterpay-Transaktionen darf kein anderes Land für die Rechnungs- und Lieferadresse angegeben werden."
+"-- Please Select Your Gender--","Bitte wähle dein Geschlecht aus"

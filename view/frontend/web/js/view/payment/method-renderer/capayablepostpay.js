@@ -28,7 +28,8 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'buckaroo/checkout/datepicker'
     ],
     function (
         $,
@@ -39,7 +40,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        datePicker
     ) {
         'use strict';
 
@@ -65,7 +67,8 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('capayablepostpay'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
+                dp: datePicker,
+                
                 /**
                  * @override
                  */
@@ -137,7 +140,6 @@ define(
                      */
                     var runValidation = function () {
                         $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
-                        this.selectPaymentMethod();
                     };
 
                     this.genderValidate.subscribe(runValidation,this);
