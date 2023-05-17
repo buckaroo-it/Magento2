@@ -94,7 +94,9 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
             'addressOverride' => true
         ];
 
-        $this->payReminderService->setServiceAction('ExtraInfo');
+        if ($this->payReminderService->getServiceAction($this->getOrder()->getIncrementId()) !== 'payRemainder') {
+            $this->payReminderService->setServiceAction('ExtraInfo');
+        }
 
         return $data;
     }
