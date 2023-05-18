@@ -449,4 +449,5 @@
 "Enabling this feature adds the option to hide this payment method after a certain number of failed attempts.","L'activation de cette fonctionnalité ajoute la possibilité de masquer ce mode de paiement après un certain nombre de tentatives infructueuses."
 "When this number is exceeded, the payment method will be hidden. Minimum 1, maximum 10.","Lorsque ce nombre est dépassé, les méthodes de paiement seront masquées. Minimum 1, maximum 10."
 "This message is shown when the payment method is hidden. Maximum 280 characters.","Ce message s'affiche lorsque le mode de paiement est masqué. Maximum 280 caractères."
+"Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.","Pay rejected: Il n'est pas permis de spécifier un autre pays pour la facture et l'adresse de livraison pour les transactions Afterpay."
 "-- Please Select Your Gender--","S'il vous plait selectionnez votre genre"
