@@ -126,6 +126,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         if($order->getEntityId() !== null && $order->getPayment() !== null) {
             return $order->getPayment()->getAdditionalInformation(AbstractMethod::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
         }
+        return null;
     }
     protected function getOrderIncrementId($orderId)
     {
