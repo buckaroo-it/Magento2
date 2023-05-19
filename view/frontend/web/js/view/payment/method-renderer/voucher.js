@@ -85,11 +85,11 @@ define(
                         const voucherCode = this.code();
                         let self = this;
                         $.ajax({
-                            url: url.build(`rest / default / V1 / buckaroo / voucher / apply`),
+                            url: url.build('rest/default/V1/buckaroo/voucher/apply'),
                             type: 'POST',
                             dataType: 'json',
                             showLoader: true, //use for display loader
-                            data: { voucherCode: voucherCode }
+                            data: {voucherCode: voucherCode}
                         }).done(function (data) {
                             self.code(null);
                             if (data.remainder_amount == 0) {
@@ -104,7 +104,10 @@ define(
                                     alert({
                                         title: $t('Success'),
                                         content: $t(data.message),
-                                        actions: { always: function () { } },
+                                        actions: {
+                                            always: function () {
+                                            }
+                                        },
                                         buttons: [{
                                             text: $t(data.remaining_amount_message),
                                             class: 'action primary accept',
@@ -114,14 +117,14 @@ define(
                                         }]
                                     });
                                 }
-                                self.messageContainer.addSuccessMessage({ 'message': $t(data.message) });
+                                self.messageContainer.addSuccessMessage({'message': $t(data.message)});
                             }
-                        }).error((err) => {
+                        }).fail((err) => {
                             if (err.responseJSON && err.responseJSON.message) {
                                 self.displayErrorModal(self, err.responseJSON.message);
                             }
                         });
-                }
+                    }
                 },
 
                 displayErrorModal: function (self, message) {

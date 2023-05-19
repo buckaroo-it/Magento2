@@ -37,7 +37,7 @@ class TransactionResponse extends DataObject implements TransactionResponseInter
     /**
      * @inheritdoc
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->getData('label');
     }

@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Api\Data\Giftcard;
 
+use Magento\Framework\Phrase;
+
 /**
  * Interface PayResponseInterface
  *
@@ -54,10 +56,10 @@ interface PayResponseInterface
     /**
      * Get user message
      *
-     * @return string|null
+     * @return Phrase|string|null
      * @api
      */
-    public function getMessage(): ?string;
+    public function getMessage();
 
     /**
      * Get user remaining amount message

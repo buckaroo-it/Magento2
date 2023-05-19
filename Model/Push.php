@@ -1062,7 +1062,7 @@ class Push implements PushInterface
      * by using its own transaction key.
      *
      * @return Payment
-     * @throws Exception
+     * @throws BuckarooException
      */
     protected function getOrderByTransactionKey(): Payment
     {
@@ -1072,7 +1072,7 @@ class Push implements PushInterface
         $order = $this->transaction->getOrder();
 
         if (!$order) {
-            throw new Exception(__('There was no order found by transaction Id'));
+            throw new BuckarooException(__('There was no order found by transaction Id'));
         }
 
         return $order;
@@ -1530,7 +1530,7 @@ class Push implements PushInterface
      * Only when the order can be invoiced and has not been invoiced before.
      *
      * @return bool
-     * @throws Exception
+     * @throws BuckarooException
      * @throws LocalizedException
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -1542,7 +1542,7 @@ class Push implements PushInterface
         if (!$this->forceInvoice
             && (!$this->order->canInvoice() || $this->order->hasInvoices())) {
             $this->logging->addDebug('Order can not be invoiced');
-            //throw new \Buckaroo\Magento2\Exception(__('Order can not be invoiced'));
+            //throw new BuckarooException(__('Order can not be invoiced'));
             return false;
 
         }
