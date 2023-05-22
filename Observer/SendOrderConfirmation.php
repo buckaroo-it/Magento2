@@ -80,7 +80,6 @@ class SendOrderConfirmation implements ObserverInterface
         }
 
         $order = $payment->getOrder();
-        $order->save();
 
         $methodInstance = $payment->getMethodInstance();
         $sendOrderConfirmationEmail = $this->accountConfig->getOrderConfirmationEmail($order->getStore())
