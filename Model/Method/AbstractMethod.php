@@ -492,7 +492,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return false;
         }
 
-        if($this->isSpamLimitReached($this->getPaymentAttemptsStorage())) {
+        if( $this->isSpamLimitActive() && $this->isSpamLimitReached($this->getPaymentAttemptsStorage())) {
             return false;
         }
         return parent::isAvailable($quote);
@@ -2713,13 +2713,23 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
+     * Check if config spam limit is active
+     *
+     * @return boolean
+     */
+    private function isSpamLimitActive(): bool
+    {
+        return $this->getConfigData('spam_prevention') == 1;
+    }
+
+    /**
      * Update session when a failed attempt is made for the quote & method
      *
      * @return void
      */
     private function updateRateLimiterCount() {
 
-        if ($this->getConfigData('spam_prevention') != 1) {
+        if (!$this->isSpamLimitActive()) {
             return;
         }
 
