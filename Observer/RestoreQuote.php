@@ -29,6 +29,7 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
 
 class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
@@ -132,11 +133,15 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                         $shippingAddress->load($shippingAddress->getAddressId());
                     }
                 }
+                
 
-                if ($this->helper->getRestoreQuoteLastOrder()
-                    && ($lastRealOrder->getData('state') === 'new')
-                    && ($lastRealOrder->getData('status') === 'pending')
-                    && $payment->getMethodInstance()->usesRedirect
+                if (
+                    (
+                        $this->helper->getRestoreQuoteLastOrder() &&
+                        ($lastRealOrder->getData('state') === 'new') &&
+                        ($lastRealOrder->getData('status') === 'pending') &&
+                        $payment->getMethodInstance()->usesRedirect
+                    ) || $this->canRestoreFailedFromSpam()
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
@@ -147,9 +152,21 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 
             $this->helper->addDebug(__METHOD__ . '|50|');
             $this->helper->setRestoreQuoteLastOrder(false);
+            $this->checkoutSession->unsBuckarooFailedMaxAttempts();
         }
 
         $this->helper->addDebug(__METHOD__ . '|55|');
+    }
+
+    /**
+     * Check if order has failed from max spam payment attempts
+     *
+     * @return boolean
+     */
+    public function canRestoreFailedFromSpam()
+    {
+        return $this->helper->getRestoreQuoteLastOrder() &&
+            $this->checkoutSession->getBuckarooFailedMaxAttempts() === true;
     }
 
     public function shouldSkipFurtherEventHandling()

@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Tax\Model\Config;
+use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Model\Push;
 use Magento\Tax\Model\Calculation;
 use Magento\Payment\Model\InfoInterface;
@@ -33,8 +34,8 @@ use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
 use Buckaroo\Magento2\Observer\AddInTestModeMessage;
+use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
-use Magento\Sales\Model\Order;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -42,6 +43,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     const BUCKAROO_ALL_TRANSACTIONS             = 'buckaroo_all_transactions';
     const BUCKAROO_PAYMENT_IN_TRANSIT           = 'buckaroo_payment_in_transit';
     const PAYMENT_FROM                          = 'buckaroo_payment_from';
+    const PAYMENT_ATTEMPTS_REACHED_MESSAGE      = 'buckaroo_payment_attempts_reached_message';
     /**
      * The regex used to validate the entered BIC number
      */
@@ -490,6 +492,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return false;
         }
 
+        if( $this->isSpamLimitActive() && $this->isSpamLimitReached($this->getPaymentAttemptsStorage())) {
+            return false;
+        }
         return parent::isAvailable($quote);
     }
 
@@ -716,7 +721,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $transaction = $transactionBuilder->build();
 
-        $response = $this->orderTransaction($transaction);
+        try {
+            $response = $this->orderTransaction($transaction);
+        } catch (LimitReachException $th) {
+            $this->setMaxAttemptsFlags($payment, $th->getMessage());
+           return $this;
+        }
 
         $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);
 
@@ -897,6 +907,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
+            $this->updateRateLimiterCount();
             $failureMessage = $this->getFailureMessage($response);
 
             throw new \Buckaroo\Magento2\Exception(
@@ -945,7 +956,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $transaction = $transactionBuilder->build();
 
-        $response = $this->authorizeTransaction($transaction);
+        try {
+            $response = $this->authorizeTransaction($transaction);
+        } catch (LimitReachException $th) {
+            $this->setMaxAttemptsFlags($payment, $th->getMessage());
+           return $this;
+        }
 
         $this->saveTransactionData($response[0], $payment, $this->closeAuthorizeTransaction, true);
 
@@ -986,6 +1002,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
+            $this->updateRateLimiterCount();
             $failureMessage = $this->getFailureMessage($response);
 
             throw new \Buckaroo\Magento2\Exception(
@@ -2693,5 +2710,139 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->logger2->addError(__METHOD__." ".(string)$th);
         }
         
+    }
+
+    /**
+     * Check if config spam limit is active
+     *
+     * @return boolean
+     */
+    private function isSpamLimitActive(): bool
+    {
+        return $this->getConfigData('spam_prevention') == 1;
+    }
+
+    /**
+     * Update session when a failed attempt is made for the quote & method
+     *
+     * @return void
+     */
+    private function updateRateLimiterCount() {
+
+        if (!$this->isSpamLimitActive()) {
+            return;
+        }
+
+        $method = $this->getCode();
+        $quoteId = $this->helper->getQuote()->getId();
+        $checkoutSession = $this->helper->getCheckoutSession();
+        $storage = $this->getPaymentAttemptsStorage();
+        if(!isset($storage[$quoteId])) {
+            $storage[$quoteId] = [$method => 0];
+        }
+
+        if(!isset($storage[$quoteId][$method])) {
+            $storage[$quoteId][$method] = 0;
+        }
+
+        $storage[$quoteId][$method]++;
+
+        $checkoutSession->setBuckarooRateLimiterStorage(
+            json_encode($storage)
+        );
+        $this->checkForSpamLimitReach($storage);
+    }
+
+    /**
+     * Check if the spamming limit is reached
+     *
+     * @param array $storage
+     *
+     * @return void
+     * @throws LimitReachException
+     */
+    private function checkForSpamLimitReach($storage)
+    {
+        $limitReachMessage = __('Cannot create order, maximum payment attempts reached');
+
+        $storedReachMessage = $this->getConfigData('spam_message');
+
+        if(is_string($storedReachMessage) && trim($storedReachMessage) > 0) {
+            $limitReachMessage = $storedReachMessage;
+        }
+
+        if($this->isSpamLimitReached($storage)) {
+            throw new LimitReachException($limitReachMessage);
+        }
+    }
+
+    /**
+     * Check if the spam limit is reached
+     *
+     * @param array $storage
+     *
+     * @return boolean
+     */
+    private function isSpamLimitReached($storage)
+    {
+        if ($this->getConfigData('spam_prevention') != 1) {
+            return false;
+        }
+
+        $limit = $this->getConfigData('spam_attempts');
+        
+        if(!is_scalar($limit)) {
+            $limit = 10;
+        }
+        $limit = intval($limit);
+
+        $method = $this->getCode();
+        $quoteId = $this->helper->getQuote()->getId();
+
+        $attempts = 0;
+        if(isset($storage[$quoteId][$method])) {
+            $attempts = $storage[$quoteId][$method];
+        }
+
+        return $attempts >= $limit;
+    }
+
+    /**
+     * Retrieve and format number of payment attempts
+     *
+     * @return array
+     */
+    private function getPaymentAttemptsStorage(): array
+    {
+        $checkoutSession = $this->helper->getCheckoutSession();
+        $storage = $checkoutSession->getBuckarooRateLimiterStorage();
+
+        if($storage === null) {
+            return [];
+        } 
+
+        $storage = json_decode($storage, true);
+
+        
+        if(!is_array($storage)) {
+            $storage = [];
+        }
+
+        return $storage;
+    }
+
+    /**
+     * Update payment with the user message, update session in order to restore the quote
+     *
+     * @param mixed $payment
+     * @param string $message
+     *
+     * @return void
+     */
+    private function setMaxAttemptsFlags($payment, string $message)
+    {
+        $this->helper->setRestoreQuoteLastOrder($payment->getOrder()->getId());
+        $this->helper->getCheckoutSession()->setBuckarooFailedMaxAttempts(true);
+        $payment->setAdditionalInformation(self::PAYMENT_ATTEMPTS_REACHED_MESSAGE, $message);
     }
 }
