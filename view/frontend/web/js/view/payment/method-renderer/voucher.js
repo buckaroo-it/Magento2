@@ -118,7 +118,7 @@ define(
                                 }
                                 self.messageContainer.addSuccessMessage({ 'message': $t(data.message) });
                             }
-                        }).error((err) => {
+                        }).fail((err) => {
                             if (err.responseJSON && err.responseJSON.message) {
                                 self.displayErrorModal(self, err.responseJSON.message);
                                 self.selectPaymentMethod();
