@@ -64,8 +64,8 @@ interface PayResponseInterface
     /**
      * Get user remaining amount message
      *
-     * @return string|null
+     * @return Phrase|string|null
      * @api
      */
-    public function getRemainingAmountMessage(): ?string;
+    public function getRemainingAmountMessage();
 }

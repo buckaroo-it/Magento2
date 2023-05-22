@@ -95,10 +95,10 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
     /**
      * Get user remaining amount message
      *
-     * @return string|null
+     * @return Phrase|string|null
      * @api
      */
-    public function getRemainingAmountMessage(): ?string
+    public function getRemainingAmountMessage()
     {
         return $this->getData('remainingAmountMessage');
     }
