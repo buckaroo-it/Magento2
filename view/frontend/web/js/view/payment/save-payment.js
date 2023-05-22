@@ -131,7 +131,7 @@ define(
                              */
                             getTotals([]);
                         }
-                    ).error(
+                    ).fail(
                         function () {
                             totals.isLoading(false);
                         }
