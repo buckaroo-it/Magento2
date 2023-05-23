@@ -48,19 +48,15 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     /**
      * Get additional parameters
      *
+     * @param array $buildSubject
      * @return array
      */
     private function getAdditionalParameters(array $buildSubject): array
     {
         $parameterLine = [];
 
-        if (!empty($this->getAction())) {
-            if (!empty($buildSubject['action'])) {
-                $parameterLine['service_action_from_magento'] = strtolower($buildSubject['action']);
-            } else {
-                $parameterLine['service_action_from_magento'] = strtolower($this->getAction());
-            }
-        }
+        $action = $buildSubject['action'] ?? $this->getAction() ?? '';
+        $parameterLine['service_action_from_magento'] = strtolower($action);
 
         $parameterLine['initiated_by_magento'] = 1;
 

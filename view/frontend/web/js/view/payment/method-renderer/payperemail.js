@@ -91,11 +91,11 @@ define(
 
                             this.updateState(
                                 'buckaroo_magento2_payperemail_BillingFirstName',
-                                (address.firstname && address.firstname.length > 0) || false
+                                address.firstname && address.firstname.length > 0
                             );
                             this.updateState(
                                 'buckaroo_magento2_payperemail_BillingLastName',
-                                (address.lastname && address.lastname.length > 0) || false
+                                address.lastname && address.lastname.length > 0
                             );
                         }
                     }, this);
