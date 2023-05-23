@@ -141,10 +141,13 @@ class RestoreQuote implements ObserverInterface
                     }
                 }
 
-                if ($this->helper->getRestoreQuoteLastOrder()
-                    && ($lastRealOrder->getData('state') === 'new')
-                    && ($lastRealOrder->getData('status') === 'pending')
-                    && $payment->getMethodInstance()->usesRedirect
+                if (
+                    (
+                        $this->helper->getRestoreQuoteLastOrder() &&
+                        ($lastRealOrder->getData('state') === 'new') &&
+                        ($lastRealOrder->getData('status') === 'pending') &&
+                        $payment->getMethodInstance()->usesRedirect
+                    ) || $this->canRestoreFailedFromSpam()
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
@@ -155,6 +158,7 @@ class RestoreQuote implements ObserverInterface
 
             $this->helper->addDebug(__METHOD__ . '|50|');
             $this->helper->setRestoreQuoteLastOrder(false);
+            $this->checkoutSession->unsBuckarooFailedMaxAttempts();
         }
 
         $this->helper->addDebug(__METHOD__ . '|55|');
@@ -168,6 +172,17 @@ class RestoreQuote implements ObserverInterface
     public function shouldSkipFurtherEventHandling(): bool
     {
         return false;
+    }
+
+    /**
+     * Check if order has failed from max spam payment attempts
+     *
+     * @return boolean
+     */
+    public function canRestoreFailedFromSpam()
+    {
+        return $this->helper->getRestoreQuoteLastOrder() &&
+            $this->checkoutSession->getBuckarooFailedMaxAttempts() === true;
     }
 
     /**

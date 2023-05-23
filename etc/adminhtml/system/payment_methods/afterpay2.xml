@@ -250,6 +250,26 @@
                 <can_be_empty>1</can_be_empty>
                 <config_path>payment/buckaroo_magento2_afterpay2/specificcustomergroupb2b</config_path>
             </field>
+
+            <field id="spam_prevention" translate="label comment" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Spam prevention</label>
+                <comment><![CDATA[Enabling this feature adds the option to hide this payment method after a certain number of failed attempts.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>payment/buckaroo_magento2_afterpay2/spam_prevention</config_path>
+            </field>
+
+            <field id="spam_attempts" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Number of attempts</label>
+                <comment><![CDATA[When this number is exceeded, the payment method will be hidden. Minimum 1, maximum 10.]]></comment>
+                <config_path>payment/buckaroo_magento2_afterpay2/spam_attempts</config_path>
+                <validate>validate-not-negative-number</validate>
+            </field>
+
+            <field id="spam_message" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Consumer notification</label>
+                <comment><![CDATA[This message is shown when the payment method is hidden. Maximum 280 characters.]]></comment>
+                <config_path>payment/buckaroo_magento2_afterpay2/spam_message</config_path>
+            </field>
         </group>
     </group>
 </include>
