@@ -287,18 +287,22 @@ class Push implements PushInterface
      */
     public function receivePush()
     {
-        //Start debug mailing/logging with the postdata.
+        // Log the push request
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->pushRequst->getOriginalRequest(), true));
 
+        // Lock Push Processing
         $this->logging->addDebug(__METHOD__ . '|1_2|');
         $lockHandler = $this->lockPushProcessing();
         $this->logging->addDebug(__METHOD__ . '|1_3|');
 
+        // Check if is Failed group transaction execute specific handler
+        // Handler criteri.handle
         if ($this->isFailedGroupTransaction()) {
             $this->handleGroupTransactionFailed();
             return true;
         }
 
+        // Check if is group transaction info
         if ($this->isGroupTransactionInfo()) {
             if($this->isCanceledGroupTransaction()) {
                 $this->cancelGroupTransactionOrder();
@@ -311,16 +315,20 @@ class Push implements PushInterface
             }
         }
 
+        // Load order by transaction id
         $this->loadOrder();
 
+        // Skip Handle group transaction
         if ($this->skipHandlingForFailedGroupTransactions()) {
             return true;
         }
 
+        // skip Push based on specific condition
         if (!$this->isPushNeeded()) {
             return true;
         }
 
+        // Validate Signature
         $store = $this->order ? $this->order->getStore() : null;
         //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
         $validSignature = $this->pushRequst->validate($store);
