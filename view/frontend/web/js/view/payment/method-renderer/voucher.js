@@ -30,7 +30,8 @@ define(
         'Magento_Ui/js/modal/alert',
         'mage/url',
         'mage/translate',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'Magento_Checkout/js/action/get-totals'
     ],
     function (
         $,
@@ -43,7 +44,8 @@ define(
         alert,
         url,
         $t,
-        checkoutCommon
+        checkoutCommon,
+        getTotalsAction
     ) {
         'use strict';
 
@@ -101,6 +103,8 @@ define(
                                 self.displayErrorModal(self, data.error);
                             } else {
                                 if (data.remainder_amount != 0) {
+                                    /* Totals summary reloading */
+                                    getTotalsAction([]);
                                     alert({
                                         title: $t('Success'),
                                         content: $t(data.message),
