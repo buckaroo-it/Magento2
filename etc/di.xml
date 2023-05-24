@@ -504,6 +504,16 @@
     </type>
 
     <!-- Buckaroo Payment Provider Gateway -->
+    <type name="Buckaroo\Magento2\Model\Push\PushProcessorsFactory">
+        <arguments>
+            <argument name="pushProcessors" xsi:type="array">
+                <item name="default" xsi:type="string">Buckaroo\Magento2\Model\Push\DefaultProcessor</item>
+                <item name="ideal" xsi:type="string">Buckaroo\Magento2\Model\Push\IdealProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Buckaroo Payment Provider Gateway -->
     <type name="Buckaroo\Magento2\Model\Adapter\BuckarooAdapter">
         <arguments>
             <argument name="mapPaymentMethods" xsi:type="array">

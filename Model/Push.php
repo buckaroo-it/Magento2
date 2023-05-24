@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Api\PushInterface;
+use Buckaroo\Magento2\Api\PushProcessorInterface;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
@@ -41,6 +42,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
@@ -209,6 +211,16 @@ class Push implements PushInterface
     public PushRequestInterface $pushRequst;
 
     /**
+     * @var PushProcessorsFactory
+     */
+    private PushProcessorsFactory $pushProcessorsFactory;
+
+    /**
+     * @var PushProcessorInterface
+     */
+    private PushProcessorInterface $pushProcessor;
+
+    /**
      * @param Order $order
      * @param TransactionInterface $transaction
      * @param Request $request
@@ -251,7 +263,8 @@ class Push implements PushInterface
         Klarnakp $klarnakpConfig,
         Afterpay20 $afterpayConfig,
         File $fileSystemDriver,
-        RequestPushFactory $requestPushFactory
+        RequestPushFactory $requestPushFactory,
+        PushProcessorsFactory $pushProcessorsFactory
     ) {
         $this->order = $order;
         $this->transaction = $transaction;
@@ -274,11 +287,13 @@ class Push implements PushInterface
         $this->afterpayConfig = $afterpayConfig;
         $this->fileSystemDriver = $fileSystemDriver;
         $this->pushRequst = $requestPushFactory->create();
+        $this->pushProcessorsFactory = $pushProcessorsFactory;
     }
 
     /**
      * @inheritdoc
      *
+     * @throws BuckarooException
      * @todo Once Magento supports variable parameters, modify this method to no longer require a Request object
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -290,13 +305,16 @@ class Push implements PushInterface
         // Log the push request
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->pushRequst->getOriginalRequest(), true));
 
+        $this->pushProcessor = $this->pushProcessorsFactory->get($this->pushRequst);
+        $this->pushProcessor->processPush($this->pushRequst);
+
         // Lock Push Processing
         $this->logging->addDebug(__METHOD__ . '|1_2|');
         $lockHandler = $this->lockPushProcessing();
         $this->logging->addDebug(__METHOD__ . '|1_3|');
 
         // Check if is Failed group transaction execute specific handler
-        // Handler criteri.handle
+        // criteria.handle
         if ($this->isFailedGroupTransaction()) {
             $this->handleGroupTransactionFailed();
             return true;
