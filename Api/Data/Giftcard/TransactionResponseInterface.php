@@ -32,9 +32,9 @@ interface TransactionResponseInterface
     /**
      * Get giftcard name
      *
-     * @return string
+     * @return string|null
      */
-    public function getName(): string;
+    public function getName(): ?string;
 
     /**
      * Get amount

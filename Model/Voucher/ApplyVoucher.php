@@ -123,7 +123,7 @@ class ApplyVoucher implements ApplyVoucherInterface
             $this->renderException($th->getMessage());
         } catch (\Throwable $th) {
             $this->logger->addDebug((string)$th);
-            $this->renderException(__('Unknown buckaroo error has occurred'));
+            $this->renderException('Unknown buckaroo error has occurred');
         }
     }
 

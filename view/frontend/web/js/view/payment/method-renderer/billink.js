@@ -197,6 +197,20 @@ define(
                         this
                     );
 
+                    this.showB2B = ko.computed(
+                        function() {
+
+                            let shipping = quote.shippingAddress();
+                            let billing = quote.billingAddress();
+
+                            return this.isB2B && (
+                                (shipping && shipping.company && shipping.company.trim().length > 0) ||
+                                (billing && billing.company && billing.company.trim().length > 0)
+                            )
+                        },
+                        this
+                    );
+
                     this.dob.subscribe(function() {
                         const dobId = 'buckaroo_magento2_billink_DoB';
                         const isValid = $(`#${dobId}`).valid();
@@ -226,6 +240,7 @@ define(
 
                     return this;
                 },
+
                 validateField(data, event) {
                     const isValid = $(event.target).valid();
                     let state = this.validationState();
@@ -243,12 +258,14 @@ define(
                         fields.push('buckaroo_magento2_billink_Telephone')
                     }
 
-                    if(this.isB2B) {
-                       fields.push('buckaroo_magento2_billink_chamberOfCommerce')
+                    if (this.showB2B()) {
+                        fields.push('buckaroo_magento2_billink_chamberOfCommerce');
+                        fields.push('buckaroo_magento2_billink_VATNumber');
                     }
 
                     return fields;
                 },
+
                 validate: function () {
                     return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },

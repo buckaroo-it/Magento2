@@ -129,7 +129,7 @@ class GatewayCommand implements CommandInterface
         if ($this->client instanceof TransactionPayRemainder) {
             $paymentDO = SubjectReader::readPayment($commandSubject);
             $orderIncrementId = $paymentDO->getOrder()->getOrder()->getIncrementId();
-            $this->client->setServiceAction($orderIncrementId);
+            $commandSubject['action'] = $this->client->setServiceAction($orderIncrementId);
         }
 
         if ($this->skipCommand !== null && $this->skipCommand->isSkip($commandSubject)) {

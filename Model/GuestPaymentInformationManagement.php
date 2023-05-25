@@ -155,9 +155,26 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             return \json_encode($this->registry->registry('buckaroo_response')[0]);
         }
-        return \json_encode([
+        return json_encode([
+            "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
             "order_number" => $this->getOrderIncrementId($orderId)
         ]);
+    }
+
+    /**
+     * Get limit reach message from payment object
+     *
+     * @param int $orderId
+     *
+     * @return string|null
+     */
+    private function getLimitReachedMessage($orderId)
+    {
+        $order = $this->orderRepository->get($orderId);
+        if($order->getEntityId() !== null && $order->getPayment() !== null) {
+            return $order->getPayment()->getAdditionalInformation(AbstractMethod::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
+        }
+        return null;
     }
 
     /**
