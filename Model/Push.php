@@ -1088,7 +1088,7 @@ class Push implements PushInterface
      * by using its own transaction key.
      *
      * @return Payment
-     * @throws Exception
+     * @throws \Exception
      */
     protected function getOrderByTransactionKey(): Payment
     {
@@ -1098,7 +1098,7 @@ class Push implements PushInterface
         $order = $this->transaction->getOrder();
 
         if (!$order) {
-            throw new Exception(__('There was no order found by transaction Id'));
+            throw new \Exception(__('There was no order found by transaction Id'));
         }
 
         return $order;

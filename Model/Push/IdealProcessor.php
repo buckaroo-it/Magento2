@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Model\Push;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Service\LockerProcess;
 use Magento\Framework\Exception\FileSystemException;
 
@@ -22,9 +23,11 @@ class IdealProcessor extends DefaultProcessor
     private LockerProcess $lockerProcess;
 
     public function __construct(
+        Log $logging,
         LockerProcess $lockerProcess,
         Data $helper
     ) {
+        parent::__construct($logging);
         $this->lockerProcess = $lockerProcess;
         $this->helper = $helper;
     }
@@ -35,6 +38,14 @@ class IdealProcessor extends DefaultProcessor
     public function processPush(PushRequestInterface $pushRequest): void
     {
         $this->pushRequest = $pushRequest;
+
+        // Load order by transaction id
+        $this->loadOrder();
+
+        // Validate Signature
+        $store = $this->order ? $this->order->getStore() : null;
+        //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
+        $validSignature = $this->pushRequest->validate($store);
 
         if ($this->lockPushProcessingCriteria()) {
             $this->lockerProcess->lockProcess($this->getOrderIncrementId());
