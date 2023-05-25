@@ -155,9 +155,9 @@ class BuckarooAdapter
      * Get credit management body
      *
      * @param array $data
-     * @return TransactionResponse
+     * @return TransactionResponse|Buckaroo\PaymentMethods\CreditManagement\CreditManagement
      */
-    protected function getCreditManagementBody(array $data): TransactionResponse
+    protected function getCreditManagementBody(array $data)
     {
         return $this->buckaroo->method('credit_management')
             ->manually()
