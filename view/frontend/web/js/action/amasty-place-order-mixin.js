@@ -22,12 +22,12 @@ define([
         });
     }
     return function (placeOrderAction) {
-        return wrapper.wrap(placeOrderAction, function (originalAction, paymentData, messageContainer) {
+        return wrapper.wrap(placeOrderAction, function (originalAction, paymentData, redirectOnSuccess, messageContainer) {
             var result = $.Deferred();
            getAmastyPromise().done(
                 function() {
                     $.when(
-                        originalAction(paymentData, messageContainer)
+                        originalAction(paymentData, redirectOnSuccess, messageContainer)
                     ).fail(
                         function() {
                             result.reject.apply(this, arguments);
