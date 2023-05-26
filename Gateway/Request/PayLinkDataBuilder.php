@@ -75,10 +75,10 @@ class PayLinkDataBuilder extends AbstractDataBuilder
      * Get Payment Methods Allowed
      *
      * @param PayLink $config
-     * @param int|null $storeId
+     * @param string|int|null $storeId
      * @return string
      */
-    private function getPaymentMethodsAllowed(PayLink $config, ?int $storeId): string
+    private function getPaymentMethodsAllowed(PayLink $config, $storeId): string
     {
         if ($methods = $config->getPaymentMethod($storeId)) {
             $methods = explode(',', (string)$methods);
