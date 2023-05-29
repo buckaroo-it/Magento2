@@ -45,14 +45,14 @@ class CreditcardEncryptedDataBuilder implements BuilderInterface
             ));
         }
 
-        if (!isset($additionalInformation['customer_creditcardcompany'])) {
+        if (!isset($additionalInformation['card_type'])) {
             throw new Exception(__(
                 'An error occured trying to send the creditcard company data to Buckaroo.'
             ));
         }
 
         return [
-            'name' => $additionalInformation['customer_creditcardcompany'],
+            'name' => $additionalInformation['card_type'],
             'encryptedCardData' => $additionalInformation['customer_encrypteddata']
         ];
     }

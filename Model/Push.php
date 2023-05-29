@@ -1860,7 +1860,7 @@ class Push implements PushInterface
                         $this->getTransactionKey()
                     );
                     if ($item['code'] == 'buckaroo_magento2_creditcards') {
-                        $payment->setAdditionalInformation('customer_creditcardcompany', $brq_transaction_method);
+                        $payment->setAdditionalInformation('card_type', $brq_transaction_method);
                     }
                 }
             }

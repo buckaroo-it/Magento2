@@ -361,7 +361,7 @@ define(
                                     "po_number": null,
                                     "additional_data": {
                                         "customer_encrypteddata" : encryptedCardData,
-                                        "customer_creditcardcompany" : cardIssuer
+                                        "card_type" : cardIssuer
                                     }
                                 })
                             });
