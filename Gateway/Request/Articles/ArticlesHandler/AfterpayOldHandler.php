@@ -126,7 +126,7 @@ class AfterpayOldHandler extends AbstractArticlesHandler
     /**
      * @inheritdoc
      */
-    protected function getShippingCostsLine($order, int &$itemsTotalAmount = 0): array
+    protected function getShippingCostsLine($order, &$itemsTotalAmount = 0): array
     {
         $shippingCostsArticle = [];
 

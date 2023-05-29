@@ -462,10 +462,10 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get shipping cost line
      *
      * @param Order|Invoice|Creditmemo $order
-     * @param int $itemsTotalAmount
+     * @param int|float $itemsTotalAmount
      * @return array
      */
-    protected function getShippingCostsLine($order, int &$itemsTotalAmount = 0): array
+    protected function getShippingCostsLine($order, &$itemsTotalAmount = 0): array
     {
         $shippingCostsArticle = [];
 
