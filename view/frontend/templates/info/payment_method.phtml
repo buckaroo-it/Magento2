@@ -18,7 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<?php $bpePaymentCode = $block->escapeHtml($block->getMethod()->buckarooPaymentMethodCode); ?>
+<?php
+
+if($block->getMethod() instanceof \Magento\Payment\Model\Method\Adapter) {
+    $bpePaymentCode = $block->escapeHtml($block->getMethod()->getCode());
+} else {
+    $bpePaymentCode = $block->escapeHtml($block->getMethod()->buckarooPaymentMethodCode);
+} ?>
 
 <?php
 if ($giftCards = $block->getGiftCards()) {

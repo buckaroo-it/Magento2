@@ -41,7 +41,7 @@ define(
         checkoutCommon
     ) {
         'use strict';
-        
+
 
         /**
          * Add validation methods
@@ -54,7 +54,7 @@ define(
 
         $.validator.addMethod('validateCvc', function (value) {
                 return BuckarooClientSideEncryption.V001.validateCvc(
-                    value, 
+                    value,
                     $('#buckaroo_magento2_creditcards_issuer').val()
                 );
             },
@@ -66,10 +66,10 @@ define(
             },
             $.mage.__('Please enter a valid card holder name.')
         );
-        
+
         $.validator.addMethod('bkValidateYear', function (value) {
                 if(value.length === 0) {
-                    return false; 
+                    return false;
                 }
                 const parts = value.split("/");
                 return BuckarooClientSideEncryption.V001.validateYear(parts[1]);
@@ -78,7 +78,7 @@ define(
         );
         $.validator.addMethod('bkValidateMonth', function (value) {
                 if(value.length === 0) {
-                    return false; 
+                    return false;
                 }
 
                 const parts = value.split("/");
@@ -176,7 +176,7 @@ define(
                     });
 
 
-                   
+
                     /** Check used to see form is valid **/
                     this.buttoncheck = ko.computed(
                         function () {
@@ -219,7 +219,7 @@ define(
                     return this;
                 },
 
-                
+
                 validateCardNumber(data, event) {
                     this.validateField(data, event);
 
@@ -227,7 +227,7 @@ define(
                     this.cardIssuer(
                         this.determineIssuer(data.cardNumber())
                     )
-                    
+
                     //validate the cvc if exists
                     if(this.cvc().length) {
                         $('#buckaroo_magento2_creditcards_cvc').valid();
@@ -241,7 +241,7 @@ define(
                     this.validationState(state);
                 },
 
-                
+
 
                 /** Get the card issuer based on the creditcard number **/
                 determineIssuer: function (cardNumber) {
@@ -322,7 +322,7 @@ define(
                         this.isPlaceOrderActionAllowed(false);
                         this.getData().then(function(data) {
                             placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
-    
+
                             $.when(placeOrder).fail(
                                 function () {
                                     self.isPlaceOrderActionAllowed(true);
@@ -361,7 +361,7 @@ define(
                                     "po_number": null,
                                     "additional_data": {
                                         "customer_encrypteddata" : encryptedCardData,
-                                        "customer_creditcardcompany" : cardIssuer
+                                        "card_type" : cardIssuer
                                     }
                                 })
                             });

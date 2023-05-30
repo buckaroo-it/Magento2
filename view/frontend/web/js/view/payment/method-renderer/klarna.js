@@ -74,7 +74,7 @@ define(
                         ]
                     );
 
-                    
+
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */

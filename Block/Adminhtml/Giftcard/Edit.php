@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,9 +21,10 @@
 namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard;
 
 use Magento\Backend\Block\Widget\Context;
+use Magento\Backend\Block\Widget\Form\Container;
 use Magento\Framework\Registry;
 
-class Edit extends \Magento\Backend\Block\Widget\Form\Container
+class Edit extends Container
 {
     /**
      * @var Registry
@@ -31,9 +32,9 @@ class Edit extends \Magento\Backend\Block\Widget\Form\Container
     protected $_coreRegistry = null;
 
     /**
-     * @param Context  $context
+     * @param Context $context
      * @param Registry $registry
-     * @param array    $data
+     * @param array $data
      */
     public function __construct(
         Context $context,
@@ -44,6 +45,28 @@ class Edit extends \Magento\Backend\Block\Widget\Form\Container
         parent::__construct($context, $data);
     }
 
+    /**
+     * Get header text
+     *
+     * @return \Magento\Framework\Phrase
+     */
+    public function getHeaderText()
+    {
+        $registry = $this->_coreRegistry->registry('buckaroo_giftcard');
+
+        if ($registry->getId()) {
+            $giftcardTitle = $this->escapeHtml($registry->getLabel());
+            return __("Edit Giftcard '%s'", $giftcardTitle);
+        } else {
+            return __('Add Giftcard');
+        }
+    }
+
+    /**
+     * Initialize form.
+     *
+     * @return void
+     */
     protected function _construct()
     {
         $this->_objectId = 'entity_id';
@@ -70,20 +93,5 @@ class Edit extends \Magento\Backend\Block\Widget\Form\Container
                 ]
             ]
         );
-    }
-
-    /**
-     * @return \Magento\Framework\Phrase
-     */
-    public function getHeaderText()
-    {
-        $registry = $this->_coreRegistry->registry('buckaroo_giftcard');
-
-        if ($registry->getId()) {
-            $giftcardTitle = $this->escapeHtml($registry->getLabel());
-            return __("Edit Giftcard '%s'", $giftcardTitle);
-        } else {
-            return __('Add Giftcard');
-        }
     }
 }

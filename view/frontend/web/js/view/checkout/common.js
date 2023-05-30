@@ -29,7 +29,9 @@ define(
                 if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                     if (window.location.hash && (window.location.hash == '#payment')) {
                         window.history.pushState(
-                            null, null, `${window.location.pathname}${window.location.hash}`
+                            null,
+                            null,
+                            `${window.location.pathname}${window.location.hash}`
                         );
                     }
                     window.location.replace(response.RequiredAction.RedirectURL);

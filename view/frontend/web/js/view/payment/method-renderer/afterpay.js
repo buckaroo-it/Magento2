@@ -168,7 +168,7 @@ define(
                         ]
                     );
 
-                  
+
 
 
                     this.billingName = ko.computed(
@@ -270,7 +270,7 @@ define(
                             ]
                         )
                     }
-                    
+
                     return fields;
                 },
 

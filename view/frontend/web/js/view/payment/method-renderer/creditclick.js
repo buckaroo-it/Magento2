@@ -44,12 +44,12 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_emandate'
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditclick'
                 },
                 banktypes: [],
                 redirectAfterPlaceOrder: false,
                 selectedBank: null,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.emandate.paymentFeeLabel,
+                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditclick.paymentFeeLabel,
                 subtext : window.checkoutConfig.payment.buckaroo.emandate.subtext,
                 subTextStyle : checkoutCommon.getSubtextStyle('emandate'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
@@ -149,7 +149,7 @@ define(
                 },
 
                 payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.emandate.allowedCurrencies;
+                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.creditclick.allowedCurrencies;
 
                     return allowedCurrencies.indexOf(this.currencyCode) < 0;
                 },

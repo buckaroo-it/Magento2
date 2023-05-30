@@ -58,12 +58,12 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay2'
             },
             {
-              type:  'buckaroo_magento2_afterpay20',
-              component:  'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay20'
+                type:  'buckaroo_magento2_afterpay20',
+                component:  'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay20'
             },
             {
-              type:  'buckaroo_magento2_billink',
-              component:  'Buckaroo_Magento2/js/view/payment/method-renderer/billink'
+                type:  'buckaroo_magento2_billink',
+                component:  'Buckaroo_Magento2/js/view/payment/method-renderer/billink'
             },
             {
                 type: 'buckaroo_magento2_payperemail',
@@ -134,10 +134,6 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarnain'
             },
             {
-                type: 'buckaroo_magento2_emandate',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/emandate'
-            },
-            {
                 type: 'buckaroo_magento2_applepay',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/applepay'
             },
@@ -172,6 +168,10 @@ define(
             {
                 type: 'buckaroo_magento2_tinka',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/tinka'
+            },
+            {
+                type: 'buckaroo_magento2_creditclick',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditclick'
             }
             ,
             {

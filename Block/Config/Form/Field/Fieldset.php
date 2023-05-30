@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,19 +17,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
 use Magento\Config\Block\System\Config\Form\Fieldset as MagentoFieldset;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Store\Model\ScopeInterface;
 
 class Fieldset extends MagentoFieldset
 {
     /**
-     * {@inheritdoc}
-     *
+     * @inheritdoc
      */
-    // @codingStandardsIgnoreLine
     protected function _getFrontendClass($element)
     {
         $value = $this->getElementValue($element);
@@ -54,8 +54,9 @@ class Fieldset extends MagentoFieldset
     }
 
     /**
-     * @param $element
+     * Get element value
      *
+     * @param AbstractElement $element
      * @return string
      */
     private function getElementValue($element)
@@ -63,16 +64,16 @@ class Fieldset extends MagentoFieldset
         $scopeValues = $this->getScopeValue();
 
         $group = $element->getData('group');
-        $value = $this->_scopeConfig->getValue(
+        return $this->_scopeConfig->getValue(
             $group['children']['active']['config_path'],
             $scopeValues['scope'],
             $scopeValues['scopevalue']
         );
-
-        return $value;
     }
 
     /**
+     * Get scope value
+     *
      * @return array
      */
     private function getScopeValue()

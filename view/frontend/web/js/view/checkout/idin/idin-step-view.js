@@ -30,15 +30,17 @@ define([
 ], function ($, ko, Component, _, uiRegistry, stepNavigator, alert, $t, quote, url) {
     'use strict';
 
-    function isOsc() {
+    function isOsc()
+    {
         return window.checkoutConfig && window.checkoutConfig.buckarooIdin && window.checkoutConfig.buckarooIdin.isOscEnabled;
     }
 
-    function isOscMagePlaza() {
+    function isOscMagePlaza()
+    {
         return window.checkoutConfig && window.checkoutConfig.oscConfig;
     }
 
-    window.onhashchange = function(){
+    window.onhashchange = function () {
         if (!isOscMagePlaza() && !isOsc()) {
             if (window.checkoutConfig.buckarooIdin.active > 0 && window.location.hash.replace('#', '') != 'step_idin') {
                 window.location.replace('#step_idin');
@@ -68,7 +70,7 @@ define([
         initialize: function () {
             this._super();
 
-            if(window.checkoutConfig.buckarooIdin.active > 0){
+            if (window.checkoutConfig.buckarooIdin.active > 0) {
                 this.isVisible(true);
                 if (isOscMagePlaza() || isOsc()) {
                     if (!window.checkoutConfig.buckarooIdin.verified) {
@@ -88,7 +90,7 @@ define([
                         window.location.replace('#step_idin');
                     }
                 }
-            }else{
+            } else {
                 if (isOscMagePlaza() || isOsc()) {
                     this.hideIdinBlock = true;
                 }
@@ -138,7 +140,7 @@ define([
             return this;
         },
 
-        setSelectedBankDropDown: function() {
+        setSelectedBankDropDown: function () {
             return true;
         },
 
@@ -147,32 +149,32 @@ define([
             var issuer = el.options[el.selectedIndex].value;
                 self = this;
 
-                if(!issuer){
-                    alert({
-                        title: $t('Error'),
-                        content: $t('Select your bank'),
-                        actions: {always: function(){} }
+            if (!issuer) {
+                alert({
+                    title: $t('Error'),
+                    content: $t('Select your bank'),
+                    actions: {always: function (){} }
                     });
-                    return ;
-                }
+                return ;
+            }
 
                 $.ajax({
                     url: url.build("buckaroo/checkout/idin"),
                     type: 'POST',
                     dataType: 'json',
-                    showLoader: true, //use for display loader 
+                    showLoader: true, //use for display loader
                     data: {
                         issuer: issuer,
                     }
-               }).done(function (response) {
+                }).done(function (response) {
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         window.location.replace(response.RequiredAction.RedirectURL);
-                    }else{
+                    } else {
                         alert({
                             title: $t('Error'),
                             content: $t('Unfortunately iDIN not verified!'),
-                            actions: {always: function(){} }
-                        }); 
+                            actions: {always: function (){} }
+                        });
                     }
                 });
 

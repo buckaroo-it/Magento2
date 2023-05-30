@@ -98,8 +98,8 @@ define(
                         this
                     );
 
-                    $('.iosc-place-order-button').on('click', function(e){
-                        if(self.selectedCard() == null){
+                    $('.iosc-place-order-button').on('click', function (e) {
+                        if (self.selectedCard() == null) {
                             self.messageContainer.addErrorMessage({'message': $t('You need select a card')});
                         }
                     });
@@ -107,7 +107,7 @@ define(
                     return this;
                 },
 
-                setSelectedBankDropDown: function() {
+                setSelectedBankDropDown: function () {
                     var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
                     this.selectedCard(el.options[el.selectedIndex].value);
                     return true;
@@ -162,7 +162,7 @@ define(
                     }
 
 
-                    if(this.creditcardIssuer){
+                    if (this.creditcardIssuer) {
                         selectedCardCode = this.creditcardIssuer;
                     }
 

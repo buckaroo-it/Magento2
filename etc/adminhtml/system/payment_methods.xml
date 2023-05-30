@@ -84,8 +84,6 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/kbc.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/emandate.xml"/>
-
         <include path="Buckaroo_Magento2::system/payment_methods/afterpay20.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/billink.xml"/>
@@ -109,6 +107,8 @@
         <include path="Buckaroo_Magento2::system/payment_methods/klarnas.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/belfius.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/creditclick.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/voucher.xml"/>
     </group>

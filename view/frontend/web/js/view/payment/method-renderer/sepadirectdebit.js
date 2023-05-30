@@ -127,7 +127,7 @@ define(
 
                 initObservable: function () {
                     this._super().observe([
-                        'bankaccountholder', 
+                        'bankaccountholder',
                         'bankaccountnumber',
                         'bicnumber',
                         'validationState'
@@ -162,7 +162,7 @@ define(
                         },
                         this
                     );
-                    
+
                     return this;
                 },
 

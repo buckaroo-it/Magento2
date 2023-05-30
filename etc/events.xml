@@ -50,10 +50,6 @@
         <observer name="buckaroo_magento2_shipment_save_after" instance="Buckaroo\Magento2\Observer\SalesOrderShipmentAfter" />
     </event>
 
-    <event name="payment_method_is_active">
-        <observer name="buckaroo_magento2_payment_method_is_active" instance="Buckaroo\Magento2\Observer\PaymentMethodAvailable" />
-    </event>
-
     <event name="controller_action_predispatch_checkout_index_index">
         <observer name="initiate_checkout_onepage" instance="Buckaroo\Magento2\Observer\RestoreQuote" />
     </event>
@@ -65,4 +61,9 @@
     <event name="sales_order_payment_transaction_html_txn_id">
         <observer name="paypal_transaction_html" instance="Buckaroo\Magento2\Observer\HtmlTransactionIdObserver"/>
     </event>
+
+    <event name="payment_method_assign_data">
+        <observer name="buckaroo_gateway_data_assign" instance="Buckaroo\Magento2\Observer\DataAssignObserver" />
+    </event>
+
 </config>

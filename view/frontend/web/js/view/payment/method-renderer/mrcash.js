@@ -59,7 +59,7 @@ define(
         );
         $.validator.addMethod('bkValidateYear', function (value) {
                 if(value.length === 0) {
-                    return false; 
+                    return false;
                 }
                 const parts = value.split("/");
                 return BuckarooClientSideEncryption.V001.validateYear(parts[1]);
@@ -68,7 +68,7 @@ define(
         );
         $.validator.addMethod('bkValidateMonth', function (value) {
                 if(value.length === 0) {
-                    return false; 
+                    return false;
                 }
 
                 const parts = value.split("/");
@@ -109,7 +109,7 @@ define(
 
                 },
 
-               
+
 
                 initObservable: function () {
                     /** Observed fields **/
@@ -197,7 +197,7 @@ define(
                         },
                         this
                     );
-                    
+
                     return this;
                 },
 
@@ -258,7 +258,7 @@ define(
                         this.isPlaceOrderActionAllowed(false);
                         this.getData().then(function(data) {
                             placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
-    
+
                             $.when(placeOrder).fail(
                                 function () {
                                     self.isPlaceOrderActionAllowed(true);
@@ -310,8 +310,6 @@ define(
 
                     return text.replace('%s', this.baseCurrencyCode);
                 },
-
-                
             }
         );
     }
