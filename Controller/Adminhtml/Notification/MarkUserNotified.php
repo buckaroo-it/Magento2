@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,26 +20,32 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Notification;
 
-use Magento\Framework\Controller\ResultInterface;
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\FlagManager;
 use Psr\Log\LoggerInterface;
 
-class MarkUserNotified extends \Magento\Backend\App\Action
+class MarkUserNotified extends Action
 {
-    /** @var FlagManager $flagManager */
+    /**
+     * @var FlagManager $flagManager
+     */
     private $flagManager;
 
-    /** @var LoggerInterface $logger */
+    /**
+     * @var LoggerInterface $logger
+     */
     private $logger;
 
     /**
-     * @param \Magento\Backend\App\Action\Context $context
+     * @param Context $context
      * @param FlagManager $flagManager
      * @param LoggerInterface $logger
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
+        Context $context,
         FlagManager $flagManager,
         LoggerInterface $logger
     ) {
@@ -50,6 +56,8 @@ class MarkUserNotified extends \Magento\Backend\App\Action
     }
 
     /**
+     * Buckaroo Release notification
+     *
      * @return ResultInterface
      */
     public function execute()

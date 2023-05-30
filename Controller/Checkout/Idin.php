@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,55 +17,66 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Payment\Gateway\Http\ClientInterface;
+use Magento\Payment\Gateway\Http\TransferFactoryInterface;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class Idin extends \Magento\Framework\App\Action\Action
+class Idin extends Action
 {
-
     /**
-     * @var Buckaroo\Magento2\Gateway\Http\TransactionBuilder\IdinBuilderInterface
+     * @var BuilderInterface
      */
-    protected $transactionBuilder;
-
+    protected BuilderInterface $requestDataBuilder;
     /**
-     * @var \Buckaroo\Magento2\Gateway\GatewayInterface
+     * @var TransferFactoryInterface
      */
-    protected $gateway;
-
+    protected TransferFactoryInterface $transferFactory;
+    /**
+     * @var ClientInterface
+     */
+    protected ClientInterface $clientInterface;
     /**
      * @var Log
      */
-    private $logger;
+    private Log $logger;
 
     /**
      *
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Gateway\GatewayInterface $gateway
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Customer\Model\Session $customerSession
+     * @param Context $context
+     * @param BuilderInterface $requestDataBuilder
+     * @param TransferFactoryInterface $transferFactory
+     * @param ClientInterface $clientInterface
+     * @param Log $logger
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
+        Context $context,
+        BuilderInterface $requestDataBuilder,
+        TransferFactoryInterface $transferFactory,
+        ClientInterface $clientInterface,
         Log $logger
     ) {
         parent::__construct($context);
-        $this->transactionBuilder = $transactionBuilderFactory->get('idin');
-        $this->gateway            = $gateway;
-        $this->logger             = $logger;
+        $this->logger = $logger;
+        $this->requestDataBuilder = $requestDataBuilder;
+        $this->transferFactory = $transferFactory;
+        $this->clientInterface = $clientInterface;
     }
 
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      */
     public function execute()
     {
@@ -79,7 +89,19 @@ class Idin extends \Magento\Framework\App\Action\Action
         }
 
         try {
-            $response = $this->sendIdinRequest($data['issuer']);
+            $transferO = $this->transferFactory->create(
+                $this->requestDataBuilder->build($data)
+            );
+
+            $response = $this->clientInterface->placeRequest($transferO);
+
+            if (isset($response["object"]) && $response["object"] instanceof TransactionResponse) {
+                $response = $response["object"]->toArray();
+            } else {
+                return $this->json(
+                    ['error' => 'TransactionResponse is not valid']
+                );
+            }
         } catch (\Throwable $th) {
             $this->logger->debug($th->getMessage());
             return $this->json(
@@ -89,35 +111,16 @@ class Idin extends \Magento\Framework\App\Action\Action
 
         return $this->json($response);
     }
+
     /**
      * Return json response
      *
      * @param array $data
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      */
-    protected function json($data)
+    protected function json(array $data): ResponseInterface
     {
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($data);
-    }
-    /**
-     * Send idin request
-     *
-     * @param string $issuer
-     *
-     * @return mixed $response
-     * @throws \Exception
-     */
-    protected function sendIdinRequest($issuer)
-    {
-        $transaction = $this->transactionBuilder
-            ->setIssuer($issuer)
-            ->build();
-
-        return $this->gateway
-            ->setMode(
-                $this->transactionBuilder->getMode()
-            )
-            ->authorize($transaction)[0];
     }
 }

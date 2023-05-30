@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,8 +18,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayablePostpay;
@@ -33,7 +37,9 @@ class CapayablePostpayTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(CapayablePostpay::XPATH_CAPAYABLEPOSTPAY_ACTIVE)
+            ->with(
+                $this->getPaymentMethodConfigPath(CapayablePostpay::CODE, AbstractConfigProvider::XPATH_ACTIVE)
+            )
             ->willReturn(0);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -50,8 +56,21 @@ class CapayablePostpayTest extends BaseTest
         $scopeConfigMock->expects($this->exactly(2))
             ->method('getValue')
             ->withConsecutive(
-                [CapayablePostpay::XPATH_CAPAYABLEPOSTPAY_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [CapayablePostpay::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [
+                    $this->getPaymentMethodConfigPath(
+                        CapayablePostpay::CODE,
+                        AbstractConfigProvider::XPATH_ACTIVE
+                    ),
+                    ScopeInterface::SCOPE_STORE
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(
+                        CapayablePostpay::CODE,
+                        AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES
+                    ),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ]
             )
             ->willReturnOnConsecutiveCalls(true, 'EUR');
 
@@ -100,7 +119,10 @@ class CapayablePostpayTest extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(CapayablePostpay::XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(CapayablePostpay::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($fee);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

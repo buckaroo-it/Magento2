@@ -20,9 +20,9 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\Mrcash as MrcashMethod;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Mrcash;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -70,7 +70,7 @@ class MrcashTest extends BaseTest
             ->willReturnOnConsecutiveCalls('EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(MrcashMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Mrcash::CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();
@@ -129,7 +129,10 @@ class MrcashTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Mrcash::XPATH_MRCASH_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Mrcash::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

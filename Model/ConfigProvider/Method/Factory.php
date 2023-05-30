@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,24 +20,28 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Phrase;
+
 class Factory
 {
     /**
-     * @var \Magento\Framework\ObjectManagerInterface
+     * @var ObjectManagerInterface
      */
-    protected $objectManager;
+    protected ObjectManagerInterface $objectManager;
 
     /**
      * @var array
      */
-    protected $configProviders;
+    protected array $configProviders;
 
     /**
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
-     * @param array                                     $configProviders
+     * @param ObjectManagerInterface $objectManager
+     * @param array $configProviders
      */
     public function __construct(
-        \Magento\Framework\ObjectManagerInterface $objectManager,
+        ObjectManagerInterface $objectManager,
         array $configProviders = []
     ) {
         $this->objectManager = $objectManager;
@@ -50,7 +54,7 @@ class Factory
      * @param string $providerType
      *
      * @return ConfigProviderInterface
-     * @throws \LogicException|\Buckaroo\Magento2\Exception
+     * @throws \LogicException|BuckarooException
      */
     public function get($providerType)
     {
@@ -68,9 +72,9 @@ class Factory
             }
         }
 
-        if (!isset($configProviderClass) || empty($configProviderClass)) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+        if (empty($configProviderClass)) {
+            throw new BuckarooException(
+                new Phrase(
                     'Unknown ConfigProvider type requested: %1.',
                     [$providerType]
                 )
@@ -80,7 +84,7 @@ class Factory
         $configProvider = $this->objectManager->get($configProviderClass);
         if (!$configProvider instanceof ConfigProviderInterface) {
             throw new \LogicException(
-                'The ConfigProvider must implement '.
+                'The ConfigProvider must implement ' .
                 '"Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface".'
             );
         }
@@ -88,13 +92,14 @@ class Factory
     }
 
     /**
-     * @param $providerType
+     * Checks if a specific config provider is present in the config providers list
      *
+     * @param string $providerType
      * @return bool
      *
      * @throws \LogicException
      */
-    public function has($providerType)
+    public function has($providerType): bool
     {
         if (empty($this->configProviders)) {
             throw new \LogicException('ConfigProvider adapter is not set.');

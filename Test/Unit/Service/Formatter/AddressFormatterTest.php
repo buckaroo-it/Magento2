@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Service\Formatter;
 
 use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
@@ -37,7 +39,7 @@ class AddressFormatterTest extends BaseTest
         $instance = $this->getInstance(['streetFormatter' => $streetFormatter, 'phoneFormatter' => $phoneFormatter]);
         $result = $instance->format($addressMock);
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertArrayHasKey('street', $result);
         $this->assertArrayHasKey('telephone', $result);
         $this->assertCount(3, $result['street']);

@@ -20,9 +20,9 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\Sofortbanking as SofortbankingMethod;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -67,7 +67,7 @@ class SofortbankingTest extends BaseTest
             ->willReturnOnConsecutiveCalls('EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(SofortbankingMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Sofortbanking::CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();
@@ -126,7 +126,10 @@ class SofortbankingTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Sofortbanking::XPATH_SOFORTBANKING_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Sofortbanking::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

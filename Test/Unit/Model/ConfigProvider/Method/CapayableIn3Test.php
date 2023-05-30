@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,8 +18,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
@@ -33,7 +36,9 @@ class CapayableIn3Test extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(CapayableIn3::XPATH_CAPAYABLEIN3_ACTIVE)
+            ->with(
+                $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::XPATH_ACTIVE)
+            )
             ->willReturn(0);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -50,8 +55,18 @@ class CapayableIn3Test extends BaseTest
         $scopeConfigMock->expects($this->exactly(2))
             ->method('getValue')
             ->withConsecutive(
-                [CapayableIn3::XPATH_CAPAYABLEIN3_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [CapayableIn3::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [
+                    $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    ScopeInterface::SCOPE_STORE
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(
+                        CapayableIn3::CODE,
+                        AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES
+                    ),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ],
             )
             ->willReturnOnConsecutiveCalls(true, 'EUR');
 
@@ -100,8 +115,10 @@ class CapayableIn3Test extends BaseTest
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(CapayableIn3::XPATH_CAPAYABLEIN3_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
-            ->willReturn($fee);
+            ->with(
+                $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )->willReturn($fee);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getPaymentFee();

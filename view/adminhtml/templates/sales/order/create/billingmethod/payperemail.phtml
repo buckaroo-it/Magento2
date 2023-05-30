@@ -111,8 +111,7 @@
         ['order-billing_address_lastname', 'buckaroo_magento2_payperemail_BillingLastName'],
         ['order-billing_address_middlename', 'buckaroo_magento2_payperemail_BillingFirstName'],    
     ].forEach(function (item) {
-        if (
-            document.getElementById(item[1]) && (document.getElementById(item[1]).value.length == 0) &&
+        if (document.getElementById(item[1]) && (document.getElementById(item[1]).value.length == 0) &&
             document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)
         ) {
             document.getElementById(item[1]).value = document.getElementById(item[0]).value;
@@ -122,8 +121,7 @@
     [
         ['order-billing_address_prefix', 'buckaroo_magento2_payperemail_genderSelect']
     ].forEach(function (item) {
-        if (
-            document.getElementById(item[1]) &&
+        if (document.getElementById(item[1]) &&
             document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)
         ) {
             document.getElementById(item[1]).value = 1;

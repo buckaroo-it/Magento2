@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,24 +20,30 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-class Edit extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
+use Buckaroo\Magento2\Model\Giftcard;
+use Magento\Backend\Model\View\Result\Page;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+
+class Edit extends Index implements HttpGetActionInterface
 {
     /**
-     * @return \Magento\Backend\Model\View\Result\Page|void
+     * Edit Giftcard
+     *
+     * @return Page|void
      */
     public function execute()
     {
         $giftcardId = $this->getRequest()->getParam('entity_id');
 
         /**
-         * @var \Buckaroo\Magento2\Model\Giftcard $model
+         * @var Giftcard $model
          */
         $model = $this->giftcardFactory->create();
 
         if ($giftcardId) {
             $model->load($giftcardId);
             if (!$model->getId()) {
-                $this->messageManager->addError(__('This giftcard no longer exists.'));
+                $this->messageManager->addErrorMessage(__('This giftcard no longer exists.'));
                 $this->_redirect('*/*/');
                 return;
             }
@@ -50,7 +56,7 @@ class Edit extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
         $this->_coreRegistry->register('buckaroo_giftcard', $model);
 
         /**
-         * @var \Magento\Backend\Model\View\Result\Page $resultPage
+         * @var Page $resultPage
          */
         $resultPage = $this->resultPageFactory->create();
         $resultPage->setActiveMenu('Buckaroo_Magento2::buckaroo_giftcards');

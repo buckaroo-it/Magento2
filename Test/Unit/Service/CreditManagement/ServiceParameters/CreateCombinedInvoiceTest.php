@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Service\CreditManagement\ServiceParameters;
 
 use Magento\Sales\Model\Order;
@@ -60,7 +62,7 @@ class CreateCombinedInvoiceTest extends BaseTest
         $instance = $this->getInstance(['configProviderMethodFactory' => $factoryMock]);
         $result = $instance->get($infoInstanceMock, 'payperemail');
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertEquals('CreditManagement3', $result['Name']);
         $this->assertEquals('CreateCombinedInvoice', $result['Action']);
         $this->assertEquals(1, $result['Version']);

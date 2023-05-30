@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,14 +18,16 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius;
-use Buckaroo\Magento2\Model\Method\Belfius as BelfiusMethod;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class BelfiusTest extends BaseTest
 {
@@ -54,6 +57,8 @@ class BelfiusTest extends BaseTest
      *
      * @covers ::getConfig
      * @dataProvider getConfigProvider
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function testGetConfig($active, $expected)
     {
@@ -64,14 +69,22 @@ class BelfiusTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Belfius::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null],
-                [Belfius::XPATH_BELFIUS_PAYMENT_FEE_LABEL, ScopeInterface::SCOPE_STORE, null],
+                [
+                    $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE_LABEL),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ]
             )
             ->willReturnOnConsecutiveCalls('EUR', 'Belfius Fee');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
         $paymentFeeMock->method('getBuckarooPaymentFeeLabel')
-            ->with(BelfiusMethod::PAYMENT_METHOD_CODE)->willReturn('Belfius Fee');
+            ->with(Belfius::CODE)->willReturn('Belfius Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
 
@@ -132,7 +145,10 @@ class BelfiusTest extends BaseTest
 
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Belfius::XPATH_BELFIUS_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

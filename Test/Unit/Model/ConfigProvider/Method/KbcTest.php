@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,14 +18,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\Kbc as KbcMethod;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Kbc;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class KbcTest extends BaseTest
 {
@@ -58,13 +60,20 @@ class KbcTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Kbc::XPATH_KBC_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Kbc::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [
+                    $this->getPaymentMethodConfigPath(Kbc::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    ScopeInterface::SCOPE_STORE,
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(Kbc::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    ScopeInterface::SCOPE_STORE,
+                    null
+                ]
             )
             ->willReturnOnConsecutiveCalls($active, 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(KbcMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Kbc::CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();
@@ -123,7 +132,10 @@ class KbcTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Kbc::XPATH_KBC_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Kbc::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Logging;
 
 use Monolog\Logger;
@@ -45,10 +47,10 @@ class MailTest extends BaseTest
         $arrayMessage = ['Message', 'in an', 'array'];
         $expectedMessage = 'Test Message' . PHP_EOL
             . 'Array' . PHP_EOL
-            . '('. PHP_EOL
+            . '(' . PHP_EOL
             . '    [0] => Message' . PHP_EOL
-            . '    [1] => in an'. PHP_EOL
-            . '    [2] => array'. PHP_EOL
+            . '    [1] => in an' . PHP_EOL
+            . '    [2] => array' . PHP_EOL
             . ')' . PHP_EOL;
 
         /** @var Mail $instance */
