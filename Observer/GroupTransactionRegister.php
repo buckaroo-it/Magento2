@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
@@ -26,17 +27,28 @@ use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\Data;
-
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class GroupTransactionRegister implements ObserverInterface
 {
-    /** @var Account */
+    /**
+     * @var Account
+     */
     private $accountConfig;
 
-    /** @var InvoiceSender */
+    /**
+     * @var InvoiceSender
+     */
     private $invoiceSender;
+
+    /**
+     * @var Log
+     */
     private $logger;
+
+    /**
+     * @var Data
+     */
     private $helper;
 
     /**
@@ -66,7 +78,10 @@ class GroupTransactionRegister implements ObserverInterface
     }
 
     /**
+     * Set total paid by a group transaction for sales_order_invoice_pay event
+     *
      * @param Observer $observer
+     * @return void
      */
     public function execute(Observer $observer)
     {
@@ -79,11 +94,11 @@ class GroupTransactionRegister implements ObserverInterface
         if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
             return;
         }
-        
+
         $order = $invoice->getOrder();
 
         $items = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
-        foreach ($items as $key => $item) {
+        foreach ($items as $item) {
             $this->logger->addDebug(__METHOD__ . '|5|' . var_export([$order->getTotalPaid(), $item['amount']], true));
             $totalPaid = $order->getTotalPaid() + $item['amount'];
             $baseTotalPaid = $order->getBaseTotalPaid() + $item['amount'];

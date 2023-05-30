@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,25 +17,47 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Session as BuckarooSession;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Module\Manager;
 use Magento\Sales\Api\OrderManagementInterface;
-use Buckaroo\Magento2\Model\Session as BuckarooSession;
+use Magento\Sales\Model\Order;
 
-class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterface
+class HandleFailedQuoteOrder implements ObserverInterface
 {
+    /**
+     * @var BuckarooSession
+     */
     protected $buckarooSession;
+
+    /**
+     * @var Log
+     */
     protected $logging;
+
+    /**
+     * @var Manager
+     */
     protected $moduleManager;
 
     /**
-     * @var \Magento\Sales\Api\OrderManagementInterface
+     * @var OrderManagementInterface
      */
     protected $orderManagement;
 
+    /**
+     * @param BuckarooSession $buckarooSession
+     * @param Log $logging
+     * @param Manager $moduleManager
+     * @param OrderManagementInterface $orderManagement
+     */
     public function __construct(
         BuckarooSession $buckarooSession,
         Log $logging,
@@ -49,42 +71,40 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Handle cancel order by sales_model_service_quote_submit_failure event
+     *
+     * @param Observer $observer
      * @return void
+     * @throws LocalizedException
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        /* @var $order \Magento\Sales\Model\Order */
+        /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        /**
-         * @var $quote \Magento\Quote\Model\Quote $quote
-         */
-        $quote = $observer->getEvent()->getQuote();
 
         if ($order->canCancel()) {
-            //$this->logging->addDebug('Buckaroo push failed : '.$message.' : Cancel order.');
-
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
-            // Buckaroo/Model/Method/AbstractMethod.php:880
+            // Buckaroo/Model/Method/BuckarooAdapter.php:880
             $payment = $order->getPayment();
             if (in_array(
                 $payment->getMethodInstance()->getCode(),
-                ['buckaroo_magento2_afterpay','buckaroo_magento2_afterpay2','buckaroo_magento2_klarnakp']
-            )) {
+                ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2', 'buckaroo_magento2_klarnakp']
+            )
+            ) {
                 try {
-                    $order->addStatusHistoryComment('Buckaroo: failed to authorize an order', false);
+                    $order->addCommentToStatusHistory('Buckaroo: failed to authorize an order');
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                     $payment->save();
                     //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
                 } catch (\Exception $e) {
-
+                    // empty block
                 }
             }
 
@@ -97,7 +117,7 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                 $this->orderManagement->cancel($order->getId());
                 //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-
+                // empty block
             }
             $this->buckarooSession->setData('flagHandleFailedQuote', 0);
         }

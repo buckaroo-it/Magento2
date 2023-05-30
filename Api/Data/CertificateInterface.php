@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,40 +17,54 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Api\Data;
 
 interface CertificateInterface
 {
     /**
+     * Set Certificate
+     *
      * @param string $certificate
      * @return $this
      */
-    public function setCertificate($certificate);
+    public function setCertificate(string $certificate): CertificateInterface;
 
     /**
+     * Get Certificate
+     *
      * @return string
      */
-    public function getCertificate();
+    public function getCertificate(): string;
 
     /**
+     * Set Certificate Name
+     *
      * @param string $name
      * @return $this
      */
-    public function setName($name);
+    public function setName(string $name): CertificateInterface;
 
     /**
+     * Get Certificate Name
+     *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
+     * Set the date when was created
+     *
      * @param string $createdAt
      * @return $this
      */
-    public function setCreatedAt($createdAt);
+    public function setCreatedAt(string $createdAt): CertificateInterface;
 
     /**
+     * Get the date when was created
+     *
      * @return string
      */
-    public function getCreatedAt();
+    public function getCreatedAt(): string;
 }

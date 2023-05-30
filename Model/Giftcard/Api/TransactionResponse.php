@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
@@ -26,26 +26,34 @@ use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface;
 
 class TransactionResponse extends DataObject implements TransactionResponseInterface
 {
-    /** @inheritDoc */
-    public function getTransactionId()
+    /**
+     * @inheritdoc
+     */
+    public function getTransactionId(): string
     {
         return $this->getData('transaction_id');
     }
-    
-    /** @inheritDoc */
-    public function getName()
+
+    /**
+     * @inheritdoc
+     */
+    public function getName(): ?string
     {
         return $this->getData('label');
     }
-    
-    /** @inheritDoc */
-    public function getAmount()
+
+    /**
+     * @inheritdoc
+     */
+    public function getAmount(): float
     {
         return (float)$this->getData('amount');
     }
-    
-    /** @inheritDoc */
-    public function getCurrency()
+
+    /**
+     * @inheritdoc
+     */
+    public function getCurrency(): string
     {
         return $this->getData('currency');
     }

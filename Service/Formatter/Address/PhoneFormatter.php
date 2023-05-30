@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,32 +17,51 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
+
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
 use Buckaroo\Magento2\Logging\Log;
 
 class PhoneFormatter
 {
-    private $validMobile = [
+    /**
+     * @var Log
+     */
+    private Log $logger;
+
+    /**
+     * @var array[]
+     */
+    private array $validMobile = [
         'NL' => ['00316'],
         'BE' => ['003246', '003247', '003248', '003249'],
         'DE' => ['004915', '004916', '004917'],
-        'AT' => ['0049650', '0049660', '0049664','0049676', '0049680', '0049677','0049681', '0049688', '0049699'],
+        'AT' => ['0049650', '0049660', '0049664', '0049676', '0049680', '0049677', '0049681', '0049688', '0049699'],
     ];
 
-    private $invalidNotation = [
+    /**
+     * @var array[]
+     */
+    private array $invalidNotation = [
         'NL' => ['00310', '0310', '310', '31'],
         'BE' => ['00320', '0320', '320', '32'],
     ];
 
-    private $startingNotation = [
+    /**
+     * @var array[]
+     */
+    private array $startingNotation = [
         'NL' => ['0', '0', '3', '1'],
         'BE' => ['0', '0', '3', '2'],
         'DE' => ['0', '0', '4', '9'],
         'AT' => ['0', '0', '4', '3'],
     ];
-    private Log $logger;
 
+    /**
+     * @param Log $logger
+     */
     public function __construct(
         Log $logger
     ) {
@@ -50,12 +69,13 @@ class PhoneFormatter
     }
 
     /**
-     * @param $phoneNumber
-     * @param $country
+     * Format phone number by country
      *
+     * @param string $phoneNumber
+     * @param string $country
      * @return array
      */
-    public function format($phoneNumber, $country)
+    public function format(string $phoneNumber, string $country): array
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
         $this->logger->addDebug(var_export([$phoneNumber, $country], true));
@@ -81,12 +101,14 @@ class PhoneFormatter
     }
 
     /**
-     * @param $phoneNumber
-     * @param $country
+     * Format phone number by country
+     *
+     * @param string $phoneNumber
+     * @param string $country
      *
      * @return string
      */
-    private function formatPhoneNumber($phoneNumber, $country)
+    private function formatPhoneNumber(string $phoneNumber, string $country): string
     {
         $phoneLength = strlen((string)$phoneNumber);
 
@@ -94,53 +116,26 @@ class PhoneFormatter
             $phoneNumber = $this->isValidNotation($phoneNumber, $country);
         }
 
-        if ((in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
-            ||
-            (in_array($country, ['AT', 'DE']))
-        ) {
-            if (isset($this->startingNotation[$country])) {
-                $notationStart = implode($this->startingNotation[$country]);
-                $phoneNumber = $notationStart . substr($phoneNumber, 1);
-            }
+        if ((
+                (in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
+                ||
+                (in_array($country, ['AT', 'DE']))
+            ) && (isset($this->startingNotation[$country]))) {
+            $notationStart = implode($this->startingNotation[$country]);
+            $phoneNumber = $notationStart . substr($phoneNumber, 1);
         }
 
         return $phoneNumber;
     }
 
     /**
-     * @param $phoneNumber
-     * @param $country
+     * Checks if the phone number has a valid notation for the given country.
      *
-     * @return bool
-     */
-    private function isMobileNumber($phoneNumber, $country)
-    {
-        $isMobile = false;
-
-        if (isset($this->validMobile[$country])) {
-            array_walk(
-                $this->validMobile[$country],
-                function ($value) use (&$isMobile, $phoneNumber) {
-                    $phoneNumberPart = substr($phoneNumber, 0, strlen($value));
-                    $phoneNumberHasValue = strpos($phoneNumberPart, $value);
-
-                    if ($phoneNumberHasValue !== false) {
-                        $isMobile = true;
-                    }
-                }
-            );
-        }
-
-        return $isMobile;
-    }
-
-    /**
-     * @param $phoneNumber
-     * @param $country
-     *
+     * @param string $phoneNumber
+     * @param string $country
      * @return string
      */
-    private function isValidNotation($phoneNumber, $country)
+    private function isValidNotation(string $phoneNumber, string $country): string
     {
         if (isset($this->invalidNotation[$country])) {
             array_walk(
@@ -159,13 +154,14 @@ class PhoneFormatter
     }
 
     /**
-     * @param $phoneNumber
-     * @param $invalid
-     * @param $country
+     * Formats the given phone number to have the correct notation for the country
      *
+     * @param string $phoneNumber
+     * @param string $invalid
+     * @param string $country
      * @return string
      */
-    private function formatNotation($phoneNumber, $invalid, $country)
+    private function formatNotation(string $phoneNumber, string $invalid, string $country): string
     {
         if (isset($this->startingNotation[$country])) {
             $valid = substr($invalid, 0, -1);
@@ -187,5 +183,34 @@ class PhoneFormatter
         }
 
         return $phoneNumber;
+    }
+
+    /**
+     * Check if is mobile number
+     *
+     * @param string $phoneNumber
+     * @param string $country
+     *
+     * @return bool
+     */
+    private function isMobileNumber(string $phoneNumber, string $country): bool
+    {
+        $isMobile = false;
+
+        if (isset($this->validMobile[$country])) {
+            array_walk(
+                $this->validMobile[$country],
+                function ($value) use (&$isMobile, $phoneNumber) {
+                    $phoneNumberPart = substr($phoneNumber, 0, strlen($value));
+                    $phoneNumberHasValue = strpos($phoneNumberPart, $value);
+
+                    if ($phoneNumberHasValue !== false) {
+                        $isMobile = true;
+                    }
+                }
+            );
+        }
+
+        return $isMobile;
     }
 }

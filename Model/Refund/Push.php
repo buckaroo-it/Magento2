@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,36 +17,48 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Refund;
 
+use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
-use Magento\Sales\Api\CreditmemoManagementInterface;
-use Magento\Sales\Model\Order\CreditmemoFactory;
-use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\CreditmemoManagementInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Sales\Model\Order\CreditmemoFactory;
+use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Push
 {
     const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
+    /**
+     * @var PushRequestInterface
+     */
     public $postData;
 
+    /**
+     * @var float|null
+     */
     public $creditAmount;
 
     /**
-     * @var \Magento\Sales\Model\Order $order
+     * @var Order $order
      */
     public $order;
 
     /**
-     * @var  CreditmemoFactory $creditmemoFactory
+     * @var CreditmemoFactory $creditmemoFactory
      */
     public $creditmemoFactory;
-
-    /** @var CreditmemoManagementInterface */
-    private $creditmemoManagement;
 
     /**
      * @var CreditmemoSender $creditEmailSender
@@ -68,14 +80,24 @@ class Push
      */
     public $logging;
 
+    /**
+     * @var ScopeConfigInterface
+     */
     protected $scopeConfig;
 
     /**
-     * @param CreditmemoFactory             $creditmemoFactory
+     * @var CreditmemoManagementInterface
+     */
+    private $creditmemoManagement;
+
+    /**
+     * @param CreditmemoFactory $creditmemoFactory
      * @param CreditmemoManagementInterface $creditmemoManagement
-     * @param CreditmemoSender              $creditEmailSender
-     * @param Refund                        $configRefund
-     * @param Log                           $logging
+     * @param CreditmemoSender $creditEmailSender
+     * @param Refund $configRefund
+     * @param Data $helper
+     * @param Log $logging
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         CreditmemoFactory $creditmemoFactory,
@@ -84,43 +106,43 @@ class Push
         Refund $configRefund,
         Data $helper,
         Log $logging,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig
     ) {
-        $this->creditmemoFactory     = $creditmemoFactory;
-        $this->creditmemoManagement  = $creditmemoManagement;
-        $this->creditEmailSender     = $creditEmailSender;
+        $this->creditmemoFactory = $creditmemoFactory;
+        $this->creditmemoManagement = $creditmemoManagement;
+        $this->creditEmailSender = $creditEmailSender;
         $this->helper = $helper;
-        $this->logging               = $logging;
-        $this->configRefund          = $configRefund;
-        $this->scopeConfig           = $scopeConfig;
+        $this->logging = $logging;
+        $this->configRefund = $configRefund;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
      * This is called when a refund is made in Buckaroo Payment Plaza.
      * This Function will result in a creditmemo being created for the order in question.
      *
-     * @param array $postData
-     * @param bool  $signatureValidation
+     * @param PushRequestInterface $postData
+     * @param bool $signatureValidation
      * @param $order
      *
      * @return bool
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws BuckarooException
      */
-    public function receiveRefundPush($postData, $signatureValidation, $order)
+    public function receiveRefundPush(PushRequestInterface $postData, bool $signatureValidation, $order): bool
     {
         $this->postData = $postData;
-        $this->order    = $order;
+        $this->order = $order;
 
         $this->logging->addDebug(
-            __METHOD__.'|1|Trying to refund order ' . $this->order->getId(). ' out of paymentplaza. '
+            __METHOD__ . '|1|Trying to refund order ' . $this->order->getId() . ' out of paymentplaza. '
         );
 
         if (!$this->configRefund->getAllowPush()) {
             $this->logging->addDebug(
-                __METHOD__.'|5|But failed, the configuration is set not to accept refunds out of Payment Plaza'
+                __METHOD__ . '|5|But failed, the configuration is set not to accept refunds out of Payment Plaza'
             );
             //phpcs:ignore:Magento2.Exceptions.DirectThrow
-            throw new Exception(
+            throw new BuckarooException(
                 __('Buckaroo refund is disabled')
             );
         }
@@ -145,108 +167,77 @@ class Push
         $creditmemoCollection = $this->order->getCreditmemosCollection();
         $creditmemosByTransactionId = $creditmemoCollection->getItemsByColumnValue(
             'transaction_id',
-            $this->postData['brq_transactions']
+            $this->postData->getTransactions()
         );
         if (count($creditmemosByTransactionId) > 0) {
-            $this->logging->addDebug(__METHOD__.'|15|The transaction has already been refunded.');
+            $this->logging->addDebug(__METHOD__ . '|15|The transaction has already been refunded.');
 
             return false;
         }
 
         $creditmemo = $this->createCreditmemo();
-
-        $this->logging->addDebug(__METHOD__.'|20|Order successful refunded = '. $creditmemo);
+        $this->logging->addDebug(__METHOD__ . '|20|Order successful refunded = ' . $creditmemo);
 
         return $creditmemo;
     }
 
     /**
      * Create the creditmemo
+     *
+     * @return bool
+     * @throws LocalizedException
      */
-    public function createCreditmemo()
+    public function createCreditmemo(): bool
     {
-        $this->logging->addDebug(__METHOD__.'|1|');
+        $this->logging->addDebug(__METHOD__ . '|1|');
         $creditData = $this->getCreditmemoData();
         $creditmemo = $this->initCreditmemo($creditData);
 
         try {
             if ($creditmemo) {
-                if (!empty($this->postData['add_service_action_from_magento'])
-                    && ($this->postData['add_service_action_from_magento'] == 'capture')
-                    && !empty($this->postData['brq_transaction_method'])
-                    && ($this->postData['brq_transaction_method'] == 'afterpay')
-                    && !empty($this->postData['brq_transaction_type'])
-                    && ($this->postData['brq_transaction_type'] == 'C041')
+                if ($this->postData->hasAdditionalInformation('service_action_from_magento', 'capture')
+                    && !empty($this->postData->getTransactionMethod())
+                    && ($this->postData->getTransactionMethod() == 'afterpay')
+                    && !empty($this->postData->getTransactionType())
+                    && ($this->postData->getTransactionType() == 'C041')
                 ) {
-                    $this->logging->addDebug(__METHOD__.'|5|');
+                    $this->logging->addDebug(__METHOD__ . '|5|');
                     $creditmemo->setBaseGrandTotal($this->totalAmountToRefund());
                     $creditmemo->setGrandTotal($this->totalAmountToRefund());
                 }
                 if (!$creditmemo->isValidGrandTotal()) {
-                    $this->logging->addDebug(__METHOD__.'|10|The credit memo\'s total must be positive.');
-                    throw new \Magento\Framework\Exception\LocalizedException(
+                    $this->logging->addDebug(__METHOD__ . '|10|The credit memo\'s total must be positive.');
+                    throw new LocalizedException(
                         __('The credit memo\'s total must be positive.')
                     );
                 }
-                $creditmemo->setTransactionId($this->postData['brq_transactions']);
+                $creditmemo->setTransactionId($this->postData->getTransactions());
 
-                $this->logging->addDebug(__METHOD__.'|20');
+                $this->logging->addDebug(__METHOD__ . '|20');
                 $this->creditmemoManagement->refund(
                     $creditmemo,
                     (bool)$creditData['do_offline'],
-                    !empty($creditData['send_email'])
+                    !empty($creditData['order_email'])
                 );
-                $this->logging->addDebug(__METHOD__.'|25');
+                $this->logging->addDebug(__METHOD__ . '|25');
                 $this->creditEmailSender->send($creditmemo);
                 return true;
             } else {
                 $debugMessage = 'Failed to create the creditmemo, method saveCreditmemo return value: ' . PHP_EOL;
                 //phpcs:ignore:Magento2.Functions.DiscouragedFunction
                 $debugMessage .= print_r($creditmemo, true);
-                $this->logging->addDebug(__METHOD__.'|30|'.$debugMessage);
+                $this->logging->addDebug(__METHOD__ . '|30|' . $debugMessage);
                 //phpcs:ignore:Magento2.Exceptions.DirectThrow
-                throw new Exception(
+                throw new BuckarooException(
                     __('Failed to create the creditmemo')
                 );
             }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (LocalizedException $e) {
             $this->logging->addDebug(
-                __METHOD__.'|35|Buckaroo failed to create the credit memo\'s { '. $e->getLogMessage().' }'
+                __METHOD__ . '|35|Buckaroo failed to create the credit memo\'s { ' . $e->getLogMessage() . ' }'
             );
         }
-        $this->logging->addDebug(__METHOD__.'|40');
-        return false;
-    }
-
-    /**
-     * @param $creditData
-     *
-     * @return \Magento\Sales\Model\Order\Creditmemo
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function initCreditmemo($creditData)
-    {
-        try {
-            /**
-             * @var \Magento\Sales\Model\Order\Creditmemo $creditmemo
-             */
-            $creditmemo = $this->creditmemoFactory->createByOrder($this->order, $creditData);
-
-            /**
-             * @var \Magento\Sales\Model\Order\Creditmemo\Item $creditmemoItem
-             */
-            foreach ($creditmemo->getAllItems() as $creditmemoItem) {
-                /**
-                 * @noinspection PhpUndefinedMethodInspection
-                 */
-                $creditmemoItem->setBackToStock(false);
-            }
-
-            return $creditmemo;
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->logging
-                ->addDebug('Buckaroo can not initialize the credit memo\'s by order { '. $e->getLogMessage().' }');
-        }
+        $this->logging->addDebug(__METHOD__ . '|40');
         return false;
     }
 
@@ -255,7 +246,7 @@ class Push
      *
      * @return array
      */
-    public function getCreditmemoData()
+    public function getCreditmemoData(): array
     {
         $data = [
             'do_offline'   => '0',
@@ -264,27 +255,30 @@ class Push
         ];
 
         $totalAmountToRefund = $this->totalAmountToRefund();
-        $this->creditAmount  = $totalAmountToRefund + $this->order->getBaseTotalRefunded();
+        $this->creditAmount = $totalAmountToRefund + $this->order->getBaseTotalRefunded();
 
-        $this->logging->addDebug(__METHOD__.'|1|'.var_export([
-            $this->creditAmount, $this->order->getBaseGrandTotal(),
-        ], true));
+        $this->logging->addDebug(__METHOD__ . '|1|' . var_export([
+                $this->creditAmount,
+                $this->order->getBaseGrandTotal(),
+            ], true));
 
         if (!$this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
             $adjustment = $this->getAdjustmentRefundData();
-            $this->logging->addDebug('This is an adjustment refund of '. $totalAmountToRefund);
-            $data['shipping_amount']     = '0';
+            $this->logging->addDebug('This is an adjustment refund of ' . $totalAmountToRefund);
+            $data['shipping_amount'] = '0';
             $data['adjustment_negative'] = '0';
             $data['adjustment_positive'] = $adjustment;
-            $data['items']               = $this->getCreditmemoDataItems();
-            $data['qtys']                = $this->setCreditQtys($data['items']);
+            $data['items'] = $this->getCreditmemoDataItems();
+            $data['qtys'] = $this->setCreditQtys($data['items']);
         } else {
-            $this->logging->addDebug('With this refund of '. $this->creditAmount.' the grand total will be refunded.');
-            $data['shipping_amount']     = $this->caluclateShippingCostToRefund();
+            $this->logging->addDebug(
+                'With this refund of ' . $this->creditAmount . ' the grand total will be refunded.'
+            );
+            $data['shipping_amount'] = $this->caluclateShippingCostToRefund();
             $data['adjustment_negative'] = $this->getTotalCreditAdjustments();
             $data['adjustment_positive'] = $this->calculateRemainder();
-            $data['items']               = $this->getCreditmemoDataItems();
-            $data['qtys']                = $this->setCreditQtys($data['items']);
+            $data['items'] = $this->getCreditmemoDataItems();
+            $data['qtys'] = $this->setCreditQtys($data['items']);
         }
 
         $debugMessage = 'Data used for credit nota: ' . PHP_EOL;
@@ -296,23 +290,22 @@ class Push
     }
 
     /**
-     * Get total of adjustments made by previous credits.
+     * Calculate the amount to be refunded.
      *
-     * @return int
+     * @return int|float $amount
      */
-    public function getTotalCreditAdjustments()
+    public function totalAmountToRefund()
     {
-        $totalAdjustments = 0;
-
-        foreach ($this->order->getCreditmemosCollection() as $creditmemo) {
-            /**
-             * @var \Magento\Sales\Model\Order\Creditmemo $creditmemo
-             */
-            $adjustment = $creditmemo->getBaseAdjustmentPositive() - $creditmemo->getBaseAdjustmentNegative();
-            $totalAdjustments += $adjustment;
+        if ($this->postData->getCurrency() == $this->order->getBaseCurrencyCode()) {
+            $amount = $this->postData->getAmountCredit();
+        } else {
+            $amount = round($this->postData->getAmountCredit() / $this->order->getBaseToOrderRate(), 2);
+            if ($amount > $this->order->getBaseGrandTotal()) {
+                $amount = $this->order->getBaseGrandTotal();
+            }
         }
 
-        return $totalAdjustments;
+        return $amount;
     }
 
     /**
@@ -337,90 +330,14 @@ class Push
     }
 
     /**
-     * Calculate the amount to be refunded.
-     *
-     * @return int $amount
-     */
-    public function totalAmountToRefund()
-    {
-        if ($this->postData['brq_currency'] == $this->order->getBaseCurrencyCode()) {
-            $amount = $this->postData['brq_amount_credit'];
-        } else {
-            $amount = round($this->postData['brq_amount_credit'] / $this->order->getBaseToOrderRate(), 2);
-            if ($amount > $this->order->getBaseGrandTotal()) {
-                $amount = $this->order->getBaseGrandTotal();
-            }
-        }
-
-        return $amount;
-    }
-
-    /**
-     * Cacluate the remainder of to be refunded
-     *
-     * @return float
-     */
-    public function calculateRemainder()
-    {
-        $baseTotalToBeRefunded = $this->caluclateShippingCostToRefund() +
-            ($this->order->getBaseSubtotal() - $this->order->getBaseSubtotalRefunded()) +
-            ($this->order->getBaseAdjustmentNegative() - $this->order->getBaseAdjustmentPositive()) +
-            ($this->order->getBaseTaxAmount() - $this->order->getBaseTaxRefunded()) +
-            ($this->order->getBaseDiscountAmount() - $this->order->getBaseDiscountRefunded());
-
-        $remainderToRefund = $this->order->getBaseGrandTotal()
-            - $baseTotalToBeRefunded
-            - $this->order->getBaseTotalRefunded();
-
-        $this->logging->addDebug(__METHOD__.'|5|'.var_export([
-                $this->totalAmountToRefund(),  $this->order->getBaseGrandTotal(), $remainderToRefund
-            ], true));
-
-        if ($this->totalAmountToRefund() == $this->order->getBaseGrandTotal()) {
-            $this->logging->addDebug(__METHOD__.'|10|');
-            $remainderToRefund = 0;
-        }
-
-        if ($remainderToRefund < 0.01) {
-            $this->logging->addDebug(__METHOD__.'|15|');
-            $remainderToRefund = 0;
-        }
-
-        return $remainderToRefund;
-    }
-
-    /**
-     * Calculate the total of shipping cost to be refunded.
-     *
-     * @return float
-     */
-    public function caluclateShippingCostToRefund()
-    {
-        $includesTax = $this->scopeConfig->getValue(
-            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        if ($includesTax) {
-            $this->logging->addDebug(__METHOD__.'|1|');
-            return ($this->order->getBaseShippingAmount() + $this->order->getBaseShippingTaxAmount())
-                - ($this->order->getBaseShippingRefunded() + $this->order->getBaseShippingTaxRefunded());
-        } else {
-            $this->logging->addDebug(__METHOD__.'|2|');
-            return $this->order->getBaseShippingAmount()
-                - $this->order->getBaseShippingRefunded();
-        }
-    }
-
-    /**
      * Check if there are items to correct on the creditmemo
      *
      * @return array $items
      */
-    public function getCreditmemoDataItems()
+    public function getCreditmemoDataItems(): array
     {
         $items = [];
-        $qty   = 0;
+        $qty = 0;
 
         foreach ($this->order->getAllItems() as $orderItem) {
             /**
@@ -447,10 +364,9 @@ class Push
      * Set quantity items
      *
      * @param array $items
-     *
      * @return array $qtys
      */
-    public function setCreditQtys($items)
+    public function setCreditQtys($items): array
     {
         $qtys = [];
 
@@ -461,5 +377,111 @@ class Push
         }
 
         return $qtys;
+    }
+
+    /**
+     * Calculate the total of shipping cost to be refunded.
+     *
+     * @return float
+     */
+    public function caluclateShippingCostToRefund(): float
+    {
+        $includesTax = $this->scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        if ($includesTax) {
+            $this->logging->addDebug(__METHOD__ . '|1|');
+            return ($this->order->getBaseShippingAmount() + $this->order->getBaseShippingTaxAmount())
+                - ($this->order->getBaseShippingRefunded() + $this->order->getBaseShippingTaxRefunded());
+        } else {
+            $this->logging->addDebug(__METHOD__ . '|2|');
+            return $this->order->getBaseShippingAmount()
+                - $this->order->getBaseShippingRefunded();
+        }
+    }
+
+    /**
+     * Get total of adjustments made by previous credits.
+     *
+     * @return int|float
+     */
+    public function getTotalCreditAdjustments()
+    {
+        $totalAdjustments = 0;
+
+        foreach ($this->order->getCreditmemosCollection() as $creditmemo) {
+            /**
+             * @var Creditmemo $creditmemo
+             */
+            $adjustment = $creditmemo->getBaseAdjustmentPositive() - $creditmemo->getBaseAdjustmentNegative();
+            $totalAdjustments += $adjustment;
+        }
+
+        return $totalAdjustments;
+    }
+
+    /**
+     * Calculate the remainder of to be refunded
+     *
+     * @return float
+     */
+    public function calculateRemainder()
+    {
+        $baseTotalToBeRefunded = $this->caluclateShippingCostToRefund() +
+            ($this->order->getBaseSubtotal() - $this->order->getBaseSubtotalRefunded()) +
+            ($this->order->getBaseAdjustmentNegative() - $this->order->getBaseAdjustmentPositive()) +
+            ($this->order->getBaseTaxAmount() - $this->order->getBaseTaxRefunded()) +
+            ($this->order->getBaseDiscountAmount() - $this->order->getBaseDiscountRefunded());
+
+        $remainderToRefund = $this->order->getBaseGrandTotal()
+            - $baseTotalToBeRefunded
+            - $this->order->getBaseTotalRefunded();
+
+        $this->logging->addDebug(__METHOD__ . '|5|' . var_export([
+                $this->totalAmountToRefund(),
+                $this->order->getBaseGrandTotal(),
+                $remainderToRefund
+            ], true));
+
+        if ($this->totalAmountToRefund() == $this->order->getBaseGrandTotal()) {
+            $this->logging->addDebug(__METHOD__ . '|10|');
+            $remainderToRefund = 0;
+        }
+
+        if ($remainderToRefund < 0.01) {
+            $this->logging->addDebug(__METHOD__ . '|15|');
+            $remainderToRefund = 0;
+        }
+
+        return $remainderToRefund;
+    }
+
+    /**
+     * Create credit memo by order and refund data
+     *
+     * @param array $creditData
+     * @return Creditmemo|false
+     * @throws LocalizedException
+     */
+    public function initCreditmemo(array $creditData)
+    {
+        try {
+            $creditmemo = $this->creditmemoFactory->createByOrder($this->order, $creditData);
+
+            foreach ($creditmemo->getAllItems() as $creditmemoItem) {
+                /**
+                 * @noinspection PhpUndefinedMethodInspection
+                 */
+                $creditmemoItem->setBackToStock(false);
+            }
+
+            return $creditmemo;
+        } catch (LocalizedException $e) {
+            $this->logging
+                ->addDebug('Buckaroo can not initialize the credit memo\'s by order { ' . $e->getLogMessage() . ' }');
+        }
+        return false;
     }
 }

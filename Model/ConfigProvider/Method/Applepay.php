@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,12 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -30,24 +32,12 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Applepay extends AbstractConfigProvider
 {
-    const XPATH_APPLEPAY_ACTIVE                = 'payment/buckaroo_magento2_applepay/active';
-    const XPATH_APPLEPAY_SUBTEXT               = 'payment/buckaroo_magento2_applepay/subtext';
-    const XPATH_APPLEPAY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_applepay/subtext_style';
-    const XPATH_APPLEPAY_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_applepay/subtext_color';
-    const XPATH_APPLEPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_applepay/active_status';
-    const XPATH_APPLEPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_applepay/order_status_success';
-    const XPATH_APPLEPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_applepay/order_status_failed';
-    const XPATH_APPLEPAY_ORDER_EMAIL           = 'payment/buckaroo_magento2_applepay/order_email';
-    const XPATH_APPLEPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_applepay/available_in_backend';
-    const XPATH_APPLEPAY_AVAILABLE_BUTTONS     = 'payment/buckaroo_magento2_applepay/available_buttons';
-    const XPATH_APPLEPAY_BUTTON_STYLE     = 'payment/buckaroo_magento2_applepay/button_style';
-    const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'payment/'.
-        'buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
+    public const CODE = 'buckaroo_magento2_applepay';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_applepay/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_applepay/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_applepay/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_applepay/specificcustomergroup';
+    public const XPATH_APPLEPAY_AVAILABLE_BUTTONS = 'payment/buckaroo_magento2_applepay/available_buttons';
+    public const XPATH_APPLEPAY_BUTTON_STYLE = 'payment/buckaroo_magento2_applepay/button_style';
+    public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT =
+        'payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
 
     /**
      * @var array
@@ -57,15 +47,30 @@ class Applepay extends AbstractConfigProvider
         'GBP'
     ];
 
-    /** @var Account */
+    /**
+     * @var Account
+     */
     private $configProvicerAccount;
 
-    /** @var Resolver */
+    /**
+     * @var Resolver
+     */
     private $localeResolver;
 
-    /** @var StoreManagerInterface */
+    /**
+     * @var StoreManagerInterface
+     */
     private $storeManager;
 
+    /**
+     * @param Repository $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param StoreManagerInterface $storeManager
+     * @param Resolver $localeResolver
+     * @param Account $configProvicerAccount
+     */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
@@ -83,14 +88,11 @@ class Applepay extends AbstractConfigProvider
     }
 
     /**
-     * @return array|void
+     * @inheritdoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_ACTIVE,
-            ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
@@ -118,20 +120,19 @@ class Applepay extends AbstractConfigProvider
                         ),
                         'guid' => $this->configProvicerAccount->getMerchantGuid(),
                         'availableButtons' => $this->getAvailableButtons(),
-                        'buttonStyle' => $this->scopeConfig->getValue(
-                            static::XPATH_APPLEPAY_BUTTON_STYLE,
-                            ScopeInterface::SCOPE_STORE
-                        ),
-                        'dontAskBillingInfoInCheckout' => (int) $this->scopeConfig->getValue(
-                            static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
-                            ScopeInterface::SCOPE_STORE
-                        )
+                        'buttonStyle' => $this->getButtonStyle(),
+                        'dontAskBillingInfoInCheckout' => (int) $this->getDontAskBillingInfoInCheckout()
                     ],
                 ],
             ],
         ];
     }
 
+    /**
+     * Returns an array of available buttons for the Apple Pay payment method.
+     *
+     * @return false|string[]
+     */
     public function getAvailableButtons()
     {
         $availableButtons = $this->scopeConfig->getValue(
@@ -145,5 +146,35 @@ class Applepay extends AbstractConfigProvider
         }
 
         return $availableButtons;
+    }
+
+    /**
+     * Returns the button style configuration setting for the specified store.
+     *
+     * @param int|string|Store $store
+     * @return mixed
+     */
+    public function getButtonStyle($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_BUTTON_STYLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Do not ask for billing info in checkout
+     *
+     * @param int|string|Store $store
+     * @return mixed
+     */
+    public function getDontAskBillingInfoInCheckout($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Model\AbstractModel;
@@ -45,7 +46,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getServicecode()
     {
@@ -53,9 +54,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     }
 
     /**
-     * @param string $servicecode
-     *
-     * @return $this
+     * @inheritdoc
      */
     public function setServicecode($servicecode)
     {
@@ -63,31 +62,42 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     }
 
     /**
-     * {@inheritdoc}
+     * Set name
+     *
+     * @param string $name
+     * @return GroupTransaction
      */
-    public function setName($name)
+    public function setName(string $name): GroupTransaction
     {
         return $this->setData('name', $name);
     }
 
     /**
-     * {@inheritdoc}
+     * Set created at date
+     *
+     * @param mixed $createdAt
+     * @return GroupTransaction
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt($createdAt): GroupTransaction
     {
         return $this->setData('created_at', $createdAt);
     }
 
     /**
-     * {@inheritdoc}
+     * Set refund amount
+     *
+     * @param mixed $refundedAmount
+     * @return GroupTransaction
      */
-    public function setRefundedAmount($refundedAmount)
+    public function setRefundedAmount($refundedAmount): GroupTransaction
     {
         return $this->setData('refunded_amount', $refundedAmount);
     }
 
     /**
-     * @return float
+     * Get refund amount
+     *
+     * @return array|mixed|null
      */
     public function getRefundedAmount()
     {

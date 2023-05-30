@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,35 +17,43 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Model\Method\Afterpay20;
 
 class SendInvoiceMail implements ObserverInterface
 {
-    /** @var Account */
-    private $accountConfig;
-
-    /** @var InvoiceSender */
-    private $invoiceSender;
-
     /**
      * @var Log $logging
      */
     public $logging;
-
+    /**
+     * @var Data
+     */
     public $helper;
+    /**
+     * @var Account
+     */
+    private $accountConfig;
+    /**
+     * @var InvoiceSender
+     */
+    private $invoiceSender;
 
     /**
-     * @param Account       $accountConfig
+     * @param Account $accountConfig
      * @param InvoiceSender $invoiceSender
+     * @param Log $logging
+     * @param Data $helper
      */
     public function __construct(
         Account $accountConfig,
@@ -60,7 +68,13 @@ class SendInvoiceMail implements ObserverInterface
     }
 
     /**
+     * Send email on creating invoice on sales_order_invoice_pay event
+     *
      * @param Observer $observer
+     * @throws LocalizedException
+     * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute(Observer $observer)
     {
@@ -92,14 +106,13 @@ class SendInvoiceMail implements ObserverInterface
             $order->setBaseSubtotal($orderBaseSubtotal);
             $order->setBaseTaxAmount($orderBaseTaxAmount);
         }
-        if ($invoice->getIsPaid() && $canCapture) {
-            if (($payment->getMethod() == Afterpay20::PAYMENT_METHOD_CODE)
-                && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
-                && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
-            ) {
-                $this->logging->addDebug(__METHOD__ . '|25|');
-                $order->setBaseTotalPaid($order->getTotalPaid());
-            }
+        if ($invoice->getIsPaid() && $canCapture
+            && ($payment->getMethod() == Afterpay20::CODE)
+            && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
+            && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
+        ) {
+            $this->logging->addDebug(__METHOD__ . '|25|');
+            $order->setBaseTotalPaid($order->getTotalPaid());
         }
     }
 }

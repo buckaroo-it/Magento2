@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,6 +17,8 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 class AllowedCurrencies extends AbstractConfigProvider
@@ -24,7 +26,7 @@ class AllowedCurrencies extends AbstractConfigProvider
     /**
      * @var array
      */
-    protected $allowedCurrencies = [
+    protected array $allowedCurrencies = [
         'CAD',
         'GBP',
         'EUR',
@@ -50,9 +52,21 @@ class AllowedCurrencies extends AbstractConfigProvider
     ];
 
     /**
+     * Get the config.
+     *
      * @return array
      */
-    public function getAllowedCurrencies()
+    public function getConfig(): array
+    {
+        return [
+            'allowedCurrencies' => $this->getAllowedCurrencies(),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllowedCurrencies(): array
     {
         return $this->allowedCurrencies;
     }
@@ -62,22 +76,10 @@ class AllowedCurrencies extends AbstractConfigProvider
      *
      * @return $this
      */
-    public function setAllowedCurrencies($allowedCurrencies)
+    public function setAllowedCurrencies(array $allowedCurrencies): AllowedCurrencies
     {
         $this->allowedCurrencies = $allowedCurrencies;
 
         return $this;
-    }
-
-    /**
-     * Get the config.
-     *
-     * @return array
-     */
-    public function getConfig()
-    {
-        return [
-            'allowedCurrencies' => $this->getAllowedCurrencies(),
-        ];
     }
 }

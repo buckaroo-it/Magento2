@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,64 +17,87 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Logging;
 
-use Monolog\Logger;
-use Monolog\Handler\HandlerInterface;
-use Buckaroo\Magento2\Logging\InternalLogger;
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\Session\SessionManager;
+use Monolog\DateTimeImmutable;
+use Monolog\Handler\HandlerInterface;
+use Monolog\Logger;
 
-class Log 
+class Log extends Logger
 {
-    /** @var DebugConfiguration */
-    private $debugConfiguration;
+    public const BUCKAROO_LOG_TRACE_DEPTH_DEFAULT = 10;
 
-    /** @var Mail */
-    private $mail;
+    /**
+     * @var DebugConfiguration
+     */
+    private DebugConfiguration $debugConfiguration;
 
-    /** @var array */
-    protected $message = [];
+    /**
+     * @var array
+     */
+    protected array $message = [];
 
+    /**
+     * @var int
+     */
     private static $processUid = 0;
 
     /**
-     * @var \Buckaroo\Magento2\Logging\InternalLogger
+     * @var Session
      */
-    private $logger;
+    protected Session $checkoutSession;
+
+    /**
+     * @var SessionManager
+     */
+    protected SessionManager $session;
+
+    /**
+     * @var \Magento\Customer\Model\Session
+     */
+    protected \Magento\Customer\Model\Session $customerSession;
 
     /**
      * Log constructor.
      *
-     * @param string             $name
      * @param DebugConfiguration $debugConfiguration
-     * @param Mail               $mail
+     * @param Session $checkoutSession
+     * @param SessionManager $sessionManager
+     * @param \Magento\Customer\Model\Session $customerSession
      * @param HandlerInterface[] $handlers
-     * @param callable[]         $processors
+     * @param callable[] $processors
+     * @param string $name
      */
     public function __construct(
         DebugConfiguration $debugConfiguration,
-        Mail $mail,
-        InternalLogger $logger
+        Session $checkoutSession,
+        SessionManager $sessionManager,
+        \Magento\Customer\Model\Session $customerSession,
+        array $handlers = [],
+        array $processors = [],
+        string $name = 'buckaroo'
     ) {
         $this->debugConfiguration = $debugConfiguration;
-        $this->mail = $mail;
-        $this->logger = $logger;
+        $this->checkoutSession = $checkoutSession;
+        $this->session = $sessionManager;
+        $this->customerSession = $customerSession;
 
+        parent::__construct($name, $handlers, $processors);
     }
 
     /**
-     * Make sure the debug information is always send to the debug email
+     * @inheritdoc
      */
-    public function __destruct()
-    {
-        $this->mail->mailMessage();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addRecord(int $level, string $message, array $context = []): bool
-    {
+    public function addRecord(
+        int $level,
+        string $message,
+        array $context = [],
+        DateTimeImmutable $datetime = null
+    ): bool {
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
         }
@@ -83,15 +106,46 @@ class Log
             self::$processUid = uniqid();
         }
 
-        $message = self::$processUid . '|' . microtime(true). '|' . $message;
+        $depth = $this->debugConfiguration->getDebugBacktraceDepth();
+        if (empty($depth) || trim($depth) == '') {
+            $depth = self::BUCKAROO_LOG_TRACE_DEPTH_DEFAULT;
+        }
 
-        // Prepare the message to be send to the debug email
-        $this->mail->addToMessage($message);
+        $trace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, $depth);
+        $logTrace = [];
 
-        return $this->logger->addRecord($level, $message, $context);
+        for ($cnt = 1; $cnt < $depth; $cnt++) {
+            if (isset($trace[$cnt])) {
+                try {
+                    /** @phpstan-ignore-next-line */
+                    $logTrace[] = str_replace(BP, '', $trace[$cnt]['file']) . ": " . $trace[$cnt]['line'] . " " .
+                        $trace[$cnt]['class'] . '->' .
+                        $trace[$cnt]['function'] . '()';
+                } catch (\Exception $e) {
+                    $logTrace[] = json_encode($trace[$cnt]);
+                }
+            }
+        }
+
+        $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+
+        $message = json_encode([
+            'uid'  => self::$processUid,
+            'time' => microtime(true),
+            'sid'  => $this->session->getSessionId(),
+            'cid'  => $this->customerSession->getCustomer()->getId(),
+            'qid'  => $this->checkoutSession->getQuote()->getId(),
+            'id'   => $this->checkoutSession->getQuote()->getReservedOrderId(),
+            'msg' => $message,
+            'trace' => $logTrace
+        ], $flags);
+
+        return parent::addRecord($level, $message, $context);
     }
 
     /**
+     * Logs a debug message.
+     *
      * @param string $message
      * @return bool
      */
@@ -100,15 +154,22 @@ class Log
         return $this->addRecord(Logger::DEBUG, $message);
     }
 
+    /**
+     * Logs an error message.
+     *
+     * @param string $message
+     * @return bool
+     */
     public function addError(string $message): bool
     {
         return $this->addRecord(Logger::ERROR, $message);
     }
+
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function debug($message)
+    public function debug($message, array $context = []): void
     {
-        return $this->addRecord(Logger::DEBUG, $message);
+        $this->addRecord(Logger::DEBUG, (string) $message, $context);
     }
 }

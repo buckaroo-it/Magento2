@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,25 +17,28 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class PrivateKey implements ConfigProviderInterface
 {
     /**
      * Xpath to the 'certificate_upload' setting.
      */
-    const XPATH_CERTIFICATE_ID = 'buckaroo_magento2/account/certificate_file';
+    public const XPATH_CERTIFICATE_ID = 'buckaroo_magento2/account/certificate_file';
 
     /**
      * @var CertificateRepositoryInterface
      */
-    protected $certificateRepository;
+    protected CertificateRepositoryInterface $certificateRepository;
 
     /** @var Account */
-    protected $account;
+    protected Account $account;
 
     /**
      * @param CertificateRepositoryInterface $certificateRepository
@@ -53,24 +55,25 @@ class PrivateKey implements ConfigProviderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     *
+     * @throws NoSuchEntityException|\LogicException
      */
-    public function getConfig($store = null)
+    public function getConfig($store = null): array
     {
-        $config = [
+        return [
             'private_key' => $this->getPrivateKey($store),
         ];
-        return $config;
     }
 
     /**
      * Return private key from certificate
      *
-     * @param $store
-     *
+     * @param int|null|string $store
      * @return string
+     * @throws NoSuchEntityException|\LogicException
      */
-    public function getPrivateKey($store = null)
+    public function getPrivateKey($store = null): string
     {
         $certificateId = $this->account->getCertificateFile($store);
 

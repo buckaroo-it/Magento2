@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,79 +21,79 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
-use Magento\Checkout\Model\Session;
-use Buckaroo\Magento2\Model\Service\Order;
-use Buckaroo\Magento2\Model\Method\Payconiq;
-use Buckaroo\Magento2\Model\Method\Giftcards;
-use Magento\Quote\Api\CartRepositoryInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
-use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
+use Buckaroo\Magento2\Model\Service\Order;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Model\Order as OrderModel;
 
-class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
+class RestoreQuote implements ObserverInterface
 {
     /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    private $checkoutSession;
-
-    /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
+     * @var Account
      */
     protected $accountConfig;
 
     /**
-     * @var \Buckaroo\Magento2\Helper\Data
-     */
-    private \Buckaroo\Magento2\Helper\Data $helper;
-
- 
-
-    /**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var CartRepositoryInterface
      */
     protected $quoteRepository;
 
     /**
-     * @var \Buckaroo\Magento2\Model\Service\Order
+     * @var Order
      */
     protected $orderService;
 
     /**
-     * @var \Buckaroo\Magento2\Model\Giftcard\Remove
+     * @var GiftcardRemove
      */
     protected $giftcardRemoveService;
 
-     /**
-     * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
+    /**
+     * @var PaymentGroupTransaction
      */
     protected $groupTransaction;
 
+    /**
+     * @var Session
+     */
+    private $checkoutSession;
+
+    /**
+     * @var Data
+     */
+    private Data $helper;
 
     /**
      * @param Session $checkoutSession
      * @param Account $accountConfig
      * @param Data $helper
-     * @param QuoteRecreate $quoteRecreate
      * @param CartRepositoryInterface $quoteRepository
      * @param Order $orderService
+     * @param GiftcardRemove $giftcardRemoveService
+     * @param PaymentGroupTransaction $groupTransaction
      */
     public function __construct(
-        \Magento\Checkout\Model\Session                 $checkoutSession,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Buckaroo\Magento2\Helper\Data                  $helper,
-        \Magento\Quote\Api\CartRepositoryInterface      $quoteRepository,
-        \Buckaroo\Magento2\Model\Service\Order          $orderService,
+        Session $checkoutSession,
+        Account $accountConfig,
+        Data $helper,
+        CartRepositoryInterface $quoteRepository,
+        Order $orderService,
         GiftcardRemove $giftcardRemoveService,
         PaymentGroupTransaction $groupTransaction
     ) {
+        $this->orderService = $orderService;
         $this->checkoutSession = $checkoutSession;
         $this->accountConfig = $accountConfig;
         $this->helper = $helper;
         $this->quoteRepository = $quoteRepository;
-        $this->orderService = $orderService;
         $this->giftcardRemoveService = $giftcardRemoveService;
         $this->groupTransaction = $groupTransaction;
     }
@@ -101,10 +101,15 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     /**
      * Restore Quote and Cancel LastRealOrder
      *
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws LocalizedException
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer): void
     {
         $this->helper->addDebug(__METHOD__ . '|1|');
 
@@ -114,7 +119,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         if ($payment = $lastRealOrder->getPayment()) {
             if ($this->shouldSkipFurtherEventHandling()
                 || strpos($payment->getMethod(), 'buckaroo_magento2') === false
-                || in_array($payment->getMethod(), [Giftcards::PAYMENT_METHOD_CODE, Payconiq::PAYMENT_METHOD_CODE])) {
+                || in_array($payment->getMethod(), [Giftcards::CODE, Payconiq::CODE])
+            ) {
                 $this->helper->addDebug(__METHOD__ . '|10|');
                 return;
             }
@@ -127,13 +133,13 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|25|');
-                    $shippingAddress = $quote->getShippingAddress();
-                    if (!$shippingAddress->getShippingMethod()) {
-                        $this->helper->addDebug(__METHOD__ . '|35|');
-                        $shippingAddress->load($shippingAddress->getAddressId());
+                    if ($shippingAddress = $quote->getShippingAddress()) {
+                        if (!$shippingAddress->getShippingMethod()) {
+                            $this->helper->addDebug(__METHOD__ . '|35|');
+                            $shippingAddress->load($shippingAddress->getAddressId());
+                        }
                     }
                 }
-                
 
                 if (
                     (
@@ -145,7 +151,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                 ) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
-                    $this->rollbackPartialPayment($lastRealOrder->getIncrementId());
+                    $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
                     $this->setOrderToCancel($previousOrderId);
                 }
             }
@@ -159,6 +165,16 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Skip restore quote
+     *
+     * @return false
+     */
+    public function shouldSkipFurtherEventHandling(): bool
+    {
+        return false;
+    }
+
+    /**
      * Check if order has failed from max spam payment attempts
      *
      * @return boolean
@@ -169,36 +185,37 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             $this->checkoutSession->getBuckarooFailedMaxAttempts() === true;
     }
 
-    public function shouldSkipFurtherEventHandling()
+    /**
+     * Rollback Partial Payment
+     *
+     * @param string $incrementId
+     * @return void
+     */
+    public function rollbackPartialPayment(string $incrementId, $payment): void
     {
-        return false;
+        try {
+            $transactions = $this->groupTransaction->getGroupTransactionItems($incrementId);
+            foreach ($transactions as $transaction) {
+                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $incrementId, $payment);
+            }
+        } catch (\Throwable $th) {
+            $this->helper->addDebug(__METHOD__ . $th);
+        }
+
     }
 
     /**
      * Set previous order id on the payment object for the next payment
      *
      * @param int $previousOrderId
-     *
      * @return void
+     * @throws LocalizedException
      */
-    private function setOrderToCancel($previousOrderId)
+    private function setOrderToCancel(int $previousOrderId)
     {
         $this->checkoutSession->getQuote()
-        ->getPayment()
-        ->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
+            ->getPayment()
+            ->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
         $this->quoteRepository->save($this->checkoutSession->getQuote());
-    }
-
-    public function rollbackPartialPayment($incrementId)
-    {
-        try {
-            $transactions = $this->groupTransaction->getGroupTransactionItems($incrementId);
-            foreach ($transactions as $transaction) {
-                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $incrementId);
-            }
-        } catch (\Throwable $th) {
-            $this->helper->addDebug(__METHOD__ . (string)$th);
-        }
-       
     }
 }

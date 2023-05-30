@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,50 +17,56 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ResourceModel;
 
-class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb
+use Magento\Framework\DataObject;
+use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Model\ResourceModel\Db\Context;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+
+class Certificate extends AbstractDb
 {
     /**
-     * Event prefix
-     *
      * @var string
      */
     protected $_eventPrefix = 'buckaroo_magento2_certificate_resource';
 
     /**
-     * Event object
-     *
      * @var string
      */
     protected $_eventObject = 'resource';
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     * @var DateTime
      */
     protected $dateTime;
 
     /**
-     * @var \Magento\Framework\Encryption\Encryptor
+     * @var Encryptor
      */
     protected $encryptor;
 
     /**
-     * @param \Magento\Framework\Model\ResourceModel\Db\Context                          $context
-     * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot          $entitySnapshot
-     * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite $entityRelationComposite
-     * @param \Magento\Framework\Encryption\Encryptor                                    $encryptor
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime                                $dateTime
-     * @param string                                                                     $connectionName
+     * @param Context $context
+     * @param Snapshot $entitySnapshot
+     * @param RelationComposite $entityRelationComposite
+     * @param Encryptor $encryptor
+     * @param DateTime $dateTime
+     * @param string|null $connectionName
      */
     public function __construct(
-        \Magento\Framework\Model\ResourceModel\Db\Context $context,
-        \Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot $entitySnapshot,
-        \Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite $entityRelationComposite,
-        \Magento\Framework\Encryption\Encryptor $encryptor,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        $connectionName = null
+        Context $context,
+        Snapshot $entitySnapshot,
+        RelationComposite $entityRelationComposite,
+        Encryptor $encryptor,
+        DateTime $dateTime,
+        string $connectionName = null
     ) {
         parent::__construct(
             $context,
@@ -73,7 +79,6 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
         $this->encryptor = $encryptor;
     }
 
-    // @codingStandardsIgnoreStart
     /**
      * Model Initialization
      *
@@ -87,10 +92,10 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
     /**
      * Perform actions before object save
      *
-     * @param \Magento\Framework\Model\AbstractModel|\Magento\Framework\DataObject $object
+     * @param AbstractModel|DataObject $object
      * @return $this
      */
-    protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
+    protected function _beforeSave(AbstractModel $object): Certificate
     {
         /** @var \Buckaroo\Magento2\Model\Certificate $object */
         if ($object->isObjectNew()) {
@@ -113,15 +118,15 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
     }
 
     /**
-     * @param \Magento\Framework\Model\AbstractModel $object
+     * Decrypt the key after loading.
+     *
+     * @param AbstractModel $object
      *
      * @return $this
+     * @throws \Exception
      */
-    protected function _afterLoad(\Magento\Framework\Model\AbstractModel $object)
+    protected function _afterLoad(AbstractModel $object): Certificate
     {
-        /**
-         * Decrypt the key after loading.
-         */
         $object->setData(
             'certificate',
             $this->encryptor->decrypt(
@@ -131,5 +136,4 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
 
         return parent::_afterLoad($object);
     }
-    // @codingStandardsIgnoreEnd
 }

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,19 +17,26 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
+use Buckaroo\Magento2\Model\Certificate;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\Option\ArrayInterface;
 use Buckaroo\Magento2\Api\CertificateRepositoryInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class Certificates implements ArrayInterface
+class Certificates implements OptionSourceInterface
 {
-    /** @var SearchCriteriaBuilder */
-    private $searchCriteriaBuilder;
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private SearchCriteriaBuilder $searchCriteriaBuilder;
 
-    /** @var CertificateRepositoryInterface */
-    private $certificateRepository;
+    /**
+     * @var CertificateRepositoryInterface
+     */
+    private CertificateRepositoryInterface $certificateRepository;
 
     /**
      * @param SearchCriteriaBuilder          $searchCriteriaBuilder
@@ -48,7 +55,7 @@ class Certificates implements ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         $certificateData = $this->getCertificateData();
 
@@ -65,7 +72,7 @@ class Certificates implements ArrayInterface
 
         $options[] = ['value' => '', 'label' => __('No certificate selected')];
 
-        /** @var \Buckaroo\Magento2\Model\Certificate $model */
+        /** @var Certificate $model */
         foreach ($certificateData as $model) {
             $options[] = [
                 'value' => $model->getEntityId(),
@@ -81,7 +88,7 @@ class Certificates implements ArrayInterface
      *
      * @return array
      */
-    protected function getCertificateData()
+    protected function getCertificateData(): array
     {
         $searchCriteria = $this->searchCriteriaBuilder->create();
         $list = $this->certificateRepository->getList($searchCriteria);

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,17 +21,18 @@
 namespace Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
+use Magento\Sales\Model\Order;
 
 class Push
 {
     /**#@+
      * PayPal Seller's Protection eligibility types.
      */
-    const ELIGIBILITY_INELIGIBLE                = 'Ineligible';
-    const ELIGIBILITY_TYPE_ELIGIBLE             = 'Eligible';
-    const ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED    = 'ItemNotReceivedEligible';
-    const ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT = 'UnauthorizedPaymentEligible';
-    const ELIGIBILITY_TYPE_NONE                 = 'None';
+    public const ELIGIBILITY_INELIGIBLE = 'Ineligible';
+    public const ELIGIBILITY_TYPE_ELIGIBLE = 'Eligible';
+    public const ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED = 'ItemNotReceivedEligible';
+    public const ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT = 'UnauthorizedPaymentEligible';
+    public const ELIGIBILITY_TYPE_NONE = 'None';
     /**#@-*/
 
     /**
@@ -49,9 +50,10 @@ class Push
     }
 
     /**
-     * @param \Buckaroo\Magento2\Model\Push $push
-     * @param boolean                  $result
+     * Change status on order by PayPal status
      *
+     * @param \Buckaroo\Magento2\Model\Push $push
+     * @param boolean $result
      * @return bool
      * @throws \InvalidArgumentException
      */
@@ -60,16 +62,16 @@ class Push
         $result
     ) {
         if (!$this->configProviderPaypal->getSellersProtection()
-            || empty($push->postData['brq_service_paypal_protectioneligibility'])
-            || empty($push->postData['brq_service_paypal_protectioneligibilitytype'])
+            || empty($push->pushRequst->getServicePaypalProtectioneligibility())
+            || empty($push->pushRequst->getServicePaypalProtectioneligibilitytype())
         ) {
             return $result;
         }
 
         $eligibilityTypes =
-            static::ELIGIBILITY_INELIGIBLE !== $push->postData['brq_service_paypal_protectioneligibility']
-            ? $push->postData['brq_service_paypal_protectioneligibilitytype']
-            : static::ELIGIBILITY_TYPE_NONE;
+            static::ELIGIBILITY_INELIGIBLE !== $push->pushRequst->getServicePaypalProtectioneligibility()
+                ? $push->pushRequst->getServicePaypalProtectioneligibilitytype()
+                : static::ELIGIBILITY_TYPE_NONE;
 
         // Handle the given eligibility types separately,
         // since we know Buckaroo can provide us with
@@ -85,13 +87,13 @@ class Push
     /**
      * Proxy the handling of eligibility types.
      *
-     * @param  string|string[] $eligibilityTypes
-     * @param  \Magento\Sales\Model\Order $order
+     * @param string|string[] $eligibilityTypes
+     * @param Order $order
      * @return void
      */
     protected function handleEligibilityTypes($eligibilityTypes, $order)
     {
-        if (! \is_array($eligibilityTypes)) {
+        if (!\is_array($eligibilityTypes)) {
             $eligibilityTypes = [$eligibilityTypes];
         }
 
@@ -102,11 +104,12 @@ class Push
             $this->handleEligibilityType($eligibilityType, $order);
         });
     }
+
     /**
      * Handle the specified eligibility type.
      *
-     * @param  string $eligibilityType
-     * @param  \Magento\Sales\Model\Order $order
+     * @param string $eligibilityType
+     * @param Order $order
      * @return void
      * @throws \InvalidArgumentException
      */
@@ -141,6 +144,6 @@ class Push
                 //phpcs:ignore:Squiz.PHP.NonExecutableCode
                 break;
         }
-        $order->addStatusHistoryComment($comment, $status ?: false);
+        $order->addCommentToStatusHistory($comment, $status ?: false);
     }
 }

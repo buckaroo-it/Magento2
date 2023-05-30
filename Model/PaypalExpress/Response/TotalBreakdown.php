@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,86 +17,72 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
 
-use Magento\Quote\Model\Quote;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
+use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory;
+use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address\Total;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {
+    /**
+     * @var BreakdownItemInterfaceFactory
+     */
+    protected BreakdownItemInterfaceFactory $breakdownItemFactory;
 
     /**
-     *  @var \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory
+     * @var Quote
      */
-    protected $breakdownItemFactory;
+    protected Quote $quote;
 
     /**
-     *  @var \Magento\Quote\Model\Quote
+     * @param Quote $quote
+     * @param BreakdownItemInterfaceFactory $breakdownItemFactory
      */
-    protected $quote;
-
     public function __construct(Quote $quote, BreakdownItemInterfaceFactory $breakdownItemFactory)
     {
         $this->breakdownItemFactory = $breakdownItemFactory;
         $this->quote = $quote;
     }
+
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * Get subtotal
+     *
+     * @return BreakdownItemInterface
      */
-    public function getItemTotal()
+    public function getItemTotal(): BreakdownItemInterface
     {
         $total = $this->getTotalsOfType('subtotal');
         return $this->breakdownItemFactory->create(
             [
-                "total" => $total != null ? $total->getValueExclTax() + $this->getBuckarooFeeExclTax() : 0,
+                "total"        => $total != null ? $total->getValueExclTax() + $this->getBuckarooFeeExclTax() : 0,
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
     }
-    /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
-     */
-    public function getShipping()
-    {
-        $totals = $this->quote->getShippingAddress()->getTotals();
-        $total = isset($totals['shipping']) ? $totals['shipping'] : null;
-        return $this->breakdownItemFactory->create(
-            [
-                "total" => $total !== null ? $total->getValue() : 0,
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
-            ]
-        );
-    }
-    /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
-     */
-    public function getTaxTotal()
-    {
-        $total = $this->getTotalsOfType('tax');
-        return $this->breakdownItemFactory->create(
-            [
-                "total" => $total !== null ? $total->getValue() : 0,
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
-            ]
-        );
-    }
+
     /**
      * Get total from quote of type
      *
      * @param string $type
      *
-     * @return \Magento\Quote\Model\Quote\Address\Total|null
+     * @return Total|null
      */
-    protected function getTotalsOfType(string $type)
+    protected function getTotalsOfType(string $type): ?Total
     {
         $totals = $this->quote->getTotals();
 
         if (isset($totals[$type])) {
             return $totals[$type];
         }
+
+        return null;
     }
+
     /**
      * Get buckaroo fee without tax
      *
@@ -110,5 +95,38 @@ class TotalBreakdown implements TotalBreakdownInterface
             return (float)$fee->getData('buckaroo_fee');
         }
         return 0;
+    }
+
+    /**
+     * Get shipping price
+     *
+     * @return BreakdownItemInterface
+     */
+    public function getShipping(): BreakdownItemInterface
+    {
+        $totals = $this->quote->getShippingAddress()->getTotals();
+        $total = $totals['shipping'] ?? null;
+        return $this->breakdownItemFactory->create(
+            [
+                "total"        => $total !== null ? $total->getValue() : 0,
+                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+            ]
+        );
+    }
+
+    /**
+     * Get taxes
+     *
+     * @return BreakdownItemInterface
+     */
+    public function getTaxTotal(): BreakdownItemInterface
+    {
+        $total = $this->getTotalsOfType('tax');
+        return $this->breakdownItemFactory->create(
+            [
+                "total"        => $total !== null ? $total->getValue() : 0,
+                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+            ]
+        );
     }
 }

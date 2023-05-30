@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,31 +17,27 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\Ideal\IssuersService;
 use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Model\Method\IdealProcessing as IdealProcessingMethod;
 
 class IdealProcessing extends AbstractConfigProvider
 {
-    const XPATH_IDEALPROCESSING_PAYMENT_FEE          = 'payment/buckaroo_magento2_idealprocessing/payment_fee';
-    const XPATH_IDEALPROCESSING_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_idealprocessing/payment_fee_label';
-    const XPATH_IDEALPROCESSING_ACTIVE               = 'payment/buckaroo_magento2_idealprocessing/active';
-    const XPATH_IDEALPROCESSING_SUBTEXT              = 'payment/buckaroo_magento2_idealprocessing/subtext';
-    const XPATH_IDEALPROCESSING_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_idealprocessing/subtext_style';
-    const XPATH_IDEALPROCESSING_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_idealprocessing/subtext_color';
-    const XPATH_IDEALPROCESSING_ACTIVE_STATUS        = 'payment/buckaroo_magento2_idealprocessing/active_status';
-    const XPATH_IDEALPROCESSING_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_idealprocessing/order_status_success';
-    const XPATH_IDEALPROCESSING_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_idealprocessing/order_status_failed';
-    const XPATH_IDEALPROCESSING_ORDER_EMAIL          = 'payment/buckaroo_magento2_idealprocessing/order_email';
-    const XPATH_IDEALPROCESSING_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_idealprocessing/available_in_backend';
-
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_idealprocessing/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_idealprocessing/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_idealprocessing/specificcountry';
-    const XPATH_SELECTION_TYPE     = 'buckaroo_magento2/account/selection_type';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_idealprocessing/specificcustomergroup';
+    /**
+     * @var IssuersService
+     */
+    protected IssuersService $issuersService;
+    
+    public const CODE = 'buckaroo_magento2_idealprocessing';
 
     /**
      * @var array
@@ -50,51 +46,64 @@ class IdealProcessing extends AbstractConfigProvider
         'EUR'
     ];
 
+
     /**
-     * {@inheritdoc}
+     * @param Repository $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param IssuersService $issuersService
      */
-    public function getConfig($store = null)
+    public function __construct(
+        Repository $assetRepo,
+        ScopeConfigInterface $scopeConfig,
+        AllowedCurrencies $allowedCurrencies,
+        PaymentFee $paymentFeeHelper,
+        IssuersService $issuersService
+    ) {
+        $this->issuersService = $issuersService;
+
+        parent::__construct(
+            $assetRepo,
+            $scopeConfig,
+            $allowedCurrencies,
+            $paymentFeeHelper
+        );
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     */
+    public function getConfig($store = null): array
     {
-        if (!$this->scopeConfig->getValue(static::XPATH_IDEALPROCESSING_ACTIVE, ScopeInterface::SCOPE_STORE)) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(IdealProcessingMethod::PAYMENT_METHOD_CODE);
+        $issuers = $this->issuersService->get();
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         $selectionType = $this->scopeConfig->getValue(
-            self::XPATH_SELECTION_TYPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            Account::XPATH_ACCOUNT_SELECTION_TYPE,
+            ScopeInterface::SCOPE_STORE
         );
 
         return [
             'payment' => [
                 'buckaroo' => [
                     'idealprocessing' => [
-                        'banks' => $issuers,
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'banks'             => $issuers,
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType' => $selectionType,
+                        'selectionType'     => $selectionType,
                     ],
                 ],
             ],
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_IDEALPROCESSING_PAYMENT_FEE,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
     }
 }

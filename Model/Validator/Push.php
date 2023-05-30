@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -24,24 +23,36 @@ namespace Buckaroo\Magento2\Model\Validator;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Buckaroo\Magento2\Model\ValidatorInterface;
-use \Magento\Framework\Encryption\Encryptor;
+use Buckaroo\Magento2\Model\ValidatorInterface;
+use Magento\Framework\Encryption\Encryptor;
+use Magento\Store\Api\Data\StoreInterface;
 
 class Push implements ValidatorInterface
 {
-    /** @var Account $configProviderAccount */
-    public $configProviderAccount;
+    /**
+     * @var Account
+     */
+    public Account $configProviderAccount;
 
-    /** @var Data $helper */
-    public $helper;
+    /**
+     * @var Data
+     */
+    public Data $helper;
 
-    /** @var Log $logging */
-    public $logging;
+    /**
+     * @var Log
+     */
+    public Log $logging;
 
-    /** @var Encryptor $encryptor */
-    private $encryptor;
+    /**
+     * @var Encryptor
+     */
+    private Encryptor $encryptor;
 
-    public $bpeResponseMessages = [
+    /**
+     * @var string[]
+     */
+    public array $bpeResponseMessages = [
         190 => 'Success',
         490 => 'Payment failure',
         491 => 'Validation error',
@@ -74,11 +85,14 @@ class Push implements ValidatorInterface
     }
 
     /**
-     * @param $data
+     * Validate push
      *
+     * @param array|object $data
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function validate($data)
+    public function validate($data): bool
     {
         return true;
     }
@@ -86,11 +100,10 @@ class Push implements ValidatorInterface
     /**
      * Checks if the status code is returned by the bpe push and is valid.
      *
-     * @param $code
-     *
+     * @param int|string $code
      * @return array
      */
-    public function validateStatusCode($code)
+    public function validateStatusCode($code): array
     {
         if (null !== $this->helper->getStatusByValue($code)
             && isset($this->bpeResponseMessages[$code])
@@ -110,14 +123,15 @@ class Push implements ValidatorInterface
     }
 
     /**
-     * Generate/calculate the signature with the buckaroo config value and check if thats equal to the signature
-     * received from the push
+     * Generates and verifies the Buckaroo signature using configuration values and data from a push.
      *
-     * @param $postData
-     *
+     * @param array $originalPostData
+     * @param array $postData
+     * @param int|string|StoreInterface|null $store
      * @return bool
+     * @throws \Exception
      */
-    public function validateSignature($originalPostData, $postData, $store = null)
+    public function validateSignature(array $originalPostData, array $postData, $store = null): bool
     {
         if (!isset($postData['brq_signature'])) {
             return false;
@@ -135,11 +149,12 @@ class Push implements ValidatorInterface
     /**
      * Determines the signature using array sorting and the SHA1 hash algorithm
      *
-     * @param $postData
-     *
+     * @param array $postData
+     * @param int|string|StoreInterface|null $store
      * @return string
+     * @throws \Exception
      */
-    public function calculateSignature($postData, $store = null)
+    public function calculateSignature(array $postData, $store = null): string
     {
         $copyData = $postData;
         unset($copyData['brq_signature']);
@@ -149,10 +164,10 @@ class Push implements ValidatorInterface
 
         $signatureString = '';
 
-        foreach ($sortableArray as $brq_key => $value) {
-            $value = $this->decodePushValue($brq_key, $value);
+        foreach ($sortableArray as $brqKey => $value) {
+            $value = $this->decodePushValue($brqKey, $value);
 
-            $signatureString .= $brq_key. '=' . $value;
+            $signatureString .= $brqKey . '=' . $value;
         }
 
         $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));
@@ -167,14 +182,18 @@ class Push implements ValidatorInterface
     }
 
     /**
-     * @param string $brq_key
-     * @param string $brq_value
+     * Decode push value
+     *
+     * @param string $brqKey
+     * @param string $brqValue
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    private function decodePushValue($brq_key, $brq_value)
+    private function decodePushValue(string $brqKey, string $brqValue): string
     {
-        switch (strtolower($brq_key)) {
+        switch (strtolower($brqKey)) {
             case 'brq_customer_name':
             case 'brq_service_ideal_consumername':
             case 'brq_service_transfer_consumername':
@@ -207,10 +226,10 @@ class Push implements ValidatorInterface
             case 'cust_customershippingtelephone':
             case 'cust_customershippinghousenumber':
             case 'cust_customershippinghouseadditionalnumber':
-                $decodedValue = $brq_value;
+                $decodedValue = $brqValue;
                 break;
             default:
-                $decodedValue = urldecode($brq_value);
+                $decodedValue = urldecode($brqValue);
         }
 
         return $decodedValue;
@@ -219,11 +238,10 @@ class Push implements ValidatorInterface
     /**
      * Sort the array so that the signature can be calculated identical to the way buckaroo does.
      *
-     * @param $arrayToUse
-     *
+     * @param array $arrayToUse
      * @return array $sortableArray
      */
-    protected function buckarooArraySort($arrayToUse)
+    protected function buckarooArraySort(array $arrayToUse): array
     {
         $arrayToSort   = [];
         $originalArray = [];

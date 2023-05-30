@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,49 +20,38 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
+use Magento\Store\Model\ScopeInterface;
+
 class SepaDirectDebit extends AbstractConfigProvider
 {
-    const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee';
-    const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee_label';
-    const XPATH_SEPADIRECTDEBIT_ACTIVE = 'payment/buckaroo_magento2_sepadirectdebit/active';
-    const XPATH_SEPADIRECTDEBIT_SUBTEXT                = 'payment/buckaroo_magento2_sepadirectdebit/subtext';
-    const XPATH_SEPADIRECTDEBIT_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_sepadirectdebit/subtext_style';
-    const XPATH_SEPADIRECTDEBIT_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_sepadirectdebit/subtext_color';
-    const XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS = 'payment/buckaroo_magento2_sepadirectdebit/active_status';
-    const XPATH_SEPADIRECTDEBIT_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_sepadirectdebit/order_status_success';
-    const XPATH_SEPADIRECTDEBIT_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_sepadirectdebit/order_status_failed';
-    const XPATH_SEPADIRECTDEBIT_AVAILABLE_IN_BACKEND = 'payment/'.
-        'buckaroo_magento2_sepadirectdebit/available_in_backend';
-    const XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS_CM3 = 'payment/buckaroo_magento2_sepadirectdebit/active_status_cm3';
-    const XPATH_SEPADIRECTDEBIT_SCHEME_KEY = 'payment/buckaroo_magento2_sepadirectdebit/scheme_key';
-    const XPATH_SEPADIRECTDEBIT_MAX_STEP_INDEX = 'payment/buckaroo_magento2_sepadirectdebit/max_step_index';
-    const XPATH_SEPADIRECTDEBIT_CM3_DUE_DATE = 'payment/'.
-        'buckaroo_magento2_sepadirectdebit/cm3_due_date';
-    const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/'.
-        'buckaroo_magento2_sepadirectdebit/payment_method_after_expiry';
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_sepadirectdebit/allowed_currencies';
+    public const CODE = 'buckaroo_magento2_sepadirectdebit';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_sepadirectdebit/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_sepadirectdebit/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_sepadirectdebit/specificcustomergroup';
+    public const XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS_CM3 =
+        'payment/buckaroo_magento2_sepadirectdebit/active_status_cm3';
+    public const XPATH_SEPADIRECTDEBIT_SCHEME_KEY = 'payment/buckaroo_magento2_sepadirectdebit/scheme_key';
+    public const XPATH_SEPADIRECTDEBIT_MAX_STEP_INDEX = 'payment/buckaroo_magento2_sepadirectdebit/max_step_index';
+    public const XPATH_SEPADIRECTDEBIT_CM3_DUE_DATE = 'payment/buckaroo_magento2_sepadirectdebit/cm3_due_date';
+    public const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY =
+        'payment/buckaroo_magento2_sepadirectdebit/payment_method_after_expiry';
 
     /**
-     * @return array|void
+     * @inheritdoc
+     *
+     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\SepaDirectDebit::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [
                 'buckaroo' => [
                     'sepadirectdebit' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -71,18 +60,77 @@ class SepaDirectDebit extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Check if Credit Management is enabled
      *
-     * @return float
+     * @param null|int|string $store
+     * @return mixed
      */
-    public function getPaymentFee($storeId = null)
+    public function getActiveStatusCm3($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_SEPADIRECTDEBIT_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+        return $this->scopeConfig->getValue(
+            static::XPATH_SEPADIRECTDEBIT_ACTIVE_STATUS_CM3,
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
+    }
 
-        return $paymentFee ? $paymentFee : false;
+    /**
+     * Credit Management Scheme Key
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSchemeKey($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_SEPADIRECTDEBIT_SCHEME_KEY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Max level of the Credit Management steps
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getMaxStepIndex($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_SEPADIRECTDEBIT_MAX_STEP_INDEX,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get credit managment due date, amount of days after the order date
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getCm3DueDate($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_SEPADIRECTDEBIT_CM3_DUE_DATE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get payment method which can be used after the payment due date.
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getPaymentMethodAfterExpiry($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

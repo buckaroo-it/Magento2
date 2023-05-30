@@ -4,5 +4,9 @@
         <job instance="Buckaroo\Magento2\Cron\CancelExpiredOrders" method="execute" name="buckaroo_magento2_cancel_cron">
             <schedule>0 */6 * * *</schedule>
         </job>
+
+        <job instance="Buckaroo\Magento2\Cron\LogCleaner" method="execute" name="buckaroo_magento2_log_cleaner">
+            <schedule>17 * * * *</schedule>
+        </job>
     </group>
 </config>

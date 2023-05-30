@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
@@ -25,29 +25,28 @@ use Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface;
 
 class PayRequest implements PayRequestInterface
 {
-    protected $cardNumber;
+    /**
+     * @var string
+     */
+    protected string $cardNumber;
 
-    protected $cardPin;
+    /**
+     * @var string
+     */
+    protected string $cardPin;
+
     /**
      * Giftcard number
      *
      * @return string
      */
-    public function getCardNumber()
+    public function getCardNumber(): string
     {
         return $this->cardNumber;
     }
+
     /**
-     * Giftcard pin
-     *
-     * @return string
-     */
-    public function getCardPin()
-    {
-        return $this->cardPin;
-    }
-    /**
-     * set giftcard number
+     * Set giftcard number
      *
      * @param string $cardNumber
      * @return void
@@ -56,6 +55,17 @@ class PayRequest implements PayRequestInterface
     {
         $this->cardNumber = $cardNumber;
     }
+
+    /**
+     * Giftcard pin
+     *
+     * @return string
+     */
+    public function getCardPin(): string
+    {
+        return $this->cardPin;
+    }
+
     /**
      * Giftcard pin
      *

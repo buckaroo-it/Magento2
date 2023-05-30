@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,55 +17,42 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
-/**
- * @method getPaymentFeeLabel()
- * @method getSellersProtection()
- * @method getSellersProtectionEligible()
- * @method getSellersProtectionIneligible()
- * @method getSellersProtectionItemnotreceivedEligible()
- * @method getSellersProtectionUnauthorizedpaymentEligible()
- */
 class Payconiq extends AbstractConfigProvider
 {
-    const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
-    const XPATH_PAYCONIQ_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_payconiq/payment_fee_label';
-    const XPATH_PAYCONIQ_ACTIVE                           = 'payment/buckaroo_magento2_payconiq/active';
-    const XPATH_PAYCONIQ_SUBTEXT                          = 'payment/buckaroo_magento2_payconiq/subtext';
-    const XPATH_PAYCONIQ_SUBTEXT_STYLE                    = 'payment/buckaroo_magento2_payconiq/subtext_style';
-    const XPATH_PAYCONIQ_SUBTEXT_COLOR                    = 'payment/buckaroo_magento2_payconiq/subtext_color';
-    const XPATH_PAYCONIQ_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_payconiq/active_status';
-    const XPATH_PAYCONIQ_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_payconiq/order_status_success';
-    const XPATH_PAYCONIQ_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_payconiq/order_status_failed';
-    const XPATH_PAYCONIQ_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_payconiq/available_in_backend';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_payconiq/sellers_protection';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_eligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_ineligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_itemnotreceived_eligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_unauthorizedpayment_eligible';
+    public const CODE = 'buckaroo_magento2_payconiq';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_payconiq/allowed_currencies';
+    public const XPATH_PAYCONIQ_SUBTEXT       = 'payment/buckaroo_magento2_payconiq/subtext';
+    public const XPATH_PAYCONIQ_SUBTEXT_STYLE = 'payment/buckaroo_magento2_payconiq/subtext_style';
+    public const XPATH_PAYCONIQ_SUBTEXT_COLOR = 'payment/buckaroo_magento2_payconiq/subtext_color';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_payconiq/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_payconiq/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payconiq/specificcustomergroup';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION               =
+        'payment/buckaroo_magento2_payconiq/sellers_protection';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      =
+        'payment/buckaroo_magento2_payconiq/sellers_protection_eligible';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    =
+        'payment/buckaroo_magento2_payconiq/sellers_protection_ineligible';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE =
+        'payment/buckaroo_magento2_payconiq/sellers_protection_itemnotreceived_eligible';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE =
+        'payment/buckaroo_magento2_payconiq/sellers_protection_unauthorizedpayment_eligible';
 
-    const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
+    public const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
 
     /** @var FormKey */
-    private $formKey;
+    private FormKey $formKey;
 
     /**
      * @param Repository           $assetRepo
@@ -86,19 +73,26 @@ class Payconiq extends AbstractConfigProvider
         $this->formKey = $formKey;
     }
 
-    private function getFormKey()
+    /**
+     * Get Magento Form Key
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    private function getFormKey(): string
     {
         return $this->formKey->getFormKey();
     }
 
     /**
-     * @return array
+     * @inheritdoc
+     *
+     * @throws Exception
+     * @throws LocalizedException
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Payconiq::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [
@@ -109,7 +103,7 @@ class Payconiq extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'redirecturl' => self::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'redirecturl' => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
                     ],
                 ],
             ],
@@ -117,15 +111,77 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @return float
+     * Get Sellers Protection
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
-    public function getPaymentFee($storeId = null)
+    public function getSellersProtection($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_PAYCONIQ_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYCONIQ_SELLERS_PROTECTION,
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
+    }
 
-        return $paymentFee ? $paymentFee : false;
+    /**
+     * Get Sellers Protection Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSellersProtectionEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Sellers Protection Ineligible
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSellersProtectionIneligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Sellers Protection Itemnotreceived Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSellersProtectionItemnotreceivedEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Sellers Protection Unauthorizedpayment Eligible
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

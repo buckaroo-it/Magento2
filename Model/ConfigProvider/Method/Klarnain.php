@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,68 +17,40 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-/**
- * @method getDueDate()
- * @method getSendEmail()
- */
+use Buckaroo\Magento2\Exception;
+
 class Klarnain extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarnain/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC                = 'payment/buckaroo_magento2_klarnain/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY              = 'payment/buckaroo_magento2_klarnain/specificcountry';
-    const XPATH_KLARNAIN_ACTIVE                 = 'payment/buckaroo_magento2_klarnain/active';
-    const XPATH_KLARNAIN_SUBTEXT                = 'payment/buckaroo_magento2_klarnain/subtext';
-    const XPATH_KLARNAIN_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_klarnain/subtext_style';
-    const XPATH_KLARNAIN_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_klarnain/subtext_color';
-    const XPATH_KLARNAIN_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnain/payment_fee';
-    const XPATH_KLARNAIN_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarnain/payment_fee_label';
-    const XPATH_KLARNAIN_SEND_EMAIL             = 'payment/buckaroo_magento2_klarnain/send_email';
-    const XPATH_KLARNAIN_ACTIVE_STATUS          = 'payment/buckaroo_magento2_klarnain/active_status';
-    const XPATH_KLARNAIN_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_klarnain/order_status_success';
-    const XPATH_KLARNAIN_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_klarnain/order_status_failed';
-    const XPATH_KLARNAIN_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_klarnain/available_in_backend';
-    const XPATH_KLARNAIN_DUE_DATE               = 'payment/buckaroo_magento2_klarnain/due_date';
-    const XPATH_KLARNAIN_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_klarnain/allowed_currencies';
-    const XPATH_KLARNAIN_BUSINESS               = 'payment/buckaroo_magento2_klarnain/business';
-    const XPATH_KLARNAIN_PAYMENT_METHODS        = 'payment/buckaroo_magento2_klarnain/payment_method';
-    const XPATH_KLARNAIN_HIGH_TAX               = 'payment/buckaroo_magento2_klarnain/high_tax';
-    const XPATH_KLARNAIN_MIDDLE_TAX             = 'payment/buckaroo_magento2_klarnain/middle_tax';
-    const XPATH_KLARNAIN_LOW_TAX                = 'payment/buckaroo_magento2_klarnain/low_tax';
-    const XPATH_KLARNAIN_ZERO_TAX               = 'payment/buckaroo_magento2_klarnain/zero_tax';
-    const XPATH_KLARNAIN_NO_TAX                 = 'payment/buckaroo_magento2_klarnain/no_tax';
-    const XPATH_KLARNAIN_GET_INVOICE            = 'payment/buckaroo_magento2_klarnain/send_invoice';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnain/specificcustomergroup';
+    public const CODE = 'buckaroo_magento2_klarnain';
 
-    public function getConfig()
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     */
+    public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_KLARNAIN_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Klarna\Klarnain::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [
                 'buckaroo' => [
                     'klarnain' => [
-                        'sendEmail'         => (bool) $this->getSendEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'businessMethod'    => $this->getBusiness(),
-                        'paymentMethod'     => $this->getPaymentMethod(),
                         'paymentFee'        => $this->getPaymentFee(),
-                        'genderList' => [
+                        'genderList'        => [
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')]
                         ]
@@ -87,42 +59,5 @@ class Klarnain extends AbstractConfigProvider
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : 0;
-    }
-
-    public function getInvoiceSendMethod($storeId = null)
-    {
-        return $this->getConfigFromXpath(static::XPATH_KLARNAIN_GET_INVOICE, $storeId);
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return bool
-     */
-    public function getEnabled($storeId = null)
-    {
-        $enabled = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAIN_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $enabled ? $enabled : false;
     }
 }

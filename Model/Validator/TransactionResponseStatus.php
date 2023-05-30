@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,39 +17,53 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Validator;
 
-class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInterface
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\ValidatorInterface;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\Phrase;
+
+class TransactionResponseStatus implements ValidatorInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Helper\Data $helper
+     * @var Data $helper
      */
-    protected $helper;
+    protected Data $helper;
 
     /**
      * @var \StdClass
      */
-    protected $transaction;
-
-    protected $request;
+    protected \StdClass $transaction;
 
     /**
-     * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @var Http
      */
-    public function __construct(\Buckaroo\Magento2\Helper\Data $helper, \Magento\Framework\App\Request\Http $request)
+    protected Http $request;
+
+    /**
+     * @param Data $helper
+     * @param Http $request
+     */
+    public function __construct(Data $helper, Http $request)
     {
         $this->helper = $helper;
         $this->request = $request;
     }
 
     /**
-     * @param array|object $data
+     * Validate transaction
      *
+     * @param array|object $data
      * @return bool
-     * @throws \Buckaroo\Magento2\Exception|\InvalidArgumentException
+     * @throws BuckarooException|\InvalidArgumentException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function validate($data)
+    public function validate($data): bool
     {
         if (empty($data[0]) || !$data[0] instanceof \StdClass) {
             throw new \InvalidArgumentException(
@@ -79,23 +92,23 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
                 $success = false;
                 break;
             default:
-                throw new \Buckaroo\Magento2\Exception(
-                    new \Magento\Framework\Phrase(
+                throw new BuckarooException(
+                    new Phrase(
                         "Invalid Buckaroo status code received: %1.",
                         [$statusCode]
                     )
                 );
-                //phpcs:ignore:Squiz.PHP.NonExecutableCode
-                break;
         }
 
         return $success;
     }
 
     /**
+     * Get transaction status code
+     *
      * @return int|null
      */
-    public function getStatusCode()
+    public function getStatusCode(): ?int
     {
         $statusCode = null;
 
@@ -105,7 +118,7 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
 
         if ((!isset($statusCode) || $statusCode == null)
             && isset($this->transaction->Transaction->IsCanceled)
-            && $this->transaction->Transaction->IsCanceled == true
+            && $this->transaction->Transaction->IsCanceled
         ) {
             $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         }

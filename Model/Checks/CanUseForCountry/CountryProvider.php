@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Checks\CanUseForCountry;
 
-use Magento\Quote\Model\Quote;
-use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Payment\Model\Checks\CanUseForCountry\CountryProvider as MagentoCountryProvider;
+use Magento\Quote\Model\Quote;
 
 /**
  * Select country which will be used for payment.
@@ -38,12 +38,12 @@ class CountryProvider extends MagentoCountryProvider
      * Get payment country
      *
      * @param Quote $quote
-     * @return int
+     * @return string
      */
-    public function getCountry(Quote $quote)
+    public function getCountry(Quote $quote): string
     {
-        $address = $quote->getShippingAddress() ? : $quote->getBillingAddress();
-        return (!empty($address) && !empty($address->getCountry()))
+        $address = $quote->getShippingAddress() ?: $quote->getBillingAddress();
+        return (!empty($address->getCountry()))
             ? $address->getCountry()
             : $this->directoryHelper->getDefaultCountry();
     }

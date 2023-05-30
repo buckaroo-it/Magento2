@@ -303,7 +303,7 @@ class Data extends AbstractHelper
             $mode = $configProvider->getActive($store);
         }
 
-        return $mode;
+        return (int)$mode;
     }
 
     /**
