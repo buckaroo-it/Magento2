@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -27,44 +28,59 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
     class GuestSaveManager extends \Onestepcheckout\Iosc\Plugin\GuestSaveManager
     {
+        /**
+         * @var \Magento\Quote\Model\QuoteIdMaskFactory
+         */
         protected $quoteIdMaskFactory;
 
+        /**
+         * @var \Magento\Quote\Api\CartRepositoryInterface
+         */
         protected $cartRepository;
 
+        /**
+         * @var Log
+         */
         protected $logger;
 
-        protected \Onestepcheckout\Iosc\Model\DataManager $dataManager;
-
-        protected \Magento\Framework\App\Request\Http $request;
-
-        protected \Onestepcheckout\Iosc\Model\MockManager $mockManager;
-
-        protected \Onestepcheckout\Iosc\Helper\Data $helper;
-
-        protected \Magento\Checkout\Model\Session $checkoutSession;
-
-
+        /**
+         * @param \Onestepcheckout\Iosc\Model\DataManager $dataManager
+         * @param \Magento\Framework\App\Request\Http $request
+         * @param \Onestepcheckout\Iosc\Model\MockManager $mockManager
+         * @param \Onestepcheckout\Iosc\Helper\Data $helper
+         * @param \Magento\Checkout\Model\Session $checkoutSession
+         * @param \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory
+         * @param \Magento\Quote\Api\CartRepositoryInterface $cartRepository
+         * @param Log $logger
+         */
         public function __construct(
-            \Onestepcheckout\Iosc\Model\DataManager $dataManager,
+            \Onestepcheckout\Iosc\Model\DataManager $dataManager, /** @phpstan-ignore-line */
             \Magento\Framework\App\Request\Http $request,
-            \Onestepcheckout\Iosc\Model\MockManager $mockManager,
-            \Onestepcheckout\Iosc\Helper\Data $helper,
+            \Onestepcheckout\Iosc\Model\MockManager $mockManager, /** @phpstan-ignore-line */
+            \Onestepcheckout\Iosc\Helper\Data $helper, /** @phpstan-ignore-line */
             \Magento\Checkout\Model\Session $checkoutSession,
             \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
             \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
             Log $logger
         ) {
-            $this->dataManager        = $dataManager;
-            $this->request            = $request;
-            $this->mockManager        = $mockManager;
-            $this->helper             = $helper;
-            $this->checkoutSession    = $checkoutSession;
             $this->quoteIdMaskFactory = $quoteIdMaskFactory;
             $this->cartRepository     = $cartRepository;
             $this->logger             = $logger;
+            /** @phpstan-ignore-next-line */
             parent::__construct($dataManager, $request, $mockManager, $helper, $checkoutSession);
         }
 
+        /**
+         * Set billing address if the billing address is null before save payment information and place order
+         *
+         * @param $parent
+         * @param $cartId
+         * @param $email
+         * @param \Magento\Quote\Api\Data\PaymentInterface $paymentMethod
+         * @param \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
+         * @return void
+         * @throws \Magento\Framework\Exception\NoSuchEntityException
+         */
         public function beforeSavePaymentInformationAndPlaceOrder(
             $parent,
             $cartId,
@@ -76,7 +92,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
                 $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
                 $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
             }
-            
+
+            /** @phpstan-ignore-next-line */
             parent::beforeSavePaymentInformationAndPlaceOrder(
                 $parent,
                 $cartId,
@@ -86,6 +103,17 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             );
         }
 
+        /**
+         * Set billing address if the billing address is null before save payment information
+         *
+         * @param $parent
+         * @param $cartId
+         * @param $email
+         * @param \Magento\Quote\Api\Data\PaymentInterface $paymentMethod
+         * @param \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
+         * @return void
+         * @throws \Magento\Framework\Exception\NoSuchEntityException
+         */
         public function beforeSavePaymentInformation(
             $parent,
             $cartId,
@@ -98,6 +126,7 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
                 $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
             }
 
+            /** @phpstan-ignore-next-line */
             parent::beforeSavePaymentInformation($parent, $cartId, $email, $paymentMethod, $billingAddress);
         }
     }
