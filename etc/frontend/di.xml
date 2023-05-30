@@ -42,7 +42,6 @@
                 <item name="buckaroo_config_provider_payperemail" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail</item>
                 <item name="buckaroo_config_provider_paylink" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink</item>
                 <item name="buckaroo_config_provider_eps" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Eps</item>
-                <item name="buckaroo_config_provider_emandate" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate</item>
                 <item name="buckaroo_config_provider_giftcards" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards</item>
                 <item name="buckaroo_config_provider_payconiq" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq</item>
                 <item name="buckaroo_config_provider_kbc" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Kbc</item>
