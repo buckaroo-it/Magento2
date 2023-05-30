@@ -90,7 +90,7 @@ class Info extends \Magento\Payment\Block\Info
                     ];
                 }
 
-                if ($giftcard['servicecode'] = 'buckaroovoucher') {
+                if ($giftcard['servicecode'] == 'buckaroovoucher') {
                     $result[] = [
                         'code'  => $giftcard['servicecode'],
                         'label' => 'Buckaroo Voucher',
@@ -184,7 +184,7 @@ class Info extends \Magento\Payment\Block\Info
 
         if (isset($mappings[$code])) {
             $name = "giftcards/{$mappings[$code]}.svg";
-            if ($mappings[$code] = 'buckaroovoucher') {
+            if ($mappings[$code] == 'vouchers') {
                 $name = "svg/{$mappings[$code]}.svg";
             }
         }
