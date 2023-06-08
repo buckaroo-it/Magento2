@@ -15,11 +15,6 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     private LockerProcess $lockerProcess;
 
-    public function __construct(
-        LockerProcess $lockerProcess
-    ) {
-        $this->lockerProcess = $lockerProcess;
-    }
 
     public function processSucceded()
     {
@@ -35,14 +30,15 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @throws FileSystemException
      */
-    public function processPush(PushRequestInterface $pushRequest): void
+    public function processPush(PushRequestInterface $pushRequest): bool
     {
         $this->pushRequest = $pushRequest;
 
         if ($this->lockPushProcessingCriteria()) {
             $this->lockerProcess->lockProcess($this->getOrderIncrementId());
         }
-        parent::processPush($pushRequest);
+
+        return true;
     }
 
     /**
@@ -50,7 +46,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      *
      * @return bool
      */
-    private function lockPushProcessingCriteria(): bool
+    protected function lockPushProcessingCriteria(): bool
     {
         return !empty($this->pushRequest->getAdditionalInformation('frompayperemail'));
     }

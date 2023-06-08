@@ -81,12 +81,7 @@ class OrderStatusFactory
          * @var BuckarooAdapter $paymentMethodInstance
          */
         $paymentMethodInstance = $order->getPayment()->getMethodInstance();
-        if ($paymentMethodInstance instanceof BuckarooAdapter) {
-            $paymentMethod = $paymentMethodInstance->getCode();
-        } else {
-            $paymentMethod = $paymentMethodInstance->buckarooPaymentMethodCode;
-        }
-
+        $paymentMethod = $paymentMethodInstance->getCode();
 
         if ($this->configProviderMethodFactory->has($paymentMethod)) {
             /**

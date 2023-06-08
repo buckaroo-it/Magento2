@@ -9,7 +9,7 @@ interface PushProcessorInterface
 
     /**
      * @param PushRequestInterface $pushRequest
-     * @return void
+     * @return bool
      */
-    public function processPush(PushRequestInterface $pushRequest): void;
+    public function processPush(PushRequestInterface $pushRequest): bool;
 }

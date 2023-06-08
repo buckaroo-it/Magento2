@@ -3,9 +3,7 @@
 namespace Buckaroo\Magento2\Model\Push;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
-use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Service\LockerProcess;
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Magento\Framework\Exception\FileSystemException;
 
 class IdealProcessor extends DefaultProcessor
@@ -13,46 +11,12 @@ class IdealProcessor extends DefaultProcessor
     public const BUCK_PUSH_IDEAL_PAY = 'C021';
 
     /**
-     * @var Data
-     */
-    public Data $helper;
-
-    /**
-     * @var LockerProcess
-     */
-    private LockerProcess $lockerProcess;
-
-    public function __construct(
-        Log $logging,
-        LockerProcess $lockerProcess,
-        Data $helper
-    ) {
-        parent::__construct($logging);
-        $this->lockerProcess = $lockerProcess;
-        $this->helper = $helper;
-    }
-
-    /**
      * @throws FileSystemException
+     * @throws BuckarooException
      */
-    public function processPush(PushRequestInterface $pushRequest): void
+    public function processPush(PushRequestInterface $pushRequest): bool
     {
-        $this->pushRequest = $pushRequest;
-
-        // Load order by transaction id
-        $this->loadOrder();
-
-        // Validate Signature
-        $store = $this->order ? $this->order->getStore() : null;
-        //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
-        $validSignature = $this->pushRequest->validate($store);
-
-        if ($this->lockPushProcessingCriteria()) {
-            $this->lockerProcess->lockProcess($this->getOrderIncrementId());
-        }
         parent::processPush($pushRequest);
-
-        $this->lockerProcess->unlockProcess();
     }
 
     /**
@@ -60,7 +24,7 @@ class IdealProcessor extends DefaultProcessor
      *
      * @return bool
      */
-    private function lockPushProcessingCriteria(): bool
+    protected function lockPushProcessingCriteria(): bool
     {
         $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
 

@@ -431,12 +431,10 @@ class Push implements PushInterface
             $this->logging->addDebug('Invalid push signature');
             throw new BuckarooException(__('Signature from push is incorrect'));
             //If the signature is valid but the order cant be updated, try to add a notification to the order comments.
-        } elseif ($validSignature && !$canUpdateOrder) {
+        } elseif ($validSignature  && !$canUpdateOrder) {
             $this->logging->addDebug('Order can not receive updates');
             if ($receivePushCheckPayPerEmailResult) {
-                $config = $this->configProviderMethodFactory->get(
-                    PayPerEmail::CODE
-                );
+                $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
                 if ($config->isEnabledB2B()) {
                     $this->logging->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
                     if ($this->order->getState() === Order::STATE_COMPLETE) {
@@ -455,6 +453,7 @@ class Push implements PushInterface
         if (!$this->isGroupTransactionInfo()) {
             $this->setTransactionKey();
         }
+
         $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         if (!empty($this->pushRequst->getStatusmessage())) {
             if ($this->order->getState() === Order::STATE_NEW
@@ -530,17 +529,20 @@ class Push implements PushInterface
             }
             $receivedStatusCode = $this->pushRequst->getStatusCode();
         }
+
         if (!$trxId) {
             if (empty($this->pushRequst->getTransactions())) {
                 return false;
             }
             $trxId = $this->pushRequst->getTransactions();
         }
-        $payment               = $this->order->getPayment();
+
+        $payment = $this->order->getPayment();
         $ignoredPaymentMethods = [
             Giftcards::CODE,
             Transfer::CODE
         ];
+
         if ($payment
             && $payment->getMethod()
             && $receivedStatusCode
@@ -599,12 +601,12 @@ class Push implements PushInterface
         if ($this->pushRequst->hasAdditionalInformation('initiated_by_magento', 1)
             && $this->pushRequst->hasAdditionalInformation('service_action_from_magento', ['refund'])
         ) {
-            $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+            $statusCodeSuccess = BuckarooStatusCode::SUCCESS;
             if ($this->pushRequst->hasPostData('statuscode', $statusCodeSuccess)
                 && !empty($this->pushRequst->getRelatedtransactionRefund())
             ) {
                 if ($this->receivePushCheckDuplicates(
-                    $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_APPROVAL'),
+                    BuckarooStatusCode::PENDING_APPROVAL,
                     $this->pushRequst->getRelatedtransactionRefund()
                 )
                 ) {
@@ -757,7 +759,7 @@ class Push implements PushInterface
     {
         try {
             $this->setTransactionKey();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logging->addDebug($e->getLogMessage());
         }
 
@@ -811,11 +813,10 @@ class Push implements PushInterface
                 break;
             case 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS':
                 if ($this->order->getPayment()->getMethod() == Paypal::CODE) {
-                    $paypalConfig = $this->configProviderMethodFactory
-                        ->get(Paypal::CODE);
+                    $paypalConfig = $this->configProviderMethodFactory->get(Paypal::CODE);
 
                     /**
-                     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal $paypalConfig
+                     * @var Paypal $paypalConfig
                      */
                     $newSellersProtectionStatus = $paypalConfig->getSellersProtectionIneligible();
                     if ($paypalConfig->getSellersProtection() && !empty($newSellersProtectionStatus)) {
@@ -860,6 +861,7 @@ class Push implements PushInterface
      * Update the Credit Management invoice status based on push request data and save invoice if required.
      *
      * @return bool
+     * @throws LocalizedException
      */
     private function updateCm3InvoiceStatus(): bool
     {
@@ -1272,7 +1274,6 @@ class Push implements PushInterface
         }
 
         $store = $this->order->getStore();
-
         $payment = $this->order->getPayment();
 
         /**
@@ -1476,11 +1477,15 @@ class Push implements PushInterface
 
         // Transfer has a slightly different flow where a successful order has a 792 status code instead of an 190 one
         if (!$this->order->getEmailSent()
-            && in_array($payment->getMethod(), [Transfer::CODE,
-                SepaDirectDebit::CODE,
-                Sofortbanking::CODE,
-                PayPerEmail::CODE,
-            ])
+            && in_array(
+                $payment->getMethod(),
+                [
+                    Transfer::CODE,
+                    SepaDirectDebit::CODE,
+                    Sofortbanking::CODE,
+                    PayPerEmail::CODE,
+                ]
+            )
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
             )
@@ -1781,6 +1786,7 @@ class Push implements PushInterface
      * Save the part group transaction.
      *
      * @return void
+     * @throws \Exception
      */
     private function savePartGroupTransaction()
     {
@@ -2282,6 +2288,7 @@ class Push implements PushInterface
      * Cancel order when group transaction is canceled
      *
      * @return void
+     * @throws LocalizedException
      */
     public function cancelGroupTransactionOrder()
     {
@@ -2303,11 +2310,11 @@ class Push implements PushInterface
      */
     public function isCanceledGroupTransaction()
     {
-        return $this->hasPostData(
+        return $this->pushRequst->hasPostData(
             'brq_transaction_type',
             self::BUCK_PUSH_GROUPTRANSACTION_TYPE
         ) &&
-        $this->hasPostData(
+            $this->pushRequst->hasPostData(
             'brq_statuscode',
             $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
         );
