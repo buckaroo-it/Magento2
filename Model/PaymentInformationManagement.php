@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Checkout\Model\PaymentDetailsFactory;
 use Magento\Checkout\Model\PaymentInformationManagement as MagentoPaymentInformationManagement;
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -148,8 +149,8 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     private function getLimitReachedMessage($orderId)
     {
         $order = $this->orderRepository->get($orderId);
-        if($order->getEntityId() !== null && $order->getPayment() !== null) {
-            return $order->getPayment()->getAdditionalInformation(AbstractMethod::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
+        if ($order->getEntityId() !== null && $order->getPayment() !== null) {
+            return $order->getPayment()->getAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
         }
         return null;
     }
