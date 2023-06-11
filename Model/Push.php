@@ -313,6 +313,12 @@ class Push implements PushInterface
 
         $this->loadOrder();
 
+        $this->logging->addDebug(__METHOD__ . '|6668| ' . var_export([
+                'orderState'        => $this->order->getState(),
+                'orderStatus'       => $this->order->getStatus(),
+                'orderId'           => $this->order->getIncrementId()
+            ], true));
+
         if ($this->skipHandlingForFailedGroupTransactions()) {
             return true;
         }
@@ -431,20 +437,33 @@ class Push implements PushInterface
         }
         $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
         if (!empty($this->pushRequst->getStatusmessage())) {
+            $this->logging->addDebug(__METHOD__ . '|665| STATE_PROCESSING');
+            $this->logging->addDebug(__METHOD__ . '|666| ' . var_export([
+                    'orderState'        => $this->order->getState(),
+                    'orderStatus'       => $this->order->getStatus(),
+                    'orderId'           => $this->order->getIncrementId(),
+                    'frompayperemail'   => $this->pushRequst->getAdditionalInformation('frompayperemail'),
+                    'getPartialpayment' => $this->pushRequst->getRelatedtransactionPartialpayment(),
+                    'statuscode'        => $this->pushRequst->getStatusCode()
+                ], true));
             if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
                 && !$this->pushRequst->hasPostData('brq_transaction_method', 'transfer')
                 && empty($this->pushRequst->getRelatedtransactionPartialpayment())
                 && $this->pushRequst->hasPostData('statuscode', $statusCodeSuccess)
             ) {
+                $this->logging->addDebug(__METHOD__ . '|666| STATE_PROCESSING');
+
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addStatusHistoryComment(
                     $this->pushRequst->getStatusmessage(),
                     $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
                 );
             } else {
+                $this->logging->addDebug(__METHOD__ . '|667| STATE_PROCESSING');
                 $this->order->addStatusHistoryComment($this->pushRequst->getStatusmessage());
             }
+            $this->logging->addDebug(__METHOD__ . '|668| STATE_PROCESSING');
         }
 
         if ((!in_array($payment->getMethod(), [Giftcards::CODE, Voucher::CODE])) && $this->isGroupTransactionPart()) {
