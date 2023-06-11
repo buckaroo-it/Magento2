@@ -23,11 +23,8 @@ namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionType;
-use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Service\PayReminderService;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Payment\Model\InfoInterface;
 
 class SkipPushDataBuilder implements BuilderInterface
 {
@@ -39,19 +36,11 @@ class SkipPushDataBuilder implements BuilderInterface
     private PayReminderService $payReminderService;
 
     /**
-     * @var Log $logging
-     */
-    public Log $logging;
-
-    /**
      * @param PayReminderService $payReminderService
      */
-    public function __construct(
-        PayReminderService $payReminderService,
-        Log $logging
-    ) {
+    public function __construct(PayReminderService $payReminderService)
+    {
         $this->payReminderService = $payReminderService;
-        $this->logging = $logging;
     }
 
     /**
