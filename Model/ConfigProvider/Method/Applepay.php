@@ -146,4 +146,22 @@ class Applepay extends AbstractConfigProvider
 
         return $availableButtons;
     }
+
+    /**
+     * @return array
+     */
+    public function getBaseAllowedCurrencies()
+    {
+        return [
+            'EUR',
+            'USD',
+            'GBP',
+            'DKK',
+            'NOK',
+            'SEK',
+            'CHF',
+            'PLN'
+        ];
+    }
+
 }
