@@ -699,12 +699,14 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
             $serviceLine = $this->getServiceCostLine($creditmemo, $itemsTotalAmount);
+            $serviceLine['refundType'] = 'Refund';
             if (!empty($serviceLine)) {
                 $articles = array_merge_recursive($articles, $serviceLine);
             }
         }
 
         $shippingCosts = $this->getShippingCostsLine($creditmemo, $itemsTotalAmount);
+        $shippingCosts['refundType'] = 'Refund';
         if (!empty($shippingCosts)) {
             $articles = array_merge_recursive($articles, $shippingCosts);
         }
@@ -712,6 +714,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         if (abs($creditmemo->getGrandTotal() - $itemsTotalAmount) > 0.01) {
             $diff = $creditmemo->getGrandTotal() - $itemsTotalAmount;
             $diffLine = $this->getDiffLine($diff);
+            $diffLine['refundType'] = 'Refund';
             $articles = array_merge_recursive($articles, $diffLine);
         }
 

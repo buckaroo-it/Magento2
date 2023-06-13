@@ -764,6 +764,7 @@
             <argument name="articlesHandlers" xsi:type="array">
                 <item name="default" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\DefaultHandler</item>
                 <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayOldHandler</item>
+                <item name="afterpay20" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayHandler</item>
                 <item name="tinka" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\TinkaHandler</item>
             </argument>
         </arguments>
