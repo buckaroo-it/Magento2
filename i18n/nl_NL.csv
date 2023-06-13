@@ -456,3 +456,4 @@
 "This message is shown when the payment method is hidden. Maximum 280 characters.","Deze melding wordt getoond wanneer de betaalmethode is verborgen. Maximaal 280 karakters."
 "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.","Pay rejected: Het is niet toegestaan om voor Afterpay transacties een ander land voor het factuur en afleveradres op te geven."
 "-- Please Select Your Gender--","Selecteer uw geslacht"
+"Unfortunately the payment was unsuccessfull. Please try again or choose a different payment method.","Helaas is het op dit moment voor jou niet mogelijk om gebruik te maken van deze methode, selecteer een andere betaalmethode."
