@@ -115,13 +115,13 @@ class BuckarooAdapter
      * @return array
      * @throws \Throwable
      */
-    public function getIdealIssuers()
+    public function getIdealIssuers(): array
     {
         try {
             return $this->buckaroo->method('ideal')->issuers();
         } catch (\Throwable $th) {
             $this->logger->addDebug(__METHOD__ . $th);
-            throw $th;
+            return [];
         }
     }
 
