@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Model\Config\Source\Enablemode;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
@@ -52,6 +54,10 @@ class IdinDataBuilder implements BuilderInterface
      * @var FormKey
      */
     private FormKey $formKey;
+    /**
+     * @var Account
+     */
+    private Account $configProviderAccount;
 
     /**
      * @param CustomerSession $customerSession
@@ -64,12 +70,14 @@ class IdinDataBuilder implements BuilderInterface
         CustomerSession $customerSession,
         UrlInterface $urlBuilder,
         FormKey $formKey,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Account $configProviderAccount,
     ) {
         $this->customerSession = $customerSession;
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
         $this->store = $storeManager->getStore();
+        $this->configProviderAccount = $configProviderAccount;
     }
 
     /**
@@ -85,7 +93,9 @@ class IdinDataBuilder implements BuilderInterface
             'returnURLError'       => $returnUrl,
             'returnURLCancel'      => $returnUrl,
             'returnURLReject'      => $returnUrl,
-            'issuer'               => $buildSubject['issuer'],
+            'issuer'               => $this->configProviderAccount->getIdin() === Enablemode::ENABLE_LIVE
+                ? $buildSubject['issuer']
+                : 'testbank',
             'additionalParameters' => [
                 'idin_cid' => $this->customerSession->getCustomerId()
             ]
