@@ -19,22 +19,25 @@
 
 /* ==================== Buckaroo / Buckaroo -  Navigation Logo - Left Menu ==================== */
 
-.buckaroo-section .admin__page-nav-link:before {
-    float:left;
-    width: calc(100% - 50px) ;
-    height: 18px;
+.buckaroo-section .title {
+    position: relative;
+}
+.buckaroo-section .title strong {
+    color:transparent;
+    color:#fff;
+}
+.buckaroo-section .title:before {
+    position: absolute;
+    z-index: 2;
+    height: 100%;
+    width: 100%;
     content: ' ';
-
     background-image: url(../images/buckaroo_small_black.png) !important;
-    background-position :0 2px;
-    background-repeat:no-repeat;
-    background-size: auto 13px;
+    background-repeat: no-repeat;
+    background-size: auto 15px;
  }
 
-.buckaroo-section .admin__page-nav-link {
-    text-indent: -999px;
-    padding: 2rem 1rem 2rem 1rem;
-}
+
 
 /* ======================= Identity ======================= */
 
