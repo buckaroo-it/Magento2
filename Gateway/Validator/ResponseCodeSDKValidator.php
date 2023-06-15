@@ -116,8 +116,8 @@ class ResponseCodeSDKValidator extends AbstractValidator
                 [$statusCode]
             );
         } else {
-            $message = isset($this->transaction->getFirstError()['ErrorMessage']) ?
-                $this->transaction->getFirstError()['ErrorMessage']
+            $message = !empty($this->transaction->getSomeError()) ?
+                $this->transaction->getSomeError()
                 : 'Gateway rejected the transaction.';
             return $this->createResult(
                 false,

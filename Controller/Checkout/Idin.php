@@ -95,7 +95,7 @@ class Idin extends Action
             $response = $this->clientInterface->placeRequest($transferO);
 
             if (isset($response["object"]) && $response["object"] instanceof TransactionResponse) {
-                if ($response["object"]->isSuccess()) {
+                if ($response["object"]->isSuccess() || $response["object"]->isPendingProcessing()) {
                     $response = $response["object"]->toArray();
                 } else {
                     return $this->json(

@@ -64,6 +64,7 @@ class IdinDataBuilder implements BuilderInterface
      * @param UrlInterface $urlBuilder
      * @param FormKey $formKey
      * @param StoreManagerInterface $storeManager
+     * @param Account $configProviderAccount
      * @throws NoSuchEntityException
      */
     public function __construct(
@@ -95,8 +96,10 @@ class IdinDataBuilder implements BuilderInterface
             'returnURLReject'      => $returnUrl,
             'issuer'               => $this->configProviderAccount->getIdin() === Enablemode::ENABLE_LIVE
                 ? $buildSubject['issuer']
-                : 'testbank',
+                : 'BANKNL2Y',
             'additionalParameters' => [
+                'service_action_from_magento' => 'verify',
+                'initiated_by_magento' => 1,
                 'idin_cid' => $this->customerSession->getCustomerId()
             ]
         ];
