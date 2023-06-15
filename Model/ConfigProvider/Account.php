@@ -68,7 +68,6 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
     public const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
     public const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
-    public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS       = 'buckaroo_magento2/account/advanced_export_giftcards';
 
     /**
      * @var MethodFactory
@@ -131,7 +130,6 @@ class Account extends AbstractConfigProvider
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
             'idin_category'                     => $this->getIdinCategory($store),
-            'advanced_export_giftcards'         => $this->hasAdvancedExportGiftcards($store),
         ];
     }
 
@@ -701,18 +699,5 @@ class Account extends AbstractConfigProvider
         );
     }
 
-    /**
-     * Get Advanced order export for giftcards
-     *
-     * @param null|int|string $store
-     * @return bool
-     */
-    public function hasAdvancedExportGiftcards($store = null): bool
-    {
-        return (bool)$this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
+    
 }

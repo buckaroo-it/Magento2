@@ -32,7 +32,6 @@
             <class>buckaroo-section</class>
             <include path="Buckaroo_Magento2::system/support.xml"/>
             <include path="Buckaroo_Magento2::system/account.xml"/>
-            <include path="Buckaroo_Magento2::system/refund.xml"/>
         </section>
 
         <section id="payment">
