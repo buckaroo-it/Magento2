@@ -62,7 +62,6 @@ class Account extends AbstractConfigProvider
         'buckaroo_magento2/account/create_order_before_transaction';
     public const XPATH_ACCOUNT_IP_HEADER                       = 'buckaroo_magento2/account/ip_header';
     public const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
-    public const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
     public const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
 
     public const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
@@ -125,7 +124,6 @@ class Account extends AbstractConfigProvider
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
-            'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
@@ -619,21 +617,6 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_CART_KEEP_ALIVE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get selection type (Radio checkbox/Drop down)
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSelectionType($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SELECTION_TYPE,
             ScopeInterface::SCOPE_STORE,
             $store
         );

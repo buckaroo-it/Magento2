@@ -38,7 +38,7 @@ class Ideal extends AbstractConfigProvider
 
     public const CODE = 'buckaroo_magento2_ideal';
 
-    public const XPATH_IDEAL_SELECTION_TYPE = 'buckaroo_magento2/account/selection_type';
+    public const XPATH_SELECTION_TYPE = 'payment/buckaroo_magento2_ideal/selection_type';
     /**
      * @var array
      */
@@ -111,10 +111,20 @@ class Ideal extends AbstractConfigProvider
      */
     public function getSelectionType($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_IDEAL_SELECTION_TYPE,
+        $methodConfig = $this->scopeConfig->getValue(
+            static::XPATH_SELECTION_TYPE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
+
+        /** @deprecated 2.0.0 moved from main configuration to payment configuration */
+        $mainConfig = $this->scopeConfig->getValue(
+            'buckaroo_magento2/account/selection_type',
+            ScopeInterface::SCOPE_STORE,
+        );
+        if ($methodConfig === null) {
+            return $mainConfig;
+        }
+        return $methodConfig;
     }
 }
