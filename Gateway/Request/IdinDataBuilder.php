@@ -38,22 +38,27 @@ class IdinDataBuilder implements BuilderInterface
      * @var UrlInterface
      */
     protected UrlInterface $urlBuilder;
+
     /**
      * @var StoreInterface
      */
     protected StoreInterface $store;
+
     /**
      * @var CustomerSession
      */
     private CustomerSession $customerSession;
+
     /**
      * @var null|string
      */
     private ?string $returnUrl = null;
+
     /**
      * @var FormKey
      */
     private FormKey $formKey;
+
     /**
      * @var Account
      */
@@ -72,7 +77,7 @@ class IdinDataBuilder implements BuilderInterface
         UrlInterface $urlBuilder,
         FormKey $formKey,
         StoreManagerInterface $storeManager,
-        Account $configProviderAccount,
+        Account $configProviderAccount
     ) {
         $this->customerSession = $customerSession;
         $this->urlBuilder = $urlBuilder;
