@@ -93,16 +93,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->pushRequest = $pushRequest;
 
         // Load Order by Transaction id
-        $this->loadOrder();
-
-        // Validate Signature
-        $store = $this->order?->getStore();
-        $validSignature = $this->pushRequest->validate($store);
-
-        if (!$validSignature) {
-            $this->logging->addDebug('Invalid push signature');
-            throw new BuckarooException(__('Signature from push is incorrect'));
-        }
+        $this->order = $this->loadOrder();
 
         // Lock Processing
         if ($this->lockPushProcessingCriteria()) {

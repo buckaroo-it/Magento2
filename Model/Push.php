@@ -46,6 +46,7 @@ use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
+use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
@@ -221,6 +222,11 @@ class Push implements PushInterface
     private PushProcessorInterface $pushProcessor;
 
     /**
+     * @var OrderRequestService
+     */
+    private OrderRequestService $orderRequestService;
+
+    /**
      * @param Order $order
      * @param TransactionInterface $transaction
      * @param Request $request
@@ -264,7 +270,8 @@ class Push implements PushInterface
         Afterpay20 $afterpayConfig,
         File $fileSystemDriver,
         RequestPushFactory $requestPushFactory,
-        PushProcessorsFactory $pushProcessorsFactory
+        PushProcessorsFactory $pushProcessorsFactory,
+        OrderRequestService $orderRequestService
     ) {
         $this->order = $order;
         $this->transaction = $transaction;
@@ -288,6 +295,7 @@ class Push implements PushInterface
         $this->fileSystemDriver = $fileSystemDriver;
         $this->pushRequst = $requestPushFactory->create();
         $this->pushProcessorsFactory = $pushProcessorsFactory;
+        $this->orderRequestService = $orderRequestService;
     }
 
     /**
@@ -305,6 +313,16 @@ class Push implements PushInterface
         // Log the push request
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->pushRequst->getOriginalRequest(), true));
 
+        // Validate Signature
+        $store = $this->order?->getStore();
+        $validSignature = $this->pushRequst->validate($store);
+
+        if (!$validSignature) {
+            $this->logging->addDebug('Invalid push signature');
+            throw new BuckarooException(__('Signature from push is incorrect'));
+        }
+
+        // Process Push
         $this->pushProcessor = $this->pushProcessorsFactory->get($this->pushRequst);
         $this->pushProcessor->processPush($this->pushRequst);
 
