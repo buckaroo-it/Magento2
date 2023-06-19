@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Model\Config\Source\Enablemode;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
@@ -36,40 +38,52 @@ class IdinDataBuilder implements BuilderInterface
      * @var UrlInterface
      */
     protected UrlInterface $urlBuilder;
+
     /**
      * @var StoreInterface
      */
     protected StoreInterface $store;
+
     /**
      * @var CustomerSession
      */
     private CustomerSession $customerSession;
+
     /**
      * @var null|string
      */
     private ?string $returnUrl = null;
+
     /**
      * @var FormKey
      */
     private FormKey $formKey;
 
     /**
+     * @var Account
+     */
+    private Account $configProviderAccount;
+
+    /**
      * @param CustomerSession $customerSession
      * @param UrlInterface $urlBuilder
      * @param FormKey $formKey
      * @param StoreManagerInterface $storeManager
+     * @param Account $configProviderAccount
      * @throws NoSuchEntityException
      */
     public function __construct(
         CustomerSession $customerSession,
         UrlInterface $urlBuilder,
         FormKey $formKey,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Account $configProviderAccount
     ) {
         $this->customerSession = $customerSession;
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
         $this->store = $storeManager->getStore();
+        $this->configProviderAccount = $configProviderAccount;
     }
 
     /**
@@ -85,8 +99,12 @@ class IdinDataBuilder implements BuilderInterface
             'returnURLError'       => $returnUrl,
             'returnURLCancel'      => $returnUrl,
             'returnURLReject'      => $returnUrl,
-            'issuer'               => $buildSubject['issuer'],
+            'issuer'               => $this->configProviderAccount->getIdin() === Enablemode::ENABLE_LIVE
+                ? $buildSubject['issuer']
+                : 'BANKNL2Y',
             'additionalParameters' => [
+                'service_action_from_magento' => 'verify',
+                'initiated_by_magento' => 1,
                 'idin_cid' => $this->customerSession->getCustomerId()
             ]
         ];

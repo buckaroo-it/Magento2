@@ -45,9 +45,10 @@ use Psr\Log\LoggerInterface;
 class BuckarooAdapter extends Adapter
 {
     public const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
-    public const BUCKAROO_ALL_TRANSACTIONS = 'buckaroo_all_transactions';
-    public const BUCKAROO_PAYMENT_IN_TRANSIT = 'buckaroo_payment_in_transit';
-    public const PAYMENT_FROM = 'buckaroo_payment_from';
+    public const BUCKAROO_ALL_TRANSACTIONS             = 'buckaroo_all_transactions';
+    public const BUCKAROO_PAYMENT_IN_TRANSIT           = 'buckaroo_payment_in_transit';
+    public const PAYMENT_FROM                          = 'buckaroo_payment_from';
+    public const PAYMENT_ATTEMPTS_REACHED_MESSAGE      = 'buckaroo_payment_attempts_reached_message';
 
     /**
      * @var bool

@@ -61,6 +61,7 @@ class SaveOrderBeforeDataBuilder implements BuilderInterface
                 $newStatus = $order->getConfig()->getStateDefaultStatus('new');
             }
 
+            $order->setState(Order::STATE_NEW);
             $order->setStatus($newStatus);
             $order->save();
         }

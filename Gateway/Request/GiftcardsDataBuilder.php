@@ -56,8 +56,9 @@ class GiftcardsDataBuilder implements BuilderInterface
             $order->getStore()
         );
 
-        $availableCards = $paymentDO->getPayment()->getAdditionalInformation('giftcard_method') ??
-            $availableCards . ',ideal';
+        $availableCards = $paymentDO->getPayment()->getAdditionalInformation('giftcard_method')
+            ? $paymentDO->getPayment()->getAdditionalInformation('giftcard_method')
+            : $availableCards.',ideal';
 
         return [
             'servicesSelectableByClient' => $availableCards,

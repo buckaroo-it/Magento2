@@ -350,7 +350,7 @@
 
             <buckaroo_magento2_afterpay2>
                 <active>0</active>
-                <model>AfterpayOldFacade</model>
+                <model>AfterpayOldFacade2</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Riverty | Afterpay 2</title>
                 <allowspecific>0</allowspecific>

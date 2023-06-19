@@ -21,12 +21,11 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
@@ -76,7 +75,7 @@ class Idin extends Action
     /**
      * Process action
      *
-     * @return ResponseInterface
+     * @return Json
      */
     public function execute()
     {
@@ -96,7 +95,13 @@ class Idin extends Action
             $response = $this->clientInterface->placeRequest($transferO);
 
             if (isset($response["object"]) && $response["object"] instanceof TransactionResponse) {
-                $response = $response["object"]->toArray();
+                if ($response["object"]->isSuccess() || $response["object"]->isPendingProcessing()) {
+                    $response = $response["object"]->toArray();
+                } else {
+                    return $this->json(
+                        ['error' => $response['object']->getSomeError()]
+                    );
+                }
             } else {
                 return $this->json(
                     ['error' => 'TransactionResponse is not valid']
@@ -117,9 +122,9 @@ class Idin extends Action
      *
      * @param array $data
      *
-     * @return ResponseInterface
+     * @return Json
      */
-    protected function json(array $data): ResponseInterface
+    protected function json(array $data): Json
     {
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($data);
     }

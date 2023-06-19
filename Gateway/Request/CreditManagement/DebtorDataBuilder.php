@@ -38,7 +38,7 @@ class DebtorDataBuilder extends AbstractDataBuilder
         }
 
         return [
-            'code' => $address->getEmail()
+            'code' => $address->getEmail(),
         ];
     }
 }

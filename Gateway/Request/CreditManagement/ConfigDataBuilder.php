@@ -75,7 +75,7 @@ class ConfigDataBuilder extends AbstractDataBuilder
      */
     protected function getPaymentMethodsAfterExpiry(): string
     {
-        $methods = $this->config->getPaymentMethodsAfterExpiry();
+        $methods = $this->config->getPaymentMethodAfterExpiry();
         if (is_array($methods)) {
             return implode(',', $methods);
         }
@@ -89,7 +89,7 @@ class ConfigDataBuilder extends AbstractDataBuilder
      */
     protected function getDueDate(): string
     {
-        $dueDays = abs($this->config->getCm3DueDate());
+        $dueDays = abs((float)$this->config->getCm3DueDate());
         return (new \DateTime())
             ->modify("+{$dueDays} day")
             ->format('Y-m-d');

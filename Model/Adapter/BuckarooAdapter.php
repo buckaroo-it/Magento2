@@ -115,13 +115,13 @@ class BuckarooAdapter
      * @return array
      * @throws \Throwable
      */
-    public function getIdealIssuers()
+    public function getIdealIssuers(): array
     {
         try {
             return $this->buckaroo->method('ideal')->issuers();
         } catch (\Throwable $th) {
             $this->logger->addDebug(__METHOD__ . $th);
-            throw $th;
+            return [];
         }
     }
 
@@ -155,9 +155,9 @@ class BuckarooAdapter
      * Get credit management body
      *
      * @param array $data
-     * @return TransactionResponse
+     * @return TransactionResponse|Buckaroo\PaymentMethods\CreditManagement\CreditManagement
      */
-    protected function getCreditManagementBody(array $data): TransactionResponse
+    protected function getCreditManagementBody(array $data)
     {
         return $this->buckaroo->method('credit_management')
             ->manually()

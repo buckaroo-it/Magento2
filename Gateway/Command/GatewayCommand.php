@@ -169,25 +169,36 @@ class GatewayCommand implements CommandInterface
     private function processErrors(ResultInterface $result)
     {
         $messages = [];
-        $errorsSource = array_merge($result->getErrorCodes(), $result->getFailsDescription());
-        foreach ($errorsSource as $errorCodeOrMessage) {
-            $errorCodeOrMessage = (string)$errorCodeOrMessage;
+        if (empty($result->getFailsDescription())) {
+            $errorsSource = array_merge($result->getErrorCodes(), $result->getFailsDescription());
+            foreach ($errorsSource as $errorCodeOrMessage) {
+                $errorCodeOrMessage = (string)$errorCodeOrMessage;
 
-            // error messages mapper can be not configured if payment method doesn't have custom error messages.
-            if ($this->errorMessageMapper !== null) {
-                $mapped = (string)$this->errorMessageMapper->getMessage($errorCodeOrMessage);
-                if (!empty($mapped)) {
-                    $messages[] = $mapped;
-                    $errorCodeOrMessage = $mapped;
+                // error messages mapper can be not configured if payment method doesn't have custom error messages.
+                if ($this->errorMessageMapper !== null) {
+                    $mapped = (string)$this->errorMessageMapper->getMessage($errorCodeOrMessage);
+                    if (!empty($mapped)) {
+                        $messages[] = $mapped;
+                        $errorCodeOrMessage = $mapped;
+                    }
                 }
+                $this->logger->critical('Payment Error: ' . $errorCodeOrMessage);
             }
-            $this->logger->critical('Payment Error: ' . $errorCodeOrMessage);
+        } else {
+            $messages[] = (string)$result->getFailsDescription()[0] ?? '';
         }
 
-        throw new CommandException(
-            !empty($messages)
-                ? __(implode(PHP_EOL, $messages))
-                : __('Transaction has been declined. Please try again later.')
-        );
+
+        $errorMessage = '';
+        if (!empty($messages)) {
+            foreach ($messages as $message) {
+                $errorMessage .= __($message) . PHP_EOL;
+            }
+            $errorMessage = rtrim($errorMessage);
+        } else {
+            $errorMessage ='Transaction has been declined. Please try again later.';
+        }
+
+        throw new CommandException(__($errorMessage));
     }
 }
