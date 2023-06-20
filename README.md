@@ -3,7 +3,6 @@
 </p>
 
 # Buckaroo Magento 2 Payments Plugin
-[![Latest release](https://badgen.net/github/release/buckaroo-it/Magento2)](https://github.com/buckaroo-it/Magento2/releases)
 
 ### Index
 - [About](#about)
