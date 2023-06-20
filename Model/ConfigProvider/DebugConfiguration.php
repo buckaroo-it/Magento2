@@ -49,7 +49,7 @@ class DebugConfiguration extends AbstractConfigProvider
      */
     public function getLogLevel()
     {
-        return $this->accountConfig->getLogLevel();
+        return (string)$this->accountConfig->getLogLevel();
     }
 
     /**
