@@ -29,8 +29,8 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
+use Buckaroo\Magento2\Service\RewardPoints;
 
 class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
 {
@@ -71,6 +71,10 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     protected $groupTransaction;
 
+    /**
+     * @var \Buckaroo\Magento2\Service\RewardPoints
+     */
+    protected  $rewardPoints;
 
     /**
      * @param Session $checkoutSession
@@ -87,7 +91,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         \Magento\Quote\Api\CartRepositoryInterface      $quoteRepository,
         \Buckaroo\Magento2\Model\Service\Order          $orderService,
         GiftcardRemove $giftcardRemoveService,
-        PaymentGroupTransaction $groupTransaction
+        PaymentGroupTransaction $groupTransaction,
+        RewardPoints $rewardPoints
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->accountConfig = $accountConfig;
@@ -96,8 +101,8 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $this->orderService = $orderService;
         $this->giftcardRemoveService = $giftcardRemoveService;
         $this->groupTransaction = $groupTransaction;
+        $this->rewardPoints = $rewardPoints;
     }
-
     /**
      * Restore Quote and Cancel LastRealOrder
      *
@@ -151,6 +156,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
             }
 
             $this->helper->addDebug(__METHOD__ . '|50|');
+            $this->rewardPoints->returnRewardPoints($lastRealOrder);
             $this->helper->setRestoreQuoteLastOrder(false);
             $this->checkoutSession->unsBuckarooFailedMaxAttempts();
         }
