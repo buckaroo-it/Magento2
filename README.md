@@ -40,6 +40,7 @@ We recommend you to install the Buckaroo Magento 2 Payments plugin with composer
 ```
 composer require buckaroo/magento2
 php bin/magento module:enable Buckaroo_Magento2
+php bin/magento setup:db-declaration:generate-whitelist --module-name=Buckaroo_Magento2
 php bin/magento setup:upgrade
 php bin/magento setup:static-content:deploy
 ```
