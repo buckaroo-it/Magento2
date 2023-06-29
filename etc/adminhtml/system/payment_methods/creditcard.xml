@@ -67,7 +67,7 @@
 
         <field id="allowed_creditcards" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Allowed credit and debit cards</label>
-            <comment><![CDATA[Select payment method specific Credit and debit card..]]></comment>
+            <comment><![CDATA[Select payment method specific Credit and debit card.]]></comment>
             <config_path>payment/buckaroo_magento2_creditcard/allowed_creditcards</config_path>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Creditcard</source_model>
         </field>
