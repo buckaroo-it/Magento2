@@ -35,6 +35,9 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Locale\Resolver;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class BuckarooAdapter
 {
     /**
