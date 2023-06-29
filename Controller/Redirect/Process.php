@@ -725,18 +725,23 @@ class Process extends \Magento\Framework\App\Action\Action
         return true;
     }
 
+    /**
+     * Remove coupon from failed order if magento enterprise
+     * 
+     * @return void
+     */
     protected function removeCoupon()
     {
-        if(method_exists($this->order,'getCouponCode')) {
+        if (method_exists($this->order,'getCouponCode')) {
             $couponCode = $this->order->getCouponCode();
             $couponFactory = $this->_objectManager->get(\Magento\SalesRule\Model\CouponFactory::class);
-            if(!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
+            if (!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
                 return;
             }
             
             $coupon = $couponFactory->load($couponCode, 'code');
             $resourceModel = $this->_objectManager->get(\Magento\SalesRule\Model\Spi\CouponResourceInterface::class);
-            if(!(is_object($resourceModel) && method_exists($resourceModel, 'delete'))) {
+            if (!(is_object($resourceModel) && method_exists($resourceModel, 'delete'))) {
                 return;
             }
 
