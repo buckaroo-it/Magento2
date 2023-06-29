@@ -22,14 +22,18 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Adapter;
 
 use Buckaroo\BuckarooClient;
+use Buckaroo\Config\DefaultConfig;
 use Buckaroo\Config\Config;
 use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Service\Software\Data;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Locale\Resolver;
 
 class BuckarooAdapter
 {
@@ -57,6 +61,8 @@ class BuckarooAdapter
      * @param Account $configProviderAccount
      * @param Encryptor $encryptor
      * @param Log $logger
+     * @param ProductMetadataInterface $productMetadata
+     * @param Resolver $localeResolver
      * @param array|null $mapPaymentMethods
      * @throws \Exception
      */
@@ -64,16 +70,28 @@ class BuckarooAdapter
         Account $configProviderAccount,
         Encryptor $encryptor,
         Log $logger,
+        ProductMetadataInterface $productMetadata,
+        Resolver $localeResolver,
         array $mapPaymentMethods = null
     ) {
         $this->mapPaymentMethods = $mapPaymentMethods;
         $this->logger = $logger;
 
-        $this->buckaroo = new BuckarooClient(
+        $this->buckaroo = new BuckarooClient(new DefaultConfig(
             $encryptor->decrypt($configProviderAccount->getMerchantKey()),
             $encryptor->decrypt($configProviderAccount->getSecretKey()),
-            $configProviderAccount->getActive() == 2 ? Config::LIVE_MODE : Config::TEST_MODE
-        );
+            $configProviderAccount->getActive() == 2 ? Config::LIVE_MODE : Config::TEST_MODE,
+            null,
+            null,
+            null,
+            null,
+            $productMetadata->getName() . ' - ' . $productMetadata->getEdition(),
+            $productMetadata->getVersion(),
+            'Buckaroo',
+            'Magento2',
+            Data::BUCKAROO_VERSION,
+            str_replace('_', '-', $localeResolver->getLocale())
+        ));
     }
 
     /**
