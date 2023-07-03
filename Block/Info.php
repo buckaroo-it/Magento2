@@ -104,7 +104,8 @@ class Info extends \Magento\Payment\Block\Info
             "sofortbanking" => "svg/sofort.svg",
             "emandate" => "emandate.png",
             "pospayment" => "pos.png",
-            "transfer" => "svg/sepa-credittransfer.svg"
+            "transfer" => "svg/sepa-credittransfer.svg",
+            "paybybank" => "paybybank.gif"
         ];
 
         $name = "svg/{$method}.svg";
