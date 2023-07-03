@@ -25,6 +25,10 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class Enablemode implements OptionSourceInterface
 {
+    public const ENABLE_OFF = 0;
+    public const ENABLE_TEST = 1;
+    public const ENABLE_LIVE = 2;
+
     /**
      * Options getter
      *

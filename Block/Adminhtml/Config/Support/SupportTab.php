@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -24,9 +25,9 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Data\Form\Element\Renderer\RendererInterface;
 use Magento\Framework\Module\ModuleResource;
-use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\HTTP\Client\Curl;
 
 class SupportTab extends Template implements RendererInterface
 {
@@ -39,19 +40,18 @@ class SupportTab extends Template implements RendererInterface
      * @var array
      */
     private $phpVersionSupport = [
-        '2.3' => ['7.3' => ['+'], '7.4' => ['+']],
         '2.4' => ['7.4' => ['+'], '8.1' => ['+'], '8.2' => ['+']],
     ];
-
-    /**
-     * @var ModuleContextInterface
-     */
-    private $moduleContext;
 
     /**
      * @var SoftwareData
      */
     private $softwareData;
+
+    /**
+     * @var Curl
+     */
+    private $curl;
 
     /**
      * Override the parent constructor to require our own dependencies.
@@ -63,14 +63,14 @@ class SupportTab extends Template implements RendererInterface
      */
     public function __construct(
         Context $context,
-        ModuleResource $moduleContext,
         SoftwareData $softwareData,
+        Curl $curl,
         array $data = []
     ) {
         parent::__construct($context, $data);
 
-        $this->moduleContext = $moduleContext;
         $this->softwareData = $softwareData;
+        $this->curl = $curl;
     }
 
     /**
@@ -118,7 +118,8 @@ class SupportTab extends Template implements RendererInterface
         $phpMajorMinor = $phpVersion[0] . '.' . $phpVersion[1];
         $phpPatch = (int)$phpVersion[2];
 
-        if (!isset($this->phpVersionSupport[$magentoMajorMinor]) ||
+        if (
+            !isset($this->phpVersionSupport[$magentoMajorMinor]) ||
             !isset($this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor])
         ) {
             return 0;
@@ -143,7 +144,7 @@ class SupportTab extends Template implements RendererInterface
      *
      * @return array|bool
      */
-    public function getMagentoVersionArray()
+    private function getMagentoVersionArray()
     {
         $version = false;
         $currentVersion = $this->softwareData->getProductMetaData()->getVersion();
@@ -160,7 +161,7 @@ class SupportTab extends Template implements RendererInterface
      *
      * @return false|string[]
      */
-    public function getPhpVersionArray()
+    private function getPhpVersionArray()
     {
         $version = false;
         if (defined('PHP_VERSION')) {
@@ -173,18 +174,37 @@ class SupportTab extends Template implements RendererInterface
     }
 
     /**
-     * Get Magento Version Tidy
+     * Get latest tag from Github repository
      *
-     * @return array|bool
+     * @return string
      */
-    public function getMagentoVersionTidyString()
+    public function getLatestPluginVersion(): string
+    {
+        $url = "https://api.github.com/repos/buckaroo-it/Magento2/tags";
+        $this->curl->addHeader('User-Agent', 'Magento 2 Buckaroo Plugin');
+        $this->curl->get($url);
+        $result = json_decode($this->curl->getBody(), true);
+
+        if (is_array($result) && isset($result[0]['name'])) {
+            return $result[0]['name'];
+        }
+        return "v" . $this->getVersionNumber();
+    }
+
+    /**
+     * Get all php compatible versions
+     *
+     * @return string
+     */
+    public function getPhpVersions(): string
     {
         $magentoVersion = $this->getMagentoVersionArray();
-
-        if (is_array($magentoVersion)) {
-            return $magentoVersion[0] . '.' . $magentoVersion[1];
+        if (!is_array($magentoVersion)) {
+            return __('Cannot determine compatible PHP versions');
         }
 
-        return false;
+        $magentoMajorMinor = $magentoVersion[0] . '.' . $magentoVersion[1];
+        $versions = array_keys($this->phpVersionSupport[$magentoMajorMinor]);
+        return implode(', ', $versions);
     }
 }

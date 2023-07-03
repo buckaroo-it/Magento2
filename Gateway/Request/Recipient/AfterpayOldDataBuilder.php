@@ -109,11 +109,11 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
     /**
      * Determines whether the customer is a B2B customer based on the store configuration.
      *
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @return bool
      * @throws LocalizedException
      */
-    private function isCustomerB2B(int $storeId = null): bool
+    private function isCustomerB2B($storeId = null): bool
     {
         return $this->getConfigData('customer_type', $storeId) !== AfterpayCustomerType::CUSTOMER_TYPE_B2C;
     }

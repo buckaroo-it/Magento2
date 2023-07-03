@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Checkout\Api\PaymentInformationManagementInterface;
 use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaymentInformationManagement;
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -155,9 +156,27 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             return \json_encode($this->registry->registry('buckaroo_response')[0]);
         }
-        return \json_encode([
+        return json_encode([
+//            "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
             "order_number" => $this->getOrderIncrementId($orderId)
         ]);
+    }
+
+    /**
+     * Get limit reach message from payment object
+     *
+     * @param int $orderId
+     * @return string|null
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+     */
+    private function getLimitReachedMessage($orderId)
+    {
+        $order = $this->orderRepository->get($orderId);
+        if ($order->getEntityId() !== null && $order->getPayment() !== null) {
+            return $order->getPayment()->getAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
+        }
+        return null;
     }
 
     /**

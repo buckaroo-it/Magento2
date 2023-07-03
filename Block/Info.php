@@ -89,6 +89,13 @@ class Info extends \Magento\Payment\Block\Info
                         'label' => $foundGiftcard['label'],
                     ];
                 }
+
+                if ($giftcard['servicecode'] == 'buckaroovoucher') {
+                    $result[] = [
+                        'code'  => $giftcard['servicecode'],
+                        'label' => 'Buckaroo Voucher',
+                    ];
+                }
             }
         }
 
@@ -137,7 +144,8 @@ class Info extends \Magento\Payment\Block\Info
             "sofortbanking" => "svg/sofort.svg",
             "emandate" => "emandate.png",
             "pospayment" => "pos.png",
-            "transfer" => "svg/sepa-credittransfer.svg"
+            "transfer" => "svg/sepa-credittransfer.svg",
+            "buckaroovoucher" => "svg/vouchers.svg"
         ];
 
         $name = "svg/{$method}.svg";
@@ -170,12 +178,17 @@ class Info extends \Magento\Payment\Block\Info
             "nationaleentertainmentcard" => "nationaleentertainmentcard",
             "podiumcadeaukaart" => "podiumcadeaukaart",
             "sportfitcadeau" => "sport-fitcadeau",
-            "vvvgiftcard" => "vvvgiftcard"
+            "vvvgiftcard" => "vvvgiftcard",
+            "buckaroovoucher" => "vouchers"
         ];
 
         if (isset($mappings[$code])) {
             $name = "giftcards/{$mappings[$code]}.svg";
+            if ($mappings[$code] == 'vouchers') {
+                $name = "svg/{$mappings[$code]}.svg";
+            }
         }
+
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
     }
 

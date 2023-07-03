@@ -19,41 +19,46 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\AdditionalInformation;
+namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Gateway\Http\Client\TransactionType;
+use Buckaroo\Magento2\Service\PayReminderService;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class CreditcardEncryptedDataBuilder implements BuilderInterface
+class SkipPushDataBuilder implements BuilderInterface
 {
+    public const BUCKAROO_SKIP_PUSH_KEY = 'skip_push';
+
+    /**
+     * @var PayReminderService
+     */
+    private PayReminderService $payReminderService;
+
+    /**
+     * @param PayReminderService $payReminderService
+     */
+    public function __construct(PayReminderService $payReminderService)
+    {
+        $this->payReminderService = $payReminderService;
+    }
+
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $payment = $paymentDO->getPayment();
+        $orderId = $paymentDO->getOrder()->getOrderIncrementId();
 
-        $additionalInformation = $payment->getAdditionalInformation();
+        $serviceAction = $this->payReminderService->getServiceAction($orderId);
 
-        if (!isset($additionalInformation['customer_encrypteddata'])) {
-            throw new Exception(__(
-                'An error occured trying to send the encrypted creditcard data to Buckaroo.'
-            ));
+        if (!in_array($serviceAction, TransactionType::getPayRemainderActions())) {
+            $payment->setAdditionalInformation(self::BUCKAROO_SKIP_PUSH_KEY, 1);
+            $paymentDO->getOrder()->getOrder()->save();
         }
 
-        if (!isset($additionalInformation['card_type'])) {
-            throw new Exception(__(
-                'An error occured trying to send the creditcard company data to Buckaroo.'
-            ));
-        }
-
-        return [
-            'name' => $additionalInformation['card_type'],
-            'encryptedCardData' => $additionalInformation['customer_encrypteddata']
-        ];
+        return [];
     }
 }

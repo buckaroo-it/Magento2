@@ -23,10 +23,11 @@ namespace Buckaroo\Magento2\Controller\Payconiq;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
-class Pay extends Action implements HttpGetActionInterface
+class Pay extends Action implements HttpGetActionInterface, HttpPostActionInterface
 {
     /**
      * @var PageFactory

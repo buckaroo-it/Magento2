@@ -327,9 +327,9 @@ class Data extends AbstractHelper
      * Get original transaction key
      *
      * @param string|int $orderId
-     * @return GroupTransaction|null
+     * @return string|null
      */
-    public function getOriginalTransactionKey($orderId): ?GroupTransaction
+    public function getOriginalTransactionKey($orderId): ?string
     {
         return $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId);
     }

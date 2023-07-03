@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
 use Magento\Framework\DataObject;
+use Magento\Framework\Phrase;
 
 class PayResponse extends DataObject implements PayResponseInterface, PayResponseSetInterface
 {
@@ -83,10 +84,10 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
     /**
      * Get user message
      *
-     * @return string|null
+     * @return Phrase|string|null
      * @api
      */
-    public function getMessage(): ?string
+    public function getMessage()
     {
         return $this->getData('message');
     }
@@ -94,10 +95,10 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
     /**
      * Get user remaining amount message
      *
-     * @return string|null
+     * @return Phrase|string|null
      * @api
      */
-    public function getRemainingAmountMessage(): ?string
+    public function getRemainingAmountMessage()
     {
         return $this->getData('remainingAmountMessage');
     }

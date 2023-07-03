@@ -456,3 +456,6 @@
 "PIN / Security code:","PIN / Código de seguridad:"
 "-- Please Select Your Gender--","Por favor seleccione su género"
 "Determines the active payment method service ("Credit" is the default method). More information can be found on <a href="https://docs.buckaroo.io/docs/tinka">https://docs.buckaroo.io/docs/tinka</a>","Seleccione el servicio de método de pago deseado para Tinka ("Credit" es el método predeterminado). Se puede encontrar más información en <a href="https://docs.buckaroo.io/docs/tinka">https://docs.buckaroo.io/docs/tinka</a>"
+"Enabling this feature adds the option to hide this payment method after a certain number of failed attempts.","Habilitar esta función agrega la opción de ocultar este método de pago después de una cierta cantidad de intentos fallidos."
+"When this number is exceeded, the payment method will be hidden. Minimum 1, maximum 10.","Cuando se supere este número, los métodos de pago se ocultarán. Mínimo 1, máximo 10."
+"This message is shown when the payment method is hidden. Maximum 280 characters.","Este mensaje se muestra cuando el método de pago está oculto. Máximo 280 caracteres."
