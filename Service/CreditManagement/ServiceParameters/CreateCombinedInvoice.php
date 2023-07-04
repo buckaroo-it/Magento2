@@ -178,6 +178,13 @@ class CreateCombinedInvoice
         return $allowedServices;
     }
 
+    /**
+     * Append active giftcards if giftcard is enabled
+     *
+     * @param string $allowedServices
+     *
+     * @return string
+     */
     private function appendGiftcards(string $allowedServices): string
     {
         $services = explode(',', $allowedServices);
