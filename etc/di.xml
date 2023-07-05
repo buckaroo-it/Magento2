@@ -509,6 +509,7 @@
             <argument name="pushProcessors" xsi:type="array">
                 <item name="default" xsi:type="string">Buckaroo\Magento2\Model\Push\DefaultProcessor</item>
                 <item name="ideal" xsi:type="string">Buckaroo\Magento2\Model\Push\IdealProcessor</item>
+                <item name="credit_managment" xsi:type="string">Buckaroo\Magento2\Model\Push\CreditManagmentPushProcessor</item>
             </argument>
         </arguments>
     </type>
@@ -3121,6 +3122,30 @@
     <!-- END Giftcards Remove Command -->
     <!-- END Giftcards Commands infrastructure -->
     <!-- END Payment Method: Giftcards -->
+
+    <!-- Payment Method: PayLink -->
+    <virtualType name="PayLinkFacade" type="PayPerEmailFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">PayLinkValueHandlerPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- PayLink Value handlers infrastructure -->
+    <virtualType name="PayLinkValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">PayLinkConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="PayLinkConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink</argument>
+        </arguments>
+    </virtualType>
+    <!-- END PayPerEmail Value handlers infrastructure -->
+    <!-- END Payment Method: PayLink -->
 
     <!-- Payment Method: PayPerEmail -->
     <!-- PayPerEmail Payment Method Facade configuration -->

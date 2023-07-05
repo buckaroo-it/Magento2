@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Service\Push;
 
+use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
@@ -26,13 +27,16 @@ class OrderRequestService
     private TransactionInterface $transaction;
 
     /**
+     * @param Order $order
      * @param Log $logging
      * @param TransactionInterface $transaction
      */
     public function __construct(
+        Order $order,
         Log $logging,
         TransactionInterface $transaction
     ) {
+        $this->order = $order;
         $this->logging = $logging;
         $this->transaction = $transaction;
     }
@@ -40,13 +44,13 @@ class OrderRequestService
     /**
      * Load the order from the Push Data based on the Order Increment ID or transaction key.
      *
-     * @param $pushRequest
+     * @param PushRequestInterface|null $pushRequest
      * @return Order|OrderPayment
      * @throws \Exception
      */
-    public function getOrderByRequest($pushRequest): Order|OrderPayment
+    public function getOrderByRequest(?PushRequestInterface $pushRequest = null): Order|OrderPayment
     {
-        if ($this->order) {
+        if ($this->order->getId()) {
             return $this->order;
         } else {
             $brqOrderId = $this->getOrderIncrementIdFromRequest($pushRequest);

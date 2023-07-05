@@ -13,8 +13,10 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 use Buckaroo\Magento2\Service\LockerProcess;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
@@ -74,16 +76,6 @@ class DefaultProcessor implements PushProcessorInterface
         $this->validator = $validator;
     }
 
-    public function processSucceded()
-    {
-        // TODO: Implement processSucceded() method.
-    }
-
-    public function processFailed()
-    {
-        // TODO: Implement processFailed() method.
-    }
-
     /**
      * @throws BuckarooException
      * @throws FileSystemException
@@ -121,6 +113,114 @@ class DefaultProcessor implements PushProcessorInterface
         $this->lockerProcess->unlockProcess();
     }
 
+    /**
+     * Creates and saves the invoice and adds for each invoice the buckaroo transaction keys
+     * Only when the order can be invoiced and has not been invoiced before.
+     *
+     * @return bool
+     * @throws BuckarooException
+     * @throws LocalizedException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
+    protected function saveInvoice(): bool
+    {
+        $this->logging->addDebug(__METHOD__ . '|1|');
+        if (!$this->forceInvoice
+            && (!$this->order->canInvoice() || $this->order->hasInvoices())) {
+            $this->logging->addDebug('Order can not be invoiced');
+            //throw new BuckarooException(__('Order can not be invoiced'));
+            return false;
+
+        }
+
+        $this->logging->addDebug(__METHOD__ . '|5|');
+
+        /**
+         * Only when the order can be invoiced and has not been invoiced before.
+         */
+        if (!$this->isGroupTransactionInfoType()) {
+            $this->addTransactionData();
+        }
+
+        /**
+         * @var Payment $payment
+         */
+        $payment = $this->order->getPayment();
+
+        $invoiceAmount = 0;
+        if (!empty($this->pushRequst->getAmount())) {
+            $invoiceAmount = floatval($this->pushRequst->getAmount());
+        }
+        if (($payment->getMethod() == Giftcards::CODE)
+            && $invoiceAmount != $this->order->getGrandTotal()
+        ) {
+            $this->setReceivedPaymentFromBuckaroo();
+
+            $payment->registerCaptureNotification($invoiceAmount, true);
+            $payment->save();
+
+            $receivedPaymentsArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
+
+            if (!is_array($receivedPaymentsArray)) {
+                return false;
+            }
+
+            $payment->capture(); //creates invoice
+            $payment->save();
+        } elseif ($this->isPayPerEmailB2BModePushInitial) {
+            $this->logging->addDebug(__METHOD__ . '|10|');
+            $invoice = $this->order->prepareInvoice()->register();
+            $invoice->setOrder($this->order);
+            $this->order->addRelatedObject($invoice);
+            $payment->setCreatedInvoice($invoice);
+            $payment->setShouldCloseParentTransaction(true);
+        } else {
+            $this->logging->addDebug(__METHOD__ . '|15|');
+            //Fix for suspected fraud when the order currency does not match with the payment's currency
+            $amount = ($payment->isSameCurrency()
+                && $payment->isCaptureFinal($this->order->getGrandTotal())) ?
+                $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
+            $payment->registerCaptureNotification($amount);
+            $payment->save();
+        }
+
+        $this->logging->addDebug(__METHOD__ . '|20|');
+
+        $transactionKey = $this->getTransactionKey();
+
+        if (strlen($transactionKey) <= 0) {
+            return true;
+        }
+
+        $this->logging->addDebug(__METHOD__ . '|25|');
+
+        /** @var \Magento\Sales\Model\Order\Invoice $invoice */
+        foreach ($this->order->getInvoiceCollection() as $invoice) {
+            $invoice->setTransactionId($transactionKey)->save();
+
+            if (!empty($this->pushRequst->getInvoiceNumber())
+                && $this->groupTransaction->isGroupTransaction($this->pushRequst->getInvoiceNumber())) {
+                $this->logging->addDebug(__METHOD__ . '|27|');
+                $invoice->setState(2);
+            }
+
+            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+                $this->logging->addDebug(__METHOD__ . '|30|sendinvoiceemail');
+                $this->invoiceSender->send($invoice, true);
+            }
+        }
+
+        $this->logging->addDebug(__METHOD__ . '|35|');
+
+        $this->order->setIsInProcess(true);
+        $this->order->save();
+
+        $this->dontSaveOrderUponSuccessPush = true;
+
+        return true;
+    }
     /**
      * Load the order from the Push Data based on the Order Increment ID or transaction key.
      *
@@ -494,5 +594,20 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return $statusCode;
+    }
+
+    public function processSucceededPush(PushRequestInterface $pushRequest): bool
+    {
+        // TODO: Implement processSucceededPush() method.
+    }
+
+    public function processFailedPush(PushRequestInterface $pushRequest): bool
+    {
+        // TODO: Implement processFailedPush() method.
+    }
+
+    public function processPendingPaymentPush(PushRequestInterface $pushRequest): bool
+    {
+        // TODO: Implement processPendingPaymentPush() method.
     }
 }

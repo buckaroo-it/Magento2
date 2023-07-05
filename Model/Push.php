@@ -43,6 +43,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
+use Buckaroo\Magento2\Model\Push\PushTransactionType;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
@@ -271,7 +272,8 @@ class Push implements PushInterface
         File $fileSystemDriver,
         RequestPushFactory $requestPushFactory,
         PushProcessorsFactory $pushProcessorsFactory,
-        OrderRequestService $orderRequestService
+        OrderRequestService $orderRequestService,
+        PushTransactionType $pushTransactionType
     ) {
         $this->order = $order;
         $this->transaction = $transaction;
@@ -296,12 +298,14 @@ class Push implements PushInterface
         $this->pushRequst = $requestPushFactory->create();
         $this->pushProcessorsFactory = $pushProcessorsFactory;
         $this->orderRequestService = $orderRequestService;
+        $this->pushTransactionType = $pushTransactionType;
     }
 
     /**
      * @inheritdoc
      *
      * @throws BuckarooException
+     * @throws \Exception
      * @todo Once Magento supports variable parameters, modify this method to no longer require a Request object
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -313,8 +317,11 @@ class Push implements PushInterface
         // Log the push request
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->pushRequst->getOriginalRequest(), true));
 
+        // Load Order
+        $this->order = $this->orderRequestService->getOrderByRequest($this->pushRequst);
+
         // Validate Signature
-        $store = $this->order?->getStore();
+        $store = $this->order->getStore();
         $validSignature = $this->pushRequst->validate($store);
 
         if (!$validSignature) {
@@ -322,9 +329,12 @@ class Push implements PushInterface
             throw new BuckarooException(__('Signature from push is incorrect'));
         }
 
+        // Get Push Transaction Type
+        $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequst, $this->order);
+
         // Process Push
-        $this->pushProcessor = $this->pushProcessorsFactory->get($this->pushRequst);
-        $this->pushProcessor->processPush($this->pushRequst);
+//        $this->pushProcessor = $this->pushProcessorsFactory->get($this->pushRequst);
+//        $this->pushProcessor->processPush($this->pushRequst);
 
         // Lock Push Processing
         $this->logging->addDebug(__METHOD__ . '|1_2|');

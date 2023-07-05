@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Exception;
 use Magento\Store\Model\ScopeInterface;
 
-class  PayLink extends AbstractConfigProvider
+class PayLink extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_paylink';
 

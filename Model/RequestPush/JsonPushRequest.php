@@ -33,6 +33,9 @@ use Buckaroo\Magento2\Model\Validator\PushSDK as Validator;
  * @method getSchemekey()
  * @method getServiceCreditmanagement3Invoicekey()
  * @method getEventparametersStatuscode()
+ * @method getEventparametersTransactionstatuscode()
+ * @method getIspaid()
+ * @method getInvoicestatuscode()
  */
 class JsonPushRequest extends AbstractPushRequest implements PushRequestInterface
 {
