@@ -48,6 +48,48 @@ class PayByBank extends AbstractConfigProvider
     const XPATH_PAYBYBANK_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paybybank/specificcustomergroup';
 
+    protected $issuers = [
+        [
+            'name' => 'ABN AMRO',
+            'code' => 'ABNANL2A',
+            'imgName' => 'abnamro'
+        ],
+        [
+            'name' => 'ASN Bank',
+            'code' => 'ASNBNL21',
+            'imgName' => 'asnbank'
+        ],
+        [
+            'name' => 'ING',
+            'code' => 'INGBNL2A',
+            'imgName' => 'ing'
+        ],
+        [
+            'name' => 'Knab Bank',
+            'code' => 'KNABNL2H',
+            'imgName' => 'knab'
+        ],
+        [
+            'name' => 'Rabobank',
+            'code' => 'RABONL2U',
+            'imgName' => 'rabobank'
+        ],
+        [
+            'name' => 'RegioBank',
+            'code' => 'RBRBNL21',
+            'imgName' => 'regiobank'
+        ],
+        [
+            'name' => 'SNS Bank',
+            'code' => 'SNSBNL2A',
+            'imgName' => 'sns'
+        ],
+        [
+            'name' => 'N26',
+            'code' => 'NTSBDEB1',
+            'imgName' => 'n26'
+        ]
+    ];
     /**
      * @var CustomerSession
      */
