@@ -292,6 +292,11 @@ class BuckarooAdapter extends Adapter
     {
         $title = $this->getConfigData('title');
 
+
+        if(!is_string($title) || strlen(trim($title)) === 0) {
+            $title = DefaultTitles::get($this->buckarooPaymentMethodCode);
+        }
+
         if (!$this->configProviderMethodFactory->has($this->buckarooPaymentMethodCode)) {
             return $title;
         }
