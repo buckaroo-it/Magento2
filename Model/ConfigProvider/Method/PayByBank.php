@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -31,22 +30,22 @@ use Buckaroo\Magento2\Model\Method\PayByBank as PayByBankMethod;
 
 class PayByBank extends AbstractConfigProvider
 {
-    const XPATH_PAYBYBANK_ACTIVE                = 'payment/buckaroo_magento2_paybybank/active';
-    const XPATH_PAYBYBANK_SUBTEXT               = 'payment/buckaroo_magento2_paybybank/subtext';
-    const XPATH_PAYBYBANK_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_paybybank/subtext_style';
-    const XPATH_PAYBYBANK_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_paybybank/subtext_color';
-    const XPATH_PAYBYBANK_ACTIVE_STATUS         = 'payment/buckaroo_magento2_paybybank/active_status';
-    const XPATH_PAYBYBANK_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_paybybank/order_status_success';
-    const XPATH_PAYBYBANK_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_paybybank/order_status_failed';
-    const XPATH_PAYBYBANK_ORDER_EMAIL           = 'payment/buckaroo_magento2_paybybank/order_email';
-    const XPATH_PAYBYBANK_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_paybybank/available_in_backend';
+    public const XPATH_PAYBYBANK_ACTIVE               = 'payment/buckaroo_magento2_paybybank/active';
+    public const XPATH_PAYBYBANK_SUBTEXT              = 'payment/buckaroo_magento2_paybybank/subtext';
+    public const XPATH_PAYBYBANK_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_paybybank/subtext_style';
+    public const XPATH_PAYBYBANK_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_paybybank/subtext_color';
+    public const XPATH_PAYBYBANK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_paybybank/active_status';
+    public const XPATH_PAYBYBANK_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_paybybank/order_status_success';
+    public const XPATH_PAYBYBANK_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_paybybank/order_status_failed';
+    public const XPATH_PAYBYBANK_ORDER_EMAIL          = 'payment/buckaroo_magento2_paybybank/order_email';
+    public const XPATH_PAYBYBANK_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_paybybank/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paybybank/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paybybank/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_paybybank/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_paybybank/specificcountry';
-    const XPATH_PAYBYBANK_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paybybank/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC           = 'payment/buckaroo_magento2_paybybank/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY         = 'payment/buckaroo_magento2_paybybank/specificcountry';
+    public const XPATH_PAYBYBANK_SELECTION_TYPE = 'buckaroo_magento2/account/selection_type';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP  = 'payment/buckaroo_magento2_paybybank/specificcustomergroup';
 
     protected $issuers = [
         [
@@ -90,17 +89,18 @@ class PayByBank extends AbstractConfigProvider
             'imgName' => 'n26'
         ]
     ];
+
     /**
      * @var CustomerSession
      */
-    protected $customerSession;
+    protected CustomerSession $customerSession;
 
     /**
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param CustomerSession $customerSession
      */
     public function __construct(
         Repository $assetRepo,
@@ -121,9 +121,9 @@ class PayByBank extends AbstractConfigProvider
     ];
 
     /**
-     * @return array|void
+     * @return array
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->scopeConfig->getValue(
             static::XPATH_PAYBYBANK_ACTIVE,
@@ -142,12 +142,12 @@ class PayByBank extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'paybybank' => [
-                        'banks' => $this->getIssuersWithSelected(),
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'banks'             => $this->getIssuersWithSelected(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType' => $selectionType,
+                        'selectionType'     => $selectionType,
                     ],
                 ],
             ],

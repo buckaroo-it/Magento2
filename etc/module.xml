@@ -20,7 +20,7 @@
  */
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Buckaroo_Magento2:etc/buckaroo_module.xsd">
-    <module name="Buckaroo_Magento2" setup_version="1.45.1" build_number="1769" stability="stable">
+    <module name="Buckaroo_Magento2" setup_version="1.45.2" build_number="1771" stability="stable">
         <sequence>
             <module name="Magento_Payment"/>
             <module name="Magento_ReleaseNotification"/>
