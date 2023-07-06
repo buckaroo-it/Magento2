@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Method;
 
- class DefaultTitles
- {
+class DefaultTitles
+{
     protected static $labels = [
         'afterpay' => 'Riverty | Afterpay',
         'afterpay2' => 'Riverty | Afterpay',
@@ -61,9 +63,9 @@ namespace Buckaroo\Magento2\Model\Method;
 
     public static function get(string $paymentCode): string
     {
-        if(isset(self::$labels[$paymentCode])) {
+        if (isset(self::$labels[$paymentCode])) {
             return self::$labels[$paymentCode];
         }
         return $paymentCode;
     }
- }
+}
