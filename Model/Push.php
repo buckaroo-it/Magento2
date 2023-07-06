@@ -228,6 +228,11 @@ class Push implements PushInterface
     private OrderRequestService $orderRequestService;
 
     /**
+     * @var PushTransactionType
+     */
+    private PushTransactionType $pushTransactionType;
+
+    /**
      * @param Order $order
      * @param TransactionInterface $transaction
      * @param Request $request
@@ -333,8 +338,10 @@ class Push implements PushInterface
         $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequst, $this->order);
 
         // Process Push
-//        $this->pushProcessor = $this->pushProcessorsFactory->get($this->pushRequst);
-//        $this->pushProcessor->processPush($this->pushRequst);
+        $this->pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
+        $this->pushProcessor->processPush($this->pushRequst);
+
+
 
         // Lock Push Processing
         $this->logging->addDebug(__METHOD__ . '|1_2|');

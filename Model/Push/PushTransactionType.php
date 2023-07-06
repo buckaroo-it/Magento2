@@ -69,9 +69,9 @@ class PushTransactionType
     private bool $creditManagment;
 
     /**
-     * @var string
+     * @var bool|string
      */
-    private string $transactionType;
+    private string|bool $transactionType;
 
 
     /**
@@ -100,9 +100,9 @@ class PushTransactionType
     /**
      * @param PushRequestInterface|null $pushRequest
      * @param Order|null $order
-     * @return array
+     * @return PushTransactionType
      */
-    public function getPushTransactionType(?PushRequestInterface $pushRequest, ?Order $order): array
+    public function getPushTransactionType(?PushRequestInterface $pushRequest, ?Order $order): PushTransactionType
     {
         if(empty($this->pushTransactionType)) {
             $this->paymentMethod = $pushRequest->getTransactionMethod();
@@ -122,9 +122,7 @@ class PushTransactionType
 
         }
 
-        return $this->pushTransactionType;
-
-
+        return $this;
     }
 
     /**
@@ -274,7 +272,7 @@ class PushTransactionType
     /**
      * Determine the transaction type based on push request data and the saved invoice key.
      *
-     * @return bool|string
+     * @return string
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -309,7 +307,7 @@ class PushTransactionType
             return self::BUCK_PUSH_TYPE_TRANSACTION;
         }
 
-        return false;
+        return '';
     }
 
     /**

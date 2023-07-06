@@ -85,6 +85,8 @@ class OrderRequestService
             $brqOrderId = $pushRequest->getOrderNumber();
         }
 
+        $brqOrderId = str_replace('LT', '', $brqOrderId);
+
         return $brqOrderId;
     }
 
