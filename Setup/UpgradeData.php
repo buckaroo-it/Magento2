@@ -563,7 +563,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $this->giftcardPartialRefund($setup);
         }
 
-        if (version_compare($context->getVersion(), '1.45.2', '<')) {
+        if (version_compare($context->getVersion(), '1.45.1', '<')) {
             $this->addCustomerLastPayByBankIssuer($setup);
         }
 
