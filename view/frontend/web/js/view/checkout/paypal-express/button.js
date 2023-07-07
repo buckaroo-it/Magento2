@@ -30,11 +30,10 @@
         return Component.extend({
             initialize: function (config) {
                 this._super();
-                paypalExpressPay.setConfig(config.data);
+                paypalExpressPay.setConfig(config.data, 'product');
             },
 
             showPayButton: function () {
-                paypalExpressPay.setPage('product');
                 paypalExpressPay.init();
             }
         });

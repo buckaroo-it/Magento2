@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
 
+use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface;
+
 interface QuoteCreateResponseInterface extends BreakdownItemInterface
 {
     /**
