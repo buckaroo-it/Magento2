@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Method;
@@ -291,6 +293,11 @@ class BuckarooAdapter extends Adapter
     public function getTitle(): string
     {
         $title = $this->getConfigData('title');
+
+
+        if (!is_string($title) || strlen(trim($title)) === 0) {
+            $title = DefaultTitles::get($this->buckarooPaymentMethodCode);
+        }
 
         if (!$this->configProviderMethodFactory->has($this->buckarooPaymentMethodCode)) {
             return $title;
