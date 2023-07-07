@@ -563,13 +563,15 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $this->giftcardPartialRefund($setup);
         }
 
+        if (version_compare($context->getVersion(), '1.45.1', '<')) {
+            $this->addCustomerLastPayByBankIssuer($setup);
+        }
+
         $this->setCustomerIDIN($setup);
         
         $this->setCustomerIsEighteenOrOlder($setup);
 
         $this->setProductIDIN($setup);
-
-        $this->addCustomerLastPayByBankIssuer($setup);
 
         $setup->endSetup();
     }
@@ -1480,6 +1482,10 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
                 'global'       => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE
             ]
         );
+
+        $buckarooLastPaybybank = $this->eavConfig->getAttribute(Customer::ENTITY, PayByBank::EAV_LAST_USED_ISSUER_ID);
+
+        $buckarooLastPaybybank->save();
     }
 
     protected function setCustomerIsEighteenOrOlder(ModuleDataSetupInterface $setup)
