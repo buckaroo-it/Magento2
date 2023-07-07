@@ -118,7 +118,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Creditcard</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Creditcard and Debit Card</title>
+                <title>Buckaroo Creditcard and Debit Cards</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>30</sort_order>
                 <order_email>1</order_email>
@@ -138,7 +138,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Creditcards</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Creditcards</title>
+                <title>Buckaroo Creditcard and Debit Cards</title>
                 <sort_order>35</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
