@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
 use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Model\Config\Source\PaypalButtonStyle;
 
 class Paypal extends AbstractConfigProvider
 {
@@ -38,8 +41,10 @@ class Paypal extends AbstractConfigProvider
     public const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
 
-    public const XPATH_PAYPAL_EXPRESS_BUTTONS          = 'payment/buckaroo_magento2_paypal/available_buttons';
-    public const XPATH_PAYPAL_EXPRESS_MERCHANT_ID          = 'payment/buckaroo_magento2_paypal/express_merchant_id';
+    public const XPATH_PAYPAL_EXPRESS_BUTTONS           = 'payment/buckaroo_magento2_paypal/available_buttons';
+    public const XPATH_PAYPAL_EXPRESS_MERCHANT_ID       = 'payment/buckaroo_magento2_paypal/express_merchant_id';
+    public const XPATH_PAYPAL_EXPRESS_BUTTON_COLOR      = 'payment/buckaroo_magento2_paypal/express_button_color';
+    public const XPATH_PAYPAL_EXPRESS_BUTTON_IS_ROUNDED = 'payment/buckaroo_magento2_paypal/express_button_rounded';
 
     /**
      * @inheritdoc
@@ -161,6 +166,33 @@ class Paypal extends AbstractConfigProvider
     {
         return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_MERCHANT_ID, $store);
     }
+
+    /**
+     * Get PayPal express button color
+     *
+     * @param null|int|string $store
+     * @return string
+     */
+    public function getButtonColor($store = null): string
+    {
+        $color = $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTON_COLOR, $store);
+        if (!is_string($color)) {
+            $color = PaypalButtonStyle::COLOR_DEFAULT;
+        }
+        return $color;
+    }
+
+    /**
+     * Get PayPal express button shape
+     *
+     * @param null|int|string $store
+     * @return string
+     */
+    public function getButtonShape($store = null): string
+    {
+        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTON_IS_ROUNDED, $store) === "1" ? 'pill' : 'rect';
+    }
+
 
     /**
      * Test if express button is enabled for the $page

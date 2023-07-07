@@ -255,7 +255,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     * Get Active Config Valuue
+     * Get Active Config Value
      *
      * @param null|int|string $store
      * @return mixed|null
