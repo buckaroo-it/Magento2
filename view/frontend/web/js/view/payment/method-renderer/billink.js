@@ -173,6 +173,9 @@ define(
                     );
                     this.billingName = ko.computed(
                         function () {
+                            if(this.isB2B && quote.billingAddress() !== null) {
+                                return quote.billingAddress().company;
+                            }
                             if(quote.billingAddress() !== null) {
                                 return quote.billingAddress().firstname + " " + quote.billingAddress().lastname;
                             }
@@ -236,8 +239,6 @@ define(
                 getActiveValidationFields() {
                     let fields = [
                         'buckaroo_magento2_billink_TermsCondition',
-                        'buckaroo_magento2_billink_DoB',
-                        'buckaroo_magento2_bilink_genderSelect'
                     ];
                     if(this.showPhone()) {
                         fields.push('buckaroo_magento2_billink_Telephone')
@@ -245,6 +246,11 @@ define(
                     
                     if(this.isB2B) {
                        fields.push('buckaroo_magento2_billink_chamberOfCommerce')
+                    } else {
+                        fields.concat([
+                            'buckaroo_magento2_billink_DoB',
+                            'buckaroo_magento2_bilink_genderSelect'
+                        ]);
                     }
 
                     return fields;
