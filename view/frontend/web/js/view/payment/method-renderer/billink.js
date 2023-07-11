@@ -247,12 +247,13 @@ define(
                     if(this.isB2B) {
                        fields.push('buckaroo_magento2_billink_chamberOfCommerce')
                     } else {
-                        fields.concat([
+                        fields = fields.concat([
                             'buckaroo_magento2_billink_DoB',
                             'buckaroo_magento2_bilink_genderSelect'
                         ]);
                     }
 
+                    console.log(fields);
                     return fields;
                 },
                 validate: function () {
