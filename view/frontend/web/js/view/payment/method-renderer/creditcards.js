@@ -174,33 +174,7 @@ define(
                         },
                         owner: this
                     });
-
-
                    
-                    /** Check used to see form is valid **/
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            const state = this.validationState();
-                            const valid = [
-                                'buckaroo_magento2_creditcards_cardholdername',
-                                'buckaroo_magento2_creditcards_cardnumber',
-                                'buckaroo_magento2_creditcards_expireDate',
-                                'buckaroo_magento2_creditcards_cvc',
-                            ].map((field) => {
-                                if(state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function(prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    );
 
                     this.issuerImage = ko.computed(
                         function () {
@@ -241,8 +215,6 @@ define(
                     this.validationState(state);
                 },
 
-                
-
                 /** Get the card issuer based on the creditcard number **/
                 determineIssuer: function (cardNumber) {
                     var issuers = {
@@ -279,6 +251,10 @@ define(
                     }
 
                     return false;
+                },
+
+                validate: function () {
+                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
                 selectPaymentMethod: function () {
@@ -318,7 +294,7 @@ define(
                         event.preventDefault();
                     }
 
-                    if (additionalValidators.validate()) {
+                    if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
                         this.getData().then(function(data) {
                             placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
@@ -346,7 +322,11 @@ define(
                         const month = parts[0];
                         const year = parts[1];
                         const method = this.item.method;
-                        const cardIssuer = this.cardIssuer();
+                        let cardIssuer = this.cardIssuer();
+
+                        if(cardIssuer == null) {
+                            cardIssuer = 'visa';
+                        }
 
 
                         BuckarooClientSideEncryption.V001.encryptCardData(
