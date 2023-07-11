@@ -253,7 +253,6 @@ define(
                         ]);
                     }
 
-                    console.log(fields);
                     return fields;
                 },
                 validate: function () {
