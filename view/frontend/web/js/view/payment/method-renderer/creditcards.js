@@ -325,7 +325,7 @@ define(
                         let cardIssuer = this.cardIssuer();
 
                         if(cardIssuer == null) {
-                            cardIssuer = 'visa';
+                            cardIssuer = this.determineIssuer(this.cardNumber());
                         }
 
 
