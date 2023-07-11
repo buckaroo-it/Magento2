@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Model\Push;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Magento\Framework\Exception\FileSystemException;
 
 class IdealProcessor extends DefaultProcessor
@@ -16,7 +17,16 @@ class IdealProcessor extends DefaultProcessor
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
+        $this->pushRequest = $pushRequest;
+
+        // Lock Processing
+        if ($this->lockPushProcessingCriteria()) {
+            $this->lockerProcess->lockProcess($this->getOrderIncrementId());
+        }
+
         parent::processPush($pushRequest);
+
+        $this->lockerProcess->unlockProcess();
     }
 
     /**
@@ -26,17 +36,15 @@ class IdealProcessor extends DefaultProcessor
      */
     protected function lockPushProcessingCriteria(): bool
     {
-        $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-
-        return ($this->pushRequest->hasPostData('statuscode', $statusCodeSuccess)
-            && $this->pushRequest->hasPostData('transaction_type', self::BUCK_PUSH_IDEAL_PAY));
+        return $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
+            && $this->pushRequest->hasPostData('transaction_type', self::BUCK_PUSH_IDEAL_PAY);
     }
 
     public function processSucceded()
     {
-        $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+        $statusCodeSuccess = BuckarooStatusCode::SUCCESS;
 
-        if ($this->pushRequest->hasPostData('statuscode', $statusCodeSuccess)
+        if ($this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
             && $this->pushRequest->hasPostData('transaction_method', 'ideal')
             && $this->pushRequest->hasPostData('transaction_type', self::BUCK_PUSH_IDEAL_PAY)
         ) {

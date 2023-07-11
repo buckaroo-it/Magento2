@@ -13,7 +13,7 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @var LockerProcess
      */
-    private LockerProcess $lockerProcess;
+    protected LockerProcess $lockerProcess;
 
 
     public function processSucceded()

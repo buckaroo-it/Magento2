@@ -28,15 +28,20 @@ use Magento\Sales\Model\Order;
 
 class PushTransactionType
 {
-    public const BUCK_PUSH_TYPE_TRANSACTION = 'transaction_push';
-    public const BUCK_PUSH_TYPE_INVOICE = 'invoice_push';
+    public const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE = 'I014';
+    public const BUCK_PUSH_ACCEPT_AUTHORIZE_TYPE = 'I013';
+    public const BUCK_PUSH_GROUPTRANSACTION_TYPE = 'I150';
+    public const BUCK_PUSH_IDEAL_PAY = 'C021';
+
+    public const BUCK_PUSH_TYPE_TRANSACTION        = 'transaction_push';
+    public const BUCK_PUSH_TYPE_INVOICE            = 'invoice_push';
     public const BUCK_PUSH_TYPE_INVOICE_INCOMPLETE = 'incomplete_invoice_push';
-    public const BUCK_PUSH_TYPE_DATAREQUEST = 'datarequest_push';
+    public const BUCK_PUSH_TYPE_DATAREQUEST        = 'datarequest_push';
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $paymentMethod;
+    private ?string $paymentMethod;
 
     /**
      * @var string
@@ -44,9 +49,9 @@ class PushTransactionType
     private string $serviceAction;
 
     /**
-     * @var string
+     * @var int
      */
-    private string $statusCode;
+    private int $statusCode;
 
     /**
      * @var string|null
@@ -66,18 +71,22 @@ class PushTransactionType
     /**
      * @var bool
      */
-    private bool $creditManagment;
+    private bool $creditManagement;
+
+    /**
+     * @var string
+     */
+    private string $pushType;
 
     /**
      * @var bool|string
      */
     private string|bool $transactionType;
 
-
     /**
      * @var array
      */
-    private array $pushTransactionType = [];
+    private bool $isSet = false;
 
     /**
      * @var Order
@@ -88,6 +97,11 @@ class PushTransactionType
      * @var OrderRequestService
      */
     private OrderRequestService $orderRequestService;
+
+    /**
+     * @var BuckarooStatusCode
+     */
+    private BuckarooStatusCode $buckarooStatusCode;
 
     /**
      * @param BuckarooStatusCode $buckarooStatusCode
@@ -104,179 +118,33 @@ class PushTransactionType
      */
     public function getPushTransactionType(?PushRequestInterface $pushRequest, ?Order $order): PushTransactionType
     {
-        if(empty($this->pushTransactionType)) {
-            $this->paymentMethod = $pushRequest->getTransactionMethod();
-            $this->transactionType = $this->getTransactionTypeByInvoiceKey($pushRequest, $order);
-            $this->statusCode = $this->getStatusCodeByTransactionType($this->transactionType, $pushRequest);
+        if (!$this->isSet) {
+            $this->paymentMethod = $pushRequest->getTransactionMethod() ?? '';
+            $this->pushType = $this->getPushTypeByInvoiceKey($pushRequest, $order);
+            $this->statusCode = $this->getStatusCodeByTransactionType($this->pushType, $pushRequest);
             $this->statusMessage = $this->buckarooStatusCode->getResponseMessage($this->statusCode);
             $this->statusKey = $this->buckarooStatusCode->getStatusKey($this->statusCode);
+            $this->transactionType = $pushRequest->getTransactionType();
+            $this->groupTransaction = $this->transactionType === self::BUCK_PUSH_GROUPTRANSACTION_TYPE;
+            $this->creditManagement = $this->pushType === self::BUCK_PUSH_TYPE_INVOICE;
+            $this->serviceAction = $pushRequest->getAdditionalInformation('service_action_from_magento');
 
-
-            $this->pushTransactionType = [
-                'paymentMethod'   => $this->paymentMethod,
-                'transactionType' => $this->transactionType,
-                'statusCode'      => $this->statusCode,
-                'statusMessage'   => $this->statusMessage,
-                'statusKey'       => $this->statusKey
-            ];
-
+            $this->isSet = true;
         }
 
         return $this;
     }
 
     /**
-     * @return string
-     */
-    public function getPaymentMethod(): string
-    {
-        return $this->paymentMethod;
-    }
-
-    /**
-     * @param string $paymentMethod
-     */
-    public function setPaymentMethod(string $paymentMethod): void
-    {
-        $this->paymentMethod = $paymentMethod;
-    }
-
-    /**
-     * @return string
-     */
-    public function getServiceAction(): string
-    {
-        return $this->serviceAction;
-    }
-
-    /**
-     * @param string $serviceAction
-     */
-    public function setServiceAction(string $serviceAction): void
-    {
-        $this->serviceAction = $serviceAction;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStatusCode(): string
-    {
-        return $this->statusCode;
-    }
-
-    /**
-     * @param string $statusCode
-     */
-    public function setStatusCode(string $statusCode): void
-    {
-        $this->statusCode = $statusCode;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStatusMessage(): string
-    {
-        return $this->statusMessage;
-    }
-
-    /**
-     * @param string $statusMessage
-     */
-    public function setStatusMessage(string $statusMessage): void
-    {
-        $this->statusMessage = $statusMessage;
-    }
-
-    /**
-     * @return BuckarooStatusCode
-     */
-    public function getBuckarooStatusCode(): BuckarooStatusCode
-    {
-        return $this->buckarooStatusCode;
-    }
-
-    /**
-     * @param BuckarooStatusCode $buckarooStatusCode
-     */
-    public function setBuckarooStatusCode(BuckarooStatusCode $buckarooStatusCode): void
-    {
-        $this->buckarooStatusCode = $buckarooStatusCode;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isGroupTransaction(): bool
-    {
-        return $this->groupTransaction;
-    }
-
-    /**
-     * @param bool $groupTransaction
-     */
-    public function setGroupTransaction(bool $groupTransaction): void
-    {
-        $this->groupTransaction = $groupTransaction;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCreditManagment(): bool
-    {
-        return $this->creditManagment;
-    }
-
-    /**
-     * @param bool $creditManagment
-     */
-    public function setCreditManagment(bool $creditManagment): void
-    {
-        $this->creditManagment = $creditManagment;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTransactionType(): string
-    {
-        return $this->transactionType;
-    }
-
-    /**
-     * @param string $transactionType
-     */
-    public function setTransactionType(string $transactionType): void
-    {
-        $this->transactionType = $transactionType;
-    }
-
-    /**
-     * @return Order
-     */
-    public function getOrder(): Order
-    {
-        return $this->order;
-    }
-
-    /**
-     * @param Order $order
-     */
-    public function setOrder(Order $order): void
-    {
-        $this->order = $order;
-    }
-
-    /**
      * Determine the transaction type based on push request data and the saved invoice key.
      *
+     * @param PushRequestInterface $pushRequest
+     * @param Order $order
      * @return string
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function getTransactionTypeByInvoiceKey($pushRequest, $order)
+    public function getPushTypeByInvoiceKey(PushRequestInterface $pushRequest, Order $order): string
     {
         //If an order has an invoice key, then it should only be processed by invoice pushes
         $savedInvoiceKey = (string)$order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
@@ -356,5 +224,163 @@ class PushTransactionType
         return (int)$statusCode;
     }
 
+    /**
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
+    }
 
+    /**
+     * @param int $statusCode
+     */
+    public function setStatusCode(int $statusCode): void
+    {
+        $this->statusCode = $statusCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTransactionType(): string
+    {
+        return $this->transactionType;
+    }
+
+    /**
+     * @param string $transactionType
+     */
+    public function setTransactionType(string $transactionType): void
+    {
+        $this->transactionType = $transactionType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPushType(): string
+    {
+        return $this->pushType;
+    }
+
+    /**
+     * @param string $pushType
+     */
+    public function setPushType(string $pushType): void
+    {
+        $this->pushType = $pushType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentMethod(): string
+    {
+        return $this->paymentMethod;
+    }
+
+    /**
+     * @param string $paymentMethod
+     */
+    public function setPaymentMethod(string $paymentMethod): void
+    {
+        $this->paymentMethod = $paymentMethod;
+    }
+
+    /**
+     * @return string
+     */
+    public function getServiceAction(): string
+    {
+        return $this->serviceAction;
+    }
+
+    /**
+     * @param string $serviceAction
+     */
+    public function setServiceAction(string $serviceAction): void
+    {
+        $this->serviceAction = $serviceAction;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusMessage(): string
+    {
+        return $this->statusMessage;
+    }
+
+    /**
+     * @param string $statusMessage
+     */
+    public function setStatusMessage(string $statusMessage): void
+    {
+        $this->statusMessage = $statusMessage;
+    }
+
+    /**
+     * @return BuckarooStatusCode
+     */
+    public function getBuckarooStatusCode(): BuckarooStatusCode
+    {
+        return $this->buckarooStatusCode;
+    }
+
+    /**
+     * @param BuckarooStatusCode $buckarooStatusCode
+     */
+    public function setBuckarooStatusCode(BuckarooStatusCode $buckarooStatusCode): void
+    {
+        $this->buckarooStatusCode = $buckarooStatusCode;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isGroupTransaction(): bool
+    {
+        return $this->groupTransaction;
+    }
+
+    /**
+     * @param bool $groupTransaction
+     */
+    public function setGroupTransaction(bool $groupTransaction): void
+    {
+        $this->groupTransaction = $groupTransaction;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCreditManagment(): bool
+    {
+        return $this->creditManagement;
+    }
+
+    /**
+     * @param bool $creditManagement
+     */
+    public function setCreditManagment(bool $creditManagement): void
+    {
+        $this->creditManagement = $creditManagement;
+    }
+
+    /**
+     * @return Order
+     */
+    public function getOrder(): Order
+    {
+        return $this->order;
+    }
+
+    /**
+     * @param Order $order
+     */
+    public function setOrder(Order $order): void
+    {
+        $this->order = $order;
+    }
 }

@@ -12,6 +12,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 use Buckaroo\Magento2\Service\LockerProcess;
+use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -22,40 +23,40 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 
 class DefaultProcessor implements PushProcessorInterface
 {
-    public const BUCK_PUSH_TYPE_TRANSACTION = 'transaction_push';
-    public const BUCK_PUSH_TYPE_INVOICE = 'invoice_push';
-    public const BUCK_PUSH_TYPE_INVOICE_INCOMPLETE = 'incomplete_invoice_push';
-    public const BUCK_PUSH_TYPE_DATAREQUEST = 'datarequest_push';
-    
+    /**
+     * @var OrderRequestService
+     */
+    private OrderRequestService $orderService;
+
     /**
      * @var PushRequestInterface
      */
-    public PushRequestInterface $pushRequest;
+    protected PushRequestInterface $pushRequest;
 
     /**
      * @var Log $logging
      */
-    public Log $logging;
+    protected Log $logging;
 
     /**
      * @var Order|OrderPayment $order
      */
-    public $order;
+    protected $order;
 
     /**
      * @var Transaction
      */
-    private $transaction;
+    protected $transaction;
 
     /**
      * @var Data
      */
-    public Data $helper;
+    protected Data $helper;
 
     /**
      * @var LockerProcess
      */
-    private LockerProcess $lockerProcess;
+    protected LockerProcess $lockerProcess;
 
     /**
      * @var ValidatorPush $validator
@@ -63,12 +64,14 @@ class DefaultProcessor implements PushProcessorInterface
     protected ValidatorPush $validator;
 
     public function __construct(
+        OrderRequestService $orderRequestService,
         Log $logging,
         TransactionInterface $transaction,
         LockerProcess $lockerProcess,
         Data $helper,
         ValidatorPush $validator
     ) {
+        $this->order = $orderRequestService->getOrderByRequest();
         $this->logging = $logging;
         $this->transaction = $transaction;
         $this->lockerProcess = $lockerProcess;
@@ -83,14 +86,6 @@ class DefaultProcessor implements PushProcessorInterface
     public function processPush(PushRequestInterface $pushRequest): bool
     {
         $this->pushRequest = $pushRequest;
-
-        // Load Order by Transaction id
-        $this->order = $this->loadOrder();
-
-        // Lock Processing
-        if ($this->lockPushProcessingCriteria()) {
-            $this->lockerProcess->lockProcess($this->getOrderIncrementId());
-        }
 
         // Skip Push
         if ($this->skipPush()) {
@@ -324,11 +319,6 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function skipPush()
     {
-        // Skip Handle group transaction
-        if ($this->skipHandlingForFailedGroupTransactions()) {
-            return true;
-        }
-
         if ($this->skipPendingRefundPush()) {
             return true;
         }
@@ -343,35 +333,6 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return false;
-    }
-
-
-    /**
-     * Ship push handling for a failed transaction
-     *
-     * @return bool
-     */
-    protected function skipHandlingForFailedGroupTransactions(): bool
-    {
-        return
-            $this->order !== null &&
-            $this->order->getId() !== null &&
-            $this->order->getState() == Order::STATE_CANCELED &&
-            (
-                $this->pushRequest->hasPostData(
-                    'brq_transaction_type',
-                    'V202'
-                ) ||
-
-                $this->pushRequest->hasPostData(
-                    'brq_transaction_type',
-                    'V203'
-                ) ||
-                $this->pushRequest->hasPostData(
-                    'brq_transaction_type',
-                    'V204'
-                )
-            );
     }
 
     /**

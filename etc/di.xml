@@ -510,6 +510,7 @@
                 <item name="default" xsi:type="string">Buckaroo\Magento2\Model\Push\DefaultProcessor</item>
                 <item name="ideal" xsi:type="string">Buckaroo\Magento2\Model\Push\IdealProcessor</item>
                 <item name="credit_managment" xsi:type="string">Buckaroo\Magento2\Model\Push\CreditManagmentPushProcessor</item>
+                <item name="group_transaction" xsi:type="string">Buckaroo\Magento2\Model\Push\GroupTransactionPushProcessor</item>
             </argument>
         </arguments>
     </type>

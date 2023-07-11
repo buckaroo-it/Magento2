@@ -1801,7 +1801,7 @@ class Push implements PushInterface
     }
 
     /**
-     * Check if the group transaction has failed.
+     * Check if the group transaction has failed. same as: isFailedGroupTransaction
      *
      * @return bool
      */
