@@ -39,6 +39,7 @@ class IdealProcessing extends AbstractConfigProvider
     
     public const CODE = 'buckaroo_magento2_idealprocessing';
 
+    public const XPATH_SELECTION_TYPE = 'payment/buckaroo_magento2_idealprocessing/selection_type';
     /**
      * @var array
      */
@@ -85,10 +86,7 @@ class IdealProcessing extends AbstractConfigProvider
         $issuers = $this->issuersService->get();
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
-        $selectionType = $this->scopeConfig->getValue(
-            Account::XPATH_ACCOUNT_SELECTION_TYPE,
-            ScopeInterface::SCOPE_STORE
-        );
+        $selectionType = $this->getSelectionType();
 
         return [
             'payment' => [
@@ -105,5 +103,30 @@ class IdealProcessing extends AbstractConfigProvider
                 ],
             ],
         ];
+    }
+
+    /**
+     * Selection type radio checkbox or drop down
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSelectionType($store = null)
+    {
+        $methodConfig = $this->scopeConfig->getValue(
+            static::XPATH_SELECTION_TYPE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+
+        /** @deprecated 2.0.0 moved from main configuration to payment configuration */
+        $mainConfig = $this->scopeConfig->getValue(
+            'buckaroo_magento2/account/selection_type',
+            ScopeInterface::SCOPE_STORE,
+        );
+        if ($methodConfig === null) {
+            return $mainConfig;
+        }
+        return $methodConfig;
     }
 }

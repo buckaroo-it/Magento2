@@ -50,7 +50,7 @@ class Creditcard extends AbstractConfigProvider
         = 'payment/buckaroo_magento2_creditcard/maestro_unsecure_hold';
 
     public const XPATH_CREDITCARD_SORT = 'payment/buckaroo_magento2_creditcard/sorted_creditcards';
-    public const XPATH_SELECTION_TYPE  = 'buckaroo_magento2/account/selection_type';
+    public const XPATH_SELECTION_TYPE  = 'payment/buckaroo_magento2_creditcard/selection_type';
     public const XPATH_PAYMENT_FLOW    = 'payment/buckaroo_magento2_creditcard/payment_action';
     public const DEFAULT_SORT_VALUE    = '99';
 
@@ -134,6 +134,7 @@ class Creditcard extends AbstractConfigProvider
         throw new \InvalidArgumentException("No card found for card type: {$cardType}");
     }
 
+
     /**
      * @inheritdoc
      */
@@ -142,10 +143,7 @@ class Creditcard extends AbstractConfigProvider
         $issuers = $this->formatIssuers();
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
-        $selectionType = $this->scopeConfig->getValue(
-            static::XPATH_SELECTION_TYPE,
-            ScopeInterface::SCOPE_STORE
-        );
+        $selectionType = $this->getSelectionType();
 
         $paymentFlow = $this->scopeConfig->getValue(
             static::XPATH_PAYMENT_FLOW,
@@ -306,5 +304,30 @@ class Creditcard extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+        
+     /**
+     * Selection type radio checkbox or drop down
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSelectionType($store = null)
+    {
+        $methodConfig = $this->scopeConfig->getValue(
+            static::XPATH_SELECTION_TYPE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+
+        /** @deprecated 2.0.0 moved from main configuration to payment configuration */
+        $mainConfig = $this->scopeConfig->getValue(
+            'buckaroo_magento2/account/selection_type',
+            ScopeInterface::SCOPE_STORE,
+        );
+        if ($methodConfig === null) {
+            return $mainConfig;
+        }
+        return $methodConfig;
     }
 }

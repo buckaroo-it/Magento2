@@ -95,7 +95,7 @@ class ApplepayTest extends BaseTest
         }
 
         $storeManagerMock = $this->getFakeMock(StoreManagerInterface::class)
-            ->setMethods(['getStore', 'getName', 'getCurrentCurrency', 'getCode'])
+            ->setMethods(['getStore', 'getName', 'getCurrentCurrency', 'getCode', 'getMerchantGuid'])
             ->getMockForAbstractClass();
         $storeManagerMock->expects($this->exactly($expectedCount))->method('getStore')->willReturnSelf();
         $storeManagerMock->expects($this->exactly($expectedCount))->method('getName')->willReturn('Buckaroo Webshop');
@@ -105,14 +105,12 @@ class ApplepayTest extends BaseTest
         $localeResolverMock = $this->getFakeMock(Resolver::class)->setMethods(['getLocale'])->getMock();
         $localeResolverMock->expects($this->exactly($expectedCount))->method('getLocale')->willReturn('nl_NL');
 
-        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getMerchantGuid'])->getMock();
-        $accountConfigMock->expects($this->exactly($expectedCount))->method('getMerchantGuid')->willReturn('GUID12345');
+        $storeManagerMock->expects($this->exactly($expectedCount))->method('getMerchantGuid')->willReturn('GUID12345');
 
         $instance = $this->getInstance([
             'scopeConfig' => $scopeConfigMock,
             'storeManager' => $storeManagerMock,
             'localeResolver' => $localeResolverMock,
-            'configProvicerAccount' => $accountConfigMock
         ]);
 
         $result = $instance->getConfig();
