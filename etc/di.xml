@@ -934,7 +934,7 @@
                 <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\RefundDescriptionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>
@@ -950,7 +950,7 @@
                 <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\RefundDescriptionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>
