@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -104,6 +105,11 @@ class PaypalExpress extends Template
             'currency' => $this->getCurrency(),
             'buckarooWebsiteKey' => $this->getWebsiteKey(),
             'paypalMerchantId' => $this->getMerchantId(),
+            'style' => [
+                "color" => $this->getButtonColor(),
+                "shape" => $this->getButtonShape(),
+            ],
+            'isTestMode' => $this->isTestMode()
         ];
     }
 
@@ -149,5 +155,44 @@ class PaypalExpress extends Template
         return $this->paypalConfig->getExpressMerchantId(
             $this->_storeManager->getStore()
         );
+    }
+
+    /**
+     * Get paypal express button color
+     *
+     * @return string|null
+     * @throws NoSuchEntityException
+     */
+    protected function getButtonColor()
+    {
+        return $this->paypalConfig->getButtonColor(
+            $this->_storeManager->getStore()
+        );
+    }
+
+    /**
+     * Get paypal express button color
+     *
+     * @return string|null
+     * @throws NoSuchEntityException
+     */
+    protected function getButtonShape()
+    {
+        return $this->paypalConfig->getButtonShape(
+            $this->_storeManager->getStore()
+        );
+    }
+
+    /**
+     * Get paypal express button color
+     *
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    protected function isTestMode()
+    {
+        return $this->paypalConfig->getActive(
+            $this->_storeManager->getStore()
+        ) == 1;
     }
 }

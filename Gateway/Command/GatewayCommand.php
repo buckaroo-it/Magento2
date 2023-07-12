@@ -169,20 +169,25 @@ class GatewayCommand implements CommandInterface
     private function processErrors(ResultInterface $result)
     {
         $messages = [];
-        $errorsSource = array_merge($result->getErrorCodes(), $result->getFailsDescription());
-        foreach ($errorsSource as $errorCodeOrMessage) {
-            $errorCodeOrMessage = (string)$errorCodeOrMessage;
+        if (empty($result->getFailsDescription())) {
+            $errorsSource = array_merge($result->getErrorCodes(), $result->getFailsDescription());
+            foreach ($errorsSource as $errorCodeOrMessage) {
+                $errorCodeOrMessage = (string)$errorCodeOrMessage;
 
-            // error messages mapper can be not configured if payment method doesn't have custom error messages.
-            if ($this->errorMessageMapper !== null) {
-                $mapped = (string)$this->errorMessageMapper->getMessage($errorCodeOrMessage);
-                if (!empty($mapped)) {
-                    $messages[] = $mapped;
-                    $errorCodeOrMessage = $mapped;
+                // error messages mapper can be not configured if payment method doesn't have custom error messages.
+                if ($this->errorMessageMapper !== null) {
+                    $mapped = (string)$this->errorMessageMapper->getMessage($errorCodeOrMessage);
+                    if (!empty($mapped)) {
+                        $messages[] = $mapped;
+                        $errorCodeOrMessage = $mapped;
+                    }
                 }
+                $this->logger->critical('Payment Error: ' . $errorCodeOrMessage);
             }
-            $this->logger->critical('Payment Error: ' . $errorCodeOrMessage);
+        } else {
+            $messages[] = (string)$result->getFailsDescription()[0] ?? '';
         }
+
 
         $errorMessage = '';
         if (!empty($messages)) {

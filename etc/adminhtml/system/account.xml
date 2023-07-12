@@ -233,7 +233,7 @@
                 <label>Logging</label>
                 <fieldset_css>buckaroo_magento2-section</fieldset_css>
 
-                <field id="log_level" translate="label" type="multiselect" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="log_level" translate="label comment" type="multiselect" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Log level</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\LogLevel</source_model>
                     <comment><![CDATA[Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.]]></comment>
@@ -264,6 +264,7 @@
                     <label>Debug email</label>
                     <comment><![CDATA[Debug information will be sent to these comma-separated email addresses.]]></comment>
                     <config_path>buckaroo_magento2/account/debug_email</config_path>
+                    <validate>validate-emails</validate>
                 </field>
             </group>
 

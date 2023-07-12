@@ -433,7 +433,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * @param float $itemsTotalAmount
      * @return array|array[]
      */
-    public function getServiceCostLine($order, &$itemsTotalAmount = 0): array
+    public function getServiceCostLine($order, &$itemsTotalAmount = 0, bool $creditmemo = false): array
     {
         $buckarooFeeLine = (double)$order->getBuckarooFeeInclTax();
 
@@ -452,6 +452,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
                 round($buckarooFeeLine, 2),
                 $this->getTaxCategory($order)
             );
+            if ($creditmemo) {
+                $article['refundType'] = 'Refund';
+            }
             $itemsTotalAmount += round($buckarooFeeLine, 2);
         }
 
@@ -462,10 +465,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get shipping cost line
      *
      * @param Order|Invoice|Creditmemo $order
-     * @param int|float $itemsTotalAmount
+     * @param int $itemsTotalAmount
+     * @param bool $creditmemo
      * @return array
      */
-    protected function getShippingCostsLine($order, &$itemsTotalAmount = 0): array
+    protected function getShippingCostsLine($order, &$itemsTotalAmount = 0, bool $creditmemo = false): array
     {
         $shippingCostsArticle = [];
 
@@ -485,6 +489,10 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $this->formatPrice($shippingAmount),
             $this->formatShippingCostsLineVatPercentage($percent)
         );
+
+        if ($creditmemo) {
+            $shippingCostsArticle['refundType'] = 'Refund';
+        }
 
         $itemsTotalAmount += $shippingAmount;
 
@@ -698,23 +706,20 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         }
 
         if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
-            $serviceLine = $this->getServiceCostLine($creditmemo, $itemsTotalAmount);
-            $serviceLine['refundType'] = 'Refund';
+            $serviceLine = $this->getServiceCostLine($creditmemo, $itemsTotalAmount, true);
             if (!empty($serviceLine)) {
                 $articles = array_merge_recursive($articles, $serviceLine);
             }
         }
 
-        $shippingCosts = $this->getShippingCostsLine($creditmemo, $itemsTotalAmount);
-        $shippingCosts['refundType'] = 'Refund';
+        $shippingCosts = $this->getShippingCostsLine($creditmemo, $itemsTotalAmount, true);
         if (!empty($shippingCosts)) {
             $articles = array_merge_recursive($articles, $shippingCosts);
         }
 
         if (abs($creditmemo->getGrandTotal() - $itemsTotalAmount) > 0.01) {
             $diff = $creditmemo->getGrandTotal() - $itemsTotalAmount;
-            $diffLine = $this->getDiffLine($diff);
-            $diffLine['refundType'] = 'Refund';
+            $diffLine = $this->getDiffLine($diff, true);
             $articles = array_merge_recursive($articles, $diffLine);
         }
 
@@ -768,9 +773,10 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get the difference between total and items total
      *
      * @param float $diff
+     * @param bool $creditmemo
      * @return array[]
      */
-    protected function getDiffLine(float $diff): array
+    protected function getDiffLine(float $diff, bool $creditmemo = false): array
     {
         $article = $this->getArticleArrayLine(
             'Discount/Fee',
@@ -779,6 +785,10 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             round($diff, 2),
             4
         );
+
+        if ($creditmemo) {
+            $article['refundType'] = 'Refund';
+        }
 
         return ['articles' => [$article]];
     }

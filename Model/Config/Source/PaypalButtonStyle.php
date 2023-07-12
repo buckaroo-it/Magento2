@@ -19,26 +19,26 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\CreditManagement;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
-use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class DebtorDataBuilder extends AbstractDataBuilder
+class PaypalButtonStyle implements OptionSourceInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function build(array $buildSubject): array
+    const COLOR_DEFAULT = 'gold';
+    const COLOR_BLUE = 'blue';
+    const COLOR_SILVER = 'silver';
+    const COLOR_WHITE = 'white';
+    const COLOR_BLACK = 'black';
+
+    public function toOptionArray(): array
     {
-        parent::initialize($buildSubject);
-
-        $address = $this->getOrder()->getBillingAddress();
-        if ($address === null) {
-            return [];
-        }
-
         return [
-            'code' => $address->getEmail(),
+            ['value' => self::COLOR_DEFAULT, 'label' => __('Gold (standard)')],
+            ['value' => self::COLOR_BLUE, 'label' => __('Blue')],
+            ['value' => self::COLOR_SILVER, 'label' => __('Silver')],
+            ['value' => self::COLOR_WHITE, 'label' => __('White')],
+            ['value' => self::COLOR_BLACK, 'label' => __('Black')],
         ];
     }
 }

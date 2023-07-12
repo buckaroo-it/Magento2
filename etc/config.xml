@@ -99,6 +99,8 @@
                 <sellers_protection_itemnotreceived_eligible>processing</sellers_protection_itemnotreceived_eligible>
                 <sellers_protection_unauthorizedpayment_eligible>processing</sellers_protection_unauthorizedpayment_eligible>
                 <sellers_protection_ineligible>processing</sellers_protection_ineligible>
+                <express_button_color>gold</express_button_color>
+                <express_button_rounded>0</express_button_rounded>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
@@ -872,8 +874,9 @@
                 <order_status_success>processing</order_status_success>
                 <order_status_failed>canceled</order_status_failed>
                 <create_order_before_transaction>1</create_order_before_transaction>
-                <log_level>300,400,500,550,600</log_level>
+                <debug_types>300,400,500,550,600</debug_types>
                 <log_handler>1</log_handler>
+                <log_handler_db_depth>10</log_handler_db_depth>
                 <log_retention>604800</log_retention>
                 <cart_keep_alive>1</cart_keep_alive>
                 <selection_type>1</selection_type>

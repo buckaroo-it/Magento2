@@ -166,8 +166,9 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      * Get limit reach message from payment object
      *
      * @param int $orderId
-     *
      * @return string|null
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function getLimitReachedMessage($orderId)
     {
