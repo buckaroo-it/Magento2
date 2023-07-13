@@ -65,6 +65,13 @@
             <config_path>payment/buckaroo_magento2_ideal/sort_order</config_path>
         </field>
 
+        <field id="selection_type" translate="label" type="select" sortOrder="35" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Use selection</label>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\SelectionType</source_model>
+            <comment><![CDATA[Display the bank issuers as a select or as a list of radio buttons]]></comment>
+            <config_path>payment/buckaroo_magento2_ideal/selection_type</config_path>
+        </field>
+
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 

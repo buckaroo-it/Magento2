@@ -66,6 +66,13 @@
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Method specific configuration</label>
 
+            <field id="merchant_guid" translate="label comment tooltip" type="text" sortOrder="36" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>(Merchant) guid</label>
+                <comment><![CDATA[Enter your Buckaroo merchant guid.]]></comment>
+                <tooltip>The (Merchant) Guid can be retrieved in Payment Plaza under My Buckaroo > Details > Guid. For support contact Buckaroo.</tooltip>
+                <config_path>buckaroo_magento2/account/merchant_guid</config_path>
+            </field>
+
             <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Enable or disable applepay buttons</label>
                 <comment><![CDATA[Select which buttons you want to be active.]]></comment>

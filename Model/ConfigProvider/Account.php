@@ -36,9 +36,7 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_ACTIVE                          = 'buckaroo_magento2/account/active';
     public const XPATH_ACCOUNT_SECRET_KEY                      = 'buckaroo_magento2/account/secret_key';
     public const XPATH_ACCOUNT_MERCHANT_KEY                    = 'buckaroo_magento2/account/merchant_key';
-    public const XPATH_ACCOUNT_MERCHANT_GUID                   = 'buckaroo_magento2/account/merchant_guid';
     public const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'buckaroo_magento2/account/transaction_label';
-    public const XPATH_ACCOUNT_CERTIFICATE_FILE                = 'buckaroo_magento2/account/certificate_file';
     public const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL        = 'buckaroo_magento2/account/order_confirmation_email';
     public const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL_SYNC   =
         'buckaroo_magento2/account/order_confirmation_email_sync';
@@ -64,13 +62,11 @@ class Account extends AbstractConfigProvider
         'buckaroo_magento2/account/create_order_before_transaction';
     public const XPATH_ACCOUNT_IP_HEADER                       = 'buckaroo_magento2/account/ip_header';
     public const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
-    public const XPATH_ACCOUNT_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
     public const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
 
     public const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
     public const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
     public const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
-    public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS       = 'buckaroo_magento2/account/advanced_export_giftcards';
 
     /**
      * @var MethodFactory
@@ -106,9 +102,7 @@ class Account extends AbstractConfigProvider
             'active'                            => $this->getActive($store),
             'secret_key'                        => $this->getSecretKey($store),
             'merchant_key'                      => $this->getMerchantKey($store),
-            'merchant_guid'                     => $this->getMerchantGuid($store),
             'transaction_label'                 => $this->getTransactionLabel($store),
-            'certificate_file'                  => $this->getCertificateFile($store),
             'order_confirmation_email'          => $this->getOrderConfirmationEmail($store),
             'order_confirmation_email_sync'     => $this->getOrderConfirmationEmailSync($store),
             'invoice_email'                     => $this->getInvoiceEmail($store),
@@ -130,12 +124,10 @@ class Account extends AbstractConfigProvider
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
-            'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
             'idin_category'                     => $this->getIdinCategory($store),
-            'advanced_export_giftcards'         => $this->hasAdvancedExportGiftcards($store),
         ];
     }
 
@@ -285,21 +277,6 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * Get Merchant Guid from Buckaroo Payment Engine
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getMerchantGuid($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_MERCHANT_GUID,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
      * Get transaction label for certificate file
      *
      * @param null|int|string $store
@@ -314,20 +291,6 @@ class Account extends AbstractConfigProvider
         );
     }
 
-    /**
-     * Get Certificate File
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getCertificateFile($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_CERTIFICATE_FILE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
 
     /**
      * Should send a mail after successful creating the order.
@@ -660,21 +623,6 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * Get selection type (Radio checkbox/Drop down)
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSelectionType($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_SELECTION_TYPE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
      * Add customer data to request
      *
      * @param null|int|string $store
@@ -734,18 +682,5 @@ class Account extends AbstractConfigProvider
         );
     }
 
-    /**
-     * Get Advanced order export for giftcards
-     *
-     * @param null|int|string $store
-     * @return bool
-     */
-    public function hasAdvancedExportGiftcards($store = null): bool
-    {
-        return (bool)$this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
+    
 }

@@ -35,9 +35,10 @@ class Giftcards extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_giftcards';
 
-    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
-    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS   = 'payment/buckaroo_magento2_giftcards/group_giftcards';
-    public const XPATH_GIFTCARDS_SORT              = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
+    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS       = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
+    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS         = 'payment/buckaroo_magento2_giftcards/group_giftcards';
+    public const XPATH_GIFTCARDS_SORT                    = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
+    public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS = 'buckaroo_magento2/account/advanced_export_giftcards';
 
     /**
      * @var array
@@ -213,6 +214,21 @@ class Giftcards extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             static::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Advanced order export for giftcards
+     *
+     * @param null|int|string $store
+     * @return bool
+     */
+    public function hasAdvancedExportGiftcards($store = null): bool
+    {
+        return (bool)$this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS,
             ScopeInterface::SCOPE_STORE,
             $store
         );

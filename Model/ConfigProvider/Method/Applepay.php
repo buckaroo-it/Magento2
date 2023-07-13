@@ -27,7 +27,6 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Applepay extends AbstractConfigProvider
@@ -38,6 +37,7 @@ class Applepay extends AbstractConfigProvider
     public const XPATH_APPLEPAY_BUTTON_STYLE = 'payment/buckaroo_magento2_applepay/button_style';
     public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT =
         'payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
+    public const XPATH_ACCOUNT_MERCHANT_GUID = 'buckaroo_magento2/account/merchant_guid';
 
     /**
      * @var array
@@ -46,11 +46,6 @@ class Applepay extends AbstractConfigProvider
         'EUR',
         'GBP'
     ];
-
-    /**
-     * @var Account
-     */
-    private $configProvicerAccount;
 
     /**
      * @var Resolver
@@ -69,7 +64,6 @@ class Applepay extends AbstractConfigProvider
      * @param PaymentFee $paymentFeeHelper
      * @param StoreManagerInterface $storeManager
      * @param Resolver $localeResolver
-     * @param Account $configProvicerAccount
      */
     public function __construct(
         Repository $assetRepo,
@@ -78,13 +72,11 @@ class Applepay extends AbstractConfigProvider
         PaymentFee $paymentFeeHelper,
         StoreManagerInterface $storeManager,
         Resolver $localeResolver,
-        Account $configProvicerAccount
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
 
         $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver;
-        $this->configProvicerAccount = $configProvicerAccount;
     }
 
     /**
@@ -118,7 +110,7 @@ class Applepay extends AbstractConfigProvider
                             'general/country/default',
                             ScopeInterface::SCOPE_WEBSITES
                         ),
-                        'guid' => $this->configProvicerAccount->getMerchantGuid(),
+                        'guid' => $this->getMerchantGuid(),
                         'availableButtons' => $this->getAvailableButtons(),
                         'buttonStyle' => $this->getButtonStyle(),
                         'dontAskBillingInfoInCheckout' => (int) $this->getDontAskBillingInfoInCheckout()
@@ -173,6 +165,20 @@ class Applepay extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+    /**
+     * Get Merchant Guid from Buckaroo Payment Engine
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getMerchantGuid($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_MERCHANT_GUID,
             ScopeInterface::SCOPE_STORE,
             $store
         );
