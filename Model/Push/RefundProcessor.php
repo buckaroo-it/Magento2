@@ -6,6 +6,7 @@ use Buckaroo\Magento2\Api\PushProcessorInterface;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
@@ -25,11 +26,14 @@ class RefundProcessor extends DefaultProcessor
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
         Log $logging,
-        TransactionInterface $transaction,
         Data $helper,
-        RefundPush $refundPush,
+        TransactionInterface $transaction,
+        PaymentGroupTransaction $groupTransaction,
+        BuckarooStatusCode $buckarooStatusCode,
+        RefundPush $refundPush
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logging, $transaction, $helper);
+        parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
+            $groupTransaction, $buckarooStatusCode);
         $this->refundPush = $refundPush;
 
     }

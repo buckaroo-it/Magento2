@@ -342,7 +342,7 @@ class Push implements PushInterface
 
         // Process Push
         $this->pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
-//        $this->pushProcessor->processPush($this->pushRequst);
+        $this->pushProcessor->processPush($this->pushRequst);
 
 
 

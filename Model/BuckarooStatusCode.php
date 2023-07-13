@@ -97,4 +97,36 @@ class BuckarooStatusCode
     {
         return array_search($responseCode, $this->statusCodes) ?? 'BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL';
     }
+
+    /**
+     * Get failed statuses
+     *
+     * @return string[]
+     */
+    public function getFailedStatuses(): array
+    {
+        return [
+            'BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR',
+            'BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE',
+            'BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT',
+            'BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER',
+            'BUCKAROO_MAGENTO2_STATUSCODE_FAILED',
+            'BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'
+        ];
+    }
+
+    /**
+     * Get pending statuses
+     *
+     * @return string[]
+     */
+    public function getPendingStatuses(): array
+    {
+        return [
+            'BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_HOLD',
+            'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER',
+            'BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING',
+            'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT'
+        ];
+    }
 }

@@ -4,12 +4,41 @@ namespace Buckaroo\Magento2\Model\Push;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Service\LockerProcess;
+use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Sales\Api\Data\TransactionInterface;
 
 class IdealProcessor extends DefaultProcessor
 {
     public const BUCK_PUSH_IDEAL_PAY = 'C021';
+
+    /**
+     * @var LockerProcess
+     */
+    private LockerProcess $lockerProcess;
+
+    public function __construct(
+        OrderRequestService $orderRequestService,
+        PushTransactionType $pushTransactionType,
+        Log $logging,
+        Data $helper,
+        TransactionInterface $transaction,
+        PaymentGroupTransaction $groupTransaction,
+        BuckarooStatusCode $buckarooStatusCode,
+        LockerProcess $lockerProcess,
+        OrderStatusFactory $orderStatusFactory
+    ) {
+        parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
+            $groupTransaction, $buckarooStatusCode,$orderStatusFactory);
+        $this->lockerProcess = $lockerProcess;
+
+    }
 
     /**
      * @throws FileSystemException
