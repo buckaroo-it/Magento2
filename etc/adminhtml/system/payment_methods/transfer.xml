@@ -67,6 +67,7 @@
 
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Method specific configuration</label>
+            
             <field id="order_email" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Send payment instruction email</label>
                 <comment><![CDATA[Buckaroo sends an email to the customer with the payment procedures.]]></comment>
