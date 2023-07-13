@@ -65,115 +65,105 @@
             <config_path>payment/buckaroo_magento2_transfer/sort_order</config_path>
         </field>
 
-        <field id="order_email" translate="label comment tooltip" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Send payment instruction email</label>
-            <comment><![CDATA[Buckaroo sends an email to the customer with the payment procedures.]]></comment>
-            <tooltip>Set to 'No' the customer is informed once online.</tooltip>
-            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>payment/buckaroo_magento2_transfer/order_email</config_path>
-        </field>
-
-        <field id="due_date" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Due date (in days)</label>
-            <comment><![CDATA[The amount of days after the order date in which the customer has to complete the payment. After this period order will be cancelled. You can add this due date in the template of the Transfer email.]]></comment>
-            <config_path>payment/buckaroo_magento2_transfer/due_date</config_path>
-            <backend_model>Buckaroo\Magento2\Model\Config\Backend\Number</backend_model>
-        </field>
-
-        <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Advanced Configuration</label>
-
-            <field id="active_status_cm3" translate="label comment" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Credit Management Enabled</label>
-                <comment><![CDATA[Enable or disable credit management.]]></comment>
+        <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Method specific configuration</label>
+            <field id="order_email" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Send payment instruction email</label>
+                <comment><![CDATA[Buckaroo sends an email to the customer with the payment procedures.]]></comment>
+                <tooltip>Set to 'No' the customer is informed once online.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_transfer/active_status_cm3</config_path>
+                <config_path>payment/buckaroo_magento2_transfer/order_email</config_path>
             </field>
 
-            <field id="scheme_key" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Credit Management Scheme Key</label>
-                <comment><![CDATA[Credit Management Scheme Key. It can be found <a href="https://plaza.buckaroo.nl/Invoices/Scheme" target="_blank">here</a>. This requires the Buckaroo Credit Management subscription.]]></comment>
-                <config_path>payment/buckaroo_magento2_transfer/scheme_key</config_path>
-                <validate>required-entry</validate>
-                <depends>
-                    <field id="active_status_cm3">1</field>
-                </depends>
-            </field>
-
-            <field id="max_step_index" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Credit Management Steps</label>
-                <comment><![CDATA[Max level of the Credit Management steps.]]></comment>
-                <config_path>payment/buckaroo_magento2_transfer/max_step_index</config_path>
+            <field id="due_date" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Due date (in days)</label>
+                <comment><![CDATA[The amount of days after the order date in which the customer has to complete the payment. After this period order will be cancelled. You can add this due date in the template of the Transfer email.]]></comment>
+                <config_path>payment/buckaroo_magento2_transfer/due_date</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\Number</backend_model>
-                <depends>
-                    <field id="active_status_cm3">1</field>
-                </depends>
             </field>
 
-            <field id="cm3_due_date" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Credit Management Due date</label>
-                <comment><![CDATA[The amount of days after the order date, after which the Credit Management scheme will start.]]></comment>
-                <config_path>payment/buckaroo_magento2_transfer/cm3_due_date</config_path>
-                <validate>required-entry</validate>
-                <depends>
-                    <field id="active_status_cm3">1</field>
-                </depends>
-            </field>
+            <group id="buckaroo_magento2_credit" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Credit Management</label>
 
-            <field id="payment_method_after_expiry" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Credit Management payment methods</label>
-                <comment><![CDATA[Select which payment methods can be used at Transfer.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\AfterExpiry</source_model>
-                <config_path>payment/buckaroo_magento2_transfer/payment_method_after_expiry</config_path>
-                <depends>
-                    <field id="active_status_cm3">1</field>
-                </depends>
-            </field>
+                <field id="active_status_cm3" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Credit Management Enabled</label>
+                    <comment><![CDATA[Enable or disable credit management.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/buckaroo_magento2_transfer/active_status_cm3</config_path>
+                </field>
 
-            <field id="order_email" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="scheme_key" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Credit Management Scheme Key</label>
+                    <comment><![CDATA[Credit Management Scheme Key. It can be found <a href="https://plaza.buckaroo.nl/Invoices/Scheme" target="_blank">here</a>. This requires the Buckaroo Credit Management subscription.]]></comment>
+                    <config_path>payment/buckaroo_magento2_transfer/scheme_key</config_path>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active_status_cm3">1</field>
+                    </depends>
+                </field>
+
+                <field id="max_step_index" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Credit Management Steps</label>
+                    <comment><![CDATA[Max level of the Credit Management steps.]]></comment>
+                    <config_path>payment/buckaroo_magento2_transfer/max_step_index</config_path>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\Number</backend_model>
+                    <depends>
+                        <field id="active_status_cm3">1</field>
+                    </depends>
+                </field>
+
+                <field id="cm3_due_date" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Credit Management Due date</label>
+                    <comment><![CDATA[The amount of days after the order date, after which the Credit Management scheme will start.]]></comment>
+                    <config_path>payment/buckaroo_magento2_transfer/cm3_due_date</config_path>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active_status_cm3">1</field>
+                    </depends>
+                </field>
+
+                <field id="payment_method_after_expiry" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Credit Management payment methods</label>
+                    <comment><![CDATA[Select which payment methods can be used at Transfer.]]></comment>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\AfterExpiry</source_model>
+                    <config_path>payment/buckaroo_magento2_transfer/payment_method_after_expiry</config_path>
+                    <depends>
+                        <field id="active_status_cm3">1</field>
+                    </depends>
+                </field>
+            </group>
+        </group>
+
+        <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Advanced Configuration</label>
+            <field id="order_email" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Send order confirmation email</label>
                 <comment><![CDATA[Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_transfer/order_email</config_path>
             </field>
 
-            <field id="payment_fee" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="payment_fee" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee</label>
                 <comment><![CDATA[The above amount is calculated based on de Tax settings in Stores > Configuration > Sales > Tax.]]></comment>
                 <config_path>payment/buckaroo_magento2_transfer/payment_fee</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaymentFee</backend_model>
             </field>
 
-            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee frontend label</label>
                 <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
                 <config_path>payment/buckaroo_magento2_transfer/payment_fee_label</config_path>
             </field>
 
-            <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Min order amount (in Base Currency)</label>
-                <comment><![CDATA[Minimum order amount allowed.]]></comment>
-                <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
-                <config_path>payment/buckaroo_magento2_transfer/min_amount</config_path>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
-            </field>
-
-            <field id="max_amount" translate="label comment tooltip" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Max order amount (in Base Currency)</label>
-                <comment><![CDATA[Maximum order amount allowed.]]></comment>
-                <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
-                <config_path>payment/buckaroo_magento2_transfer/max_amount</config_path>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
-            </field>
-
-            <field id="active_status" translate="label comment" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="active_status" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method specific status enabled</label>
                 <comment><![CDATA[Enable or disable specific status.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_transfer/active_status</config_path>
             </field>
 
-            <field id="order_status_success" translate="label comment tooltip" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="order_status_success" translate="label comment tooltip" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method specific success status</label>
                 <comment><![CDATA[Leave empty to use default 'success' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
@@ -184,7 +174,7 @@
                 </depends>
             </field>
 
-            <field id="order_status_failed" translate="label comment tooltip" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="order_status_failed" translate="label comment tooltip" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method specific failed status</label>
                 <comment><![CDATA[Leave empty to use default 'failed' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
@@ -195,45 +185,64 @@
                 </depends>
             </field>
 
-            <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Allowed currencies</label>
-                <comment><![CDATA[Select payment method specific currencies.]]></comment>
-                <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
-                <config_path>payment/buckaroo_magento2_transfer/allowed_currencies</config_path>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::transfer</source_model>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
-            </field>
+            <group id="buckaroo_magento2_visibility" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Method visibility</label>
+                <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Min order amount (in Base Currency)</label>
+                    <comment><![CDATA[Minimum order amount allowed.]]></comment>
+                    <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
+                    <config_path>payment/buckaroo_magento2_transfer/min_amount</config_path>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
+                </field>
 
-            <field id="allowspecific" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment from applicable countries</label>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
-                <config_path>payment/buckaroo_magento2_transfer/allowspecific</config_path>
-            </field>
+                <field id="max_amount" translate="label comment tooltip" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max order amount (in Base Currency)</label>
+                    <comment><![CDATA[Maximum order amount allowed.]]></comment>
+                    <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
+                    <config_path>payment/buckaroo_magento2_transfer/max_amount</config_path>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
+                </field>
 
-            <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment from Specific Country</label>
-                <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Locale\Country</source_model>
-                <config_path>payment/buckaroo_magento2_transfer/specificcountry</config_path>
-                <depends>
-                    <field id="allowspecific">1</field>
-                </depends>
-            </field>
+                <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allow customer groups</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
+                    <can_be_empty>1</can_be_empty>
+                    <config_path>payment/buckaroo_magento2_transfer/specificcustomergroup</config_path>
+                </field>
 
-            <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Display only for selected IPs</label>
-                <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
-                <tooltip>Magento developer client restrictions.</tooltip>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_transfer/limit_by_ip</config_path>
-            </field>
+                <field id="allowspecific" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment from applicable countries</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
+                    <config_path>payment/buckaroo_magento2_transfer/allowspecific</config_path>
+                </field>
 
-            <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Allow customer groups</label>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
-                <can_be_empty>1</can_be_empty>
-                <config_path>payment/buckaroo_magento2_transfer/specificcustomergroup</config_path>
-            </field>
-       </group>
+                <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment from Specific Country</label>
+                    <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Locale\Country</source_model>
+                    <config_path>payment/buckaroo_magento2_transfer/specificcountry</config_path>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                </field>
+
+                <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed currencies</label>
+                    <comment><![CDATA[Select payment method specific currencies.]]></comment>
+                    <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
+                    <config_path>payment/buckaroo_magento2_transfer/allowed_currencies</config_path>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::transfer</source_model>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
+                </field>
+
+                <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Display only for selected IPs</label>
+                    <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
+                    <tooltip>Magento developer client restrictions.</tooltip>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/buckaroo_magento2_transfer/limit_by_ip</config_path>
+                </field>
+            </group>
+        </group>
     </group>
 </include>
