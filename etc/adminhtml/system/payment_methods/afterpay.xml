@@ -151,8 +151,6 @@
                 <config_path>payment/buckaroo_magento2_afterpay/payment_fee_label</config_path>
             </field>
 
-            
-
             <field id="active_status" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method specific status enabled</label>
                 <comment><![CDATA[Enable or disable specific status.]]></comment>
