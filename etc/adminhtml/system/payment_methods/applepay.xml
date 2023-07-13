@@ -29,15 +29,7 @@
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_applepay/active</config_path>
         </field>
-
-        <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Enable or disable applepay buttons</label>
-            <comment><![CDATA[Select which buttons you want to be active.]]></comment>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
-            <config_path>payment/buckaroo_magento2_applepay/available_buttons</config_path>
-            <can_be_empty>1</can_be_empty>
-        </field>
-
+        
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend label</label>
             <comment><![CDATA[Determines the frontend label shown.]]></comment>
@@ -71,19 +63,31 @@
             <config_path>payment/buckaroo_magento2_applepay/sort_order</config_path>
         </field>
 
-        <field id="button_style" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Button style</label>
-            <comment><![CDATA[What type of button you want to show.]]></comment>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\ButtonStyle</source_model>
-            <config_path>payment/buckaroo_magento2_applepay/button_style</config_path>
-        </field>
+        <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Method specific configuration</label>
 
-        <field id="dont_ask_billing_info_in_checkout" translate="label comment" type="select" sortOrder="37" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Do not ask for billing info in checkout</label>
-            <comment><![CDATA[In ApplePay's popup billing info will not be requested. CustomerCardName will not be passed to gateway in such case.]]></comment>
-            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout</config_path>
-        </field>
+            <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Enable or disable applepay buttons</label>
+                <comment><![CDATA[Select which buttons you want to be active.]]></comment>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
+                <config_path>payment/buckaroo_magento2_applepay/available_buttons</config_path>
+                <can_be_empty>1</can_be_empty>
+            </field>
+
+            <field id="button_style" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Button style</label>
+                <comment><![CDATA[What type of button you want to show.]]></comment>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\ButtonStyle</source_model>
+                <config_path>payment/buckaroo_magento2_applepay/button_style</config_path>
+            </field>
+
+            <field id="dont_ask_billing_info_in_checkout" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Do not ask for billing info in checkout</label>
+                <comment><![CDATA[In ApplePay's popup billing info will not be requested. CustomerCardName will not be passed to gateway in such case.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout</config_path>
+            </field>
+        </group>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
@@ -95,14 +99,14 @@
                 <config_path>payment/buckaroo_magento2_applepay/order_email</config_path>
             </field>
 
-            <field id="active_status" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="active_status" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method specific status enabled</label>
                 <comment><![CDATA[Enable or disable specific status.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_applepay/active_status</config_path>
             </field>
 
-            <field id="order_status_success" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="order_status_success" translate="label comment tooltip" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method specific success status</label>
                 <comment><![CDATA[Leave empty to use default 'success' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
@@ -113,7 +117,7 @@
                 </depends>
             </field>
 
-            <field id="order_status_failed" translate="label comment tooltip" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="order_status_failed" translate="label comment tooltip" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method specific failed status</label>
                 <comment><![CDATA[Leave empty to use default 'failed' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
@@ -123,46 +127,49 @@
                     <field id="active_status">1</field>
                 </depends>
             </field>
+            <group id="buckaroo_magento2_visibility" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Method visibility</label>
 
-            <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Allowed currencies</label>
-                <comment><![CDATA[Select payment method specific currencies.]]></comment>
-                <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
-                <config_path>payment/buckaroo_magento2_applepay/allowed_currencies</config_path>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::applepay</source_model>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
-            </field>
+                <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allow customer groups</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
+                    <can_be_empty>1</can_be_empty>
+                    <config_path>payment/buckaroo_magento2_applepay/specificcustomergroup</config_path>
+                </field>
 
-            <field id="allowspecific" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment from applicable countries</label>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
-                <config_path>payment/buckaroo_magento2_applepay/allowspecific</config_path>
-            </field>
+                <field id="allowspecific" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment from applicable countries</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
+                    <config_path>payment/buckaroo_magento2_applepay/allowspecific</config_path>
+                </field>
 
-            <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment from Specific Country</label>
-                <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Locale\Country</source_model>
-                <config_path>payment/buckaroo_magento2_applepay/specificcountry</config_path>
-                <depends>
-                    <field id="allowspecific">1</field>
-                </depends>
-            </field>
+                <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment from Specific Country</label>
+                    <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Locale\Country</source_model>
+                    <config_path>payment/buckaroo_magento2_applepay/specificcountry</config_path>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                </field>
 
-            <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Display only for selected IPs</label>
-                <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
-                <tooltip>Magento developer client restrictions.</tooltip>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_applepay/limit_by_ip</config_path>
-            </field>
+                <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed currencies</label>
+                    <comment><![CDATA[Select payment method specific currencies.]]></comment>
+                    <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
+                    <config_path>payment/buckaroo_magento2_applepay/allowed_currencies</config_path>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::applepay</source_model>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
+                </field>
 
-            <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Allow customer groups</label>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
-                <can_be_empty>1</can_be_empty>
-                <config_path>payment/buckaroo_magento2_applepay/specificcustomergroup</config_path>
-            </field>
+                <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Display only for selected IPs</label>
+                    <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
+                    <tooltip>Magento developer client restrictions.</tooltip>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/buckaroo_magento2_applepay/limit_by_ip</config_path>
+                </field>
+            </group>
         </group>
     </group>
 </include>
