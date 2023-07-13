@@ -31,7 +31,7 @@ class PushTransactionType
     public const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE = 'I014';
     public const BUCK_PUSH_ACCEPT_AUTHORIZE_TYPE = 'I013';
     public const BUCK_PUSH_GROUPTRANSACTION_TYPE = 'I150';
-    public const BUCK_PUSH_IDEAL_PAY = 'C021';
+    public const BUCK_PUSH_IDEAL_PAY             = 'C021';
 
     public const BUCK_PUSH_TYPE_TRANSACTION        = 'transaction_push';
     public const BUCK_PUSH_TYPE_INVOICE            = 'invoice_push';
@@ -42,6 +42,11 @@ class PushTransactionType
      * @var string|null
      */
     private ?string $paymentMethod;
+
+    /**
+     * @var string|null
+     */
+    private ?string $magentoServiceAction;
 
     /**
      * @var string
@@ -104,6 +109,11 @@ class PushTransactionType
     private BuckarooStatusCode $buckarooStatusCode;
 
     /**
+     * @var PushRequestInterface|null
+     */
+    private ?PushRequestInterface $pushRequest;
+
+    /**
      * @param BuckarooStatusCode $buckarooStatusCode
      */
     public function __construct(BuckarooStatusCode $buckarooStatusCode)
@@ -119,15 +129,19 @@ class PushTransactionType
     public function getPushTransactionType(?PushRequestInterface $pushRequest, ?Order $order): PushTransactionType
     {
         if (!$this->isSet) {
-            $this->paymentMethod = $pushRequest->getTransactionMethod() ?? '';
-            $this->pushType = $this->getPushTypeByInvoiceKey($pushRequest, $order);
-            $this->statusCode = $this->getStatusCodeByTransactionType($this->pushType, $pushRequest);
+            $this->pushRequest = $pushRequest;
+            $this->order = $order;
+
+            $this->paymentMethod = $this->pushRequest->getTransactionMethod() ?? '';
+            $this->pushType = $this->getPushTypeByInvoiceKey();
+            $this->statusCode = $this->getStatusCodeByTransactionType($this->pushType);
             $this->statusMessage = $this->buckarooStatusCode->getResponseMessage($this->statusCode);
             $this->statusKey = $this->buckarooStatusCode->getStatusKey($this->statusCode);
-            $this->transactionType = $pushRequest->getTransactionType();
+            $this->transactionType = $this->pushRequest->getTransactionType();
             $this->groupTransaction = $this->transactionType === self::BUCK_PUSH_GROUPTRANSACTION_TYPE;
             $this->creditManagement = $this->pushType === self::BUCK_PUSH_TYPE_INVOICE;
-            $this->serviceAction = $pushRequest->getAdditionalInformation('service_action_from_magento');
+            $this->magentoServiceAction = $this->pushRequest->getAdditionalInformation('service_action_from_magento');
+            $this->serviceAction = $this->getServiceAction($pushRequest, $order);
 
             $this->isSet = true;
         }
@@ -144,32 +158,32 @@ class PushTransactionType
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function getPushTypeByInvoiceKey(PushRequestInterface $pushRequest, Order $order): string
+    public function getPushTypeByInvoiceKey(): string
     {
         //If an order has an invoice key, then it should only be processed by invoice pushes
-        $savedInvoiceKey = (string)$order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
+        $savedInvoiceKey = (string)$this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
-        if (!empty($pushRequest->getInvoicekey())
-            && !empty($pushRequest->getSchemekey())
+        if (!empty($this->pushRequest->getInvoicekey())
+            && !empty($this->pushRequest->getSchemekey())
             && strlen($savedInvoiceKey) > 0
         ) {
             return self::BUCK_PUSH_TYPE_INVOICE;
         }
 
-        if (!empty($pushRequest->getInvoicekey())
-            && !empty($pushRequest->getSchemekey())
+        if (!empty($this->pushRequest->getInvoicekey())
+            && !empty($this->pushRequest->getSchemekey())
             && strlen($savedInvoiceKey) == 0
         ) {
             return self::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE;
         }
 
-        if (!empty($pushRequest->getDatarequest())) {
+        if (!empty($this->pushRequest->getDatarequest())) {
             return self::BUCK_PUSH_TYPE_DATAREQUEST;
         }
 
-        if (empty($pushRequest->getInvoicekey())
-            && empty($pushRequest->getServiceCreditmanagement3Invoicekey())
-            && empty($pushRequest->getDatarequest())
+        if (empty($this->pushRequest->getInvoicekey())
+            && empty($this->pushRequest->getServiceCreditmanagement3Invoicekey())
+            && empty($this->pushRequest->getDatarequest())
             && strlen($savedInvoiceKey) <= 0
         ) {
             return self::BUCK_PUSH_TYPE_TRANSACTION;
@@ -182,31 +196,28 @@ class PushTransactionType
      * Retrieve the status code from the push request based on the transaction type.
      *
      * @param string $transactionType
-     * @param PushRequestInterface $pushRequest
      * @return int
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    private function getStatusCodeByTransactionType(
-        string $transactionType,
-        PushRequestInterface $pushRequest
-    ): int {
+    private function getStatusCodeByTransactionType(string $transactionType): int
+    {
         $statusCode = 0;
         switch ($transactionType) {
             case self::BUCK_PUSH_TYPE_TRANSACTION:
             case self::BUCK_PUSH_TYPE_DATAREQUEST:
-                if ($pushRequest->getStatusCode() !== null) {
-                    $statusCode = $pushRequest->getStatusCode();
+                if ($this->pushRequest->getStatusCode() !== null) {
+                    $statusCode = $this->pushRequest->getStatusCode();
                 }
                 break;
             case self::BUCK_PUSH_TYPE_INVOICE:
             case self::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE:
-                if (!empty($pushRequest->getEventparametersStatuscode())) {
-                    $statusCode = $pushRequest->getEventparametersStatuscode();
+                if (!empty($this->pushRequest->getEventparametersStatuscode())) {
+                    $statusCode = $this->pushRequest->getEventparametersStatuscode();
                 }
 
-                if (!empty($pushRequest->getEventparametersTransactionstatuscode())) {
-                    $statusCode = $pushRequest->getEventparametersTransactionstatuscode();
+                if (!empty($this->pushRequest->getEventparametersTransactionstatuscode())) {
+                    $statusCode = $this->pushRequest->getEventparametersTransactionstatuscode();
                 }
                 break;
             default:
@@ -214,8 +225,8 @@ class PushTransactionType
         }
 
         $statusCodeSuccess = BuckarooStatusCode::SUCCESS;
-        if ($pushRequest->getStatusCode() !== null
-            && ($pushRequest->getStatusCode() == $statusCodeSuccess)
+        if ($this->pushRequest->getStatusCode() !== null
+            && ($this->pushRequest->getStatusCode() == $statusCodeSuccess)
             && !$statusCode
         ) {
             $statusCode = $statusCodeSuccess;
@@ -243,6 +254,22 @@ class PushTransactionType
     /**
      * @return string
      */
+    public function getStatusKey(): string
+    {
+        return $this->statusKey;
+    }
+
+    /**
+     * @param string $statusKey
+     */
+    public function setStatusKey(string $statusKey): void
+    {
+        $this->statusKey = $statusKey;
+    }
+
+    /**
+     * @return string
+     */
     public function getTransactionType(): string
     {
         return $this->transactionType;
@@ -254,6 +281,35 @@ class PushTransactionType
     public function setTransactionType(string $transactionType): void
     {
         $this->transactionType = $transactionType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getServiceAction(): string
+    {
+        $this->serviceAction = $this->magentoServiceAction;
+
+        if (!empty($this->pushRequest->getAmountCredit())) {
+            if ($this->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
+                && $this->order->isCanceled()
+                && $this->getTransactionType() == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
+            ) {
+                $this->serviceAction = 'cancel_authorize';
+            } else {
+                $this->serviceAction = 'refund';
+            }
+        }
+
+        return $this->serviceAction;
+    }
+
+    /**
+     * @param string $serviceAction
+     */
+    public function setServiceAction(string $serviceAction): void
+    {
+        $this->serviceAction = $serviceAction;
     }
 
     /**
@@ -291,17 +347,17 @@ class PushTransactionType
     /**
      * @return string
      */
-    public function getServiceAction(): string
+    public function getMagentoServiceAction(): string
     {
-        return $this->serviceAction;
+        return $this->magentoServiceAction;
     }
 
     /**
-     * @param string $serviceAction
+     * @param string $magentoServiceAction
      */
-    public function setServiceAction(string $serviceAction): void
+    public function setMagentoServiceAction(string $magentoServiceAction): void
     {
-        $this->serviceAction = $serviceAction;
+        $this->magentoServiceAction = $magentoServiceAction;
     }
 
     /**

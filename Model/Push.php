@@ -253,6 +253,9 @@ class Push implements PushInterface
      * @param Afterpay20 $afterpayConfig
      * @param File $fileSystemDriver
      * @param RequestPushFactory $requestPushFactory
+     * @param PushProcessorsFactory $pushProcessorsFactory
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -339,7 +342,7 @@ class Push implements PushInterface
 
         // Process Push
         $this->pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
-        $this->pushProcessor->processPush($this->pushRequst);
+//        $this->pushProcessor->processPush($this->pushRequst);
 
 
 
@@ -1535,10 +1538,10 @@ class Push implements PushInterface
     /**
      * Try to add a notification note to the order comments.
      *
-     * @param Phrase|string $message
+     * @param string|Phrase $message
      * @throws \Exception
      */
-    protected function setOrderNotificationNote(string $message)
+    protected function setOrderNotificationNote(Phrase|string $message)
     {
         $note = 'Buckaroo attempted to update this order, but failed: ' . $message;
         try {

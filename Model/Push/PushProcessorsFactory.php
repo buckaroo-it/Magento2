@@ -60,34 +60,53 @@ class PushProcessorsFactory
                 throw new \LogicException('Push processors is not set.');
             }
 
-            $pushProcessorClass = $this->pushProcessors['default'];
-
-            $paymentMethod = $pushTransactionType->getPaymentMethod();
-            $pushProcessorClass = $this->pushProcessors[$paymentMethod] ?? $pushProcessorClass;
-
+            $pushProcessorClass = $this->getPushProcessorClass($pushTransactionType);
             if (empty($pushProcessorClass)) {
-                throw new BuckarooException(
-                    new Phrase('Unknown ConfigProvider type requested: %1.', [$paymentMethod])
-                );
-            }
-
-            if ($pushTransactionType->isGroupTransaction()) {
-                $pushProcessorClass = $this->pushProcessors['group_transaction'];
-            }
-
-            $transactionType = $pushTransactionType->getTransactionType();
-
-            if ($transactionType == PushTransactionType::BUCK_PUSH_TYPE_INVOICE) {
-                $pushProcessorClass = $this->pushProcessors['credit_managment'];
-            } elseif ($transactionType == PushTransactionType::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE) {
-                throw new BuckarooException(
-                    __('Skipped handling this invoice push because it is too soon.')
-                );
+                throw new BuckarooException(new Phrase('Unknown Push Processor type'));
             }
 
             $this->pushProcessor = $this->objectManager->get($pushProcessorClass);
 
         }
         return $this->pushProcessor;
+    }
+
+    /**
+     * @param PushTransactionType|null $pushTransactionType
+     * @return mixed
+     * @throws BuckarooException
+     */
+    private function getPushProcessorClass(?PushTransactionType $pushTransactionType)
+    {
+        // Set Default Push Processor
+        $pushProcessorClass = $this->pushProcessors['default'];
+
+        // Set Push Processor by Payment Method
+        $paymentMethod = $pushTransactionType->getPaymentMethod();
+        $pushProcessorClass = $this->pushProcessors[$paymentMethod] ?? $pushProcessorClass;
+
+        // Check if is Group Transaction Push
+        if ($pushTransactionType->isGroupTransaction()) {
+            $pushProcessorClass = $this->pushProcessors['group_transaction'];
+        }
+
+        // Check if is Credit Management Push
+        $pushType = $pushTransactionType->getPushType();
+        if ($pushType == PushTransactionType::BUCK_PUSH_TYPE_INVOICE) {
+            $pushProcessorClass = $this->pushProcessors['credit_managment'];
+        } elseif ($pushType == PushTransactionType::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE) {
+            throw new BuckarooException(
+                __('Skipped handling this invoice push because it is too soon.')
+            );
+        }
+
+        // Check if is Refund or Cancel Authorize Push
+        if ($pushTransactionType->getServiceAction() == 'refund') {
+            $pushProcessorClass = $this->pushProcessors['refund'];
+        } elseif ($pushTransactionType->getServiceAction() == 'cancel_authorize') {
+            $pushProcessorClass = $this->pushProcessors['cancel_authorize'];
+        }
+
+        return $pushProcessorClass;
     }
 }

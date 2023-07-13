@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Service\Push;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
@@ -135,5 +136,21 @@ class OrderRequestService
         }
 
         return $trxId;
+    }
+
+    /**
+     * Try to add a notification note to the order comments.
+     *
+     * @param Phrase|string $message
+     */
+    public function setOrderNotificationNote(Phrase|string $message): void
+    {
+        $note = 'Buckaroo attempted to update this order, but failed: ' . $message;
+        try {
+            $this->order->addStatusToHistory($note);
+            $this->order->save();
+        } catch (\Exception $e) {
+            $this->logging->addDebug($e->getLogMessage());
+        }
     }
 }

@@ -35,6 +35,7 @@ use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
  * @method getEventparametersTransactionstatuscode()
  * @method getIspaid()
  * @method getInvoicestatuscode()
+ * @method getRelatedtransactionPartialpayment()
  */
 class HttppostPushRequest extends AbstractPushRequest implements PushRequestInterface
 {

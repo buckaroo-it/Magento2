@@ -84,16 +84,15 @@ class AbstractPushRequest
      */
     public function hasAdditionalInformation(string $name, $value): bool
     {
-        $fieldValue = $this->getAdditionalInformation($name); /** @phpstan-ignore-line */
-        if (is_array($value) &&
-            isset($fieldValue) &&
-            in_array($fieldValue, $value)
+        $fieldValue = $this->getAdditionalInformation($name);
+        /** @phpstan-ignore-line */
+        if (is_array($value)
+            && isset($fieldValue)
+            && in_array($fieldValue, $value)
         ) {
             return true;
-        }
-
-        if (isset($fieldValue) &&
-            $fieldValue == $value
+        } elseif (isset($fieldValue)
+            && $fieldValue == $value
         ) {
             return true;
         }
