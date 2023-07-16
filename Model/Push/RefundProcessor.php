@@ -9,6 +9,8 @@ use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
@@ -30,10 +32,12 @@ class RefundProcessor extends DefaultProcessor
         TransactionInterface $transaction,
         PaymentGroupTransaction $groupTransaction,
         BuckarooStatusCode $buckarooStatusCode,
+        OrderStatusFactory $orderStatusFactory,
+        Account $configAccount,
         RefundPush $refundPush
     ) {
         parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode);
+            $groupTransaction, $buckarooStatusCode,$orderStatusFactory, $configAccount);
         $this->refundPush = $refundPush;
 
     }

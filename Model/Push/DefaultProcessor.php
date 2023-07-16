@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher;
@@ -38,6 +39,8 @@ use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
@@ -106,8 +109,26 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private BuckarooStatusCode $buckarooStatusCode;
 
+    /**
+     * @var OrderStatusFactory
+     */
     private OrderStatusFactory $orderStatusFactory;
 
+    /**
+     * @var Account
+     */
+    public Account $configAccount;
+
+    /**
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
+     * @param Log $logging
+     * @param Data $helper
+     * @param TransactionInterface $transaction
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     */
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
@@ -117,6 +138,7 @@ class DefaultProcessor implements PushProcessorInterface
         PaymentGroupTransaction $groupTransaction,
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
+        Account $configAccount
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -126,6 +148,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->groupTransaction = $groupTransaction;
         $this->buckarooStatusCode = $buckarooStatusCode;
         $this->orderStatusFactory = $orderStatusFactory;
+        $this->configAccount = $configAccount;
     }
 
     /**
@@ -571,31 +594,16 @@ class DefaultProcessor implements PushProcessorInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($newStatus, true));
 
+        // Set amount
         $amount = $this->order->getTotalDue();
-
         if (!empty($this->pushRequest->getAmount())) {
-            $this->logging->addDebug(__METHOD__ . '|11|');
             $amount = floatval($this->pushRequest->getAmount());
         }
 
-        if (!empty($this->pushRequest->getServiceKlarnaReservationnumber())) {
-            $this->order->setBuckarooReservationNumber($this->pushRequest->getServiceKlarnaReservationnumber());
-            $this->order->save();
-        }
-
-        if (!empty($this->pushRequest->getServiceKlarnakpReservationnumber())) {
-            $this->order->setBuckarooReservationNumber($this->pushRequest->getServiceKlarnakpReservationnumber());
-            $this->order->save();
-        }
-
         $store = $this->order->getStore();
-        $payment = $this->order->getPayment();
+        $paymentMethod = $this->payment->getMethodInstance();
 
-        /**
-         * @var \Magento\Payment\Model\MethodInterface $paymentMethod
-         */
-        $paymentMethod = $payment->getMethodInstance();
-
+        // Send email if is not sent
         if (!$this->order->getEmailSent()
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
@@ -603,164 +611,38 @@ class DefaultProcessor implements PushProcessorInterface
         ) {
             $this->logging->addDebug(__METHOD__ . '|sendemail|' .
                 var_export($this->configAccount->getOrderConfirmationEmailSync($store), true));
-            $this->orderSender->send($this->order, $this->configAccount->getOrderConfirmationEmailSync($store));
+            $this->orderRequestService->sendOrderEmail(
+                (bool)$this->configAccount->getOrderConfirmationEmailSync($store)
+            );
         }
 
-        /** force state eventhough this can lead to a transition of the order
-         *  like new -> processing
+        /**
+         * force state eventhough this can lead to a transition of the order
+         * like new -> processing
          */
         $forceState = false;
         $state = Order::STATE_PROCESSING;
 
-        $this->logging->addDebug(__METHOD__ . '|2|');
-
-        if ($paymentMethod->canPushInvoice($this->pushRequest)) {
-            $this->logging->addDebug(__METHOD__ . '|3|');
+        if ($this->canPushInvoice()) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
-            if ($this->pushRequest->hasPostData('transaction_method', 'transfer')) {
-                //keep amount fetched from brq_amount
-                $description .= 'Amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
-            } else {
-                $amount = $this->order->getBaseTotalDue();
-                $description .= 'Total amount of ' .
-                    $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+            $amount = $this->order->getBaseTotalDue();
+            $description .= 'Total amount of ' .
+                $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+
+            $this->logging->addDebug(__METHOD__ . '|4|');
+            if (!$this->saveInvoice()) {
+                return false;
             }
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
-            $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($this->order->getTotalDue())
+            $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
                 . ' has been authorized. Please create an invoice to capture the authorized amount.';
             $forceState = true;
         }
 
-        if ($this->isPayPerEmailB2BModePushInitial) {
-            $description = '';
-        }
-
         $this->dontSaveOrderUponSuccessPush = false;
-        if ($paymentMethod->canPushInvoice($this->pushRequest)) {
-            $this->logging->addDebug(__METHOD__ . '|4|');
 
-            if (!$this->isPayPerEmailB2BModePushInitial && $this->isPayPerEmailB2BModePushPaid()) {
-                $this->logging->addDebug(__METHOD__ . '|4_1|');
-                //Fix for suspected fraud when the order currency does not match with the payment's currency
-                $amount = ($payment->isSameCurrency() && $payment->isCaptureFinal($this->order->getGrandTotal())) ?
-                    $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-                $payment->registerCaptureNotification($amount);
-                $payment->save();
-                $this->order->setState('complete');
-                $this->order->addStatusHistoryComment($description, 'complete');
-                $this->order->save();
-
-                if ($transactionKey = $this->getTransactionKey()) {
-                    foreach ($this->order->getInvoiceCollection() as $invoice) {
-                        $invoice->setTransactionId($transactionKey)->save();
-                    }
-                }
-                return true;
-            }
-
-            if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1) &&
-                (
-                    $this->pushRequest->hasPostData('transaction_method', 'KlarnaKp') &&
-                    $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay') &&
-                    empty($this->pushRequest->getServiceKlarnakpReservationnumber()) &&
-                    $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
-                ) ||
-                (
-                    $this->pushRequest->hasPostData('transaction_method', 'afterpay') &&
-                    $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'capture') &&
-                    $this->afterpayConfig->isInvoiceCreatedAfterShipment()
-                )
-            ) {
-                $this->logging->addDebug(__METHOD__ . '|5_1|');
-                $this->dontSaveOrderUponSuccessPush = true;
-                return true;
-            } else {
-                $this->logging->addDebug(__METHOD__ . '|6|');
-
-                if ($this->pushRequest->hasPostData('transaction_method', 'transfer')) {
-                    //invoice only in case of full or last remained amount
-                    $this->logging->addDebug(__METHOD__ . '|61|' . var_export([
-                            $this->order->getId(),
-                            $amount,
-                            $this->order->getTotalDue(),
-                            $this->order->getTotalPaid(),
-                        ], true));
-
-                    $saveInvoice = true;
-                    if (($amount < $this->order->getTotalDue())
-                        || (($amount == $this->order->getTotalDue()) && ($this->order->getTotalPaid() > 0))
-                    ) {
-                        $this->logging->addDebug(__METHOD__ . '|64|');
-
-                        $forceState = true;
-                        if ($amount < $this->order->getTotalDue()) {
-                            $this->logging->addDebug(__METHOD__ . '|65|');
-                            $state = Order::STATE_NEW;
-                            $newStatus = $this->orderStatusFactory->get(
-                                BuckarooStatusCode::PENDING_PROCESSING,
-                                $this->order
-                            );
-                            $saveInvoice = false;
-                        }
-
-                        $this->saveAndReloadOrder();
-
-                        $this->order->setTotalDue($this->order->getTotalDue() - $amount);
-                        $this->order->setBaseTotalDue($this->order->getTotalDue() - $amount);
-
-                        $totalPaid = $this->order->getTotalPaid() + $amount;
-                        $this->order->setTotalPaid(
-                            $totalPaid > $this->order->getGrandTotal() ? $this->order->getGrandTotal() : $totalPaid
-                        );
-
-                        $baseTotalPaid = $this->order->getBaseTotalPaid() + $amount;
-                        $this->order->setBaseTotalPaid(
-                            $baseTotalPaid > $this->order->getBaseGrandTotal() ?
-                                $this->order->getBaseGrandTotal() : $baseTotalPaid
-                        );
-
-                        $this->saveAndReloadOrder();
-
-                        $connection = $this->resourceConnection->getConnection();
-                        $connection->update(
-                            $connection->getTableName('sales_order'),
-                            [
-                                'total_due'       => $this->order->getTotalDue(),
-                                'base_total_due'  => $this->order->getTotalDue(),
-                                'total_paid'      => $this->order->getTotalPaid(),
-                                'base_total_paid' => $this->order->getBaseTotalPaid(),
-                            ],
-                            $connection->quoteInto('entity_id = ?', $this->order->getId())
-                        );
-                    }
-
-                    if ($saveInvoice) {
-                        if (!$this->saveInvoice()) {
-                            return false;
-                        }
-                    }
-                } else {
-                    if (!$this->saveInvoice()) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        if (!empty($this->pushRequst->getServiceKlarnaAutopaytransactionkey())
-            && ($this->pushRequst->getStatusCode() == 190)
-        ) {
-            $this->saveInvoice();
-        }
-
-        if (!empty($this->pushRequst->getServiceKlarnakpAutopaytransactionkey())
-            && ($this->pushRequst->getStatusCode() == 190)
-        ) {
-            $this->saveInvoice();
-        }
-
-        if ($this->groupTransaction->isGroupTransaction($this->pushRequst->getInvoiceNumber())) {
+        if ($this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
             $forceState = true;
         }
 
@@ -768,9 +650,94 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->processSucceededPushAuth($payment);
 
-        $this->updateOrderStatus($state, $newStatus, $description, $forceState);
+        $this->orderRequestService->updateOrderStatus($state, $newStatus, $description, $forceState);
 
         $this->logging->addDebug(__METHOD__ . '|9|');
+
+        return true;
+    }
+
+    /**
+     * Can create invoice on push
+     *
+     * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws LocalizedException
+     */
+    protected function canPushInvoice(): bool
+    {
+        if ($this->payment->getMethodInstance()->getConfigData('payment_action') == 'authorize') {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Creates and saves the invoice and adds for each invoice the buckaroo transaction keys
+     * Only when the order can be invoiced and has not been invoiced before.
+     *
+     * @return bool
+     * @throws BuckarooException
+     * @throws LocalizedException
+     * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
+    protected function saveInvoice(): bool
+    {
+        $this->logging->addDebug(__METHOD__ . '|1|');
+        if (!$this->forceInvoice
+            && (!$this->order->canInvoice() || $this->order->hasInvoices())) {
+            $this->logging->addDebug('Order can not be invoiced');
+            return false;
+        }
+
+        /**
+         * @var Payment $payment
+         */
+        $payment = $this->order->getPayment();
+
+        $this->logging->addDebug(__METHOD__ . '|15|');
+        //Fix for suspected fraud when the order currency does not match with the payment's currency
+        $amount = ($payment->isSameCurrency()
+            && $payment->isCaptureFinal($this->order->getGrandTotal())) ?
+            $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
+        $payment->registerCaptureNotification($amount);
+        $payment->save();
+
+        $transactionKey = $this->getTransactionKey();
+
+        if (strlen($transactionKey) <= 0) {
+            return true;
+        }
+
+        $this->logging->addDebug(__METHOD__ . '|25|');
+
+        /** @var Invoice $invoice */
+        foreach ($this->order->getInvoiceCollection() as $invoice) {
+            $invoice->setTransactionId($transactionKey)->save();
+
+            if (!empty($this->pushRequest->getInvoiceNumber())
+                && $this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
+                $this->logging->addDebug(__METHOD__ . '|27|');
+                $invoice->setState(2);
+            }
+
+            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+                $this->logging->addDebug(__METHOD__ .  '|30|sendinvoiceemail');
+                $this->orderRequestService->sendInvoiceEmail($invoice, true);
+            }
+        }
+
+        $this->logging->addDebug(__METHOD__ . '|35|');
+
+        $this->order->setIsInProcess(true);
+        $this->order->save();
+
+        $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
     }
@@ -799,12 +766,12 @@ class DefaultProcessor implements PushProcessorInterface
 
         $description = 'Payment status : ' . $message;
 
-        if (!empty($this->pushRequst->getServiceAntifraudAction())) {
-            $description .= $this->pushRequst->getServiceAntifraudAction() .
+        if (!empty($this->pushRequest->getServiceAntifraudAction())) {
+            $description .= $this->pushRequest->getServiceAntifraudAction() .
                 ' ' .
-                $this->pushRequst->getServiceAntifraudCheck() .
+                $this->pushRequest->getServiceAntifraudCheck() .
                 ' ' .
-                $this->pushRequst->getServiceAntifraudDetails();
+                $this->pushRequest->getServiceAntifraudDetails();
         }
 
         $store = $this->order->getStore();
@@ -905,7 +872,7 @@ class DefaultProcessor implements PushProcessorInterface
     {
         $payment = $this->order->getPayment();
 
-        if ($payment->getMethod() != Giftcards::CODE
+        if ($this->payment->getMethod() != Giftcards::CODE
             || (!empty($this->pushRequest->getAmount())
                 && $this->pushRequest->getAmount() >= $this->order->getGrandTotal())
             || empty($this->pushRequest->getRelatedtransactionPartialpayment())
@@ -918,7 +885,7 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         if (!$this->pushTransactionType->getTransactionType() == PushTransactionType::BUCK_PUSH_GROUPTRANSACTION_TYPE) {
-            $payment->setAdditionalInformation(
+            $this->payment->setAdditionalInformation(
                 BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
                 $this->pushRequest->getRelatedtransactionPartialpayment()
             );

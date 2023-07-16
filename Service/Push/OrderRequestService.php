@@ -7,6 +7,9 @@ use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
@@ -28,18 +31,34 @@ class OrderRequestService
     private TransactionInterface $transaction;
 
     /**
+     * @var OrderSender
+     */
+    private OrderSender $orderSender;
+
+    /**
+     * @var InvoiceSender
+     */
+    private InvoiceSender $invoiceSender;
+
+    /**
      * @param Order $order
      * @param Log $logging
      * @param TransactionInterface $transaction
+     * @param OrderSender $orderSender
+     * @param InvoiceSender $invoiceSender
      */
     public function __construct(
         Order $order,
         Log $logging,
-        TransactionInterface $transaction
+        TransactionInterface $transaction,
+        OrderSender $orderSender,
+        InvoiceSender $invoiceSender,
     ) {
         $this->order = $order;
         $this->logging = $logging;
         $this->transaction = $transaction;
+        $this->orderSender = $orderSender;
+        $this->invoiceSender = $invoiceSender;
     }
 
     /**
@@ -152,5 +171,30 @@ class OrderRequestService
         } catch (\Exception $e) {
             $this->logging->addDebug($e->getLogMessage());
         }
+    }
+
+    /**
+     * Sends order email to the customer.
+     *
+     * @param bool $forceSyncMode
+     * @return bool
+     */
+    public function sendOrderEmail(bool $forceSyncMode = false): bool
+    {
+        return $this->orderSender->send($this->order, $forceSyncMode);
+    }
+
+    /**
+     * Sends order invoice email to the customer.
+     *
+     * @param Invoice $invoice
+     * @param bool $forceSyncMode
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function sendInvoiceEmail(Invoice $invoice, bool $forceSyncMode = false): bool
+    {
+        return $this->invoiceSender->send($invoice, $forceSyncMode);
     }
 }
