@@ -337,10 +337,10 @@ class Push implements PushInterface
             throw new BuckarooException(__('Signature from push is incorrect'));
         }
 
-        // Get Push Transaction Type
+//         Get Push Transaction Type
         $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequst, $this->order);
 
-        // Process Push
+//         Process Push
         $this->pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
         $this->pushProcessor->processPush($this->pushRequst);
 
@@ -510,7 +510,8 @@ class Push implements PushInterface
             }
         }
 
-        if ((!in_array($payment->getMethod(), [Giftcards::CODE, Voucher::CODE])) && $this->isGroupTransactionPart()) {
+        if (!in_array($payment->getMethod(), [Giftcards::CODE, Voucher::CODE])
+            && $this->isGroupTransactionPart()) {
             $this->savePartGroupTransaction();
             return true;
         }

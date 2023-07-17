@@ -622,6 +622,7 @@ class DefaultProcessor implements PushProcessorInterface
          */
         $forceState = false;
         $state = Order::STATE_PROCESSING;
+        $this->dontSaveOrderUponSuccessPush = false;
 
         if ($this->canPushInvoice()) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
@@ -640,17 +641,14 @@ class DefaultProcessor implements PushProcessorInterface
             $forceState = true;
         }
 
-        $this->dontSaveOrderUponSuccessPush = false;
-
         if ($this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
             $forceState = true;
         }
 
         $this->logging->addDebug(__METHOD__ . '|8|');
 
-        $this->processSucceededPushAuth($payment);
-
-        $this->orderRequestService->updateOrderStatus($state, $newStatus, $description, $forceState);
+        $this->orderRequestService->updateOrderStatus($state, $newStatus, $description, $forceState,
+            $this->dontSaveOrderUponSuccessPush);
 
         $this->logging->addDebug(__METHOD__ . '|9|');
 
@@ -867,11 +865,10 @@ class DefaultProcessor implements PushProcessorInterface
      * Checks if the payment is a partial payment using a gift card.
      *
      * @return bool
+     * @throws LocalizedException
      */
     private function giftcardPartialPayment(): bool
     {
-        $payment = $this->order->getPayment();
-
         if ($this->payment->getMethod() != Giftcards::CODE
             || (!empty($this->pushRequest->getAmount())
                 && $this->pushRequest->getAmount() >= $this->order->getGrandTotal())

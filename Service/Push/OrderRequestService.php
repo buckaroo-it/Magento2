@@ -174,6 +174,51 @@ class OrderRequestService
     }
 
     /**
+     * Updates the order state and add a comment.
+     *
+     * @param string $orderState
+     * @param string $newStatus
+     * @param string $description
+     * @param bool $force
+     * @param bool $dontSaveOrderUponSuccessPush
+     *
+     * @throws \Exception
+     */
+    public function updateOrderStatus(
+        string $orderState,
+        string $newStatus,
+        string $description,
+        bool $force = false,
+        bool $dontSaveOrderUponSuccessPush = false
+    ): void {
+        $this->logging->addDebug(__METHOD__ . '|0|' . var_export([$orderState, $newStatus, $description], true));
+        if ($this->order->getState() == $orderState || $force) {
+            $this->logging->addDebug(__METHOD__ . '|1|');
+            $this->logging->addDebug('||| $orderState: ' . '|1|' . $orderState);
+            if ($dontSaveOrderUponSuccessPush) {
+                $this->order->addCommentToStatusHistory($description)
+                    ->setIsCustomerNotified(false)
+                    ->setEntityName('invoice')
+                    ->setStatus($newStatus)
+                    ->save();
+            } else {
+                $this->order->addCommentToStatusHistory($description, $newStatus);
+            }
+        } else {
+            $this->logging->addDebug(__METHOD__ . '|2|');
+            $this->logging->addDebug('||| $orderState: ' . '|2|' . $orderState);
+            if ($dontSaveOrderUponSuccessPush) {
+                $this->order->addCommentToStatusHistory($description)
+                    ->setIsCustomerNotified(false)
+                    ->setEntityName('invoice')
+                    ->save();
+            } else {
+                $this->order->addCommentToStatusHistory($description);
+            }
+        }
+    }
+
+    /**
      * Sends order email to the customer.
      *
      * @param bool $forceSyncMode

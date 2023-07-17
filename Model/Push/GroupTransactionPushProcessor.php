@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Model\Push;
 
+use AllowDynamicProperties;
 use Buckaroo\Magento2\Api\PushProcessorInterface;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -18,7 +19,7 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Model\Order;
 use Magento\Quote\Model\ResourceModel\Quote as ResourceQuote;
 
-class GroupTransactionPushProcessor implements PushProcessorInterface
+#[AllowDynamicProperties] class GroupTransactionPushProcessor implements PushProcessorInterface
 {
     /**
      * @var PushRequestInterface
@@ -66,6 +67,11 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     private ResourceQuote $quoteResource;
 
     /**
+     * @var DefaultProcessor
+     */
+    private DefaultProcessor $defaultProcessor;
+
+    /**
      * @param PaymentGroupTransaction $groupTransaction
      * @param BuckarooLogger $logging
      * @param OrderRequestService $orderRequestService
@@ -73,6 +79,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      * @param QuoteManagement $quoteManagement
      * @param QuoteFactory $quoteFactory
      * @param ResourceQuote $quoteResource
+     * @param DefaultProcessor $defaultProcessor
      */
     public function __construct(
         PaymentGroupTransaction $groupTransaction,
@@ -81,7 +88,8 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
         OrderManagementInterface $orderManagement,
         QuoteManagement $quoteManagement,
         QuoteFactory $quoteFactory,
-        ResourceQuote $quoteResource
+        ResourceQuote $quoteResource,
+        DefaultProcessor $defaultProcessor
     ) {
         $this->groupTransaction = $groupTransaction;
         $this->logging = $logging;
@@ -90,6 +98,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
         $this->quoteManagement = $quoteManagement;
         $this->quoteFactory = $quoteFactory;
         $this->quoteResource = $quoteResource;
+        $this->defaultProcessor = $defaultProcessor;
     }
 
     /**
@@ -123,22 +132,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
             return true;
         }
 
-        return false;
-    }
-
-    public function processSucceededPush(PushRequestInterface $pushRequest): bool
-    {
-        // TODO: Implement processSucceededPush() method.
-    }
-
-    public function processFailedPush(PushRequestInterface $pushRequest): bool
-    {
-        // TODO: Implement processFailedPush() method.
-    }
-
-    public function processPendingPaymentPush(PushRequestInterface $pushRequest): bool
-    {
-        // TODO: Implement processPendingPaymentPush() method.
+        return $this->defaultProcessor->processPush($pushRequest);
     }
 
     /**

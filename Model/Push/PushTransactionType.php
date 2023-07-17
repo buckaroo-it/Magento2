@@ -49,9 +49,9 @@ class PushTransactionType
     private ?string $magentoServiceAction;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $serviceAction;
+    private ?string $serviceAction;
 
     /**
      * @var int
@@ -141,7 +141,7 @@ class PushTransactionType
             $this->groupTransaction = $this->transactionType === self::BUCK_PUSH_GROUPTRANSACTION_TYPE;
             $this->creditManagement = $this->pushType === self::BUCK_PUSH_TYPE_INVOICE;
             $this->magentoServiceAction = $this->pushRequest->getAdditionalInformation('service_action_from_magento');
-            $this->serviceAction = $this->getServiceAction($pushRequest, $order);
+            $this->serviceAction = $this->getServiceAction();
 
             $this->isSet = true;
         }
@@ -284,20 +284,22 @@ class PushTransactionType
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getServiceAction(): string
+    public function getServiceAction(): ?string
     {
-        $this->serviceAction = $this->magentoServiceAction;
+        if (empty($this->serviceAction)) {
+            $this->serviceAction = $this->magentoServiceAction;
 
-        if (!empty($this->pushRequest->getAmountCredit())) {
-            if ($this->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
-                && $this->order->isCanceled()
-                && $this->getTransactionType() == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
-            ) {
-                $this->serviceAction = 'cancel_authorize';
-            } else {
-                $this->serviceAction = 'refund';
+            if (!empty($this->pushRequest->getAmountCredit())) {
+                if ($this->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
+                    && $this->order->isCanceled()
+                    && $this->getTransactionType() == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
+                ) {
+                    $this->serviceAction = 'cancel_authorize';
+                } else {
+                    $this->serviceAction = 'refund';
+                }
             }
         }
 

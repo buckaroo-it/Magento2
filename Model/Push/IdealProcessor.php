@@ -1,4 +1,23 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
@@ -37,7 +56,7 @@ class IdealProcessor extends DefaultProcessor
         LockerProcess $lockerProcess,
     ) {
         parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode,$orderStatusFactory, $configAccount);
+            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
         $this->lockerProcess = $lockerProcess;
 
     }
@@ -50,7 +69,6 @@ class IdealProcessor extends DefaultProcessor
     {
         $this->pushRequest = $pushRequest;
 
-        // Lock Processing
         if ($this->lockPushProcessingCriteria()) {
             $this->lockerProcess->lockProcess($this->getOrderIncrementId());
         }
@@ -58,6 +76,8 @@ class IdealProcessor extends DefaultProcessor
         parent::processPush($pushRequest);
 
         $this->lockerProcess->unlockProcess();
+
+        return true;
     }
 
     /**
@@ -70,23 +90,4 @@ class IdealProcessor extends DefaultProcessor
         return $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
             && $this->pushRequest->hasPostData('transaction_type', self::BUCK_PUSH_IDEAL_PAY);
     }
-
-    public function processSucceded()
-    {
-        $statusCodeSuccess = BuckarooStatusCode::SUCCESS;
-
-        if ($this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
-            && $this->pushRequest->hasPostData('transaction_method', 'ideal')
-            && $this->pushRequest->hasPostData('transaction_type', self::BUCK_PUSH_IDEAL_PAY)
-        ) {
-            return true;
-        }
-    }
-
-    public function processFailed()
-    {
-        // TODO: Implement processFailed() method.
-    }
-
-
 }
