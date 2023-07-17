@@ -52,7 +52,7 @@ class Add
     /**
      * @var QuoteAddressFactory|BaseQuoteAddressFactory
      */
-    private QuoteAddressFactory|BaseQuoteAddressFactory $quoteAddressFactory;
+    private $quoteAddressFactory;
 
     /**
      * @var ShippingAddressManagementInterface
