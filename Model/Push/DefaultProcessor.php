@@ -107,7 +107,7 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @var BuckarooStatusCode
      */
-    private BuckarooStatusCode $buckarooStatusCode;
+    protected BuckarooStatusCode $buckarooStatusCode;
 
     /**
      * @var OrderStatusFactory
@@ -158,9 +158,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
-        $this->pushRequest = $pushRequest;
-        $this->order = $this->orderRequestService->getOrderByRequest();
-        $this->payment = $this->order->getPayment();
+        $this->initializeFields($pushRequest);
 
         // Skip Push
         if ($this->skipPush()) {
@@ -315,7 +313,7 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    private function skipSpecificTypesOfRequsts(): bool
+    protected function skipSpecificTypesOfRequsts(): bool
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
 
@@ -693,18 +691,15 @@ class DefaultProcessor implements PushProcessorInterface
             return false;
         }
 
-        /**
-         * @var Payment $payment
-         */
-        $payment = $this->order->getPayment();
+        $this->addTransactionData();
 
         $this->logging->addDebug(__METHOD__ . '|15|');
         //Fix for suspected fraud when the order currency does not match with the payment's currency
-        $amount = ($payment->isSameCurrency()
-            && $payment->isCaptureFinal($this->order->getGrandTotal())) ?
+        $amount = ($this->payment->isSameCurrency()
+            && $this->payment->isCaptureFinal($this->order->getGrandTotal())) ?
             $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-        $payment->registerCaptureNotification($amount);
-        $payment->save();
+        $this->payment->registerCaptureNotification($amount);
+        $this->payment->save();
 
         $transactionKey = $this->getTransactionKey();
 
@@ -835,7 +830,7 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @return false|mixed
      */
-    private function isGroupTransactionPart()
+    protected function isGroupTransactionPart()
     {
         if (!is_null($this->pushRequest->getTransactions())) {
             return $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
@@ -849,7 +844,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @return void
      * @throws \Exception
      */
-    private function savePartGroupTransaction()
+    protected function savePartGroupTransaction()
     {
         $items = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
         if (is_array($items) && count($items) > 0) {
@@ -867,7 +862,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @return bool
      * @throws LocalizedException
      */
-    private function giftcardPartialPayment(): bool
+    protected function giftcardPartialPayment(): bool
     {
         if ($this->payment->getMethod() != Giftcards::CODE
             || (!empty($this->pushRequest->getAmount())
@@ -921,5 +916,60 @@ class DefaultProcessor implements PushProcessorInterface
                 $transactionArray
             );
         }
+    }
+
+    /**
+     * Adds transaction data to the order payment with the given transaction key and data.
+     *
+     * @param bool $transactionKey
+     * @param bool $data
+     * @return Payment
+     * @throws LocalizedException
+     * @throws \Exception
+     */
+    public function addTransactionData(bool $transactionKey = false, bool $data = false): Payment
+    {
+        $this->payment = $this->order->getPayment();
+        $transactionKey = $transactionKey ?: $this->getTransactionKey();
+
+        if (strlen($transactionKey) <= 0) {
+            throw new BuckarooException(__('There was no transaction ID found'));
+        }
+
+        /**
+         * Save the transaction's response as additional info for the transaction.
+         */
+        $postData = $data ?: $this->pushRequest->getData();
+        $rawInfo  = $this->helper->getTransactionAdditionalInfo($postData);
+
+        $this->payment->setTransactionAdditionalInfo(
+            Transaction::RAW_DETAILS,
+            $rawInfo
+        );
+
+        /**
+         * Save the payment's transaction key.
+         */
+        $this->payment->setTransactionId($transactionKey . '-capture');
+
+        $this->payment->setParentTransactionId($transactionKey);
+        $this->payment->setAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+            $transactionKey
+        );
+
+        return $this->payment;
+    }
+
+    /**
+     * @param PushRequestInterface $pushRequest
+     * @return void
+     * @throws \Exception
+     */
+    protected function initializeFields(PushRequestInterface $pushRequest): void
+    {
+        $this->pushRequest = $pushRequest;
+        $this->order = $this->orderRequestService->getOrderByRequest();
+        $this->payment = $this->order->getPayment();
     }
 }

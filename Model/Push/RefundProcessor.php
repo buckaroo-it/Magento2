@@ -48,21 +48,23 @@ class RefundProcessor extends DefaultProcessor
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
-        $order = $this->orderRequestService->getOrderByRequest($pushRequest);
+        $this->pushRequest = $pushRequest;
+        $this->order = $this->orderRequestService->getOrderByRequest($pushRequest);
+        $this->payment = $this->order->getPayment();
 
         if ($this->skipPendingRefundPush($pushRequest)) {
             return true;
         }
 
         if ($this->pushTransactionType->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
-            && !$order->hasInvoices()
+            && !$this->order->hasInvoices()
         ) {
             throw new BuckarooException(
                 __('Refund failed ! Status : %1 and the order does not contain an invoice',
                     $this->pushTransactionType->getStatusKey())
             );
         } elseif ($this->pushTransactionType->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
-            && $order->hasInvoices()
+            && $this->order->hasInvoices()
         ) {
             //don't proceed failed refund push
             $this->logging->addDebug(__METHOD__ . '|10|');
@@ -72,7 +74,7 @@ class RefundProcessor extends DefaultProcessor
             return true;
         }
 
-        return $this->refundPush->receiveRefundPush($pushRequest, true, $order);
+        return $this->refundPush->receiveRefundPush($this->pushRequest, true, $this->order);
     }
 
     /**

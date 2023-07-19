@@ -114,6 +114,11 @@ class PushTransactionType
     private ?PushRequestInterface $pushRequest;
 
     /**
+     * @var bool
+     */
+    private bool $isFromPayPerEmail;
+
+    /**
      * @param BuckarooStatusCode $buckarooStatusCode
      */
     public function __construct(BuckarooStatusCode $buckarooStatusCode)
@@ -142,6 +147,9 @@ class PushTransactionType
             $this->creditManagement = $this->pushType === self::BUCK_PUSH_TYPE_INVOICE;
             $this->magentoServiceAction = $this->pushRequest->getAdditionalInformation('service_action_from_magento');
             $this->serviceAction = $this->getServiceAction();
+            $this->isFromPayPerEmail = (bool)$this->pushRequest->getAdditionalInformation('frompayperemail')
+                ?? (bool)$this->pushRequest->getAdditionalInformation('frompayperemail')
+                ?? false;
 
             $this->isSet = true;
         }
@@ -440,5 +448,21 @@ class PushTransactionType
     public function setOrder(Order $order): void
     {
         $this->order = $order;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFromPayPerEmail(): bool
+    {
+        return $this->isFromPayPerEmail;
+    }
+
+    /**
+     * @param Order $order
+     */
+    public function setIsFromPayPerEmail(bool $isFromPayPerEmail): void
+    {
+        $this->isFromPayPerEmail = $isFromPayPerEmail;
     }
 }

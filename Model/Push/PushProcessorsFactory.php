@@ -84,6 +84,9 @@ class PushProcessorsFactory
         // Set Push Processor by Payment Method
         $paymentMethod = $pushTransactionType->getPaymentMethod();
         $pushProcessorClass = $this->pushProcessors[$paymentMethod] ?? $pushProcessorClass;
+        if ($pushTransactionType->isFromPayPerEmail()) {
+            $this->pushProcessors['group_transaction'];
+        }
 
         // Check if is Group Transaction Push
         if ($pushTransactionType->isGroupTransaction()) {
