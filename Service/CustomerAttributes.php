@@ -15,7 +15,7 @@ class CustomerAttributes
      * @param CustomerRepositoryInterface $customerRepository
      */
     public function __construct(
-        CustomerRepositoryInterface $customerRepository,
+        CustomerRepositoryInterface $customerRepository
     ) {
         $this->customerRepository = $customerRepository;
     }
