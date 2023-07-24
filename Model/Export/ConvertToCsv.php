@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Model\Export;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
@@ -70,9 +70,9 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
     protected $giftcardCollection;
 
     /**
-     * @var Account
+     * @var Giftcards
      */
-    protected $configProviderAccount;
+    protected $giftcardConfig;
 
     /**
      * @var StoreManagerInterface
@@ -87,7 +87,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
      * @param PaymentGroupTransaction $groupTransaction
      * @param Collection $giftcardCollection
      * @param StoreManagerInterface $storeManager
-     * @param Account $configProviderAccount
+     * @param Giftcards $giftcardConfig
      * @param int $pageSize
      * @throws FileSystemException
      */
@@ -99,7 +99,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         PaymentGroupTransaction $groupTransaction,
         Collection $giftcardCollection,
         StoreManagerInterface $storeManager,
-        Account $configProviderAccount,
+        Giftcards $giftcardConfig,
         $pageSize = 200
     ) {
         $this->filter = $filter;
@@ -110,7 +110,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         $this->groupTransaction = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
         $this->storeManager = $storeManager;
-        $this->configProviderAccount = $configProviderAccount;
+        $this->giftcardConfig = $giftcardConfig;
     }
 
     /**
@@ -144,7 +144,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         while ($totalCount > 0) {
             $items = $dataProvider->getSearchResult()->getItems();
             foreach ($items as $item) {
-                if ($this->configProviderAccount->hasAdvancedExportGiftcards($this->storeManager->getStore())) {
+                if ($this->giftcardConfig->hasAdvancedExportGiftcards($this->storeManager->getStore())) {
                     $this->convertGiftCardsValue($item);
                 }
                 $this->metadataProvider->convertDate($item, $component->getName());

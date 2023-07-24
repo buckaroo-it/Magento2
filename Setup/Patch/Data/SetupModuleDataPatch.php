@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Setup\Patch\Data;
 
-use Buckaroo\Magento2\Model\Certificate;
 use Magento\Catalog\Model\Product;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean;
@@ -31,7 +30,6 @@ use Magento\Framework\Registry;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection as CertificateCollection;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Store\Model\Store;
 use Magento\Eav\Setup\EavSetupFactory;
@@ -43,11 +41,7 @@ use Magento\Customer\Model\Customer;
  */
 class SetupModuleDataPatch implements DataPatchInterface
 {
-    /**
-     * @var CertificateCollection
-     */
-    protected $certificateCollection;
-
+   
     /**
      * @var GiftcardCollection
      */
@@ -433,7 +427,6 @@ class SetupModuleDataPatch implements DataPatchInterface
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param GiftcardCollection $giftcardCollection
-     * @param CertificateCollection $certificateCollection
      * @param Encryptor $encryptor
      * @param Registry $registry
      * @param EavSetupFactory $eavSetupFactory
@@ -442,7 +435,6 @@ class SetupModuleDataPatch implements DataPatchInterface
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
         GiftcardCollection $giftcardCollection,
-        CertificateCollection $certificateCollection,
         Encryptor $encryptor,
         Registry $registry,
         EavSetupFactory $eavSetupFactory,
@@ -450,7 +442,6 @@ class SetupModuleDataPatch implements DataPatchInterface
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
         $this->giftcardCollection = $giftcardCollection;
-        $this->certificateCollection = $certificateCollection;
         $this->encryptor = $encryptor;
         $this->registry = $registry;
         $this->eavSetupFactory = $eavSetupFactory;
@@ -481,7 +472,6 @@ class SetupModuleDataPatch implements DataPatchInterface
         $this->moduleDataSetup->getConnection()->startSetup();
 
         $this->installOrderStatusses($this->moduleDataSetup); // 0.1.1
-        $this->encryptCertificates(); // 0.9.4
         $this->installBaseGiftcards($this->moduleDataSetup, $this->giftcardArray); // 1.3.0
         $this->installBaseGiftcards($this->moduleDataSetup, $this->giftcardAdditionalArray); // 1.3.0
         $this->updateFailureRedirectConfiguration($this->moduleDataSetup); // 1.5.0
@@ -580,30 +570,6 @@ class SetupModuleDataPatch implements DataPatchInterface
             $bind = ['visible_on_front' => 1];
             $where = ['status = ?' => 'buckaroo_magento2_pending_paymen'];
             $setup->getConnection()->update($setup->getTable('sales_order_status_state'), $bind, $where);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Encrypt all previously saved, unencrypted certificates.
-     *
-     * @return $this
-     * @throws \Exception
-     */
-    protected function encryptCertificates(): SetupModuleDataPatch
-    {
-        /**
-         * @var Certificate $certificate
-         */
-        foreach ($this->certificateCollection as $certificate) {
-            $certificate->setCertificate(
-                $this->encryptor->encrypt(
-                    $certificate->getCertificate()
-                )
-            )->setSkipEncryptionOnSave(true);
-
-            $certificate->save();
         }
 
         return $this;

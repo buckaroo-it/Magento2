@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\Config\Backend;
 
-use Buckaroo\Magento2\Model\CertificateFactory;
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Value;

@@ -21,7 +21,6 @@
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Magento\Payment\Gateway\Data\Order\OrderAdapter" type="Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter"/>
-    <preference for="Buckaroo\Magento2\Api\CertificateRepositoryInterface" type="Buckaroo\Magento2\Model\CertificateRepository"/>
     <preference for="Buckaroo\Magento2\Api\InvoiceRepositoryInterface" type="Buckaroo\Magento2\Model\InvoiceRepository"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
     <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>
@@ -158,14 +157,6 @@
                     <item name="type" xsi:type="string">push</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\Validator\Push</item>
                 </item>
-                <item name="transaction_response" xsi:type="array">
-                    <item name="type" xsi:type="string">transaction_response</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\Validator\TransactionResponse</item>
-                </item>
-                <item name="transaction_response_status" xsi:type="array">
-                    <item name="type" xsi:type="string">transaction_response_status</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\Validator\TransactionResponseStatus</item>
-                </item>
                 <item name="redirect_process" xsi:type="array">
                     <item name="type" xsi:type="string">redirect_return</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\Validator\RedirectProcess</item>
@@ -178,23 +169,6 @@
         </arguments>
     </type>
 
-    <type name="Buckaroo\Magento2\Model\Validator\TransactionResponse">
-        <arguments>
-            <argument name="publicKeyConfigProvider" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\PublicKey</argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Model\Validator\TransactionResponseStatus">
-        <arguments>
-            <argument name="helper" xsi:type="object">Buckaroo\Magento2\Helper\Data</argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Model\ResourceModel\Certificate">
-        <arguments>
-            <argument name="dateTime" xsi:type="object">Magento\Framework\Stdlib\DateTime\DateTime</argument>
-        </arguments>
-    </type>
 
     <type name="Buckaroo\Magento2\Model\ConfigProvider\Method\Factory">
         <arguments>
@@ -349,18 +323,6 @@
                 <item name="account" xsi:type="array">
                     <item name="type" xsi:type="string">account</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Account</item>
-                </item>
-                <item name="private_key" xsi:type="array">
-                    <item name="type" xsi:type="string">private_key</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\PrivateKey</item>
-                </item>
-                <item name="public_key" xsi:type="array">
-                    <item name="type" xsi:type="string">public_key</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\PublicKey</item>
-                </item>
-                <item name="predefined" xsi:type="array">
-                    <item name="type" xsi:type="string">predefined</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Predefined</item>
                 </item>
                 <item name="states" xsi:type="array">
                     <item name="type" xsi:type="string">states</item>
@@ -992,7 +954,7 @@
                 <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\RefundDescriptionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>
@@ -1008,7 +970,7 @@
                 <item name="amount_credit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
-                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\RefundDescriptionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>
