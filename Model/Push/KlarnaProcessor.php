@@ -7,6 +7,8 @@ use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Service\LockerProcess;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order;
 
 class KlarnaProcessor extends DefaultProcessor
 {
@@ -25,5 +27,32 @@ class KlarnaProcessor extends DefaultProcessor
         }
 
         return $trxId;
+    }
+
+    protected function setBuckarooReservationNumber(): bool
+    {
+        if (!empty($this->pushRequest->getServiceKlarnaReservationnumber())) {
+            $this->order->setBuckarooReservationNumber($this->pushRequest->getServiceKlarnaReservationnumber());
+            $this->order->save();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array $paymentDetails
+     * @return bool
+     * @throws \Exception
+     */
+    protected function invoiceShouldBeSaved(array &$paymentDetails): bool
+    {
+        if (!empty($this->pushRequest->getServiceKlarnakpAutopaytransactionkey())
+            && ($this->pushRequest->getStatusCode() == 190)
+        ) {
+            return true;
+        }
+
+        return true;
     }
 }

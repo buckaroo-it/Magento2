@@ -17,7 +17,7 @@ use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Service\LockerProcess;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
-use Magento\Payment\Model\InfoInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 
@@ -31,7 +31,12 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @var PayPerEmail
      */
-    public PayPerEmail $configPayPerEmail;
+    private PayPerEmail $configPayPerEmail;
+
+    /**
+     * @var bool
+     */
+    private bool $isPayPerEmailB2BModePushInitial;
 
     public function __construct(
         OrderRequestService $orderRequestService,
@@ -257,5 +262,130 @@ class PayPerEmailProcessor extends DefaultProcessor
                 $this->order->addStatusHistoryComment($this->pushRequest->getStatusmessage());
             }
         }
+    }
+
+    /**
+     * Check if the Pay Per Email payment is in B2B mode.
+     *
+     * @return bool
+     */
+    public function isPayPerEmailB2BModePush(): bool
+    {
+        if (!isset($this->isPayPerEmailB2BModePushInitial)) {
+            if (!empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
+                && !empty($this->pushRequest->getTransactionMethod())
+                && ($this->pushRequest->getTransactionMethod() == 'payperemail')
+                && $this->configPayPerEmail->isEnabledB2B()) {
+                $this->logging->addDebug(__METHOD__ . '|5|');
+                $this->isPayPerEmailB2BModePushInitial = true;
+            }
+        } else {
+            $this->isPayPerEmailB2BModePushInitial = false;
+        }
+
+        return $this->isPayPerEmailB2BModePushInitial;
+    }
+
+    /**
+     * Check if the Pay Per Email payment is in B2B mode and in the initial push.
+     *
+     * @return bool
+     */
+    public function isPayPerEmailB2BModePushInitial(): bool
+    {
+        return $this->isPayPerEmailB2BModePush()
+            && ($this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER');
+    }
+
+    /**
+     * @return false|string|null
+     * @throws BuckarooException
+     * @throws LocalizedException
+     */
+    protected function getNewStatus()
+    {
+        $newStatus = $this->orderStatusFactory->get($this->pushRequest->getStatusCode(), $this->order);
+        $this->logging->addDebug(__METHOD__ . '|5|' . var_export($newStatus, true));
+
+        if ($this->isPayPerEmailB2BModePushInitial()) {
+            $this->pushTransactionType->setStatusKey('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+            $newStatus = $this->configAccount->getOrderStatusSuccess();
+            $this->logging->addDebug(__METHOD__ . '|15|' . var_export(
+                    [$this->pushTransactionType->getStatusKey(), $newStatus],
+                    true
+                )
+            );
+        }
+
+        return $newStatus;
+    }
+
+    protected function getPaymentDetails($message)
+    {
+        // Set amount
+        $amount = $this->order->getTotalDue();
+        if (!empty($this->pushRequest->getAmount())) {
+            $amount = floatval($this->pushRequest->getAmount());
+        }
+
+        /**
+         * force state eventhough this can lead to a transition of the order
+         * like new -> processing
+         */
+        $forceState = false;
+        $this->dontSaveOrderUponSuccessPush = false;
+
+        if ($this->canPushInvoice()) {
+            $description = 'Payment status : <strong>' . $message . "</strong><br/>";
+            $amount = $this->order->getBaseTotalDue();
+            $description .= 'Total amount of ' .
+                $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+
+            $this->logging->addDebug(__METHOD__ . '|4|');
+        } else {
+            $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
+            $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+                . ' has been authorized. Please create an invoice to capture the authorized amount.';
+            $forceState = true;
+        }
+
+        if ($this->isPayPerEmailB2BModePushInitial) {
+            $description = '';
+        }
+
+        return [
+            'amount' => $amount,
+            'description' => $description,
+            'forceState' => $forceState
+        ];
+    }
+
+    /**
+     * @param array $paymentDetails
+     * @return bool
+     *  @throws \Exception
+     */
+    protected function invoiceShouldBeSaved(array &$paymentDetails): bool
+    {
+        if (!$this->isPayPerEmailB2BModePushInitial && $this->isPayPerEmailB2BModePush()) {
+            $this->logging->addDebug(__METHOD__ . '|4_1|');
+            //Fix for suspected fraud when the order currency does not match with the payment's currency
+            $amount = $this->payment->isSameCurrency() && $this->payment->isCaptureFinal($this->order->getGrandTotal())
+                ? $this->order->getGrandTotal()
+                : $this->order->getBaseTotalDue();
+            $this->payment->registerCaptureNotification($amount);
+            $this->payment->save();
+            $this->order->setState('complete');
+            $this->order->addStatusHistoryComment($paymentDetails['description'], 'complete');
+            $this->order->save();
+
+            if ($transactionKey = $this->getTransactionKey()) {
+                foreach ($this->order->getInvoiceCollection() as $invoice) {
+                    $invoice->setTransactionId($transactionKey)->save();
+                }
+            }
+            return false;
+        }
+        return true;
     }
 }

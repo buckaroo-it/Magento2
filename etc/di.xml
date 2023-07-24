@@ -509,12 +509,16 @@
             <argument name="pushProcessors" xsi:type="array">
                 <item name="default" xsi:type="string">Buckaroo\Magento2\Model\Push\DefaultProcessor</item>
                 <item name="ideal" xsi:type="string">Buckaroo\Magento2\Model\Push\IdealProcessor</item>
+                <item name="paypal" xsi:type="string">Buckaroo\Magento2\Model\Push\PaypalProcessor</item>
                 <item name="payperemail" xsi:type="string">Buckaroo\Magento2\Model\Push\PayPerEmailProcessor</item>
+                <item name="transfer" xsi:type="string">Buckaroo\Magento2\Model\Push\TransferProcessor</item>
+                <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Model\Push\AfterpayProcessor</item>
+                <item name="klarna" xsi:type="string">Buckaroo\Magento2\Model\Push\KlarnaProcessor</item>
+                <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Model\Push\KlarnaKpProcessor</item>-
                 <item name="credit_managment" xsi:type="string">Buckaroo\Magento2\Model\Push\CreditManagmentPushProcessor</item>
                 <item name="group_transaction" xsi:type="string">Buckaroo\Magento2\Model\Push\GroupTransactionPushProcessor</item>
                 <item name="refund" xsi:type="string">Buckaroo\Magento2\Model\Push\RefundProcessor</item>
                 <item name="cancel_authorize" xsi:type="string">Buckaroo\Magento2\Model\Push\CancelAuthorizeProcessor</item>
-
             </argument>
         </arguments>
     </type>

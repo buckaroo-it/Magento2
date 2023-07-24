@@ -7,6 +7,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -14,12 +15,12 @@ use Buckaroo\Magento2\Service\LockerProcess;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Api\Data\TransactionInterface;
 
-class KlarnaKpProcessor extends DefaultProcessor
+class AfterpayProcessor extends DefaultProcessor
 {
     /**
-     * @var Klarnakp
+     * @var Afterpay20
      */
-    private Klarnakp $klarnakpConfig;
+    private Afterpay20 $afterpayConfig;
 
     public function __construct(
         OrderRequestService $orderRequestService,
@@ -31,39 +32,11 @@ class KlarnaKpProcessor extends DefaultProcessor
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
-        Klarnakp $klarnakpConfig
+        Afterpay20 $afterpayConfig
     ) {
         parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
             $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
-        $this->klarnakpConfig = $klarnakpConfig;
-    }
-
-    /**
-     * Retrieves the transaction key from the push request.
-     *
-     * @return string
-     */
-    protected function getTransactionKey(): string
-    {
-        $trxId = parent::getTransactionKey();
-
-        if (!empty($this->pushRequest->getServiceKlarnakpAutopaytransactionkey())
-        ) {
-            $trxId = $this->pushRequest->getServiceKlarnakpAutopaytransactionkey();
-        }
-
-        return $trxId;
-    }
-
-    protected function setBuckarooReservationNumber(): bool
-    {
-        if (!empty($this->pushRequest->getServiceKlarnakpReservationnumber())) {
-            $this->order->setBuckarooReservationNumber($this->pushRequest->getServiceKlarnakpReservationnumber());
-            $this->order->save();
-            return true;
-        }
-
-        return false;
+        $this->afterpayConfig = $afterpayConfig;
     }
 
     /**
@@ -75,22 +48,14 @@ class KlarnaKpProcessor extends DefaultProcessor
     {
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1) &&
             (
-                $this->pushRequest->hasPostData('transaction_method', 'KlarnaKp') &&
-                $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay') &&
-                empty($this->pushRequest->getServiceKlarnakpReservationnumber()) &&
-                $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
+                $this->pushRequest->hasPostData('transaction_method', 'afterpay') &&
+                $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'capture') &&
+                $this->afterpayConfig->isInvoiceCreatedAfterShipment()
             )) {
             $this->logging->addDebug(__METHOD__ . '|5_1|');
             $this->dontSaveOrderUponSuccessPush = true;
             return false;
         }
-
-        if (!empty($this->pushRequest->getServiceKlarnakpAutopaytransactionkey())
-            && ($this->pushRequest->getStatusCode() == 190)
-        ) {
-            return true;
-        }
-
         return true;
     }
 }

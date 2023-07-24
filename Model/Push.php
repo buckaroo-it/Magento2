@@ -494,7 +494,7 @@ class Push implements PushInterface
         if (!empty($this->pushRequst->getStatusmessage())) {
             if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
-                && !$this->pushRequst->hasPostData('brq_transaction_method', 'transfer')
+                && !$this->pushRequst->hasPostData('transaction_method', 'transfer')
                 && empty($this->pushRequst->getRelatedtransactionPartialpayment())
                 && $this->pushRequst->hasPostData('statuscode', $statusCodeSuccess)
             ) {

@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Service\Push;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
@@ -41,11 +42,17 @@ class OrderRequestService
     private InvoiceSender $invoiceSender;
 
     /**
+     * @var ResourceConnection
+     */
+    protected ResourceConnection $resourceConnection;
+
+    /**
      * @param Order $order
      * @param Log $logging
      * @param TransactionInterface $transaction
      * @param OrderSender $orderSender
      * @param InvoiceSender $invoiceSender
+     * @param ResourceConnection $resourceConnection
      */
     public function __construct(
         Order $order,
@@ -53,12 +60,14 @@ class OrderRequestService
         TransactionInterface $transaction,
         OrderSender $orderSender,
         InvoiceSender $invoiceSender,
+        ResourceConnection $resourceConnection
     ) {
         $this->order = $order;
         $this->logging = $logging;
         $this->transaction = $transaction;
         $this->orderSender = $orderSender;
         $this->invoiceSender = $invoiceSender;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
@@ -241,5 +250,59 @@ class OrderRequestService
     public function sendInvoiceEmail(Invoice $invoice, bool $forceSyncMode = false): bool
     {
         return $this->invoiceSender->send($invoice, $forceSyncMode);
+    }
+
+    public function updateTotalOnOrder($order) {
+
+        try {
+            $connection = $this->resourceConnection->getConnection();
+            $connection->update(
+                $connection->getTableName('sales_order'),
+                [
+                    'total_due'       => $order->getTotalDue(),
+                    'base_total_due'  => $order->getTotalDue(),
+                    'total_paid'      => $order->getTotalPaid(),
+                    'base_total_paid' => $order->getBaseTotalPaid(),
+                ],
+                $connection->quoteInto('entity_id = ?', $order->getId())
+            );
+
+            return true;
+        } catch (\Exception $exception) {
+            return false;
+        }
+
+    }
+
+    /**
+     * Save the current order and reload it from the database.
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function saveAndReloadOrder()
+    {
+        $this->order->save();
+        $this->loadOrder();
+    }
+
+    /**
+     * Load the order from the Push Data based on the Order Increment ID or transaction key.
+     *
+     * @return void
+     * @throws \Exception
+     */
+    private function loadOrder()
+    {
+        $brqOrderId = $this->getOrderIncrementId();
+
+        //Check if the order can receive further status updates
+        $this->order->loadByIncrementId((string)$brqOrderId);
+
+        if (!$this->order->getId()) {
+            $this->logging->addDebug('Order could not be loaded by Invoice Number or Order Number');
+            // try to get order by transaction id on payment.
+            $this->order = $this->getOrderByTransactionKey();
+        }
     }
 }
