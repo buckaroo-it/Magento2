@@ -19,7 +19,7 @@
 -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Point of Sale Payment method group -->
-    <group id="buckaroo_magento2_pospayment" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+    <group id="buckaroo_magento2_pospayment" translate="label" type="text" sortOrder="230" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Point of Sale</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
@@ -63,20 +63,24 @@
             <config_path>payment/buckaroo_magento2_pospayment/sort_order</config_path>
         </field>
 
-        <field id="user_agent" translate="label comment" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Unique User-Agent</label>
-            <comment><![CDATA[The payment method will be shown only when the User-Agent matches this configuration value. The payment method will always be shown when this value is empty.]]></comment>
-            <config_path>payment/buckaroo_magento2_pospayment/user_agent</config_path>
-        </field>
+         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Method specific configuration</label>
 
-        <field id="other_payment_methods" translate="label comment tooltip" type="multiselect" sortOrder="37" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Show other active payment methods</label>
-            <comment><![CDATA[By default in case of active Point of Sale all other payment methods will be explicitly hidden.]]></comment>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\Pos</source_model>
-            <config_path>payment/buckaroo_magento2_pospayment/other_payment_methods</config_path>
-        </field>
+            <field id="user_agent" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Unique User-Agent</label>
+                <comment><![CDATA[The payment method will be shown only when the User-Agent matches this configuration value. The payment method will always be shown when this value is empty.]]></comment>
+                <config_path>payment/buckaroo_magento2_pospayment/user_agent</config_path>
+            </field>
 
-        <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="other_payment_methods" translate="label comment tooltip" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Show other active payment methods</label>
+                <comment><![CDATA[By default in case of active Point of Sale all other payment methods will be explicitly hidden.]]></comment>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\Pos</source_model>
+                <config_path>payment/buckaroo_magento2_pospayment/other_payment_methods</config_path>
+            </field>
+        </group>
+
+        <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 
             <field id="order_email" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -97,22 +101,6 @@
                 <label>Payment fee frontend label</label>
                 <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
                 <config_path>payment/buckaroo_magento2_pospayment/payment_fee_label</config_path>
-            </field>
-
-            <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Min order amount (in Base Currency)</label>
-                <comment><![CDATA[Minimum order amount allowed.]]></comment>
-                <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
-                <config_path>payment/buckaroo_magento2_pospayment/min_amount</config_path>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
-            </field>
-
-            <field id="max_amount" translate="label comment tooltip" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Max order amount (in Base Currency)</label>
-                <comment><![CDATA[Maximum order amount allowed.]]></comment>
-                <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
-                <config_path>payment/buckaroo_magento2_pospayment/max_amount</config_path>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
             </field>
 
             <field id="active_status" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -144,45 +132,65 @@
                 </depends>
             </field>
 
-            <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Allowed currencies</label>
-                <comment><![CDATA[Select payment method specific currencies.]]></comment>
-                <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
-                <config_path>payment/buckaroo_magento2_pospayment/allowed_currencies</config_path>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::pospayment</source_model>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
-            </field>
+            <group id="buckaroo_magento2_visibility" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Method visibility</label>
 
-            <field id="allowspecific" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment from applicable countries</label>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
-                <config_path>payment/buckaroo_magento2_pospayment/allowspecific</config_path>
-            </field>
+                <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Min order amount (in Base Currency)</label>
+                    <comment><![CDATA[Minimum order amount allowed.]]></comment>
+                    <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
+                    <config_path>payment/buckaroo_magento2_pospayment/min_amount</config_path>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
+                </field>
 
-            <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment from Specific Country</label>
-                <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Locale\Country</source_model>
-                <config_path>payment/buckaroo_magento2_pospayment/specificcountry</config_path>
-                <depends>
-                    <field id="allowspecific">1</field>
-                </depends>
-            </field>
+                <field id="max_amount" translate="label comment tooltip" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max order amount (in Base Currency)</label>
+                    <comment><![CDATA[Maximum order amount allowed.]]></comment>
+                    <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
+                    <config_path>payment/buckaroo_magento2_pospayment/max_amount</config_path>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
+                </field>
 
-            <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Display only for selected IPs</label>
-                <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
-                <tooltip>Magento developer client restrictions.</tooltip>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_pospayment/limit_by_ip</config_path>
-            </field>
+                <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allow customer groups</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
+                    <can_be_empty>1</can_be_empty>
+                    <config_path>payment/buckaroo_magento2_pospayment/specificcustomergroup</config_path>
+                </field>
+                
+                <field id="allowspecific" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment from applicable countries</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
+                    <config_path>payment/buckaroo_magento2_pospayment/allowspecific</config_path>
+                </field>
 
-            <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Allow customer groups</label>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
-                <can_be_empty>1</can_be_empty>
-                <config_path>payment/buckaroo_magento2_pospayment/specificcustomergroup</config_path>
-            </field>
+                <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment from Specific Country</label>
+                    <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Locale\Country</source_model>
+                    <config_path>payment/buckaroo_magento2_pospayment/specificcountry</config_path>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                </field>
+
+                <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed currencies</label>
+                    <comment><![CDATA[Select payment method specific currencies.]]></comment>
+                    <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
+                    <config_path>payment/buckaroo_magento2_pospayment/allowed_currencies</config_path>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::pospayment</source_model>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
+                </field>
+
+                <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Display only for selected IPs</label>
+                    <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
+                    <tooltip>Magento developer client restrictions.</tooltip>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/buckaroo_magento2_pospayment/limit_by_ip</config_path>
+                </field>
+            </group>
         </group>
     </group>
 </include>
