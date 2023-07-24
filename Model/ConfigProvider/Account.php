@@ -37,6 +37,7 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_SECRET_KEY                      = 'buckaroo_magento2/account/secret_key';
     public const XPATH_ACCOUNT_MERCHANT_KEY                    = 'buckaroo_magento2/account/merchant_key';
     public const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'buckaroo_magento2/account/transaction_label';
+    public const XPATH_ACCOUNT_REFUND_LABEL                    = 'buckaroo_magento2/account/refund_label';
     public const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL        = 'buckaroo_magento2/account/order_confirmation_email';
     public const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL_SYNC   =
         'buckaroo_magento2/account/order_confirmation_email_sync';
@@ -211,11 +212,14 @@ class Account extends AbstractConfigProvider
      *
      * @param Store $store
      * @param OrderInterface $order
+     * @param string|null $label
      * @return string
      */
-    public function getParsedLabel(Store $store, OrderInterface $order)
+    public function getParsedLabel(Store $store, OrderInterface $order,string $label = null)
     {
-        $label = $this->getTransactionLabel($store);
+        if($label === null) {
+            $label = $this->getTransactionLabel($store);
+        }
 
         if ($label === null) {
             return $store->getName();
@@ -274,6 +278,23 @@ class Account extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    /**
+     * Get the parsed label, we replace the template variables with the values
+     *
+     * @param Store $store
+     * @param OrderInterface $order
+     * @return mixed
+     */
+    public function getParsedRefundLabel(Store $store, OrderInterface $order)
+    {
+        $refundLabel = $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_REFUND_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+        return $this->getParsedLabel($store, $order, $refundLabel);
     }
 
     /**
