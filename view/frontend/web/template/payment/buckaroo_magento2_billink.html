@@ -32,6 +32,7 @@
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
 
+                    <!-- ko if: !isB2B -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
@@ -45,6 +46,7 @@
                             </select>
                         </div>
                     </div>
+                    <!-- /ko -->
 
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_billink_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
@@ -77,6 +79,7 @@
                     </div>
                     <!-- /ko -->
 
+                    <!-- ko if: !isB2B -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_billink_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <div class="control addon">
@@ -104,6 +107,7 @@
                                    name="payment[buckaroo_magento2_billink][customer_DoB]">
                         </div>
                     </div>
+                    <!-- /ko -->
 
                     <!-- ko if: isB2B -->
                     <div class="field required">
