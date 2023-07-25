@@ -42,7 +42,6 @@ use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
@@ -120,6 +119,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param PaymentGroupTransaction $groupTransaction
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
      */
     public function __construct(
         OrderRequestService $orderRequestService,
@@ -181,7 +181,6 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-
         if (!$this->canProcessPostData()) {
             return true;
         }
@@ -190,10 +189,7 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        $newStatus = $this->orderStatusFactory->get($this->pushRequest->getStatusCode(), $this->order);
-        $this->logging->addDebug(__METHOD__ . '|5|' . var_export($newStatus, true));
-
-        $this->processPushByStatus($newStatus);
+        $this->processPushByStatus();
 
         $this->logging->addDebug(__METHOD__ . '|5|');
         if (!$this->dontSaveOrderUponSuccessPush) {
@@ -222,7 +218,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @return bool
      * @throws \Exception
      */
-    protected function skipPush()
+    protected function skipPush(): bool
     {
         if ($this->skipKlarnaCapture()) {
             return true;
@@ -767,6 +763,7 @@ class DefaultProcessor implements PushProcessorInterface
             $this->logging->addDebug(__METHOD__ . '|sendemail|' .
                 var_export($this->configAccount->getOrderConfirmationEmailSync($store), true));
             $this->orderRequestService->sendOrderEmail(
+                $this->order,
                 (bool)$this->configAccount->getOrderConfirmationEmailSync($store)
             );
         }
@@ -999,16 +996,6 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return $brqOrderId;
-    }
-
-    /**
-     * Determine if the lock push processing criteria are met.
-     *
-     * @return bool
-     */
-    protected function lockPushProcessingCriteria(): bool
-    {
-        return false;
     }
 
     protected function getPaymentDetails($message)

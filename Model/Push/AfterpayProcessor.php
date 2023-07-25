@@ -8,10 +8,7 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
-use Buckaroo\Magento2\Service\LockerProcess;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Api\Data\TransactionInterface;
 
@@ -48,7 +45,6 @@ class AfterpayProcessor extends DefaultProcessor
     {
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1) &&
             (
-                $this->pushRequest->hasPostData('transaction_method', 'afterpay') &&
                 $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'capture') &&
                 $this->afterpayConfig->isInvoiceCreatedAfterShipment()
             )) {

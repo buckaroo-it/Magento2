@@ -8,9 +8,7 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
-use Buckaroo\Magento2\Service\LockerProcess;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Api\Data\TransactionInterface;
 
@@ -36,6 +34,24 @@ class KlarnaKpProcessor extends DefaultProcessor
         parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
             $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
         $this->klarnakpConfig = $klarnakpConfig;
+    }
+
+    /**
+     * Skip the push if the conditions are met.
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    protected function skipPush(): bool
+    {
+        if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay')
+            && !empty($this->pushRequest->getServiceKlarnakpCaptureid())
+        ) {
+            return true;
+        }
+
+        return parent::skipPush();
     }
 
     /**

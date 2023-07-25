@@ -3,6 +3,7 @@
 namespace Buckaroo\Magento2\Model\Push;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Service\LockerProcess;
@@ -34,6 +35,22 @@ class KlarnaProcessor extends DefaultProcessor
         if (!empty($this->pushRequest->getServiceKlarnaReservationnumber())) {
             $this->order->setBuckarooReservationNumber($this->pushRequest->getServiceKlarnaReservationnumber());
             $this->order->save();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function skipKlarnaCapture(): bool
+    {
+        if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            && $this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
+            && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay')
+            && !empty($this->pushRequest->getServiceKlarnakpCaptureid())
+        ) {
             return true;
         }
 

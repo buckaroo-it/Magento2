@@ -230,12 +230,13 @@ class OrderRequestService
     /**
      * Sends order email to the customer.
      *
+     * @param Order $order
      * @param bool $forceSyncMode
      * @return bool
      */
-    public function sendOrderEmail(bool $forceSyncMode = false): bool
+    public function sendOrderEmail(Order $order, bool $forceSyncMode = false): bool
     {
-        return $this->orderSender->send($this->order, $forceSyncMode);
+        return $this->orderSender->send($order, $forceSyncMode);
     }
 
     /**
