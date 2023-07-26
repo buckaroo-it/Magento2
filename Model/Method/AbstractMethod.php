@@ -705,6 +705,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         parent::order($payment, $amount);
 
+        $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
+        if (!$activeMode) {
+            $activeMode = 2;
+        }
+        $this->gateway->setMode($activeMode);
+
         $this->eventManager->dispatch('buckaroo_order_before', ['payment' => $payment]);
         $this->cancelPreviousPendingOrder($payment);
         $this->payment = $payment;
