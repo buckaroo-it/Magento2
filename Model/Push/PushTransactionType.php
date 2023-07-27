@@ -84,9 +84,9 @@ class PushTransactionType
     private string $pushType;
 
     /**
-     * @var bool|string
+     * @var string
      */
-    private string|bool $transactionType;
+    private ?string $transactionType;
 
     /**
      * @var array
@@ -276,17 +276,17 @@ class PushTransactionType
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTransactionType(): string
+    public function getTransactionType(): ?string
     {
         return $this->transactionType;
     }
 
     /**
-     * @param string $transactionType
+     * @param string|null $transactionType
      */
-    public function setTransactionType(string $transactionType): void
+    public function setTransactionType(?string $transactionType): void
     {
         $this->transactionType = $transactionType;
     }

@@ -342,7 +342,6 @@ class Push implements PushInterface
 
 //         Process Push
         $this->pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
-        return true;
         return $this->pushProcessor->processPush($this->pushRequst);
 
         // Lock Push Processing

@@ -19,7 +19,7 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Model\Order;
 use Magento\Quote\Model\ResourceModel\Quote as ResourceQuote;
 
-#[AllowDynamicProperties] class GroupTransactionPushProcessor implements PushProcessorInterface
+class GroupTransactionPushProcessor implements PushProcessorInterface
 {
     /**
      * @var PushRequestInterface

@@ -220,10 +220,6 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function skipPush(): bool
     {
-        if ($this->skipKlarnaCapture()) {
-            return true;
-        }
-
         // Skip Push based on specific condition
         if ($this->skipSpecificTypesOfRequsts()) {
             return true;

@@ -42,22 +42,6 @@ class KlarnaProcessor extends DefaultProcessor
     }
 
     /**
-     * @return bool
-     */
-    protected function skipKlarnaCapture(): bool
-    {
-        if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
-            && $this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
-            && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay')
-            && !empty($this->pushRequest->getServiceKlarnakpCaptureid())
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * @param array $paymentDetails
      * @return bool
      * @throws \Exception
