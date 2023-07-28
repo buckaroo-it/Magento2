@@ -95,7 +95,8 @@ class BuckarooStatusCode
      */
     public function getStatusKey(int $responseCode): string
     {
-        return array_search($responseCode, $this->statusCodes) ?? 'BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL';
+        $statusKey = array_search($responseCode, $this->statusCodes);
+        return $statusKey ?: 'BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL';
     }
 
     /**

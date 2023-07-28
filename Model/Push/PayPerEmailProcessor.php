@@ -36,7 +36,7 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @var bool
      */
-    private bool $isPayPerEmailB2BModePushInitial;
+    private bool $isPayPerEmailB2BModePushInitial = false;
 
     public function __construct(
         OrderRequestService $orderRequestService,

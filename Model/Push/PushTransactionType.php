@@ -228,16 +228,13 @@ class PushTransactionType
                     $statusCode = $this->pushRequest->getEventparametersTransactionstatuscode();
                 }
                 break;
-            default:
-                $statusCode = BuckarooStatusCode::FAILED;
         }
 
-        $statusCodeSuccess = BuckarooStatusCode::SUCCESS;
         if ($this->pushRequest->getStatusCode() !== null
-            && ($this->pushRequest->getStatusCode() == $statusCodeSuccess)
+            && ($this->pushRequest->getStatusCode() == BuckarooStatusCode::SUCCESS)
             && !$statusCode
         ) {
-            $statusCode = $statusCodeSuccess;
+            $statusCode = BuckarooStatusCode::SUCCESS;
         }
 
         return (int)$statusCode;
