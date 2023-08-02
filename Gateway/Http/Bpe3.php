@@ -76,9 +76,6 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
      */
     public function setMode($mode)
     {
-        $this->logger->addDebug(__METHOD__.'|1|' . var_export($mode, true));
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        $this->logger->addDebug(__METHOD__.'|2|debug_backtrace|' . var_export($trace, true));
         $this->mode = $mode;
 
         return $this;
