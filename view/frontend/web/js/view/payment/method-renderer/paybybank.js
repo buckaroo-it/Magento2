@@ -81,6 +81,11 @@ define([
       this.bankTypes = ko.computed(function () {
         const issuers = window.checkoutConfig.payment.buckaroo.paybybank.banks;
         if (this.showAll() === false && !this.isMobile()) {
+          if (this.selectedBank() !== "") {
+            return issuers.filter(function (bank) {
+              return bank.code  === this.selectedBank();
+            }, this);
+          }
           return issuers.slice(0, 4);
         }
         return issuers;
