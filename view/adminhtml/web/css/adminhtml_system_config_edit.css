@@ -138,6 +138,10 @@ a.bk-btn:hover {
 .bk-flex {
     display: flex;
 }
+
+.bk-flex-wrap {
+    flex-wrap: wrap;
+}
 .bk-flex-between {
     display: flex;
     align-items: center;
@@ -147,13 +151,15 @@ a.bk-btn:hover {
     text-decoration: none;
 }
 .bk-plugin-zone-wrap {
-    max-width: 400px;
+    flex: 0 0 50%;
 }
 .bk-php-compatibility {
     max-height: 17px;
     margin-left: 5px;
 }
-
+a.bk-plugin-zone {
+    max-width: 120px;
+}
 /* ==================================== SupportTab - Error message ==================================== */
 
 .buckaroo-magento2-supporttab .message-system-inner {

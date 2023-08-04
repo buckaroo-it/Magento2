@@ -27,6 +27,15 @@ use Magento\Store\Model\ScopeInterface;
 
 class Fieldset extends MagentoFieldset
 {
+     /**
+     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @return false
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    protected function _isCollapseState($element)
+    {
+        return false;
+    }
     /**
      * @inheritdoc
      */
