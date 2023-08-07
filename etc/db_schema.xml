@@ -67,16 +67,6 @@
         </constraint>
     </table>
 
-    <table name="buckaroo_magento2_certificate" engine="innodb" comment="Buckaroo Certificate">
-        <column xsi:type="int" name="entity_id" nullable="false" unsigned="true" identity="true" comment="Entity ID"/>
-        <column xsi:type="text" name="certificate" nullable="false" comment="Certificate"/>
-        <column xsi:type="text" name="name" nullable="false" comment="Name"/>
-        <column xsi:type="timestamp" name="created_at" nullable="true" comment="Created At"/>
-        <constraint xsi:type="primary" referenceId="PRIMARY">
-            <column name="entity_id"/>
-        </constraint>
-    </table>
-
     <table name="buckaroo_magento2_invoice" resource="default" engine="innodb" comment="Buckaroo Invoice">
         <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
         <column xsi:type="text" name="invoice_transaction_id" nullable="false" comment="Invoice Transaction ID"/>
