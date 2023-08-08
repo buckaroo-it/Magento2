@@ -516,23 +516,6 @@ class Klarnakp extends AbstractMethod
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function processCustomPostData($payment, $postData)
-    {
-        $order = $payment->getOrder();
-
-        if ($order->getBuckarooReservationNumber()) {
-            return;
-        }
-
-        if (isset($postData->Services) && count($postData->Services->Service->ResponseParameter) > 0) {
-            $order->setBuckarooReservationNumber($postData->Services->Service->ResponseParameter->_);
-            $order->save();
-        }
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function canPushInvoice($responseData)
