@@ -293,7 +293,7 @@ class OrderRequestService
      * @return void
      * @throws \Exception
      */
-    private function loadOrder()
+    public function loadOrder()
     {
         $brqOrderId = $this->getOrderIncrementId();
 

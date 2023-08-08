@@ -23,10 +23,12 @@ namespace Buckaroo\Magento2\Controller\Payconiq;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
+use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -34,7 +36,6 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Customer\Model\SessionFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
@@ -46,7 +47,6 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
@@ -71,19 +71,15 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 
     /**
      * @param Context $context
-     * @param Data $helper
-     * @param Cart $cart
      * @param Order $order
      * @param Quote $quote
      * @param TransactionInterface $transaction
      * @param Log $logger
-     * @param Factory $configProviderFactory
-     * @param OrderSender $orderSender
+     * @param OrderRequestService $orderRequestService
      * @param OrderStatusFactory $orderStatusFactory
      * @param CheckoutSession $checkoutSession
      * @param CustomerSession $customerSession
      * @param CustomerRepositoryInterface $customerRepository
-     * @param SessionFactory $sessionFactory
      * @param Customer $customerModel
      * @param CustomerFactory $customerFactory
      * @param OrderService $orderService
@@ -98,19 +94,15 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      */
     public function __construct(
         Context $context,
-        Data $helper,
-        Cart $cart,
         Order $order,
         Quote $quote,
         TransactionInterface $transaction,
         Log $logger,
-        Factory $configProviderFactory,
-        OrderSender $orderSender,
+        OrderRequestService $orderRequestService,
         OrderStatusFactory $orderStatusFactory,
         CheckoutSession $checkoutSession,
         CustomerSession $customerSession,
         CustomerRepositoryInterface $customerRepository,
-        SessionFactory $sessionFactory,
         Customer $customerModel,
         CustomerFactory $customerFactory,
         OrderService $orderService,
@@ -122,19 +114,15 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     ) {
         parent::__construct(
             $context,
-            $helper,
-            $cart,
             $order,
             $quote,
             $transaction,
             $logger,
-            $configProviderFactory,
-            $orderSender,
+            $orderRequestService,
             $orderStatusFactory,
             $checkoutSession,
             $customerSession,
             $customerRepository,
-            $sessionFactory,
             $customerModel,
             $customerFactory,
             $orderService,
@@ -181,9 +169,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 
         // @codingStandardsIgnoreStart
         try {
-            $this->handleFailed(
-                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
-            );
+            $this->handleFailed(BuckarooStatusCode::CANCELLED_BY_USER);
         } catch (\Exception $exception) {
             // handle failed exception
         }

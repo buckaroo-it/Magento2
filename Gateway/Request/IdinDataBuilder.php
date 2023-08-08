@@ -120,7 +120,7 @@ class IdinDataBuilder implements BuilderInterface
     {
         if ($this->returnUrl === null) {
             $url = $this->urlBuilder->setScope($this->store->getId());
-            $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
+            $url = $url->getRouteUrl('buckaroo/redirect/idin-process') . '?form_key=' . $this->getFormKey();
 
             $this->setReturnUrl($url);
         }
