@@ -631,8 +631,8 @@
         min-width: 55px;
     }
     .bk-paybybank-selector .bank-method-label.bk-bank-selected {
-        background-color: #b2b2b2;
-        color: #fff;
+        background-color: #EDEDED;
+        color: #000;
         border-radius: 5px;
     }
     .bk-paybybank-selector .bank-method-label {
