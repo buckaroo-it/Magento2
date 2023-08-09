@@ -24,7 +24,8 @@
     <group id="buckaroo_magento2_account_section" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>General configuration and account information</label>
         <fieldset_css>buckaroo_magento2-section</fieldset_css>
-
+        <attribute type="expanded">1</attribute>
+        
         <field id="active" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enabled</label>
             <comment>Enable or disable the Buckaroo module.</comment>
