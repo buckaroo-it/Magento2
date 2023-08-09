@@ -14,6 +14,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Framework\Event\ManagerInterface;

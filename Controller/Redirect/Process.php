@@ -41,6 +41,8 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -108,11 +110,6 @@ class Process extends Action
     protected $customerModel;
 
     /**
-     * @var CustomerFactory
-     */
-    protected $customerResourceFactory;
-
-    /**
      * @var OrderService
      */
     protected $orderService;
@@ -144,7 +141,6 @@ class Process extends Action
      * @param CheckoutSession $checkoutSession
      * @param CustomerSession $customerSession
      * @param CustomerRepositoryInterface $customerRepository
-     * @param CustomerFactory $customerFactory
      * @param OrderService $orderService
      * @param ManagerInterface $eventManager
      * @param Recreate $quoteRecreate
@@ -161,7 +157,6 @@ class Process extends Action
         CheckoutSession $checkoutSession,
         CustomerSession $customerSession,
         CustomerRepositoryInterface $customerRepository,
-        CustomerFactory $customerFactory,
         OrderService $orderService,
         ManagerInterface $eventManager,
         Recreate $quoteRecreate,
@@ -174,7 +169,6 @@ class Process extends Action
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
         $this->customerRepository = $customerRepository;
-        $this->customerResourceFactory = $customerFactory;
         $this->accountConfig = $accountConfig;
         $this->orderService = $orderService;
         $this->eventManager = $eventManager;
@@ -233,138 +227,148 @@ class Process extends Action
             $this->setPaymentOutOfTransit($this->payment);
         }
 
-        if (!method_exists($this->payment->getMethodInstance(), 'canProcessPostData')) {
-            return $this->handleProcessedResponse('/');
-        }
-
-        if (!$this->payment->getMethodInstance()->canProcessPostData($this->payment, $this->redirectRequest)) {
+        if($this->skipWaitingOnConsumerForProcessingOrder()) {
             return $this->handleProcessedResponse('/');
         }
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($statusCode, true));
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
+        if (($this->payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
             && ($statusCode == BuckarooStatusCode::PENDING_PROCESSING)
         ) {
             $statusCode = BuckarooStatusCode::CANCELLED_BY_USER;
             $this->logger->addDebug(__METHOD__ . '|22|' . var_export($statusCode, true));
         }
 
-        switch ($statusCode) {
-            case BuckarooStatusCode::SUCCESS:
-            case BuckarooStatusCode::PENDING_PROCESSING:
-                $debugInfo = [
-                    $this->order->getStatus(),
-                    $this->orderStatusFactory->get(BuckarooStatusCode::SUCCESS, $this->order),
-                ];
-                $this->logger->addDebug(__METHOD__ . '|3|' . var_export($debugInfo, true));
+        return $this->processRedirectByStatus($statusCode);
+    }
 
-                if ($this->order->canInvoice()) {
-                    $this->logger->addDebug(__METHOD__ . '|31|');
-                    if ($statusCode == BuckarooStatusCode::SUCCESS) {
-                        //do nothing - push will change a status
-                        $this->logger->addDebug(__METHOD__ . '|32|');
-                    } else {
-                        $this->logger->addDebug(__METHOD__ . '|33|');
-                        // Set the 'Pending payment status' here
-                        $pendingStatus = $this->orderStatusFactory->get(
-                            BuckarooStatusCode::PENDING_PROCESSING,
-                            $this->order
-                        );
-                        if ($pendingStatus) {
-                            $this->logger->addDebug(__METHOD__ . '|34|' . var_export($pendingStatus, true));
-                            $this->order->setStatus($pendingStatus);
-                            $this->order->save();
-                        }
-                    }
-                }
+    /**
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
+     */
+    private function processRedirectByStatus($statusCode) {
 
-                $payment->getMethodInstance()->processCustomPostData($payment, $this->redirectRequest->getData());
-
-                /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
-                $paymentMethod = $this->order->getPayment()->getMethodInstance();
-                $store = $this->order->getStore();
-
-                // Send order confirmation mail if we're supposed to
-                /**
-                 * @noinspection PhpUndefinedMethodInspection
-                 */
-                if (!$this->order->getEmailSent()
-                    && (
-                        $this->accountConfig->getOrderConfirmationEmail($store) === "1"
-                        || $paymentMethod->getConfigData('order_email', $store) === "1"
-                    )
-                ) {
-                    $isKlarnaKpReserve = ($this->redirectRequest->hasPostData('primary_service', 'KlarnaKp')
-                        && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')
-                        && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
-
-                    if (!($this->redirectRequest->hasAdditionalInformation('initiated_by_magento', 1)
-                        && $isKlarnaKpReserve)
-                    ) {
-                        if ($statusCode == BuckarooStatusCode::SUCCESS) {
-                            $this->logger->addDebug(__METHOD__ . '|sendemail|');
-                            $this->orderRequestService->sendOrderEmail($this->order, true);
-                        }
-                    }
-                }
-
-                $pendingCode = BuckarooStatusCode::PENDING_PROCESSING;
-                if (($statusCode == $pendingCode)
-                    && !$this->redirectRequest->hasPostData('payment_method', 'sofortueberweisung')
-                ) {
-                    $this->addErrorMessage(
-                        __(
-                            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-                            ' error persists, please choose a different payment method.'
-                        )
-                    );
-                    $this->logger->addDebug(__METHOD__ . '|5|');
-
-                    $this->removeAmastyGiftcardOnFailed();
-
-                    return $this->handleProcessedResponse('/');
-                }
-
-                $this->logger->addDebug(__METHOD__ . '|51|' . var_export([
-                        $this->checkoutSession->getLastSuccessQuoteId(),
-                        $this->checkoutSession->getLastQuoteId(),
-                        $this->checkoutSession->getLastOrderId(),
-                        $this->checkoutSession->getLastRealOrderId(),
-                        $this->order->getQuoteId(),
-                        $this->order->getId(),
-                        $this->order->getIncrementId(),
-                    ], true));
-
-                if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__ . '|52|');
-                    $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
-                }
-                if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__ . '|53|');
-                    $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
-                }
-                if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
-                    $this->logger->addDebug(__METHOD__ . '|54|');
-                    $this->checkoutSession->setLastOrderId($this->order->getId());
-                }
-                if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                    $this->logger->addDebug(__METHOD__ . '|55|');
-                    $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-                }
-                $this->logger->addDebug(__METHOD__ . '|6|');
-                // Redirect to success page
-                return $this->redirectSuccess();
-            case BuckarooStatusCode::ORDER_FAILED:
-            case BuckarooStatusCode::FAILED:
-            case BuckarooStatusCode::REJECTED:
-            case BuckarooStatusCode::CANCELLED_BY_USER:
-                return $this->handleFailed($statusCode);
-            //no default
+        if ($statusCode == BuckarooStatusCode::SUCCESS) {
+            return $this->processSucceededRedirect($statusCode);
+        } elseif ($statusCode == BuckarooStatusCode::PENDING_PROCESSING) {
+            return $this->processPendingRedirect($statusCode);
+        } elseif (in_array($statusCode, [
+            BuckarooStatusCode::ORDER_FAILED,
+            BuckarooStatusCode::FAILED,
+            BuckarooStatusCode::REJECTED,
+            BuckarooStatusCode::CANCELLED_BY_USER
+        ])) {
+            return $this->handleFailed($statusCode);
         }
 
-        $this->logger->addDebug(__METHOD__ . '|9|');
         return $this->_response;
+    }
+
+    private function processSucceededRedirect($statusCode)
+    {
+        $this->sendKlarnaKpOrderConfirmation($statusCode);
+
+        $this->setLastQuoteOrder();
+
+        return $this->redirectSuccess();
+    }
+
+    private function processPendingRedirect($statusCode)
+    {
+        if ($this->order->canInvoice()) {
+            $this->logger->addDebug(__METHOD__ . '|33|');
+            // Set the 'Pending payment status' here
+            $pendingStatus = $this->orderStatusFactory->get(
+                BuckarooStatusCode::PENDING_PROCESSING,
+                $this->order
+            );
+            if ($pendingStatus) {
+                $this->logger->addDebug(__METHOD__ . '|34|' . var_export($pendingStatus, true));
+                $this->order->setStatus($pendingStatus);
+                $this->order->save();
+            }
+        }
+
+        $this->sendKlarnaKpOrderConfirmation($statusCode);
+
+        if (!$this->redirectRequest->hasPostData('payment_method', 'sofortueberweisung')) {
+            $this->addErrorMessage(
+                __(
+                    'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+                    ' error persists, please choose a different payment method.'
+                )
+            );
+            $this->logger->addDebug(__METHOD__ . '|5|');
+
+            $this->removeAmastyGiftcardOnFailed();
+
+            return $this->handleProcessedResponse('/');
+        }
+
+        $this->setLastQuoteOrder();
+
+        return $this->redirectSuccess();
+    }
+
+    private function setLastQuoteOrder(): void
+    {
+        $this->logger->addDebug(__METHOD__ . '|51|' . var_export([
+                $this->checkoutSession->getLastSuccessQuoteId(),
+                $this->checkoutSession->getLastQuoteId(),
+                $this->checkoutSession->getLastOrderId(),
+                $this->checkoutSession->getLastRealOrderId(),
+                $this->order->getQuoteId(),
+                $this->order->getId(),
+                $this->order->getIncrementId(),
+            ], true));
+
+        if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
+            $this->logger->addDebug(__METHOD__ . '|52|');
+            $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
+        }
+        if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
+            $this->logger->addDebug(__METHOD__ . '|53|');
+            $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
+        }
+        if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
+            $this->logger->addDebug(__METHOD__ . '|54|');
+            $this->checkoutSession->setLastOrderId($this->order->getId());
+        }
+        if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
+            $this->logger->addDebug(__METHOD__ . '|55|');
+            $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
+        }
+    }
+
+    private function sendKlarnaKpOrderConfirmation($statusCode) {
+        /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
+        $paymentMethod = $this->order->getPayment()->getMethodInstance();
+        $store = $this->order->getStore();
+
+        // Send order confirmation mail if we're supposed to
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        if (!$this->order->getEmailSent()
+            && (
+                $this->accountConfig->getOrderConfirmationEmail($store) === "1"
+                || $paymentMethod->getConfigData('order_email', $store) === "1"
+            )
+        ) {
+            $isKlarnaKpReserve = ($this->redirectRequest->hasPostData('primary_service', 'KlarnaKp')
+                && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')
+                && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
+
+            if (!($this->redirectRequest->hasAdditionalInformation('initiated_by_magento', 1)
+                && $isKlarnaKpReserve)
+            ) {
+                if ($statusCode == BuckarooStatusCode::SUCCESS) {
+                    $this->logger->addDebug(__METHOD__ . '|sendemail|');
+                    $this->orderRequestService->sendOrderEmail($this->order, true);
+                }
+            }
+        }
     }
 
     /**
@@ -516,20 +520,7 @@ class Process extends Action
 
         $this->quote->setReservedOrderId(null);
 
-        if (!empty($this->redirectRequest->getPaymentMethod())
-            &&
-            ($this->redirectRequest->getPaymentMethod() == 'applepay')
-            &&
-            !empty($this->redirectRequest->getStatusCode())
-            &&
-            ($this->redirectRequest->getStatusCode() == '190')
-            &&
-            !empty($this->redirectRequest->getTest())
-            &&
-            ($this->redirectRequest->getTest() == 'true')
-        ) {
-            $this->redirectSuccessApplePay();
-        }
+        $this->redirectSuccessApplePay();
 
         $this->logger->addDebug(__METHOD__ . '|2|' . var_export($url, true));
 
@@ -543,14 +534,19 @@ class Process extends Action
      */
     protected function redirectSuccessApplePay()
     {
-        $this->logger->addDebug(__METHOD__);
+        if ($this->redirectRequest->hasPostData('payment_method', 'applepay')
+            && $this->redirectRequest->hasPostData('status_code', '190')
+            && $this->redirectRequest->hasPostData('test', 'true')
+        ) {
+            $this->logger->addDebug(__METHOD__);
 
-        $this->checkoutSession
-            ->setLastQuoteId($this->order->getQuoteId())
-            ->setLastSuccessQuoteId($this->order->getQuoteId())
-            ->setLastOrderId($this->order->getId())
-            ->setLastRealOrderId($this->order->getIncrementId())
-            ->setLastOrderStatus($this->order->getStatus());
+            $this->checkoutSession
+                ->setLastQuoteId($this->order->getQuoteId())
+                ->setLastSuccessQuoteId($this->order->getQuoteId())
+                ->setLastOrderId($this->order->getId())
+                ->setLastRealOrderId($this->order->getIncrementId())
+                ->setLastOrderStatus($this->order->getStatus());
+        }
     }
 
     /**
@@ -558,7 +554,7 @@ class Process extends Action
      *
      * @param int|null $statusCode
      * @return ResponseInterface
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException|\Exception
      */
     protected function handleFailed($statusCode)
     {
@@ -696,5 +692,35 @@ class Process extends Action
     public function getResponseParameters()
     {
         return $this->redirectRequest->getData();
+    }
+
+    /**
+     * Skip process redirect for Processing Order when the status of the request is WaitingOnConsumer
+     *
+     * @return bool
+     */
+    public function skipWaitingOnConsumerForProcessingOrder(): bool
+    {
+        if (in_array($this->payment->getMethod(),
+            [
+                'buckaroo_magento2_creditcards',
+                'buckaroo_magento2_paylink',
+                'buckaroo_magento2_payperemail',
+                'buckaroo_magento2_transfer'
+            ])) {
+
+            if ($this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
+                != $this->redirectRequest->getTransactions()) {
+                return true;
+            }
+
+            $orderState = $this->order->getState();
+            if ($orderState == Order::STATE_PROCESSING
+                && $this->redirectRequest->getStatusCode() == BuckarooStatusCode::WAITING_ON_CONSUMER) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

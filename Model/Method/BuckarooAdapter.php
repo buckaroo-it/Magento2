@@ -245,29 +245,6 @@ class BuckarooAdapter extends Adapter
     }
 
     /**
-     * Process custom post data received on push or on redirect
-     *
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array $postData
-     * @throws \Exception
-     */
-    public function processCustomPostData($payment, array $postData)
-    {
-        if ($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
-            $order = $payment->getOrder();
-
-            if ($order->getBuckarooReservationNumber()) {
-                return;
-            }
-
-            if (isset($postData['brq_service_klarnakp_reservationnumber'])) {
-                $order->setBuckarooReservationNumber($postData['brq_service_klarnakp_reservationnumber']);
-                $order->save();
-            }
-        }
-    }
-
-    /**
      * Can create invoice on push
      *
      * @param PushRequestInterface $responseData
