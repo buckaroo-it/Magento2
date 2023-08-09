@@ -26,7 +26,7 @@ use Magento\Store\Model\ScopeInterface;
 class States extends AbstractConfigProvider
 {
     /**
-     * XPATHs to configuration values for buckaroo_magento2_predefined
+     * XPATHs to configuration values for buckaroo_magento2
      */
     public const XPATH_STATES_ORDER_STATE_NEW       = 'buckaroo_magento2/states/order_state_new';
     public const XPATH_STATES_ORDER_STATE_SUCCESS   = 'buckaroo_magento2/states/order_state_success';

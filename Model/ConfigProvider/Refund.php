@@ -26,7 +26,7 @@ use Magento\Store\Model\ScopeInterface;
 class Refund extends AbstractConfigProvider
 {
     /**
-     * XPATHs to configuration values for buckaroo_magento2_predefined
+     * XPATHs to configuration values for buckaroo_magento2
      */
     public const XPATH_REFUND_ENABLED = 'buckaroo_magento2/refund/enabled';
     public const XPATH_REFUND_ALLOW_PUSH = 'buckaroo_magento2/refund/allow_push';
