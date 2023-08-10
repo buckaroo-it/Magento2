@@ -1,8 +1,26 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -13,76 +31,61 @@ use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Customer;
-use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\Http as Http;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Model\Order;
 
 class IdinProcess extends Process
 {
     /**
-     * @var Customer
+     * @var CustomerFactory
      */
-    protected $customerModel;
+    private CustomerFactory $customerResourceFactory;
 
     /**
      * @param Context $context
-     * @param Order $order
-     * @param Quote $quote
-     * @param TransactionInterface $transaction
      * @param Log $logger
+     * @param Quote $quote
      * @param AccountConfig $accountConfig
      * @param OrderRequestService $orderRequestService
      * @param OrderStatusFactory $orderStatusFactory
      * @param CheckoutSession $checkoutSession
      * @param CustomerSession $customerSession
      * @param CustomerRepositoryInterface $customerRepository
-     * @param Customer $customerModel
-     * @param CustomerFactory $customerFactory
      * @param OrderService $orderService
      * @param ManagerInterface $eventManager
      * @param Recreate $quoteRecreate
      * @param RequestPushFactory $requestPushFactory
-     * @throws Exception
+     * @param CustomerFactory $customerFactory
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Context $context,
-        Order $order,
-        Quote $quote,
         Log $logger,
+        Quote $quote,
         AccountConfig $accountConfig,
         OrderRequestService $orderRequestService,
         OrderStatusFactory $orderStatusFactory,
         CheckoutSession $checkoutSession,
         CustomerSession $customerSession,
         CustomerRepositoryInterface $customerRepository,
-        Customer $customerModel,
-        CustomerFactory $customerFactory,
         OrderService $orderService,
         ManagerInterface $eventManager,
         Recreate $quoteRecreate,
-        RequestPushFactory $requestPushFactory
+        RequestPushFactory $requestPushFactory,
+        CustomerFactory $customerFactory
     ) {
-        parent::__construct($context);
-        $this->order = $order;
-        $this->quote = $quote;
-        $this->logger = $logger;
-        $this->orderRequestService = $orderRequestService;
-        $this->orderStatusFactory = $orderStatusFactory;
-        $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
-        $this->customerRepository = $customerRepository;
-        $this->customerModel = $customerModel;
+        parent::__construct($context, $logger, $quote, $accountConfig, $orderRequestService,
+            $orderStatusFactory, $checkoutSession, $customerSession, $customerRepository,
+            $orderService, $eventManager, $quoteRecreate, $requestPushFactory);
+
         $this->customerResourceFactory = $customerFactory;
-        $this->accountConfig = $accountConfig;
-        $this->orderService = $orderService;
-        $this->eventManager = $eventManager;
-        $this->quoteRecreate = $quoteRecreate;
 
         // @codingStandardsIgnoreStart
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
@@ -92,12 +95,12 @@ class IdinProcess extends Process
                 $request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
             }
         }
-        $this->redirectRequest = $requestPushFactory->create();
         // @codingStandardsIgnoreEnd
+        $this->redirectRequest = $requestPushFactory->create();
     }
 
     /**
-     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface|void
+     * @return ResponseInterface|\Magento\Framework\Controller\ResultInterface|void
      * @throws \Buckaroo\Magento2\Exception
      */
     public function execute()
@@ -122,7 +125,7 @@ class IdinProcess extends Process
      *
      * @return bool
      */
-    private function setCustomerIDIN()
+    private function setCustomerIDIN(): bool
     {
         if (!empty($this->redirectRequest->getServiceIdinConsumerbin())
             && !empty($this->redirectRequest->getServiceIdinIseighteenorolder())
@@ -130,12 +133,21 @@ class IdinProcess extends Process
         ) {
             $this->checkoutSession->setCustomerIDIN($this->redirectRequest->getServiceIdinConsumerbin());
             $this->checkoutSession->setCustomerIDINIsEighteenOrOlder(true);
-            if (!empty($this->redirectRequest->getAdditionalInformation('idin_cid'))) {
-                $customerNew = $this->customerModel->load((int)$this->redirectRequest->getAdditionalInformation('idin_cid'));
+            $idinCid = $this->redirectRequest->getAdditionalInformation('idin_cid');
+            if (!empty($idinCid)) {
+                try {
+                    /** @var Customer $customerNew */
+                    $customerNew = $this->customerRepository->getById((int)$idinCid);
+                } catch (\Exception $e) {
+                    $this->addErrorMessage(__('Unfortunately customer was not find by IDIN id: "%1"!', $idinCid));
+                    $this->logger->addError(__METHOD__ . ' | ' . $e->getMessage());
+                    return false;
+                }
                 $customerData = $customerNew->getDataModel();
                 $customerData->setCustomAttribute('buckaroo_idin', $this->redirectRequest->getServiceIdinConsumerbin());
                 $customerData->setCustomAttribute('buckaroo_idin_iseighteenorolder', 1);
                 $customerNew->updateData($customerData);
+
                 $customerResource = $this->customerResourceFactory->create();
                 $customerResource->saveAttribute($customerNew, 'buckaroo_idin');
                 $customerResource->saveAttribute($customerNew, 'buckaroo_idin_iseighteenorolder');

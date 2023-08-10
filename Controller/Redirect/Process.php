@@ -17,11 +17,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
@@ -33,7 +33,6 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Action;
@@ -43,15 +42,12 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Phrase;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 
-/**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @SuppressWarnings(PHPMD.TooManyFields)
- */
 class Process extends Action
 {
     /**
@@ -87,7 +83,7 @@ class Process extends Action
     /**
      * @var Log
      */
-    protected $logger;
+    protected Log $logger;
 
     /**
      * @var CheckoutSession
@@ -97,34 +93,27 @@ class Process extends Action
     /**
      * @var CustomerSession
      */
-    public CustomerSession $customerSession;
+    protected CustomerSession $customerSession;
 
     /**
      * @var CustomerRepositoryInterface
      */
-    protected $customerRepository;
-
-    /**
-     * @var Customer
-     */
-    protected $customerModel;
+    protected CustomerRepositoryInterface $customerRepository;
 
     /**
      * @var OrderService
      */
-    protected $orderService;
+    protected OrderService $orderService;
 
     /**
      * @var ManagerInterface
      */
-    protected $eventManager;
+    protected ManagerInterface $eventManager;
 
     /**
      * @var Recreate
      */
-    private $quoteRecreate;
-
-    protected $quoteRepository;
+    protected Recreate $quoteRecreate;
 
     /**
      * @var PushRequestInterface
@@ -183,8 +172,8 @@ class Process extends Action
                 $request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
             }
         }
-        $this->redirectRequest = $requestPushFactory->create();
         // @codingStandardsIgnoreEnd
+        $this->redirectRequest = $requestPushFactory->create();
     }
 
     /**
@@ -265,7 +254,11 @@ class Process extends Action
         return $this->_response;
     }
 
-    private function processSucceededRedirect($statusCode)
+    /**
+     * @param $statusCode
+     * @return ResponseInterface
+     */
+    private function processSucceededRedirect($statusCode): ResponseInterface
     {
         $this->sendKlarnaKpOrderConfirmation($statusCode);
 
@@ -274,7 +267,12 @@ class Process extends Action
         return $this->redirectSuccess();
     }
 
-    private function processPendingRedirect($statusCode)
+    /**
+     * @param $statusCode
+     * @return ResponseInterface
+     * @throws LocalizedException
+     */
+    private function processPendingRedirect($statusCode): ResponseInterface
     {
         if ($this->order->canInvoice()) {
             $this->logger->addDebug(__METHOD__ . '|33|');
@@ -311,6 +309,9 @@ class Process extends Action
         return $this->redirectSuccess();
     }
 
+    /**
+     * @return void
+     */
     private function setLastQuoteOrder(): void
     {
         $this->logger->addDebug(__METHOD__ . '|51|' . var_export([
@@ -379,7 +380,7 @@ class Process extends Action
      *
      * @return ResponseInterface
      */
-    public function handleProcessedResponse($path, $arguments = [])
+    public function handleProcessedResponse(string $path, array $arguments = []): ResponseInterface
     {
         $this->logger->addDebug(__METHOD__ . '|15|');
         return $this->_redirect($path, $arguments);
@@ -388,11 +389,11 @@ class Process extends Action
     /**
      * Add success message to be displayed to the user
      *
-     * @param string $message
+     * @param string|Phrase $message
      *
      * @return void
      */
-    public function addSuccessMessage(string $message)
+    public function addSuccessMessage(string|Phrase $message): void
     {
         $this->messageManager->addSuccessMessage($message);
     }
@@ -400,13 +401,38 @@ class Process extends Action
     /**
      * Add error message to be displayed to the user
      *
-     * @param string $message
+     * @param string|Phrase $message
      *
      * @return void
      */
-    public function addErrorMessage(string $message)
+    public function addErrorMessage(string|Phrase $message): void
     {
         $this->messageManager->addErrorMessage($message);
+    }
+
+    public function addErrorMessageByStatus($statusCode){
+
+        // StatusCode specified error messages
+        $statusCodeAddErrorMessage = [];
+        $statusCodeAddErrorMessage[BuckarooStatusCode::ORDER_FAILED] =
+            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+            ' error persists, please choose a different payment method.';
+        $statusCodeAddErrorMessage[BuckarooStatusCode::FAILED] =
+            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+            ' error persists, please choose a different payment method.';
+        $statusCodeAddErrorMessage[BuckarooStatusCode::REJECTED] =
+            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
+            ' error persists, please choose a different payment method.';
+        $statusCodeAddErrorMessage[
+        BuckarooStatusCode::CANCELLED_BY_USER
+        ] = 'According to our system, you have canceled the payment. If this' .
+            ' is not the case, please contact us.';
+
+        $this->addErrorMessage(
+            __(
+                $statusCodeAddErrorMessage[$statusCode]
+            )
+        );
     }
 
     /**
@@ -532,7 +558,7 @@ class Process extends Action
      *
      * @return void
      */
-    protected function redirectSuccessApplePay()
+    protected function redirectSuccessApplePay(): void
     {
         if ($this->redirectRequest->hasPostData('payment_method', 'applepay')
             && $this->redirectRequest->hasPostData('status_code', '190')
@@ -575,28 +601,7 @@ class Process extends Action
          * 2) cancel the order we had to create to even get here
          * 3) redirect back to the checkout page to offer the user feedback & the option to try again
          */
-
-        // StatusCode specified error messages
-        $statusCodeAddErrorMessage = [];
-        $statusCodeAddErrorMessage[BuckarooStatusCode::ORDER_FAILED] =
-            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-            ' error persists, please choose a different payment method.';
-        $statusCodeAddErrorMessage[BuckarooStatusCode::FAILED] =
-            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-            ' error persists, please choose a different payment method.';
-        $statusCodeAddErrorMessage[BuckarooStatusCode::REJECTED] =
-            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-            ' error persists, please choose a different payment method.';
-        $statusCodeAddErrorMessage[
-            BuckarooStatusCode::CANCELLED_BY_USER
-        ] = 'According to our system, you have canceled the payment. If this' .
-            ' is not the case, please contact us.';
-
-        $this->addErrorMessage(
-            __(
-                $statusCodeAddErrorMessage[$statusCode]
-            )
-        );
+        $this->addErrorMessageByStatus($statusCode);
 
         //skip cancel order for PPE
         if (!empty($this->redirectRequest->getAdditionalInformation('frompayperemail'))) {
@@ -606,6 +611,7 @@ class Process extends Action
         if (!$this->cancelOrder($statusCode)) {
             $this->logger->addError('Could not cancel the order.');
         }
+
         $this->logger->addDebug(__METHOD__ . '|8|');
         return $this->redirectFailure();
     }
@@ -630,29 +636,7 @@ class Process extends Action
         $store = $this->order->getStore();
         $this->logger->addDebug('start redirectFailure');
         if ($this->accountConfig->getFailureRedirectToCheckout($store)) {
-            $this->logger->addDebug('getFailureRedirectToCheckout');
-            if (!$this->customerSession->isLoggedIn() && ($this->order->getCustomerId() > 0)) {
-                $this->logger->addDebug('not isLoggedIn');
-                $this->logger->addDebug('getCustomerId > 0');
-                try {
-                    $customer = $this->customerRepository->getById($this->order->getCustomerId());
-                    $this->customerSession->setCustomerDataAsLoggedIn($customer);
-
-                    if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                        $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-                        $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
-                        if (!$this->getSkipHandleFailedRecreate()) {
-                            $this->checkoutSession->restoreQuote();
-                            $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
-                        }
-                    }
-                    $this->setSkipHandleFailedRecreate();
-                } catch (\Exception $e) {
-                    $this->logger->addError('Could not load customer');
-                }
-            }
-            $this->logger->addDebug('ready for redirect');
-            return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
+            return $this->redirectOnCheckoutForFailedTransaction();
         }
 
         /**
@@ -661,6 +645,33 @@ class Process extends Action
         $url = $this->accountConfig->getFailureRedirect($store);
 
         return $this->handleProcessedResponse($url);
+    }
+
+    private function redirectOnCheckoutForFailedTransaction()
+    {
+        $this->logger->addDebug('getFailureRedirectToCheckout');
+        if (!$this->customerSession->isLoggedIn() && ($this->order->getCustomerId() > 0)) {
+            $this->logger->addDebug('not isLoggedIn');
+            $this->logger->addDebug('getCustomerId > 0');
+            try {
+                $customer = $this->customerRepository->getById($this->order->getCustomerId());
+                $this->customerSession->setCustomerDataAsLoggedIn($customer);
+
+                if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
+                    $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
+                    $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
+                    if (!$this->getSkipHandleFailedRecreate()) {
+                        $this->checkoutSession->restoreQuote();
+                        $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
+                    }
+                }
+                $this->setSkipHandleFailedRecreate();
+            } catch (\Exception $e) {
+                $this->logger->addError('Could not load customer');
+            }
+        }
+        $this->logger->addDebug('ready for redirect');
+        return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
     }
 
     /**
