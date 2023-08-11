@@ -440,7 +440,7 @@ class Process extends Action
      *
      * @return ResponseInterface
      */
-    protected function redirectToCheckout()
+    protected function redirectToCheckout(): ResponseInterface
     {
         $this->logger->addDebug('start redirectToCheckout');
         if (!$this->customerSession->isLoggedIn()) {
@@ -456,8 +456,6 @@ class Process extends Action
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
                         $this->checkoutSession->restoreQuote();
                         $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
-                    } elseif ($this->redirectRequest->hasPostData('primary_service', 'IDIN')) {
-                        $this->checkoutSession->restoreQuote();
                     }
                 } catch (\Exception $e) {
                     $this->logger->addError('Could not load customer');

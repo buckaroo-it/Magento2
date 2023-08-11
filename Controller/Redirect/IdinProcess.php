@@ -34,11 +34,8 @@ use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Request\Http as Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 
 class IdinProcess extends Process
@@ -86,17 +83,6 @@ class IdinProcess extends Process
             $orderService, $eventManager, $quoteRecreate, $requestPushFactory);
 
         $this->customerResourceFactory = $customerFactory;
-
-        // @codingStandardsIgnoreStart
-        if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
-            $request = $this->getRequest();
-            if ($request instanceof Http && $request->isPost()) {
-                $request->setParam('isAjax', true);
-                $request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
-            }
-        }
-        // @codingStandardsIgnoreEnd
-        $this->redirectRequest = $requestPushFactory->create();
     }
 
     /**
@@ -105,6 +91,7 @@ class IdinProcess extends Process
      */
     public function execute()
     {
+        // Initialize the order, quote, payment
         if ($this->redirectRequest->hasPostData('primary_service', 'IDIN')) {
             if ($this->setCustomerIDIN()) {
                 $this->addSuccessMessage(__('Your iDIN verified succesfully!'));
@@ -155,5 +142,23 @@ class IdinProcess extends Process
             return true;
         }
         return false;
+    }
+
+    /**
+     * Create redirect response
+     *
+     * @return ResponseInterface
+     */
+    protected function redirectToCheckout(): ResponseInterface
+    {
+        $this->logger->addDebug('start redirectToCheckout');
+        try {
+            $this->checkoutSession->restoreQuote();
+
+        } catch (\Exception $e) {
+            $this->logger->addError('Could not restore the quote.');
+        }
+
+        return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);
     }
 }
