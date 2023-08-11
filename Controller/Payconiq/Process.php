@@ -17,36 +17,31 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Payconiq;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
-use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
-use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
@@ -57,79 +52,55 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /**
      * @var null|Transaction
      */
-    protected $transaction = null;
+    protected ?Transaction $transaction = null;
 
     /**
      * @var SearchCriteriaBuilder
      */
-    protected $searchCriteriaBuilder;
+    protected SearchCriteriaBuilder $searchCriteriaBuilder;
 
     /**
      * @var TransactionRepositoryInterface
      */
-    protected $transactionRepository;
+    protected TransactionRepositoryInterface $transactionRepository;
 
     /**
      * @param Context $context
-     * @param Order $order
-     * @param Quote $quote
-     * @param TransactionInterface $transaction
      * @param Log $logger
+     * @param Quote $quote
+     * @param AccountConfig $accountConfig
      * @param OrderRequestService $orderRequestService
      * @param OrderStatusFactory $orderStatusFactory
      * @param CheckoutSession $checkoutSession
      * @param CustomerSession $customerSession
      * @param CustomerRepositoryInterface $customerRepository
-     * @param Customer $customerModel
-     * @param CustomerFactory $customerFactory
      * @param OrderService $orderService
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param TransactionRepositoryInterface $transactionRepository
      * @param ManagerInterface $eventManager
      * @param Recreate $quoteRecreate
      * @param RequestPushFactory $requestPushFactory
-     * @throws Exception
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param TransactionRepositoryInterface $transactionRepository
      */
     public function __construct(
         Context $context,
-        Order $order,
-        Quote $quote,
-        TransactionInterface $transaction,
         Log $logger,
+        Quote $quote,
+        AccountConfig $accountConfig,
         OrderRequestService $orderRequestService,
         OrderStatusFactory $orderStatusFactory,
         CheckoutSession $checkoutSession,
         CustomerSession $customerSession,
         CustomerRepositoryInterface $customerRepository,
-        Customer $customerModel,
-        CustomerFactory $customerFactory,
         OrderService $orderService,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        TransactionRepositoryInterface $transactionRepository,
         ManagerInterface $eventManager,
         Recreate $quoteRecreate,
-        RequestPushFactory $requestPushFactory
+        RequestPushFactory $requestPushFactory,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        TransactionRepositoryInterface $transactionRepository,
     ) {
-        parent::__construct(
-            $context,
-            $order,
-            $quote,
-            $transaction,
-            $logger,
-            $orderRequestService,
-            $orderStatusFactory,
-            $checkoutSession,
-            $customerSession,
-            $customerRepository,
-            $customerModel,
-            $customerFactory,
-            $orderService,
-            $eventManager,
-            $quoteRecreate,
-            $requestPushFactory
-        );
+        parent::__construct($context, $logger, $quote, $accountConfig, $orderRequestService,
+            $orderStatusFactory, $checkoutSession, $customerSession, $customerRepository,
+            $orderService, $eventManager, $quoteRecreate, $requestPushFactory);
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->transactionRepository = $transactionRepository;
@@ -142,7 +113,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @throws LocalizedException
      * @throws Exception
      */
-    public function execute()
+    public function execute(): ResponseInterface
     {
         if (!$this->getTransactionKey()) {
             $this->_forward('defaultNoRoute');
@@ -150,7 +121,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         }
 
         $transaction = $this->getTransaction();
-        $this->order = $transaction->getOrder();
+        $this->order = $transaction->getOrder()->getOrder();
 
         if ($this->customerSession->getCustomerId() == $this->order->getCustomerId()) {
             $this->logger->addError('Customer is different then the customer that start payconiq process request.');
@@ -161,7 +132,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
                 'checkout',
                 [
                     '_fragment' => 'payment',
-                    '_query' => ['bk_e' => 1]
+                    '_query'    => ['bk_e' => 1]
                 ]
             );
         }
@@ -198,10 +169,10 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /**
      * Get transaction object
      *
-     * @return TransactionInterface|Transaction
+     * @return TransactionInterface|Transaction|null
      * @throws Exception
      */
-    protected function getTransaction()
+    protected function getTransaction(): TransactionInterface|Transaction|null
     {
         if ($this->transaction != null) {
             return $this->transaction;
@@ -225,7 +196,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @return TransactionSearchResultInterface
      * @throws Exception
      */
-    protected function getList()
+    protected function getList(): TransactionSearchResultInterface
     {
         $transactionKey = $this->getTransactionKey();
 

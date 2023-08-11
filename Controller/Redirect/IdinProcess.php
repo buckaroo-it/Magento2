@@ -60,7 +60,6 @@ class IdinProcess extends Process
      * @param Recreate $quoteRecreate
      * @param RequestPushFactory $requestPushFactory
      * @param CustomerFactory $customerFactory
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Context $context,
@@ -86,10 +85,10 @@ class IdinProcess extends Process
     }
 
     /**
-     * @return ResponseInterface|\Magento\Framework\Controller\ResultInterface|void
+     * @return ResponseInterface|void
      * @throws \Buckaroo\Magento2\Exception
      */
-    public function execute()
+    public function execute(): ResponseInterface
     {
         // Initialize the order, quote, payment
         if ($this->redirectRequest->hasPostData('primary_service', 'IDIN')) {
