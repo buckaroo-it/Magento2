@@ -51,8 +51,8 @@ class InvoiceDataBuilder implements BuilderInterface
         $this->setOrder($paymentDO->getOrder()->getOrder());
 
         return [
-            'invoice' => 'LT' . $this->getInvoiceId(),
-            'order'   => 'LT' . $this->getOrder()->getIncrementId()
+            'invoice' => $this->getInvoiceId(),
+            'order'   => $this->getOrder()->getIncrementId()
         ];
     }
 

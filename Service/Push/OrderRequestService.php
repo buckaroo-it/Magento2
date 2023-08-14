@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Push;
 
+use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\App\ResourceConnection;
@@ -133,8 +134,6 @@ class OrderRequestService
             $brqOrderId = $pushRequest->getOrderNumber();
         }
 
-        $brqOrderId = str_replace('LT', '', $brqOrderId);
-
         return $brqOrderId;
     }
 
@@ -154,7 +153,7 @@ class OrderRequestService
         $order = $this->transaction->getOrder();
 
         if (!$order) {
-            throw new \Exception(__('There was no order found by transaction Id'));
+            throw new BuckarooException(__('There was no order found by transaction Id'));
         }
 
         return $order;
