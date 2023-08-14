@@ -66,7 +66,7 @@ define(
             },
             $.mage.__('Please enter a valid card holder name.')
         );
-
+        
         $.validator.addMethod('bkValidateYear', function (value) {
                 if(value.length === 0) {
                     return false;
@@ -176,32 +176,6 @@ define(
                     });
 
 
-
-                    /** Check used to see form is valid **/
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            const state = this.validationState();
-                            const valid = [
-                                'buckaroo_magento2_creditcards_cardholdername',
-                                'buckaroo_magento2_creditcards_cardnumber',
-                                'buckaroo_magento2_creditcards_expireDate',
-                                'buckaroo_magento2_creditcards_cvc',
-                            ].map((field) => {
-                                if(state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function(prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    );
-
                     this.issuerImage = ko.computed(
                         function () {
                             var cardLogo = this.defaultCardImage;
@@ -219,7 +193,7 @@ define(
                     return this;
                 },
 
-
+                
                 validateCardNumber(data, event) {
                     this.validateField(data, event);
 
@@ -227,7 +201,7 @@ define(
                     this.cardIssuer(
                         this.determineIssuer(data.cardNumber())
                     )
-
+                    
                     //validate the cvc if exists
                     if(this.cvc().length) {
                         $('#buckaroo_magento2_creditcards_cvc').valid();
@@ -240,8 +214,6 @@ define(
                     state[event.target.id] = isValid;
                     this.validationState(state);
                 },
-
-
 
                 /** Get the card issuer based on the creditcard number **/
                 determineIssuer: function (cardNumber) {
@@ -281,6 +253,10 @@ define(
                     return false;
                 },
 
+                validate: function () {
+                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
+                },
+
                 selectPaymentMethod: function () {
                     window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
 
@@ -318,11 +294,11 @@ define(
                         event.preventDefault();
                     }
 
-                    if (additionalValidators.validate()) {
+                    if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
                         this.getData().then(function(data) {
                             placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
-
+    
                             $.when(placeOrder).fail(
                                 function () {
                                     self.isPlaceOrderActionAllowed(true);
@@ -346,7 +322,11 @@ define(
                         const month = parts[0];
                         const year = parts[1];
                         const method = this.item.method;
-                        const cardIssuer = this.cardIssuer();
+                        let cardIssuer = this.cardIssuer();
+
+                        if(cardIssuer == null) {
+                            cardIssuer = this.determineIssuer(this.cardNumber());
+                        }
 
 
                         BuckarooClientSideEncryption.V001.encryptCardData(

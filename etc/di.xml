@@ -29,7 +29,6 @@
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
     <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" />
-    <preference for="Magento\Payment\Model\Checks\CanUseForCountry\CountryProvider" type="Buckaroo\Magento2\Model\Checks\CanUseForCountry\CountryProvider" />
     <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
@@ -312,6 +311,10 @@
                 <item name="voucher" xsi:type="array">
                     <item name="type" xsi:type="string">voucher</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
+                </item>
+                <item name="paybybank" xsi:type="array">
+                    <item name="type" xsi:type="string">paybybank</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayByBank</item>
                 </item>
             </argument>
         </arguments>

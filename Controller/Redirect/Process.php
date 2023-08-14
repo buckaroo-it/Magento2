@@ -377,6 +377,7 @@ class Process extends Action
                     );
                     $this->logger->addDebug(__METHOD__ . '|5|');
 
+                    $this->removeCoupon();
                     $this->removeAmastyGiftcardOnFailed();
 
                     return $this->handleProcessedResponse('/');
@@ -703,6 +704,7 @@ class Process extends Action
 
         $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
 
+        $this->removeCoupon();
         $this->removeAmastyGiftcardOnFailed();
 
         if (!$this->getSkipHandleFailedRecreate()
@@ -823,6 +825,32 @@ class Process extends Action
     protected function cancelOrder($statusCode)
     {
         return $this->orderService->cancel($this->order, $statusCode);
+    }
+
+    /**
+     * Remove coupon from failed order if magento enterprise
+     *
+     * @return void
+     */
+    protected function removeCoupon()
+    {
+        if (method_exists($this->order,'getCouponCode')) {
+            $couponCode = $this->order->getCouponCode();
+            $couponFactory = $this->_objectManager->get(\Magento\SalesRule\Model\CouponFactory::class);
+            if (!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
+                return;
+            }
+
+            $coupon = $couponFactory->load($couponCode, 'code');
+            $resourceModel = $this->_objectManager->get(\Magento\SalesRule\Model\Spi\CouponResourceInterface::class);
+            if (!(is_object($resourceModel) && method_exists($resourceModel, 'delete'))) {
+                return;
+            }
+
+            if (is_int($coupon->getCouponId())) {
+                $resourceModel->delete($coupon);
+            }
+        }
     }
 
     /**

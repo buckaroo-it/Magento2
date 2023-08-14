@@ -145,6 +145,7 @@ class Info extends \Magento\Payment\Block\Info
             "emandate" => "emandate.png",
             "pospayment" => "pos.png",
             "transfer" => "svg/sepa-credittransfer.svg",
+            "paybybank" => "paybybank.gif",
             "buckaroovoucher" => "svg/vouchers.svg"
         ];
 
