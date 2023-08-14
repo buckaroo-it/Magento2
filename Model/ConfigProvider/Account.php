@@ -298,7 +298,7 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * Get transaction label for certificate file
+     * Get transaction label
      *
      * @param null|int|string $store
      * @return mixed

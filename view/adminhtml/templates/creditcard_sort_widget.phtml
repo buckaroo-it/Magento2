@@ -21,7 +21,7 @@
 ?>
 <div class="creditcard_sort_wrapper">
     <input type="hidden"
-           name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][sort_creditcards][value]"
+           name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][groups][buckaroo_magento2_default][fields][sort_creditcards][value]"
            id="sort_cards"
            value="<?= $this->helper('Buckaroo\Magento2\Helper\Data')->getConfigCardSort() ?>">
     <div id="sort_creditcard_list"></div>
@@ -35,17 +35,21 @@
     ], function ($) {
         'use strict';
 
-        let ccInherit = $('input[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][sort_creditcards][inherit]"]');
+        let ccInherit = $('input[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][groups][buckaroo_magento2_default][fields][sort_creditcards][inherit]"]');
 
         let listSelector = '#sort_creditcard_list';
         $(listSelector).sortable({
             axis: 'y',
             tolerance: 'pointer',
-            items: 'p'
+            items: 'p',
+            stop: function( event, ui ) 
+            {
+                bkUpdateOrder();
+            }
         });
 
         let inputText = $('#sort_cards').val();
-        let selector = 'select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"]';
+        let selector = 'select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][groups][buckaroo_magento2_default][fields][allowed_creditcards][value][]"]';
         let selectorWrapper = '.creditcard_sort_wrapper';
 
         if (inputText !== '') {
@@ -72,17 +76,18 @@
                 p.innerHTML = $(this).text();
                 p.classList.add('sort_creditcard');
                 $(listSelector).append(p);
+                bkUpdateOrder();
             });
         });
 
-        $('#save').click(function () {
+        const bkUpdateOrder = function () {
             let cardList = '';
             $(listSelector + ' p').each(function () {
                 cardList += $(this).text() + ',';
             });
             cardList = cardList.slice(0, -1);
             $('#sort_cards').val(cardList);
-        });
+        };
 
         function sortableOnOff(status){
             if(status == 'disable'){
