@@ -20,13 +20,42 @@
 
 namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
+use Buckaroo\Magento2\Service\LogoService;
 use Magento\Config\Block\System\Config\Form\Fieldset as MagentoFieldset;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Backend\Block\Context;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\View\Helper\Js;
 
 class Fieldset extends MagentoFieldset
 {
+    /**
+     * @var LogoService
+     */
+    protected LogoService $logoService;
+
+    /**
+     * @param \Magento\Backend\Block\Context $context
+     * @param \Magento\Backend\Model\Auth\Session $authSession
+     * @param \Magento\Framework\View\Helper\Js $jsHelper
+     * @param  LogoService $logoService
+     * @param array $data
+     * @param SecureHtmlRenderer|null $secureRenderer
+     */
+    public function __construct(
+        Context $context,
+        Session $authSession,
+        Js $jsHelper,
+        LogoService $logoService,
+        array $data = [],
+        ?SecureHtmlRenderer $secureRenderer = null
+    ) {
+        parent::__construct($context, $authSession, $jsHelper, $data, $secureRenderer);
+        $this->logoService = $logoService;
+    }
      /**
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return false
@@ -57,9 +86,43 @@ class Fieldset extends MagentoFieldset
         }
 
         $classes = parent::_getFrontendClass($element);
-        $classes .= ' ' . $class;
+        $classes .= ' bk-payment-method ' . $class;
 
         return $classes;
+    }
+
+        /**
+     * Get payment method logo
+     *
+     * @param string $method
+     * @return string
+     */
+    private function getPaymentLogo(string $method): string
+    {
+        if($method == "voucher") {
+            $method = "buckaroovoucher";
+        }
+
+        return $this->logoService->getPayment($method);
+    }
+
+
+    protected function _getHeaderTitleHtml($element)
+    {
+        if(
+            !isset($element->getGroup()['id']) ||
+            !is_string($element->getGroup()['id'])
+        ) {
+            return parent::_getHeaderTitleHtml($element);
+        }
+
+        $method = str_replace("buckaroo_magento2_", "", $element->getGroup()['id']);
+        $logo = $this->getPaymentLogo($method);
+
+        if ($method === 'paylink') {
+            return parent::_getHeaderTitleHtml($element);
+        }
+        return parent::_getHeaderTitleHtml($element).'<img class="bk-ad-payment-logo" src="'.$logo.'">';
     }
 
     /**

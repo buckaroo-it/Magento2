@@ -296,3 +296,29 @@ a.bk-plugin-zone {
     opacity: .5;
     cursor: not-allowed;
 }
+
+.bk-payment-method .entry-edit-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bk-ad-payment-logo {
+    max-width: 50px;
+    padding: 10px 0;
+    padding-right: 10px;
+}
+
+.bk-ad-payment-wrap a{
+    color: #303030;
+    cursor: pointer;
+    display: block;
+    font-size: 1.7rem;
+    font-weight: 600;
+    letter-spacing: .025em;
+    text-decoration: none;
+}
+
+.bk-payment-method .entry-edit-head-link {
+    display: none;
+}
