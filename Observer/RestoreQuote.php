@@ -114,7 +114,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         if ($payment = $lastRealOrder->getPayment()) {
             if ($this->shouldSkipFurtherEventHandling()
                 || strpos($payment->getMethod(), 'buckaroo_magento2') === false
-                || in_array($payment->getMethod(), [Giftcards::PAYMENT_METHOD_CODE, Payconiq::PAYMENT_METHOD_CODE])) {
+                || in_array($payment->getMethod(), [Payconiq::PAYMENT_METHOD_CODE])) {
                 $this->helper->addDebug(__METHOD__ . '|10|');
                 return;
             }
