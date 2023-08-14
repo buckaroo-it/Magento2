@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Buckaroo\Magento2\Model\Push;
+use Buckaroo\Magento2\Model\Push\DefaultProcessor;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
@@ -102,13 +103,13 @@ class RefundHandler implements HandlerInterface
         ) {
             $this->buckarooLog->addDebug(__METHOD__ . '|10|');
             $transactionKeysArray = $payment->getAdditionalInformation(
-                Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
+                DefaultProcessor::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
             foreach ($responseData->getRelatedTransactions() as $relatedTransaction) {
                 $transactionKeysArray[$relatedTransaction['RelatedTransactionKey']] = $responseData->getStatusCode();
             }
             $payment->setAdditionalInformation(
-                Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
+                DefaultProcessor::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
                 $transactionKeysArray
             );
             $connection = $this->resourceConnection->getConnection();
