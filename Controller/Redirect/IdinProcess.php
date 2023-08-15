@@ -38,6 +38,9 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Model\Quote;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class IdinProcess extends Process
 {
     /**
@@ -60,6 +63,8 @@ class IdinProcess extends Process
      * @param Recreate $quoteRecreate
      * @param RequestPushFactory $requestPushFactory
      * @param CustomerFactory $customerFactory
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Context $context,

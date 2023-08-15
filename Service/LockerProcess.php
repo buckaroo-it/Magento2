@@ -1,4 +1,23 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service;
 
@@ -22,7 +41,7 @@ class LockerProcess implements LockerProcessInterface
     /**
      * @var string
      */
-    private $lockFilePath;
+    private string $lockFilePath;
 
     public function __construct(File $fileSystemDriver, DirectoryList $dirList)
     {
@@ -68,26 +87,5 @@ class LockerProcess implements LockerProcessInterface
     private function getLockProcessingFilePath(string $lockName): string
     {
         return $this->dirList->getPath('tmp') . DIRECTORY_SEPARATOR . 'bk_push_ppe_' . sha1($lockName);
-    }
-
-    /**
-     * Determine if the lock push processing criteria are met.
-     *
-     * @return bool
-     */
-    private function lockPushProcessingCriteria(): bool
-    {
-        $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-        if (!empty($this->pushRequst->getAdditionalInformation('frompayperemail'))
-            || (
-                ($this->pushRequst->hasPostData('statuscode', $statusCodeSuccess))
-                && $this->pushRequst->hasPostData('transaction_method', 'ideal')
-                && $this->pushRequst->hasPostData('transaction_type', self::BUCK_PUSH_IDEAL_PAY)
-            )
-        ) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }

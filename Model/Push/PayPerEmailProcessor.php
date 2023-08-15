@@ -1,4 +1,23 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
@@ -21,6 +40,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class PayPerEmailProcessor extends DefaultProcessor
 {
     /**
@@ -38,6 +60,21 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     private bool $isPayPerEmailB2BModePushInitial = false;
 
+    /**
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
+     * @param Log $logging
+     * @param Data $helper
+     * @param TransactionInterface $transaction
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param LockerProcess $lockerProcess
+     * @param PayPerEmail $configPayPerEmail
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
@@ -61,6 +98,9 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @throws FileSystemException
      * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {

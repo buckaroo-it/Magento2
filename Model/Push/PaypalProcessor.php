@@ -37,6 +37,20 @@ class PaypalProcessor extends DefaultProcessor
 {
     private PaypalConfig $paypalConfig;
 
+    /**
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
+     * @param Log $logging
+     * @param Data $helper
+     * @param TransactionInterface $transaction
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param PaypalConfig $paypalConfig
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,

@@ -53,7 +53,7 @@ class IdealProcessor extends DefaultProcessor
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
-        LockerProcess $lockerProcess,
+        LockerProcess $lockerProcess
     ) {
         parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
             $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);

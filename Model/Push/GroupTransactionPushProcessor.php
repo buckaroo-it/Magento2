@@ -44,7 +44,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * @var Order\Payment|Order
      */
-    private Order\Payment|Order $order;
+    private $order;
 
     /**
      * @var OrderManagementInterface

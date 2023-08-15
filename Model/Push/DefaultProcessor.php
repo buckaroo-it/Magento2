@@ -49,6 +49,10 @@ use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+ */
 class DefaultProcessor implements PushProcessorInterface
 {
     public const BUCKAROO_RECEIVED_TRANSACTIONS          = 'buckaroo_received_transactions';
@@ -1038,6 +1042,8 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @param array $paymentDetails
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {

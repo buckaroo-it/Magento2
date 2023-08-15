@@ -181,10 +181,10 @@ class Process extends Action
     /**
      * Process action
      *
-     * @return ResponseInterface
+     * @return ResponseInterface|void
      * @throws \Exception
      */
-    public function execute(): ResponseInterface
+    public function execute()
     {
         $this->logger->addDebug(__METHOD__ . '|' . var_export($this->redirectRequest->getOriginalRequest(), true));
 
@@ -438,7 +438,7 @@ class Process extends Action
      *
      * @return void
      */
-    public function addSuccessMessage(string|Phrase $message): void
+    public function addSuccessMessage($message): void
     {
         $this->messageManager->addSuccessMessage($message);
     }

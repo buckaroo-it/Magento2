@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Controller\Payconiq;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
@@ -37,7 +38,6 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterface;
@@ -96,7 +96,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         Recreate $quoteRecreate,
         RequestPushFactory $requestPushFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        TransactionRepositoryInterface $transactionRepository,
+        TransactionRepositoryInterface $transactionRepository
     ) {
         parent::__construct($context, $logger, $quote, $accountConfig, $orderRequestService,
             $orderStatusFactory, $checkoutSession, $customerSession, $customerRepository,
@@ -110,10 +110,9 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * Redirect Process Payconiq
      *
      * @return ResponseInterface|void
-     * @throws LocalizedException
      * @throws Exception
      */
-    public function execute(): ResponseInterface
+    public function execute()
     {
         if (!$this->getTransactionKey()) {
             $this->_forward('defaultNoRoute');

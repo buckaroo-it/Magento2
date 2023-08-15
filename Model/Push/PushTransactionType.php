@@ -26,6 +26,10 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Model\Order;
 
+/**
+ * @SuppressWarnings(PHPMD.ExcessivePublicCount)
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ */
 class PushTransactionType
 {
     public const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE = 'I014';

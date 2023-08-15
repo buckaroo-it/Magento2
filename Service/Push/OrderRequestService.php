@@ -97,7 +97,7 @@ class OrderRequestService
      * @return Order|OrderPayment
      * @throws \Exception
      */
-    public function getOrderByRequest(?PushRequestInterface $pushRequest = null): Order|OrderPayment
+    public function getOrderByRequest(?PushRequestInterface $pushRequest = null)
     {
         if ($this->order->getId()) {
             return $this->order;
