@@ -24,8 +24,8 @@ use Buckaroo\Magento2\Block\Info;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard as ConfigProviderCreditcard;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\View\Asset\Repository;
 use Magento\Framework\View\Element\Template\Context;
 
 class Creditcard extends Info
@@ -33,17 +33,17 @@ class Creditcard extends Info
     /**
      * @var string
      */
-    protected $cardType;
+    protected string $cardType;
 
     /**
      * @var array
      */
-    protected $mpiStatus;
+    protected array $mpiStatus;
 
     /**
      * @var ConfigProviderCreditcard
      */
-    protected $configProvider;
+    protected ConfigProviderCreditcard $configProvider;
 
     /**
      * @var string
@@ -54,7 +54,7 @@ class Creditcard extends Info
      * @param Context $context
      * @param PaymentGroupTransaction $groupTransaction
      * @param GiftcardCollection $giftcardCollection
-     * @param Repository $assetRepo
+     * @param LogoService $logoService
      * @param array $data
      * @param ConfigProviderCreditcard|null $configProvider
      */
@@ -62,11 +62,11 @@ class Creditcard extends Info
         Context $context,
         PaymentGroupTransaction $groupTransaction,
         GiftcardCollection $giftcardCollection,
-        Repository $assetRepo,
+        LogoService $logoService,
         array $data = [],
         ConfigProviderCreditcard $configProvider = null
     ) {
-        parent::__construct($context, $groupTransaction, $giftcardCollection, $assetRepo, $data);
+        parent::__construct($context, $groupTransaction, $giftcardCollection, $logoService, $data);
         $this->configProvider = $configProvider;
     }
 

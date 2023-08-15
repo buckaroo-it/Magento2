@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -18,7 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service;
@@ -32,6 +30,9 @@ class LogoService
      */
     protected Repository $assetRepo;
 
+    /**
+     * @param Repository $assetRepo
+     */
     public function __construct(Repository $assetRepo)
     {
         $this->assetRepo = $assetRepo;
@@ -40,7 +41,7 @@ class LogoService
     /**
      * Get payment method logo
      *
-     * @param string $method
+     * @param string $paymentCode
      * @return string
      */
     public function getPayment(string $paymentCode): string
@@ -63,7 +64,8 @@ class LogoService
             "emandate" => "emandate.png",
             "pospayment" => "pos.png",
             "transfer" => "svg/sepa-credittransfer.svg",
-            "buckaroovoucher" => "svg/vouchers.svg"
+            "buckaroovoucher" => "svg/vouchers.svg",
+            "paybybank" => "paybybank.gif"
         ];
 
         $name = "svg/{$paymentCode}.svg";
@@ -76,7 +78,7 @@ class LogoService
     }
 
     /**
-     * Get giftcard logo url by code
+     * Get gift card logo url by code
      *
      * @param string $code
      * @return string
