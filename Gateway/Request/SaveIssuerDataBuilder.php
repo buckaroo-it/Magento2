@@ -63,7 +63,7 @@ class SaveIssuerDataBuilder implements BuilderInterface
      *
      * @return void
      */
-    public function saveLastUsedIssuer(OrderPaymentInterface|InfoInterface $payment): void
+    public function saveLastUsedIssuer($payment): void
     {
         /** @var Order $order */
         $order = $payment->getOrder();

@@ -171,7 +171,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @return TransactionInterface|Transaction|null
      * @throws Exception
      */
-    protected function getTransaction(): TransactionInterface|Transaction|null
+    protected function getTransaction()
     {
         if ($this->transaction != null) {
             return $this->transaction;

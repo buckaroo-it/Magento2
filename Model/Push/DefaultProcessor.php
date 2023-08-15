@@ -51,7 +51,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class DefaultProcessor implements PushProcessorInterface
 {

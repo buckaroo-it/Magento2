@@ -34,6 +34,9 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Sales\Api\Data\TransactionInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class IdealProcessor extends DefaultProcessor
 {
     public const BUCK_PUSH_IDEAL_PAY = 'C021';
@@ -43,6 +46,20 @@ class IdealProcessor extends DefaultProcessor
      */
     private LockerProcess $lockerProcess;
 
+    /**
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
+     * @param Log $logging
+     * @param Data $helper
+     * @param TransactionInterface $transaction
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param LockerProcess $lockerProcess
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,

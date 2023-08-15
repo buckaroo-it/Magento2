@@ -521,7 +521,7 @@ class Process extends Action
      *
      * @return void
      */
-    public function addErrorMessage(string|Phrase $message): void
+    public function addErrorMessage(string $message): void
     {
         $this->messageManager->addErrorMessage($message);
     }

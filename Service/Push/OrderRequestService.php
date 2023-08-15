@@ -189,7 +189,7 @@ class OrderRequestService
      *
      * @param Phrase|string $message
      */
-    public function setOrderNotificationNote(Phrase|string $message): void
+    public function setOrderNotificationNote($message): void
     {
         $note = 'Buckaroo attempted to update this order, but failed: ' . $message;
         try {
