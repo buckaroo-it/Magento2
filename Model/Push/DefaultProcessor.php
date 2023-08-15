@@ -626,14 +626,19 @@ class DefaultProcessor implements PushProcessorInterface
 
         if ($statusKey == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS') {
             return $this->processSucceededPush($newStatus, $statusMessage);
-        } elseif (in_array($statusKey, $this->buckarooStatusCode->getFailedStatuses())) {
-            return $this->processFailedPush($newStatus, $statusMessage);
-        } elseif (in_array($statusKey, $this->buckarooStatusCode->getPendingStatuses())) {
-            return $this->processPendingPaymentPush();
-        } else {
-            $this->orderRequestService->setOrderNotificationNote($statusMessage);
-            return true;
         }
+
+        if (in_array($statusKey, $this->buckarooStatusCode->getFailedStatuses())) {
+            return $this->processFailedPush($newStatus, $statusMessage);
+        }
+
+        if (in_array($statusKey, $this->buckarooStatusCode->getPendingStatuses())) {
+            return $this->processPendingPaymentPush();
+        }
+
+        $this->orderRequestService->setOrderNotificationNote($statusMessage);
+        return true;
+
     }
 
     /**

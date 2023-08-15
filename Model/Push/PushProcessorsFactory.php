@@ -1,4 +1,23 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
@@ -9,6 +28,9 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Phrase;
 
+/**
+ * Factory class for creating and retrieving appropriate push processors based on transaction type.
+ */
 class PushProcessorsFactory
 {
     /**
@@ -47,7 +69,7 @@ class PushProcessorsFactory
     }
 
     /**
-     * Retrieve proper push processor for the specified transaction method.
+     * Retrieve the appropriate push processor for a given transaction type.
      *
      * @param PushTransactionType|null $pushTransactionType
      * @return ?PushProcessorInterface
@@ -72,6 +94,8 @@ class PushProcessorsFactory
     }
 
     /**
+     * Determine the class of the push processor based on the provided transaction type.
+     *
      * @param PushTransactionType|null $pushTransactionType
      * @return mixed
      * @throws BuckarooException
@@ -85,18 +109,18 @@ class PushProcessorsFactory
         $paymentMethod = $pushTransactionType->getPaymentMethod();
         $pushProcessorClass = $this->pushProcessors[$paymentMethod] ?? $pushProcessorClass;
         if ($pushTransactionType->isFromPayPerEmail()) {
-            $this->pushProcessors['group_transaction'];
+            return $this->pushProcessors['group_transaction'];
         }
 
         // Check if is Group Transaction Push
         if ($pushTransactionType->isGroupTransaction()) {
-            $pushProcessorClass = $this->pushProcessors['group_transaction'];
+            return $this->pushProcessors['group_transaction'];
         }
 
         // Check if is Credit Management Push
         $pushType = $pushTransactionType->getPushType();
         if ($pushType == PushTransactionType::BUCK_PUSH_TYPE_INVOICE) {
-            $pushProcessorClass = $this->pushProcessors['credit_managment'];
+            return $this->pushProcessors['credit_managment'];
         } elseif ($pushType == PushTransactionType::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE) {
             throw new BuckarooException(
                 __('Skipped handling this invoice push because it is too soon.')
@@ -105,9 +129,11 @@ class PushProcessorsFactory
 
         // Check if is Refund or Cancel Authorize Push
         if ($pushTransactionType->getServiceAction() == 'refund') {
-            $pushProcessorClass = $this->pushProcessors['refund'];
-        } elseif ($pushTransactionType->getServiceAction() == 'cancel_authorize') {
-            $pushProcessorClass = $this->pushProcessors['cancel_authorize'];
+            return $this->pushProcessors['refund'];
+        }
+
+        if ($pushTransactionType->getServiceAction() == 'cancel_authorize') {
+            return $this->pushProcessors['cancel_authorize'];
         }
 
         return $pushProcessorClass;

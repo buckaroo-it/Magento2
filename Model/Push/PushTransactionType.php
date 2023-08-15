@@ -214,19 +214,12 @@ class PushTransactionType
         switch ($transactionType) {
             case self::BUCK_PUSH_TYPE_TRANSACTION:
             case self::BUCK_PUSH_TYPE_DATAREQUEST:
-                if ($this->pushRequest->getStatusCode() !== null) {
-                    $statusCode = $this->pushRequest->getStatusCode();
-                }
+                $statusCode = $this->pushRequest->getStatusCode() ?: $statusCode;
                 break;
             case self::BUCK_PUSH_TYPE_INVOICE:
             case self::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE:
-                if (!empty($this->pushRequest->getEventparametersStatuscode())) {
-                    $statusCode = $this->pushRequest->getEventparametersStatuscode();
-                }
-
-                if (!empty($this->pushRequest->getEventparametersTransactionstatuscode())) {
-                    $statusCode = $this->pushRequest->getEventparametersTransactionstatuscode();
-                }
+                $statusCode = $this->pushRequest->getEventparametersStatuscode() ?: $statusCode;
+                $statusCode = $this->pushRequest->getEventparametersTransactionstatuscode() ?: $statusCode;
                 break;
         }
 

@@ -82,6 +82,7 @@ class RefundProcessor extends DefaultProcessor
      *
      * @param PushRequestInterface $pushRequest
      * @return bool
+     * @throws \Exception
      */
     private function skipPendingRefundPush(PushRequestInterface $pushRequest): bool
     {
