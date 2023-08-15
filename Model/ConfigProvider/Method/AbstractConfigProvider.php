@@ -66,6 +66,73 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     protected $assetRepo;
 
+    /**
+     * The list of issuers. This is filled by the child classes.
+     *
+     * @var array
+     */
+    protected array $issuers = [
+        [
+            'name' => 'ABN AMRO',
+            'code' => 'ABNANL2A',
+            'imgName' => 'abnamro'
+        ],
+        [
+            'name' => 'ASN Bank',
+            'code' => 'ASNBNL21',
+            'imgName' => 'asnbank'
+        ],
+        [
+            'name' => 'Bunq Bank',
+            'code' => 'BUNQNL2A',
+            'imgName' => 'bunq'
+        ],
+        [
+            'name' => 'ING',
+            'code' => 'INGBNL2A',
+            'imgName' => 'ing'
+        ],
+        [
+            'name' => 'Knab Bank',
+            'code' => 'KNABNL2H',
+            'imgName' => 'knab'
+        ],
+        [
+            'name' => 'Rabobank',
+            'code' => 'RABONL2U',
+            'imgName' => 'rabobank'
+        ],
+        [
+            'name' => 'RegioBank',
+            'code' => 'RBRBNL21',
+            'imgName' => 'regiobank'
+        ],
+        [
+            'name' => 'SNS Bank',
+            'code' => 'SNSBNL2A',
+            'imgName' => 'sns'
+        ],
+        [
+            'name' => 'Triodos Bank',
+            'code' => 'TRIONL2U',
+            'imgName' => 'triodos'
+        ],
+        [
+            'name' => 'Van Lanschot',
+            'code' => 'FVLBNL22',
+            'imgName' => 'vanlanschot'
+        ],
+        [
+            'name' => 'Revolut',
+            'code' => 'REVOLT21',
+            'imgName' => 'revolut'
+        ],
+        [
+            'name' => 'Yoursafe',
+            'code' => 'BITSNL2A',
+            'imgName' => 'yoursafe'
+        ],
+    ];
 
     /**
      * @var ScopeConfigInterface
@@ -107,6 +174,56 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         if (!$this->allowedCurrencies) {
             $this->allowedCurrencies = $allowedCurrencies->getAllowedCurrencies();
         }
+    }
+
+    /**
+     * Retrieve the list of issuers.
+     *
+     * @return array
+     */
+    public function getIssuers()
+    {
+        return $this->issuers;
+    }
+
+    /**
+     * Format the issuers list so the img index is filled with the correct url.
+     *
+     * @return array
+     */
+    protected function formatIssuers()
+    {
+        return array_map(
+            function ($issuer) {
+                if(isset($issuer['imgName'])) {
+                    $issuer['img'] = $this->getImageUrl("ideal/{$issuer['imgName']}", "svg");
+                }
+                return $issuer;
+            },
+            $this->getIssuers()
+        );
+    }
+
+    public function getCreditcardLogo(string $code): string
+    {
+        if($code === 'cartebleuevisa') {
+            $code = 'cartebleue';
+        }
+
+        return $this->getImageUrl("creditcards/{$code}", "svg");
+    }
+
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$imgName}.{$extension}");
     }
 
     /**
@@ -158,21 +275,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getBaseAllowedCurrencies()
     {
         return $this->allowedCurrencies;
-    }
-
-    /**
-     * Returns the URL for the logo image of the specified credit card type.
-     *
-     * @param string $code
-     * @return string
-     */
-    public function getCreditcardLogo(string $code): string
-    {
-        if ($code === 'cartebleuevisa') {
-            $code = 'cartebleue';
-        }
-
-        return $this->getImageUrl("creditcards/{$code}", "svg");
     }
 
     /**
@@ -353,19 +455,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getLimitByIp($store = null)
     {
         return $this->getMethodConfigValue(static::XPATH_LIMIT_BY_IP, $store);
-    }
-
-    /**
-     * Generate the url to the desired asset.
-     *
-     * @param string $imgName
-     * @param string $extension
-     *
-     * @return string
-     */
-    public function getImageUrl($imgName, string $extension = 'png')
-    {
-        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$imgName}.{$extension}");
     }
 
     /**

@@ -29,7 +29,6 @@
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
     <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" />
-    <preference for="Magento\Payment\Model\Checks\CanUseForCountry\CountryProvider" type="Buckaroo\Magento2\Model\Checks\CanUseForCountry\CountryProvider" />
     <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
@@ -312,6 +311,10 @@
                 <item name="voucher" xsi:type="array">
                     <item name="type" xsi:type="string">voucher</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
+                </item>
+                <item name="paybybank" xsi:type="array">
+                    <item name="type" xsi:type="string">paybybank</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayByBank</item>
                 </item>
             </argument>
         </arguments>
@@ -4103,6 +4106,84 @@
     <!-- END Wechatpay Order Command -->
     <!-- END Wechatpay Commands infrastructure -->
     <!-- END Payment Method: Wechatpay -->
+
+    <!-- Payment Method: PayByBank -->
+    <!-- PayByBank Payment Method Facade configuration -->
+    <virtualType name="PayByBankFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\PayByBank::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">PayByBankValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">PayByBankValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">PayByBankCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- PayByBank Value handlers infrastructure -->
+    <virtualType name="PayByBankValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">PayByBankConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="PayByBankConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayByBank</argument>
+        </arguments>
+    </virtualType>
+    <!-- END PayByBank Value handlers infrastructure -->
+
+    <!-- PayByBank validators infrastructure -->
+    <virtualType name="PayByBankValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
+                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END iDEAL validators infrastructure -->
+
+    <!-- PayByBank Commands infrastructure -->
+    <virtualType name="PayByBankCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">PayByBankOrderCommand</item>
+                <item name="cancel" xsi:type="string">BuckarooCancelCommand</item>
+                <item name="void" xsi:type="string">BuckarooCancelCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- PayByBank Order Command -->
+    <virtualType name="PayByBankOrderCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">PayByBankOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <!-- PayByBank Order Command - Request Builder -->
+    <virtualType name="PayByBankOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="saveIssuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder</item>
+                <item name="order" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
+                <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\IssuerDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END PayByBank Order Command -->
+    <!-- END PayByBank Commands infrastructure -->
+    <!-- END Payment Method: PayByBank -->
 
     <!-- iDIN service (Age verification) -->
     <type name="Buckaroo\Magento2\Controller\Checkout\Idin">

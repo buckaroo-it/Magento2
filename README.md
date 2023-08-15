@@ -69,11 +69,15 @@ You will find all the necessary information there. But if you still have some un
 
 ### Additional plugins
 
-The Buckaroo Magento 2 plugin can be extended with the following modules:
+<b>The Buckaroo Magento 2 plugin can be extended with the following modules:</b>
 
-| Second chance module | Google Analytics module | Hyvä React checkout module |
-:-------------------------:|:-------------------------:|:-------------------------:|
-[<img src="https://www.buckaroo.nl/media/3479/magento2_secondchance_icon.png" alt="Second-chance" width="200"/>](https://docs.buckaroo.io/v1/docs/second-chance-module)|  [<img src="https://www.buckaroo.nl/media/3478/magento2_googleanalytics_icon.png" alt="Google-analytics" width="200"/>](https://docs.buckaroo.io/v1/docs/google-analytics-module)| [<img src="https://www.buckaroo.nl/media/3577/magento2_hyva_icon.png" alt="Hyva" width="200"/>](https://docs.buckaroo.io/v1/docs/hyva-react-checkout-module) |
+| [Second chance module](https://github.com/buckaroo-it/Magento2_SecondChance)   | [Google Analytics module](https://github.com/buckaroo-it/Magento2_Analytics)   | [Hyvä React Checkout module](https://github.com/buckaroo-it/Magento2_Hyva) | [Hyvä Checkout module](https://github.com/buckaroo-it/Magento2_Hyva_Checkout)<br>[In Development]    | [GraphQL]()   |
+:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:|
+[<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/68ba0c08-1162-44c6-a18a-8734692b8b02" alt="Second-chance" width="200"/>](https://github.com/buckaroo-it/Magento2_SecondChance)|  [<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/1c6e9345-a0ff-46cf-be31-d1c17e69fd90" alt="Google-analytics" width="200"/>](https://github.com/buckaroo-it/Magento2_Analytics)| [<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/11953f16-3f5d-4c10-bb6b-f9a949a97a7a" alt="Hyva-react-checkout" width="200"/>](https://github.com/buckaroo-it/Magento2_Hyva) | [<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/b00d2fcd-2458-4a8b-ab1f-e85d678a0008" alt="Hyva-checkout" width="200"/>](https://github.com/buckaroo-it/Magento2_Hyva_Checkout) | [<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/8611dfeb-bb84-4ba6-ab72-7b6459143dff" alt="GraphQL" width="200"/>](https://github.com/buckaroo-it/Magento2_GraphQL) |
+
+> **Please note:**
+> The Hyvä Checkout module is not available yet. This module is currently being developed, so it will be available anytime soon.
+
 
 ### Contribute
 
