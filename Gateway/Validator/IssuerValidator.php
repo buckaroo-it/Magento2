@@ -21,9 +21,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\Exception\NotFoundException;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
@@ -37,14 +40,31 @@ class IssuerValidator extends AbstractValidator
     private Factory $configProvider;
 
     /**
+     * @var HttpRequest
+     */
+    protected HttpRequest $request;
+
+    /**
+     * @var Json
+     */
+    protected Json $jsonSerializer;
+
+    /**
      * @param ResultInterfaceFactory $resultFactory
      * @param Factory $configProvider
+     * @param HttpRequest $request
+     * @param Json $jsonSerializer
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        Factory $configProvider
+        Factory $configProvider,
+        HttpRequest $request,
+        Json $jsonSerializer
     ) {
         $this->configProvider = $configProvider;
+        $this->request = $request;
+        $this->jsonSerializer = $jsonSerializer;
+
         parent::__construct($resultFactory);
     }
 
@@ -52,13 +72,11 @@ class IssuerValidator extends AbstractValidator
      * Validate issuer
      *
      * @param array $validationSubject
-     * @return bool|ResultInterface
-     * @throws NotFoundException
-     * @throws \Exception
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $paymentInfo = $validationSubject['payment'];
+        $paymentInfo = SubjectReader::readPayment($validationSubject)->getPayment();
 
         $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
         if ($skipValidation) {
@@ -66,6 +84,14 @@ class IssuerValidator extends AbstractValidator
         }
 
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
+
+        if (!$chosenIssuer && $content = $this->request->getContent()) {
+            $jsonDecode = $this->jsonSerializer->unserialize($content);
+            if (!empty($jsonDecode['paymentMethod']['additional_data']['issuer'])) {
+                $chosenIssuer = $jsonDecode['paymentMethod']['additional_data']['issuer'];
+                $paymentInfo->setAdditionalInformation('issuer', $chosenIssuer);
+            }
+        }
 
         foreach ($this->getConfig($paymentInfo)->getIssuers() as $issuer) {
             if ($issuer['code'] == $chosenIssuer) {
