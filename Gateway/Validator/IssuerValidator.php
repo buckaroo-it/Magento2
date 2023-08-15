@@ -25,12 +25,14 @@ use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Framework\App\Request\Http as HttpRequest;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Quote\Model\Quote\Payment;
 
 class IssuerValidator extends AbstractValidator
 {
@@ -73,15 +75,17 @@ class IssuerValidator extends AbstractValidator
      *
      * @param array $validationSubject
      * @return ResultInterface
+     * @throws LocalizedException
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $paymentInfo = SubjectReader::readPayment($validationSubject)->getPayment();
+        /** @var Payment $paymentInfo */
+        $paymentInfo = $validationSubject['payment'];
 
-        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-        if ($skipValidation) {
-            return $this->createResult(true);
-        }
+//        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
+//        if ($skipValidation) {
+//            return $this->createResult(true);
+//        }
 
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
 

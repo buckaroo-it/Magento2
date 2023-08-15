@@ -50,11 +50,12 @@ class SaveIssuerDataBuilder implements BuilderInterface
      * Save last used issuer, it will be used to select automatically the issuer in the checkout
      *
      * @param array $buildSubject
-     * @return void
+     * @return array
      */
-    public function build(array $buildSubject): void
+    public function build(array $buildSubject): array
     {
         $this->saveLastUsedIssuer(SubjectReader::readPayment($buildSubject)->getPayment());
+        return [];
     }
 
     /**
@@ -70,7 +71,7 @@ class SaveIssuerDataBuilder implements BuilderInterface
 
         if ($customerId !== null) {
             $this->customerAttributes->setAttribute(
-                $customerId,
+                (int)$customerId,
                 self::EAV_LAST_USED_ISSUER_ID,
                 $payment->getAdditionalInformation('issuer')
             );
