@@ -7,7 +7,7 @@
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * to support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,99 +20,79 @@
  */
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
-    <!-- Credit and debit card Payment method group -->
-    <group id="buckaroo_magento2_creditcards" translate="label" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Credit and debit cards (Client sided)</label>
+    <!-- PayByBank Payment method group -->
+    <group id="buckaroo_magento2_paybybank" translate="label" type="text" sortOrder="185" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>PayByBank</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
-        <field id="active" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Enable credit and debit cards (Client sided)</label>
+        <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Enable PayByBank</label>
             <comment><![CDATA[Enable or disable this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
-            <config_path>payment/buckaroo_magento2_creditcards/active</config_path>
-            <tooltip>
-                <![CDATA[Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.]]>
-            </tooltip>
-        </field>
-
-        <field id="payment_flow" translate="label comment" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Payment flow</label>
-            <comment><![CDATA[Whether to use separate authorize and capture calls or to use a combined 'pay' call.]]></comment>
-            <config_path>payment/buckaroo_magento2_creditcards/payment_action</config_path>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentFlow</source_model>
+            <config_path>payment/buckaroo_magento2_paybybank/active</config_path>
         </field>
 
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend label</label>
             <comment><![CDATA[Determines the frontend label shown.]]></comment>
-            <config_path>payment/buckaroo_magento2_creditcards/title</config_path>
+            <config_path>payment/buckaroo_magento2_paybybank/title</config_path>
         </field>
 
-        <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="subtext" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext</label>
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
-            <config_path>payment/buckaroo_magento2_creditcards/subtext</config_path>
+            <config_path>payment/buckaroo_magento2_paybybank/subtext</config_path>
         </field>
         
-        <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="subtext_style" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\SubtextStyle</source_model>
-            <config_path>payment/buckaroo_magento2_creditcards/subtext_style</config_path>
+            <config_path>payment/buckaroo_magento2_paybybank/subtext_style</config_path>
         </field>
 
-        <field id="subtext_color" translate="label comment" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="subtext_color" translate="label comment" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext color</label>
             <comment><![CDATA[Choose a font color for the subtext.]]></comment>
-            <config_path>payment/buckaroo_magento2_creditcards/subtext_color</config_path>
+            <config_path>payment/buckaroo_magento2_paybybank/subtext_color</config_path>
             <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
         </field>
 
 
-        <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="sort_order" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend sort order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
-            <config_path>payment/buckaroo_magento2_creditcards/sort_order</config_path>
+            <config_path>payment/buckaroo_magento2_paybybank/sort_order</config_path>
         </field>
 
-        <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Method specific configuration</label>
-            <field id="allowed_creditcards" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Allowed credit and debit cards</label>
-                <comment><![CDATA[Select payment method specific Creditcards.]]></comment>
-                <config_path>payment/buckaroo_magento2_creditcards/allowed_creditcards</config_path>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\Creditcard</source_model>
-            </field>
-        </group>
-
-        <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+        <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 
             <field id="order_email" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Send order confirmation email</label>
                 <comment><![CDATA[Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_creditcards/order_email</config_path>
+                <config_path>payment/buckaroo_magento2_paybybank/order_email</config_path>
             </field>
 
             <field id="payment_fee" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee</label>
                 <comment><![CDATA[The above amount is calculated based on de Tax settings in Stores > Configuration > Sales > Tax.]]></comment>
-                <config_path>payment/buckaroo_magento2_creditcards/payment_fee</config_path>
+                <config_path>payment/buckaroo_magento2_payconiq/payment_fee</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaymentFee</backend_model>
             </field>
 
             <field id="payment_fee_label" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee frontend label</label>
                 <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
-                <config_path>payment/buckaroo_magento2_creditcards/payment_fee_label</config_path>
+                <config_path>payment/buckaroo_magento2_payconiq/payment_fee_label</config_path>
             </field>
 
             <field id="active_status" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method specific status enabled</label>
                 <comment><![CDATA[Enable or disable specific status.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_creditcards/active_status</config_path>
+                <config_path>payment/buckaroo_magento2_paybybank/active_status</config_path>
             </field>
 
             <field id="order_status_success" translate="label comment tooltip" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -120,7 +100,7 @@
                 <comment><![CDATA[Leave empty to use default 'success' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
-                <config_path>payment/buckaroo_magento2_creditcards/order_status_success</config_path>
+                <config_path>payment/buckaroo_magento2_paybybank/order_status_success</config_path>
                 <depends>
                     <field id="active_status">1</field>
                 </depends>
@@ -131,7 +111,7 @@
                 <comment><![CDATA[Leave empty to use default 'failed' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesFailed</source_model>
-                <config_path>payment/buckaroo_magento2_creditcards/order_status_failed</config_path>
+                <config_path>payment/buckaroo_magento2_paybybank/order_status_failed</config_path>
                 <depends>
                     <field id="active_status">1</field>
                 </depends>
@@ -144,7 +124,7 @@
                     <label>Min order amount (in Base Currency)</label>
                     <comment><![CDATA[Minimum order amount allowed.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
-                    <config_path>payment/buckaroo_magento2_creditcards/min_amount</config_path>
+                    <config_path>payment/buckaroo_magento2_paybybank/min_amount</config_path>
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
                 </field>
 
@@ -152,7 +132,7 @@
                     <label>Max order amount (in Base Currency)</label>
                     <comment><![CDATA[Maximum order amount allowed.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
-                    <config_path>payment/buckaroo_magento2_creditcards/max_amount</config_path>
+                    <config_path>payment/buckaroo_magento2_paybybank/max_amount</config_path>
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
                 </field>
 
@@ -160,20 +140,20 @@
                     <label>Allow customer groups</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
-                    <config_path>payment/buckaroo_magento2_creditcards/specificcustomergroup</config_path>
+                    <config_path>payment/buckaroo_magento2_paybybank/specificcustomergroup</config_path>
                 </field>
 
                 <field id="allowspecific" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Payment from applicable countries</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
-                    <config_path>payment/buckaroo_magento2_creditcards/allowspecific</config_path>
+                    <config_path>payment/buckaroo_magento2_paybybank/allowspecific</config_path>
                 </field>
 
                 <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Payment from Specific Country</label>
                     <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Locale\Country</source_model>
-                    <config_path>payment/buckaroo_magento2_creditcards/specificcountry</config_path>
+                    <config_path>payment/buckaroo_magento2_paybybank/specificcountry</config_path>
                     <depends>
                         <field id="allowspecific">1</field>
                     </depends>
@@ -183,8 +163,8 @@
                     <label>Allowed currencies</label>
                     <comment><![CDATA[Select payment method specific currencies.]]></comment>
                     <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
-                    <config_path>payment/buckaroo_magento2_creditcards/allowed_currencies</config_path>
-                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::creditcards</source_model>
+                    <config_path>payment/buckaroo_magento2_paybybank/allowed_currencies</config_path>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::paybybank</source_model>
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
                 </field>
 
@@ -193,7 +173,7 @@
                     <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
                     <tooltip>Magento developer client restrictions.</tooltip>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/buckaroo_magento2_creditcards/limit_by_ip</config_path>
+                    <config_path>payment/buckaroo_magento2_paybybank/limit_by_ip</config_path>
                 </field>
             </group>
         </group>

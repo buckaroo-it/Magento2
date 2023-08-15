@@ -141,6 +141,24 @@ class Applepay extends AbstractConfigProvider
     }
 
     /**
+     * @return array
+     */
+    public function getBaseAllowedCurrencies()
+    {
+        return [
+            'EUR',
+            'USD',
+            'GBP',
+            'DKK',
+            'NOK',
+            'SEK',
+            'CHF',
+            'PLN'
+        ];
+    }
+
+
+    /**
      * Returns the button style configuration setting for the specified store.
      *
      * @param int|string|Store $store

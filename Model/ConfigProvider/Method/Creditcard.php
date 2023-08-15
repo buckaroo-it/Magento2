@@ -55,7 +55,7 @@ class Creditcard extends AbstractConfigProvider
     public const DEFAULT_SORT_VALUE    = '99';
 
     /** @var array[] */
-    protected $issuers = [
+    protected array $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
