@@ -48,6 +48,9 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Process extends Action
 {
     private const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
@@ -521,7 +524,7 @@ class Process extends Action
      *
      * @return void
      */
-    public function addErrorMessage(string $message): void
+    public function addErrorMessage($message): void
     {
         $this->messageManager->addErrorMessage($message);
     }

@@ -80,6 +80,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @param RequestPushFactory $requestPushFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param TransactionRepositoryInterface $transactionRepository
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Context $context,
