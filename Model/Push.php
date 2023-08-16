@@ -29,6 +29,8 @@ use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
 use Buckaroo\Magento2\Model\Push\PushTransactionType;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 
 class Push implements PushInterface
 {
@@ -58,54 +60,79 @@ class Push implements PushInterface
     private PushTransactionType $pushTransactionType;
 
     /**
+     * @var ResultFactory
+     */
+    private ResultFactory $resultFactory;
+
+    /**
      * @param Log $logging
      * @param RequestPushFactory $requestPushFactory
      * @param PushProcessorsFactory $pushProcessorsFactory
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
+     * @param ResultFactory $resultFactory
      */
     public function __construct(
         Log $logging,
         RequestPushFactory $requestPushFactory,
         PushProcessorsFactory $pushProcessorsFactory,
         OrderRequestService $orderRequestService,
-        PushTransactionType $pushTransactionType
+        PushTransactionType $pushTransactionType,
+        ResultFactory $resultFactory
     ) {
         $this->logging = $logging;
         $this->pushRequst = $requestPushFactory->create();
         $this->pushProcessorsFactory = $pushProcessorsFactory;
         $this->orderRequestService = $orderRequestService;
         $this->pushTransactionType = $pushTransactionType;
+        $this->resultFactory = $resultFactory;
     }
 
     /**
      * @inheritdoc
      *
-     * @return bool
+     * @return ResultInterface
      * @throws BuckarooException
      */
-    public function receivePush(): bool
+    public function receivePush(): ResultInterface
     {
-        // Log the push request
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->pushRequst->getOriginalRequest(), true));
+        try {
+            // Log the push request
+            $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->pushRequst->getOriginalRequest(), true));
 
-        // Load Order
-        $order = $this->orderRequestService->getOrderByRequest($this->pushRequst);
+            // Load Order
+            $order = $this->orderRequestService->getOrderByRequest($this->pushRequst);
 
-        // Validate Signature
-        $store = $order->getStore();
-        $validSignature = $this->pushRequst->validate($store);
+            // Validate Signature
+            $store = $order->getStore();
+            $validSignature = $this->pushRequst->validate($store);
 
-        if (!$validSignature) {
-            $this->logging->addDebug('Invalid push signature');
-            throw new BuckarooException(__('Signature from push is incorrect'));
+            if (!$validSignature) {
+                $this->logging->addDebug('Invalid push signature');
+                throw new BuckarooException(__('Signature from push is incorrect'));
+            }
+
+            // Get Push Transaction Type
+            $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequst, $order);
+
+            // Process Push
+            $pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
+
+            $responseContent = [
+                'success'       => $pushProcessor->processPush($this->pushRequst),
+                'error_message' => ''
+            ];
+        } catch (\Throwable $exception) {
+            $responseContent = [
+                'success'       => false,
+                'error_message' => $exception->getMessage()
+            ];
+            $this->logging->addError(__METHOD__ . '|2|' . $exception->getMessage());
         }
 
-        // Get Push Transaction Type
-        $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequst, $order);
-
-        // Process Push
-        $pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
-        return $pushProcessor->processPush($this->pushRequst);
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        $resultJson->setData($responseContent);
+        $resultJson->setHttpResponseCode(200);
+        return $resultJson;
     }
 }
