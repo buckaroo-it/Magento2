@@ -220,205 +220,219 @@ class Push implements PushInterface
      */
     public function receivePush()
     {
-        $this->getPostData();
+        try {
+            $this->getPostData();
 
-        //Start debug mailing/logging with the postdata.
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->originalPostData, true));
+            //Start debug mailing/logging with the postdata.
+            $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->originalPostData, true));
 
-        $this->logging->addDebug(__METHOD__ . '|1_2|');
-        $lockHandler = $this->lockPushProcessing();
-        $this->logging->addDebug(__METHOD__ . '|1_3|');
+            $this->logging->addDebug(__METHOD__ . '|1_2|');
+            $lockHandler = $this->lockPushProcessing();
+            $this->logging->addDebug(__METHOD__ . '|1_3|');
 
-        if ($this->isFailedGroupTransaction()) {
-            $this->handleGroupTransactionFailed();
-            return true;
-        }
-
-
-
-        if ($this->isGroupTransactionInfo()) {
-            if($this->isCanceledGroupTransaction()) {
-                $this->cancelGroupTransactionOrder();
+            if ($this->isFailedGroupTransaction()) {
+                $this->handleGroupTransactionFailed();
                 return true;
             }
-            if ($this->isGroupTransactionFailed()) {
-                $this->savePartGroupTransaction();
-            } else {
-                return true;
-            }
-        }
 
-        $this->loadOrder();
 
-        if ($this->skipHandlingForFailedGroupTransactions()) {
-            return true;
-        }
 
-        if (!$this->isPushNeeded()) {
-            return true;
-        }
-
-        //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
-        $validSignature = $this->validator->validateSignature(
-            $this->originalPostData,
-            $this->postData,
-            $this->order ? $this->order->getStore() : null
-        );
-
-        $transactionType = $this->getTransactionType();
-        //Validate status code and return response
-        $postDataStatusCode = $this->getStatusCode();
-        $this->logging->addDebug(__METHOD__ . '|1_5|' . var_export($postDataStatusCode, true));
-
-        $this->logging->addDebug(__METHOD__ . '|1_10|' . var_export($transactionType, true));
-
-        $response = $this->validator->validateStatusCode($postDataStatusCode);
-
-        //Check if the push have PayLink
-        $this->receivePushCheckPayLink($response, $validSignature);
-
-        $payment       = $this->order->getPayment();
-
-        if ($this->pushCheckPayPerEmailCancel($response, $validSignature, $payment)) {
-            return true;
-        }
-
-        //Check second push for PayPerEmail
-        $receivePushCheckPayPerEmailResult = $this->receivePushCheckPayPerEmail($response, $validSignature, $payment);
-
-        $skipFirstPush = $payment->getAdditionalInformation('skip_push');
-
-        $this->logging->addDebug(__METHOD__ . '|1_20|' . var_export($skipFirstPush, true));
-
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * for some payment methods
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        if ($skipFirstPush > 0) {
-            $payment->setAdditionalInformation('skip_push', (int)$skipFirstPush - 1);
-            $payment->save();
-            throw new \Buckaroo\Magento2\Exception(
-                __('Skipped handling this push, first handle response, action will be taken on the next push.')
-            );
-        }
-
-        if ($this->receivePushCheckDuplicates()) {
-            $this->unlockPushProcessing($lockHandler);
-            throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, duplicate'));
-        }
-
-        $this->logging->addDebug(__METHOD__ . '|2|' . var_export($response, true));
-
-        $canUpdateOrder = $this->canUpdateOrderStatus($response);
-
-        $this->logging->addDebug(__METHOD__ . '|3|' . var_export($canUpdateOrder, true));
-
-        //Check if the push is a refund request or cancel authorize
-        if (isset($this->postData['brq_amount_credit'])) {
-            if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
-                && $this->order->isCanceled()
-                && $this->postData['brq_transaction_type'] == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
-                && $validSignature
-            ) {
-                return $this->processCancelAuthorize();
-            } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
-                && !$this->order->hasInvoices()
-            ) {
-                throw new \Buckaroo\Magento2\Exception(
-                    __('Refund failed ! Status : %1 and the order does not contain an invoice', $response['status'])
-                );
-            } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
-                && $this->order->hasInvoices()
-            ) {
-                //don't proceed failed refund push
-                $this->logging->addDebug(__METHOD__ . '|10|');
-                $this->setOrderNotificationNote(__('push notification for refund has no success status, ignoring.'));
-                return true;
-            }
-            return $this->refundPush->receiveRefundPush($this->postData, $validSignature, $this->order);
-        }
-
-        //Last validation before push can be completed
-        if (!$validSignature) {
-            $this->logging->addDebug('Invalid push signature');
-            throw new \Buckaroo\Magento2\Exception(__('Signature from push is incorrect'));
-            //If the signature is valid but the order cant be updated, try to add a notification to the order comments.
-        } elseif ($validSignature && !$canUpdateOrder) {
-            $this->logging->addDebug('Order can not receive updates');
-            if ($receivePushCheckPayPerEmailResult) {
-                $config = $this->configProviderMethodFactory->get(
-                    PayPerEmail::PAYMENT_METHOD_CODE
-                );
-                if ($config->getEnabledB2B()) {
-                    $this->logging->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
-                    if ($this->order->getState() === Order::STATE_COMPLETE) {
-                        $this->order->setState(Order::STATE_PROCESSING);
-                        $this->order->save();
-                    }
+            if ($this->isGroupTransactionInfo()) {
+                if($this->isCanceledGroupTransaction()) {
+                    $this->cancelGroupTransactionOrder();
+                    return true;
+                }
+                if ($this->isGroupTransactionFailed()) {
+                    $this->savePartGroupTransaction();
+                } else {
                     return true;
                 }
             }
-            $this->setOrderNotificationNote(__('The order has already been processed.'));
-            throw new \Buckaroo\Magento2\Exception(
-                __('Signature from push is correct but the order can not receive updates')
-            );
-        }
 
+            $this->loadOrder();
 
-        if (!$this->isGroupTransactionInfo()) {
-            $this->setTransactionKey();
-        }
-        if (isset($this->postData['brq_statusmessage'])) {
-            if (
-                $this->order->getState() === Order::STATE_NEW &&
-                !isset($this->postData['add_frompayperemail']) &&
-                !$this->hasPostData('brq_transaction_method', 'transfer') &&
-                !isset($this->postData['brq_relatedtransaction_partialpayment']) &&
-                (isset($this->postData['brq_statuscode']) && $this->postData['brq_statuscode'] == 190)
-            ) {
-                $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->addStatusHistoryComment(
-                    $this->postData['brq_statusmessage'],
-                    $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
-                );
-            } else {
-                $this->order->addStatusHistoryComment($this->postData['brq_statusmessage']);
+            if ($this->skipHandlingForFailedGroupTransactions()) {
+                return true;
             }
-        }
 
-        if ((!in_array($payment->getMethod() ,[Giftcards::PAYMENT_METHOD_CODE, Voucher::PAYMENT_METHOD_CODE])) && $this->isGroupTransactionPart()) {
-            $this->savePartGroupTransaction();
-            return true;
-        }
+            if (!$this->isPushNeeded()) {
+                return true;
+            }
 
+            //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
+            $validSignature = $this->validator->validateSignature(
+                $this->originalPostData,
+                $this->postData,
+                $this->order ? $this->order->getStore() : null
+            );
 
-        switch ($transactionType) {
-            case self::BUCK_PUSH_TYPE_INVOICE:
-                $this->processCm3Push();
-                break;
-            case self::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE:
+            $transactionType = $this->getTransactionType();
+            //Validate status code and return response
+            $postDataStatusCode = $this->getStatusCode();
+            $this->logging->addDebug(__METHOD__ . '|1_5|' . var_export($postDataStatusCode, true));
+
+            $this->logging->addDebug(__METHOD__ . '|1_10|' . var_export($transactionType, true));
+
+            $response = $this->validator->validateStatusCode($postDataStatusCode);
+
+            //Check if the push have PayLink
+            $this->receivePushCheckPayLink($response, $validSignature);
+
+            $payment       = $this->order->getPayment();
+
+            if ($this->pushCheckPayPerEmailCancel($response, $validSignature, $payment)) {
+                return true;
+            }
+
+            //Check second push for PayPerEmail
+            $receivePushCheckPayPerEmailResult = $this->receivePushCheckPayPerEmail($response, $validSignature, $payment);
+
+            $skipFirstPush = $payment->getAdditionalInformation('skip_push');
+
+            $this->logging->addDebug(__METHOD__ . '|1_20|' . var_export($skipFirstPush, true));
+
+            /**
+             * Buckaroo Push is send before Response, for correct flow we skip the first push
+             * for some payment methods
+             * @todo when buckaroo changes the push / response order this can be removed
+             */
+            if ($skipFirstPush > 0) {
+                $payment->setAdditionalInformation('skip_push', (int)$skipFirstPush - 1);
+                $payment->save();
                 throw new \Buckaroo\Magento2\Exception(
-                    __('Skipped handling this invoice push because it is too soon.')
+                    __('Skipped handling this push, first handle response, action will be taken on the next push.')
                 );
-            case self::BUCK_PUSH_TYPE_TRANSACTION:
-            case self::BUCK_PUSH_TYPE_DATAREQUEST:
-            default:
-                $this->processPush($response);
-                break;
+            }
+
+            if ($this->receivePushCheckDuplicates()) {
+                $this->unlockPushProcessing($lockHandler);
+                throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, duplicate'));
+            }
+
+            $this->logging->addDebug(__METHOD__ . '|2|' . var_export($response, true));
+
+            $canUpdateOrder = $this->canUpdateOrderStatus($response);
+
+            $this->logging->addDebug(__METHOD__ . '|3|' . var_export($canUpdateOrder, true));
+
+            //Check if the push is a refund request or cancel authorize
+            if (isset($this->postData['brq_amount_credit'])) {
+                if ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
+                    && $this->order->isCanceled()
+                    && $this->postData['brq_transaction_type'] == self::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE
+                    && $validSignature
+                ) {
+                    return $this->processCancelAuthorize();
+                } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
+                    && !$this->order->hasInvoices()
+                ) {
+                    throw new \Buckaroo\Magento2\Exception(
+                        __('Refund failed ! Status : %1 and the order does not contain an invoice', $response['status'])
+                    );
+                } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
+                    && $this->order->hasInvoices()
+                ) {
+                    //don't proceed failed refund push
+                    $this->logging->addDebug(__METHOD__ . '|10|');
+                    $this->setOrderNotificationNote(__('push notification for refund has no success status, ignoring.'));
+                    return true;
+                }
+                return $this->refundPush->receiveRefundPush($this->postData, $validSignature, $this->order);
+            }
+
+            //Last validation before push can be completed
+            if (!$validSignature) {
+                $this->logging->addDebug('Invalid push signature');
+                throw new \Buckaroo\Magento2\Exception(__('Signature from push is incorrect'));
+                //If the signature is valid but the order cant be updated, try to add a notification to the order comments.
+            } elseif ($validSignature && !$canUpdateOrder) {
+                $this->logging->addDebug('Order can not receive updates');
+                if ($receivePushCheckPayPerEmailResult) {
+                    $config = $this->configProviderMethodFactory->get(
+                        PayPerEmail::PAYMENT_METHOD_CODE
+                    );
+                    if ($config->getEnabledB2B()) {
+                        $this->logging->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
+                        if ($this->order->getState() === Order::STATE_COMPLETE) {
+                            $this->order->setState(Order::STATE_PROCESSING);
+                            $this->order->save();
+                        }
+                        return true;
+                    }
+                }
+                $this->setOrderNotificationNote(__('The order has already been processed.'));
+                throw new \Buckaroo\Magento2\Exception(
+                    __('Signature from push is correct but the order can not receive updates')
+                );
+            }
+
+
+            if (!$this->isGroupTransactionInfo()) {
+                $this->setTransactionKey();
+            }
+            if (isset($this->postData['brq_statusmessage'])) {
+                if (
+                    $this->order->getState() === Order::STATE_NEW &&
+                    !isset($this->postData['add_frompayperemail']) &&
+                    !$this->hasPostData('brq_transaction_method', 'transfer') &&
+                    !isset($this->postData['brq_relatedtransaction_partialpayment']) &&
+                    (isset($this->postData['brq_statuscode']) && $this->postData['brq_statuscode'] == 190)
+                ) {
+                    $this->order->setState(Order::STATE_PROCESSING);
+                    $this->order->addStatusHistoryComment(
+                        $this->postData['brq_statusmessage'],
+                        $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
+                    );
+                } else {
+                    $this->order->addStatusHistoryComment($this->postData['brq_statusmessage']);
+                }
+            }
+
+            if ((!in_array($payment->getMethod() ,[Giftcards::PAYMENT_METHOD_CODE, Voucher::PAYMENT_METHOD_CODE])) && $this->isGroupTransactionPart()) {
+                $this->savePartGroupTransaction();
+                return true;
+            }
+
+
+            switch ($transactionType) {
+                case self::BUCK_PUSH_TYPE_INVOICE:
+                    $this->processCm3Push();
+                    break;
+                case self::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE:
+                    throw new \Buckaroo\Magento2\Exception(
+                        __('Skipped handling this invoice push because it is too soon.')
+                    );
+                case self::BUCK_PUSH_TYPE_TRANSACTION:
+                case self::BUCK_PUSH_TYPE_DATAREQUEST:
+                default:
+                    $this->processPush($response);
+                    break;
+            }
+
+            $this->logging->addDebug(__METHOD__ . '|5|');
+            if (!$this->dontSaveOrderUponSuccessPush) {
+                $this->logging->addDebug(__METHOD__ . '|5-1|');
+                $this->order->save();
+            }
+
+            $this->unlockPushProcessing($lockHandler);
+
+            $this->logging->addDebug(__METHOD__ . '|6|');
+
+            $responseContent = [
+                'success'       => true,
+                'error_message' => ''
+            ];
+
+        } catch (\Throwable $exception) {
+            $responseContent = [
+                'success'       => false,
+                'error_message' => $exception->getMessage()
+            ];
+            $this->logging->addError(__METHOD__ . '|2|' . $exception->getMessage());
         }
 
-        $this->logging->addDebug(__METHOD__ . '|5|');
-        if (!$this->dontSaveOrderUponSuccessPush) {
-            $this->logging->addDebug(__METHOD__ . '|5-1|');
-            $this->order->save();
-        }
-
-        $this->unlockPushProcessing($lockHandler);
-
-        $this->logging->addDebug(__METHOD__ . '|6|');
-
-        return true;
+        return json_encode($responseContent);
     }
 
     private function receivePushCheckDuplicates($receivedStatusCode = null, $trxId = null)

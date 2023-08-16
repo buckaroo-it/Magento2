@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Api;
 interface PushInterface
 {
     /**
-     * @return boolean
+     * @return string
      *
      * @api
      */
