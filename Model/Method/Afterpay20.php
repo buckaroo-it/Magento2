@@ -959,4 +959,30 @@ class Afterpay20 extends AbstractMethod
         
         return strlen(trim($company)) === 0;
     }
+
+    /**
+     * @param $response
+     *
+     * @return string
+     */
+    protected function getFailureMessage($response) {
+        if (empty($response[0])) {
+            return parent::getFailureMessage($response);
+        }
+        $transactionResponse = $response[0];
+        $responseCode        = $transactionResponse->Status->Code->Code;
+
+        if (!isset($transactionResponse->Services->Service->ResponseParameter->_)) {
+            return parent::getFailureMessage($response);
+        }
+
+        $message = $transactionResponse->Services->Service->ResponseParameter->_;
+        if (
+            $responseCode === 690 &&
+            strpos($message, "deliveryCustomer.address.countryCode") !== false
+        ) {
+             return "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.";
+        }
+        return parent::getFailureMessage($response);
+    }
 }
