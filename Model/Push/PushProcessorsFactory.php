@@ -108,8 +108,9 @@ class PushProcessorsFactory
         // Set Push Processor by Payment Method
         $paymentMethod = $pushTransactionType->getPaymentMethod();
         $pushProcessorClass = $this->pushProcessors[$paymentMethod] ?? $pushProcessorClass;
+
         if ($pushTransactionType->isFromPayPerEmail()) {
-            return $this->pushProcessors['group_transaction'];
+            return $this->pushProcessors['payperemail'];
         }
 
         // Check if is Group Transaction Push
@@ -121,7 +122,9 @@ class PushProcessorsFactory
         $pushType = $pushTransactionType->getPushType();
         if ($pushType == PushTransactionType::BUCK_PUSH_TYPE_INVOICE) {
             return $this->pushProcessors['credit_managment'];
-        } elseif ($pushType == PushTransactionType::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE) {
+        }
+
+        if ($pushType == PushTransactionType::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE) {
             throw new BuckarooException(
                 __('Skipped handling this invoice push because it is too soon.')
             );
