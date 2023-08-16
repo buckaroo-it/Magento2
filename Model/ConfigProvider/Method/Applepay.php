@@ -71,7 +71,7 @@ class Applepay extends AbstractConfigProvider
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
         StoreManagerInterface $storeManager,
-        Resolver $localeResolver,
+        Resolver $localeResolver
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
 

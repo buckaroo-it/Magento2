@@ -466,6 +466,26 @@
     </type>
 
     <!-- Buckaroo Payment Provider Gateway -->
+    <type name="Buckaroo\Magento2\Model\Push\PushProcessorsFactory">
+        <arguments>
+            <argument name="pushProcessors" xsi:type="array">
+                <item name="default" xsi:type="string">Buckaroo\Magento2\Model\Push\DefaultProcessor</item>
+                <item name="credit_managment" xsi:type="string">Buckaroo\Magento2\Model\Push\CreditManagmentProcessor</item>
+                <item name="group_transaction" xsi:type="string">Buckaroo\Magento2\Model\Push\GroupTransactionPushProcessor</item>
+                <item name="refund" xsi:type="string">Buckaroo\Magento2\Model\Push\RefundProcessor</item>
+                <item name="cancel_authorize" xsi:type="string">Buckaroo\Magento2\Model\Push\CancelAuthorizeProcessor</item>
+                <item name="ideal" xsi:type="string">Buckaroo\Magento2\Model\Push\IdealProcessor</item>
+                <item name="paypal" xsi:type="string">Buckaroo\Magento2\Model\Push\PaypalProcessor</item>
+                <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Model\Push\AfterpayProcessor</item>
+                <item name="klarna" xsi:type="string">Buckaroo\Magento2\Model\Push\KlarnaProcessor</item>
+                <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Model\Push\KlarnaKpProcessor</item>
+                <item name="payperemail" xsi:type="string">Buckaroo\Magento2\Model\Push\PayPerEmailProcessor</item>
+                <item name="transfer" xsi:type="string">Buckaroo\Magento2\Model\Push\TransferProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Buckaroo Payment Provider Gateway -->
     <type name="Buckaroo\Magento2\Model\Adapter\BuckarooAdapter">
         <arguments>
             <argument name="mapPaymentMethods" xsi:type="array">
@@ -3073,6 +3093,30 @@
     <!-- END Giftcards Remove Command -->
     <!-- END Giftcards Commands infrastructure -->
     <!-- END Payment Method: Giftcards -->
+
+    <!-- Payment Method: PayLink -->
+    <virtualType name="PayLinkFacade" type="PayPerEmailFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">PayLinkValueHandlerPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- PayLink Value handlers infrastructure -->
+    <virtualType name="PayLinkValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">PayLinkConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="PayLinkConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink</argument>
+        </arguments>
+    </virtualType>
+    <!-- END PayPerEmail Value handlers infrastructure -->
+    <!-- END Payment Method: PayLink -->
 
     <!-- Payment Method: PayPerEmail -->
     <!-- PayPerEmail Payment Method Facade configuration -->

@@ -502,7 +502,7 @@
 
             <buckaroo_magento2_paylink>
                 <active>0</active>
-                <model>PayPerEmailFacade</model>
+                <model>PayLinkFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo PayLink</title>
                 <allowspecific>0</allowspecific>
