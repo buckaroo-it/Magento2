@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Helper;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\Business;
 use Buckaroo\Magento2\Service\CheckPaymentType;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -120,9 +120,9 @@ class Data extends AbstractHelper
     protected $groupTransaction;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var CustomerRepositoryInterface
@@ -166,7 +166,7 @@ class Data extends AbstractHelper
      * @param Header $httpHeader
      * @param CheckoutSession $checkoutSession
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param CustomerRepositoryInterface $customerRepository
      * @param StoreManagerInterface $storeManager
      * @param ScopeDefiner $scopeDefiner
@@ -183,7 +183,7 @@ class Data extends AbstractHelper
         Header $httpHeader,
         CheckoutSession $checkoutSession,
         PaymentGroupTransaction $groupTransaction,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         CustomerRepositoryInterface $customerRepository,
         StoreManagerInterface $storeManager,
         ScopeDefiner $scopeDefiner,

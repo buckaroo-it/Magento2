@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Session as BuckarooSession;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -38,9 +38,9 @@ class HandleFailedQuoteOrder implements ObserverInterface
     protected $buckarooSession;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logging;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var Manager
@@ -54,18 +54,18 @@ class HandleFailedQuoteOrder implements ObserverInterface
 
     /**
      * @param BuckarooSession $buckarooSession
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param Manager $moduleManager
      * @param OrderManagementInterface $orderManagement
      */
     public function __construct(
         BuckarooSession $buckarooSession,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Manager $moduleManager,
         OrderManagementInterface $orderManagement
     ) {
         $this->buckarooSession = $buckarooSession;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->moduleManager = $moduleManager;
         $this->orderManagement = $orderManagement;
     }
@@ -109,9 +109,9 @@ class HandleFailedQuoteOrder implements ObserverInterface
             }
 
             try {
-                $this->logging->addDebug(__METHOD__ . '|1|');
+                $this->logger->addDebug(__METHOD__ . '|1|');
                 if ($this->moduleManager->isEnabled('Magento_Inventory')) {
-                    $this->logging->addDebug(__METHOD__ . '|5|');
+                    $this->logger->addDebug(__METHOD__ . '|5|');
                     $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 }
                 $this->orderManagement->cancel($order->getId());

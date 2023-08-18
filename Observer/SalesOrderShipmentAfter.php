@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -72,9 +72,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     protected $transactionFactory;
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
     /**
      * @var Klarnakp
      */
@@ -92,7 +92,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @param Klarnakp $klarnakpConfig
      * @param Afterpay20 $afterpayConfig
      * @param Data $helper
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         CollectionFactory $invoiceCollectionFactory,
@@ -102,7 +102,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         Klarnakp $klarnakpConfig,
         Afterpay20 $afterpayConfig,
         Data $helper,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;

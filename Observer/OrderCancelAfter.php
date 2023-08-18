@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Gateway\Http\Client\Json;
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
@@ -62,9 +62,9 @@ class OrderCancelAfter implements ObserverInterface
     protected $configProviderPPE;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logging;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -72,7 +72,7 @@ class OrderCancelAfter implements ObserverInterface
      * @param Encryptor $encryptor
      * @param Account $configProviderAccount
      * @param PayPerEmail $configProviderPPE
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -80,14 +80,14 @@ class OrderCancelAfter implements ObserverInterface
         Encryptor $encryptor,
         Account $configProviderAccount,
         PayPerEmail $configProviderPPE,
-        Log $logging
+        BuckarooLoggerInterface $logger
     ) {
         $this->scopeConfig           = $scopeConfig;
         $this->client                = $client;
         $this->encryptor             = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
         $this->configProviderPPE     = $configProviderPPE;
-        $this->logging               = $logging;
+        $this->logger                = $logger;
     }
 
     /**
@@ -113,7 +113,7 @@ class OrderCancelAfter implements ObserverInterface
 
         if ($cancelPPE && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])) {
             try {
-                $this->logging->addDebug(__METHOD__ . '|sendCancelResponse|');
+                $this->logger->addDebug(__METHOD__ . '|sendCancelResponse|');
                 $this->sendCancelResponse($originalKey);
                 //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {

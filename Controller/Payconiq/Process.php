@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Controller\Payconiq;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -66,7 +66,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 
     /**
      * @param Context $context
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
      * @param AccountConfig $accountConfig
      * @param OrderRequestService $orderRequestService
@@ -85,7 +85,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      */
     public function __construct(
         Context $context,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         Quote $quote,
         AccountConfig $accountConfig,
         OrderRequestService $orderRequestService,

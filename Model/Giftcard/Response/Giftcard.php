@@ -30,7 +30,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 
 /**
@@ -81,7 +81,7 @@ class Giftcard
         QuoteManagement $quoteManagement,
         OrderManagementInterface $orderManagement,
         GiftcardRemove $giftcardRemoveService,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->priceCurrency = $priceCurrency;
         $this->groupTransaction = $groupTransaction;

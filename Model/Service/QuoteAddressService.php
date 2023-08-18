@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\LocalizedException;
@@ -49,9 +49,9 @@ class QuoteAddressService
      */
     protected CustomerRepositoryInterface $customerRepository;
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var Quote
@@ -68,14 +68,14 @@ class QuoteAddressService
      * @param CustomerRepositoryInterface $customerRepository
      * @param QuoteRepository $quoteRepository
      * @param ShippingAddressManagementInterface $shippingAddressManagement
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         CustomerSession $customerSession,
         CustomerRepositoryInterface $customerRepository,
         QuoteRepository $quoteRepository,
         ShippingAddressManagementInterface $shippingAddressManagement,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->customerSession = $customerSession;
         $this->customerRepository = $customerRepository;

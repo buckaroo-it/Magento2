@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\HTTP\Header;
 use Magento\Framework\Session\SessionManager;
 use Magento\Framework\Stdlib\Cookie\PhpCookieManager;
@@ -35,9 +35,9 @@ class FixSession
     protected Header $header;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var SessionManager
@@ -46,12 +46,12 @@ class FixSession
 
     /**
      * @param Header $header
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param SessionManager $sessionManager
      */
     public function __construct(
         Header $header,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         SessionManager $sessionManager
     ) {
         $this->header = $header;

@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
@@ -38,9 +38,9 @@ use Magento\Quote\Model\Quote;
 class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var GiftcardInterface
@@ -62,14 +62,14 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
      * @param Session $checkoutSession
      * @param GiftcardInterface $giftcardRequest
      * @param GiftcardResponse $giftcardResponse
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Context $context,
         Session $checkoutSession,
         GiftcardInterface $giftcardRequest,
         GiftcardResponse $giftcardResponse,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;

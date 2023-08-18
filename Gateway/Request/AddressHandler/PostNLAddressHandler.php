@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\AddressHandler;
 
 use Buckaroo\Magento2\Api\AddressUpdaterInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Quote\Model\Quote\Address;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Sales\Api\Data\OrderAddressInterface;
@@ -36,13 +36,13 @@ class PostNLAddressHandler extends AbstractAddressHandler
     protected $addressFactory;
 
     /**
-     * @param Log $buckarooLogger
+     * @param BuckarooLoggerInterface $logger
      * @param AddressFactory $addressFactory
      */
-    public function __construct(Log $buckarooLogger, AddressFactory $addressFactory)
+    public function __construct(BuckarooLoggerInterface $logger, AddressFactory $addressFactory)
     {
         $this->addressFactory = $addressFactory;
-        parent::__construct($buckarooLogger);
+        parent::__construct($logger);
     }
 
     /**

@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Payment\Model\MethodInterface;
@@ -35,9 +35,9 @@ use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandIn
 class CommandInterface
 {
     /**
-     * @var Log $logging
+     * @var BuckarooLoggerInterface $logger
      */
-    public Log $logging;
+    public BuckarooLoggerInterface $logger;
 
     /**
      * @var Factory
@@ -51,16 +51,16 @@ class CommandInterface
 
     /**
      * @param Factory $configProviderMethodFactory
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param Data $helper
      */
     public function __construct(
         Factory $configProviderMethodFactory,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Data $helper
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->helper = $helper;
     }
 
@@ -91,13 +91,13 @@ class CommandInterface
         $paymentAction = $methodInstance->getConfigPaymentAction();
         $paymentCode = substr($methodInstance->getCode(), 0, 18);
 
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export([$methodInstance->getCode(), $paymentAction], true));
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export([$methodInstance->getCode(), $paymentAction], true));
 
         if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
             if (($methodInstance->getCode() == PayPerEmail::CODE) && ($paymentAction == 'order')) {
                 $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
                 if ($config->isEnabledB2B()) {
-                    $this->logging->addDebug(__METHOD__ . '|5|');
+                    $this->logger->addDebug(__METHOD__ . '|5|');
                     return $message;
                 }
             }
@@ -119,7 +119,7 @@ class CommandInterface
         $orderState = Order::STATE_NEW;
         $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
 
-        $this->logging->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
+        $this->logger->addDebug(__METHOD__ . '|5|' . var_export($orderStatus, true));
 
         if ((
                 (
@@ -135,7 +135,7 @@ class CommandInterface
             && ($order->getState() === Order::STATE_PROCESSING)
             && ($order->getStatus() === Order::STATE_PROCESSING)
         ) {
-            $this->logging->addDebug(__METHOD__ . '|10|');
+            $this->logger->addDebug(__METHOD__ . '|10|');
             return false;
         }
 

@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\HTTP\Client\Curl;
 
 class Json
@@ -32,9 +32,9 @@ class Json
     private $client;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private $logger;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @var string
@@ -48,11 +48,11 @@ class Json
 
     /**
      * @param Curl $client
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Curl $client,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->client = $client;
         $this->logger = $logger;

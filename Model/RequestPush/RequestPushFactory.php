@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\RequestPush;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Webapi\Rest\Request;
 
@@ -39,23 +39,23 @@ class RequestPushFactory
     private Request $request;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private Log $logging;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @param ObjectManagerInterface $objectManager
      * @param Request $request
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Request $request,
-        Log $logging
+        BuckarooLoggerInterface $logger
     ) {
         $this->objectManager = $objectManager;
         $this->request = $request;
-        $this->logging = $logging;
+        $this->logger = $logger;
     }
 
     /**
@@ -67,7 +67,7 @@ class RequestPushFactory
     {
         try {
             if (strpos($this->request->getContentType(), 'application/json') !== false) {
-                $this->logging->addDebug(__METHOD__ . '|Create json object|' . var_export(
+                $this->logger->addDebug(__METHOD__ . '|Create json object|' . var_export(
                     $this->request->getRequestData(),
                     true
                 ));
@@ -77,10 +77,10 @@ class RequestPushFactory
                 );
             }
         } catch (\Exception $exception) {
-            $this->logging->addDebug(__METHOD__ . '|EXCEPTION|' . var_export($exception->getMessage(), true));
+            $this->logger->addDebug(__METHOD__ . '|EXCEPTION|' . var_export($exception->getMessage(), true));
         }
 
-        $this->logging->addDebug(__METHOD__ . '|Create httppost object|' . var_export(
+        $this->logger->addDebug(__METHOD__ . '|Create httppost object|' . var_export(
             $this->request->getRequestData(),
             true
         ));

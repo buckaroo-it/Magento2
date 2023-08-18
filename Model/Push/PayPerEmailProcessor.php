@@ -25,7 +25,7 @@ use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
@@ -63,7 +63,7 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param Data $helper
      * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
@@ -78,7 +78,7 @@ class PayPerEmailProcessor extends DefaultProcessor
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Data $helper,
         TransactionInterface $transaction,
         PaymentGroupTransaction $groupTransaction,
@@ -88,7 +88,7 @@ class PayPerEmailProcessor extends DefaultProcessor
         LockerProcess $lockerProcess,
         PayPerEmail $configPayPerEmail
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
+        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
             $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
         $this->lockerProcess = $lockerProcess;
         $this->configPayPerEmail = $configPayPerEmail;
@@ -129,14 +129,14 @@ class PayPerEmailProcessor extends DefaultProcessor
         // Check if the order can be updated
         if (!$this->canUpdateOrderStatus()) {
             if ($isDifferentPaymentMethod && $this->configPayPerEmail->isEnabledB2B()) {
-                $this->logging->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
+                $this->logger->addDebug(__METHOD__ . '|$this->order->getState()|' . $this->order->getState());
                 if ($this->order->getState() === Order::STATE_COMPLETE) {
                     $this->order->setState(Order::STATE_PROCESSING);
                     $this->order->save();
                 }
                 return true;
             }
-            $this->logging->addDebug('Order can not receive updates');
+            $this->logger->addDebug('Order can not receive updates');
             $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
             throw new BuckarooException(
                 __('Signature from push is correct but the order can not receive updates')
@@ -164,9 +164,9 @@ class PayPerEmailProcessor extends DefaultProcessor
 
         $this->processPushByStatus();
 
-        $this->logging->addDebug(__METHOD__ . '|5|');
+        $this->logger->addDebug(__METHOD__ . '|5|');
         if (!$this->dontSaveOrderUponSuccessPush) {
-            $this->logging->addDebug(__METHOD__ . '|5-1|');
+            $this->logger->addDebug(__METHOD__ . '|5-1|');
             $this->order->save();
         }
 
@@ -316,7 +316,7 @@ class PayPerEmailProcessor extends DefaultProcessor
                 && !empty($this->pushRequest->getTransactionMethod())
                 && ($this->pushRequest->getTransactionMethod() == 'payperemail')
                 && $this->configPayPerEmail->isEnabledB2B()) {
-                $this->logging->addDebug(__METHOD__ . '|5|');
+                $this->logger->addDebug(__METHOD__ . '|5|');
                 $this->isPayPerEmailB2BModePushInitial = true;
             }
         } else {
@@ -345,12 +345,12 @@ class PayPerEmailProcessor extends DefaultProcessor
     protected function getNewStatus()
     {
         $newStatus = $this->orderStatusFactory->get($this->pushRequest->getStatusCode(), $this->order);
-        $this->logging->addDebug(__METHOD__ . '|5|' . var_export($newStatus, true));
+        $this->logger->addDebug(__METHOD__ . '|5|' . var_export($newStatus, true));
 
         if ($this->isPayPerEmailB2BModePushInitial()) {
             $this->pushTransactionType->setStatusKey('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
             $newStatus = $this->configAccount->getOrderStatusSuccess();
-            $this->logging->addDebug(__METHOD__ . '|15|' . var_export(
+            $this->logger->addDebug(__METHOD__ . '|15|' . var_export(
                     [$this->pushTransactionType->getStatusKey(), $newStatus],
                     true
                 )
@@ -381,7 +381,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             $description .= 'Total amount of ' .
                 $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
 
-            $this->logging->addDebug(__METHOD__ . '|4|');
+            $this->logger->addDebug(__METHOD__ . '|4|');
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
@@ -408,7 +408,7 @@ class PayPerEmailProcessor extends DefaultProcessor
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {
         if (!$this->isPayPerEmailB2BModePushInitial && $this->isPayPerEmailB2BModePush()) {
-            $this->logging->addDebug(__METHOD__ . '|4_1|');
+            $this->logger->addDebug(__METHOD__ . '|4_1|');
             //Fix for suspected fraud when the order currency does not match with the payment's currency
             $amount = $this->payment->isSameCurrency() && $this->payment->isCaptureFinal($this->order->getGrandTotal())
                 ? $this->order->getGrandTotal()

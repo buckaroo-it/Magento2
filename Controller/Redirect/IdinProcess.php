@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
@@ -50,7 +50,7 @@ class IdinProcess extends Process
 
     /**
      * @param Context $context
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
      * @param AccountConfig $accountConfig
      * @param OrderRequestService $orderRequestService
@@ -68,7 +68,7 @@ class IdinProcess extends Process
      */
     public function __construct(
         Context $context,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         Quote $quote,
         AccountConfig $accountConfig,
         OrderRequestService $orderRequestService,

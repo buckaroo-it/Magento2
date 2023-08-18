@@ -17,10 +17,10 @@ class CancelAuthorizeProcessor extends DefaultProcessor
         try {
             $this->setTransactionKey();
         } catch (\Exception $e) {
-            $this->logging->addDebug($e->getLogMessage());
+            $this->logger->addDebug($e->getLogMessage());
         }
 
-        $this->logging->addDebug('Order autorize has been canceld, trying to update payment transactions');
+        $this->logger->addDebug('Order autorize has been canceld, trying to update payment transactions');
 
         return true;
     }

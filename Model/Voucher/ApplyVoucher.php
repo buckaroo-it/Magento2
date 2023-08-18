@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Model\Voucher;
 use Buckaroo\Magento2\Api\ApplyVoucherInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
@@ -74,9 +74,9 @@ class ApplyVoucher implements ApplyVoucherInterface
     private GiftcardResponse $giftcardResponse;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private Log $logger;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @param ApplyVoucherRequestInterface $voucherRequest
@@ -85,7 +85,7 @@ class ApplyVoucher implements ApplyVoucherInterface
      * @param CartRepositoryInterface $cartRepository
      * @param PayResponseSetInterfaceFactory $payResponseFactory
      * @param Session $checkoutSession
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         ApplyVoucherRequestInterface $voucherRequest,
@@ -94,7 +94,7 @@ class ApplyVoucher implements ApplyVoucherInterface
         CartRepositoryInterface $cartRepository,
         PayResponseSetInterfaceFactory $payResponseFactory,
         Session $checkoutSession,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->voucherRequest = $voucherRequest;
         $this->giftcardResponse = $giftcardResponse;

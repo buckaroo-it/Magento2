@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\GroupTransactionFactory;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory as GroupTransactionCollectionFactory;
@@ -51,9 +51,9 @@ class PaymentGroupTransaction extends AbstractHelper
     protected $resourceModel;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private Log $logging;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * Constructor
@@ -61,7 +61,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * @param Context $context
      * @param GroupTransactionFactory $groupTransactionFactory
      * @param DateTime $dateTime
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param GroupTransactionCollectionFactory $grTrCollectionFactory
      * @param GroupTransaction $resourceModel
      */
@@ -69,7 +69,7 @@ class PaymentGroupTransaction extends AbstractHelper
         Context $context,
         GroupTransactionFactory $groupTransactionFactory,
         DateTime $dateTime,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         GroupTransactionCollectionFactory $grTrCollectionFactory,
         GroupTransaction $resourceModel
     ) {
@@ -77,7 +77,7 @@ class PaymentGroupTransaction extends AbstractHelper
 
         $this->groupTransactionFactory = $groupTransactionFactory;
         $this->dateTime = $dateTime;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->grTrCollectionFactory = $grTrCollectionFactory;
         $this->resourceModel = $resourceModel;
     }
@@ -90,7 +90,7 @@ class PaymentGroupTransaction extends AbstractHelper
      */
     public function saveGroupTransaction($response)
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($response, true));
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($response, true));
         $groupTransaction = $this->groupTransactionFactory->create();
         $data['order_id'] = $response['Invoice'];
         $data['transaction_id'] = $response['Key'];

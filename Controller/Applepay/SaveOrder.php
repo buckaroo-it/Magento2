@@ -22,7 +22,7 @@
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\Service\QuoteAddressService;
 use Magento\Checkout\Model\ConfigProviderInterface;
@@ -101,7 +101,7 @@ class SaveOrder extends AbstractApplepay
      *
      * @param JsonFactory $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param QuoteManagement $quoteManagement
      * @param CustomerSession $customerSession
      * @param DataObjectFactory $objectFactory
@@ -119,7 +119,7 @@ class SaveOrder extends AbstractApplepay
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         QuoteManagement $quoteManagement,
         CustomerSession $customerSession,
         DataObjectFactory $objectFactory,
@@ -133,7 +133,7 @@ class SaveOrder extends AbstractApplepay
         parent::__construct(
             $resultJsonFactory,
             $request,
-            $logging
+            $logger
         );
 
         $this->quoteManagement = $quoteManagement;
@@ -167,9 +167,9 @@ class SaveOrder extends AbstractApplepay
             && ($payment = $isPost['payment'])
             && ($extra = $isPost['extra'])
         ) {
-            $this->logging->addDebug(__METHOD__ . '|1|');
-            $this->logging->addDebug(var_export($payment, true));
-            $this->logging->addDebug(var_export($extra, true));
+            $this->logger->addDebug(__METHOD__ . '|1|');
+            $this->logger->addDebug(var_export($payment, true));
+            $this->logger->addDebug(var_export($extra, true));
 
             // Get Cart
             $quote = $this->checkoutSession->getQuote();
@@ -202,7 +202,7 @@ class SaveOrder extends AbstractApplepay
      */
     private function submitQuote($quote, $extra)
     {
-        $this->logging->addDebug(__METHOD__ . '|2|');
+        $this->logger->addDebug(__METHOD__ . '|2|');
 
         try {
             if (!($this->customerSession->getCustomer() && $this->customerSession->getCustomer()->getId())) {
@@ -222,7 +222,7 @@ class SaveOrder extends AbstractApplepay
 
             $this->quoteManagement->submit($quote);
         } catch (\Throwable $th) {
-            $this->logging->addDebug(__METHOD__ . '|exception|' . var_export($th->getMessage(), true));
+            $this->logger->addDebug(__METHOD__ . '|exception|' . var_export($th->getMessage(), true));
         }
     }
 
@@ -236,16 +236,16 @@ class SaveOrder extends AbstractApplepay
         $data = [];
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             $data = $this->registry->registry('buckaroo_response')[0];
-            $this->logging->addDebug(__METHOD__ . '|4|' . var_export($data, true));
+            $this->logger->addDebug(__METHOD__ . '|4|' . var_export($data, true));
             if (!empty($data->RequiredAction->RedirectURL)) {
                 //test mode
-                $this->logging->addDebug(__METHOD__ . '|5|');
+                $this->logger->addDebug(__METHOD__ . '|5|');
                 $data = [
                     'RequiredAction' => $data->RequiredAction
                 ];
             } else {
                 //live mode
-                $this->logging->addDebug(__METHOD__ . '|6|');
+                $this->logger->addDebug(__METHOD__ . '|6|');
                 if (isset($data['Status']['Code']['Code']) && $data['Status']['Code']['Code'] == '190'
                     && isset($data['Order'])
                 ) {
@@ -279,7 +279,7 @@ class SaveOrder extends AbstractApplepay
 
             $store = $order->getStore();
             $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
-            $this->logging->addDebug(__METHOD__ . '|7|' . var_export($url, true));
+            $this->logger->addDebug(__METHOD__ . '|7|' . var_export($url, true));
             $data = [
                 'RequiredAction' => [
                     'RedirectURL' => $url

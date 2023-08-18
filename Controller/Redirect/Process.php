@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
@@ -86,9 +86,9 @@ class Process extends Action
     protected OrderStatusFactory $orderStatusFactory;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var CheckoutSession
@@ -127,7 +127,7 @@ class Process extends Action
 
     /**
      * @param Context $context
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
      * @param AccountConfig $accountConfig
      * @param OrderRequestService $orderRequestService
@@ -143,7 +143,7 @@ class Process extends Action
      */
     public function __construct(
         Context $context,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         Quote $quote,
         AccountConfig $accountConfig,
         OrderRequestService $orderRequestService,

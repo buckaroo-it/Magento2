@@ -25,7 +25,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
@@ -42,9 +42,9 @@ class GroupTransactionRegister implements ObserverInterface
     private $invoiceSender;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private $logger;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @var Data
@@ -60,14 +60,14 @@ class GroupTransactionRegister implements ObserverInterface
      * @param Account $accountConfig
      * @param InvoiceSender $invoiceSender
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Data $helper
      */
     public function __construct(
         Account $accountConfig,
         InvoiceSender $invoiceSender,
         PaymentGroupTransaction $groupTransaction,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         Data $helper
     ) {
         $this->accountConfig = $accountConfig;

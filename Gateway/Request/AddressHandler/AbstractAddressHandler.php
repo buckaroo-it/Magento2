@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\AddressHandler;
 
 use Buckaroo\Magento2\Api\AddressHandlerInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 
 /**
  * The default chaining behavior can be implemented inside a base handler class.
@@ -30,17 +30,17 @@ use Buckaroo\Magento2\Logging\Log;
 abstract class AbstractAddressHandler implements AddressHandlerInterface
 {
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $buckarooLogger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
-     * @param Log $buckarooLogger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
-        Log $buckarooLogger
+        BuckarooLoggerInterface $logger
     ) {
-        $this->buckarooLogger = $buckarooLogger;
+        $this->logger = $logger;
     }
 
     /**

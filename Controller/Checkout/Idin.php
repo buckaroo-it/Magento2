@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -46,9 +46,9 @@ class Idin extends Action
      */
     protected ClientInterface $clientInterface;
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private Log $logger;
+    private BuckarooLoggerInterface $logger;
 
     /**
      *
@@ -56,14 +56,14 @@ class Idin extends Action
      * @param BuilderInterface $requestDataBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $clientInterface
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Context $context,
         BuilderInterface $requestDataBuilder,
         TransferFactoryInterface $transferFactory,
         ClientInterface $clientInterface,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         parent::__construct($context);
         $this->logger = $logger;
@@ -108,7 +108,7 @@ class Idin extends Action
                 );
             }
         } catch (\Throwable $th) {
-            $this->logger->debug($th->getMessage());
+            $this->logger->addError($th->getMessage());
             return $this->json(
                 ['error' => 'Unknown buckaroo error occurred']
             );

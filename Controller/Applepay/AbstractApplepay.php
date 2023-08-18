@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
@@ -32,9 +32,9 @@ use Magento\Quote\Model\Quote\Address\Total as AddressTotal;
 abstract class AbstractApplepay implements HttpPostActionInterface
 {
     /**
-     * @var Log $logging
+     * @var BuckarooLoggerInterface $logger
      */
-    public Log $logging;
+    public BuckarooLoggerInterface $logger;
 
     /**
      * @var JsonFactory
@@ -49,16 +49,16 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * @param JsonFactory $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        Log $logging
+        BuckarooLoggerInterface $logger
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->request = $request;
-        $this->logging = $logging;
+        $this->logger = $logger;
     }
 
     /**

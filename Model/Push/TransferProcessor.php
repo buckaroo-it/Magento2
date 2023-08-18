@@ -29,7 +29,7 @@ class TransferProcessor extends DefaultProcessor
                 //keep amount fetched from brq_amount
                 $description .= 'Amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
             }
-            $this->logging->addDebug(__METHOD__ . '|4|');
+            $this->logger->addDebug(__METHOD__ . '|4|');
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
@@ -53,7 +53,7 @@ class TransferProcessor extends DefaultProcessor
     {
         $amount = $paymentDetails['amount'];
         //invoice only in case of full or last remained amount
-        $this->logging->addDebug(__METHOD__ . '|61|' . var_export([
+        $this->logger->addDebug(__METHOD__ . '|61|' . var_export([
                 $this->order->getId(),
                 $paymentDetails['amount'],
                 $this->order->getTotalDue(),
@@ -65,11 +65,11 @@ class TransferProcessor extends DefaultProcessor
         if (($paymentDetails['amount'] < $this->order->getTotalDue())
             || (($paymentDetails['amount'] == $this->order->getTotalDue()) && ($this->order->getTotalPaid() > 0))
         ) {
-            $this->logging->addDebug(__METHOD__ . '|64|');
+            $this->logger->addDebug(__METHOD__ . '|64|');
 
             $paymentDetails['forceState'] = true;
             if ($amount < $this->order->getTotalDue()) {
-                $this->logging->addDebug(__METHOD__ . '|65|');
+                $this->logger->addDebug(__METHOD__ . '|65|');
                 $paymentDetails['state'] = Order::STATE_NEW;
                 $paymentDetails['newStatus'] = $this->orderStatusFactory->get(
                     BuckarooStatusCode::PENDING_PROCESSING,

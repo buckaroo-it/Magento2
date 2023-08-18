@@ -25,7 +25,7 @@ use AllowDynamicProperties;
 use Buckaroo\Magento2\Api\PushProcessorInterface;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\Log as BuckarooLogger;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLogger;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\LocalizedException;
@@ -51,7 +51,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * @var BuckarooLogger
      */
-    private BuckarooLogger $logging;
+    private BuckarooLogger $logger;
 
     /**
      * @var PaymentGroupTransaction
@@ -95,7 +95,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
 
     /**
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooLogger $logging
+     * @param BuckarooLogger $logger
      * @param OrderRequestService $orderRequestService
      * @param OrderManagementInterface $orderManagement
      * @param QuoteManagement $quoteManagement
@@ -105,7 +105,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      */
     public function __construct(
         PaymentGroupTransaction $groupTransaction,
-        BuckarooLogger $logging,
+        BuckarooLogger $logger,
         OrderRequestService $orderRequestService,
         OrderManagementInterface $orderManagement,
         QuoteManagement $quoteManagement,
@@ -114,7 +114,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
         DefaultProcessor $defaultProcessor
     ) {
         $this->groupTransaction = $groupTransaction;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->orderRequestService = $orderRequestService;
         $this->orderManagement = $orderManagement;
         $this->quoteManagement = $quoteManagement;
@@ -203,7 +203,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
 
             $this->savePartGroupTransaction();
         } catch (\Throwable $th) {
-            $this->logging->addDebug(__METHOD__ . '|' . (string)$th);
+            $this->logger->addDebug(__METHOD__ . '|' . (string)$th);
         }
     }
 

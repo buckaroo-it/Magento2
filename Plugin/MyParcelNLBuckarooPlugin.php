@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Plugin;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -43,21 +43,21 @@ class MyParcelNLBuckarooPlugin
     protected Json $json;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @param Session $checkoutSession
      * @param RequestInterface $request
      * @param Json $json
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Session $checkoutSession,
         RequestInterface $request,
         Json $json,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->checkoutSession    = $checkoutSession;
         $this->request = $request;

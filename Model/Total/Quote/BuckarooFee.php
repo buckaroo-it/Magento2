@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
@@ -75,9 +75,9 @@ class BuckarooFee extends AbstractTotal
     protected $taxCalculation;
 
     /**
-     * @var Log $logging
+     * @var BuckarooLoggerInterface $logger
      */
-    protected $logging;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @param ConfigProviderAccount $configProviderAccount
@@ -86,7 +86,7 @@ class BuckarooFee extends AbstractTotal
      * @param PriceCurrencyInterface $priceCurrency
      * @param Data $catalogHelper
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param TaxModelCalculation $taxCalculation
      */
     public function __construct(
@@ -96,7 +96,7 @@ class BuckarooFee extends AbstractTotal
         PriceCurrencyInterface $priceCurrency,
         Data $catalogHelper,
         PaymentGroupTransaction $groupTransaction,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         TaxModelCalculation $taxCalculation
     ) {
         $this->setCode('buckaroo_fee');
@@ -108,7 +108,7 @@ class BuckarooFee extends AbstractTotal
         $this->catalogHelper = $catalogHelper;
 
         $this->groupTransaction = $groupTransaction;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->taxCalculation = $taxCalculation;
     }
 

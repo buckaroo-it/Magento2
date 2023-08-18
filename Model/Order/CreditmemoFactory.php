@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Order;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Unserialize\Unserialize;
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
@@ -55,22 +55,22 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     protected $unserialize;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * Factory constructor
      *
      * @param OrderFactory $convertOrderFactory
      * @param Config $taxConfig
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Json|null $serializer
      */
     public function __construct(
         OrderFactory $convertOrderFactory,
         Config $taxConfig,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         Json $serializer = null
     ) {
         $this->logger = $logger;

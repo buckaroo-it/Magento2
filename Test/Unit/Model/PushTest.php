@@ -31,7 +31,7 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Push;
 
@@ -188,7 +188,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $transactionMock->expects($this->once())->method('load')->with('', 'txn_id');
         $transactionMock->expects($this->once())->method('getOrder')->willReturn(null);
 
-        $instance = $this->getInstance(['transaction' => $transactionMock, 'logging' => $debuggerMock]);
+        $instance = $this->getInstance(['transaction' => $transactionMock, 'logger' => $debuggerMock]);
 
         $this->expectException(Exception::class);
         $this->invoke('loadOrder', $instance);

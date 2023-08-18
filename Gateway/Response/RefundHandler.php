@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Buckaroo\Magento2\Model\Push;
 use Buckaroo\Magento2\Model\Push\DefaultProcessor;
 use Buckaroo\Transaction\Response\TransactionResponse;

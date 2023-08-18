@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\AddressHandler;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
@@ -37,13 +37,13 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
     protected CartRepositoryInterface $quoteRepository;
 
     /**
-     * @param Log $buckarooLogger
+     * @param BuckarooLoggerInterface $logger
      * @param CartRepositoryInterface $quoteRepository
      */
-    public function __construct(Log $buckarooLogger, CartRepositoryInterface $quoteRepository)
+    public function __construct(BuckarooLoggerInterface $logger, CartRepositoryInterface $quoteRepository)
     {
         $this->quoteRepository = $quoteRepository;
-        parent::__construct($buckarooLogger);
+        parent::__construct($logger);
     }
 
     /**
@@ -84,8 +84,8 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
         $country = $quote->getDpdCountry();
 
         if (!$fullStreet && $quote->getDpdParcelshopId()) {
-            $this->buckarooLogger->addDebug(__METHOD__ . '|2|');
-            $this->buckarooLogger->addDebug(var_export($_COOKIE, true));
+            $this->logger->addDebug(__METHOD__ . '|2|');
+            $this->logger->addDebug(var_export($_COOKIE, true));
             $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
             $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
             $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
@@ -94,7 +94,7 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
 
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
-            $this->buckarooLogger->addDebug(__METHOD__ . '|3|');
+            $this->logger->addDebug(__METHOD__ . '|3|');
 
             $street = $matches[1];
             $streetHouseNumber = $matches[2];
@@ -107,7 +107,7 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
                 ['StreetNumber', $streetHouseNumber],
             ];
 
-            $this->buckarooLogger->addDebug(var_export($mapping, true));
+            $this->logger->addDebug(var_export($mapping, true));
 
             $this->updateShippingAddressCommonMapping($mapping, $requestData);
 

@@ -26,7 +26,7 @@ use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay;
@@ -82,9 +82,9 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected ?OrderPayment $payment;
     /**
-     * @var Log $logging
+     * @var BuckarooLoggerInterface $logger
      */
-    protected Log $logging;
+    protected BuckarooLoggerInterface $logger;
     /**
      * @var Data
      */
@@ -117,7 +117,7 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param Data $helper
      * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
@@ -128,7 +128,7 @@ class DefaultProcessor implements PushProcessorInterface
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Data $helper,
         TransactionInterface $transaction,
         PaymentGroupTransaction $groupTransaction,
@@ -138,7 +138,7 @@ class DefaultProcessor implements PushProcessorInterface
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->helper = $helper;
         $this->transaction = $transaction;
         $this->groupTransaction = $groupTransaction;
@@ -168,7 +168,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Check if the order can be updated
         if (!$this->canUpdateOrderStatus()) {
-            $this->logging->addDebug('Order can not receive updates');
+            $this->logger->addDebug('Order can not receive updates');
             $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
             throw new BuckarooException(
                 __('Signature from push is correct but the order can not receive updates')
@@ -195,9 +195,9 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->processPushByStatus();
 
-        $this->logging->addDebug(__METHOD__ . '|5|');
+        $this->logger->addDebug(__METHOD__ . '|5|');
         if (!$this->dontSaveOrderUponSuccessPush) {
-            $this->logging->addDebug(__METHOD__ . '|5-1|');
+            $this->logger->addDebug(__METHOD__ . '|5-1|');
             $this->order->save();
         }
 
@@ -264,7 +264,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function skipSpecificTypesOfRequsts(): bool
     {
-        $this->logging->addDebug(__METHOD__ . '|1|');
+        $this->logger->addDebug(__METHOD__ . '|1|');
 
         $types = ['capture', 'cancelauthorize', 'cancelreservation'];
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
@@ -287,7 +287,7 @@ class DefaultProcessor implements PushProcessorInterface
     protected function skipFirstPush(): bool
     {
         $skipFirstPush = $this->payment->getAdditionalInformation('skip_push');
-        $this->logging->addDebug(__METHOD__ . '|1_20|' . var_export($skipFirstPush, true));
+        $this->logger->addDebug(__METHOD__ . '|1_20|' . var_export($skipFirstPush, true));
 
 
         if ($skipFirstPush > 0) {
@@ -338,12 +338,12 @@ class DefaultProcessor implements PushProcessorInterface
             && ($this->pushTransactionType->getPushType() == PushTransactionType::BUCK_PUSH_TYPE_TRANSACTION)
             && (!in_array($this->payment->getMethod(), $ignoredPaymentMethods))
         ) {
-            $this->logging->addDebug(__METHOD__ . '|5|');
+            $this->logger->addDebug(__METHOD__ . '|5|');
 
             $receivedTrxStatuses = $this->payment->getAdditionalInformation(
                 self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
-            $this->logging->addDebug(__METHOD__ . '|10|' .
+            $this->logger->addDebug(__METHOD__ . '|10|' .
                 var_export([$receivedTrxStatuses, $receivedStatusCode], true));
             if ($receivedTrxStatuses
                 && is_array($receivedTrxStatuses)
@@ -357,20 +357,20 @@ class DefaultProcessor implements PushProcessorInterface
                     && ($receivedStatusCode == BuckarooStatusCode::SUCCESS)
                 ) {
                     //allow duplicated pushes for 190 statuses in case if order stills to be new/pending
-                    $this->logging->addDebug(__METHOD__ . '|13|');
+                    $this->logger->addDebug(__METHOD__ . '|13|');
                     return false;
                 }
 
-                $this->logging->addDebug(__METHOD__ . '|15|');
+                $this->logger->addDebug(__METHOD__ . '|15|');
                 return true;
             }
             if ($save) {
-                $this->logging->addDebug(__METHOD__ . '|17|');
+                $this->logger->addDebug(__METHOD__ . '|17|');
                 $this->setReceivedTransactionStatuses();
                 $this->payment->save();
             }
         }
-        $this->logging->addDebug(__METHOD__ . '|20|');
+        $this->logger->addDebug(__METHOD__ . '|20|');
 
         return false;
     }
@@ -418,7 +418,7 @@ class DefaultProcessor implements PushProcessorInterface
          * Get current state and status of order
          */
         $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($currentStateAndStatus, true));
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($currentStateAndStatus, true));
 
         /**
          * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
@@ -436,7 +436,7 @@ class DefaultProcessor implements PushProcessorInterface
             && ($this->pushTransactionType->getStatusKey() === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
             && $this->pushRequest->getRelatedtransactionPartialpayment() == null
         ) {
-            $this->logging->addDebug(__METHOD__ . '|2|');
+            $this->logger->addDebug(__METHOD__ . '|2|');
 
             $this->order->setState(Order::STATE_NEW);
             $this->order->setStatus('pending');
@@ -668,7 +668,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     public function processSucceededPush(string $newStatus, string $message): bool
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($newStatus, true));
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($newStatus, true));
 
         $this->setBuckarooReservationNumber();
 
@@ -691,7 +691,7 @@ class DefaultProcessor implements PushProcessorInterface
             $paymentDetails['forceState'] = true;
         }
 
-        $this->logging->addDebug(__METHOD__ . '|8|');
+        $this->logger->addDebug(__METHOD__ . '|8|');
 
         $this->processSucceededPushAuthorization();
 
@@ -703,7 +703,7 @@ class DefaultProcessor implements PushProcessorInterface
             $this->dontSaveOrderUponSuccessPush
         );
 
-        $this->logging->addDebug(__METHOD__ . '|9|');
+        $this->logger->addDebug(__METHOD__ . '|9|');
 
         return true;
     }
@@ -732,7 +732,7 @@ class DefaultProcessor implements PushProcessorInterface
                 ) && !empty($this->pushRequest->getStatusCode())
                 && ($this->pushRequest->getStatusCode() == 190)
             ) {
-                $this->logging->addDebug(__METHOD__ . '|88|' . var_export($this->payment->getMethod(), true));
+                $this->logger->addDebug(__METHOD__ . '|88|' . var_export($this->payment->getMethod(), true));
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->save();
             }
@@ -765,7 +765,7 @@ class DefaultProcessor implements PushProcessorInterface
                 || $paymentMethod->getConfigData('order_email', $store)
             )
         ) {
-            $this->logging->addDebug(__METHOD__ . '|sendemail|' .
+            $this->logger->addDebug(__METHOD__ . '|sendemail|' .
                 var_export($this->configAccount->getOrderConfirmationEmailSync($store), true));
             $this->orderRequestService->sendOrderEmail(
                 $this->order,
@@ -805,16 +805,16 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function saveInvoice(): bool
     {
-        $this->logging->addDebug(__METHOD__ . '|1|');
+        $this->logger->addDebug(__METHOD__ . '|1|');
         if (!$this->forceInvoice
             && (!$this->order->canInvoice() || $this->order->hasInvoices())) {
-            $this->logging->addDebug('Order can not be invoiced');
+            $this->logger->addDebug('Order can not be invoiced');
             return false;
         }
 
         $this->addTransactionData();
 
-        $this->logging->addDebug(__METHOD__ . '|15|');
+        $this->logger->addDebug(__METHOD__ . '|15|');
         //Fix for suspected fraud when the order currency does not match with the payment's currency
         $amount = ($this->payment->isSameCurrency()
             && $this->payment->isCaptureFinal($this->order->getGrandTotal())) ?
@@ -828,7 +828,7 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        $this->logging->addDebug(__METHOD__ . '|25|');
+        $this->logger->addDebug(__METHOD__ . '|25|');
 
         /** @var Invoice $invoice */
         foreach ($this->order->getInvoiceCollection() as $invoice) {
@@ -836,17 +836,17 @@ class DefaultProcessor implements PushProcessorInterface
 
             if (!empty($this->pushRequest->getInvoiceNumber())
                 && $this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
-                $this->logging->addDebug(__METHOD__ . '|27|');
+                $this->logger->addDebug(__METHOD__ . '|27|');
                 $invoice->setState(2);
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
-                $this->logging->addDebug(__METHOD__ . '|30|sendinvoiceemail');
+                $this->logger->addDebug(__METHOD__ . '|30|sendinvoiceemail');
                 $this->orderRequestService->sendInvoiceEmail($invoice, true);
             }
         }
 
-        $this->logging->addDebug(__METHOD__ . '|35|');
+        $this->logger->addDebug(__METHOD__ . '|35|');
 
         $this->order->setIsInProcess(true);
         $this->order->save();
@@ -911,13 +911,13 @@ class DefaultProcessor implements PushProcessorInterface
      */
     public function processFailedPush(string $newStatus, string $message): bool
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($newStatus, true));
+        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($newStatus, true));
 
         if (($this->order->getState() === Order::STATE_PROCESSING)
             && ($this->order->getStatus() === Order::STATE_PROCESSING)
         ) {
             //do not update to failed if we had a success already
-            $this->logging->addDebug(__METHOD__ . '|2|');
+            $this->logger->addDebug(__METHOD__ . '|2|');
             return false;
         }
 
@@ -938,7 +938,7 @@ class DefaultProcessor implements PushProcessorInterface
         $payment = $this->order->getPayment();
 
         if ($buckarooCancelOnFailed && $this->order->canCancel()) {
-            $this->logging->addDebug(__METHOD__ . '|' . 'Buckaroo push failed : ' . $message . ' : Cancel order.');
+            $this->logger->addDebug(__METHOD__ . '|' . 'Buckaroo push failed : ' . $message . ' : Cancel order.');
 
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
@@ -959,13 +959,13 @@ class DefaultProcessor implements PushProcessorInterface
             try {
                 $this->order->cancel()->save();
             } catch (\Throwable $t) {
-                $this->logging->addDebug(__METHOD__ . '|3|');
+                $this->logger->addDebug(__METHOD__ . '|3|');
                 //  SignifydGateway/Gateway error on line 208"
             }
             return true;
         }
 
-        $this->logging->addDebug(__METHOD__ . '|4|');
+        $this->logger->addDebug(__METHOD__ . '|4|');
         $force = false;
         if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_mrcash')
             && ($this->order->getState() === Order::STATE_NEW)
@@ -1024,7 +1024,7 @@ class DefaultProcessor implements PushProcessorInterface
             $description .= 'Total amount of ' .
                 $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
 
-            $this->logging->addDebug(__METHOD__ . '|4|');
+            $this->logger->addDebug(__METHOD__ . '|4|');
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)

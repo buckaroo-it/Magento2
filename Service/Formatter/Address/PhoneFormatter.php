@@ -22,14 +22,14 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 
 class PhoneFormatter
 {
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private Log $logger;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @var array[]
@@ -60,10 +60,10 @@ class PhoneFormatter
     ];
 
     /**
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->logger = $logger;
     }

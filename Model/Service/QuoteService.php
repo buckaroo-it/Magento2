@@ -21,7 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Service;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Service\QuoteBuilderInterfaceFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\DataObject;
@@ -38,9 +38,9 @@ use Magento\Quote\Model\Quote;
 class QuoteService
 {
     /**
-     * @var \Buckaroo\Magento2\Logging\Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
     /**
      * @var \Buckaroo\Magento2\Model\Service\QuoteBuilderInterfaceFactory
      */
@@ -79,7 +79,7 @@ class QuoteService
     protected $quote;
 
     /**
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param CartRepositoryInterface $cartRepository
      * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
      * @param AddProductToCartService $addProductToCartService
@@ -89,7 +89,7 @@ class QuoteService
      * @param QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory
      */
     public function __construct(
-        Log                             $logger,
+        BuckarooLoggerInterface         $logger,
         CartRepositoryInterface         $cartRepository,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
         AddProductToCartService         $addProductToCartService,
