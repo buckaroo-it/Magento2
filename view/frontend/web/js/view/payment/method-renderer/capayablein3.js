@@ -110,6 +110,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('capayablein3'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                logo:  window.checkoutConfig.payment.buckaroo.capayablein3.logo,
                 dp: datePicker,
 
                 /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -40,6 +41,10 @@ class CapayableIn3 extends AbstractConfigProvider
     const XPATH_CAPAYABLEIN3_ORDER_EMAIL          = 'payment/buckaroo_magento2_capayablein3/order_email';
     const XPATH_CAPAYABLEIN3_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_capayablein3/available_in_backend';
 
+    const XPATH_CAPAYABLEIN3_API_VERSION = 'payment/buckaroo_magento2_capayablein3/api_version';
+    const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment/buckaroo_magento2_capayablein3/payment_logo';
+
+
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_capayablein3/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_capayablein3/allowspecific';
     const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_capayablein3/specificcountry';
@@ -75,6 +80,7 @@ class CapayableIn3 extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'logo' => $this->getLogo()
                     ],
                 ],
             ],
@@ -95,5 +101,28 @@ class CapayableIn3 extends AbstractConfigProvider
         );
 
         return $paymentFee ? $paymentFee : false;
+    }
+
+    public function isV3($storeId = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XPATH_CAPAYABLEIN3_API_VERSION,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) !== 'V2';
+    }
+    public function getLogo($storeId = null): string
+    {
+        $logo = $this->scopeConfig->getValue(
+            self::XPATH_CAPAYABLEIN3_PAYMENT_LOGO,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        if (!is_string($logo)) {
+            return 'in3.svg';
+        }
+
+        return $logo;
     }
 }

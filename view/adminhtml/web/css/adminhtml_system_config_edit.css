@@ -394,3 +394,18 @@
     opacity: .5;
     cursor: not-allowed;
 }
+.bk-in3-wrap {
+    display: flex;
+    align-items: center;
+    padding:10px 5px;
+}
+
+.bk-in3-logo {
+    max-height: 30px;
+    width: auto;
+    margin-left:5px;
+}
+
+.bk-in3-main-wrap {
+    border: 1px solid #adadad;
+}

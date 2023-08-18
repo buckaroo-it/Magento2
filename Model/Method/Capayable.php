@@ -52,6 +52,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Model\Method\Capayable\In3V3Builder;
 use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class Capayable extends AbstractMethod
@@ -76,6 +77,9 @@ class Capayable extends AbstractMethod
     /** @var SoftwareData */
     public $softwareData;
 
+
+    protected $v3Builder;
+
     public function __construct(
         ObjectManagerInterface $objectManager,
         Context $context,
@@ -95,6 +99,7 @@ class Capayable extends AbstractMethod
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         EventManager $eventManager,
+        In3V3Builder $v3Builder,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         GatewayInterface $gateway = null,
@@ -141,6 +146,7 @@ class Capayable extends AbstractMethod
         );
 
         $this->addressFormatter = $addressFormatter;
+        $this->v3Builder = $v3Builder;
     }
 
     /**
@@ -237,6 +243,11 @@ class Capayable extends AbstractMethod
      */
     public function getCapayableService($payment)
     {
+
+        if ($this->isV3()) {
+            return $this->v3Builder->build($payment);
+        }
+
         $requestParameter = [];
         $requestParameter = array_merge($requestParameter, $this->getCustomerData($payment));
         $requestParameter = array_merge($requestParameter, $this->getProductLineData($payment));
@@ -249,6 +260,12 @@ class Capayable extends AbstractMethod
         ];
 
         return $services;
+    }
+
+    private function isV3() {
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3 $config */
+        $config = $this->configProviderMethodFactory->get('capayablein3');
+        return $config->isV3();
     }
 
     /**
