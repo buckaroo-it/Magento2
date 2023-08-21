@@ -40,7 +40,7 @@ class In3V3Builder
 
     public function build($payment) {
         return [
-            'Name'   => 'in3',
+            'Name'   => 'In3',
             'Action' => 'Pay',
             'RequestParameter' => array_merge(
                 $this->getProducts($payment->getOrder()->getAllItems()),
@@ -71,14 +71,14 @@ class In3V3Builder
 
         $data = [
             $this->row($streetData['street'], 'Street', 'BillingCustomer', $i),
-            $this->row($streetData['house_number'], 'HouseNumber', 'BillingCustomer', $i),
+            $this->row($streetData['house_number'], 'StreetNumber', 'BillingCustomer', $i),
             $this->row($shippingAddress->getPostcode(), 'PostalCode', 'BillingCustomer', $i),
             $this->row($shippingAddress->getCity(), 'City', 'BillingCustomer', $i),
-            $this->row($shippingAddress->getCountryId(), 'Country', 'BillingCustomer', $i),
+            $this->row($shippingAddress->getCountryId(), 'CountryCode', 'BillingCustomer', $i),
         ];
 
         if (strlen($streetData['number_addition']) > 0) {
-            $data[] = $this->row($streetData['number_addition'], 'HouseNumberSuffix', 'BillingCustomer', $i);
+            $data[] = $this->row($streetData['number_addition'], 'StreetNumberSuffix', 'BillingCustomer', $i);
         }
 
         if(strlen((string)$shippingAddress->getRegion())) {
@@ -105,9 +105,13 @@ class In3V3Builder
 
         $streetData = $this->addressFormatter->formatStreet($billingAddress->getStreet());
 
+        $customerNumber = "guest";
 
+        if($billingAddress->getEntityId() !== null) {
+            $customerNumber = $billingAddress->getEntityId();
+        }
         $data = [
-            $this->row((string)$billingAddress->getId(), 'CustomerNumber', 'BillingCustomer', $i),
+            $this->row((string)$customerNumber, 'CustomerNumber', 'BillingCustomer', $i),
             $this->row($billingAddress->getFirstname(), 'FirstName', 'BillingCustomer', $i),
             $this->row($billingAddress->getLastname(), 'LastName', 'BillingCustomer', $i),
             $this->row($this->getInitials($billingAddress), 'Initials', 'BillingCustomer', $i),
@@ -117,14 +121,14 @@ class In3V3Builder
             $this->row("B2C", 'Category', 'BillingCustomer', $i),
             
             $this->row($streetData['street'], 'Street', 'BillingCustomer', $i),
-            $this->row($streetData['house_number'], 'HouseNumber', 'BillingCustomer', $i),
+            $this->row($streetData['house_number'], 'StreetNumber', 'BillingCustomer', $i),
             $this->row($billingAddress->getPostcode(), 'PostalCode', 'BillingCustomer', $i),
             $this->row($billingAddress->getCity(), 'City', 'BillingCustomer', $i),
-            $this->row($billingAddress->getCountryId(), 'Country', 'BillingCustomer', $i),
+            $this->row($billingAddress->getCountryId(), 'CountryCode', 'BillingCustomer', $i),
         ];
 
         if (strlen($streetData['number_addition']) > 0) {
-            $data[] = $this->row($streetData['number_addition'], 'HouseNumberSuffix', 'BillingCustomer', $i);
+            $data[] = $this->row($streetData['number_addition'], 'StreetNumberSuffix', 'BillingCustomer', $i);
         }
 
         if(strlen($billingAddress->getRegion())) {

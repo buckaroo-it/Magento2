@@ -262,7 +262,7 @@ class Capayable extends AbstractMethod
         return $services;
     }
 
-    private function isV3() {
+    protected function isV3() {
         /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3 $config */
         $config = $this->configProviderMethodFactory->get('capayablein3');
         return $config->isV3();

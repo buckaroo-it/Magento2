@@ -42,6 +42,10 @@ class Installments extends Capayable
     {
         $services = parent::getCapayableService($payment);
 
+        if ($this->isV3()) {
+            return $services;
+        }
+
         $requestParameter = $services['RequestParameter'];
 
         $requestParameter[] = ['_' => 'true', 'Name' => 'IsInThreeGuarantee'];
