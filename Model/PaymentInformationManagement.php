@@ -125,10 +125,12 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
 
         $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
 
-        $this->logger->debug('-[RESULT]----------------------------------------');
         //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-        $this->logger->debug(print_r($this->registry->registry('buckaroo_response'), true));
-        $this->logger->debug('-------------------------------------------------');
+        $this->logger->addDebug(sprintf(
+            '[PLACE_ORDER] | [Webapi] | [%s:%s] - Logged In Users | buckarooResponse: %s',
+            __METHOD__, __LINE__,
+            print_r($this->registry->registry('buckaroo_response'), true)
+        ));
 
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             return \json_encode($this->registry->registry('buckaroo_response')[0]);

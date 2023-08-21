@@ -45,17 +45,17 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
     /**
      * @var GiftcardInterface
      */
-    protected $giftcardRequest;
+    protected GiftcardInterface $giftcardRequest;
 
     /**
      * @var GiftcardResponse
      */
-    protected $giftcardResponse;
+    protected GiftcardResponse $giftcardResponse;
 
     /**
      * @var Session
      */
-    protected $checkoutSession;
+    protected Session $checkoutSession;
 
     /**
      * @param Context $context
@@ -106,10 +106,18 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
                 $this->build($quote)->send()
             );
         } catch (ApiException $th) {
-            $this->logger->addDebug(__METHOD__ . (string)$th);
+            $this->logger->addError(sprintf(
+                '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             return $this->displayError($th->getMessage());
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . (string)$th);
+            $this->logger->addError(sprintf(
+                '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             return $this->displayError(__('Unknown buckaroo error has occurred'));
         }
     }

@@ -400,7 +400,11 @@ class Data extends AbstractHelper
         try {
             return $this->storeManager->getStore();
         } catch (\Exception $e) {
-            $this->logger->addDebug(__METHOD__ . $e);
+            $this->logger->addError(sprintf(
+                '[Helper] | [Helper] | [%s:%s] - %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
+            ));
             return null;
         }
     }

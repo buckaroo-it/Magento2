@@ -108,7 +108,11 @@ class Idin extends Action
                 );
             }
         } catch (\Throwable $th) {
-            $this->logger->addError($th->getMessage());
+            $this->logger->addError(sprintf(
+                '[iDIN] | [Controller] | [%s:%s] - Validate iDIN | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             return $this->json(
                 ['error' => 'Unknown buckaroo error occurred']
             );

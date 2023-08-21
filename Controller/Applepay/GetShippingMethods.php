@@ -37,12 +37,12 @@ class GetShippingMethods extends AbstractApplepay
     /**
      * @var QuoteService
      */
-    private $quoteService;
+    private QuoteService $quoteService;
 
     /**
      * @var ApplePayFormatData
      */
-    private $applePayFormatData;
+    private ApplePayFormatData $applePayFormatData;
 
     /**
      * @param JsonFactory $resultJsonFactory
@@ -75,7 +75,12 @@ class GetShippingMethods extends AbstractApplepay
     public function execute()
     {
         $postValues = $this->getParams();
-        $this->logger->addDebug(__METHOD__ . '|1| post Values: ' . var_export($postValues, true));
+
+        $this->logger->addDebug(sprintf(
+            '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | request: %s',
+            __METHOD__, __LINE__,
+            var_export($postValues, true)
+        ));
 
         $data = [];
         $errorMessage = false;
@@ -114,15 +119,15 @@ class GetShippingMethods extends AbstractApplepay
                     'totals' => $totals
                 ];
             } catch (\Exception $exception) {
-                $this->logger->addDebug(__METHOD__ . '|exception|' . $exception->getMessage());
-                $errorMessage = __(
-                    'Get shipping methods failed'
-                );
+                $this->logger->addError(sprintf(
+                    '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | [ERROR]: %s',
+                    __METHOD__, __LINE__,
+                    $exception->getMessage()
+                ));
+                $errorMessage = __('Get shipping methods failed');
             }
         } else {
-            $errorMessage = __(
-                'Details from Wallet ApplePay are not received.'
-            );
+            $errorMessage = __('Details from Wallet ApplePay are not received.');
         }
 
         return $this->commonResponse($data, $errorMessage);

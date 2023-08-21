@@ -73,11 +73,14 @@ class MyParcelNLBuckarooPlugin
      */
     public function beforeGetFromDeliveryOptions()
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
         // @codingStandardsIgnoreLine
         if ($result = file_get_contents('php://input')) {
             if ($jsonDecoded = $this->json->unserialize($result)) {
-                $this->logger->addDebug(__METHOD__ . '|2|' . var_export($jsonDecoded, true));
+                $this->logger->addDebug(sprintf(
+                    '[MyParcelNL] | [Plugin] | [%s:%s] - Set Pickup Location | deliveryOptions: %s',
+                    __METHOD__, __LINE__,
+                    var_export($jsonDecoded, true)
+                ));
                 if (!empty($jsonDecoded['deliveryOptions']) &&
                     !empty($jsonDecoded['deliveryOptions'][0]['deliveryType']) &&
                     ($jsonDecoded['deliveryOptions'][0]['deliveryType'] == 'pickup') &&
@@ -86,7 +89,6 @@ class MyParcelNLBuckarooPlugin
                     $this->checkoutSession->setMyParcelNLBuckarooData(
                         $this->json->serialize($jsonDecoded['deliveryOptions'][0]['pickupLocation'])
                     );
-                    $this->logger->addDebug(__METHOD__ . '|3|');
                 }
             }
         }

@@ -131,7 +131,11 @@ class IdinProcess extends Process
                     $customerNew = $this->customerRepository->getById((int)$idinCid);
                 } catch (\Exception $e) {
                     $this->addErrorMessage(__('Unfortunately customer was not find by IDIN id: "%1"!', $idinCid));
-                    $this->logger->addError(__METHOD__ . ' | ' . $e->getMessage());
+                    $this->logger->addError(sprintf(
+                        '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Customer was not find by IDIN id | [ERROR]: %s',
+                        __METHOD__, __LINE__,
+                        $e->getMessage()
+                    ));
                     return false;
                 }
                 $customerData = $customerNew->getDataModel();
@@ -155,12 +159,17 @@ class IdinProcess extends Process
      */
     protected function redirectToCheckout(): ResponseInterface
     {
-        $this->logger->addDebug('start redirectToCheckout');
+        $this->logger->addDebug('[REDIRECT - iDIN] | [Controller] | ['.__METHOD__.'] - start redirectToCheckout');
+
         try {
             $this->checkoutSession->restoreQuote();
 
         } catch (\Exception $e) {
-            $this->logger->addError('Could not restore the quote.');
+            $this->logger->addError(sprintf(
+                '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Could not restore the quote | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
+            ));
         }
 
         return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);

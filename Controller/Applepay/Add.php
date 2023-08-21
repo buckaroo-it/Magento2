@@ -32,7 +32,7 @@ class Add extends AbstractApplepay
     /**
      * @var AddService
      */
-    protected $addService;
+    protected AddService $addService;
 
     /**
      * @param JsonFactory $resultJsonFactory
@@ -61,10 +61,20 @@ class Add extends AbstractApplepay
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->getParams(), true));
+        $this->logger->addDebug(sprintf(
+            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | request: %s',
+            __METHOD__, __LINE__,
+            var_export($this->getParams(), true)
+        ));
+
         $data = $this->addService->process($this->getParams());
         $errorMessage = $data['error'] ?? false;
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($data, true));
+
+        $this->logger->addDebug(sprintf(
+            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | response: %s',
+            __METHOD__, __LINE__,
+            var_export($data, true)
+        ));
 
         return $this->commonResponse($data, $errorMessage);
     }
