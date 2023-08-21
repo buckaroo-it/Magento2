@@ -20,14 +20,16 @@
 
 namespace Buckaroo\Magento2\Api;
 
+use Magento\Framework\Controller\ResultInterface;
+
 interface PushInterface
 {
     /**
      * Receive and process push
      *
-     * @return boolean
+     * @return ResultInterface
      *
      * @api
      */
-    public function receivePush();
+    public function receivePush(): ResultInterface;
 }
