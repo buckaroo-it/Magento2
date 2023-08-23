@@ -99,31 +99,28 @@ class OrderCancelAfter implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
-
         $payment = $order->getPayment();
-
         $originalKey = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
-
         $cancelPPE = $this->configProviderPPE->getCancelPpe();
 
-        if ($cancelPPE && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])) {
+        if ($cancelPPE && $payment->getMethod() == PayPerEmail::CODE) {
             try {
                 $this->logger->addDebug(sprintf(
-                    '[CANCEL_ORDER] | [Observer] | [%s:%s] - Send Cancel Order Request after order cancel |' .
-                    ' originalKey: %s | order: %s',
+                    '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Order Request for PayPerEmail' .
+                    'to payment engine | originalKey: %s | order: %s',
                     __METHOD__, __LINE__,
                     var_export([$originalKey], true),
                     $order->getId()
                 ));
                 $this->sendCancelResponse($originalKey);
-                //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-                // empty block
+                $this->logger->addError(sprintf(
+                    '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Request for PPE | [ERROR]: %s',
+                    __METHOD__, __LINE__,
+                    $e->getMessage()
+                ));
             }
         }
     }

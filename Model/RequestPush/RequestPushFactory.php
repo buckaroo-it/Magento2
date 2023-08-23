@@ -67,23 +67,31 @@ class RequestPushFactory
     {
         try {
             if (strpos($this->request->getContentType(), 'application/json') !== false) {
-                $this->logger->addDebug(__METHOD__ . '|Create json object|' . var_export(
-                    $this->request->getRequestData(),
-                    true
+                $this->logger->addDebug(sprintf(
+                    '[PUSH] | [Factory] | [%s:%s] - Create Json Request Object | request: %s',
+                    __METHOD__, __LINE__,
+                    var_export($this->request->getRequestData(), true)
                 ));
+
                 return $this->objectManager->create(
                     JsonPushRequest::class,
                     ['requestData' => $this->request->getRequestData()]
                 );
             }
         } catch (\Exception $exception) {
-            $this->logger->addDebug(__METHOD__ . '|EXCEPTION|' . var_export($exception->getMessage(), true));
+            $this->logger->addError(sprintf(
+                '[PUSH] | [Factory] | [%s:%s] - Create Json Request Object | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $exception->getMessage()
+            ));
         }
 
-        $this->logger->addDebug(__METHOD__ . '|Create httppost object|' . var_export(
-            $this->request->getRequestData(),
-            true
+        $this->logger->addDebug(sprintf(
+            '[PUSH] | [Factory] | [%s:%s] - Create HTTP Post Request Object | request: %s',
+            __METHOD__, __LINE__,
+            var_export($this->request->getRequestData(), true)
         ));
+
         return $this->objectManager->create(
             HttppostPushRequest::class,
             ['requestData' => $this->request->getPostValue()]

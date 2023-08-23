@@ -78,13 +78,14 @@ class Success
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
 
-        $this->logger->addDebug(
+        $this->logger->addDebug(sprintf(
+            '[SUCCESS_PAGE] | [Plugin] | [%s:%s] - Redirect to cart | details: %s',
+            __METHOD__, __LINE__,
             var_export([
-                $order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING,
-                $this->checkPaymentType->isPaymentInTransit($payment),
-                $order->getStatus() === Order::STATE_CANCELED
+                'orderStatus' => $order->getStatus(),
+                'isPaymentInTransit' => $this->checkPaymentType->isPaymentInTransit($payment)
             ], true)
-        );
+        ));
 
         if ($this->checkPaymentType->isBuckarooPayment($payment) &&
             (

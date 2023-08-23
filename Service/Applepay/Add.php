@@ -98,7 +98,11 @@ class Add
                 'totals'           => $totals
             ];
         } catch (\Exception $exception) {
-            $this->logger->addDebug(__METHOD__ . '|exception|' . $exception->getMessage());
+            $this->logger->addError(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart on Apple Pay | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $exception->getMessage()
+            ));
             return false;
         }
     }

@@ -313,15 +313,7 @@ class OrderRequestService
      */
     public function loadOrder()
     {
-        $brqOrderId = $this->getOrderIncrementId();
-
-        //Check if the order can receive further status updates
+        $brqOrderId = $this->getOrderByRequest()->getIncrementId();
         $this->order->loadByIncrementId((string)$brqOrderId);
-
-        if (!$this->order->getId()) {
-            $this->logger->addDebug('Order could not be loaded by Invoice Number or Order Number');
-            // try to get order by transaction id on payment.
-            $this->order = $this->getOrderByTransactionKey();
-        }
     }
 }

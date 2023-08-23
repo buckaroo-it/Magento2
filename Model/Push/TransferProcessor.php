@@ -26,10 +26,8 @@ class TransferProcessor extends DefaultProcessor
         if ($this->canPushInvoice()) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             if ($this->pushRequest->hasPostData('transaction_method', 'transfer')) {
-                //keep amount fetched from brq_amount
                 $description .= 'Amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
             }
-            $this->logger->addDebug(__METHOD__ . '|4|');
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
@@ -45,6 +43,8 @@ class TransferProcessor extends DefaultProcessor
     }
 
     /**
+     * Create invoice only in case of full or last remained amount
+     *
      * @param array $paymentDetails
      * @return bool
      * @throws LocalizedException
@@ -52,24 +52,25 @@ class TransferProcessor extends DefaultProcessor
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {
         $amount = $paymentDetails['amount'];
-        //invoice only in case of full or last remained amount
-        $this->logger->addDebug(__METHOD__ . '|61|' . var_export([
-                $this->order->getId(),
-                $paymentDetails['amount'],
-                $this->order->getTotalDue(),
-                $this->order->getTotalPaid(),
-            ], true));
+
+        $this->logger->addDebug(sprintf(
+            '[PUSH - Transfer] | [Webapi] | [%s:%s] - Update totals by amount from request | order: %s',
+            __METHOD__, __LINE__,
+            var_export([
+                'orderId' => $this->order->getId(),
+                'totalDue' => $this->order->getTotalDue(),
+                'totalPaid' => $this->order->getTotalPaid(),
+                'amount' => $amount,
+            ], true)
+        ));
 
         $saveInvoice = true;
 
         if (($paymentDetails['amount'] < $this->order->getTotalDue())
             || (($paymentDetails['amount'] == $this->order->getTotalDue()) && ($this->order->getTotalPaid() > 0))
         ) {
-            $this->logger->addDebug(__METHOD__ . '|64|');
-
             $paymentDetails['forceState'] = true;
             if ($amount < $this->order->getTotalDue()) {
-                $this->logger->addDebug(__METHOD__ . '|65|');
                 $paymentDetails['state'] = Order::STATE_NEW;
                 $paymentDetails['newStatus'] = $this->orderStatusFactory->get(
                     BuckarooStatusCode::PENDING_PROCESSING,
@@ -77,8 +78,6 @@ class TransferProcessor extends DefaultProcessor
                 );
                 $saveInvoice = false;
             }
-
-            $this->orderRequestService->saveAndReloadOrder();
 
             $this->order->setTotalDue($this->order->getTotalDue() - $amount);
             $this->order->setBaseTotalDue($this->order->getTotalDue() - $amount);

@@ -77,8 +77,11 @@ class PhoneFormatter
      */
     public function format(string $phoneNumber, string $country): array
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-        $this->logger->addDebug(var_export([$phoneNumber, $country], true));
+        $this->logger->addDebug(sprintf(
+            '[PHONE_FORMATER] | [Service] | [%s:%s] - Format phone number by country | request: %s',
+            __METHOD__, __LINE__,
+            var_export(['phoneNumber' => $phoneNumber, 'country' => $country], true)
+        ));
 
         $return = ["orginal" => $phoneNumber, "clean" => false, "mobile" => false, "valid" => false];
 
@@ -94,8 +97,11 @@ class PhoneFormatter
             $return['valid'] = true;
         }
 
-        $this->logger->addDebug(__METHOD__ . '|2|');
-        $this->logger->addDebug(var_export($return, true));
+        $this->logger->addDebug(sprintf(
+            '[PHONE_FORMATER] | [Service] | [%s:%s] - Format phone number by country | response: %s',
+            __METHOD__, __LINE__,
+            var_export($return, true)
+        ));
 
         return $return;
     }

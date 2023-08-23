@@ -78,8 +78,6 @@ class SendInvoiceMail implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-
         /** @var Invoice $invoice */
         $invoice = $observer->getEvent()->getInvoice();
         $payment = $invoice->getOrder()->getPayment();
@@ -94,13 +92,14 @@ class SendInvoiceMail implements ObserverInterface
 
         if (!$invoice->getEmailSent() && $invoice->getIsPaid() && $canCapture && $sendInvoiceEmail) {
             $invoice->save();
-            $this->logger->addDebug(__METHOD__ . '|10|sendinvoiceemail');
+            $this->logger->addDebug(
+                '[SEND_EMAIL] | [Observer] | ['.__METHOD__.':'.__LINE__.'] - Send email on creating invoice'
+            );
             $orderBaseSubtotal = $order->getBaseSubtotal();
             $orderBaseTaxAmount = $order->getBaseTaxAmount();
             $orderBaseShippingAmount = $order->getBaseShippingAmount();
             $this->invoiceSender->send($invoice, true);
             if (($orderBaseShippingAmount > 0) && ($order->getBaseShippingAmount() == 0)) {
-                $this->logger->addDebug(__METHOD__ . '|15|');
                 $invoice->getOrder()->setBaseShippingAmount($orderBaseShippingAmount);
             }
             $order->setBaseSubtotal($orderBaseSubtotal);
@@ -111,7 +110,6 @@ class SendInvoiceMail implements ObserverInterface
             && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
             && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
         ) {
-            $this->logger->addDebug(__METHOD__ . '|25|');
             $order->setBaseTotalPaid($order->getTotalPaid());
         }
     }

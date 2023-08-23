@@ -96,7 +96,11 @@ class SendOrderConfirmation implements ObserverInterface
             && $order->getIncrementId()
             && !$createOrderBeforeTransaction
         ) {
-            $this->logger->addDebug(__METHOD__ . '|sendemail|');
+            $this->logger->addDebug(sprintf(
+                '[SEND_MAIL] | [Observer] | [%s:%s] - Send order confirmation on email | order: %s',
+                __METHOD__, __LINE__,
+                $order->getId()
+            ));
             $this->orderSender->send($order, true);
         }
     }
