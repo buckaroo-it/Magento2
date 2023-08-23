@@ -581,29 +581,12 @@
     cursor: pointer;
 }
 @media screen and (max-width: 768px) {
-    .bk-paybybank-selector .bank-method-label img {
-        max-width: 30px;
-        order: 0;
-    }
-    .bk-paybybank-selector strong {
-        order: 2;
-    }
-    .bk-paybybank-selector .bank-control {
-        display: flex;
-        margin:10px 0;
-    }
-    .bk-paybybank-selector .bank-method-label {
-        flex: 1;
-        display: flex;
-        align-items: center;
-    }
-    .fieldset > .field .addon .bk-paybybank-selector .bank-method-input {
-        order: 1;
-        margin:0 10px;
-        flex: 0;
-        min-width: 13px;
+    .buckaroo_magento2_paybybank .billing-address-form
+    {
+        max-width: 100%;
     }
 }
+
 @media screen and (min-width: 768px) {
     .bk-paybybank-toggle-list {
         display: flex;

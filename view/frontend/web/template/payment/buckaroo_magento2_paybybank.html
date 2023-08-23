@@ -35,7 +35,7 @@
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
                     <div class="field required">
-                        <!-- ko if: selectionType == '1' -->
+                        <!-- ko if: selectionType == '1' && !isMobile() -->
                         <legend class="label" data-bind="i18n: 'Select a bank:'"></legend>
                         <div class="addon">
                             <div class="bk-paybybank-selector">
@@ -62,7 +62,6 @@
                                 <!--/ko-->
                             </div>
                         </div>
-                            <!-- ko if: !isMobile() -->
                             <div class="bk-paybybank-toggle-list" data-bind="click: toggleShow">
                                 <div class="bk-toggle-wrap">
                                     <div class="bk-toggle-text" data-bind="i18n: showAll() ? 'Less banks' : 'More banks'">
@@ -70,10 +69,9 @@
                                     <div class="bk-toggle" data-bind="class: showAll() ? 'bk-toggle-up' : 'bk-toggle-down'"></div>
                                 </div>
                             </div>
-                            <!--/ko-->
                         <!--/ko-->
 
-                        <!-- ko if: selectionType == '2' -->
+                        <!-- ko if: selectionType == '2' || isMobile() -->
                         <label for="buckaroo_magento2_ideal_issuer" data-bind="i18n: 'Select a bank:'"></label>
                         <div class="control">
                             <select id="buckaroo_magento2_ideal_issuer" class="field"
