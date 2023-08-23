@@ -70,19 +70,19 @@ class In3V3Builder
         $streetData = $this->addressFormatter->formatStreet($shippingAddress->getStreet());
 
         $data = [
-            $this->row($streetData['street'], 'Street', 'BillingCustomer', $i),
-            $this->row($streetData['house_number'], 'StreetNumber', 'BillingCustomer', $i),
-            $this->row($shippingAddress->getPostcode(), 'PostalCode', 'BillingCustomer', $i),
-            $this->row($shippingAddress->getCity(), 'City', 'BillingCustomer', $i),
-            $this->row($shippingAddress->getCountryId(), 'CountryCode', 'BillingCustomer', $i),
+            $this->row($streetData['street'], 'Street', 'ShippingCustomer', $i),
+            $this->row($streetData['house_number'], 'StreetNumber', 'ShippingCustomer', $i),
+            $this->row($shippingAddress->getPostcode(), 'PostalCode', 'ShippingCustomer', $i),
+            $this->row($shippingAddress->getCity(), 'City', 'ShippingCustomer', $i),
+            $this->row($shippingAddress->getCountryId(), 'CountryCode', 'ShippingCustomer', $i),
         ];
 
         if (strlen($streetData['number_addition']) > 0) {
-            $data[] = $this->row($streetData['number_addition'], 'StreetNumberSuffix', 'BillingCustomer', $i);
+            $data[] = $this->row($streetData['number_addition'], 'StreetNumberSuffix', 'ShippingCustomer', $i);
         }
 
         if(strlen((string)$shippingAddress->getRegion())) {
-            $data[] = $this->row($shippingAddress->getRegion(), 'Region', 'BillingCustomer', $i);
+            $data[] = $this->row($shippingAddress->getRegion(), 'Region', 'ShippingCustomer', $i);
         }
 
         return $data;
