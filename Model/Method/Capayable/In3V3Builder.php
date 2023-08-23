@@ -43,7 +43,7 @@ class In3V3Builder
             'Name'   => 'In3',
             'Action' => 'Pay',
             'RequestParameter' => array_merge(
-                $this->getProducts($payment->getOrder()->getAllItems()),
+                $this->getArticles($payment),
                 $this->getBillingCustomer(
                     $payment->getOrder()->getBillingAddress(),
                     $this->getBirthDate($payment),
@@ -101,7 +101,7 @@ class In3V3Builder
         string $phone
     ): array
     {
-        $i = 1;
+        $i = 2;
 
         $streetData = $this->addressFormatter->formatStreet($billingAddress->getStreet());
 
@@ -143,7 +143,7 @@ class In3V3Builder
      *
      * @param array $orderItems
      *
-     * @return void
+     * @return array
      */
     protected function getProducts(array $orderItems)
     {
@@ -156,13 +156,13 @@ class In3V3Builder
             if (empty($item) || $item->getParentItem() !== null) {
                 continue;
             }
-
-            $productData = [
-                $this->row($item->getSku(), 'Identifier', 'Article', $i),
-                $this->row($item->getName(), 'Description', 'Article', $i),
-                $this->row($item->getQtyOrdered(), 'Quantity', 'Article', $i),
-                $this->row($item->getBasePriceInclTax(), 'GrossUnitPrice', 'Article', $i),
-                $this->row($item->getTaxPercent(), 'VatPercentage', 'Article', $i)
+           
+            $productData[] = [
+                'id' => $item->getSku(),
+                'description'=> $item->getName(),
+                'qty' => $item->getQtyOrdered(),
+                'price' => $item->getBasePriceInclTax(),
+                'vat' =>  $item->getTaxPercent(),
             ];
 
             $i++;
@@ -173,6 +173,147 @@ class In3V3Builder
         }
 
         return $productData;
+    }
+
+    protected function getArticles($payment) {
+        $order = $payment->getOrder();
+        $products = $this->getProducts($order->getAllItems());
+
+        $costs =  array_merge(
+            $this->getDiscountLine($order),
+            $this->getFeeLine($order),
+            $this->getShippingCostsLine($order)
+        );
+
+        $articles = array_merge(
+            $products,
+            count($costs) ? $costs: []
+        );
+
+        $roundingErrors = $this->getRoundingErrors($payment, $articles);
+        if(is_array($roundingErrors)) {
+            $articles = array_merge(
+                $articles,
+                [$roundingErrors]
+            );
+        }
+        
+        return $this->formatArticle($articles);
+    }
+
+    private function formatArticle($articles)
+    {
+        $formated = [];
+
+        foreach ($articles as $i => $article) {
+             $formated = array_merge($formated, [
+                $this->row($article['id'], 'Identifier', 'Article', $i+3),
+                $this->row($article['description'], 'Description', 'Article', $i+3),
+                $this->row($article['qty'], 'Quantity', 'Article', $i+3),
+                $this->row($article['price'], 'GrossUnitPrice', 'Article', $i+3),
+                $this->row($article['vat'], 'VatPercentage', 'Article', $i+3)
+             ]);
+        }
+        return $formated;
+    }
+
+     /**
+     * @param $payment
+     * @param array $articles
+     *
+     * @return array|null
+     */
+    protected function getRoundingErrors($payment, array $articles)
+    {
+        $total = array_sum(
+            array_map(function ($article) {
+                return round((float)$article['price'],2) * (int)$article['qty'] ;
+            }, $articles)
+        );
+        $orderAmount = $payment->getData('amount_ordered');
+
+        $amount = round($orderAmount, 2) - round($total,2);
+
+        if(abs($amount) < 0.01) {
+            return null;
+        }
+
+        return [[
+            'id' => 'rounding_errors',
+            'description'=> 'Rounding Errors',
+            'qty' => 1,
+            'price' => $amount,
+            'vat' => 0,
+        ]];
+    }
+
+    /**
+     * @param OrderInterface $order
+     *
+     * @return array
+     */
+    protected function getDiscountLine($order)
+    {
+        $discount = abs((double)$order->getDiscountAmount());
+
+        if ($discount <= 0) {
+            return [];
+        }
+
+        $discount = (-1 * round($discount, 2));
+
+        return [[
+            'id' => 'discount',
+            'description'=> 'Discount Errors',
+            'qty' => 1,
+            'price' => $discount,
+            'vat' => 0,
+        ]];
+    }
+
+    /**
+     * @param OrderInterface $order
+     *
+     * @return array
+     */
+    protected function getFeeLine($order)
+    {
+        $fee = (double)$order->getBuckarooFee();
+
+        if ($fee <= 0) {
+            return [];
+        }
+
+        $feeTax = (double)$order->getBuckarooFeeTaxAmount();
+        $feeInclTax = round($fee + $feeTax, 2);
+        return [[
+            'id' => 'fee',
+            'description'=> 'Payment Fee',
+            'qty' => 1,
+            'price' => $feeInclTax,
+            'vat' => 0,
+        ]];
+    }
+
+    /**
+     * @param OrderInterface $order
+     *
+     * @return array
+     */
+    protected function getShippingCostsLine($order)
+    {
+        $shippingAmount = $order->getShippingInclTax();
+        if ($shippingAmount <= 0) {
+            return [];
+        }
+
+        return [[
+            'id' => 'shipping',
+            'description'=> 'Shipping',
+            'qty' => 1,
+            'price' => $shippingAmount,
+            'vat' => 0,
+        ]];
     }
 
     /**
