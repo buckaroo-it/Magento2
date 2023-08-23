@@ -107,7 +107,10 @@ class OrderRequestService
             $this->order->loadByIncrementId((string)$brqOrderId);
 
             if (!$this->order->getId()) {
-                $this->logger->addDebug('Order could not be loaded by Invoice Number or Order Number');
+                $this->logger->addDebug(sprintf(
+                    '[ORDER] | [Service] | [%s:%s] - Order could not be loaded by Invoice Number or Order Number',
+                    __METHOD__, __LINE__
+                ));
                 // Try to get order by transaction id on payment.
                 $this->order = $this->getOrderByTransactionKey($pushRequest);
             }
@@ -196,7 +199,11 @@ class OrderRequestService
             $this->order->addStatusToHistory($note);
             $this->order->save();
         } catch (\Exception $e) {
-            $this->logger->addDebug($e->getLogMessage());
+            $this->logger->addError(sprintf(
+                '[ORDER] | [Service] | [%s:%s] - Set Order Notification Note Failed | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getLogMessage()
+            ));
         }
     }
 
@@ -218,10 +225,16 @@ class OrderRequestService
         bool $force = false,
         bool $dontSaveOrderUponSuccessPush = false
     ): void {
-        $this->logger->addDebug(__METHOD__ . '|0|' . var_export([$orderState, $newStatus, $description], true));
+        $this->logger->addDebug(sprintf(
+            '[ORDER] | [Service] | [%s:%s] - Updates the order state and add a comment | data: %s',
+            __METHOD__, __LINE__,
+            var_export([
+                'orderState' => $orderState,
+                'newStatus'  => $newStatus,
+                'description' => $description
+            ], true)
+        ));
         if ($this->order->getState() == $orderState || $force) {
-            $this->logger->addDebug(__METHOD__ . '|1|');
-            $this->logger->addDebug('||| $orderState: ' . '|1|' . $orderState);
             if ($dontSaveOrderUponSuccessPush) {
                 $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
@@ -232,8 +245,6 @@ class OrderRequestService
                 $this->order->addCommentToStatusHistory($description, $newStatus);
             }
         } else {
-            $this->logger->addDebug(__METHOD__ . '|2|');
-            $this->logger->addDebug('||| $orderState: ' . '|2|' . $orderState);
             if ($dontSaveOrderUponSuccessPush) {
                 $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)

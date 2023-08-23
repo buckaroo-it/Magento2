@@ -71,7 +71,6 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
      */
     public function updateShippingAddressByDhlParcel(string $servicePointId, OrderAddressInterface $shippingAddress)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $this->curl->get(

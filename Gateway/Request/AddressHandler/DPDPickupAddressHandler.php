@@ -84,8 +84,11 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
         $country = $quote->getDpdCountry();
 
         if (!$fullStreet && $quote->getDpdParcelshopId()) {
-            $this->logger->addDebug(__METHOD__ . '|2|');
-            $this->logger->addDebug(var_export($_COOKIE, true));
+            $this->logger->addDebug(sprintf(
+                '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by DPD Parcel | cookie: %s',
+                __METHOD__, __LINE__,
+                var_export($_COOKIE, true)
+            ));
             $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
             $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
             $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
@@ -94,8 +97,6 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
 
         $matches = false;
         if ($fullStreet && preg_match('/(.*)\s(.+)$/', $fullStreet, $matches)) {
-            $this->logger->addDebug(__METHOD__ . '|3|');
-
             $street = $matches[1];
             $streetHouseNumber = $matches[2];
 
@@ -107,7 +108,11 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
                 ['StreetNumber', $streetHouseNumber],
             ];
 
-            $this->logger->addDebug(var_export($mapping, true));
+            $this->logger->addDebug(sprintf(
+                '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by DPD Parcel | newAddress: %s',
+                __METHOD__, __LINE__,
+                var_export($mapping, true)
+            ));
 
             $this->updateShippingAddressCommonMapping($mapping, $requestData);
 

@@ -54,7 +54,6 @@ class MyParcelAddressHandler extends AbstractAddressHandler
      */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
         $myparcelFetched = false;
         $myparcelOptions = $order->getData('myparcel_delivery_options');
         $requestData = $shippingAddress->getData();
@@ -70,25 +69,24 @@ class MyParcelAddressHandler extends AbstractAddressHandler
                     $myparcelFetched = true;
                 }
             } catch (\JsonException $je) {
-                $this->logger->addDebug(
-                    __METHOD__ . '|2|' . ' Error related to json_decode (MyParcel plugin compatibility)'
-                );
+                $this->logger->addError(sprintf(
+                    '[CREATE_ORDER] | [Gateway] | [%s:%s] - Error related to json_decode' . '
+                    (MyParcel plugin compatibility) | [ERROR]: %s',
+                    __METHOD__, __LINE__,
+                    $je->getMessage()
+                ));
             }
         }
 
         if (!$myparcelFetched) {
-            $this->logger->addDebug(__METHOD__ . '|10|');
             if ((strpos((string)$order->getShippingMethod(), 'myparcelnl') !== false)
-                &&
-                (strpos((string)$order->getShippingMethod(), 'pickup') !== false)
+                && (strpos((string)$order->getShippingMethod(), 'pickup') !== false)
             ) {
-                $this->logger->addDebug(__METHOD__ . '|15|');
                 if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
                     && $myParcelNLData = $this->helper->getJson()->unserialize(
                         $this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
                     )
                 ) {
-                    $this->logger->addDebug(__METHOD__ . '|20|');
                     $this->updateShippingAddressByMyParcel($myParcelNLData, $requestData);
                 }
             }
@@ -116,7 +114,11 @@ class MyParcelAddressHandler extends AbstractAddressHandler
             ['ShippingHouseNumberSuffix', $myParcelLocation['number_suffix']],
         ];
 
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($mapping, true));
+        $this->logger->addDebug(sprintf(
+            '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by myParcelNL | newAddress: %s',
+            __METHOD__, __LINE__,
+            var_export($mapping, true)
+        ));
 
         $this->updateShippingAddressCommonMappingV2($mapping, $requestData);
     }
@@ -139,7 +141,11 @@ class MyParcelAddressHandler extends AbstractAddressHandler
             ['StreetNumberAdditional', $myParcelLocation['number_suffix']],
         ];
 
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($mapping, true));
+        $this->logger->addDebug(sprintf(
+            '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by myParcelNL V2 | newAddress: %s',
+            __METHOD__, __LINE__,
+            var_export($mapping, true)
+        ));
 
         $this->updateShippingAddressCommonMapping($mapping, $requestData);
     }

@@ -125,7 +125,12 @@ class BuckarooAdapter
 
             return $payment->{$action}($data);
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . $th);
+            $this->logger->addError(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - Execute request using Buckaroo SDK | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
+
             throw $th;
         }
     }
@@ -141,7 +146,11 @@ class BuckarooAdapter
         try {
             return $this->buckaroo->method('ideal')->issuers();
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . $th);
+            $this->logger->addError(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - Get ideal issuers | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             return [];
         }
     }

@@ -203,7 +203,11 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
 
             $this->savePartGroupTransaction();
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . '|' . (string)$th);
+            $this->logger->addError(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - Handle push group transaction fail | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
         }
     }
 
