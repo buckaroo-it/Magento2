@@ -113,7 +113,13 @@ class OrderCancelAfter implements ObserverInterface
 
         if ($cancelPPE && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])) {
             try {
-                $this->logger->addDebug(__METHOD__ . '|sendCancelResponse|');
+                $this->logger->addDebug(sprintf(
+                    '[CANCEL_ORDER] | [Observer] | [%s:%s] - Send Cancel Order Request after order cancel |' .
+                    ' originalKey: %s | order: %s',
+                    __METHOD__, __LINE__,
+                    var_export([$originalKey], true),
+                    $order->getId()
+                ));
                 $this->sendCancelResponse($originalKey);
                 //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {

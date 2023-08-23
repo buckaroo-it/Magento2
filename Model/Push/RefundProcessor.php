@@ -90,8 +90,7 @@ class RefundProcessor extends DefaultProcessor
 
         if ($this->pushTransactionType->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS') {
             if ($this->order->hasInvoices()) {
-                //don't proceed failed refund push
-                $this->logger->addDebug(__METHOD__ . '|10|');
+                //don't proceed failed refund push if order has invoices
                 $this->orderRequestService->setOrderNotificationNote(
                     __('Push notification for refund has no success status, ignoring.')
                 );
@@ -119,7 +118,6 @@ class RefundProcessor extends DefaultProcessor
         if (!$pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
             || !$pushRequest->hasAdditionalInformation('service_action_from_magento', ['refund'])
         ) {
-            $this->logger->addDebug(__METHOD__ . '|5|');
             return false;
         }
 
@@ -129,7 +127,6 @@ class RefundProcessor extends DefaultProcessor
                 BuckarooStatusCode::PENDING_APPROVAL,
                 $pushRequest->getRelatedtransactionRefund()
             )) {
-            $this->logger->addDebug(__METHOD__ . '|4|');
             return false;
         }
 

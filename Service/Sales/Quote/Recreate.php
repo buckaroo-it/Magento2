@@ -58,7 +58,6 @@ class Recreate
      */
     public function recreate(Quote $quote)
     {
-        // @codingStandardsIgnoreStart
         try {
             $quote->setIsActive(true);
             $quote->setTriggerRecollect(1);
@@ -74,10 +73,13 @@ class Recreate
             $this->cart->save();
             return $quote;
         } catch (NoSuchEntityException $e) {
-            //No such entity
-            $this->logger->addError($e->getMessage());
+            $this->logger->addError(sprintf(
+                '[RECREATE_QUOTE] | [Service] | [%s:%s] - Reintialize the quote | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
+            ));
         }
-        // @codingStandardsIgnoreEnd
+
         return false;
     }
 }

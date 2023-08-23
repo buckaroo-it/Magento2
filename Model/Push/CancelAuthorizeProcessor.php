@@ -17,10 +17,18 @@ class CancelAuthorizeProcessor extends DefaultProcessor
         try {
             $this->setTransactionKey();
         } catch (\Exception $e) {
-            $this->logger->addDebug($e->getLogMessage());
+            $this->logger->addError(sprintf(
+                '[PUSH_CANCEL_AUTHORIZE] | [Webapi] | [%s:%s] - cancelled order authorization | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getLogMessage()
+            ));
         }
 
-        $this->logger->addDebug('Order autorize has been canceld, trying to update payment transactions');
+        $this->logger->addDebug(sprintf(
+            '[PUSH_CANCEL_AUTHORIZE] | [Webapi] | [%s:%s] - Order autorize has been canceld,' .
+            ' trying to update payment transactions',
+            __METHOD__, __LINE__,
+        ));
 
         return true;
     }

@@ -71,6 +71,7 @@ class HandleFailedQuoteOrder implements ObserverInterface
     }
 
     /**
+     * Observes the event for a failed quote-to-order submission
      * Handle cancel order by sales_model_service_quote_submit_failure event
      *
      * @param Observer $observer
@@ -79,14 +80,8 @@ class HandleFailedQuoteOrder implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
 
         if ($order->canCancel()) {
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
@@ -96,28 +91,36 @@ class HandleFailedQuoteOrder implements ObserverInterface
             if (in_array(
                 $payment->getMethodInstance()->getCode(),
                 ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2', 'buckaroo_magento2_klarnakp']
-            )
-            ) {
+            )) {
                 try {
                     $order->addCommentToStatusHistory('Buckaroo: failed to authorize an order');
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                     $payment->save();
-                    //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
                 } catch (\Exception $e) {
-                    // empty block
+                    $this->logger->addError(sprintf(
+                        '[CANCEL_ORDER] | [Observer] | [%s:%s] - Error when adding order comment | [ERROR]: %s',
+                        __METHOD__, __LINE__,
+                        $e->getMessage()
+                    ));
                 }
             }
 
             try {
-                $this->logger->addDebug(__METHOD__ . '|1|');
+                $this->logger->addDebug(sprintf(
+                    '[CANCEL_ORDER] | [Observer] | [%s:%s] - Cancel order for failed quote-to-order | order: %s',
+                    __METHOD__, __LINE__,
+                    $order->getId()
+                ));
                 if ($this->moduleManager->isEnabled('Magento_Inventory')) {
-                    $this->logger->addDebug(__METHOD__ . '|5|');
                     $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 }
                 $this->orderManagement->cancel($order->getId());
-                //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-                // empty block
+                $this->logger->addError(sprintf(
+                    '[CANCEL_ORDER] | [Observer] | [%s:%s] - Error when canceling order | [ERROR]: %s',
+                    __METHOD__, __LINE__,
+                    $e->getMessage()
+                ));
             }
             $this->buckarooSession->setData('flagHandleFailedQuote', 0);
         }

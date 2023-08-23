@@ -90,7 +90,12 @@ class PaymentGroupTransaction extends AbstractHelper
      */
     public function saveGroupTransaction($response)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($response, true));
+        $this->logger->addDebug(sprintf(
+            '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Save group transaction in database | response: %s',
+            __METHOD__, __LINE__,
+            var_export($response, true)
+        ));
+
         $groupTransaction = $this->groupTransactionFactory->create();
         $data['order_id'] = $response['Invoice'];
         $data['transaction_id'] = $response['Key'];

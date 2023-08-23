@@ -83,7 +83,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             $this->quoteService->addFirstShippingMethod();
             $this->quoteService->setPaymentMethod(Paypal::CODE);
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . $th->getMessage());
+            $this->logger->addError(sprintf(
+                '[CREATE_QUOTE - PayPal Express] | [Model] | [%s:%s] - Create Quote | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             throw new PaypalExpressException(__("Failed to add address quote"), 1, $th);
         }
 

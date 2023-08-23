@@ -77,7 +77,6 @@ class PaypalProcessor extends DefaultProcessor
     protected function getNewStatus()
     {
         $newStatus = $this->orderStatusFactory->get($this->pushRequest->getStatusCode(), $this->order);
-        $this->logger->addDebug(__METHOD__ . '|5|' . var_export($newStatus, true));
 
         if ($this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
             && $this->order->getPayment()->getMethod() == PaypalConfig::CODE) {
@@ -86,6 +85,12 @@ class PaypalProcessor extends DefaultProcessor
                 $newStatus = $newSellersProtectionStatus;
             }
         }
+
+        $this->logger->addDebug(sprintf(
+            '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Get New Status | newStatus: %s',
+            __METHOD__, __LINE__,
+            var_export($newStatus, true)
+        ));
 
         return $newStatus;
     }

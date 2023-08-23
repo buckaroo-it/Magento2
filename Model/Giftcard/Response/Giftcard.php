@@ -233,7 +233,10 @@ class Giftcard
                 $this->giftcardRemoveService->remove($transaction->getTransactionId(), $order->getIncrementId());
             }
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . (string)$th);
+            $this->logger->addDebug(sprintf(
+                '[GIFTCARD] | [Model] | [%s:%s] - Rollback all Partial Payment | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()));
         }
 
     }

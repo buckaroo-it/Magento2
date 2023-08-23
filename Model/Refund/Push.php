@@ -133,35 +133,32 @@ class Push
         $this->postData = $postData;
         $this->order = $order;
 
-        $this->logger->addDebug(
-            __METHOD__ . '|1|Trying to refund order ' . $this->order->getId() . ' out of paymentplaza. '
-        );
+        $this->logger->addDebug(sprintf(
+            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Trying to refund order out of paymentplaza | orderId: %s',
+            __METHOD__, __LINE__,
+            $this->order->getId()
+        ));
 
         if (!$this->configRefund->getAllowPush()) {
-            $this->logger->addDebug(
-                __METHOD__ . '|5|But failed, the configuration is set not to accept refunds out of Payment Plaza'
-            );
-            //phpcs:ignore:Magento2.Exceptions.DirectThrow
-            throw new BuckarooException(
-                __('Buckaroo refund is disabled')
-            );
+            $this->logger->addDebug(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - ' .
+                'the configuration is set not to accept refunds out of Payment Plaza | orderId: %s',
+                __METHOD__, __LINE__,
+                $this->order->getId()
+            ));
+            throw new BuckarooException(__('Buckaroo refund is disabled'));
         }
 
         if (!$signatureValidation && !$this->order->canCreditmemo()) {
-            $debugMessage = 'Validation incorrect: ' . PHP_EOL;
-            //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-            $debugMessage .= print_r(
-                [
+            $this->logger->addDebug(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - validation incorrect | signature: %s',
+                __METHOD__, __LINE__,
+                var_export([
                     'signature'      => $signatureValidation,
                     'canOrderCredit' => $this->order->canCreditmemo()
-                ],
-                true
-            );
-            $this->logger->addDebug($debugMessage);
-            //phpcs:ignore:Magento2.Exceptions.DirectThrow
-            throw new Exception(
-                __('Buckaroo refund push validation failed')
-            );
+                ], true)
+            ));
+            throw new BuckarooException(__('Buckaroo refund push validation failed'));
         }
 
         $creditmemoCollection = $this->order->getCreditmemosCollection();
@@ -170,13 +167,20 @@ class Push
             $this->postData->getTransactions()
         );
         if (count($creditmemosByTransactionId) > 0) {
-            $this->logger->addDebug(__METHOD__ . '|15|The transaction has already been refunded.');
-
+            $this->logger->addDebug(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - The transaction has already been refunded',
+                __METHOD__, __LINE__
+            ));
             return false;
         }
 
         $creditmemo = $this->createCreditmemo();
-        $this->logger->addDebug(__METHOD__ . '|20|Order successful refunded = ' . $creditmemo);
+
+        $this->logger->addDebug(sprintf(
+            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Order successful refunded | creditmemo: %s',
+            __METHOD__, __LINE__,
+            $creditmemo ? 'success' : 'false'
+        ));
 
         return $creditmemo;
     }
@@ -189,7 +193,6 @@ class Push
      */
     public function createCreditmemo(): bool
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
         $creditData = $this->getCreditmemoData();
         $creditmemo = $this->initCreditmemo($creditData);
 
@@ -201,43 +204,46 @@ class Push
                     && !empty($this->postData->getTransactionType())
                     && ($this->postData->getTransactionType() == 'C041')
                 ) {
-                    $this->logger->addDebug(__METHOD__ . '|5|');
                     $creditmemo->setBaseGrandTotal($this->totalAmountToRefund());
                     $creditmemo->setGrandTotal($this->totalAmountToRefund());
                 }
                 if (!$creditmemo->isValidGrandTotal()) {
-                    $this->logger->addDebug(__METHOD__ . '|10|The credit memo\'s total must be positive.');
+                    $this->logger->addDebug(sprintf(
+                        '[PUSH_REFUND] | [Webapi] | [%s:%s] - The credit memo\'s total must be positive',
+                        __METHOD__, __LINE__
+                    ));
                     throw new LocalizedException(
                         __('The credit memo\'s total must be positive.')
                     );
                 }
                 $creditmemo->setTransactionId($this->postData->getTransactions());
 
-                $this->logger->addDebug(__METHOD__ . '|20');
                 $this->creditmemoManagement->refund(
                     $creditmemo,
                     (bool)$creditData['do_offline'],
                     !empty($creditData['order_email'])
                 );
-                $this->logger->addDebug(__METHOD__ . '|25');
                 $this->creditEmailSender->send($creditmemo);
                 return true;
             } else {
-                $debugMessage = 'Failed to create the creditmemo, method saveCreditmemo return value: ' . PHP_EOL;
-                //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-                $debugMessage .= print_r($creditmemo, true);
-                $this->logger->addDebug(__METHOD__ . '|30|' . $debugMessage);
-                //phpcs:ignore:Magento2.Exceptions.DirectThrow
+                $this->logger->addError(sprintf(
+                    '[PUSH_REFUND] | [Webapi] | [%s:%s] - Failed to create the creditmemo' .
+                    'method saveCreditmemo return value: %s',
+                    __METHOD__, __LINE__,
+                    print_r($creditmemo, true)
+                ));
+
                 throw new BuckarooException(
                     __('Failed to create the creditmemo')
                 );
             }
         } catch (LocalizedException $e) {
-            $this->logger->addDebug(
-                __METHOD__ . '|35|Buckaroo failed to create the credit memo\'s { ' . $e->getLogMessage() . ' }'
-            );
+            $this->logger->addError(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Buckaroo failed to create the credit memo\'s | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getLogMessage()
+            ));
         }
-        $this->logger->addDebug(__METHOD__ . '|40');
         return false;
     }
 
@@ -257,23 +263,24 @@ class Push
         $totalAmountToRefund = $this->totalAmountToRefund();
         $this->creditAmount = $totalAmountToRefund + $this->order->getBaseTotalRefunded();
 
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export([
-                $this->creditAmount,
-                $this->order->getBaseGrandTotal(),
-            ], true));
-
         if (!$this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
             $adjustment = $this->getAdjustmentRefundData();
-            $this->logger->addDebug('This is an adjustment refund of ' . $totalAmountToRefund);
+            $this->logger->addDebug(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - This is an adjustment refund of %s',
+                __METHOD__, __LINE__,
+                $totalAmountToRefund
+            ));
             $data['shipping_amount'] = '0';
             $data['adjustment_negative'] = '0';
             $data['adjustment_positive'] = $adjustment;
             $data['items'] = $this->getCreditmemoDataItems();
             $data['qtys'] = $this->setCreditQtys($data['items']);
         } else {
-            $this->logger->addDebug(
-                'With this refund of ' . $this->creditAmount . ' the grand total will be refunded.'
-            );
+            $this->logger->addDebug(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - With this refund of %s the grand total will be refunded',
+                __METHOD__, __LINE__,
+                $this->creditAmount
+            ));
             $data['shipping_amount'] = $this->caluclateShippingCostToRefund();
             $data['adjustment_negative'] = $this->getTotalCreditAdjustments();
             $data['adjustment_positive'] = $this->calculateRemainder();
@@ -281,10 +288,11 @@ class Push
             $data['qtys'] = $this->setCreditQtys($data['items']);
         }
 
-        $debugMessage = 'Data used for credit nota: ' . PHP_EOL;
-        //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-        $debugMessage .= print_r($data, true);
-        $this->logger->addDebug($debugMessage);
+        $this->logger->addDebug(sprintf(
+            '[PUSH_REFUND] | [Webapi] | [%s:%s] - The credit memo data | data: %s',
+            __METHOD__, __LINE__,
+            print_r($data, true)
+        ));
 
         return $data;
     }
@@ -340,9 +348,6 @@ class Push
         $qty = 0;
 
         foreach ($this->order->getAllItems() as $orderItem) {
-            /**
-             * @var \Magento\Sales\Model\Order\Item $orderItem
-             */
             if (!array_key_exists($orderItem->getId(), $items)) {
                 if ($this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
                     $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
@@ -352,10 +357,11 @@ class Push
             }
         }
 
-        $debugMessage = 'Total items to be refunded: ' . PHP_EOL;
-        //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-        $debugMessage .= print_r($items, true);
-        $this->logger->addDebug($debugMessage);
+        $this->logger->addDebug(sprintf(
+            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Total items to be refunded: %s',
+            __METHOD__, __LINE__,
+            print_r($items, true)
+        ));
 
         return $items;
     }
@@ -392,11 +398,9 @@ class Push
         );
 
         if ($includesTax) {
-            $this->logger->addDebug(__METHOD__ . '|1|');
             return ($this->order->getBaseShippingAmount() + $this->order->getBaseShippingTaxAmount())
                 - ($this->order->getBaseShippingRefunded() + $this->order->getBaseShippingTaxRefunded());
         } else {
-            $this->logger->addDebug(__METHOD__ . '|2|');
             return $this->order->getBaseShippingAmount()
                 - $this->order->getBaseShippingRefunded();
         }
@@ -439,19 +443,21 @@ class Push
             - $baseTotalToBeRefunded
             - $this->order->getBaseTotalRefunded();
 
-        $this->logger->addDebug(__METHOD__ . '|5|' . var_export([
-                $this->totalAmountToRefund(),
-                $this->order->getBaseGrandTotal(),
-                $remainderToRefund
-            ], true));
+        $this->logger->addDebug(sprintf(
+            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Calculate the remainder | totals: %s',
+            __METHOD__, __LINE__,
+            var_export([
+                'totalAmountToRefund' => $this->totalAmountToRefund(),
+                'orderBaseGrandTotal' => $this->order->getBaseGrandTotal(),
+                'remainderToRefund' => $remainderToRefund
+            ], true)
+        ));
 
         if ($this->totalAmountToRefund() == $this->order->getBaseGrandTotal()) {
-            $this->logger->addDebug(__METHOD__ . '|10|');
             $remainderToRefund = 0;
         }
 
         if ($remainderToRefund < 0.01) {
-            $this->logger->addDebug(__METHOD__ . '|15|');
             $remainderToRefund = 0;
         }
 
@@ -479,8 +485,11 @@ class Push
 
             return $creditmemo;
         } catch (LocalizedException $e) {
-            $this->logger
-                ->addDebug('Buckaroo can not initialize the credit memo\'s by order { ' . $e->getLogMessage() . ' }');
+            $this->logger->addError(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Buckaroo can not initialize the credit memo\'s by order: %s',
+                __METHOD__, __LINE__,
+                $e->getLogMessage()
+            ));
         }
         return false;
     }

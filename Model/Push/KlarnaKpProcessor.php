@@ -129,7 +129,6 @@ class KlarnaKpProcessor extends DefaultProcessor
                 empty($this->pushRequest->getServiceKlarnakpReservationnumber()) &&
                 $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
             )) {
-            $this->logger->addDebug(__METHOD__ . '|5_1|');
             $this->dontSaveOrderUponSuccessPush = true;
             return false;
         }
