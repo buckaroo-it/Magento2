@@ -105,7 +105,7 @@ class CapayableIn3 extends AbstractConfigProvider
 
     public function isV3($storeId = null): bool
     {
-        return $this->scopeConfig->isSetFlag(
+        return $this->scopeConfig->getValue(
             self::XPATH_CAPAYABLEIN3_API_VERSION,
             ScopeInterface::SCOPE_STORE,
             $storeId
