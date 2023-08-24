@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Plugin;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 
 // @codingStandardsIgnoreStart
 
@@ -39,9 +39,9 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         protected $cartRepository;
 
         /**
-         * @var Log
+         * @var BuckarooLoggerInterface
          */
-        protected $logger;
+        protected BuckarooLoggerInterface $logger;
 
         /**
          * @param \Onestepcheckout\Iosc\Model\DataManager $dataManager
@@ -51,7 +51,7 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
          * @param \Magento\Checkout\Model\Session $checkoutSession
          * @param \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory
          * @param \Magento\Quote\Api\CartRepositoryInterface $cartRepository
-         * @param Log $logger
+         * @param BuckarooLoggerInterface $logger
          */
         public function __construct(
             \Onestepcheckout\Iosc\Model\DataManager $dataManager, /** @phpstan-ignore-line */
@@ -61,7 +61,7 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             \Magento\Checkout\Model\Session $checkoutSession,
             \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
             \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
-            Log $logger
+            BuckarooLoggerInterface $logger
         ) {
             $this->quoteIdMaskFactory = $quoteIdMaskFactory;
             $this->cartRepository     = $cartRepository;

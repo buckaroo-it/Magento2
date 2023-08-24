@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Applepay;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
@@ -29,9 +29,9 @@ use Buckaroo\Magento2\Model\Service\QuoteService;
 class Add
 {
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private Log $logger;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @var QuoteService
@@ -44,12 +44,12 @@ class Add
     private ApplePayFormatData $applePayFormatData;
 
     /**
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param QuoteService $quoteService
      * @param ApplePayFormatData $applePayFormatData
      */
     public function __construct(
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         QuoteService $quoteService,
         ApplePayFormatData $applePayFormatData
     ) {
@@ -98,7 +98,11 @@ class Add
                 'totals'           => $totals
             ];
         } catch (\Exception $exception) {
-            $this->logger->addDebug(__METHOD__ . '|exception|' . $exception->getMessage());
+            $this->logger->addError(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart on Apple Pay | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $exception->getMessage()
+            ));
             return false;
         }
     }

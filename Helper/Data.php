@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Helper;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\Business;
 use Buckaroo\Magento2\Service\CheckPaymentType;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -120,9 +120,9 @@ class Data extends AbstractHelper
     protected $groupTransaction;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var CustomerRepositoryInterface
@@ -166,7 +166,7 @@ class Data extends AbstractHelper
      * @param Header $httpHeader
      * @param CheckoutSession $checkoutSession
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param CustomerRepositoryInterface $customerRepository
      * @param StoreManagerInterface $storeManager
      * @param ScopeDefiner $scopeDefiner
@@ -183,7 +183,7 @@ class Data extends AbstractHelper
         Header $httpHeader,
         CheckoutSession $checkoutSession,
         PaymentGroupTransaction $groupTransaction,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         CustomerRepositoryInterface $customerRepository,
         StoreManagerInterface $storeManager,
         ScopeDefiner $scopeDefiner,
@@ -400,7 +400,9 @@ class Data extends AbstractHelper
         try {
             return $this->storeManager->getStore();
         } catch (\Exception $e) {
-            $this->logger->addDebug(__METHOD__ . $e);
+            $this->logger->addError(
+                '[Helper] | [Helper] | [' . __METHOD__ . ':' . __LINE__ . '] - Get Store | [ERROR]: ' . $e->getMessage()
+            );
             return null;
         }
     }
@@ -446,13 +448,15 @@ class Data extends AbstractHelper
     //phpcs:ignore:Generic.Metrics.NestingLevel
     public function getPPeCustomerDetails(): ?array
     {
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->_getRequest()->getParams(), true));
+        $this->logger->addDebug(sprintf(
+            '[Helper - PayPerEmail] | [Helper] | [%s:%s] - Get PPE Customer details | originalRequest: %s',
+            __METHOD__, __LINE__,
+            var_export($this->_getRequest()->getParams(), true)
+        ));
         if (($customerId = $this->_getRequest()->getParam('customer_id')) && ((int)$customerId > 0)) {
-            $this->logger->addDebug(__METHOD__ . '|5|');
             if (!isset($this->staticCache['getPPeCustomerDetails'])
                 && ($customer = $this->customerRepository->getById((int)$customerId))
             ) {
-                $this->logger->addDebug(__METHOD__ . '|15|');
                 $billingAddress = null;
                 if ($addresses = $customer->getAddresses()) {
                     foreach ($addresses as $address) {
@@ -462,7 +466,11 @@ class Data extends AbstractHelper
                         }
                     }
                 }
-                $this->logger->addDebug(var_export([$customer->getEmail()], true));
+                $this->logger->addDebug(sprintf(
+                    '[Helper - PayPerEmail] | [Helper] | [%s:%s] - Get PPE Customer details | customerEmail: %s',
+                    __METHOD__, __LINE__,
+                    $customer->getEmail()
+                ));
                 $this->staticCache['getPPeCustomerDetails'] = [
                     'email'      => $customer->getEmail(),
                     'firstName'  => $billingAddress ? $billingAddress->getFirstName() : '',
@@ -474,7 +482,6 @@ class Data extends AbstractHelper
 
         if ($order = $this->_getRequest()->getParam('order')) {
             if (isset($order['billing_address'])) {
-                $this->logger->addDebug(__METHOD__ . '|30|');
                 $this->staticCache['getPPeCustomerDetails'] = [
                     'email'      => !empty($this->staticCache['getPPeCustomerDetails']['email']) ?
                         $this->staticCache['getPPeCustomerDetails']['email'] : '',
@@ -488,7 +495,6 @@ class Data extends AbstractHelper
         if (($payment = $this->_getRequest()->getParam('payment'))
             && ($payment['method'] == 'buckaroo_magento2_payperemail')
         ) {
-            $this->logger->addDebug(__METHOD__ . '|40|');
             $this->staticCache['getPPeCustomerDetails'] = [
                 'email'      => $payment['customer_email'],
                 'firstName'  => $payment['customer_billingFirstName'],

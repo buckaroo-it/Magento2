@@ -32,12 +32,12 @@ class MarkUserNotified extends Action
     /**
      * @var FlagManager $flagManager
      */
-    private $flagManager;
+    private FlagManager $flagManager;
 
     /**
      * @var LoggerInterface $logger
      */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @param Context $context
@@ -68,7 +68,11 @@ class MarkUserNotified extends Action
                 'error_message' => ''
             ];
         } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
+            $this->logger->error(sprintf(
+                '[ReleaseNotification] | [Controller] | [%s] - Failed to set flag release notification | [ERROR]: %s',
+                __METHOD__,
+                $e->getMessage()
+            ));
             $responseContent = [
                 'success' => false,
                 'error_message' => __('Failed to set flag that user has seen screen')

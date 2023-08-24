@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\HTTP\Client\Curl;
 
 class Json
@@ -32,9 +32,9 @@ class Json
     private $client;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private $logger;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @var string
@@ -48,11 +48,11 @@ class Json
 
     /**
      * @param Curl $client
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Curl $client,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->client = $client;
         $this->logger = $logger;
@@ -69,7 +69,11 @@ class Json
     {
         $urls = $this->getUrls($mode);
 
-        $this->logger->addDebug(__METHOD__ . '|5|' . var_export($data, true));
+        $this->logger->addDebug(sprintf(
+            '[HTTP_JSON] | [Gateway] | [%s:%s] - Create post request to payment engine | request: %s',
+            __METHOD__, __LINE__,
+            var_export($data, true)
+        ));
 
         $options = $this->getOptions($urls['uri'], $urls['uri2'], $data, 'POST');
         $this->client->setOptions($options);
@@ -108,7 +112,11 @@ class Json
         $options = $this->getOptions($urls['uri'], $urls['uri2'], [], 'GET');
         $this->client->setOptions($options);
 
-        $this->logger->addDebug(__METHOD__ . '|10|' . var_export($options, true));
+        $this->logger->addDebug(sprintf(
+            '[HTTP_JSON] | [Gateway] | [%s:%s] - Create a status request by transaction_id | request: %s',
+            __METHOD__, __LINE__,
+            var_export($options, true)
+        ));
 
         return $this->getResponse($urls['uri']);
     }
@@ -224,16 +232,18 @@ class Json
 
             $response = json_decode($this->client->getBody(), true);
         } catch (\Exception $e) {
-            $this->logger->addDebug(__METHOD__ . '|10|' . var_export($e->getMessage(), true));
+            $this->logger->addError(sprintf(
+                '[HTTP_JSON] | [Gateway] | [%s:%s] - Get Response after JSON request | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
+            ));
             return false;
         }
 
-        $this->logger->addDebug(__METHOD__ . '|15|' . var_export(
-            [
-                    $response,
-                    $this->client->getStatus(),
-                ],
-            true
+        $this->logger->addDebug(sprintf(
+            '[HTTP_JSON] | [Gateway] | [%s:%s] - Get Response after JSON request | response: %s',
+            __METHOD__, __LINE__,
+            var_export(['response' => $response, 'clientStatus' => $this->client->getStatus()], true)
         ));
 
         return $response;

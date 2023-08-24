@@ -21,9 +21,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ResourceModel\Order\Handler;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 
 class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
@@ -34,28 +35,36 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
     public Factory $configProviderMethodFactory;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private Log $logging;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * State constructor
      *
      * @param Factory $configProviderMethodFactory
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Factory $configProviderMethodFactory,
-        Log $logging
+        BuckarooLoggerInterface $logger
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
-        $this->logging = $logging;
+        $this->logger = $logger;
     }
 
+    /**
+     * Check order status and adjust the status before save
+     *
+     * @param Order $order
+     * @return $this
+     *
+     * @throws LocalizedException
+     */
     public function check(Order $order): State
     {
         if ($order->getPayment() &&
-            $order->getPayment()->getMethodInstance()->getCode() == 'buckaroo_magento2_payperemail'
+            $order->getPayment()->getMethod() == 'buckaroo_magento2_payperemail'
         ) {
             $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
             if ($config->isEnabledB2B()
@@ -63,7 +72,11 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
                 && $order->getInvoiceCollection() && $order->getInvoiceCollection()->getFirstItem()
                 && $order->getInvoiceCollection()->getFirstItem()->getState() == 1
             ) {
-                $this->logging->addDebug(__METHOD__ . '|10|');
+                $this->logger->addDebug(sprintf(
+                    '[ORDER_STATUS] | [Handler] | [%s:%s] - Skip update order status for PayPerEmail | order: %s',
+                    __METHOD__, __LINE__,
+                    $order->getId()
+                ));
                 return $this;
             }
         }

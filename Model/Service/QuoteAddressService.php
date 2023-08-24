@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\LocalizedException;
@@ -49,9 +49,9 @@ class QuoteAddressService
      */
     protected CustomerRepositoryInterface $customerRepository;
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var Quote
@@ -68,14 +68,14 @@ class QuoteAddressService
      * @param CustomerRepositoryInterface $customerRepository
      * @param QuoteRepository $quoteRepository
      * @param ShippingAddressManagementInterface $shippingAddressManagement
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         CustomerSession $customerSession,
         CustomerRepositoryInterface $customerRepository,
         QuoteRepository $quoteRepository,
         ShippingAddressManagementInterface $shippingAddressManagement,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->customerSession = $customerSession;
         $this->customerRepository = $customerRepository;
@@ -156,7 +156,11 @@ class QuoteAddressService
      */
     public function setShippingAddress(Quote &$quote, array $data): bool
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
+        $this->logger->addDebug(sprintf(
+            '[SET_SHIPPING_ADDRESS] | [Service] | [%s:%s] - Set Shipping Address | data: %s',
+            __METHOD__, __LINE__,
+            var_export($data, true)
+        ));
 
         $shippingAddress = $this->processAddressFromWallet($data);
         $quote->getShippingAddress()->addData($shippingAddress);
@@ -212,17 +216,19 @@ class QuoteAddressService
      */
     protected function setCommonAddressProceed($errors, string $addressType): bool
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-        $this->logger->addDebug(var_export($errors, true));
+        $this->logger->addDebug(sprintf(
+            '[SET_SHIPPING_ADDRESS] | [Service] | [%s:%s] - Set Shipping Address | errors: %s',
+            __METHOD__, __LINE__,
+            var_export($errors, true)
+        ));
 
         if ($errors && is_array($errors)) {
             foreach ($errors as $error) {
                 if (($arguments = $error->getArguments()) && !empty($arguments['fieldName'])) {
                     if ($arguments['fieldName'] === 'postcode') {
-                        $this->logger->addDebug(var_export($error->getArguments()['fieldName'], true));
-                        throw new ExpressMethodsException(__(
+                        throw new ExpressMethodsException(
                             'Error: ' . $addressType . ' address: postcode is required.'
-                        ));
+                        );
                     }
                 }
             }
@@ -266,8 +272,6 @@ class QuoteAddressService
      */
     public function setBillingAddress(Quote &$quote, array $data): bool
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-
         $billingAddress = $this->processAddressFromWallet($data, 'billing');
         $quote->getBillingAddress()->addData($billingAddress);
 
@@ -288,10 +292,12 @@ class QuoteAddressService
         try {
             $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
         } catch (\Exception $e) {
-            $this->logger->addDebug(__METHOD__ . '|9.1|' . $e->getMessage());
-            throw new ExpressMethodsException(__(
-                'Assign Shipping Address to Quote failed.'
+            $this->logger->addError(sprintf(
+                '[SET_SHIPPING_ADDRESS] | [Service] | [%s:%s] - Set Shipping Address | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
             ));
+            throw new ExpressMethodsException('Assign Shipping Address to Quote failed.');
         }
         $this->quoteRepository->save($cart);
 

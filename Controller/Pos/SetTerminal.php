@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Controller\Pos;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Action\Action;
@@ -44,9 +44,9 @@ class SetTerminal extends Action
     protected $accountConfig;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var StoreManagerInterface
@@ -65,7 +65,7 @@ class SetTerminal extends Action
 
     /**
      * @param Context $context
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Factory $configProviderFactory
      * @param StoreManagerInterface $storemanager
      * @param CookieManagerInterface $cookieManager
@@ -74,7 +74,7 @@ class SetTerminal extends Action
      */
     public function __construct(
         Context $context,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         Factory $configProviderFactory,
         StoreManagerInterface $storemanager,
         CookieManagerInterface $cookieManager,
@@ -96,9 +96,14 @@ class SetTerminal extends Action
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($this->getRequest()->getParams(), true));
+        $params = $this->getRequest()->getParams();
+        $this->logger->addDebug(sprintf(
+            '[POS] | [Controller] | [%s:%s] - Set Terminal | request: %s',
+            __METHOD__, __LINE__,
+            var_export($params, true)
+        ));
 
-        if (($params = $this->getRequest()->getParams()) && !empty($params['id'])) {
+        if (!empty($params['id'])) {
             $metadata = $this->cookieMetadataFactory
                 ->createPublicCookieMetadata()
                 ->setPath('/')
@@ -108,7 +113,6 @@ class SetTerminal extends Action
                 $params['id'],
                 $metadata
             );
-            $this->logger->addDebug(__METHOD__ . '|2|');
         }
 
         $redirectUrl = $this->storemanager->getStore()->getBaseUrl();

@@ -25,7 +25,7 @@ use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -49,7 +49,7 @@ class IdealProcessor extends DefaultProcessor
     /**
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param Data $helper
      * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
@@ -63,7 +63,7 @@ class IdealProcessor extends DefaultProcessor
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Data $helper,
         TransactionInterface $transaction,
         PaymentGroupTransaction $groupTransaction,
@@ -72,7 +72,7 @@ class IdealProcessor extends DefaultProcessor
         Account $configAccount,
         LockerProcess $lockerProcess
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
+        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
             $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
         $this->lockerProcess = $lockerProcess;
 

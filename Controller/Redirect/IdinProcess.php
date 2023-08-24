@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
@@ -50,7 +50,7 @@ class IdinProcess extends Process
 
     /**
      * @param Context $context
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
      * @param AccountConfig $accountConfig
      * @param OrderRequestService $orderRequestService
@@ -68,7 +68,7 @@ class IdinProcess extends Process
      */
     public function __construct(
         Context $context,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         Quote $quote,
         AccountConfig $accountConfig,
         OrderRequestService $orderRequestService,
@@ -131,7 +131,11 @@ class IdinProcess extends Process
                     $customerNew = $this->customerRepository->getById((int)$idinCid);
                 } catch (\Exception $e) {
                     $this->addErrorMessage(__('Unfortunately customer was not find by IDIN id: "%1"!', $idinCid));
-                    $this->logger->addError(__METHOD__ . ' | ' . $e->getMessage());
+                    $this->logger->addError(sprintf(
+                        '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Customer was not find by IDIN id | [ERROR]: %s',
+                        __METHOD__, __LINE__,
+                        $e->getMessage()
+                    ));
                     return false;
                 }
                 $customerData = $customerNew->getDataModel();
@@ -155,12 +159,17 @@ class IdinProcess extends Process
      */
     protected function redirectToCheckout(): ResponseInterface
     {
-        $this->logger->addDebug('start redirectToCheckout');
+        $this->logger->addDebug('[REDIRECT - iDIN] | [Controller] | ['.__METHOD__.'] - start redirectToCheckout');
+
         try {
             $this->checkoutSession->restoreQuote();
 
         } catch (\Exception $e) {
-            $this->logger->addError('Could not restore the quote.');
+            $this->logger->addError(sprintf(
+                '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Could not restore the quote | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
+            ));
         }
 
         return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);

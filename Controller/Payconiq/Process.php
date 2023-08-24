@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Controller\Payconiq;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -66,7 +66,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 
     /**
      * @param Context $context
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
      * @param AccountConfig $accountConfig
      * @param OrderRequestService $orderRequestService
@@ -85,7 +85,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      */
     public function __construct(
         Context $context,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         Quote $quote,
         AccountConfig $accountConfig,
         OrderRequestService $orderRequestService,
@@ -125,10 +125,13 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         $this->order = $transaction->getOrder()->getOrder();
 
         if ($this->customerSession->getCustomerId() == $this->order->getCustomerId()) {
-            $this->logger->addError('Customer is different then the customer that start payconiq process request.');
-            $this->messageManager->addErrorMessage(
-                'Customer is different then the customer that start payconiq process request.'
-            );
+            $errorMessage = 'Customer is different then the customer that start Payconiq process request.';
+            $this->logger->addError(sprintf(
+                '[REDIRECT - Payconiq] | [Controller] | [%s:%s] - %s',
+                __METHOD__, __LINE__,
+                $errorMessage
+            ));
+            $this->messageManager->addErrorMessage($errorMessage);
             return $this->handleProcessedResponse(
                 'checkout',
                 [

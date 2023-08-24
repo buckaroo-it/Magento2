@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Service\Applepay\Add as AddService;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
@@ -32,24 +32,24 @@ class Add extends AbstractApplepay
     /**
      * @var AddService
      */
-    protected $addService;
+    protected AddService $addService;
 
     /**
      * @param JsonFactory $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param AddService $addService
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         AddService $addService
     ) {
         parent::__construct(
             $resultJsonFactory,
             $request,
-            $logging
+            $logger
         );
         $this->addService = $addService;
     }
@@ -61,10 +61,20 @@ class Add extends AbstractApplepay
      */
     public function execute()
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->getParams(), true));
+        $this->logger->addDebug(sprintf(
+            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | request: %s',
+            __METHOD__, __LINE__,
+            var_export($this->getParams(), true)
+        ));
+
         $data = $this->addService->process($this->getParams());
         $errorMessage = $data['error'] ?? false;
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($data, true));
+
+        $this->logger->addDebug(sprintf(
+            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | response: %s',
+            __METHOD__, __LINE__,
+            var_export($data, true)
+        ));
 
         return $this->commonResponse($data, $errorMessage);
     }

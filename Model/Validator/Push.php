@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Model\Validator;
 
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ValidatorInterface;
 use Magento\Framework\Encryption\Encryptor;
@@ -40,9 +40,9 @@ class Push implements ValidatorInterface
     public Data $helper;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    public Log $logging;
+    public BuckarooLoggerInterface $logger;
 
     /**
      * @var Encryptor
@@ -69,18 +69,18 @@ class Push implements ValidatorInterface
     /**
      * @param Data          $helper
      * @param Account       $configProviderAccount
-     * @param Log           $logging
+     * @param BuckarooLoggerInterface           $logger
      * @param Encryptor     $encryptor
      */
     public function __construct(
         Data $helper,
         Account $configProviderAccount,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Encryptor $encryptor
     ) {
         $this->helper                   = $helper;
         $this->configProviderAccount    = $configProviderAccount;
-        $this->logging                  = $logging;
+        $this->logger                   = $logger;
         $this->encryptor                = $encryptor;
     }
 
@@ -171,12 +171,12 @@ class Push implements ValidatorInterface
         }
 
         $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));
-
         $signatureString .= $digitalSignature;
-
         $signature = SHA1($signatureString);
 
-        $this->logging->addDebug($signature);
+        $this->logger->addDebug(
+            '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Calculated signature: ' . $signature,
+        );
 
         return $signature;
     }

@@ -25,7 +25,7 @@ use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -46,7 +46,7 @@ class RefundProcessor extends DefaultProcessor
     /**
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param Data $helper
      * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
@@ -60,7 +60,7 @@ class RefundProcessor extends DefaultProcessor
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Data $helper,
         TransactionInterface $transaction,
         PaymentGroupTransaction $groupTransaction,
@@ -69,7 +69,7 @@ class RefundProcessor extends DefaultProcessor
         Account $configAccount,
         RefundPush $refundPush
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
+        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
             $groupTransaction, $buckarooStatusCode,$orderStatusFactory, $configAccount);
         $this->refundPush = $refundPush;
     }
@@ -90,8 +90,7 @@ class RefundProcessor extends DefaultProcessor
 
         if ($this->pushTransactionType->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS') {
             if ($this->order->hasInvoices()) {
-                //don't proceed failed refund push
-                $this->logging->addDebug(__METHOD__ . '|10|');
+                //don't proceed failed refund push if order has invoices
                 $this->orderRequestService->setOrderNotificationNote(
                     __('Push notification for refund has no success status, ignoring.')
                 );
@@ -119,7 +118,6 @@ class RefundProcessor extends DefaultProcessor
         if (!$pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
             || !$pushRequest->hasAdditionalInformation('service_action_from_magento', ['refund'])
         ) {
-            $this->logging->addDebug(__METHOD__ . '|5|');
             return false;
         }
 
@@ -129,7 +127,6 @@ class RefundProcessor extends DefaultProcessor
                 BuckarooStatusCode::PENDING_APPROVAL,
                 $pushRequest->getRelatedtransactionRefund()
             )) {
-            $this->logging->addDebug(__METHOD__ . '|4|');
             return false;
         }
 

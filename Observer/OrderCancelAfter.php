@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Gateway\Http\Client\Json;
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
@@ -62,9 +62,9 @@ class OrderCancelAfter implements ObserverInterface
     protected $configProviderPPE;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logging;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -72,7 +72,7 @@ class OrderCancelAfter implements ObserverInterface
      * @param Encryptor $encryptor
      * @param Account $configProviderAccount
      * @param PayPerEmail $configProviderPPE
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -80,14 +80,14 @@ class OrderCancelAfter implements ObserverInterface
         Encryptor $encryptor,
         Account $configProviderAccount,
         PayPerEmail $configProviderPPE,
-        Log $logging
+        BuckarooLoggerInterface $logger
     ) {
         $this->scopeConfig           = $scopeConfig;
         $this->client                = $client;
         $this->encryptor             = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
         $this->configProviderPPE     = $configProviderPPE;
-        $this->logging               = $logging;
+        $this->logger                = $logger;
     }
 
     /**
@@ -99,25 +99,28 @@ class OrderCancelAfter implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
-
         $payment = $order->getPayment();
-
         $originalKey = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
-
         $cancelPPE = $this->configProviderPPE->getCancelPpe();
 
-        if ($cancelPPE && in_array($payment->getMethodInstance()->getCode(), ['buckaroo_magento2_payperemail'])) {
+        if ($cancelPPE && $payment->getMethod() == PayPerEmail::CODE) {
             try {
-                $this->logging->addDebug(__METHOD__ . '|sendCancelResponse|');
+                $this->logger->addDebug(sprintf(
+                    '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Order Request for PayPerEmail' .
+                    'to payment engine | originalKey: %s | order: %s',
+                    __METHOD__, __LINE__,
+                    var_export([$originalKey], true),
+                    $order->getId()
+                ));
                 $this->sendCancelResponse($originalKey);
-                //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-                // empty block
+                $this->logger->addError(sprintf(
+                    '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Request for PPE | [ERROR]: %s',
+                    __METHOD__, __LINE__,
+                    $e->getMessage()
+                ));
             }
         }
     }

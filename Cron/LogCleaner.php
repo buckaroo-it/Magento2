@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Cron;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\App\ResourceConnection;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ResourceModel\Log as LogResourceModel;
 use Buckaroo\Magento2\Model\Config\Source\LogHandler;
 use Magento\Framework\Filesystem\DirectoryList;
@@ -48,9 +48,9 @@ class LogCleaner
     private $resourceConnection;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private $logging;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @var DirectoryList
@@ -73,7 +73,7 @@ class LogCleaner
      * @param LogResourceModel $resource
      * @param Account $accountConfig
      * @param ResourceConnection $resourceConnection
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param DirectoryList $directoryList
      * @param File $driverFile
      * @param IoFile $ioFile
@@ -82,7 +82,7 @@ class LogCleaner
         LogResourceModel $resource,
         Account $accountConfig,
         ResourceConnection $resourceConnection,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         DirectoryList $directoryList,
         File $driverFile,
         IoFile $ioFile
@@ -90,7 +90,7 @@ class LogCleaner
         $this->resource            = $resource;
         $this->accountConfig       = $accountConfig;
         $this->resourceConnection  = $resourceConnection;
-        $this->logging             = $logging;
+        $this->logger              = $logger;
         $this->directoryList       = $directoryList;
         $this->driverFile          = $driverFile;
         $this->ioFile              = $ioFile;
@@ -129,7 +129,11 @@ class LogCleaner
                 ['time <= date_sub(now(),interval ' . $retentionPeriod . ' second)']
             );
         } catch (\Exception $e) {
-            $this->logging->error('Proceed Db error:' . var_export($e->getMessage(), true));
+            $this->logger->error(sprintf(
+                '[LOGGING] | [CRON] | [%s:%s] - Delete logs from data base. Proceed DB error. | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
+            ));
         }
     }
 
@@ -168,7 +172,11 @@ class LogCleaner
             $path  = $this->directoryList->getPath('var') . $path;
             $paths = $this->driverFile->readDirectory($path);
         } catch (FileSystemException $e) {
-            $this->logging->error('Get All Files error:' . var_export($e->getMessage(), true));
+            $this->logger->error(sprintf(
+                '[LOGGING] | [CRON] | [%s:%s] - Get all files from log directory. | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
+            ));
         }
 
         return $paths;

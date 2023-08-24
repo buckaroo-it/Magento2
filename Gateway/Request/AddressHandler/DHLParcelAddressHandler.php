@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\AddressHandler;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Model\Order;
@@ -35,13 +35,13 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
     private Curl $curl;
 
     /**
-     * @param Log $buckarooLogger
+     * @param BuckarooLoggerInterface $logger
      * @param Curl $curl
      */
-    public function __construct(Log $buckarooLogger, Curl $curl)
+    public function __construct(BuckarooLoggerInterface $logger, Curl $curl)
     {
         $this->curl = $curl;
-        parent::__construct($buckarooLogger);
+        parent::__construct($logger);
     }
 
     /**
@@ -71,7 +71,6 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
      */
     public function updateShippingAddressByDhlParcel(string $servicePointId, OrderAddressInterface $shippingAddress)
     {
-        $this->buckarooLogger->addDebug(__METHOD__ . '|1|');
         $matches = [];
         if (preg_match('/^(.*)-([A-Z]{2})-(.*)$/', $servicePointId, $matches)) {
             $this->curl->get(

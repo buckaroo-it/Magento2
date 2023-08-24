@@ -31,7 +31,7 @@ use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 
 class RefundGroupTransactionService
 {

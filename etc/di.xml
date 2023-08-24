@@ -32,7 +32,7 @@
     <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
-
+    <preference for="Buckaroo\Magento2\Logging\BuckarooLoggerInterface" type="Buckaroo\Magento2\Logging\SimplifiedLog" />
 
       <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
@@ -350,6 +350,16 @@
     <type name="Buckaroo\Magento2\Logging\Log">
         <arguments>
             <argument name="name" xsi:type="string">buckaroo_logging</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="exception" xsi:type="object">Buckaroo\Magento2\Logging\CriticalHandler</item>
+                <item name="debug" xsi:type="object">Buckaroo\Magento2\Logging\DebugHandler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Buckaroo\Magento2\Logging\SimplifiedLog">
+        <arguments>
+            <argument name="name" xsi:type="string">buckaroo_log</argument>
             <argument name="handlers"  xsi:type="array">
                 <item name="exception" xsi:type="object">Buckaroo\Magento2\Logging\CriticalHandler</item>
                 <item name="debug" xsi:type="object">Buckaroo\Magento2\Logging\DebugHandler</item>

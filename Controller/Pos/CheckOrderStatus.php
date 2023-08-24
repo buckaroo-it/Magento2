@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Controller\Pos;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Customer\Model\Session;
@@ -40,11 +39,6 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class CheckOrderStatus extends Action
 {
-    /**
-     * @var Log
-     */
-    protected $logger;
-
     /**
      * @var Order $order
      */
@@ -87,7 +81,6 @@ class CheckOrderStatus extends Action
 
     /**
      * @param Context $context
-     * @param Log $logger
      * @param Order $order
      * @param JsonFactory $resultJsonFactory
      * @param Factory $configProviderFactory
@@ -102,7 +95,6 @@ class CheckOrderStatus extends Action
      */
     public function __construct(
         Context $context,
-        Log $logger,
         Order $order,
         JsonFactory $resultJsonFactory,
         Factory $configProviderFactory,
@@ -113,7 +105,6 @@ class CheckOrderStatus extends Action
         Session $customerSession
     ) {
         parent::__construct($context);
-        $this->logger = $logger;
         $this->order = $order;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->accountConfig = $configProviderFactory->get('account');
@@ -132,7 +123,6 @@ class CheckOrderStatus extends Action
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
         $response = ['success' => 'false', 'redirect' => ''];
 
         if (($params = $this->getRequest()->getParams()) && !empty($params['orderId'])) {

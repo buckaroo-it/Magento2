@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Model\Total\Quote\Tax;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
@@ -50,7 +50,7 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
      * @param PriceCurrencyInterface $priceCurrency
      * @param Data $catalogHelper
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param TaxModelCalculation $taxCalculation
      */
     public function __construct(
@@ -60,7 +60,7 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
         PriceCurrencyInterface $priceCurrency,
         Data $catalogHelper,
         PaymentGroupTransaction $groupTransaction,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         TaxModelCalculation $taxCalculation
     ) {
         parent::__construct(
@@ -70,7 +70,7 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
             $priceCurrency,
             $catalogHelper,
             $groupTransaction,
-            $logging,
+            $logger,
             $taxCalculation
         );
         $this->setCode('pretax_buckaroo_fee');

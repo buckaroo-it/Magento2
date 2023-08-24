@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -72,9 +72,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     protected $transactionFactory;
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
     /**
      * @var Klarnakp
      */
@@ -92,7 +92,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @param Klarnakp $klarnakpConfig
      * @param Afterpay20 $afterpayConfig
      * @param Data $helper
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         CollectionFactory $invoiceCollectionFactory,
@@ -102,7 +102,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         Klarnakp $klarnakpConfig,
         Afterpay20 $afterpayConfig,
         Data $helper,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;
@@ -129,8 +129,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $order = $shipment->getOrder();
         $payment = $order->getPayment();
 
-        $this->logger->addDebug(__METHOD__ . '|1|');
-
         if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
             && $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
         ) {
@@ -156,7 +154,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     private function createInvoice(Order $order, Shipment $shipment, bool $allowPartialsWithDiscount = false)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|' . var_export($order->getDiscountAmount(), true));
+        $this->logger->addDebug(sprintf(
+            '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | orderDiscountAmount: %s',
+            __METHOD__, __LINE__,
+            var_export($order->getDiscountAmount(), true)
+        ));
 
         try {
             if (!$order->canInvoice()) {
@@ -182,7 +184,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
             );
             $transactionSave->save();
 
-            $this->logger->addDebug(__METHOD__ . '|3|' . var_export($order->getStatus(), true));
+            $this->logger->addDebug(sprintf(
+                '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | orderStatus: %s',
+                __METHOD__, __LINE__,
+                var_export($order->getStatus(), true)
+            ));
 
             if ($order->getStatus() == 'complete') {
                 $description = 'Total amount of '
@@ -192,8 +198,12 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 $order->save();
             }
 
-            $this->logger->addDebug(__METHOD__ . '|4|');
         } catch (\Exception $e) {
+            $this->logger->addDebug(sprintf(
+                '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
+            ));
             $order->addStatusHistoryComment('Exception message: ' . $e->getMessage(), false);
             $order->save();
             return null;

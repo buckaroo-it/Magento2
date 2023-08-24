@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
 use Buckaroo\Magento2\Model\Service\QuoteService;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface;
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
@@ -38,9 +38,9 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     protected $responseFactory;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var QuoteService
@@ -50,12 +50,12 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * @param QuoteCreateResponseInterfaceFactory $responseFactory
      * @param QuoteService $quoteService
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
         QuoteService $quoteService,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteService = $quoteService;
@@ -83,7 +83,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             $this->quoteService->addFirstShippingMethod();
             $this->quoteService->setPaymentMethod(Paypal::CODE);
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . $th->getMessage());
+            $this->logger->addError(sprintf(
+                '[CREATE_QUOTE - PayPal Express] | [Model] | [%s:%s] - Create Quote | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             throw new PaypalExpressException(__("Failed to add address quote"), 1, $th);
         }
 

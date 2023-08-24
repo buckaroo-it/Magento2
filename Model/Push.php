@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Model;
 use Buckaroo\Magento2\Api\PushInterface;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
 use Buckaroo\Magento2\Model\Push\PushTransactionType;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
@@ -33,9 +33,9 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 class Push implements PushInterface
 {
     /**
-     * @var Log $logging
+     * @var BuckarooLoggerInterface $logger
      */
-    public Log $logging;
+    public BuckarooLoggerInterface $logger;
 
     /**
      * @var PushRequestInterface
@@ -58,20 +58,20 @@ class Push implements PushInterface
     private PushTransactionType $pushTransactionType;
 
     /**
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param RequestPushFactory $requestPushFactory
      * @param PushProcessorsFactory $pushProcessorsFactory
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
      */
     public function __construct(
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         RequestPushFactory $requestPushFactory,
         PushProcessorsFactory $pushProcessorsFactory,
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType
     ) {
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->pushRequst = $requestPushFactory->create();
         $this->pushProcessorsFactory = $pushProcessorsFactory;
         $this->orderRequestService = $orderRequestService;
@@ -87,7 +87,11 @@ class Push implements PushInterface
     public function receivePush(): bool
     {
         // Log the push request
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->pushRequst->getOriginalRequest(), true));
+        $this->logger->addDebug(sprintf(
+            '[PUSH] | [Webapi] | [%s] - Original Request | originalRequest: %s',
+            __METHOD__,
+            var_export($this->pushRequst->getOriginalRequest(), true)
+        ));
 
         // Load Order
         $order = $this->orderRequestService->getOrderByRequest($this->pushRequst);
@@ -97,7 +101,7 @@ class Push implements PushInterface
         $validSignature = $this->pushRequst->validate($store);
 
         if (!$validSignature) {
-            $this->logging->addDebug('Invalid push signature');
+            $this->logger->addDebug('[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Invalid push signature');
             throw new BuckarooException(__('Signature from push is incorrect'));
         }
 

@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
@@ -86,9 +86,9 @@ class Process extends Action
     protected OrderStatusFactory $orderStatusFactory;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var CheckoutSession
@@ -127,7 +127,7 @@ class Process extends Action
 
     /**
      * @param Context $context
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
      * @param AccountConfig $accountConfig
      * @param OrderRequestService $orderRequestService
@@ -143,7 +143,7 @@ class Process extends Action
      */
     public function __construct(
         Context $context,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         Quote $quote,
         AccountConfig $accountConfig,
         OrderRequestService $orderRequestService,
@@ -189,7 +189,11 @@ class Process extends Action
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__ . '|' . var_export($this->redirectRequest->getOriginalRequest(), true));
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT] | [Controller] | [%s:%s] - Original Request | originalRequest: %s',
+            __METHOD__, __LINE__,
+            var_export($this->redirectRequest->getOriginalRequest(), true)
+        ));
 
         if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {
             return $this->handleProcessedResponse('/');
@@ -215,14 +219,18 @@ class Process extends Action
             return $this->handleProcessedResponse('/');
         }
 
-        $this->logger->addDebug(__METHOD__ . '|2|' . var_export($statusCode, true));
-
         if (($this->payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
             && ($statusCode == BuckarooStatusCode::PENDING_PROCESSING)
         ) {
             $statusCode = BuckarooStatusCode::CANCELLED_BY_USER;
-            $this->logger->addDebug(__METHOD__ . '|22|' . var_export($statusCode, true));
         }
+
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Status Code | statusCode: %s',
+            $this->payment->getMethod(),
+            __METHOD__, __LINE__,
+            $statusCode
+        ));
 
         return $this->processRedirectByStatus($statusCode);
     }
@@ -237,7 +245,6 @@ class Process extends Action
      */
     public function handleProcessedResponse(string $path, array $arguments = []): ResponseInterface
     {
-        $this->logger->addDebug(__METHOD__ . '|15|');
         return $this->_redirect($path, $arguments);
     }
 
@@ -360,7 +367,11 @@ class Process extends Action
                 && $isKlarnaKpReserve
                 && $statusCode == BuckarooStatusCode::SUCCESS)
             ) {
-                $this->logger->addDebug(__METHOD__ . '|sendemail|');
+                $this->logger->addDebug(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Send Klarna Reservation Mail',
+                    $this->payment->getMethod(),
+                    __METHOD__, __LINE__
+                ));
                 $this->orderRequestService->sendOrderEmail($this->order, true);
             }
         }
@@ -377,7 +388,11 @@ class Process extends Action
      */
     private function setLastQuoteOrder(): void
     {
-        $this->logger->addDebug(__METHOD__ . '|51|' . var_export([
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Set Last Quote Order | currentQuoteOrder: %s',
+            $this->payment->getMethod(),
+            __METHOD__, __LINE__,
+            var_export([
                 $this->checkoutSession->getLastSuccessQuoteId(),
                 $this->checkoutSession->getLastQuoteId(),
                 $this->checkoutSession->getLastOrderId(),
@@ -385,22 +400,19 @@ class Process extends Action
                 $this->order->getQuoteId(),
                 $this->order->getId(),
                 $this->order->getIncrementId(),
-            ], true));
+            ], true)
+        ));
 
         if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
-            $this->logger->addDebug(__METHOD__ . '|52|');
             $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
         }
         if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
-            $this->logger->addDebug(__METHOD__ . '|53|');
             $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
         }
         if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
-            $this->logger->addDebug(__METHOD__ . '|54|');
             $this->checkoutSession->setLastOrderId($this->order->getId());
         }
         if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-            $this->logger->addDebug(__METHOD__ . '|55|');
             $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
         }
     }
@@ -412,8 +424,6 @@ class Process extends Action
      */
     protected function redirectSuccess(): ResponseInterface
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-
         $this->eventManager->dispatch('buckaroo_process_redirect_success_before');
 
         $store = $this->order->getStore();
@@ -429,7 +439,12 @@ class Process extends Action
 
         $this->redirectSuccessApplePay();
 
-        $this->logger->addDebug(__METHOD__ . '|2|' . var_export($url, true));
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Success | redirectURL: %s',
+            $this->payment->getMethod(),
+            __METHOD__, __LINE__,
+            $url,
+        ));
 
         return $this->handleProcessedResponse($url);
     }
@@ -457,8 +472,6 @@ class Process extends Action
             && $this->redirectRequest->hasPostData('status_code', '190')
             && $this->redirectRequest->hasPostData('test', 'true')
         ) {
-            $this->logger->addDebug(__METHOD__);
-
             $this->checkoutSession
                 ->setLastQuoteId($this->order->getQuoteId())
                 ->setLastSuccessQuoteId($this->order->getQuoteId())
@@ -486,13 +499,17 @@ class Process extends Action
     private function processPendingRedirect($statusCode): ResponseInterface
     {
         if ($this->order->canInvoice()) {
-            $this->logger->addDebug(__METHOD__ . '|33|');
             $pendingStatus = $this->orderStatusFactory->get(
                 BuckarooStatusCode::PENDING_PROCESSING,
                 $this->order
             );
             if ($pendingStatus) {
-                $this->logger->addDebug(__METHOD__ . '|34|' . var_export($pendingStatus, true));
+                $this->logger->addDebug(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Pending Set Status | pendingStatus: %s',
+                    $this->payment->getMethod(),
+                    __METHOD__, __LINE__,
+                    var_export($pendingStatus, true),
+                ));
                 $this->order->setStatus($pendingStatus);
                 $this->order->save();
             }
@@ -501,10 +518,12 @@ class Process extends Action
         $this->sendKlarnaKpOrderConfirmation($statusCode);
 
         if (!$this->redirectRequest->hasPostData('payment_method', 'sofortueberweisung')) {
-            $this->addErrorMessage(
-                __(self::GENERAL_ERROR_MESSAGE)
-            );
-            $this->logger->addDebug(__METHOD__ . '|5|');
+            $this->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Pending NOT Sofort - Remove Coupon & Giftcard',
+                $this->payment->getMethod(),
+                __METHOD__, __LINE__));
 
             $this->removeCoupon();
             $this->removeAmastyGiftcardOnFailed();
@@ -527,6 +546,32 @@ class Process extends Action
     public function addErrorMessage($message): void
     {
         $this->messageManager->addErrorMessage($message);
+    }
+
+    /**
+     * Remove coupon from failed order if magento enterprise
+     *
+     * @return void
+     */
+    protected function removeCoupon()
+    {
+        if (method_exists($this->order, 'getCouponCode')) {
+            $couponCode = $this->order->getCouponCode();
+            $couponFactory = $this->_objectManager->get(\Magento\SalesRule\Model\CouponFactory::class);
+            if (!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
+                return;
+            }
+
+            $coupon = $couponFactory->load($couponCode, 'code');
+            $resourceModel = $this->_objectManager->get(\Magento\SalesRule\Model\Spi\CouponResourceInterface::class);
+            if (!(is_object($resourceModel) && method_exists($resourceModel, 'delete'))) {
+                return;
+            }
+
+            if (is_int($coupon->getCouponId())) {
+                $resourceModel->delete($coupon);
+            }
+        }
     }
 
     /**
@@ -557,7 +602,12 @@ class Process extends Action
                     $giftcardAccountRepository->save($giftcard);
                 }
             } catch (\Throwable $th) {
-                $this->logger->addDebug($th->getMessage());
+                $this->logger->addError(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Remove Amasty Giftcard | [ERROR]: %s',
+                    $this->payment->getMethod(),
+                    __METHOD__, __LINE__,
+                    $th->getMessage()
+                ));
                 return;
             }
         }
@@ -572,15 +622,17 @@ class Process extends Action
      */
     protected function handleFailed($statusCode): ResponseInterface
     {
-        $this->logger->addDebug(__METHOD__ . '|7|');
-
         $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
 
         $this->removeAmastyGiftcardOnFailed();
 
         if (!$this->getSkipHandleFailedRecreate()
             && (!$this->quoteRecreate->recreate($this->quote))) {
-            $this->logger->addError('Could not recreate the quote.');
+
+            $this->logger->addError(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Recreate Quote on Failed ',
+                $this->payment->getMethod(),
+                __METHOD__, __LINE__));
         }
 
         /*
@@ -597,10 +649,17 @@ class Process extends Action
         }
 
         if (!$this->cancelOrder($statusCode)) {
-            $this->logger->addError('Could not cancel the order.');
+            $this->logger->addError(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Cancel the Order.',
+                $this->payment->getMethod(),
+                __METHOD__, __LINE__));
         }
 
-        $this->logger->addDebug(__METHOD__ . '|8|');
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure',
+            $this->payment->getMethod(),
+            __METHOD__, __LINE__));
+
         return $this->redirectFailure();
     }
 
@@ -629,11 +688,7 @@ class Process extends Action
         $statusCodeAddErrorMessage[BuckarooStatusCode::CANCELLED_BY_USER]
             = __('According to our system, you have canceled the payment. If this is not the case, please contact us.');
 
-        $this->addErrorMessage(
-            __(
-                $statusCodeAddErrorMessage[$statusCode]
-            )
-        );
+        $this->addErrorMessage(__($statusCodeAddErrorMessage[$statusCode]));
     }
 
     /**
@@ -645,14 +700,10 @@ class Process extends Action
     protected function redirectFailure(): ResponseInterface
     {
         $store = $this->order->getStore();
-        $this->logger->addDebug('start redirectFailure');
         if ($this->accountConfig->getFailureRedirectToCheckout($store)) {
             return $this->redirectOnCheckoutForFailedTransaction();
         }
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         $url = $this->accountConfig->getFailureRedirect($store);
 
         return $this->handleProcessedResponse($url);
@@ -674,29 +725,60 @@ class Process extends Action
      */
     private function redirectOnCheckoutForFailedTransaction(): ResponseInterface
     {
-        $this->logger->addDebug('getFailureRedirectToCheckout');
-        if (!$this->customerSession->isLoggedIn() && ($this->order->getCustomerId() > 0)) {
-            $this->logger->addDebug('not isLoggedIn');
-            $this->logger->addDebug('getCustomerId > 0');
+        $this->setCustomerAndRestoreQuote('failed');
+
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure To Checkout',
+            $this->payment->getMethod(),
+            __METHOD__, __LINE__));
+
+        return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
+    }
+
+    /**
+     * Set customer if it is set on order and not on session and restore quote
+     *
+     * @param string $status
+     * @return void
+     */
+    protected function setCustomerAndRestoreQuote(string $status): void
+    {
+        if (!$this->customerSession->isLoggedIn() && $this->order->getCustomerId() > 0) {
+            $this->logger->addDebug(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Customer is not logged in',
+                    $this->payment->getMethod(),
+                    __METHOD__, __LINE__,
+                    $status
+                )
+            );
             try {
                 $customer = $this->customerRepository->getById($this->order->getCustomerId());
                 $this->customerSession->setCustomerDataAsLoggedIn($customer);
 
                 if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
                     $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-                    $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
-                    if (!$this->getSkipHandleFailedRecreate()) {
+                    if ($status == 'success' || !$this->getSkipHandleFailedRecreate()) {
                         $this->checkoutSession->restoreQuote();
-                        $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
+                        $this->logger->addDebug(sprintf(
+                            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Restore Quote',
+                            $this->payment->getMethod(),
+                            __METHOD__, __LINE__,
+                            $status));
+                    }
+                    if ($status == 'failed') {
+                        $this->setSkipHandleFailedRecreate();
                     }
                 }
-                $this->setSkipHandleFailedRecreate();
             } catch (\Exception $e) {
-                $this->logger->addError('Could not load customer');
+                $this->logger->addError(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout ' .
+                    '- Could not load customer | [ERROR]: %s',
+                    $this->payment->getMethod(),
+                    __METHOD__, __LINE__,
+                    $status,
+                    $e->getMessage()));
             }
         }
-        $this->logger->addDebug('ready for redirect');
-        return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
     }
 
     /**
@@ -732,32 +814,6 @@ class Process extends Action
     }
 
     /**
-     * Remove coupon from failed order if magento enterprise
-     *
-     * @return void
-     */
-    protected function removeCoupon()
-    {
-        if (method_exists($this->order,'getCouponCode')) {
-            $couponCode = $this->order->getCouponCode();
-            $couponFactory = $this->_objectManager->get(\Magento\SalesRule\Model\CouponFactory::class);
-            if (!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
-                return;
-            }
-
-            $coupon = $couponFactory->load($couponCode, 'code');
-            $resourceModel = $this->_objectManager->get(\Magento\SalesRule\Model\Spi\CouponResourceInterface::class);
-            if (!(is_object($resourceModel) && method_exists($resourceModel, 'delete'))) {
-                return;
-            }
-
-            if (is_int($coupon->getCouponId())) {
-                $resourceModel->delete($coupon);
-            }
-        }
-    }
-
-    /**
      * Get Response Parameters
      *
      * @return array
@@ -774,27 +830,13 @@ class Process extends Action
      */
     protected function redirectToCheckout(): ResponseInterface
     {
-        $this->logger->addDebug('start redirectToCheckout');
-        if (!$this->customerSession->isLoggedIn()) {
-            $this->logger->addDebug('not isLoggedIn');
-            if ($this->order->getCustomerId() > 0) {
-                $this->logger->addDebug('getCustomerId > 0');
-                try {
-                    $customer = $this->customerRepository->getById($this->order->getCustomerId());
-                    $this->customerSession->setCustomerDataAsLoggedIn($customer);
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect To Checkout',
+            $this->payment->getMethod(),
+            __METHOD__, __LINE__));
 
-                    if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                        $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-                        $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
-                        $this->checkoutSession->restoreQuote();
-                        $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
-                    }
-                } catch (\Exception $e) {
-                    $this->logger->addError('Could not load customer');
-                }
-            }
-        }
-        $this->logger->addDebug('ready for redirect');
+        $this->setCustomerAndRestoreQuote('success');
+
         return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);
     }
 }

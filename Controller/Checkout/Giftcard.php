@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
@@ -38,38 +38,38 @@ use Magento\Quote\Model\Quote;
 class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var GiftcardInterface
      */
-    protected $giftcardRequest;
+    protected GiftcardInterface $giftcardRequest;
 
     /**
      * @var GiftcardResponse
      */
-    protected $giftcardResponse;
+    protected GiftcardResponse $giftcardResponse;
 
     /**
      * @var Session
      */
-    protected $checkoutSession;
+    protected Session $checkoutSession;
 
     /**
      * @param Context $context
      * @param Session $checkoutSession
      * @param GiftcardInterface $giftcardRequest
      * @param GiftcardResponse $giftcardResponse
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Context $context,
         Session $checkoutSession,
         GiftcardInterface $giftcardRequest,
         GiftcardResponse $giftcardResponse,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
@@ -106,10 +106,18 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
                 $this->build($quote)->send()
             );
         } catch (ApiException $th) {
-            $this->logger->addDebug(__METHOD__ . (string)$th);
+            $this->logger->addError(sprintf(
+                '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             return $this->displayError($th->getMessage());
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . (string)$th);
+            $this->logger->addError(sprintf(
+                '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             return $this->displayError(__('Unknown buckaroo error has occurred'));
         }
     }

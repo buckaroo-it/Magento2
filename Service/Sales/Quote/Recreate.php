@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Sales\Quote;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Checkout\Model\Cart;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
@@ -29,9 +29,9 @@ use Magento\Quote\Model\Quote;
 class Recreate
 {
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
     /**
      * @var Cart
      */
@@ -39,11 +39,11 @@ class Recreate
 
     /**
      * @param Cart $cart
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Cart $cart,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->cart = $cart;
         $this->logger = $logger;
@@ -58,7 +58,6 @@ class Recreate
      */
     public function recreate(Quote $quote)
     {
-        // @codingStandardsIgnoreStart
         try {
             $quote->setIsActive(true);
             $quote->setTriggerRecollect(1);
@@ -74,10 +73,13 @@ class Recreate
             $this->cart->save();
             return $quote;
         } catch (NoSuchEntityException $e) {
-            //No such entity
-            $this->logger->addError($e->getMessage());
+            $this->logger->addError(sprintf(
+                '[RECREATE_QUOTE] | [Service] | [%s:%s] - Reintialize the quote | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getMessage()
+            ));
         }
-        // @codingStandardsIgnoreEnd
+
         return false;
     }
 }

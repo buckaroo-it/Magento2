@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Model\PaypalExpress;
 
 use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory;
 use Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -81,9 +81,9 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     protected $orderUpdateShippingFactory;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @param OrderCreateResponseInterfaceFactory $responseFactory
@@ -94,7 +94,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      * @param CartRepositoryInterface $quoteRepository
      * @param OrderRepositoryInterface $orderRepository
      * @param OrderUpdateShippingFactory $orderUpdateShippingFactory
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         OrderCreateResponseInterfaceFactory $responseFactory,
@@ -105,7 +105,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         CartRepositoryInterface $quoteRepository,
         OrderRepositoryInterface $orderRepository,
         OrderUpdateShippingFactory $orderUpdateShippingFactory,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteManagement = $quoteManagement;
@@ -128,10 +128,18 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         try {
             $orderId = $this->createOrder($paypalOrderId, $cartId);
         } catch (NoSuchEntityException $th) {
-            $this->logger->addDebug(__METHOD__ . $th->getMessage());
+            $this->logger->addError(sprintf(
+                '[CREATE_ORDER - PayPal Express] | [Model] | [%s:%s] - Create Order - No such entity | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             throw new PaypalExpressException(__("Failed to create order"), 1, $th);
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . $th->getMessage());
+            $this->logger->addError(sprintf(
+                '[CREATE_ORDER - PayPal Express] | [Model] | [%s:%s] - Create Order | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             throw $th;
         }
 

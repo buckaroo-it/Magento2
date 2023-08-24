@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Plugin\Onepage;
 
 use Buckaroo\Magento2\Helper\Data as BuckarooDataHelper;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Service\CheckPaymentType;
 use Magento\Checkout\Controller\Onepage\Success as ControllerOnePageSuccess;
 use Magento\Framework\App\Action\Context;
@@ -42,9 +42,9 @@ class Success
     protected RedirectFactory $resultRedirectFactory;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var CheckPaymentType
@@ -53,12 +53,12 @@ class Success
 
     /**
      * @param Context $context
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param CheckPaymentType $checkPaymentType
      */
     public function __construct(
         Context $context,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         CheckPaymentType $checkPaymentType
     ) {
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
@@ -78,13 +78,14 @@ class Success
         $order = $checkoutSuccess->getOnepage()->getCheckout()->getLastRealOrder();
         $payment = $order->getPayment();
 
-        $this->logger->addDebug(
+        $this->logger->addDebug(sprintf(
+            '[SUCCESS_PAGE] | [Plugin] | [%s:%s] - Redirect to cart | details: %s',
+            __METHOD__, __LINE__,
             var_export([
-                $order->getStatus() === BuckarooDataHelper::M2_ORDER_STATE_PENDING,
-                $this->checkPaymentType->isPaymentInTransit($payment),
-                $order->getStatus() === Order::STATE_CANCELED
+                'orderStatus' => $order->getStatus(),
+                'isPaymentInTransit' => $this->checkPaymentType->isPaymentInTransit($payment)
             ], true)
-        );
+        ));
 
         if ($this->checkPaymentType->isBuckarooPayment($payment) &&
             (

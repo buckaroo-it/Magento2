@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Model\Push;
 
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
@@ -41,7 +41,7 @@ class KlarnaKpProcessor extends DefaultProcessor
     /**
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param Data $helper
      * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
@@ -55,7 +55,7 @@ class KlarnaKpProcessor extends DefaultProcessor
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Data $helper,
         TransactionInterface $transaction,
         PaymentGroupTransaction $groupTransaction,
@@ -64,7 +64,7 @@ class KlarnaKpProcessor extends DefaultProcessor
         Account $configAccount,
         Klarnakp $klarnakpConfig
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logging, $helper, $transaction,
+        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
             $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
         $this->klarnakpConfig = $klarnakpConfig;
     }
@@ -129,7 +129,6 @@ class KlarnaKpProcessor extends DefaultProcessor
                 empty($this->pushRequest->getServiceKlarnakpReservationnumber()) &&
                 $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
             )) {
-            $this->logging->addDebug(__METHOD__ . '|5_1|');
             $this->dontSaveOrderUponSuccessPush = true;
             return false;
         }

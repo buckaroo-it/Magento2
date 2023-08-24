@@ -27,7 +27,7 @@ use Buckaroo\Config\Config;
 use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Service\Software\Data;
 use Buckaroo\Transaction\Response\TransactionResponse;
@@ -51,9 +51,9 @@ class BuckarooAdapter
     protected Encryptor $encryptor;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var array|null
@@ -63,7 +63,7 @@ class BuckarooAdapter
     /**
      * @param Account $configProviderAccount
      * @param Encryptor $encryptor
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param ProductMetadataInterface $productMetadata
      * @param Resolver $localeResolver
      * @param array|null $mapPaymentMethods
@@ -72,7 +72,7 @@ class BuckarooAdapter
     public function __construct(
         Account $configProviderAccount,
         Encryptor $encryptor,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         ProductMetadataInterface $productMetadata,
         Resolver $localeResolver,
         array $mapPaymentMethods = null
@@ -125,7 +125,12 @@ class BuckarooAdapter
 
             return $payment->{$action}($data);
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . $th);
+            $this->logger->addError(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - Execute request using Buckaroo SDK | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
+
             throw $th;
         }
     }
@@ -141,7 +146,11 @@ class BuckarooAdapter
         try {
             return $this->buckaroo->method('ideal')->issuers();
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . $th);
+            $this->logger->addError(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - Get ideal issuers | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
             return [];
         }
     }

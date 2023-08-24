@@ -30,7 +30,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 
 /**
@@ -81,7 +81,7 @@ class Giftcard
         QuoteManagement $quoteManagement,
         OrderManagementInterface $orderManagement,
         GiftcardRemove $giftcardRemoveService,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->priceCurrency = $priceCurrency;
         $this->groupTransaction = $groupTransaction;
@@ -233,7 +233,10 @@ class Giftcard
                 $this->giftcardRemoveService->remove($transaction->getTransactionId(), $order->getIncrementId());
             }
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . (string)$th);
+            $this->logger->addDebug(sprintf(
+                '[GIFTCARD] | [Model] | [%s:%s] - Rollback all Partial Payment | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()));
         }
 
     }

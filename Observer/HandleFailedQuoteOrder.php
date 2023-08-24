@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Session as BuckarooSession;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -38,9 +38,9 @@ class HandleFailedQuoteOrder implements ObserverInterface
     protected $buckarooSession;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logging;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var Manager
@@ -54,23 +54,24 @@ class HandleFailedQuoteOrder implements ObserverInterface
 
     /**
      * @param BuckarooSession $buckarooSession
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param Manager $moduleManager
      * @param OrderManagementInterface $orderManagement
      */
     public function __construct(
         BuckarooSession $buckarooSession,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Manager $moduleManager,
         OrderManagementInterface $orderManagement
     ) {
         $this->buckarooSession = $buckarooSession;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->moduleManager = $moduleManager;
         $this->orderManagement = $orderManagement;
     }
 
     /**
+     * Observes the event for a failed quote-to-order submission
      * Handle cancel order by sales_model_service_quote_submit_failure event
      *
      * @param Observer $observer
@@ -79,14 +80,8 @@ class HandleFailedQuoteOrder implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
 
         if ($order->canCancel()) {
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
@@ -96,28 +91,36 @@ class HandleFailedQuoteOrder implements ObserverInterface
             if (in_array(
                 $payment->getMethodInstance()->getCode(),
                 ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2', 'buckaroo_magento2_klarnakp']
-            )
-            ) {
+            )) {
                 try {
                     $order->addCommentToStatusHistory('Buckaroo: failed to authorize an order');
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
                     $payment->save();
-                    //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
                 } catch (\Exception $e) {
-                    // empty block
+                    $this->logger->addError(sprintf(
+                        '[CANCEL_ORDER] | [Observer] | [%s:%s] - Error when adding order comment | [ERROR]: %s',
+                        __METHOD__, __LINE__,
+                        $e->getMessage()
+                    ));
                 }
             }
 
             try {
-                $this->logging->addDebug(__METHOD__ . '|1|');
+                $this->logger->addDebug(sprintf(
+                    '[CANCEL_ORDER] | [Observer] | [%s:%s] - Cancel order for failed quote-to-order | order: %s',
+                    __METHOD__, __LINE__,
+                    $order->getId()
+                ));
                 if ($this->moduleManager->isEnabled('Magento_Inventory')) {
-                    $this->logging->addDebug(__METHOD__ . '|5|');
                     $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 }
                 $this->orderManagement->cancel($order->getId());
-                //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
-                // empty block
+                $this->logger->addError(sprintf(
+                    '[CANCEL_ORDER] | [Observer] | [%s:%s] - Error when canceling order | [ERROR]: %s',
+                    __METHOD__, __LINE__,
+                    $e->getMessage()
+                ));
             }
             $this->buckarooSession->setData('flagHandleFailedQuote', 0);
         }

@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Service\Push;
 
 use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Magento2\Api\PushRequestInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -42,9 +42,9 @@ class OrderRequestService
     public $order = null;
 
     /**
-     * @var Log $logging
+     * @var BuckarooLoggerInterface $logger
      */
-    public Log $logging;
+    public BuckarooLoggerInterface $logger;
 
     /**
      * @var Transaction
@@ -68,7 +68,7 @@ class OrderRequestService
 
     /**
      * @param Order $order
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param TransactionInterface $transaction
      * @param OrderSender $orderSender
      * @param InvoiceSender $invoiceSender
@@ -76,14 +76,14 @@ class OrderRequestService
      */
     public function __construct(
         Order $order,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         TransactionInterface $transaction,
         OrderSender $orderSender,
         InvoiceSender $invoiceSender,
         ResourceConnection $resourceConnection
     ) {
         $this->order = $order;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->transaction = $transaction;
         $this->orderSender = $orderSender;
         $this->invoiceSender = $invoiceSender;
@@ -107,7 +107,10 @@ class OrderRequestService
             $this->order->loadByIncrementId((string)$brqOrderId);
 
             if (!$this->order->getId()) {
-                $this->logging->addDebug('Order could not be loaded by Invoice Number or Order Number');
+                $this->logger->addDebug(sprintf(
+                    '[ORDER] | [Service] | [%s:%s] - Order could not be loaded by Invoice Number or Order Number',
+                    __METHOD__, __LINE__
+                ));
                 // Try to get order by transaction id on payment.
                 $this->order = $this->getOrderByTransactionKey($pushRequest);
             }
@@ -196,7 +199,11 @@ class OrderRequestService
             $this->order->addStatusToHistory($note);
             $this->order->save();
         } catch (\Exception $e) {
-            $this->logging->addDebug($e->getLogMessage());
+            $this->logger->addError(sprintf(
+                '[ORDER] | [Service] | [%s:%s] - Set Order Notification Note Failed | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $e->getLogMessage()
+            ));
         }
     }
 
@@ -218,10 +225,16 @@ class OrderRequestService
         bool $force = false,
         bool $dontSaveOrderUponSuccessPush = false
     ): void {
-        $this->logging->addDebug(__METHOD__ . '|0|' . var_export([$orderState, $newStatus, $description], true));
+        $this->logger->addDebug(sprintf(
+            '[ORDER] | [Service] | [%s:%s] - Updates the order state and add a comment | data: %s',
+            __METHOD__, __LINE__,
+            var_export([
+                'orderState' => $orderState,
+                'newStatus'  => $newStatus,
+                'description' => $description
+            ], true)
+        ));
         if ($this->order->getState() == $orderState || $force) {
-            $this->logging->addDebug(__METHOD__ . '|1|');
-            $this->logging->addDebug('||| $orderState: ' . '|1|' . $orderState);
             if ($dontSaveOrderUponSuccessPush) {
                 $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
@@ -232,8 +245,6 @@ class OrderRequestService
                 $this->order->addCommentToStatusHistory($description, $newStatus);
             }
         } else {
-            $this->logging->addDebug(__METHOD__ . '|2|');
-            $this->logging->addDebug('||| $orderState: ' . '|2|' . $orderState);
             if ($dontSaveOrderUponSuccessPush) {
                 $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
@@ -313,15 +324,7 @@ class OrderRequestService
      */
     public function loadOrder()
     {
-        $brqOrderId = $this->getOrderIncrementId();
-
-        //Check if the order can receive further status updates
+        $brqOrderId = $this->getOrderByRequest()->getIncrementId();
         $this->order->loadByIncrementId((string)$brqOrderId);
-
-        if (!$this->order->getId()) {
-            $this->logging->addDebug('Order could not be loaded by Invoice Number or Order Number');
-            // try to get order by transaction id on payment.
-            $this->order = $this->getOrderByTransactionKey();
-        }
     }
 }

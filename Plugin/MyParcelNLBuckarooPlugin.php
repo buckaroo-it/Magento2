@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Plugin;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -43,21 +43,21 @@ class MyParcelNLBuckarooPlugin
     protected Json $json;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @param Session $checkoutSession
      * @param RequestInterface $request
      * @param Json $json
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Session $checkoutSession,
         RequestInterface $request,
         Json $json,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->checkoutSession    = $checkoutSession;
         $this->request = $request;
@@ -73,11 +73,14 @@ class MyParcelNLBuckarooPlugin
      */
     public function beforeGetFromDeliveryOptions()
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
         // @codingStandardsIgnoreLine
         if ($result = file_get_contents('php://input')) {
             if ($jsonDecoded = $this->json->unserialize($result)) {
-                $this->logger->addDebug(__METHOD__ . '|2|' . var_export($jsonDecoded, true));
+                $this->logger->addDebug(sprintf(
+                    '[MyParcelNL] | [Plugin] | [%s:%s] - Set Pickup Location | deliveryOptions: %s',
+                    __METHOD__, __LINE__,
+                    var_export($jsonDecoded, true)
+                ));
                 if (!empty($jsonDecoded['deliveryOptions']) &&
                     !empty($jsonDecoded['deliveryOptions'][0]['deliveryType']) &&
                     ($jsonDecoded['deliveryOptions'][0]['deliveryType'] == 'pickup') &&
@@ -86,7 +89,6 @@ class MyParcelNLBuckarooPlugin
                     $this->checkoutSession->setMyParcelNLBuckarooData(
                         $this->json->serialize($jsonDecoded['deliveryOptions'][0]['pickupLocation'])
                     );
-                    $this->logger->addDebug(__METHOD__ . '|3|');
                 }
             }
         }

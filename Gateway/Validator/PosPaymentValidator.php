@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Magento\Framework\HTTP\Header;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Payment\Gateway\Validator\AbstractValidator;

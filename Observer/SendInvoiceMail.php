@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Magento\Framework\Event\Observer;
@@ -33,9 +33,9 @@ use Magento\Sales\Model\Order\Invoice;
 class SendInvoiceMail implements ObserverInterface
 {
     /**
-     * @var Log $logging
+     * @var BuckarooLoggerInterface $logger
      */
-    public $logging;
+    public BuckarooLoggerInterface $logger;
     /**
      * @var Data
      */
@@ -52,18 +52,18 @@ class SendInvoiceMail implements ObserverInterface
     /**
      * @param Account $accountConfig
      * @param InvoiceSender $invoiceSender
-     * @param Log $logging
+     * @param BuckarooLoggerInterface $logger
      * @param Data $helper
      */
     public function __construct(
         Account $accountConfig,
         InvoiceSender $invoiceSender,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Data $helper
     ) {
         $this->accountConfig = $accountConfig;
         $this->invoiceSender = $invoiceSender;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->helper = $helper;
     }
 
@@ -78,8 +78,6 @@ class SendInvoiceMail implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $this->logging->addDebug(__METHOD__ . '|1|');
-
         /** @var Invoice $invoice */
         $invoice = $observer->getEvent()->getInvoice();
         $payment = $invoice->getOrder()->getPayment();
@@ -94,13 +92,14 @@ class SendInvoiceMail implements ObserverInterface
 
         if (!$invoice->getEmailSent() && $invoice->getIsPaid() && $canCapture && $sendInvoiceEmail) {
             $invoice->save();
-            $this->logging->addDebug(__METHOD__ . '|10|sendinvoiceemail');
+            $this->logger->addDebug(
+                '[SEND_EMAIL] | [Observer] | ['.__METHOD__.':'.__LINE__.'] - Send email on creating invoice'
+            );
             $orderBaseSubtotal = $order->getBaseSubtotal();
             $orderBaseTaxAmount = $order->getBaseTaxAmount();
             $orderBaseShippingAmount = $order->getBaseShippingAmount();
             $this->invoiceSender->send($invoice, true);
             if (($orderBaseShippingAmount > 0) && ($order->getBaseShippingAmount() == 0)) {
-                $this->logging->addDebug(__METHOD__ . '|15|');
                 $invoice->getOrder()->setBaseShippingAmount($orderBaseShippingAmount);
             }
             $order->setBaseSubtotal($orderBaseSubtotal);
@@ -111,7 +110,6 @@ class SendInvoiceMail implements ObserverInterface
             && !$this->helper->areEqualAmounts($order->getBaseTotalPaid(), $order->getTotalPaid())
             && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
         ) {
-            $this->logging->addDebug(__METHOD__ . '|25|');
             $order->setBaseTotalPaid($order->getTotalPaid());
         }
     }
