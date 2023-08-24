@@ -48,7 +48,8 @@ define([
       validationState: {},
       showAll: false,
       bankTypes: window.checkoutConfig.payment.buckaroo.paybybank.banks,
-      isMobile: $(window).width() < 768
+      isMobile: $(window).width() < 768,
+      logo: require.toUrl('Buckaroo_Magento2/images/paybybank.gif')
     },
     redirectAfterPlaceOrder: false,
     selectionType:
@@ -57,7 +58,7 @@ define([
     subTextStyle: checkoutCommon.getSubtextStyle("paybybank"),
     currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
     baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-
+    internalBanks: window.checkoutConfig.payment.buckaroo.paybybank.banks,
     /**
      * @override
      */
@@ -107,21 +108,38 @@ define([
         return valid;
       }, this);
 
+      this.logo = ko.computed(function () {
+        let found  = this.internalBanks.find(function (bank) {
+          return bank.code  === this.selectedBank();
+        }, this);
+       
+        if (found !== undefined) {
+          return found.img;
+        }
+        return require.toUrl('Buckaroo_Magento2/images/paybybank.gif')
+      }, this);
       return this;
     },
 
+
     initialSelected() {
-      let found = window.checkoutConfig.payment.buckaroo.paybybank.banks.find(function (bank) {
+      let found = this.internalBanks.find(function (bank) {
         return bank.selected === true;
       });
 
       if (found !== undefined) {
         this.selectedBank(found.code);
+        this.updateFormState(true);
       }
     },
 
     validateField(data, event) {
-      const isValid = $(event.target).valid();
+      this.updateFormState(
+        $(event.target).valid()
+      );
+    },
+
+    updateFormState(isValid) {
       let state = this.validationState();
       state["issuer"] = isValid;
       this.validationState(state);
