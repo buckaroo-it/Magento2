@@ -37,6 +37,9 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class CommandInterface
 {
     /**
@@ -140,6 +143,8 @@ class CommandInterface
      * @param MethodInterface $methodInstance
      * @return bool
      * @throws Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function skipUpdateOrderStateAndStatus(
         string $orderStatus,
