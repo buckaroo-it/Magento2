@@ -538,6 +538,10 @@ class Capayable extends AbstractMethod
      */
     public function getPaymentMethodName($payment)
     {
+        if ($this->isV3()) {
+            return 'In3';
+        }
+        
         return 'capayable';
     }
 
