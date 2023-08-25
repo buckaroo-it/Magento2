@@ -46,12 +46,9 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditclick'
                 },
-                banktypes: [],
-                redirectAfterPlaceOrder: false,
-                selectedBank: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditclick.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.emandate.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('emandate'),
+                subtext : window.checkoutConfig.payment.buckaroo.creditclick.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('creditclick'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 
@@ -64,31 +61,6 @@ define(
                     }
 
                     return this._super(options);
-                },
-
-                initObservable: function () {
-                    this._super().observe(['selectedBank', 'banktypes']);
-
-                    this.banktypes = ko.observableArray(window.checkoutConfig.payment.buckaroo.emandate.banks);
-
-                    /** observe radio buttons, check if they're selected */
-                    var self = this;
-                    this.setSelectedBank = function (value) {
-                        self.selectedBank(value);
-                        return true;
-                    };
-
-                    /** Check if the required fields are filled.
-                     * If so: enable place order button (true) | if not: disable place order button (false)
-                     */
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            return this.selectedBank() !== null;
-                        },
-                        this
-                    );
-
-                    return this;
                 },
 
                 /**
@@ -131,21 +103,6 @@ define(
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
-                },
-
-                getData: function () {
-                    var selectedBankCode = null;
-                    if (this.selectedBank()) {
-                        selectedBankCode = this.selectedBank().code;
-                    }
-
-                    return {
-                        "method": this.item.method,
-                        "po_number": null,
-                        "additional_data": {
-                            "issuer" : selectedBankCode
-                        }
-                    };
                 },
 
                 payWithBaseCurrency: function () {

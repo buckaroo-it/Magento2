@@ -580,7 +580,6 @@ class Data extends AbstractHelper
             ['value' => 'capayablein3',       'label' => __('In3')],
             ['value' => 'creditcard',       'label' => __('Credit and debit cards')],
             ['value' => 'creditcards',       'label' => __('Credit and debit cards (Client sided)')],
-            ['value' => 'emandate',       'label' => __('Digital Debit Authorization')],
             ['value' => 'eps',       'label' => __('EPS')],
             ['value' => 'giftcards',       'label' => __('Giftcards')],
             ['value' => 'giropay',       'label' => __('Giropay')],

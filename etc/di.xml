@@ -619,11 +619,6 @@
             <argument name="action" xsi:type="string">fromPayLink</argument>
         </arguments>
     </virtualType>
-    <virtualType name="AdditionalParametersCreateMandateDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
-        <arguments>
-            <argument name="action" xsi:type="string">createmandate</argument>
-        </arguments>
-    </virtualType>
     <!-- END Additional Parameters Data Builder Types -->
 
     <!-- Gateway Client Types -->
@@ -680,11 +675,6 @@
     <virtualType name="TransactionReserve" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::RESERVE</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="TransactionCreateMandate" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
-        <arguments>
-            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::CREATE_MANDATE</argument>
         </arguments>
     </virtualType>
     <virtualType name="TransactionPaymentInvitation" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
