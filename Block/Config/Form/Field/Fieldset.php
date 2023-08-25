@@ -163,9 +163,6 @@ class Fieldset extends MagentoFieldset
         $method = str_replace("buckaroo_magento2_", "", $element->getGroup()['id']);
         $logo = $this->getPaymentLogo($method);
 
-        if ($method === 'paylink') {
-            return parent::_getHeaderTitleHtml($element);
-        }
         return parent::_getHeaderTitleHtml($element) . '<img class="bk-ad-payment-logo" src="' . $logo . '">';
     }
 
@@ -181,6 +178,6 @@ class Fieldset extends MagentoFieldset
             $method = "buckaroovoucher";
         }
 
-        return $this->logoService->getPayment($method);
+        return $this->logoService->getPayment($method, true);
     }
 }

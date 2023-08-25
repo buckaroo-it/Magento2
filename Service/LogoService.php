@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service;
@@ -44,7 +46,7 @@ class LogoService
      * @param string $paymentCode
      * @return string
      */
-    public function getPayment(string $paymentCode): string
+    public function getPayment(string $paymentCode, bool $backend = false): string
     {
         $mappings = [
             "afterpay2" => "svg/afterpay.svg",
@@ -61,12 +63,17 @@ class LogoService
             "p24" => "svg/przelewy24.svg",
             "sepadirectdebit" => "svg/sepa-directdebit.svg",
             "sofortbanking" => "svg/sofort.svg",
-            "emandate" => "emandate.png",
-            "pospayment" => "pos.png",
+            "pospayment" => "svg/pos.svg",
             "transfer" => "svg/sepa-credittransfer.svg",
             "buckaroovoucher" => "svg/vouchers.svg",
             "paybybank" => "paybybank.gif"
         ];
+
+        if ($backend === true) {
+            $mappings = array_merge($mappings, [
+                "paybybank" => "svg/paybybank.svg",
+            ]);
+        }
 
         $name = "svg/{$paymentCode}.svg";
 
