@@ -21,10 +21,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Response;
 
+use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Transaction\Response\TransactionResponse;
-use Magento\Framework\Registry;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
@@ -36,22 +36,22 @@ class PaymentDetailsHandler implements HandlerInterface
     protected Data $helper;
 
     /**
-     * @var Registry
+     * @var BuckarooResponseDataInterface
      */
-    protected Registry $registry;
+    protected BuckarooResponseDataInterface $buckarooResponseData;
 
     /**
      * Constructor
      *
      * @param Data $helper
-     * @param Registry $registry
+     * @param BuckarooResponseDataInterface $buckarooResponseData
      */
     public function __construct(
         Data $helper,
-        Registry $registry
+        BuckarooResponseDataInterface $buckarooResponseData
     ) {
         $this->helper = $helper;
-        $this->registry = $registry;
+        $this->buckarooResponseData = $buckarooResponseData;
     }
 
     /**
@@ -77,8 +77,8 @@ class PaymentDetailsHandler implements HandlerInterface
             \json_encode($rawInfo)
         );
 
-        // SET REGISTRY BUCKAROO REDIRECT
-        $this->addToRegistry('buckaroo_response', $arrayResponse);
+        // SET BUCKAROO RESPONSE REDIRECT
+        $this->buckarooResponseData->setResponse($transactionResponse);
     }
 
     /**
@@ -91,26 +91,5 @@ class PaymentDetailsHandler implements HandlerInterface
     public function getTransactionAdditionalInfo(array $array): array
     {
         return $this->helper->getTransactionAdditionalInfo($array);
-    }
-
-    /**
-     * Add Buckaroo Response in Registry
-     *
-     * @param string $key
-     * @param array $value
-     */
-    protected function addToRegistry(string $key, array $value)
-    {
-        // if the key doesn't exist or is empty, the data can be directly added and registered
-        if (!$this->registry->registry($key)) {
-            $this->registry->register($key, [$value]);
-            return;
-        }
-
-        $registryValue = $this->registry->registry($key);
-        $registryValue[] = $value;
-
-        $this->registry->unregister($key);
-        $this->registry->register($key, $registryValue);
     }
 }

@@ -21,14 +21,15 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Checkout\Api\PaymentInformationManagementInterface;
 use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaymentInformationManagement;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Registry;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
@@ -39,7 +40,6 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Psr\Log\LoggerInterface;
-use Magento\Framework\App\ProductMetadataInterface;
 
 /**
  * Class GuestPaymentInformationManagement
@@ -56,18 +56,21 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      * @var Factory
      */
     public Factory $configProviderMethodFactory;
-    /**
-     * @var Registry|null
-     */
-    protected ?Registry $registry = null;
+
     /**
      * @var LoggerInterface|null
      */
     protected ?LoggerInterface $logger = null;
+
     /**
      * @var OrderRepositoryInterface
      */
     protected OrderRepositoryInterface $orderRepository;
+
+    /**
+     * @var BuckarooResponseDataInterface
+     */
+    private BuckarooResponseDataInterface $buckarooResponseData;
 
     /**
      * @param GuestBillingAddressManagementInterface $billingAddressManagement
@@ -76,7 +79,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      * @param PaymentInformationManagementInterface $paymentInformationManagement
      * @param QuoteIdMaskFactory $quoteIdMaskFactory
      * @param CartRepositoryInterface $cartRepository
-     * @param Registry $registry
+     * @param BuckarooResponseDataInterface $buckarooResponseData
      * @param LoggerInterface $logger
      * @param Factory $configProviderMethodFactory
      * @param OrderRepositoryInterface $orderRepository
@@ -92,7 +95,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         PaymentInformationManagementInterface $paymentInformationManagement,
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
-        Registry $registry,
+        BuckarooResponseDataInterface $buckarooResponseData,
         LoggerInterface $logger,
         Factory $configProviderMethodFactory,
         OrderRepositoryInterface $orderRepository,
@@ -114,8 +117,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
             $cartRepository,
             $lastParam
         );
-
-        $this->registry = $registry;
+        $this->buckarooResponseData = $buckarooResponseData;
         $this->logger = $logger;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderRepository = $orderRepository;
@@ -148,37 +150,21 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
 
         $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
 
-        //phpcs:ignore:Magento2.Functions.DiscouragedFunction
+        $buckarooResponse = $this->buckarooResponseData->getResponse()->toArray();
         $this->logger->debug(sprintf(
             '[PLACE_ORDER] | [Webapi] | [%s:%s] - Guest Users | buckarooResponse: %s',
             __METHOD__, __LINE__,
-            print_r($this->registry->registry('buckaroo_response'), true)
+            print_r($buckarooResponse, true)
         ));
 
-        if ($this->registry && $this->registry->registry('buckaroo_response')) {
-            return \json_encode($this->registry->registry('buckaroo_response')[0]);
+        if ($buckarooResponse) {
+            return \json_encode($buckarooResponse);
         }
+
         return json_encode([
-//            "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
+//          "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
             "order_number" => $this->getOrderIncrementId($orderId)
         ]);
-    }
-
-    /**
-     * Get limit reach message from payment object
-     *
-     * @param int $orderId
-     * @return string|null
-     *
-     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
-     */
-    private function getLimitReachedMessage($orderId)
-    {
-        $order = $this->orderRepository->get($orderId);
-        if ($order->getEntityId() !== null && $order->getPayment() !== null) {
-            return $order->getPayment()->getAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
-        }
-        return null;
     }
 
     /**
@@ -227,5 +213,22 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
     {
         $order = $this->orderRepository->get($orderId);
         return $order->getIncrementId();
+    }
+
+    /**
+     * Get limit reach message from payment object
+     *
+     * @param int $orderId
+     * @return string|null
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+     */
+    private function getLimitReachedMessage($orderId)
+    {
+        $order = $this->orderRepository->get($orderId);
+        if ($order->getEntityId() !== null && $order->getPayment() !== null) {
+            return $order->getPayment()->getAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
+        }
+        return null;
     }
 }

@@ -21,11 +21,55 @@
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
 use Buckaroo\Magento2\Model\Giftcard;
+use Buckaroo\Magento2\Model\GiftcardFactory;
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\Filesystem;
+use Magento\Framework\Image\AdapterFactory;
+use Magento\Framework\Registry;
+use Magento\Framework\View\Result\PageFactory;
 
-class Edit extends Index implements HttpGetActionInterface
+class Edit extends Action implements HttpGetActionInterface
 {
+    /**
+     * @var PageFactory
+     */
+    protected $resultPageFactory;
+
+    /**
+     * @var  GiftcardFactory
+     */
+    protected $giftcardFactory;
+
+    /**
+     * @var Registry
+     */
+    private Registry $coreRegistry;
+
+    /**
+     * @param Context $context
+     * @param Registry $coreRegistry
+     * @param PageFactory $resultPageFactory
+     * @param GiftcardFactory $giftcardFactory
+     * @param Filesystem $fileSystem
+     * @param UploaderFactory $uploaderFactory
+     * @param AdapterFactory $adapterFactory
+     */
+    public function __construct(
+        Context $context,
+        PageFactory $resultPageFactory,
+        GiftcardFactory $giftcardFactory,
+        Registry $coreRegistry
+    ) {
+        parent::__construct($context);
+
+        $this->coreRegistry = $coreRegistry;
+        $this->resultPageFactory = $resultPageFactory;
+        $this->giftcardFactory = $giftcardFactory;
+    }
+
     /**
      * Edit Giftcard
      *
@@ -53,7 +97,7 @@ class Edit extends Index implements HttpGetActionInterface
         if (!empty($data)) {
             $model->setData($data);
         }
-        $this->_coreRegistry->register('buckaroo_giftcard', $model);
+        $this->coreRegistry->register('buckaroo_giftcard', $model);
 
         /**
          * @var Page $resultPage

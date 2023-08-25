@@ -27,7 +27,6 @@ use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Image\AdapterFactory;
-use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\MediaStorage\Model\File\UploaderFactory;
 
@@ -37,11 +36,6 @@ class Index extends Action implements HttpGetActionInterface
      * @var PageFactory
      */
     protected $resultPageFactory;
-
-    /**
-     * @var Registry
-     */
-    protected $_coreRegistry;
 
     /**
      * @var  GiftcardFactory
@@ -65,7 +59,6 @@ class Index extends Action implements HttpGetActionInterface
 
     /**
      * @param Context $context
-     * @param Registry $coreRegistry
      * @param PageFactory $resultPageFactory
      * @param GiftcardFactory $giftcardFactory
      * @param Filesystem $fileSystem
@@ -74,7 +67,6 @@ class Index extends Action implements HttpGetActionInterface
      */
     public function __construct(
         Context $context,
-        Registry $coreRegistry,
         PageFactory $resultPageFactory,
         GiftcardFactory $giftcardFactory,
         Filesystem $fileSystem,
@@ -84,7 +76,6 @@ class Index extends Action implements HttpGetActionInterface
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
-        $this->_coreRegistry = $coreRegistry;
         $this->giftcardFactory = $giftcardFactory;
         $this->fileSystem = $fileSystem;
         $this->adapterFactory = $adapterFactory;
