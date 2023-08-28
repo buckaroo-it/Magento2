@@ -119,7 +119,7 @@ class CapayableIn3 extends AbstractConfigProvider
             $storeId
         );
 
-        if (!is_string($logo)) {
+        if (!is_string($logo) || !$this->isV3($storeId)) {
             return 'in3.svg';
         }
 
