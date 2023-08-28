@@ -2,15 +2,6 @@
 
 namespace Buckaroo\Magento2\Model\Push;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
-use Buckaroo\Magento2\Exception as BuckarooException;
-use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Service\LockerProcess;
-use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Model\Order;
-
 class KlarnaProcessor extends DefaultProcessor
 {
     /**

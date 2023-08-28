@@ -29,9 +29,9 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
-use Buckaroo\Magento2\Service\LockerProcess;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Lock\LockManagerInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 
 /**
@@ -42,9 +42,9 @@ class IdealProcessor extends DefaultProcessor
     public const BUCK_PUSH_IDEAL_PAY = 'C021';
 
     /**
-     * @var LockerProcess
+     * @var LockManagerInterface
      */
-    private LockerProcess $lockerProcess;
+    private LockManagerInterface $lockManager;
 
     /**
      * @param OrderRequestService $orderRequestService
@@ -56,8 +56,7 @@ class IdealProcessor extends DefaultProcessor
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
-     * @param LockerProcess $lockerProcess
-     *
+     * @param LockManagerInterface $lockManager
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -70,11 +69,11 @@ class IdealProcessor extends DefaultProcessor
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
-        LockerProcess $lockerProcess
+        LockManagerInterface $lockManager
     ) {
         parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
             $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
-        $this->lockerProcess = $lockerProcess;
+        $this->lockManager = $lockManager;
 
     }
 
@@ -86,13 +85,22 @@ class IdealProcessor extends DefaultProcessor
     {
         $this->pushRequest = $pushRequest;
 
-        if ($this->lockPushProcessingCriteria()) {
-            $this->lockerProcess->lockProcess($this->getOrderIncrementId());
+        $lockName = $this->getOrderIncrementId();
+        if ($this->lockManager->isLocked($lockName)) {
+            throw new BuckarooException(
+                __('The Push is blocked by another request. Please wait and resend the request later.')
+            );
         }
 
-        parent::processPush($pushRequest);
+        if ($this->lockPushProcessingCriteria()) {
+            $this->lockManager->lock($lockName);
+        }
 
-        $this->lockerProcess->unlockProcess();
+        try {
+            parent::processPush($pushRequest);
+        } finally {
+            $this->lockManager->unlock($lockName);
+        }
 
         return true;
     }
