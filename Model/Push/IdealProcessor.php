@@ -85,7 +85,7 @@ class IdealProcessor extends DefaultProcessor
     {
         $this->pushRequest = $pushRequest;
 
-        $lockName = $this->getOrderIncrementId();
+        $lockName = 'bk_push_ideal_' . sha1($this->getOrderIncrementId());
         if ($this->lockManager->isLocked($lockName)) {
             throw new BuckarooException(
                 __('The Push is blocked by another request. Please wait and resend the request later.')
