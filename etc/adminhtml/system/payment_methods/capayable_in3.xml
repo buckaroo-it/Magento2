@@ -30,6 +30,23 @@
             <config_path>payment/buckaroo_magento2_capayablein3/active</config_path>
         </field>
 
+        <field id="api_version" translate="label comment tooltip" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Api version</label>
+            <comment><![CDATA[Chose the api version for this payment method.]]></comment>
+            <config_path>payment/buckaroo_magento2_capayablein3/api_version</config_path>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\In3ApiVersions</source_model>
+        </field>
+
+        <field id="payment_logo" translate="label comment" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Payment Logo</label>
+            <comment><![CDATA[Determines the logo that will be shown in the checkout]]></comment>
+            <config_path>payment/buckaroo_magento2_capayablein3/payment_logo</config_path>
+            <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\LogoSelector</frontend_model>
+            <depends>
+                <field id="api_version">V3</field>
+            </depends>
+        </field>
+
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend label</label>
             <comment><![CDATA[Determines the frontend label shown.]]></comment>

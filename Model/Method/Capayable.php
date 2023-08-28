@@ -52,6 +52,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Buckaroo\Magento2\Model\Method\Capayable\In3V3Builder;
 use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class Capayable extends AbstractMethod
@@ -76,6 +77,9 @@ class Capayable extends AbstractMethod
     /** @var SoftwareData */
     public $softwareData;
 
+
+    protected $v3Builder;
+
     public function __construct(
         ObjectManagerInterface $objectManager,
         Context $context,
@@ -95,6 +99,7 @@ class Capayable extends AbstractMethod
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         EventManager $eventManager,
+        In3V3Builder $v3Builder,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         GatewayInterface $gateway = null,
@@ -141,6 +146,7 @@ class Capayable extends AbstractMethod
         );
 
         $this->addressFormatter = $addressFormatter;
+        $this->v3Builder = $v3Builder;
     }
 
     /**
@@ -237,6 +243,12 @@ class Capayable extends AbstractMethod
      */
     public function getCapayableService($payment)
     {
+
+        if ($this->isV3()) {
+            $payment->setAdditionalInformation("buckaroo_in3_v3", true);
+            return $this->v3Builder->build($payment);
+        }
+
         $requestParameter = [];
         $requestParameter = array_merge($requestParameter, $this->getCustomerData($payment));
         $requestParameter = array_merge($requestParameter, $this->getProductLineData($payment));
@@ -249,6 +261,10 @@ class Capayable extends AbstractMethod
         ];
 
         return $services;
+    }
+
+    protected function isV3() {
+        return $this->configProviderMethodFactory->get('capayablein3')->isV3();
     }
 
     /**
@@ -521,6 +537,10 @@ class Capayable extends AbstractMethod
      */
     public function getPaymentMethodName($payment)
     {
+        if ($payment->getAdditionalInformation("buckaroo_in3_v3") === true) {
+            return 'In3';
+        }
+
         return 'capayable';
     }
 
