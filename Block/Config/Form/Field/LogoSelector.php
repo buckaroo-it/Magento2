@@ -65,7 +65,7 @@ class LogoSelector extends Field
     {
         return [
             "in3.svg" => $this->assetRepo->getUrl("Buckaroo_Magento2::images/svg/in3.svg"),
-            "in3v3.svg" => $this->assetRepo->getUrl("Buckaroo_Magento2::images/svg/in3.svg")
+            "in3-ideal.svg" => $this->assetRepo->getUrl("Buckaroo_Magento2::images/svg/in3-ideal.svg")
         ]; 
     }
 }
