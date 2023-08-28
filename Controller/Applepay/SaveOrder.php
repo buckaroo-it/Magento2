@@ -21,10 +21,12 @@
 
 namespace Buckaroo\Magento2\Controller\Applepay;
 
+use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\Service\QuoteAddressService;
+use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Group;
@@ -35,7 +37,6 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Registry;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -52,9 +53,9 @@ class SaveOrder extends AbstractApplepay
     protected $quoteManagement;
 
     /**
-     * @var Registry|null
+     * @var BuckarooResponseDataInterface
      */
-    protected $registry = null;
+    protected BuckarooResponseDataInterface $buckarooResponseData;
 
     /**
      * @var Order
@@ -105,7 +106,7 @@ class SaveOrder extends AbstractApplepay
      * @param QuoteManagement $quoteManagement
      * @param CustomerSession $customerSession
      * @param DataObjectFactory $objectFactory
-     * @param Registry $registry
+     * @param BuckarooResponseDataInterface $buckarooResponseData
      * @param OrderRepositoryInterface $orderRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param CheckoutSession $checkoutSession
@@ -123,7 +124,7 @@ class SaveOrder extends AbstractApplepay
         QuoteManagement $quoteManagement,
         CustomerSession $customerSession,
         DataObjectFactory $objectFactory,
-        Registry $registry,
+        BuckarooResponseDataInterface $buckarooResponseData,
         OrderRepositoryInterface $orderRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         CheckoutSession $checkoutSession,
@@ -139,7 +140,7 @@ class SaveOrder extends AbstractApplepay
         $this->quoteManagement = $quoteManagement;
         $this->customerSession = $customerSession;
         $this->objectFactory = $objectFactory;
-        $this->registry = $registry;
+        $this->buckarooResponseData = $buckarooResponseData;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->checkoutSession = $checkoutSession;
@@ -238,24 +239,23 @@ class SaveOrder extends AbstractApplepay
     private function handleResponse()
     {
         $data = [];
-        if ($this->registry && $this->registry->registry('buckaroo_response')) {
-            $data = $this->registry->registry('buckaroo_response')[0];
+        $buckarooResponseData = $this->buckarooResponseData->getResponse();
+        if ($buckarooResponseData) {
+            $data = $buckarooResponseData->toArray();
             $this->logger->addDebug(sprintf(
                 '[ApplePay] | [Controller] | [%s:%s] - Save Order Handle Response | buckarooResponse: %s',
                 __METHOD__, __LINE__,
                 var_export($data, true)
             ));
-            if (!empty($data->RequiredAction->RedirectURL)) {
+            if ($buckarooResponseData->hasRedirect()) {
                 //test mode
                 $data = [
-                    'RequiredAction' => $data->RequiredAction
+                    'RequiredAction' => $buckarooResponseData->getRequiredAction()
                 ];
             } else {
                 //live mode
-                if (isset($data['Status']['Code']['Code']) && $data['Status']['Code']['Code'] == '190'
-                    && isset($data['Order'])
-                ) {
-                    $data = $this->processBuckarooResponse($data);
+                if ($buckarooResponseData->isSuccess() && !empty($buckarooResponseData->getOrder())) {
+                    $data = $this->processBuckarooResponse($buckarooResponseData, $data);
                 }
             }
         }
@@ -266,12 +266,16 @@ class SaveOrder extends AbstractApplepay
     /**
      * Set Order and Quote Data on Checkout Session
      *
-     * @param array|object $data
-     * @return array|object
+     * @param TransactionResponse $buckarooResponseData
+     * @param array $data
+     * @return array
      */
-    private function processBuckarooResponse($data)
+    private function processBuckarooResponse(TransactionResponse $buckarooResponseData, array $data): array
     {
-        $searchCriteria = $this->searchCriteriaBuilder->addFilter('increment_id', $data['Order'])->create();
+        $searchCriteria = $this->searchCriteriaBuilder->addFilter(
+            'increment_id',
+            $buckarooResponseData->getOrder()
+        )->create();
         $order = $this->orderRepository->getList($searchCriteria)->getFirstItem();
 
         if ($order->getId()) {

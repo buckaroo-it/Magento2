@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
+use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Magento\Framework\Registry;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use stdClass;
@@ -37,33 +38,35 @@ class OrderUpdateShipping
     protected $shippingAddress;
 
     /**
+     * @var BuckarooResponseDataInterface
+     */
+    private BuckarooResponseDataInterface $buckarooResponseData;
+
+    /**
      * @param OrderAddressInterface $shippingAddress
-     * @param Registry $registry
+     * @param BuckarooResponseDataInterface $buckarooResponseData
      */
     public function __construct(
         OrderAddressInterface $shippingAddress,
-        Registry $registry
+        BuckarooResponseDataInterface $buckarooResponseData
     ) {
         $this->shippingAddress = $shippingAddress;
-        $this->responseAddressInfo = $this->getAddressInfoFromPayRequest($registry);
+        $this->buckarooResponseData = $buckarooResponseData;
+        $this->responseAddressInfo = $this->getAddressInfoFromPayRequest();
     }
 
     /**
      * Get payment response
      *
-     * @param Registry $registry
      * @return array|null
      */
-    private function getAddressInfoFromPayRequest($registry)
+    private function getAddressInfoFromPayRequest(): ?array
     {
-        if ($registry
-            && $registry->registry("buckaroo_response")
-            && isset($registry->registry("buckaroo_response")[0])
-            && isset($registry->registry("buckaroo_response")[0]->Services->Service->ResponseParameter)
+        $buckarooResponse = $this->buckarooResponseData->getResponse()->toArray();
+        if (!empty($buckarooResponse)
+            && isset($buckarooResponse['Services']['Service']['ResponseParameter'])
         ) {
-            return $this->formatAddressData(
-                $registry->registry("buckaroo_response")[0]->Services->Service->ResponseParameter
-            );
+            return $this->formatAddressData($buckarooResponse['Services']['Service']['ResponseParameter']);
         }
 
         return null;

@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
+use Buckaroo\Magento2\Api\Data\BuckarooGiftcardDataInterface;
 use Buckaroo\Magento2\Model\Giftcard;
 use Buckaroo\Magento2\Model\GiftcardFactory;
 use Magento\Backend\App\Action;
@@ -44,28 +45,25 @@ class Edit extends Action implements HttpGetActionInterface
     protected $giftcardFactory;
 
     /**
-     * @var Registry
+     * @var BuckarooGiftcardDataInterface
      */
-    private Registry $coreRegistry;
+    private BuckarooGiftcardDataInterface $buckarooGiftcardData;
 
     /**
      * @param Context $context
-     * @param Registry $coreRegistry
      * @param PageFactory $resultPageFactory
      * @param GiftcardFactory $giftcardFactory
-     * @param Filesystem $fileSystem
-     * @param UploaderFactory $uploaderFactory
-     * @param AdapterFactory $adapterFactory
+     * @param BuckarooGiftcardDataInterface $buckarooGiftcardData
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         GiftcardFactory $giftcardFactory,
-        Registry $coreRegistry
+        BuckarooGiftcardDataInterface $buckarooGiftcardData
     ) {
         parent::__construct($context);
 
-        $this->coreRegistry = $coreRegistry;
+        $this->buckarooGiftcardData = $buckarooGiftcardData;
         $this->resultPageFactory = $resultPageFactory;
         $this->giftcardFactory = $giftcardFactory;
     }
@@ -97,7 +95,8 @@ class Edit extends Action implements HttpGetActionInterface
         if (!empty($data)) {
             $model->setData($data);
         }
-        $this->coreRegistry->register('buckaroo_giftcard', $model);
+
+        $this->buckarooGiftcardData->setGiftcardModel($model);
 
         /**
          * @var Page $resultPage

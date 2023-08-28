@@ -34,6 +34,7 @@
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
     <preference for="Buckaroo\Magento2\Logging\BuckarooLoggerInterface" type="Buckaroo\Magento2\Logging\SimplifiedLog" />
     <preference for="Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface" type="Buckaroo\Magento2\Model\Data\BuckarooResponseData"/>
+    <preference for="Buckaroo\Magento2\Api\Data\BuckarooGiftcardDataInterface" type="Buckaroo\Magento2\Model\Data\BuckarooGiftcardData"/>
 
       <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
