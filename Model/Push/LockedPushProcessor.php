@@ -37,15 +37,15 @@ use Magento\Sales\Api\Data\TransactionInterface;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class IdealProcessor extends DefaultProcessor
+class LockedPushProcessor extends DefaultProcessor
 {
     public const BUCK_PUSH_IDEAL_PAY = 'C021';
-    private const LOCK_PREFIX = 'bk_push_ideal_';
+    protected const LOCK_PREFIX = 'bk_push_ideal_';
 
     /**
      * @var LockManagerInterface
      */
-    private LockManagerInterface $lockManager;
+    protected LockManagerInterface $lockManager;
 
     /**
      * @param OrderRequestService $orderRequestService
@@ -87,12 +87,8 @@ class IdealProcessor extends DefaultProcessor
         $this->pushRequest = $pushRequest;
 
         $lockName = $this->generateLockName();
-        if ($this->isPushLocked($lockName)) {
-            throw new BuckarooException(
-                __('The Push for order %1 is currently being processed by another request. ' .
-                'Please wait a few moments and then try resending the request.', $this->getOrderIncrementId())
-            );
-        }
+
+        $this->stopLockedPush($lockName);
 
         if ($this->lockPushProcessingCriteria()) {
             $this->lockManager->lock($lockName);
@@ -123,19 +119,25 @@ class IdealProcessor extends DefaultProcessor
      *
      * @return string
      */
-    private function generateLockName(): string
+    protected function generateLockName(): string
     {
         return self::LOCK_PREFIX . sha1($this->getOrderIncrementId());
     }
 
     /**
-     * Check if the push request is currently locked.
+     * Ensure the push request is not currently locked.
      *
      * @param string $lockName
-     * @return bool
+     * @return void
+     * @throws BuckarooException
      */
-    private function isPushLocked(string $lockName): bool
+    protected function stopLockedPush(string $lockName): void
     {
-        return $this->lockManager->isLocked($lockName);
+        if ($this->lockManager->isLocked($lockName)) {
+            throw new BuckarooException(
+                __('The Push for order %1 is currently being processed by another request. ' .
+                    'Please wait a few moments and then try resending the request.', $this->getOrderIncrementId())
+            );
+        }
     }
 }

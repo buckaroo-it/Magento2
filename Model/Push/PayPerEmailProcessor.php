@@ -43,13 +43,9 @@ use Magento\Sales\Model\Order;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class PayPerEmailProcessor extends DefaultProcessor
+class PayPerEmailProcessor extends LockedPushProcessor
 {
-    private const LOCK_PREFIX = 'bk_push_ppe_';
-    /**
-     * @var LockManagerInterface
-     */
-    private LockManagerInterface $lockManager;
+    protected const LOCK_PREFIX = 'bk_push_ppe_';
 
     /**
      * @var PayPerEmail
@@ -90,8 +86,7 @@ class PayPerEmailProcessor extends DefaultProcessor
         PayPerEmail $configPayPerEmail
     ) {
         parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
-        $this->lockManager = $lockManager;
+            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount, $lockManager);
         $this->configPayPerEmail = $configPayPerEmail;
 
     }
@@ -108,12 +103,7 @@ class PayPerEmailProcessor extends DefaultProcessor
         $this->initializeFields($pushRequest);
 
         $lockName = $this->generateLockName();
-        if ($this->isPushLocked($lockName)) {
-            throw new BuckarooException(
-                __('The Push for order %1 is currently being processed by another request. ' .
-                    'Please wait a few moments and then try resending the request.', $this->getOrderIncrementId())
-            );
-        }
+        $this->stopLockedPush($lockName);
 
         if ($this->lockPushProcessingCriteria()) {
             $this->lockManager->lock($lockName);
@@ -446,26 +436,5 @@ class PayPerEmailProcessor extends DefaultProcessor
             return false;
         }
         return true;
-    }
-
-    /**
-     * Generate a unique lock name for the push request.
-     *
-     * @return string
-     */
-    private function generateLockName(): string
-    {
-        return self::LOCK_PREFIX . sha1($this->getOrderIncrementId());
-    }
-
-    /**
-     * Check if the push request is currently locked.
-     *
-     * @param string $lockName
-     * @return bool
-     */
-    private function isPushLocked(string $lockName): bool
-    {
-        return $this->lockManager->isLocked($lockName);
     }
 }
