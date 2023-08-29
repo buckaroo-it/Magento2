@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
@@ -28,7 +29,6 @@ use Magento\Checkout\Model\PaymentDetailsFactory;
 use Magento\Checkout\Model\PaymentInformationManagement as MagentoPaymentInformationManagement;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Registry;
 use Magento\Quote\Api\BillingAddressManagementInterface;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartTotalRepositoryInterface;
@@ -56,11 +56,6 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     public Factory $configProviderMethodFactory;
 
     /**
-     * @var Registry|null
-     */
-    protected ?Registry $registry = null;
-
-    /**
      * @var LoggerInterface|null
      */
     protected ?LoggerInterface $logger = null;
@@ -71,12 +66,17 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     protected OrderRepositoryInterface $orderRepository;
 
     /**
+     * @var BuckarooResponseDataInterface
+     */
+    private BuckarooResponseDataInterface $buckarooResponseData;
+
+    /**
      * @param BillingAddressManagementInterface $billingAddressManagement
      * @param PaymentMethodManagementInterface $paymentMethodManagement
      * @param CartManagementInterface $cartManagement
      * @param PaymentDetailsFactory $paymentDetailsFactory
      * @param CartTotalRepositoryInterface $cartTotalsRepository
-     * @param Registry $registry
+     * @param BuckarooResponseDataInterface $buckarooResponseData
      * @param LoggerInterface $logger
      * @param Factory $configProviderMethodFactory
      * @param OrderRepositoryInterface $orderRepository
@@ -89,7 +89,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         CartManagementInterface $cartManagement,
         PaymentDetailsFactory $paymentDetailsFactory,
         CartTotalRepositoryInterface $cartTotalsRepository,
-        Registry $registry,
+        BuckarooResponseDataInterface $buckarooResponseData,
         LoggerInterface $logger,
         Factory $configProviderMethodFactory,
         OrderRepositoryInterface $orderRepository
@@ -101,7 +101,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
             $paymentDetailsFactory,
             $cartTotalsRepository
         );
-        $this->registry = $registry;
+        $this->buckarooResponseData = $buckarooResponseData;
         $this->logger = $logger;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderRepository = $orderRepository;
@@ -125,36 +125,21 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
 
         $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
 
-        //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-        $this->logger->addDebug(sprintf(
+        $buckarooResponse = $this->buckarooResponseData->getResponse()->toArray();
+        $this->logger->debug(sprintf(
             '[PLACE_ORDER] | [Webapi] | [%s:%s] - Logged In Users | buckarooResponse: %s',
             __METHOD__, __LINE__,
-            print_r($this->registry->registry('buckaroo_response'), true)
+            print_r($buckarooResponse, true)
         ));
 
-        if ($this->registry && $this->registry->registry('buckaroo_response')) {
-            return \json_encode($this->registry->registry('buckaroo_response')[0]);
+        if ($buckarooResponse) {
+            return \json_encode($buckarooResponse);
         }
+
         return json_encode([
-            "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
+//          "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
             "order_number" => $this->getOrderIncrementId($orderId)
         ]);
-    }
-
-    /**
-     * Get limit reach message from payment object
-     *
-     * @param int $orderId
-     *
-     * @return string|null
-     */
-    private function getLimitReachedMessage($orderId)
-    {
-        $order = $this->orderRepository->get($orderId);
-        if ($order->getEntityId() !== null && $order->getPayment() !== null) {
-            return $order->getPayment()->getAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
-        }
-        return null;
     }
 
     /**
@@ -203,5 +188,21 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     {
         $order = $this->orderRepository->get($orderId);
         return $order->getIncrementId();
+    }
+
+    /**
+     * Get limit reach message from payment object
+     *
+     * @param int $orderId
+     *
+     * @return string|null
+     */
+    private function getLimitReachedMessage($orderId)
+    {
+        $order = $this->orderRepository->get($orderId);
+        if ($order->getEntityId() !== null && $order->getPayment() !== null) {
+            return $order->getPayment()->getAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
+        }
+        return null;
     }
 }

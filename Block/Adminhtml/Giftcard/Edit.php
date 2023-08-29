@@ -20,28 +20,28 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard;
 
+use Buckaroo\Magento2\Api\Data\BuckarooGiftcardDataInterface;
 use Magento\Backend\Block\Widget\Context;
 use Magento\Backend\Block\Widget\Form\Container;
-use Magento\Framework\Registry;
 
 class Edit extends Container
 {
     /**
-     * @var Registry
+     * @var BuckarooGiftcardDataInterface
      */
-    protected $_coreRegistry = null;
+    protected BuckarooGiftcardDataInterface $buckarooGiftcardData;
 
     /**
      * @param Context $context
-     * @param Registry $registry
+     * @param BuckarooGiftcardDataInterface $buckarooGiftcardData
      * @param array $data
      */
     public function __construct(
         Context $context,
-        Registry $registry,
+        BuckarooGiftcardDataInterface $buckarooGiftcardData,
         array $data = []
     ) {
-        $this->_coreRegistry = $registry;
+        $this->buckarooGiftcardData = $buckarooGiftcardData;
         parent::__construct($context, $data);
     }
 
@@ -52,10 +52,10 @@ class Edit extends Container
      */
     public function getHeaderText()
     {
-        $registry = $this->_coreRegistry->registry('buckaroo_giftcard');
+        $giftcard = $this->buckarooGiftcardData->getGiftcardModel() ?? null;
 
-        if ($registry->getId()) {
-            $giftcardTitle = $this->escapeHtml($registry->getLabel());
+        if ($giftcard && $giftcard->getId()) {
+            $giftcardTitle = $this->escapeHtml($giftcard->getLabel());
             return __("Edit Giftcard '%s'", $giftcardTitle);
         } else {
             return __('Add Giftcard');
@@ -81,12 +81,12 @@ class Edit extends Container
         $this->buttonList->add(
             'saveandcontinue',
             [
-                'label' => __('Save and Continue'),
-                'class' => 'save',
+                'label'          => __('Save and Continue'),
+                'class'          => 'save',
                 'data_attribute' => [
                     'mage-init' => [
                         'button' => [
-                            'event' => 'saveAndContinueEdit',
+                            'event'  => 'saveAndContinueEdit',
                             'target' => '#edit_form'
                         ]
                     ]

@@ -279,11 +279,11 @@ class Order
      * Cancel the given order with the specified status code.
      *
      * @param \Magento\Sales\Model\Order $order
-     * @param string $statusCode
+     * @param int|null $statusCode
      * @return bool
      * @throws LocalizedException
      */
-    public function cancel(\Magento\Sales\Model\Order $order, string $statusCode)
+    public function cancel(\Magento\Sales\Model\Order $order, ?int $statusCode)
     {
         $paymentMethodCode = $order->getPayment()->getMethod();
         $paymentMethodName = str_replace('buckaroo_magento2_', '',$paymentMethodCode);
@@ -319,10 +319,7 @@ class Order
 
             $order->cancel();
 
-            $failedStatus = $this->orderStatusFactory->get(
-                $statusCode,
-                $order
-            );
+            $failedStatus = $this->orderStatusFactory->get($statusCode, $order);
 
             $this->logger->addDebug(sprintf(
                 '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Cancel Order - set status to: %s',

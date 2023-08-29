@@ -20,11 +20,38 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
 
+use Buckaroo\Magento2\Api\Data\BuckarooGiftcardDataInterface;
+use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Form\Generic;
+use Magento\Framework\Data\FormFactory;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
 
 class Form extends Generic
 {
+    /**
+     * @var BuckarooGiftcardDataInterface
+     */
+    private BuckarooGiftcardDataInterface $buckarooGiftcardData;
+
+    /**
+     * @param Context $context
+     * @param Registry $registry
+     * @param FormFactory $formFactory
+     * @param BuckarooGiftcardDataInterface $buckarooGiftcardData
+     * @param array $data
+     */
+    public function __construct(
+        Context $context,
+        Registry $registry,
+        FormFactory $formFactory,
+        BuckarooGiftcardDataInterface $buckarooGiftcardData,
+        array $data = []
+    ) {
+        $this->buckarooGiftcardData = $buckarooGiftcardData;
+        parent::__construct($context, $registry, $formFactory, $data);
+    }
+
     /**
      * Edit Giftcards Form
      *
@@ -33,10 +60,7 @@ class Form extends Generic
      */
     protected function _prepareForm()
     {
-        /**
-         * @var \Buckaroo\Magento2\Model\Giftcard $model
-         */
-        $model = $this->_coreRegistry->registry('buckaroo_giftcard');
+        $model = $this->buckarooGiftcardData->getGiftcardModel();
 
         /**
          * @var \Magento\Framework\Data\Form $form
