@@ -45,6 +45,7 @@ use Magento\Sales\Model\Order;
  */
 class PayPerEmailProcessor extends DefaultProcessor
 {
+    private const LOCK_PREFIX = 'bk_push_ppe_';
     /**
      * @var LockManagerInterface
      */
@@ -106,10 +107,11 @@ class PayPerEmailProcessor extends DefaultProcessor
     {
         $this->initializeFields($pushRequest);
 
-        $lockName = 'bk_push_ppe_' . sha1($this->getOrderIncrementId());
-        if ($this->lockManager->isLocked($lockName)) {
+        $lockName = $this->generateLockName();
+        if ($this->isPushLocked($lockName)) {
             throw new BuckarooException(
-                __('The Push is blocked by another request. Please wait and resend the request later.')
+                __('The Push for order %1 is currently being processed by another request. ' .
+                    'Please wait a few moments and then try resending the request.', $this->getOrderIncrementId())
             );
         }
 
@@ -444,5 +446,26 @@ class PayPerEmailProcessor extends DefaultProcessor
             return false;
         }
         return true;
+    }
+
+    /**
+     * Generate a unique lock name for the push request.
+     *
+     * @return string
+     */
+    private function generateLockName(): string
+    {
+        return self::LOCK_PREFIX . sha1($this->getOrderIncrementId());
+    }
+
+    /**
+     * Check if the push request is currently locked.
+     *
+     * @param string $lockName
+     * @return bool
+     */
+    private function isPushLocked(string $lockName): bool
+    {
+        return $this->lockManager->isLocked($lockName);
     }
 }

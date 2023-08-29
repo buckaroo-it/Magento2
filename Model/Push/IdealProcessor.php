@@ -40,6 +40,7 @@ use Magento\Sales\Api\Data\TransactionInterface;
 class IdealProcessor extends DefaultProcessor
 {
     public const BUCK_PUSH_IDEAL_PAY = 'C021';
+    private const LOCK_PREFIX = 'bk_push_ideal_';
 
     /**
      * @var LockManagerInterface
@@ -85,10 +86,11 @@ class IdealProcessor extends DefaultProcessor
     {
         $this->pushRequest = $pushRequest;
 
-        $lockName = 'bk_push_ideal_' . sha1($this->getOrderIncrementId());
-        if ($this->lockManager->isLocked($lockName)) {
+        $lockName = $this->generateLockName();
+        if ($this->isPushLocked($lockName)) {
             throw new BuckarooException(
-                __('The Push is blocked by another request. Please wait and resend the request later.')
+                __('The Push for order %1 is currently being processed by another request. ' .
+                'Please wait a few moments and then try resending the request.', $this->getOrderIncrementId())
             );
         }
 
@@ -114,5 +116,26 @@ class IdealProcessor extends DefaultProcessor
     {
         return $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
             && $this->pushRequest->hasPostData('transaction_type', self::BUCK_PUSH_IDEAL_PAY);
+    }
+
+    /**
+     * Generate a unique lock name for the push request.
+     *
+     * @return string
+     */
+    private function generateLockName(): string
+    {
+        return self::LOCK_PREFIX . sha1($this->getOrderIncrementId());
+    }
+
+    /**
+     * Check if the push request is currently locked.
+     *
+     * @param string $lockName
+     * @return bool
+     */
+    private function isPushLocked(string $lockName): bool
+    {
+        return $this->lockManager->isLocked($lockName);
     }
 }
