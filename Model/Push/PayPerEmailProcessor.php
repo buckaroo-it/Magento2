@@ -33,22 +33,19 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
-use Buckaroo\Magento2\Service\LockerProcess;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Lock\LockManagerInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class PayPerEmailProcessor extends DefaultProcessor
+class PayPerEmailProcessor extends LockedPushProcessor
 {
-    /**
-     * @var LockerProcess
-     */
-    private LockerProcess $lockerProcess;
+    protected const LOCK_PREFIX = 'bk_push_ppe_';
 
     /**
      * @var PayPerEmail
@@ -70,7 +67,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
-     * @param LockerProcess $lockerProcess
+     * @param LockManagerInterface $lockManager
      * @param PayPerEmail $configPayPerEmail
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -85,12 +82,11 @@ class PayPerEmailProcessor extends DefaultProcessor
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
-        LockerProcess $lockerProcess,
+        LockManagerInterface $lockManager,
         PayPerEmail $configPayPerEmail
     ) {
         parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
-        $this->lockerProcess = $lockerProcess;
+            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount, $lockManager);
         $this->configPayPerEmail = $configPayPerEmail;
 
     }
@@ -106,74 +102,79 @@ class PayPerEmailProcessor extends DefaultProcessor
     {
         $this->initializeFields($pushRequest);
 
+        $lockName = $this->generateLockName();
+        $this->stopLockedPush($lockName);
+
         if ($this->lockPushProcessingCriteria()) {
-            $this->lockerProcess->lockProcess($this->getOrderIncrementId());
+            $this->lockManager->lock($lockName);
         }
 
-        //Check if the push is PayLink request
-        $this->receivePushCheckPayLink();
+        try {
+            //Check if the push is PayLink request
+            $this->receivePushCheckPayLink();
 
-        // Skip Push
-        if ($this->skipPush()) {
-            return true;
-        }
-
-        //Check second push for PayPerEmail
-        $isDifferentPaymentMethod = $this->setPaymentMethodIfDifferent();
-
-        // Check Push Dublicates
-        if ($this->receivePushCheckDuplicates()) {
-            throw new BuckarooException(__('Skipped handling this push, duplicate'));
-        }
-
-        // Check if the order can be updated
-        if (!$this->canUpdateOrderStatus()) {
-            if ($isDifferentPaymentMethod && $this->configPayPerEmail->isEnabledB2B()) {
-                $this->logger->addDebug(sprintf(
-                    '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Update Order State | currentState: %s',
-                    __METHOD__, __LINE__,
-                    $this->order->getState()
-                ));
-                if ($this->order->getState() === Order::STATE_COMPLETE) {
-                    $this->order->setState(Order::STATE_PROCESSING);
-                    $this->order->save();
-                }
+            // Skip Push
+            if ($this->skipPush()) {
                 return true;
             }
-            $this->logger->addDebug(
-                '[PUSH - PayPerEmail] | [Webapi] | ['.__METHOD__.':'.__LINE__.'] - Order can not receive updates'
-            );
-            $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
-            throw new BuckarooException(
-                __('Signature from push is correct but the order can not receive updates')
-            );
+
+            //Check second push for PayPerEmail
+            $isDifferentPaymentMethod = $this->setPaymentMethodIfDifferent();
+
+            // Check Push Dublicates
+            if ($this->receivePushCheckDuplicates()) {
+                throw new BuckarooException(__('Skipped handling this push, duplicate'));
+            }
+
+            // Check if the order can be updated
+            if (!$this->canUpdateOrderStatus()) {
+                if ($isDifferentPaymentMethod && $this->configPayPerEmail->isEnabledB2B()) {
+                    $this->logger->addDebug(sprintf(
+                        '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Update Order State | currentState: %s',
+                        __METHOD__, __LINE__,
+                        $this->order->getState()
+                    ));
+                    if ($this->order->getState() === Order::STATE_COMPLETE) {
+                        $this->order->setState(Order::STATE_PROCESSING);
+                        $this->order->save();
+                    }
+                    return true;
+                }
+                $this->logger->addDebug(
+                    '[PUSH - PayPerEmail] | [Webapi] | ['.__METHOD__.':'.__LINE__.'] - Order can not receive updates'
+                );
+                $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
+                throw new BuckarooException(
+                    __('Signature from push is correct but the order can not receive updates')
+                );
+            }
+
+            $this->setTransactionKey();
+
+            $this->setOrderStatusMessage();
+
+            if ((!in_array($this->payment->getMethod(), [Giftcards::CODE, Voucher::CODE]))
+                && $this->isGroupTransactionPart()) {
+                $this->savePartGroupTransaction();
+                return true;
+            }
+
+            if (!$this->canProcessPostData()) {
+                return true;
+            }
+
+            if ($this->giftcardPartialPayment()) {
+                return true;
+            }
+
+            $this->processPushByStatus();
+
+            if (!$this->dontSaveOrderUponSuccessPush) {
+                $this->order->save();
+            }
+        } finally {
+            $this->lockManager->unlock($lockName);
         }
-
-        $this->setTransactionKey();
-
-        $this->setOrderStatusMessage();
-
-        if ((!in_array($this->payment->getMethod(), [Giftcards::CODE, Voucher::CODE]))
-            && $this->isGroupTransactionPart()) {
-            $this->savePartGroupTransaction();
-            return true;
-        }
-
-        if (!$this->canProcessPostData()) {
-            return true;
-        }
-
-        if ($this->giftcardPartialPayment()) {
-            return true;
-        }
-
-        $this->processPushByStatus();
-
-        if (!$this->dontSaveOrderUponSuccessPush) {
-            $this->order->save();
-        }
-
-        $this->lockerProcess->unlockProcess();
 
         return true;
     }
