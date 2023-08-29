@@ -26,6 +26,10 @@ class CapayableIn3 extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_capayablein3';
 
+    const XPATH_CAPAYABLEIN3_API_VERSION = 'payment/buckaroo_magento2_capayablein3/api_version';
+    const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment/buckaroo_magento2_capayablein3/payment_logo';
+
+
     /**
      * @var array
      */
@@ -62,9 +66,34 @@ class CapayableIn3 extends AbstractConfigProvider
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'logo' => $this->getLogo()
                     ],
                 ],
             ],
         ];
+    }
+
+    public function isV3($storeId = null): bool
+    {
+        return $this->scopeConfig->getValue(
+                self::XPATH_CAPAYABLEIN3_API_VERSION,
+                ScopeInterface::SCOPE_STORE,
+                $storeId
+            ) !== 'V2';
+    }
+
+    public function getLogo($storeId = null): string
+    {
+        $logo = $this->scopeConfig->getValue(
+            self::XPATH_CAPAYABLEIN3_PAYMENT_LOGO,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        if (!is_string($logo) || !$this->isV3($storeId)) {
+            return 'in3.svg';
+        }
+
+        return $logo;
     }
 }

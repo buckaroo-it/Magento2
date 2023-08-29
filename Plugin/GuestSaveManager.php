@@ -44,6 +44,27 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         protected BuckarooLoggerInterface $logger;
 
         /**
+         * @var \Onestepcheckout\Iosc\Model\DataManager
+         */
+        protected $dataManager;
+        /**
+         * @var \Magento\Framework\App\Request\Http
+         */
+        protected $request;
+        /**
+         * @var \Onestepcheckout\Iosc\Model\MockManager
+         */
+        protected $mockManager;
+        /**
+         * @var  \Onestepcheckout\Iosc\Helper\Data
+         */
+        protected $helper;
+        /**
+         * @var \Magento\Checkout\Model\Session
+         */
+        protected $checkoutSession;
+
+        /**
          * @param \Onestepcheckout\Iosc\Model\DataManager $dataManager
          * @param \Magento\Framework\App\Request\Http $request
          * @param \Onestepcheckout\Iosc\Model\MockManager $mockManager

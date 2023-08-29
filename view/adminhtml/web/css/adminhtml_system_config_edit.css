@@ -92,15 +92,15 @@ h3.bk-h3 {
     max-width: 450px;
 }
 .bk-flex-basis-33 {
-    flex-basis: 33.33%; 
+    flex-basis: 33.33%;
 }
 
 .bk-flex-basis-66 {
-    flex-basis: 66.66%; 
+    flex-basis: 66.66%;
 }
 
 .bk-flex-basis-50 {
-    flex-basis: 50%; 
+    flex-basis: 50%;
 }
 
 .bk-mb-5px {
@@ -321,4 +321,19 @@ a.bk-plugin-zone {
 
 .bk-payment-method .entry-edit-head-link {
     display: none;
+}
+.bk-in3-wrap {
+    display: flex;
+    align-items: center;
+    padding:10px 5px;
+}
+
+.bk-in3-logo {
+    max-height: 30px;
+    width: auto;
+    margin-left:5px;
+}
+
+.bk-in3-main-wrap {
+    border: 1px solid #adadad;
 }
