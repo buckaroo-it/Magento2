@@ -21,7 +21,7 @@ jobs:
             php  ./rename-icons.php
       - name: Copy payment method icons
         run: |
-            cd Media/Payment\ methods/SVG/
+            cd "../Media/Payment methods/SVG/"
             rm -f ideal-qr.svg knaken.svg paylink.svg paybybank.svg
             cd Media
             cp -R "Payment methods/SVG/." ${{ github.workspace }}/view/adminhtml/web/images/svg/
@@ -33,7 +33,7 @@ jobs:
             cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/view/frontend/web/images/creditcards/
       - name: Copy giftcards icons
         run: |
-            cd Media/Giftcards/SVG/
+            cd "../Media/Giftcards/SVG/"
             rm -f vvvlekkerweg.svg vvvshopchill.svg
             cd Media
             cp -R "Giftcards/SVG/." ${{ github.workspace }}/view/adminhtml/web/images/giftcards/
