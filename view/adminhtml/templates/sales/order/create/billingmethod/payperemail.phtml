@@ -22,9 +22,7 @@
 
 <?php $code = $block->escapeHtml($block->getMethodCode()); ?>
 
-<fieldset class="admin__fieldset payment-method"
-          id="payment_form_<?= $code; ?>"
-          style="display:none">
+<fieldset class="admin__fieldset payment-method" id="payment_form_<?= $code; ?>" style="display:none">
 
     <div class="admin__field _required">
         <label class="label admin__field-label" for="buckaroo_magento2_payperemail_genderSelect">
@@ -40,7 +38,7 @@
         </div>
     </div>
 
-    <?php $customerDetails = $block->getMethod()->helper->getPPeCustomerDetails(); ?>
+    <?php $customerDetails = $block->getPpeCustomerDetails()->getPPeCustomerDetails(); ?>
     <div class="admin__field _required">
         <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingFirstName">
             <span><?= $block->escapeHtml(__('Billing First Name:')); ?></span>
