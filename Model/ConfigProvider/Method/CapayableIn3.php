@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
+use Magento\Store\Model\ScopeInterface;
 
 class CapayableIn3 extends AbstractConfigProvider
 {
