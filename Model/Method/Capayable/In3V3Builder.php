@@ -127,11 +127,11 @@ class In3V3Builder
             $this->row($billingAddress->getCountryId(), 'CountryCode', 'BillingCustomer', $i),
         ];
 
-        if (strlen($streetData['number_addition']) > 0) {
+        if (strlen((string)$streetData['number_addition']) > 0) {
             $data[] = $this->row($streetData['number_addition'], 'StreetNumberSuffix', 'BillingCustomer', $i);
         }
 
-        if(strlen($billingAddress->getRegion())) {
+        if(strlen((string)$billingAddress->getRegion())) {
             $data[] = $this->row($billingAddress->getRegion(), 'Region', 'BillingCustomer', $i);
         }
 
