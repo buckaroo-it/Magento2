@@ -135,11 +135,6 @@ class Data extends AbstractHelper
     protected $json;
 
     /**
-     * @var array
-     */
-    private $staticCache = [];
-
-    /**
      * @var StoreManagerInterface
      */
     private $storeManager;
@@ -408,17 +403,6 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Add debug message
-     *
-     * @param string $messages
-     * @return void
-     */
-    public function addDebug(string $messages)
-    {
-        $this->logger->addDebug($messages);
-    }
-
-    /**
      * Retrieve the sort order for the available gift card types
      *
      * @return mixed
@@ -449,27 +433,6 @@ class Data extends AbstractHelper
         } else {
             return abs((floatval($amount1) - floatval($amount2)) / floatval($amount2)) < 0.00001;
         }
-    }
-
-    /**
-     * Retrieve the value of the restore quote last order flag from the checkout session
-     *
-     * @return int|string|bool
-     */
-    public function getRestoreQuoteLastOrder()
-    {
-        return $this->checkoutSession->getRestoreQuoteLastOrder();
-    }
-
-    /**
-     * Sets the value of the 'restore quote last order' flag in the checkout session.
-     *
-     * @param int|string|bool $value
-     * @return int|string|bool
-     */
-    public function setRestoreQuoteLastOrder($value)
-    {
-        return $this->checkoutSession->setRestoreQuoteLastOrder($value);
     }
 
     /**

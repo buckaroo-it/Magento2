@@ -22,8 +22,8 @@ namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
 use Buckaroo\Magento2\Model\Service\Order;
@@ -32,7 +32,6 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Sales\Model\Order as OrderModel;
 
 class RestoreQuote implements ObserverInterface
 {
@@ -67,14 +66,14 @@ class RestoreQuote implements ObserverInterface
     private $checkoutSession;
 
     /**
-     * @var Data
+     * @var BuckarooLoggerInterface
      */
-    private Data $helper;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @param Session $checkoutSession
      * @param Account $accountConfig
-     * @param Data $helper
+     * @param BuckarooLoggerInterface $logger
      * @param CartRepositoryInterface $quoteRepository
      * @param Order $orderService
      * @param GiftcardRemove $giftcardRemoveService
@@ -83,7 +82,7 @@ class RestoreQuote implements ObserverInterface
     public function __construct(
         Session $checkoutSession,
         Account $accountConfig,
-        Data $helper,
+        BuckarooLoggerInterface $logger,
         CartRepositoryInterface $quoteRepository,
         Order $orderService,
         GiftcardRemove $giftcardRemoveService,
@@ -92,7 +91,7 @@ class RestoreQuote implements ObserverInterface
         $this->orderService = $orderService;
         $this->checkoutSession = $checkoutSession;
         $this->accountConfig = $accountConfig;
-        $this->helper = $helper;
+        $this->logger = $logger;
         $this->quoteRepository = $quoteRepository;
         $this->giftcardRemoveService = $giftcardRemoveService;
         $this->groupTransaction = $groupTransaction;
@@ -111,8 +110,6 @@ class RestoreQuote implements ObserverInterface
      */
     public function execute(Observer $observer): void
     {
-        $this->helper->addDebug(__METHOD__ . '|1|');
-
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         $previousOrderId = $lastRealOrder->getId();
 
@@ -120,21 +117,16 @@ class RestoreQuote implements ObserverInterface
             if ($this->shouldSkipFurtherEventHandling()
                 || strpos($payment->getMethod(), 'buckaroo_magento2') === false
                 || in_array($payment->getMethod(), [Payconiq::CODE])) {
-                $this->helper->addDebug(__METHOD__ . '|10|');
                 return;
             }
 
             if ($this->accountConfig->getCartKeepAlive($lastRealOrder->getStore())) {
-                $this->helper->addDebug(__METHOD__ . '|20|');
-
                 if ($this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
-                    $this->helper->addDebug(__METHOD__ . '|25|');
                     if ($shippingAddress = $quote->getShippingAddress()) {
                         if (!$shippingAddress->getShippingMethod()) {
-                            $this->helper->addDebug(__METHOD__ . '|35|');
                             $shippingAddress->load($shippingAddress->getAddressId());
                         }
                     }
@@ -142,25 +134,36 @@ class RestoreQuote implements ObserverInterface
 
                 if (
                     (
-                        $this->helper->getRestoreQuoteLastOrder() &&
-                        ($lastRealOrder->getData('state') === 'new') &&
-                        ($lastRealOrder->getData('status') === 'pending') &&
+                        $this->checkoutSession->getRestoreQuoteLastOrder() &&
+                        $lastRealOrder->getData('state') === 'new' &&
+                        $lastRealOrder->getData('status') === 'pending' &&
                         $payment->getMethodInstance()->usesRedirect
                     ) || $this->canRestoreFailedFromSpam()
                 ) {
-                    $this->helper->addDebug(__METHOD__ . '|40|');
+                    $this->logger->addDebug(sprintf(
+                        '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Quote | ' .
+                        'lastRealOrder: %s | previousOrderId: %s',
+                        __METHOD__, __LINE__,
+                        $lastRealOrder->getIncrementId(),
+                        $previousOrderId
+                    ));
+
                     $this->checkoutSession->restoreQuote();
                     $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
                     $this->setOrderToCancel($previousOrderId);
                 }
             }
 
-            $this->helper->addDebug(__METHOD__ . '|50|');
-            $this->helper->setRestoreQuoteLastOrder(false);
+            $this->logger->addDebug(sprintf(
+                '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Skipped: '
+                . 'Quote restoration was not carried out. | lastRealOrder: %s',
+                __METHOD__, __LINE__,
+                $lastRealOrder->getIncrementId(),
+            ));
+
+            $this->checkoutSession->setRestoreQuoteLastOrder(false);
             $this->checkoutSession->unsBuckarooFailedMaxAttempts();
         }
-
-        $this->helper->addDebug(__METHOD__ . '|55|');
     }
 
     /**
@@ -180,7 +183,7 @@ class RestoreQuote implements ObserverInterface
      */
     public function canRestoreFailedFromSpam()
     {
-        return $this->helper->getRestoreQuoteLastOrder() &&
+        return $this->checkoutSession->getRestoreQuoteLastOrder() &&
             $this->checkoutSession->getBuckarooFailedMaxAttempts() === true;
     }
 
@@ -188,6 +191,7 @@ class RestoreQuote implements ObserverInterface
      * Rollback Partial Payment
      *
      * @param string $incrementId
+     * @param $payment
      * @return void
      */
     public function rollbackPartialPayment(string $incrementId, $payment): void
@@ -198,9 +202,12 @@ class RestoreQuote implements ObserverInterface
                 $this->giftcardRemoveService->remove($transaction->getTransactionId(), $incrementId, $payment);
             }
         } catch (\Throwable $th) {
-            $this->helper->addDebug(__METHOD__ . $th);
+            $this->logger->addError(sprintf(
+                '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Rollback Partial Payment | [ERROR]: %s',
+                __METHOD__, __LINE__,
+                $th->getMessage()
+            ));
         }
-
     }
 
     /**

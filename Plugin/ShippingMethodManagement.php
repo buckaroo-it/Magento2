@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Checkout\Model\Session;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -45,47 +46,47 @@ class ShippingMethodManagement
     /**
      * @var CustomerSession
      */
-    private $customerSession;
+    private CustomerSession $customerSession;
 
     /**
-     * @var Data
+     * @var BuckarooLoggerInterface
      */
-    private Data $helper;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @var CartRepositoryInterface
      */
-    private $quoteRepository;
+    private CartRepositoryInterface $quoteRepository;
 
     /**
      * @param Session $checkoutSession
      * @param CustomerSession $customerSession
      * @param Account $accountConfig
-     * @param Data $helper
+     * @param BuckarooLoggerInterface $logger
      * @param CartRepositoryInterface $quoteRepository
      */
     public function __construct(
         Session $checkoutSession,
         CustomerSession $customerSession,
         Account $accountConfig,
-        Data $helper,
+        BuckarooLoggerInterface $logger,
         CartRepositoryInterface $quoteRepository
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
         $this->accountConfig   = $accountConfig;
-        $this->helper          = $helper;
+        $this->logger          = $logger;
         $this->quoteRepository = $quoteRepository;
     }
 
     /**
      * Ensures that the shipping address is loaded and shipping rates are collected.
      *
+     * @param \Magento\Quote\Model\ShippingMethodManagement $subject
      * @param int $cartId
      * @return void
      * @throws LocalizedException
      * @throws NoSuchEntityException
-     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -100,20 +101,29 @@ class ShippingMethodManagement
 
             $order = $payment->getOrder();
 
-            $this->helper->addDebug(__METHOD__ . '|1|');
+            $this->logger->addDebug(sprintf(
+                '[SET_SHIPPING] | [Plugin] | [%s:%s] - START - Ensures that the shipping address is loaded '
+                . ' and shipping rates are collected. | lastRealOrder: %s',
+                __METHOD__, __LINE__,
+                $lastRealOrder->getIncrementId(),
+            ));
+
             if ($this->accountConfig->getCartKeepAlive($order->getStore())
                 && $this->isNeedRecreate($order->getStore())
             ) {
-                $this->helper->addDebug(__METHOD__ . '|2|');
                 if ($this->checkoutSession->getQuote()
                     && $this->checkoutSession->getQuote()->getId()
                     && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
                 ) {
-                    $this->helper->addDebug(__METHOD__ . '|3|');
                     if ($shippingAddress = $quote->getShippingAddress()) {
-                        $this->helper->addDebug(__METHOD__ . '|4|');
                         if (!$shippingAddress->getShippingMethod()) {
-                            $this->helper->addDebug(__METHOD__ . '|5|');
+                            $this->logger->addDebug(sprintf(
+                                '[SET_SHIPPING] | [Plugin] | [%s:%s] - SET SHIPPING ADDRESS - Ensures that '
+                                . 'the shipping address is loaded. | lastRealOrder: %s | shippingAddressId: %s',
+                                __METHOD__, __LINE__,
+                                $lastRealOrder->getIncrementId(),
+                                $shippingAddress->getAddressId()
+                            ));
                             $shippingAddress->load($shippingAddress->getAddressId());
                         }
                         $shippingAddress->setCollectShippingRates(true);
