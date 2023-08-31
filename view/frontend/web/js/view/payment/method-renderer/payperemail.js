@@ -85,20 +85,28 @@ define(
                     );
                     quote.billingAddress.subscribe(function (address) {
                         if(address !== null) {
-                            this.firstName(address.firstname);
-                            this.lastName(address.lastname);
-                            this.middleName(address.middlename);
+                            this.firstName(address.firstname || '');
+                            this.lastName(address.lastname || '');
+                            this.middleName(address.middlename || '');
 
                             this.updateState(
                                 'buckaroo_magento2_payperemail_BillingFirstName',
-                                address.firstname.length > 0
+                                address.firstname && address.firstname.length > 0
                             );
                             this.updateState(
                                 'buckaroo_magento2_payperemail_BillingLastName',
-                                address.lastname.length > 0
+                                address.lastname && address.lastname.length > 0
                             );
                         }
                     }, this);
+
+                    if (typeof customerData === 'object' && customerData.hasOwnProperty('email')) {
+                        this.email(customerData.email);
+                        this.updateState(
+                            'buckaroo_magento2_payperemail_Email',
+                            customerData.email.length > 0
+                        );
+                    }
 
                     if(quote.guestEmail) {
                         this.email(quote.guestEmail);
