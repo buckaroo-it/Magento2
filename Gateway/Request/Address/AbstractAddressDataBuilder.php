@@ -73,8 +73,16 @@ abstract class AbstractAddressDataBuilder extends AbstractDataBuilder
      * @param string[] $street
      * @return array
      */
-    public function formatStreet(array $street): array
+    public function formatStreet(array $street = null): array
     {
+        if (!is_array($street)) {
+            return [
+                'house_number' => '',
+                'number_addition' => '',
+                'street' => '',
+            ];
+        }
+
         $street = implode(' ', $street);
 
         $format = [
