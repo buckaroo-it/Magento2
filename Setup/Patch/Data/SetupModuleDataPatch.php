@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Setup\Patch\Data;
 
+use Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder;
+use Buckaroo\Magento2\Model\Method\PayByBank;
 use Magento\Catalog\Model\Product;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean;
@@ -472,6 +474,7 @@ class SetupModuleDataPatch implements DataPatchInterface
         $this->setCustomerIDIN($this->moduleDataSetup);
         $this->setCustomerIsEighteenOrOlder($this->moduleDataSetup);
         $this->setProductIDIN($this->moduleDataSetup);
+        $this->addCustomerLastPayByBankIssuer($this->moduleDataSetup); // 1.45.1
 
         $this->moduleDataSetup->getConnection()->endSetup();
 
@@ -821,5 +824,40 @@ class SetupModuleDataPatch implements DataPatchInterface
     public function getAliases()
     {
         return [];
+    }
+
+    /**
+     * Create attribute on customer to save last issuer for PayByBank
+     *
+     * @param ModuleDataSetupInterface $setup
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function addCustomerLastPayByBankIssuer(ModuleDataSetupInterface $setup): void
+    {
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+        $eavSetup->addAttribute(
+            Customer::ENTITY,
+            SaveIssuerDataBuilder::EAV_LAST_USED_ISSUER_ID,
+            [
+                'type'         => 'text',
+                'label'        => 'Last used Buckaroo PayByBank issuer',
+                'input'        => 'text',
+                'default'      => '',
+                'required'     => false,
+                'visible'      => false,
+                'user_defined' => false,
+                'position'     => 999,
+                'system'       => 0,
+                'global'       => ScopedAttributeInterface::SCOPE_STORE
+            ]
+        );
+
+        $buckarooLastPaybybank = $this->eavConfig->getAttribute(
+            Customer::ENTITY,
+            SaveIssuerDataBuilder::EAV_LAST_USED_ISSUER_ID
+        );
+
+        $buckarooLastPaybybank->save();
     }
 }
