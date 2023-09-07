@@ -97,6 +97,7 @@ class GatewayCommand implements CommandInterface
      */
     public function __construct(
         BuilderInterface            $requestBuilder,
+
         TransferFactoryInterface    $transferFactory,
         ClientInterface             $client,
         LoggerInterface             $logger,

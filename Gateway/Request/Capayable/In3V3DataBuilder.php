@@ -56,7 +56,6 @@ class In3V3DataBuilder implements BuilderInterface
         if ($this->capayableIn3Config->isV3()) {
             $payment->setAdditionalInformation("buckaroo_in3_v3", true);
             $data['payment_method'] = 'in3';
-            $data['additionalParameters']['service_action_from_magento'] = TransactionType::PAY;
         }
 
         return $data;

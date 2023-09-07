@@ -190,7 +190,18 @@ class BuckarooAdapter extends Adapter
      */
     public function order(InfoInterface $payment, $amount)
     {
-        return parent::order($payment, $amount);
+        $commandCode = 'order';
+        if ($this->getConfigData('api_version')) {
+            $commandCode .= strtolower($this->getConfigData('api_version'));
+        }
+
+        $reflection = new \ReflectionClass($this);
+        $method = $reflection->getMethod('executeCommand');
+        $method->setAccessible(true);
+
+        $method->invoke($this, $commandCode, ['payment' => $payment, 'amount' => $amount]);
+
+        return $this;
     }
 
     /**
