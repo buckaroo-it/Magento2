@@ -188,6 +188,14 @@ class BuckarooAdapter extends Adapter
     /**
      * @inheritdoc
      */
+    public function order(InfoInterface $payment, $amount)
+    {
+        return parent::order($payment, $amount);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function cancel(InfoInterface $payment)
     {
         if (!self::$requestOnVoid) {

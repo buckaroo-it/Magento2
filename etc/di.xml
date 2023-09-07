@@ -73,6 +73,10 @@
 
     <preference for="Buckaroo\Magento2\Api\TransactionResponseInterface" type="Buckaroo\Magento2\Model\Transaction\Status\Response" />
 
+    <type name="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <plugin name="modify_order_method" type="Buckaroo\Magento2\Plugin\BuckarooAdapterPlugin" sortOrder="1"/>
+    </type>
+
     <type name="Magento\Checkout\Controller\Onepage\Success">
         <plugin name="buckaroo_magento2_checkout_success" type="Buckaroo\Magento2\Plugin\Onepage\Success" />
     </type>
