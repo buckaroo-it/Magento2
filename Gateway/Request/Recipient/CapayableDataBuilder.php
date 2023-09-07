@@ -87,8 +87,8 @@ class CapayableDataBuilder extends AbstractRecipientDataBuilder
     {
         $customerNumber = "guest";
 
-        if ($this->getAddress()->getEntityId() !== null) {
-            $customerNumber = $this->getAddress()->getCustomerId();
+        if (!empty($this->getOrder()->getCustomerId())) {
+            $customerNumber = $this->getOrder()->getCustomerId();
         }
 
         return $customerNumber;
