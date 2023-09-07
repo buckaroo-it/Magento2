@@ -20,15 +20,16 @@
 
 namespace Buckaroo\Magento2\Setup;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Eav\Model\Config;
+use Magento\Store\Model\Store;
+use Magento\Eav\Setup\EavSetup;
+use Magento\Customer\Model\Customer;
+
+use Magento\Eav\Setup\EavSetupFactory;
+use Buckaroo\Magento2\Model\Method\PayByBank;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Store\Model\Store;
-
-use Magento\Eav\Setup\EavSetup;
-use Magento\Eav\Setup\EavSetupFactory;
-use Magento\Eav\Model\Config;
-use Magento\Customer\Model\Customer;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 {
@@ -560,6 +561,10 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 
         if (version_compare($context->getVersion(), '1.25.2', '<')) {
             $this->giftcardPartialRefund($setup);
+        }
+
+        if (version_compare($context->getVersion(), '1.46.0', '<')) {
+            $this->addCustomerLastPayByBankIssuer($setup);
         }
 
         $this->setCustomerIDIN($setup);
@@ -1456,6 +1461,31 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             ['adminhtml_customer']
         );
         $buckarooIDIN->save();
+    }
+
+    protected function addCustomerLastPayByBankIssuer(ModuleDataSetupInterface $setup)
+    {
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+        $eavSetup->addAttribute(
+            \Magento\Customer\Model\Customer::ENTITY,
+            PayByBank::EAV_LAST_USED_ISSUER_ID,
+            [
+                'type'         => 'text',
+                'label'        => 'Last used Buckaroo PayByBank issuer',
+                'input'        => 'text',
+                'default'      => '',
+                'required'     => false,
+                'visible'      => false,
+                'user_defined' => false,
+                'position'     => 999,
+                'system'       => 0,
+                'global'       => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE
+            ]
+        );
+
+        $buckarooLastPaybybank = $this->eavConfig->getAttribute(Customer::ENTITY, PayByBank::EAV_LAST_USED_ISSUER_ID);
+
+        $buckarooLastPaybybank->save();
     }
 
     protected function setCustomerIsEighteenOrOlder(ModuleDataSetupInterface $setup)

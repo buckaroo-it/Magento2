@@ -75,7 +75,7 @@ class TransactionBuilderFactory
             );
         }
 
-        $transactionBuilder = $this->objectManager->get($transactionBuilderClass);
+        $transactionBuilder = $this->objectManager->create($transactionBuilderClass);
         if (!$transactionBuilder instanceof TransactionBuilderInterface) {
             throw new \LogicException(
                 'The transaction builder must implement "Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface".'

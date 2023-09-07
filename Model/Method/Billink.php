@@ -644,6 +644,30 @@ class Billink extends AbstractMethod
 
         return $article;
     }
+    
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return string|null
+     */
+    private function getBirthDate($payment)
+    {
+        $birth = $payment->getAdditionalInformation('customer_DoB');
+        
+        if(!is_string($birth) || strlen(trim($birth)) === 0) {
+            return null;
+        }
+
+        $birthDayStamp = date(
+            "d-m-Y",
+            strtotime(str_replace('/', '-', $birth))
+        );
+
+        if($birthDayStamp === false) {
+            return null;
+        }
+        return $birthDayStamp;
+    }
 
     /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
@@ -659,10 +683,8 @@ class Billink extends AbstractMethod
         $billingAddress = $order->getBillingAddress();
         $streetFormat   = $this->formatStreet($billingAddress->getStreet());
 
-        $birthDayStamp = date(
-            "d-m-Y",
-            strtotime(str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB')))
-        );
+        $birthDayStamp = $this->getBirthDate($payment);
+
         $chamberOfCommerce = $payment->getAdditionalInformation('customer_chamberOfCommerce');
         $VATNumber = $payment->getAdditionalInformation('customer_VATNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');

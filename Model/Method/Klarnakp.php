@@ -516,23 +516,6 @@ class Klarnakp extends AbstractMethod
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function processCustomPostData($payment, $postData)
-    {
-        $order = $payment->getOrder();
-
-        if ($order->getBuckarooReservationNumber()) {
-            return;
-        }
-
-        if (isset($postData->Services) && count($postData->Services->Service->ResponseParameter) > 0) {
-            $order->setBuckarooReservationNumber($postData->Services->Service->ResponseParameter->_);
-            $order->save();
-        }
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function canPushInvoice($responseData)
@@ -765,6 +748,13 @@ class Klarnakp extends AbstractMethod
             $requestData = array_merge($requestData, $discountline);
         }
 
+        $group++;
+        $reward = $this->getRewardLine($quote, $group);
+
+        if (!empty($reward)) {
+            $requestData = array_merge($requestData, $reward);
+        }
+
         return $requestData;
     }
 
@@ -820,6 +810,60 @@ class Klarnakp extends AbstractMethod
 
         return $article;
     }
+
+     /**
+     * Get the reward cost lines
+     *
+     * @param Quote $quote
+     * @param $group
+     *
+     * @return array
+     */
+    public function getRewardLine($quote, $group)
+    {
+        $article = [];
+        $discount = (float)$quote->getRewardCurrencyAmount();
+
+        if ($discount <= 0) {
+            return $article;
+        }
+
+        $article = [
+            [
+                '_' => 4,
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticleNumber',
+            ],
+            [
+                '_' => -$discount,
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticlePrice',
+            ],
+            [
+                '_' => 1,
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticleQuantity',
+            ],
+            [
+                '_' => 'Discount Reward Points',
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticleTitle',
+            ],
+            [
+                '_' => 0,
+                'Group' => 'Article',
+                'GroupID' => $group,
+                'Name' => 'ArticleVat',
+            ],
+        ];
+
+        return $article;
+    }
+
 
     /**
      * @param OrderInterface $order

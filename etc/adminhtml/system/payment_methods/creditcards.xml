@@ -20,13 +20,13 @@
  */
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
-    <!-- Creditcards Payment method group -->
+    <!-- Credit and debit card Payment method group -->
     <group id="buckaroo_magento2_creditcards" translate="label" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Creditcards (Client sided)</label>
+        <label>Credit and debit cards (Client sided)</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <field id="active" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Enable Creditcards (Client sided)</label>
+            <label>Enable credit and debit cards (Client sided)</label>
             <comment><![CDATA[Enable or disable this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_creditcards/active</config_path>
@@ -69,8 +69,8 @@
         </field>
 
         <field id="allowed_creditcards" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Allowed Creditcards</label>
-            <comment><![CDATA[Select payment method specific Creditcards.]]></comment>
+            <label>Allowed credit and debit cards</label>
+            <comment><![CDATA[Select payment method specific Credit and debit card.]]></comment>
             <config_path>payment/buckaroo_magento2_creditcards/allowed_creditcards</config_path>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Creditcard</source_model>
         </field>

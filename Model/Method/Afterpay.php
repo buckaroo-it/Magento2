@@ -119,11 +119,13 @@ class Afterpay extends AbstractMethod
             $dobDate = (!$dobDate ? $additionalData['customer_DoB'] : $dobDate->format('Y-m-d'));
             $this->getInfoInstance()->setAdditionalInformation('customer_DoB', $dobDate);
 
-            if (isset($additionalData['selectedBusiness'])
-                && $additionalData['selectedBusiness'] == self::BUSINESS_METHOD_B2B
-            ) {
-                $this->getInfoInstance()->setAdditionalInformation('COCNumber', $additionalData['COCNumber']);
-                $this->getInfoInstance()->setAdditionalInformation('CompanyName', $additionalData['CompanyName']);
+            if (isset($additionalData['selectedBusiness'])) {
+
+                if( $additionalData['selectedBusiness'] == self::BUSINESS_METHOD_B2B) {
+                    $this->getInfoInstance()->setAdditionalInformation('COCNumber', $additionalData['COCNumber']);
+                    $this->getInfoInstance()->setAdditionalInformation('CompanyName', $additionalData['CompanyName']);
+                }
+
                 $this->getInfoInstance()->setAdditionalInformation(
                     'selectedBusiness',
                     $additionalData['selectedBusiness']
@@ -1108,5 +1110,31 @@ class Afterpay extends AbstractMethod
         );
 
         return $remoteAddress->getRemoteAddress();
+    }
+
+    /**
+     * @param $response
+     *
+     * @return string
+     */
+    protected function getFailureMessage($response) {
+        if (empty($response[0])) {
+            return parent::getFailureMessage($response);
+        }
+        $transactionResponse = $response[0];
+        $responseCode        = $transactionResponse->Status->Code->Code;
+
+        if (!isset($transactionResponse->Services->Service->ResponseParameter->_)) {
+            return parent::getFailureMessage($response);
+        }
+
+        $message = $transactionResponse->Services->Service->ResponseParameter->_;
+        if (
+            $responseCode === 690 &&
+            strpos($message, "deliveryCustomer.address.countryCode") !== false
+        ) {
+             return "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.";
+        }
+        return parent::getFailureMessage($response);
     }
 }

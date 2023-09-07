@@ -39,14 +39,14 @@
                         <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
                             <select id="buckaroo_magento2_payperemail_genderSelect" name="payment[buckaroo_magento2_payperemail[customer_gender]" class="field"
-                            data-bind="options: gendersList(),
-                                optionsText: $t('genderTitle'),
-                                optionsValue: 'genderType',
-                                optionsCaption: $t('-- Please Select Your Gender--'),
-                                value: getSelectedGender,
-                                event: { change: setSelectedGender }, attr: { 'data-validate': JSON.stringify({ 'required': true })}" class="select">
-                                </select>
-                            <div for="gender" generated="true" class="mage-error" id="gender-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
+                                data-bind="options: genderList,
+                                    optionsText: $t('genderTitle'),
+                                    optionsValue: 'genderType',
+                                    optionsCaption: $t('-- Please Select Your Gender--'),
+                                    value: selectedGender,
+                                    attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                    event: { blur: validateField }" class="select">
+                            </select>
                         </div>
                     </div>
 
@@ -56,11 +56,12 @@
                             <input id="buckaroo_magento2_payperemail_BillingFirstName"
                                    class="input-text field"
                                    type="text"
+                                   placeholder="John"
                                    data-bind="
                                        valueUpdate: 'keyup',
+                                       value: firstName,
                                        attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                       value: BillingFirstName,
-                                       textInput: CustomerFirstName()"
+                                       event: { blur: validateField }"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingFirstName]"
                                    >
                         </div>
@@ -74,8 +75,7 @@
                                    type="text"
                                    data-bind="
                                        valueUpdate: 'keyup',
-                                       value: BillingMiddleName,
-                                       textInput: CustomerMiddleName()"
+                                       value: middleName"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingMiddleName]"
                                    >
                         </div>
@@ -86,11 +86,12 @@
                             <input id="buckaroo_magento2_payperemail_BillingLastName"
                                    class="input-text field"
                                    type="text"
+                                   placeholder="Doe"
                                    data-bind="
                                        valueUpdate: 'keyup',
+                                       value: lastName,
                                        attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                       value: BillingLastName,
-                                       textInput: CustomerLastName()"
+                                       event: { blur: validateField }"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingLastName]"
                             >
                         </div>
@@ -101,11 +102,12 @@
                             <input id="buckaroo_magento2_payperemail_Email"
                                    type="text"
                                    class="input-text field"
+                                   placeholder="email@example.com"
                                    data-bind="
                                        valueUpdate: 'keyup',
+                                       value: email,
                                        attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-email': true })},
-                                       value: BillingEmail,
-                                       textInput: CustomerEmail()"
+                                       event: { blur: validateField }"
                                    name="payment[buckaroo_magento2_payperemail][customer_email]">
                         </div>
                     </div>

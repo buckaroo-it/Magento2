@@ -21,6 +21,9 @@
     display: block;
     font-size: 1.35rem;
 }
+.bk-mrcash {
+    margin-top: 10px;
+}
 .checkout-payment-method .payment-method-title.bk-payment {
     padding: 15px 0;
 }
@@ -31,6 +34,39 @@
     .checkout-payment-method .payment-method-title.bk-payment {
         padding: 15px;
     }
+}
+
+#ui-datepicker-div.bk-datepicker {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 0 2px 0px rgba(0,0,0,.35);
+    padding: 10px;
+    width: 240px;
+}
+#ui-datepicker-div.bk-datepicker table,
+#ui-datepicker-div.bk-datepicker th,
+#ui-datepicker-div.bk-datepicker thead tr {
+    background:none;
+    border: none;
+    text-transform: capitalize;
+    text-align: center;
+}
+#ui-datepicker-div.bk-datepicker .ui-state-disabled,
+#ui-datepicker-div.bk-datepicker tbody td {
+    background:#f2f4f5;
+    border: 1px solid #fff;
+    border-radius:5px;
+}
+
+#ui-datepicker-div.bk-datepicker tbody td a {
+  text-align:center;
+}
+
+
+#ui-datepicker-div.bk-datepicker .ui-datepicker-header {
+    padding: 0;
+    margin: 5px 0;
 }
 
 /* ===================== Default / Overwrite Styling ============================= */
@@ -64,6 +100,11 @@
     font-weight: normal;
 }
 
+.payment-method-second-col input:disabled {
+    background-color: #e3e3e3;
+    color: #6e6e6e;
+    opacity: 1;
+}
 .payment-method-second-col input,
 .payment-method-second-col select {
     border-radius: 5px;
@@ -143,7 +184,8 @@
     .buckaroo_magento2_capayablepostpay .payment-method-second-col,
     .buckaroo_magento2_tinka .payment-method-second-col,
     .buckaroo_magento2_mrcash .payment-method-second-col,
-    .buckaroo_magento2_voucher .payment-method-second-col
+    .buckaroo_magento2_voucher .payment-method-second-col,
+    .buckaroo_magento2_paybybank .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -172,7 +214,8 @@
     .buckaroo_magento2_capayablepostpay .payment-method-billing-address,
     .buckaroo_magento2_tinka .payment-method-billing-address,
     .buckaroo_magento2_mrcash .payment-method-billing-address,
-    .buckaroo_magento2_voucher .payment-method-billing-address
+    .buckaroo_magento2_voucher .payment-method-billing-address,
+    .buckaroo_magento2_paybybank .payment-method-billing-address
     {
         float:left;
         width: 50%;
@@ -404,7 +447,7 @@
     right: 5px;
     top: 5px;
 }
-
+.bk-card-date-wrap,
 .bk-cvc-date-wrap {
     display: flex;
     justify-content: space-between;
@@ -414,6 +457,15 @@
 }
 .bk-cvc {
     margin-left: 5px;
+}
+
+.bk-card-date-wrap .bk-date {
+    margin: 0 0 0 5px;
+    flex: 4;
+}
+.bk-card-number {
+    margin-right: 5px;
+    flex: 6;
 }
 /*======================end creditcards======================================*/
 .giftcard-delete:before {
@@ -509,4 +561,83 @@
 .buckaroo_magento2_all_giftcards{
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
+}
+
+/* paybybank */
+
+.bk-toggle-down {
+    background-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.293 9.293a1 1 0 0 1 1.414 0L12 14.586l5.293-5.293a1 1 0 1 1 1.414 1.414l-6 6a1 1 0 0 1-1.414 0l-6-6a1 1 0 0 1 0-1.414z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+}
+.bk-toggle-up {
+    background-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.293 7.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1-1.414 1.414L12 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414l6-6z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+}
+.bk-toggle {
+    height: 20px;
+    width: 20px;
+}
+.bk-toggle-wrap {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+@media screen and (max-width: 768px) {
+    .buckaroo_magento2_paybybank .billing-address-form
+    {
+        max-width: 100%;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .bk-paybybank-toggle-list {
+        display: flex;
+        justify-content: center;
+        height: 20px;
+        margin:10px 0;
+        width: 100%;
+    }
+
+    .bk-toggle-text {
+        margin-left: 10px;
+        font-weight: bold;
+    }
+    .bk-paybybank-selector {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    .bk-paybybank-selector .radio-group-required {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .bk-paybybank-selector .bank-control {
+        flex: 25% 0;
+        min-width: 55px;
+    }
+    .bk-paybybank-selector .bank-method-label.bk-bank-selected {
+        background-color: #EDEDED;
+        color: #000;
+        border-radius: 5px;
+    }
+    .bk-paybybank-selector .bank-method-label {
+        padding-bottom: 5px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        padding-top: 5px;
+        align-items: center;
+    }
+    .bk-paybybank-selector .bank-method-label strong {
+            display: block;
+            text-align: center;
+            font-size: 12px;
+            flex: 100% 0 0;
+    }
+    .bk-paybybank-selector .bank-method-label img {
+        padding: 10px 20px;
+    }
+
+    .fieldset > .field .addon .bk-paybybank-selector .bank-method-input {
+        display:none;
+    }
 }

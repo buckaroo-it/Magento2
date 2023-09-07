@@ -33,15 +33,26 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
         protected $logger;
 
-        protected \Onestepcheckout\Iosc\Model\DataManager $dataManager;
-
-        protected \Magento\Framework\App\Request\Http $request;
-
-        protected \Onestepcheckout\Iosc\Model\MockManager $mockManager;
-
-        protected \Onestepcheckout\Iosc\Helper\Data $helper;
-
-        protected \Magento\Checkout\Model\Session $checkoutSession;
+        /**
+         * @var \Onestepcheckout\Iosc\Model\DataManager
+         */
+        protected $dataManager;
+        /**
+         * @var \Magento\Framework\App\Request\Http
+         */
+        protected $request;
+        /**
+         * @var \Onestepcheckout\Iosc\Model\MockManager
+         */
+        protected $mockManager;
+        /**
+         * @var  \Onestepcheckout\Iosc\Helper\Data
+         */
+        protected $helper;
+        /**
+         * @var \Magento\Checkout\Model\Session
+         */
+        protected $checkoutSession;
 
 
         public function __construct(

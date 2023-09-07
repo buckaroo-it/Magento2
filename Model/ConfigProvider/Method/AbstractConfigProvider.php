@@ -120,6 +120,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'code' => 'BITSNL2A',
             'imgName' => 'yoursafe'
         ],
+        [
+            'name' => 'N26',
+            'code' => 'NTSBDEB1',
+            'imgName' => 'n26'
+        ],
     ];
 
     /**
@@ -181,7 +186,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     protected function formatIssuers()
     {
-        $issuers = array_map(
+        return array_map(
             function ($issuer) {
                 if(isset($issuer['imgName'])) {
                     $issuer['img'] = $this->getImageUrl("ideal/{$issuer['imgName']}", "svg");
@@ -190,8 +195,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             },
             $this->getIssuers()
         );
-
-        return $issuers;
     }
 
     public function getCreditcardLogo(string $code): string

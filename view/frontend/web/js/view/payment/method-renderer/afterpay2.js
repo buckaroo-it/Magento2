@@ -29,6 +29,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common',
+        'buckaroo/checkout/datepicker',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
         /*,
          'jquery/validate'*/
@@ -42,7 +43,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        datePicker
     ) {
         'use strict';
 
@@ -115,22 +117,20 @@ define(
             {
                 defaults                : {
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay2',
-                    businessMethod: null,
-                    paymentMethod: null,
                     telephoneNumber: null,
                     selectedBusiness: 1,
-                    firstName: '',
-                    lastName: '',
-                    CustomerName: null,
-                    BillingName: null,
+                    billingName: '',
                     country: '',
                     dateValidate: null,
-                    CocNumber: null,
-                    CompanyName:null,
-                    bankaccountnumber: '',
+                    cocNumber: null,
+                    companyName:null,
+                    bankAccountNumber: '',
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
-                    termsValidate: false,
-                    value:""
+                    termsValidate: true,
+                    value:"",
+                    validationState: {
+                        'buckaroo_magento2_afterpay2_TermsCondition': true
+                    }
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay2.paymentFeeLabel,
@@ -138,7 +138,9 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('afterpay2'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
+                dp: datePicker,
+                businessMethod : window.checkoutConfig.payment.buckaroo.afterpay2.businessMethod,
+                paymentMethod : window.checkoutConfig.payment.buckaroo.afterpay2.paymentMethod,
                 /**
                  * @override
                  */
@@ -153,134 +155,42 @@ define(
                 initObservable: function () {
                     this._super().observe(
                         [
-                            'businessMethod',
-                            'paymentMethod',
                             'telephoneNumber',
                             'selectedBusiness',
-                            'firstname',
-                            'lastname',
-                            'CustomerName',
-                            'BillingName',
-                            'country',
                             'dateValidate',
-                            'CocNumber',
-                            'CompanyName',
-                            'bankaccountnumber',
-                            'termsUrl',
+                            'cocNumber',
+                            'companyName',
+                            'bankAccountNumber',
                             'termsValidate',
-                            'dummy',
-                            'value'
+                            'value',
+                            'validationState'
                         ]
                     );
 
-                    this.businessMethod = window.checkoutConfig.payment.buckaroo.afterpay2.businessMethod;
-                    this.paymentMethod  = window.checkoutConfig.payment.buckaroo.afterpay2.paymentMethod;
+                  
 
-                    /**
-                     * Observe customer first & lastname
-                     * bind them together, so they could appear in the frontend
-                     */
-                    this.updateBillingName = function(firstname, lastname) {
-                        this.firstName = firstname;
-                        this.lastName = lastname;
 
-                        this.CustomerName = ko.computed(
-                            function () {
-                                return this.firstName + " " + this.lastName;
-                            },
-                            this
-                        );
-
-                        this.BillingName(this.CustomerName());
-                    };
-
-                    this.updateTermsUrl = function(country) {
-                        this.country = country;
-                        var newUrl = '';
-
-                        switch (this.paymentMethod) {
-                            case PAYMENT_METHOD_ACCEPTGIRO:
-                                newUrl = getAcceptgiroUrl();
-                                break;
-                            case PAYMENT_METHOD_DIGIACCEPT:
-                                newUrl = getDigiacceptUrl();
-                                break;
-                            default:
-                                newUrl = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
-                                break;
-                        }
-
-                        this.termsUrl(newUrl);
-                    };
-
-                    var getAcceptgiroUrl = function() {
-                        if (this.country === 'NL') {
-                            return 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
-                        }
-
-                        return 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
-                    }.bind(this);
-
-                    var getDigiacceptUrl = function() {
-                        var businessMethod = getBusinessMethod();
-                        var url = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
-
-                        if (this.country === 'BE' && businessMethod == BUSINESS_METHOD_B2C) {
-                            url = 'https://www.afterpay.be/be/footer/betalen-met-afterpay/betalingsvoorwaarden';
-                        }
-
-                        if (this.country === 'NL' && businessMethod == BUSINESS_METHOD_B2C) {
-                            url = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
-                        }
-
-                        if (this.country === 'NL' && businessMethod == BUSINESS_METHOD_B2B) {
-                            url = 'https://www.afterpay.nl/nl/algemeen/zakelijke-partners/betalingsvoorwaarden-zakelijk';
-                        }
-
-                        return url;
-                    }.bind(this);
-
-                    var getBusinessMethod = function() {
-                        var businessMethod = BUSINESS_METHOD_B2C;
-
-                        if (this.businessMethod == BUSINESS_METHOD_B2B
-                            || (this.businessMethod == BUSINESS_METHOD_BOTH && this.selectedBusiness() == BUSINESS_METHOD_B2B)
-                        ) {
-                            businessMethod = BUSINESS_METHOD_B2B;
-                        }
-
-                        return businessMethod;
-                    }.bind(this);
-
-                    if (quote.billingAddress()) {
-                        this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
-                        this.updateTermsUrl(quote.billingAddress().countryId);
-                    }
-
-                    quote.billingAddress.subscribe(
-                        function(newAddress) {
-                            if (this.getCode() !== this.isChecked() ||
-                                !newAddress ||
-                                !newAddress.getKey()
-                            ) {
-                                return;
+                    this.billingName = ko.computed(
+                        function () {
+                            if(quote.billingAddress() !== null) {
+                                return quote.billingAddress().firstname + " " + quote.billingAddress().lastname;
                             }
-
-                            if (newAddress.firstname !== this.firstName || newAddress.lastname !== this.lastName) {
-                                this.updateBillingName(newAddress.firstname, newAddress.lastname);
-                            }
-
-                            if (newAddress.countryId !== this.country) {
-                                this.updateTermsUrl(newAddress.countryId);
-                            }
-                        }.bind(this)
+                        },
+                        this
                     );
 
-                    var updateSelectedBusiness = function () {
-                        this.updateTermsUrl(this.country);
-                    };
-
-                    this.selectedBusiness.subscribe(updateSelectedBusiness, this);
+                    this.termsUrl =  ko.computed(
+                        function () {
+                            if(quote.billingAddress() !== null) {
+                                let newUrl = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
+                                if (this.paymentMethod == PAYMENT_METHOD_DIGIACCEPT) {
+                                    newUrl = this.getDigiacceptUrl(quote.billingAddress().countryId);
+                                }
+                                return newUrl;
+                            }
+                        },
+                        this
+                    );
 
                     /**
                      * Check if TelephoneNumber is filled in. If not - show field
@@ -295,90 +205,72 @@ define(
                     /**
                      * Repair IBAN value to uppercase
                      */
-                    this.bankaccountnumber.extend({ uppercase: true });
+                    this.bankAccountNumber.extend({ uppercase: true });
 
-                    /**
-                     * Validation on the input fields
-                     */
+                    this.dateValidate.subscribe(function() {
+                        const dobId = 'buckaroo_magento2_afterpay2_DoB';
+                        const isValid = $(`#${dobId}`).valid();
+                        let state = this.validationState();
+                        state[dobId] = isValid;
+                        this.validationState(state);
+                     }, this);
 
-                    var runValidation = function () {
-                        $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
-                        this.selectPaymentMethod();
-                    };
-
-                    this.telephoneNumber.subscribe(runValidation,this);
-                    this.dateValidate.subscribe(runValidation,this);
-                    this.CocNumber.subscribe(runValidation,this);
-                    this.CompanyName.subscribe(runValidation,this);
-                    this.bankaccountnumber.subscribe(runValidation,this);
-                    this.termsValidate.subscribe(runValidation,this);
-                    this.dummy.subscribe(runValidation,this);
-
-                    /**
-                     * Create a function to check if all the required fields, in specific conditions, are filled in.
-                     * Within checkB2C - hide IBAN unless paymentMethod = Acceptgiro (1).
-                     * Within checkB2B - show all possible fields except IBAN.
-                     */
-
-                    var checkB2C = function () {
-                        return (
-                        (this.telephoneNumber() !== null || this.hasTelephoneNumber) &&
-                        this.BillingName() !== null &&
-                        this.dateValidate() !== null &&
-                        this.termsValidate() !== false &&
-                        (
-                        (
-                        this.paymentMethod == PAYMENT_METHOD_ACCEPTGIRO &&
-                        this.bankaccountnumber().length > 0
-                        ) ||
-                        this.paymentMethod == PAYMENT_METHOD_DIGIACCEPT
-                        ) &&
-                        this.validate()
-                        );
-                    };
-
-                    var checkB2B = function () {
-                        return (
-                        (this.telephoneNumber() !== null || this.hasTelephoneNumber) &&
-                        this.BillingName() !== null &&
-                        this.dateValidate() !== null &&
-                        this.CocNumber() !== null &&
-                        this.CompanyName() !== null &&
-                        this.termsValidate() !== false &&
-                        this.validate()
-                        );
-                    };
-                    /**
-                     * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
-                     */
                     this.buttoncheck = ko.computed(
                         function () {
-                            this.telephoneNumber();
-                            this.BillingName();
-                            this.dateValidate();
-                            this.bankaccountnumber();
-                            this.termsValidate();
-                            this.CocNumber();
-                            this.CompanyName();
-                            this.dummy();
-
-                            /**
-                             * Run If Else function to select the right fields to validate.
-                             * Other fields will be ignored.
-                             */
-                            if (this.businessMethod == BUSINESS_METHOD_B2C
-                                || (this.businessMethod == BUSINESS_METHOD_BOTH
-                                && this.selectedBusiness() == BUSINESS_METHOD_B2C)
-                            ) {
-                                return checkB2C.bind(this)();
-                            } else {
-                                return checkB2B.bind(this)();
-                            }
+                            const state = this.validationState();
+                            const valid = this.getActiveValidationFields().map((field) => {
+                                if(state[field] !== undefined) {
+                                    return state[field];
+                                }
+                                return false;
+                            }).reduce(
+                                function(prev, cur) {
+                                    return prev && cur
+                                },
+                                true
+                            )
+                            return valid;
                         },
                         this
                     );
 
                     return this;
+                },
+                validateField(data, event) {
+                    const isValid = $(event.target).valid();
+                    let state = this.validationState();
+                    state[event.target.id] = isValid;
+                    this.validationState(state);
+                },
+
+                getActiveValidationFields() {
+                    let fields = [
+                        'buckaroo_magento2_afterpay2_TermsCondition',
+                    ];
+                    if(!this.hasTelephoneNumber()) {
+                        fields.push('buckaroo_magento2_afterpay2_Telephone')
+                    }
+
+                    if (this.businessMethod == BUSINESS_METHOD_B2C
+                        || (
+                            this.businessMethod == BUSINESS_METHOD_BOTH &&
+                            this.selectedBusiness() == BUSINESS_METHOD_B2C
+                        )
+                    ) {
+                        fields.push('buckaroo_magento2_afterpay2_DoB')
+                        if(this.paymentMethod == PAYMENT_METHOD_ACCEPTGIRO) {
+                            fields.push('buckaroo_magento2_afterpay2_IBAN')
+                        }
+                    } else {
+                        fields = fields.concat(
+                            [
+                                'buckaroo_magento2_afterpay2_COCNumber',
+                                'buckaroo_magento2_afterpay2_CompanyName'
+                            ]
+                        )
+                    }
+                    
+                    return fields;
                 },
 
                 /**
@@ -412,25 +304,6 @@ define(
                     return false;
                 },
 
-                magentoTerms: function() {
-                    /**
-                     * The agreement checkbox won't force an update of our bindings. So check for changes manually and notify
-                     * the bindings if something happend. Use $.proxy() to access the local this object. The dummy property is
-                     * used to notify the bindings.
-                     **/
-                    $('.payment-methods').one(
-                        'click',
-                        '.' + this.getCode() + ' [name*="agreement"]',
-                        $.proxy(
-                            function () {
-                                this.dummy.notifySubscribers();
-                            },
-                            this
-                        )
-                    );
-
-                },
-
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
@@ -443,11 +316,6 @@ define(
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
 
-                    if (quote.billingAddress()) {
-                        this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
-                        this.updateTermsUrl(quote.billingAddress().countryId);
-                    }
-
                     return true;
                 },
 
@@ -456,7 +324,7 @@ define(
                  */
 
                 validate: function () {
-                    return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
+                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
                 getData: function () {
@@ -471,15 +339,45 @@ define(
                         "po_number": null,
                         "additional_data": {
                             "customer_telephone" : this.telephoneNumber(),
-                            "customer_billingName" : this.BillingName(),
+                            "customer_billingName" : this.billingName(),
                             "customer_DoB" : this.dateValidate(),
-                            "customer_iban": this.bankaccountnumber(),
+                            "customer_iban": this.bankAccountNumber(),
                             "termsCondition" : this.termsValidate(),
-                            "CompanyName" : this.CompanyName(),
-                            "COCNumber" : this.CocNumber(),
+                            "companyName" : this.companyName(),
+                            "cOCNumber" : this.cocNumber(),
                             "selectedBusiness" : business
                         }
                     };
+                },
+                getDigiacceptUrl :function(country) {
+                    var businessMethod = this.getBusinessMethod();
+                    var url = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
+
+                    if (country === 'BE' && businessMethod == BUSINESS_METHOD_B2C) {
+                        url = 'https://www.afterpay.be/be/footer/betalen-met-afterpay/betalingsvoorwaarden';
+                    }
+
+                    if (country === 'NL' && businessMethod == BUSINESS_METHOD_B2C) {
+                        url = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
+                    }
+
+                    if (country === 'NL' && businessMethod == BUSINESS_METHOD_B2B) {
+                        url = 'https://www.afterpay.nl/nl/algemeen/zakelijke-partners/betalingsvoorwaarden-zakelijk';
+                    }
+
+                    return url;
+                },
+
+                getBusinessMethod : function() {
+                    var businessMethod = BUSINESS_METHOD_B2C;
+
+                    if (this.businessMethod == BUSINESS_METHOD_B2B
+                        || (this.businessMethod == BUSINESS_METHOD_BOTH && this.selectedBusiness() == BUSINESS_METHOD_B2B)
+                    ) {
+                        businessMethod = BUSINESS_METHOD_B2B;
+                    }
+
+                    return businessMethod;
                 }
             }
         );

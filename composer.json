@@ -19,10 +19,10 @@
         "email": "support@buckaroo.nl",
         "issues": "https://support.buckaroo.nl/contact",
         "wiki": "https://support.buckaroo.nl",
-        "docs": "https://support.buckaroo.nl"
+        "docs": "https://docs.buckaroo.io/"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v1.45.1",
+    "version" : "v1.46.0",
     "minimum-stability": "stable",
     "autoload": {
         "files": [
