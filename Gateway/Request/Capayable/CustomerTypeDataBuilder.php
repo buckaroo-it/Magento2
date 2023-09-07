@@ -19,27 +19,12 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
+namespace Buckaroo\Magento2\Gateway\Request\Capayable;
 
-use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class In3V3DataBuilder implements BuilderInterface
+class CustomerTypeDataBuilder implements BuilderInterface
 {
-    /**
-     * @var CapayableIn3
-     */
-    private CapayableIn3 $capayableIn3Config;
-
-    /**
-     * @param CapayableIn3 $capayableIn3Config
-     */
-    public function __construct(
-        CapayableIn3 $capayableIn3Config,
-    ) {
-        $this->capayableIn3Config = $capayableIn3Config;
-    }
     /**
      * @inheritdoc
      *
@@ -47,16 +32,8 @@ class In3V3DataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
-        $paymentDO = SubjectReader::readPayment($buildSubject);
-        $payment = $paymentDO->getPayment();
-
-        $data = [];
-
-        if ($this->capayableIn3Config->isV3()) {
-            $payment->setAdditionalInformation("buckaroo_in3_v3", true);
-            $data['payment_method'] = 'in3';
-        }
-
-        return $data;
+        return [
+            'customerType' => 'Debtor'
+        ];
     }
 }

@@ -59,8 +59,8 @@ class CapayableDataBuilder extends AbstractRecipientDataBuilder
             'lastName'       => $this->getLastName(),
             'careOf'         => $this->getCareOf(),
             'birthDate'      => $this->getBirthDate(),
-//            'phone'          => $this->getPhone(),
-//            'country'        => $this->getAddress()->getCountryId()
+            'phone'          => $this->getPhone(),
+            'country'        => $this->getAddress()->getCountryId()
         ];
 
         if ($category == 'B2B') {

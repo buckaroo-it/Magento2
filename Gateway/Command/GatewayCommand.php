@@ -48,42 +48,42 @@ class GatewayCommand implements CommandInterface
     /**
      * @var BuilderInterface
      */
-    private $requestBuilder;
+    protected $requestBuilder;
 
     /**
      * @var TransferFactoryInterface
      */
-    private $transferFactory;
+    protected $transferFactory;
 
     /**
      * @var ClientInterface
      */
-    private $client;
+    protected $client;
 
     /**
      * @var HandlerInterface
      */
-    private $handler;
+    protected $handler;
 
     /**
      * @var ValidatorInterface
      */
-    private $validator;
+    protected $validator;
 
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    protected $logger;
 
     /**
      * @var ErrorMessageMapperInterface
      */
-    private $errorMessageMapper;
+    protected $errorMessageMapper;
 
     /**
      * @var SkipCommandInterface|null
      */
-    private ?SkipCommandInterface $skipCommand;
+    protected ?SkipCommandInterface $skipCommand;
 
     /**
      * @param BuilderInterface $requestBuilder
@@ -105,7 +105,7 @@ class GatewayCommand implements CommandInterface
         ErrorMessageMapperInterface $errorMessageMapper = null,
         SkipCommandInterface        $skipCommand = null
     ) {
-        $this->requestBuilder = $requestBuilder;
+        $this->requestBuilder = $this->getRequestBuilder($requestBuilder);
         $this->transferFactory = $transferFactory;
         $this->client = $client;
         $this->handler = $handler;
@@ -200,5 +200,14 @@ class GatewayCommand implements CommandInterface
         }
 
         throw new CommandException(__($errorMessage));
+    }
+
+    /**
+     * @param BuilderInterface $requestBuilder
+     * @return BuilderInterface
+     */
+    protected function getRequestBuilder(BuilderInterface $requestBuilder): BuilderInterface
+    {
+        return $requestBuilder;
     }
 }

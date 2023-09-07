@@ -19,21 +19,23 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
+namespace Buckaroo\Magento2\Gateway\Http\Client;
 
-use Magento\Payment\Gateway\Request\BuilderInterface;
+use Buckaroo\Transaction\Response\TransactionResponse;
 
-class CustomerTypeDataBuilder implements BuilderInterface
+class TransactionPayOrInInstallments extends DefaultTransaction
 {
     /**
      * @inheritdoc
-     *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
-    public function build(array $buildSubject): array
+    protected function process(string $paymentMethod, array $data): TransactionResponse
     {
-        return [
-            'customerType' => 'Debtor'
-        ];
+        $this->action = TransactionType::PAY_IN_INSTALLMENTS;
+
+        if ($data['additionalParameters']['service_action_from_magento'] === TransactionType::PAY) {
+            $this->action = TransactionType::PAY;
+        }
+
+        return $this->adapter->execute($this->action, $paymentMethod, $data);
     }
 }

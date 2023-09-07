@@ -19,38 +19,21 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
+namespace Buckaroo\Magento2\Gateway\Request\Capayable;
 
-use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
-use Magento\Sales\Api\Data\OrderItemInterface;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class ArticlesDataBuilder extends AbstractDataBuilder
+class InvoiceDateDataBuilder implements BuilderInterface
 {
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function build(array $buildSubject): array
     {
-        parent::initialize($buildSubject);
-
-        $articles = [];
-
-        foreach ($this->getOrder()->getAllItems() as $item) {
-
-            /** @var OrderItemInterface $item */
-            if ($item->getParentItem() != null) {
-                continue;
-            }
-
-            $articles[] = [
-                'identifier'  => $item->getSku(),
-                'description' => $item->getName(),
-                'quantity'    => $item->getQtyOrdered(),
-                'price'       => $item->getBasePriceInclTax()
-            ];
-        }
         return [
-            'articles' => array_slice($articles, 0, 99)
+            'invoiceDate' => (new \DateTime())->format('Y-m-d')
         ];
     }
 }

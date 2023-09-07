@@ -1900,7 +1900,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CapayableOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPay</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayOrInInstallments</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -1958,19 +1958,19 @@
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayInInstallmentsDataBuilder</item>
 
-                <item name="in3_v3" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\In3V3DataBuilder</item>
+                <item name="in3_v3" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\In3V3DataBuilder</item>
 
                 <item name="customer" xsi:type="string">CustomerCapayableDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
                 <!-- Only for in3 v2-->
-                <item name="invoice_date" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\InvoiceDateDataBuilder</item>
-                <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\CustomerTypeDataBuilder</item>
-                <item name="sub_totals" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\Builder\SubTotalsDataBuilder</item>
-
+                <item name="invoice_date" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\InvoiceDateDataBuilder</item>
+                <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\CustomerTypeDataBuilder</item>
+                <item name="sub_totals" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\SubTotalsDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="CapayablePhone" type="Buckaroo\Magento2\Gateway\Request\Capayable\Builder\PhoneDataBuilder">
+
+    <virtualType name="CapayablePhone" type="Buckaroo\Magento2\Gateway\Request\Capayable\PhoneDataBuilder">
         <arguments>
             <argument name="phoneFormatter" xsi:type="object">Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter</argument>
         </arguments>

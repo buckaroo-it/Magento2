@@ -19,7 +19,7 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\Capayable\Builder;
+namespace Buckaroo\Magento2\Gateway\Request\Capayable;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 
