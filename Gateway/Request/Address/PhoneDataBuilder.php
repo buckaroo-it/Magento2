@@ -58,6 +58,7 @@ class PhoneDataBuilder implements BuilderInterface
 
         return [
             'phone' => [
+                'phone' => $telephone,
                 'mobile' => $telephone,
                 'landline' => $telephone
             ]

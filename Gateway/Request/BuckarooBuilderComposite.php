@@ -79,17 +79,32 @@ class BuckarooBuilderComposite implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
+        $this->dataBuilderService = new DataBuilderService();
+
+        $result = [];
         if ($this->usingId) {
             foreach ($this->getBuilders() as $key => $builder) {
-                $this->dataBuilderService->addData([$key => $builder->build($buildSubject)]);
+                $result = $this->addData($result, [$key => $builder->build($buildSubject)]);
             }
         } else {
             foreach ($this->getBuilders() as $builder) {
-                $this->dataBuilderService->addData($builder->build($buildSubject));
+                $result = $this->addData($result, $builder->build($buildSubject));
             }
         }
 
-        return $this->dataBuilderService->getData();
+        return $result;
+    }
+
+    /**
+     * Merge function for builders
+     *
+     * @param array $result
+     * @param array $builder
+     * @return array
+     */
+    protected function merge(array $result, array $builder): array
+    {
+        return array_replace_recursive($result, $builder);
     }
 
     /**
@@ -114,12 +129,15 @@ class BuckarooBuilderComposite implements BuilderInterface
     /**
      * Add Data to the Request
      *
+     * @param array $result
      * @param array $data
-     * @return void
+     * @return array
      */
-    public function addData(array $data)
+    public function addData(array $result, array $data): array
     {
+        $result = $this->merge($result, $data);
         $this->dataBuilderService->addData($data);
+        return $result;
     }
 
     /**

@@ -198,4 +198,14 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     {
         return strtoupper(substr($this->getFirstname(), 0, 1));
     }
+
+    /**
+     * Get Company Name
+     *
+     * @return string
+     */
+    protected function getCompanyName(): string
+    {
+        return $this->payment->getAdditionalInformation('CompanyName') ?: $this->getAddress()->getCompany() ?: '';
+    }
 }
