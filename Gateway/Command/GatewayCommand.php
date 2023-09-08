@@ -48,42 +48,42 @@ class GatewayCommand implements CommandInterface
     /**
      * @var BuilderInterface
      */
-    protected $requestBuilder;
+    private $requestBuilder;
 
     /**
      * @var TransferFactoryInterface
      */
-    protected $transferFactory;
+    private $transferFactory;
 
     /**
      * @var ClientInterface
      */
-    protected $client;
+    private $client;
 
     /**
      * @var HandlerInterface
      */
-    protected $handler;
+    private $handler;
 
     /**
      * @var ValidatorInterface
      */
-    protected $validator;
+    private $validator;
 
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    private $logger;
 
     /**
      * @var ErrorMessageMapperInterface
      */
-    protected $errorMessageMapper;
+    private $errorMessageMapper;
 
     /**
      * @var SkipCommandInterface|null
      */
-    protected ?SkipCommandInterface $skipCommand;
+    private ?SkipCommandInterface $skipCommand;
 
     /**
      * @param BuilderInterface $requestBuilder
@@ -97,7 +97,6 @@ class GatewayCommand implements CommandInterface
      */
     public function __construct(
         BuilderInterface            $requestBuilder,
-
         TransferFactoryInterface    $transferFactory,
         ClientInterface             $client,
         LoggerInterface             $logger,
@@ -106,7 +105,7 @@ class GatewayCommand implements CommandInterface
         ErrorMessageMapperInterface $errorMessageMapper = null,
         SkipCommandInterface        $skipCommand = null
     ) {
-        $this->requestBuilder = $this->getRequestBuilder($requestBuilder);
+        $this->requestBuilder = $requestBuilder;
         $this->transferFactory = $transferFactory;
         $this->client = $client;
         $this->handler = $handler;
@@ -201,14 +200,5 @@ class GatewayCommand implements CommandInterface
         }
 
         throw new CommandException(__($errorMessage));
-    }
-
-    /**
-     * @param BuilderInterface $requestBuilder
-     * @return BuilderInterface
-     */
-    protected function getRequestBuilder(BuilderInterface $requestBuilder): BuilderInterface
-    {
-        return $requestBuilder;
     }
 }
