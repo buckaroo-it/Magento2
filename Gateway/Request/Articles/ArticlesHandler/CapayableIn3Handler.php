@@ -40,22 +40,4 @@ class CapayableIn3Handler extends AbstractArticlesHandler
             'price' => $articleUnitPrice
         ];
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function getArticleRefundArrayLine(
-        ?string $articleDescription,
-        $articleId,
-        $articleQuantity,
-        $articleUnitPrice,
-        $articleVat = ''
-    ): array {
-        return [
-            'identifier' => $articleId,
-            'description' => $articleDescription,
-            'quantity' => $articleQuantity,
-            'price' => $articleUnitPrice
-        ];
-    }
 }

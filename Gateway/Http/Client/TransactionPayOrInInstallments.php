@@ -30,12 +30,12 @@ class TransactionPayOrInInstallments extends DefaultTransaction
      */
     protected function process(string $paymentMethod, array $data): TransactionResponse
     {
-        $this->action = TransactionType::PAY_IN_INSTALLMENTS;
+        $action = TransactionType::PAY_IN_INSTALLMENTS;
 
         if ($data['additionalParameters']['service_action_from_magento'] === TransactionType::PAY) {
-            $this->action = TransactionType::PAY;
+            $action = TransactionType::PAY;
         }
 
-        return $this->adapter->execute($this->action, $paymentMethod, $data);
+        return $this->adapter->execute($action, $paymentMethod, $data);
     }
 }
