@@ -188,25 +188,6 @@ class BuckarooAdapter extends Adapter
     /**
      * @inheritdoc
      */
-    public function order(InfoInterface $payment, $amount)
-    {
-        $commandCode = 'order';
-        if ($this->getConfigData('api_version')) {
-            $commandCode .= strtolower($this->getConfigData('api_version'));
-        }
-
-        $reflection = new \ReflectionClass($this);
-        $method = $reflection->getMethod('executeCommand');
-        $method->setAccessible(true);
-
-        $method->invoke($this, $commandCode, ['payment' => $payment, 'amount' => $amount]);
-
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function cancel(InfoInterface $payment)
     {
         if (!self::$requestOnVoid) {

@@ -1889,24 +1889,31 @@
     <virtualType name="CapayableGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
-                <item name="orderv2" xsi:type="string">CapayableV2OrderCommand</item>
-                <item name="orderv3" xsi:type="string">CapayableV3OrderCommand</item>
+                <item name="order" xsi:type="string">CapayableOrderCommand</item>
                 <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
 
-     <!-- CapayableV3OrderCommand Order Command -->
-    <virtualType name="CapayableV3OrderCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
+    <!-- CapayableV3OrderCommand Order Command -->
+    <virtualType name="CapayableOrderCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
         <arguments>
-            <argument name="requestBuilder" xsi:type="object">CapayableV3OrderRequest</argument>
+            <argument name="requestBuilder" xsi:type="object">CapayableVersionDataBuilder</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPay</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayOrInInstallments</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
+
+    <virtualType name="CapayableVersionDataBuilder" type="Buckaroo\Magento2\Gateway\Request\VersionDataBuilder">
+        <arguments>
+            <argument name="v2" xsi:type="object">CapayableV2OrderRequest</argument>
+            <argument name="v1" xsi:type="object">CapayableV3OrderRequest</argument>
+        </arguments>
+    </virtualType>
+
 
     <!-- Capayable Order Command - Request Builder -->
     <virtualType name="CapayableV3OrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
@@ -1917,17 +1924,6 @@
                 <item name="customer" xsi:type="string">CustomerCapayableDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="CapayableV2OrderCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
-        <arguments>
-            <argument name="requestBuilder" xsi:type="object">CapayableV2OrderRequest</argument>
-            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPayInInstallments</argument>
-            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
-            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
         </arguments>
     </virtualType>
 

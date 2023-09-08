@@ -686,8 +686,6 @@
                 <can_capture>0</can_capture>
                 <can_capture_partial>0</can_capture_partial>
                 <can_order>1</can_order>
-                <can_orderv2>1</can_orderv2>
-                <can_orderv3>1</can_orderv3>
                 <can_void>1</can_void>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
