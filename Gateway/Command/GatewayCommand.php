@@ -23,6 +23,8 @@ namespace Buckaroo\Magento2\Gateway\Command;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
+use Buckaroo\Magento2\Model\Method\LimitReachException;
+use Buckaroo\Magento2\Service\SpamLimitService;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapperInterface;
@@ -100,6 +102,7 @@ class GatewayCommand implements CommandInterface
         TransferFactoryInterface    $transferFactory,
         ClientInterface             $client,
         LoggerInterface             $logger,
+        SpamLimitService            $spamLimitService,
         HandlerInterface            $handler = null,
         ValidatorInterface          $validator = null,
         ErrorMessageMapperInterface $errorMessageMapper = null,
@@ -113,6 +116,7 @@ class GatewayCommand implements CommandInterface
         $this->logger = $logger;
         $this->errorMessageMapper = $errorMessageMapper;
         $this->skipCommand = $skipCommand;
+        $this->spamLimitService = $spamLimitService;
     }
 
     /**
@@ -126,8 +130,9 @@ class GatewayCommand implements CommandInterface
      */
     public function execute(array $commandSubject): void
     {
+        $paymentDO = SubjectReader::readPayment($commandSubject);
+
         if ($this->client instanceof TransactionPayRemainder) {
-            $paymentDO = SubjectReader::readPayment($commandSubject);
             $orderIncrementId = $paymentDO->getOrder()->getOrder()->getIncrementId();
             $commandSubject['action'] = $this->client->setServiceAction($orderIncrementId);
         }
@@ -143,10 +148,15 @@ class GatewayCommand implements CommandInterface
 
         $response = $this->client->placeRequest($transferO);
         if ($this->validator !== null) {
-            $result = $this->validator->validate(
-                array_merge($commandSubject, ['response' => $response])
-            );
+            $result = $this->validator->validate(array_merge($commandSubject, ['response' => $response]));
             if (!$result->isValid()) {
+                try {
+                    $paymentInstance = $paymentDO->getPayment()->getMethodInstance();
+                    $this->spamLimitService->updateRateLimiterCount($paymentDO->getPayment()->getMethodInstance());
+                }catch (LimitReachException $th) {
+                    $this->spamLimitService->setMaxAttemptsFlags($paymentInstance, $th->getMessage());
+                    return;
+                }
                 $this->processErrors($result);
             }
         }

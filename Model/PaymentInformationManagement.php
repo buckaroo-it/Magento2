@@ -137,8 +137,8 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         }
 
         return json_encode([
-//          "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
-            "order_number" => $this->getOrderIncrementId($orderId)
+            "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
+            "order_number"        => $this->getOrderIncrementId($orderId)
         ]);
     }
 
