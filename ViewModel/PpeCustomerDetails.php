@@ -60,7 +60,8 @@ class PpeCustomerDetails implements ArgumentInterface
     {
         $this->logger->addDebug(sprintf(
             '[Helper - PayPerEmail] | [Helper] | [%s:%s] - Get PPE Customer details | originalRequest: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($this->request->getParams(), true)
         ));
         if (($customerId = $this->request->getParam('customer_id')) && ((int)$customerId > 0)) {
@@ -78,7 +79,8 @@ class PpeCustomerDetails implements ArgumentInterface
                 }
                 $this->logger->addDebug(sprintf(
                     '[Helper - PayPerEmail] | [Helper] | [%s:%s] - Get PPE Customer details | customerEmail: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $customer->getEmail()
                 ));
                 $this->staticCache['getPPeCustomerDetails'] = [

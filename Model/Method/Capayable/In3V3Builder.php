@@ -38,7 +38,8 @@ class In3V3Builder
 
 
 
-    public function build($payment) {
+    public function build($payment)
+    {
         return [
             'Name'   => 'In3',
             'Action' => 'Pay',
@@ -47,7 +48,7 @@ class In3V3Builder
                 $this->getBillingCustomer(
                     $payment->getOrder()->getBillingAddress(),
                     $this->getBirthDate($payment),
-                    $this->getPhone($payment->getOrder()->getBillingAddress() ,$payment)
+                    $this->getPhone($payment->getOrder()->getBillingAddress(), $payment)
                 ),
                 $this->getShippingAddress($payment->getOrder()->getShippingAddress())
             )
@@ -63,8 +64,7 @@ class In3V3Builder
      */
     protected function getShippingAddress(
         Address $shippingAddress,
-    ): array
-    {
+    ): array {
         $i = 1;
 
         $streetData = $this->addressFormatter->formatStreet($shippingAddress->getStreet());
@@ -81,7 +81,7 @@ class In3V3Builder
             $data[] = $this->row($streetData['number_addition'], 'StreetNumberSuffix', 'ShippingCustomer', $i);
         }
 
-        if(strlen((string)$shippingAddress->getRegion())) {
+        if (strlen((string)$shippingAddress->getRegion())) {
             $data[] = $this->row($shippingAddress->getRegion(), 'Region', 'ShippingCustomer', $i);
         }
 
@@ -99,15 +99,14 @@ class In3V3Builder
         Address $billingAddress,
         string $birthDate,
         string $phone
-    ): array
-    {
+    ): array {
         $i = 2;
 
         $streetData = $this->addressFormatter->formatStreet($billingAddress->getStreet());
 
         $customerNumber = "guest";
 
-        if($billingAddress->getEntityId() !== null) {
+        if ($billingAddress->getEntityId() !== null) {
             $customerNumber = $billingAddress->getEntityId();
         }
         $data = [
@@ -131,7 +130,7 @@ class In3V3Builder
             $data[] = $this->row($streetData['number_addition'], 'StreetNumberSuffix', 'BillingCustomer', $i);
         }
 
-        if(strlen((string)$billingAddress->getRegion())) {
+        if (strlen((string)$billingAddress->getRegion())) {
             $data[] = $this->row($billingAddress->getRegion(), 'Region', 'BillingCustomer', $i);
         }
 
@@ -175,7 +174,8 @@ class In3V3Builder
         return $productData;
     }
 
-    protected function getArticles($payment) {
+    protected function getArticles($payment)
+    {
         $order = $payment->getOrder();
         $products = $this->getProducts($order->getAllItems());
 
@@ -191,7 +191,7 @@ class In3V3Builder
         );
 
         $roundingErrors = $this->getRoundingErrors($payment, $articles);
-        if(is_array($roundingErrors)) {
+        if (is_array($roundingErrors)) {
             $articles = array_merge(
                 $articles,
                 [$roundingErrors]
@@ -227,14 +227,14 @@ class In3V3Builder
     {
         $total = array_sum(
             array_map(function ($article) {
-                return round((float)$article['price'],2) * (int)$article['qty'] ;
+                return round((float)$article['price'], 2) * (int)$article['qty'] ;
             }, $articles)
         );
         $orderAmount = $payment->getData('amount_ordered');
 
-        $amount = round($orderAmount, 2) - round($total,2);
+        $amount = round($orderAmount, 2) - round($total, 2);
 
-        if(abs($amount) < 0.01) {
+        if (abs($amount) < 0.01) {
             return null;
         }
 
@@ -324,7 +324,8 @@ class In3V3Builder
      *
      * @return string
      */
-    private function getPhone(Address $address, $payment) {
+    private function getPhone(Address $address, $payment)
+    {
         $phone = $address->getTelephone();
 
         if ($payment->getAdditionalInformation('customer_telephone') !== null) {
@@ -346,9 +347,10 @@ class In3V3Builder
      *
      * @return string|null
      */
-    private function getBirthDate($payment) {
+    private function getBirthDate($payment)
+    {
         $birthDate = $payment->getAdditionalInformation('customer_DoB');
-        if(!is_string($birthDate)) {
+        if (!is_string($birthDate)) {
             return null;
         }
 

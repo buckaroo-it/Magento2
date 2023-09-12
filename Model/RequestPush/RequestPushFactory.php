@@ -69,7 +69,8 @@ class RequestPushFactory
             if (strpos($this->request->getContentType(), 'application/json') !== false) {
                 $this->logger->addDebug(sprintf(
                     '[PUSH] | [Factory] | [%s:%s] - Create Json Request Object | request: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     var_export($this->request->getRequestData(), true)
                 ));
 
@@ -81,14 +82,16 @@ class RequestPushFactory
         } catch (\Exception $exception) {
             $this->logger->addError(sprintf(
                 '[PUSH] | [Factory] | [%s:%s] - Create Json Request Object | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $exception->getMessage()
             ));
         }
 
         $this->logger->addDebug(sprintf(
             '[PUSH] | [Factory] | [%s:%s] - Create HTTP Post Request Object | request: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($this->request->getRequestData(), true)
         ));
 

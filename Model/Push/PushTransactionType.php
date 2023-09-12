@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\Push;
 
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
-use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Model\Order;
 
 /**
@@ -101,11 +100,6 @@ class PushTransactionType
      * @var Order
      */
     private Order $order;
-
-    /**
-     * @var OrderRequestService
-     */
-    private OrderRequestService $orderRequestService;
 
     /**
      * @var BuckarooStatusCode

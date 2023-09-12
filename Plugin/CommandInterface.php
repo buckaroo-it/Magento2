@@ -103,7 +103,8 @@ class CommandInterface
         $this->logger->addDebug(sprintf(
             '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Update order state and status |' .
             ' paymentMethod: %s | paymentAction: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             $paymentCode,
             $paymentAction
         ));
@@ -116,7 +117,8 @@ class CommandInterface
                 $this->logger->addDebug(sprintf(
                     '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Skip Update order state and status |' .
                     ' paymentMethod: %s | paymentAction: %s, orderStatus: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $paymentCode,
                     $paymentAction,
                     $orderStatus

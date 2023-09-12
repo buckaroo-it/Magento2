@@ -176,7 +176,8 @@ class Order
                 $this->logger->addDebug(sprintf(
                     '[CANCEL_ORDER - Transfer] | [Service] | [%s:%s] - Cancel Expired Transfer Orders Per Store |'
                     . 'storeId:%s | dueDays: %s | orderCollectionCount: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     var_export($store->getId(), true),
                     var_export($dueDays, true),
                     var_export($orderCollection->count(), true)
@@ -256,7 +257,8 @@ class Order
                     $this->logger->addDebug(sprintf(
                         '[CANCEL_ORDER - PayPerEmail] | [Service] | [%s:%s] - Cancel Expired PayPerEmail Orders |'
                         . 'storeId:%s | dueDays: %s | orderCollectionCount: %s',
-                        __METHOD__, __LINE__,
+                        __METHOD__,
+                        __LINE__,
                         var_export($store->getId(), true),
                         var_export($dueDays, true),
                         var_export($orderCollection->count(), true)
@@ -286,12 +288,13 @@ class Order
     public function cancel(\Magento\Sales\Model\Order $order, ?int $statusCode)
     {
         $paymentMethodCode = $order->getPayment()->getMethod();
-        $paymentMethodName = str_replace('buckaroo_magento2_', '',$paymentMethodCode);
+        $paymentMethodName = str_replace('buckaroo_magento2_', '', $paymentMethodCode);
 
         $this->logger->addDebug(sprintf(
             '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Cancel Order | orderIncrementId: %s',
             $paymentMethodName,
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($order->getIncrementId(), true)
         ));
 
@@ -299,7 +302,8 @@ class Order
             $this->logger->addDebug(sprintf(
                 '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Cancel Order - already canceled',
                 $paymentMethodName,
-                __METHOD__, __LINE__
+                __METHOD__,
+                __LINE__
             ));
             return true;
         }
@@ -310,8 +314,7 @@ class Order
             return true;
         }
 
-        if ($order->canCancel() || $paymentMethodName == 'payperemail')
-        {
+        if ($order->canCancel() || $paymentMethodName == 'payperemail') {
             if ($paymentMethodName == 'klarnakp') {
                 $methodInstanceClass = get_class($order->getPayment()->getMethodInstance());
                 $methodInstanceClass::$requestOnVoid = false;
@@ -324,7 +327,8 @@ class Order
             $this->logger->addDebug(sprintf(
                 '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Cancel Order - set status to: %s',
                 $paymentMethodName,
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $failedStatus
             ));
 

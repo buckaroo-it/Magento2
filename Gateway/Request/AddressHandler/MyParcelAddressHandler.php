@@ -72,7 +72,8 @@ class MyParcelAddressHandler extends AbstractAddressHandler
                 $this->logger->addError(sprintf(
                     '[CREATE_ORDER] | [Gateway] | [%s:%s] - Error related to json_decode' . '
                     (MyParcel plugin compatibility) | [ERROR]: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $je->getMessage()
                 ));
             }
@@ -116,7 +117,8 @@ class MyParcelAddressHandler extends AbstractAddressHandler
 
         $this->logger->addDebug(sprintf(
             '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by myParcelNL | newAddress: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($mapping, true)
         ));
 
@@ -143,7 +145,8 @@ class MyParcelAddressHandler extends AbstractAddressHandler
 
         $this->logger->addDebug(sprintf(
             '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by myParcelNL V2 | newAddress: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($mapping, true)
         ));
 

@@ -131,7 +131,8 @@ class LogCleaner
         } catch (\Exception $e) {
             $this->logger->error(sprintf(
                 '[LOGGING] | [CRON] | [%s:%s] - Delete logs from data base. Proceed DB error. | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getMessage()
             ));
         }
@@ -174,7 +175,8 @@ class LogCleaner
         } catch (FileSystemException $e) {
             $this->logger->error(sprintf(
                 '[LOGGING] | [CRON] | [%s:%s] - Get all files from log directory. | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getMessage()
             ));
         }

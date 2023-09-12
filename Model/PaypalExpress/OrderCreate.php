@@ -130,14 +130,16 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         } catch (NoSuchEntityException $th) {
             $this->logger->addError(sprintf(
                 '[CREATE_ORDER - PayPal Express] | [Model] | [%s:%s] - Create Order - No such entity | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
             throw new PaypalExpressException(__("Failed to create order"), 1, $th);
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[CREATE_ORDER - PayPal Express] | [Model] | [%s:%s] - Create Order | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
             throw $th;

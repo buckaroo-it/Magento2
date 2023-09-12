@@ -99,7 +99,8 @@ class SetTerminal extends Action
         $params = $this->getRequest()->getParams();
         $this->logger->addDebug(sprintf(
             '[POS] | [Controller] | [%s:%s] - Set Terminal | request: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($params, true)
         ));
 

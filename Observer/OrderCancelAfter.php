@@ -110,7 +110,8 @@ class OrderCancelAfter implements ObserverInterface
                 $this->logger->addDebug(sprintf(
                     '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Order Request for PayPerEmail' .
                     'to payment engine | originalKey: %s | order: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     var_export([$originalKey], true),
                     $order->getId()
                 ));
@@ -118,7 +119,8 @@ class OrderCancelAfter implements ObserverInterface
             } catch (\Exception $e) {
                 $this->logger->addError(sprintf(
                     '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Request for PPE | [ERROR]: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $e->getMessage()
                 ));
             }

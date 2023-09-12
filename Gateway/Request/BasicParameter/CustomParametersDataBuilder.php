@@ -238,7 +238,7 @@ class CustomParametersDataBuilder implements BuilderInterface
             $customerData[$addressData] = 'street';
 
             foreach ($customerData as $customerDataKey => $value) {
-                if (in_array($value, ['street', 'housenumber', 'houseadditionalnumber']) ) {
+                if (in_array($value, ['street', 'housenumber', 'houseadditionalnumber'])) {
                     $customerData[$customerDataKey] = $streetFormat[$value] ?? '';
                 }
             }

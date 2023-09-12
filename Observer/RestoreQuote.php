@@ -132,8 +132,7 @@ class RestoreQuote implements ObserverInterface
                     }
                 }
 
-                if (
-                    (
+                if ((
                         $this->checkoutSession->getRestoreQuoteLastOrder() &&
                         $lastRealOrder->getData('state') === 'new' &&
                         $lastRealOrder->getData('status') === 'pending' &&
@@ -143,7 +142,8 @@ class RestoreQuote implements ObserverInterface
                     $this->logger->addDebug(sprintf(
                         '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Quote | ' .
                         'lastRealOrder: %s | previousOrderId: %s',
-                        __METHOD__, __LINE__,
+                        __METHOD__,
+                        __LINE__,
                         $lastRealOrder->getIncrementId(),
                         $previousOrderId
                     ));
@@ -157,7 +157,8 @@ class RestoreQuote implements ObserverInterface
             $this->logger->addDebug(sprintf(
                 '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Skipped: '
                 . 'Quote restoration was not carried out. | lastRealOrder: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $lastRealOrder->getIncrementId(),
             ));
 
@@ -204,7 +205,8 @@ class RestoreQuote implements ObserverInterface
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Rollback Partial Payment | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
         }

@@ -69,7 +69,6 @@ class ShippingMethodsService
 
             $shippingMethod = array_shift($shippingMethods);
             $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
-
         }
 
         $address->setCollectShippingRates(true);

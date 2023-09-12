@@ -88,7 +88,6 @@ class PushProcessorsFactory
             }
 
             $this->pushProcessor = $this->objectManager->get($pushProcessorClass);
-
         }
         return $this->pushProcessor;
     }

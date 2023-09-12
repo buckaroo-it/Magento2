@@ -92,7 +92,6 @@ abstract class AbstractAddressHandler implements AddressHandlerInterface
                         && $requestData[$key]['Name'] == $mappingItem[0]) {
                         $requestData[$key]['_'] = $mappingItem[1];
                         $found = true;
-
                     }
                 }
                 if (!$found) {

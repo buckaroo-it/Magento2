@@ -99,7 +99,8 @@ class GroupTransactionRegister implements ObserverInterface
         foreach ($items as $item) {
             $this->logger->addDebug(sprintf(
                 '[GROUP_TRANSACTION] | [Observer] | [%s:%s] - Set Order Total Paid | orderTotalPaid: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export([$order->getTotalPaid(), $item['amount']], true)
             ));
             $totalPaid = $order->getTotalPaid() + $item['amount'];

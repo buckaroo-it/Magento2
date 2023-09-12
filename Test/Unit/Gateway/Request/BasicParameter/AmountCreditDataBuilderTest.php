@@ -102,6 +102,4 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
             [0.01, 0.01, 0.01],
         ];
     }
-
-
 }

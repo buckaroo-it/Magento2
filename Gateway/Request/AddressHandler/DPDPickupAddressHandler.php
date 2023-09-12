@@ -86,7 +86,8 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
         if (!$fullStreet && $quote->getDpdParcelshopId()) {
             $this->logger->addDebug(sprintf(
                 '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by DPD Parcel | cookie: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export($_COOKIE, true)
             ));
             $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
@@ -110,7 +111,8 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
 
             $this->logger->addDebug(sprintf(
                 '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by DPD Parcel | newAddress: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export($mapping, true)
             ));
 

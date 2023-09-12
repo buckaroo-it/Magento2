@@ -63,8 +63,7 @@ class BuckarooFee extends AbstractTotal
 
         $refundItem = $this->request->getPost('creditmemo');
 
-        if (
-            $salesModel->getBaseBuckarooFee()
+        if ($salesModel->getBaseBuckarooFee()
             && $order->getBaseBuckarooFeeInvoiced() > $order->getBaseBuckarooFeeRefunded()
         ) {
             $baseBuckarooFee = $salesModel->getBaseBuckarooFee();

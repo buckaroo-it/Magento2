@@ -148,12 +148,12 @@ define(
                         function () {
                             const state = this.validationState();
                             const valid =this.getActiveFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -171,7 +171,7 @@ define(
                         'bankaccountholder',
                         'bankaccountnumber',
                     ];
-                    if(!this.isnl()) {
+                    if (!this.isnl()) {
                         fields.push('bicnumber');
                     }
                     return fields;

@@ -64,8 +64,17 @@ class KlarnaKpProcessor extends DefaultProcessor
         Account $configAccount,
         Klarnakp $klarnakpConfig
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
+        parent::__construct(
+            $orderRequestService,
+            $pushTransactionType,
+            $logger,
+            $helper,
+            $transaction,
+            $groupTransaction,
+            $buckarooStatusCode,
+            $orderStatusFactory,
+            $configAccount
+        );
         $this->klarnakpConfig = $klarnakpConfig;
     }
 

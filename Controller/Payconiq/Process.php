@@ -100,9 +100,21 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         SearchCriteriaBuilder $searchCriteriaBuilder,
         TransactionRepositoryInterface $transactionRepository
     ) {
-        parent::__construct($context, $logger, $quote, $accountConfig, $orderRequestService,
-            $orderStatusFactory, $checkoutSession, $customerSession, $customerRepository,
-            $orderService, $eventManager, $quoteRecreate, $requestPushFactory);
+        parent::__construct(
+            $context,
+            $logger,
+            $quote,
+            $accountConfig,
+            $orderRequestService,
+            $orderStatusFactory,
+            $checkoutSession,
+            $customerSession,
+            $customerRepository,
+            $orderService,
+            $eventManager,
+            $quoteRecreate,
+            $requestPushFactory
+        );
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->transactionRepository = $transactionRepository;
@@ -128,7 +140,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $errorMessage = 'Customer is different then the customer that start Payconiq process request.';
             $this->logger->addError(sprintf(
                 '[REDIRECT - Payconiq] | [Controller] | [%s:%s] - %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $errorMessage
             ));
             $this->messageManager->addErrorMessage($errorMessage);

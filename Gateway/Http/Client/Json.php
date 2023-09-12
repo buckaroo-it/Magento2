@@ -71,7 +71,8 @@ class Json
 
         $this->logger->addDebug(sprintf(
             '[HTTP_JSON] | [Gateway] | [%s:%s] - Create post request to payment engine | request: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($data, true)
         ));
 
@@ -114,7 +115,8 @@ class Json
 
         $this->logger->addDebug(sprintf(
             '[HTTP_JSON] | [Gateway] | [%s:%s] - Create a status request by transaction_id | request: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($options, true)
         ));
 
@@ -234,7 +236,8 @@ class Json
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
                 '[HTTP_JSON] | [Gateway] | [%s:%s] - Get Response after JSON request | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getMessage()
             ));
             return false;
@@ -242,7 +245,8 @@ class Json
 
         $this->logger->addDebug(sprintf(
             '[HTTP_JSON] | [Gateway] | [%s:%s] - Get Response after JSON request | response: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export(['response' => $response, 'clientStatus' => $this->client->getStatus()], true)
         ));
 

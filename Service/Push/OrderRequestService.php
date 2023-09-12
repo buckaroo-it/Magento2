@@ -109,7 +109,8 @@ class OrderRequestService
             if (!$this->order->getId()) {
                 $this->logger->addDebug(sprintf(
                     '[ORDER] | [Service] | [%s:%s] - Order could not be loaded by Invoice Number or Order Number',
-                    __METHOD__, __LINE__
+                    __METHOD__,
+                    __LINE__
                 ));
                 // Try to get order by transaction id on payment.
                 $this->order = $this->getOrderByTransactionKey($pushRequest);
@@ -201,7 +202,8 @@ class OrderRequestService
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
                 '[ORDER] | [Service] | [%s:%s] - Set Order Notification Note Failed | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getLogMessage()
             ));
         }
@@ -227,7 +229,8 @@ class OrderRequestService
     ): void {
         $this->logger->addDebug(sprintf(
             '[ORDER] | [Service] | [%s:%s] - Updates the order state and add a comment | data: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export([
                 'orderState' => $orderState,
                 'newStatus'  => $newStatus,
@@ -282,7 +285,8 @@ class OrderRequestService
         return $this->invoiceSender->send($invoice, $forceSyncMode);
     }
 
-    public function updateTotalOnOrder($order) {
+    public function updateTotalOnOrder($order)
+    {
 
         try {
             $connection = $this->resourceConnection->getConnection();
@@ -301,7 +305,6 @@ class OrderRequestService
         } catch (\Exception $exception) {
             return false;
         }
-
     }
 
     /**

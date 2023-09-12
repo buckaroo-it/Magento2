@@ -221,7 +221,7 @@ class CreateCombinedInvoice
             return $allowedServices;
         }
 
-        if(strlen($allowedServices) > 0) {
+        if (strlen($allowedServices) > 0) {
             return $allowedServices . "," . $activeGiftcardIssuers;
         }
         return $activeGiftcardIssuers;

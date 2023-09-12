@@ -63,10 +63,18 @@ class PaypalProcessor extends DefaultProcessor
         Account $configAccount,
         PaypalConfig $paypalConfig
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
+        parent::__construct(
+            $orderRequestService,
+            $pushTransactionType,
+            $logger,
+            $helper,
+            $transaction,
+            $groupTransaction,
+            $buckarooStatusCode,
+            $orderStatusFactory,
+            $configAccount
+        );
         $this->paypalConfig = $paypalConfig;
-
     }
 
     /**
@@ -88,7 +96,8 @@ class PaypalProcessor extends DefaultProcessor
 
         $this->logger->addDebug(sprintf(
             '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Get New Status | newStatus: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($newStatus, true)
         ));
 

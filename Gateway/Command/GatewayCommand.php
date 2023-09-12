@@ -153,7 +153,7 @@ class GatewayCommand implements CommandInterface
                 try {
                     $paymentInstance = $paymentDO->getPayment()->getMethodInstance();
                     $this->spamLimitService->updateRateLimiterCount($paymentDO->getPayment()->getMethodInstance());
-                }catch (LimitReachException $th) {
+                } catch (LimitReachException $th) {
                     $this->spamLimitService->setMaxAttemptsFlags($paymentInstance, $th->getMessage());
                     return;
                 }

@@ -63,7 +63,8 @@ class Add extends AbstractApplepay
     {
         $this->logger->addDebug(sprintf(
             '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | request: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($this->getParams(), true)
         ));
 
@@ -72,7 +73,8 @@ class Add extends AbstractApplepay
 
         $this->logger->addDebug(sprintf(
             '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | response: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($data, true)
         ));
 

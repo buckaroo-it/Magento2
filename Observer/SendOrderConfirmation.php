@@ -98,7 +98,8 @@ class SendOrderConfirmation implements ObserverInterface
         ) {
             $this->logger->addDebug(sprintf(
                 '[SEND_MAIL] | [Observer] | [%s:%s] - Send order confirmation on email | order: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $order->getId()
             ));
             $this->orderSender->send($order, true);

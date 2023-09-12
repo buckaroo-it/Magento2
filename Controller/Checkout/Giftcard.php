@@ -108,14 +108,16 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
         } catch (ApiException $th) {
             $this->logger->addError(sprintf(
                 '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
             return $this->displayError($th->getMessage());
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
             return $this->displayError(__('Unknown buckaroo error has occurred'));

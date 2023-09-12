@@ -17,7 +17,7 @@ class IssuersService
     /**
      * @var int
      */
-    protected CONST CACHE_LIFETIME_SECONDS = 86400; //24hours
+    protected const CACHE_LIFETIME_SECONDS = 86400; //24hours
 
     /**
      * @var CacheInterface
@@ -86,7 +86,7 @@ class IssuersService
     public function get(): array
     {
         $issuers = $this->getCachedIssuers();
-        if($issuers === null) {
+        if ($issuers === null) {
             return $this->updateCacheIssuers();
         }
         return $issuers;
@@ -103,7 +103,7 @@ class IssuersService
             $this->buckarooAdapter->getIdealIssuers()
         );
 
-        if(count($retrievedIssuers)) {
+        if (count($retrievedIssuers)) {
             $this->cacheIssuers($retrievedIssuers);
             return $retrievedIssuers;
         }
@@ -135,15 +135,14 @@ class IssuersService
     private function getCachedIssuers(): ?array
     {
         $cacheData = $this->cache->load(self::CACHE_KEY);
-        if($cacheData === null || $cacheData === false) {
+        if ($cacheData === null || $cacheData === false) {
             return null;
         }
         $issuers = $this->serializer->unserialize($cacheData);
-        if(!is_array($issuers)) {
+        if (!is_array($issuers)) {
             return null;
         }
         return $issuers;
-
     }
 
     /**
@@ -155,10 +154,9 @@ class IssuersService
     private function addLogos(array $issuers): array
     {
         return array_map(
-            function($issuer) {
+            function ($issuer) {
                 $logo = null;
-                if(
-                    isset($issuer['id']) && 
+                if (isset($issuer['id']) &&
                     isset(self::ISSUERS_IMAGES[$issuer['id']])
                 ) {
                     $name = self::ISSUERS_IMAGES[$issuer['id']];

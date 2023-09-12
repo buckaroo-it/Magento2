@@ -74,7 +74,8 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
             ) {
                 $this->logger->addDebug(sprintf(
                     '[ORDER_STATUS] | [Handler] | [%s:%s] - Skip update order status for PayPerEmail | order: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $order->getId()
                 ));
                 return $this;

@@ -77,8 +77,8 @@ define(
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
                     this.buttoncheck = ko.computed(
-                    function () {
-                        return this.selectedGender() != null;
+                        function () {
+                            return this.selectedGender() != null;
                         },
                         this
                     );

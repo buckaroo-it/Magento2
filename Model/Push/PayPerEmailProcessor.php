@@ -85,10 +85,19 @@ class PayPerEmailProcessor extends LockedPushProcessor
         LockManagerInterface $lockManager,
         PayPerEmail $configPayPerEmail
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount, $lockManager);
+        parent::__construct(
+            $orderRequestService,
+            $pushTransactionType,
+            $logger,
+            $helper,
+            $transaction,
+            $groupTransaction,
+            $buckarooStatusCode,
+            $orderStatusFactory,
+            $configAccount,
+            $lockManager
+        );
         $this->configPayPerEmail = $configPayPerEmail;
-
     }
 
     /**
@@ -131,7 +140,8 @@ class PayPerEmailProcessor extends LockedPushProcessor
                 if ($isDifferentPaymentMethod && $this->configPayPerEmail->isEnabledB2B()) {
                     $this->logger->addDebug(sprintf(
                         '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Update Order State | currentState: %s',
-                        __METHOD__, __LINE__,
+                        __METHOD__,
+                        __LINE__,
                         $this->order->getState()
                     ));
                     if ($this->order->getState() === Order::STATE_COMPLETE) {
@@ -261,7 +271,6 @@ class PayPerEmailProcessor extends LockedPushProcessor
         if (!empty($this->pushRequest->getTransactionMethod())
             && $status == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
             && $this->pushRequest->getTransactionMethod() != 'payperemail') {
-
             $transactionMethod = strtolower($this->pushRequest->getTransactionMethod());
             $this->payment->setAdditionalInformation('isPayPerEmail', $transactionMethod);
 
@@ -322,7 +331,8 @@ class PayPerEmailProcessor extends LockedPushProcessor
                 && $this->configPayPerEmail->isEnabledB2B()) {
                 $this->logger->addDebug(sprintf(
                     '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - The transaction is PayPerEmail B2B',
-                    __METHOD__, __LINE__
+                    __METHOD__,
+                    __LINE__
                 ));
                 $this->isPayPerEmailB2BModePushInitial = true;
             }
@@ -355,7 +365,8 @@ class PayPerEmailProcessor extends LockedPushProcessor
 
         $this->logger->addDebug(sprintf(
             '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Get New Status | newStatus: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($newStatus, true)
         ));
 
@@ -364,7 +375,8 @@ class PayPerEmailProcessor extends LockedPushProcessor
             $newStatus = $this->configAccount->getOrderStatusSuccess();
             $this->logger->addDebug(sprintf(
                 '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Get New Status | newStatus: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export([$this->pushTransactionType->getStatusKey(), $newStatus], true)
             ));
         }

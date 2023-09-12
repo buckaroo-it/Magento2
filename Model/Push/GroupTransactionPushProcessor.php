@@ -139,7 +139,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
             return true;
         }
 
-        if($this->isCanceledGroupTransaction()) {
+        if ($this->isCanceledGroupTransaction()) {
             $this->cancelGroupTransactionOrder();
             return true;
         }
@@ -205,7 +205,8 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[SDK] | [Adapter] | [%s:%s] - Handle push group transaction fail | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
         }

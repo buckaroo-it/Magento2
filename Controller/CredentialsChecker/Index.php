@@ -114,7 +114,6 @@ class Index extends Action implements HttpPostActionInterface
                 return $this->doResponse([
                     'success' => true
                 ]);
-
             }
         }
 

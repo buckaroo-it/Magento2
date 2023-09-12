@@ -80,7 +80,8 @@ class Success
 
         $this->logger->addDebug(sprintf(
             '[SUCCESS_PAGE] | [Plugin] | [%s:%s] - Redirect to cart | details: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export([
                 'orderStatus' => $order->getStatus(),
                 'isPaymentInTransit' => $this->checkPaymentType->isPaymentInTransit($payment)

@@ -82,9 +82,21 @@ class IdinProcess extends Process
         RequestPushFactory $requestPushFactory,
         CustomerFactory $customerFactory
     ) {
-        parent::__construct($context, $logger, $quote, $accountConfig, $orderRequestService,
-            $orderStatusFactory, $checkoutSession, $customerSession, $customerRepository,
-            $orderService, $eventManager, $quoteRecreate, $requestPushFactory);
+        parent::__construct(
+            $context,
+            $logger,
+            $quote,
+            $accountConfig,
+            $orderRequestService,
+            $orderStatusFactory,
+            $checkoutSession,
+            $customerSession,
+            $customerRepository,
+            $orderService,
+            $eventManager,
+            $quoteRecreate,
+            $requestPushFactory
+        );
 
         $this->customerResourceFactory = $customerFactory;
     }
@@ -133,7 +145,8 @@ class IdinProcess extends Process
                     $this->addErrorMessage(__('Unfortunately customer was not find by IDIN id: "%1"!', $idinCid));
                     $this->logger->addError(sprintf(
                         '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Customer was not find by IDIN id | [ERROR]: %s',
-                        __METHOD__, __LINE__,
+                        __METHOD__,
+                        __LINE__,
                         $e->getMessage()
                     ));
                     return false;
@@ -163,11 +176,11 @@ class IdinProcess extends Process
 
         try {
             $this->checkoutSession->restoreQuote();
-
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
                 '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Could not restore the quote | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getMessage()
             ));
         }

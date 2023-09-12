@@ -48,7 +48,6 @@ class TransactionIdHandler implements HandlerInterface
         $transactionKey = $transactionResponse->getTransactionKey();
 
         if (!empty($transactionKey)) {
-
             $payment->setTransactionId($transactionKey);
             /**
              * Save the payment's transaction key.
