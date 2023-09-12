@@ -34,6 +34,7 @@ use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Model\Quote;
@@ -41,7 +42,7 @@ use Magento\Quote\Model\Quote;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class IdinProcess extends Process
+class IdinProcess extends Process implements HttpPostActionInterface
 {
     /**
      * @var CustomerFactory

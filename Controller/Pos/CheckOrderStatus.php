@@ -27,6 +27,7 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey;
@@ -37,7 +38,7 @@ use Magento\Store\Model\StoreManagerInterface;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class CheckOrderStatus extends Action
+class CheckOrderStatus extends Action implements HttpPostActionInterface
 {
     /**
      * @var Order $order
@@ -141,8 +142,8 @@ class CheckOrderStatus extends Action
                         . '?form_key=' . $this->formKey->getFormKey();
                     $extraData = [
                         'brq_invoicenumber' => $params['orderId'],
-                        'brq_ordernumber' => $params['orderId'],
-                        'brq_statuscode' => $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'),
+                        'brq_ordernumber'   => $params['orderId'],
+                        'brq_statuscode'    => $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'),
                     ];
 
                     $url = $url . '&' . http_build_query($extraData);
