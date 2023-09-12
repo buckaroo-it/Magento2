@@ -88,10 +88,16 @@ class GatewayCommand implements CommandInterface
     private ?SkipCommandInterface $skipCommand;
 
     /**
+     * @var SpamLimitService
+     */
+    private SpamLimitService $spamLimitService;
+
+    /**
      * @param BuilderInterface $requestBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $client
      * @param LoggerInterface $logger
+     * @param SpamLimitService $spamLimitService
      * @param HandlerInterface|null $handler
      * @param ValidatorInterface|null $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
