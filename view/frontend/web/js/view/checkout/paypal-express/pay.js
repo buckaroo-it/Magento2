@@ -132,7 +132,7 @@ define([
     createTransaction(orderId) {
       const cart_id = this.cart_id;
       return new Promise((resolve, reject) => {
-        $.post(urlBuilder.build("rest/default/V1/buckaroo/paypal-express/order/create"),
+        $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/order/create"),
           {
             paypal_order_id: orderId,
             cart_id
@@ -152,7 +152,7 @@ define([
      * @returns
      */
     setShipping(data) {
-      return $.post(urlBuilder.build("rest/default/V1/buckaroo/paypal-express/quote/create"), {
+      return $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/quote/create"), {
         shipping_address: data.shipping_address,
         order_data: this.getOrderData(),
         page: this.page,
