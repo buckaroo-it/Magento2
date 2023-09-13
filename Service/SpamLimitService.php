@@ -60,11 +60,8 @@ class SpamLimitService
         }
 
         $method = $paymentMethodInstance->getCode();
-        try {
-            $quoteId = $this->getQuote()->getId();
-        } catch (NoSuchEntityException $e) {
-        } catch (LocalizedException $e) {
-        }
+        $quoteId = $this->getQuote()->getId();
+
         $storage = $this->getPaymentAttemptsStorage();
         if (!isset($storage[$quoteId])) {
             $storage[$quoteId] = [$method => 0];

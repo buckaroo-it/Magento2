@@ -26,6 +26,8 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface;
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -46,6 +48,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      * @var QuoteService
      */
     private $quoteService;
+
+    /**
+     * @var Quote|CartInterface
+     */
+    private Quote|CartInterface $quote;
 
     /**
      * @param QuoteCreateResponseInterfaceFactory $responseFactory

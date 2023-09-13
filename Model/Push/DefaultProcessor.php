@@ -354,7 +354,6 @@ class DefaultProcessor implements PushProcessorInterface
 
             if ($receivedTrxStatuses
                 && is_array($receivedTrxStatuses)
-                && !empty($trxId)
                 && isset($receivedTrxStatuses[$trxId])
                 && ($receivedTrxStatuses[$trxId] == $receivedStatusCode)
             ) {

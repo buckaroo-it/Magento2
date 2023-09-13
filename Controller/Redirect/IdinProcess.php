@@ -122,6 +122,8 @@ class IdinProcess extends Process implements HttpPostActionInterface
 
             return $this->redirectToCheckout();
         }
+
+        return $this->handleProcessedResponse('checkout');
     }
 
     /**

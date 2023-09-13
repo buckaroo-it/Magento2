@@ -1923,6 +1923,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="in3_v3" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\In3V3DataBuilder</item>
+                <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\CustomerTypeDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerCapayableDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
             </argument>

@@ -71,8 +71,8 @@ class CreditcardsTest extends BaseTest
                     $this->getPaymentMethodConfigPath(Creditcards::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
                     ScopeInterface::SCOPE_STORE,
                     null
-                ]
-                [Creditcards::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                ],
+                [AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls('', '1', 'EUR');
 

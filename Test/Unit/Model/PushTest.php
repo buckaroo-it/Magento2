@@ -20,7 +20,9 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model;
 
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
+use Buckaroo\Magento2\Model\Push\PushTransactionType;
 use Magento\Directory\Model\Currency;
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Payment\Model\MethodInterface;
@@ -250,17 +252,17 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             'invoice type' => [
                 ['brq_invoicekey' => 'send key', 'brq_schemekey' => 'scheme key'],
                 'saved key',
-                Push::BUCK_PUSH_TYPE_INVOICE
+                PushTransactionType::BUCK_PUSH_TYPE_INVOICE
             ],
             'datarequest type' => [
                 ['brq_datarequest' => 'request push'],
                 null,
-                Push::BUCK_PUSH_TYPE_DATAREQUEST
+                PushTransactionType::BUCK_PUSH_TYPE_DATAREQUEST
             ],
             'transaction type' => [
                 [],
                 null,
-                Push::BUCK_PUSH_TYPE_TRANSACTION
+                PushTransactionType::BUCK_PUSH_TYPE_TRANSACTION
             ],
         ];
     }

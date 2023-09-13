@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
@@ -183,7 +184,7 @@ class CreateCombinedInvoice
 
         $allowedServices = $this->appendGiftcards($allowedServices);
 
-        if ($payment->getMethod() === PayPerEmail::PAYMENT_METHOD_CODE) {
+        if ($payment->getMethod() === PayPerEmail::CODE) {
             return str_replace("p24,", "", $allowedServices);
         }
 
