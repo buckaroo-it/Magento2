@@ -29,7 +29,7 @@ class PaypalStateCodes
      *
      * @var array
      */
-    private array $_codes = [
+    private array $codes = [
         'CA' => [
             'AB' => ['Alberta'],
             'BC' => ['British Columbia'],
@@ -583,14 +583,14 @@ class PaypalStateCodes
      */
     public function getValuesFromCodes(string $countryCode = null, string $stateCode = null)
     {
-        // We need a countryCode + stateCode and for it to exist in _codes
-        if (!$countryCode || !$stateCode || !isset($this->_codes[$countryCode])) {
+        // We need a countryCode + stateCode and for it to exist in codes
+        if (!$countryCode || !$stateCode || !isset($this->codes[$countryCode])) {
             return false;
         }
 
-        // If statecode is both given and exists in _codes, return its array value
-        if (isset($this->_codes[$countryCode][$stateCode])) {
-            return $this->_codes[$countryCode][$stateCode];
+        // If statecode is both given and exists in codes, return its array value
+        if (isset($this->codes[$countryCode][$stateCode])) {
+            return $this->codes[$countryCode][$stateCode];
         }
 
         // Nothing found, return false instead
@@ -606,13 +606,13 @@ class PaypalStateCodes
      */
     public function getCodeFromValue(string $countryCode = null, string $value = null)
     {
-        // We need a countryCode + value and for it to exist in _codes
-        if (!$countryCode || !$value || !isset($this->_codes[$countryCode])) {
+        // We need a countryCode + value and for it to exist in codes
+        if (!$countryCode || !$value || !isset($this->codes[$countryCode])) {
             return false;
         }
 
         // Loop through and do an in_array search (some state codes have multiple names)
-        foreach ($this->_codes[$countryCode] as $stateCode => $stateValues) {
+        foreach ($this->codes[$countryCode] as $stateCode => $stateValues) {
             if (in_array($value, $stateValues)) {
                 // As soon as we find one, return the code
                 return $stateCode;
@@ -632,11 +632,11 @@ class PaypalStateCodes
     public function getCodes($countryCode = null)
     {
         if (!$countryCode) {
-            return $this->_codes;
+            return $this->codes;
         }
 
-        if (isset($this->_codes[$countryCode])) {
-            return $this->_codes[$countryCode];
+        if (isset($this->codes[$countryCode])) {
+            return $this->codes[$countryCode];
         }
 
         // Nothing found based on countryCode, but it was given, return false instead

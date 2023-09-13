@@ -26,21 +26,7 @@ use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
 class GroupTransaction extends AbstractDb
 {
     /**
-     * Event prefix
-     *
-     * @var string
-     */
-    protected $_eventPrefix = 'buckaroo_magento2_group_transaction_resource';
-
-    /**
-     * Event object
-     *
-     * @var string
-     */
-    protected $_eventObject = 'resource';
-
-    /**
-     * Model Initialization
+     * Define resource model
      *
      * @return void
      */

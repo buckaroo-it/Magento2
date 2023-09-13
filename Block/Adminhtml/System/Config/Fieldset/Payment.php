@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,36 +20,43 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\System\Config\Fieldset;
 
+use Magento\Backend\Block\Context;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Config\Block\System\Config\Form\Fieldset;
+use Magento\Config\Model\Config;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\View\Helper\Js;
+
 /**
  * Fieldset renderer for Buckaroo solution
  */
-class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
+class Payment extends Fieldset
 {
     /**
-     * @var \Magento\Config\Model\Config
+     * @var Config
      */
-    protected $_backendConfig;
+    protected Config $backendConfig;
 
     /**
-     * @param \Magento\Backend\Block\Context $context
-     * @param \Magento\Backend\Model\Auth\Session $authSession
-     * @param \Magento\Framework\View\Helper\Js $jsHelper
-     * @param \Magento\Config\Model\Config $backendConfig
+     * @param Context $context
+     * @param Session $authSession
+     * @param Js $jsHelper
+     * @param Config $backendConfig
      * @param array $data
      */
     public function __construct(
-        \Magento\Backend\Block\Context $context,
-        \Magento\Backend\Model\Auth\Session $authSession,
-        \Magento\Framework\View\Helper\Js $jsHelper,
-        \Magento\Config\Model\Config $backendConfig,
+        Context $context,
+        Session $authSession,
+        Js $jsHelper,
+        Config $backendConfig,
         array $data = []
     ) {
-        $this->_backendConfig = $backendConfig;
+        $this->backendConfig = $backendConfig;
         parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -60,8 +66,8 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
 
         $groupConfig = $element->getGroup();
 
-        $disabledAttributeString = $this->_isPaymentEnabled($element) ? '' : ' disabled="disabled"';
-        $disabledClassString = $this->_isPaymentEnabled($element) ? '' : ' disabled';
+        $disabledAttributeString = $this->isPaymentEnabled($element) ? '' : ' disabled="disabled"';
+        $disabledClassString = $this->isPaymentEnabled($element) ? '' : ' disabled';
         $htmlId = $element->getHtmlId();
         $html .= '<div class="button-container"><button type="button"' .
             $disabledAttributeString .
@@ -81,14 +87,12 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
             ) . '</span></button>';
 
         if (!empty($groupConfig['more_url'])) {
-            $html .= '<a class="link-more" href="' . $groupConfig['more_url'] . '" target="_blank">' . __(
-                'Learn More'
-            ) . '</a>';
+            $html .= '<a class="link-more" href="' . $groupConfig['more_url'] . '" target="_blank">'
+                . __('Learn More') . '</a>';
         }
         if (!empty($groupConfig['demo_url'])) {
-            $html .= '<a class="link-demo" href="' . $groupConfig['demo_url'] . '" target="_blank">' . __(
-                'View Demo'
-            ) . '</a>';
+            $html .= '<a class="link-demo" href="' . $groupConfig['demo_url'] . '" target="_blank">'
+                . __('View Demo') . '</a>';
         }
 
         $html .= '</div>';
@@ -104,7 +108,20 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * Check whether current payment method is enabled
+     *
+     * @param AbstractElement $element
+     * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    protected function isPaymentEnabled($element)
+    {
+        return (bool)(string)$this->backendConfig->getConfigDataValue('buckaroo_magento2/account/active') > 0;
+    }
+
+    /**
+     * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -114,7 +131,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return false
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -124,7 +141,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -153,25 +170,12 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      */
     protected function _getFrontendClass($element)
     {
-        $enabledString = $this->_isPaymentEnabled($element) ? ' enabled' : '';
+        $enabledString = $this->isPaymentEnabled($element) ? ' enabled' : '';
         return parent::_getFrontendClass($element) . ' with-button' . $enabledString;
-    }
-
-    /**
-     * Check whether current payment method is enabled
-     *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
-     * @return bool
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    protected function _isPaymentEnabled($element)
-    {
-        return (bool)(string) $this->_backendConfig->getConfigDataValue('buckaroo_magento2/account/active') > 0;
     }
 }

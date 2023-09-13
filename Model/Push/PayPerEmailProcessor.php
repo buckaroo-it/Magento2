@@ -425,7 +425,7 @@ class PayPerEmailProcessor extends LockedPushProcessor
     /**
      * @param array $paymentDetails
      * @return bool
-     *  @throws \Exception
+     * @throws \Exception
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {

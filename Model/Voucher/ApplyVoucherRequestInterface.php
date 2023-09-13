@@ -34,10 +34,10 @@ interface ApplyVoucherRequestInterface
     public function setVoucherCode(string $voucherCode): ApplyVoucherRequestInterface;
 
      /**
-     * Set quote
-     *
-     * @param CartInterface $quote
-     * @return ApplyVoucherRequestInterface
-     */
+      * Set quote
+      *
+      * @param CartInterface $quote
+      * @return ApplyVoucherRequestInterface
+      */
     public function setQuote(CartInterface $quote): ApplyVoucherRequestInterface;
 }

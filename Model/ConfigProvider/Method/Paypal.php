@@ -190,7 +190,9 @@ class Paypal extends AbstractConfigProvider
      */
     public function getButtonShape($store = null): string
     {
-        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTON_IS_ROUNDED, $store) === "1" ? 'pill' : 'rect';
+        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTON_IS_ROUNDED, $store) === "1"
+            ? 'pill'
+            : 'rect';
     }
 
 

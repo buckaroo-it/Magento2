@@ -213,11 +213,11 @@
                 <item name="afterpay" xsi:type="array">
                     <item name="type" xsi:type="string">afterpay</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</item>
-				</item>
+                </item>
                 <item name="afterpay2" xsi:type="array">
                     <item name="type" xsi:type="string">afterpay2</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2</item>
-				</item>
+                </item>
                 <item name="afterpay20" xsi:type="array">
                     <item name="type" xsi:type="string">afterpay20</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20</item>
@@ -437,21 +437,21 @@
     </type>
 
     <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
-	<preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
-	<preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
-	<virtualType name="Buckaroo\Magento2\Model\ResourceModel\Log\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
-		<arguments>
-			<argument name="mainTable" xsi:type="string">buckaroo_magento2_log</argument>
-			<argument name="resourceModel" xsi:type="string">Buckaroo\Magento2\Model\ResourceModel\Log\Collection</argument>
-		</arguments>
-	</virtualType>
-	<type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
-		<arguments>
-			<argument name="collections" xsi:type="array">
-				<item name="buckaroo_magento2_log_listing_data_source" xsi:type="string">Buckaroo\Magento2\Model\ResourceModel\Log\Grid\Collection</item>
-			</argument>
-		</arguments>
-	</type>
+    <preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
+    <preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <virtualType name="Buckaroo\Magento2\Model\ResourceModel\Log\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">buckaroo_magento2_log</argument>
+            <argument name="resourceModel" xsi:type="string">Buckaroo\Magento2\Model\ResourceModel\Log\Collection</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="buckaroo_magento2_log_listing_data_source" xsi:type="string">Buckaroo\Magento2\Model\ResourceModel\Log\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
 
     <type name="Magento\CatalogInventory\Model\Configuration">
         <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />

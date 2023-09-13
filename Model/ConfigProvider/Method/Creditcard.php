@@ -307,11 +307,11 @@ class Creditcard extends AbstractConfigProvider
     }
         
      /**
-     * Selection type radio checkbox or drop down
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
+      * Selection type radio checkbox or drop down
+      *
+      * @param null|int|string $store
+      * @return mixed
+      */
     public function getSelectionType($store = null)
     {
         $methodConfig = $this->scopeConfig->getValue(

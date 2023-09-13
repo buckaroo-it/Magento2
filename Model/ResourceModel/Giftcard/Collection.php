@@ -20,7 +20,9 @@
 
 namespace Buckaroo\Magento2\Model\ResourceModel\Giftcard;
 
-class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractCollection
+use Magento\Sales\Model\ResourceModel\Collection\AbstractCollection;
+
+class Collection extends AbstractCollection
 {
     /**
      * @var string

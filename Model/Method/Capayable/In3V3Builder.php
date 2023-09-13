@@ -218,11 +218,11 @@ class In3V3Builder
     }
 
      /**
-     * @param $payment
-     * @param array $articles
-     *
-     * @return array|null
-     */
+      * @param $payment
+      * @param array $articles
+      *
+      * @return array|null
+      */
     protected function getRoundingErrors($payment, array $articles)
     {
         $total = array_sum(

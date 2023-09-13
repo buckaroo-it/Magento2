@@ -26,17 +26,7 @@ use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
 class Giftcard extends AbstractDb
 {
     /**
-     * @var string
-     */
-    protected $_eventPrefix = 'buckaroo_magento2_giftcard_resource';
-
-    /**
-     * @var string
-     */
-    protected $_eventObject = 'resource';
-
-    /**
-     * Model Initialization
+     * Define resource model
      *
      * @return void
      */
