@@ -62,4 +62,6 @@ jobs:
           ls -la vendor/bin/
 
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --level 1 app/code/Buckaroo/Magento2/ -c dev/tests/static/testsuite/Magento/Test/Php/_files/phpstan/phpstan.neon
+        run: |
+          cd ~/m246
+          vendor/bin/phpstan analyse --level 1 app/code/Buckaroo/Magento2/ -c dev/tests/static/testsuite/Magento/Test/Php/_files/phpstan/phpstan.neon
