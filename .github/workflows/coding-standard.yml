@@ -26,15 +26,35 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v3
-      - uses: extdn/github-actions-m2/magento-phpstan/8.1@master
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          composer_name: buckaroo/magento2
-          phpstan_level: 1
-
-  phpcopypaste:
-    name: M2 Copy Paste Detector
-    runs-on: ubuntu-latest
-    steps:
+          php-version: 8.1
+          tools: composer:v2
       - uses: actions/checkout@v3
-      - uses: extdn/github-actions-m2/magento-copy-paste-detector@master
+      - name: Validate composer json
+        run: composer validate
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/${{ env.namespace }}-source/vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+      - name: Setup Magento
+        run: |
+          pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/$pull_number/files"
+          echo $url
+          curl $url > files_changed
+          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ls
+          echo '{"http-basic": {"repo.magento.com": {"username": "${{ secrets.REPO_USERNAME }}","password": "${{ secrets.REPO_PASS }}"}}}' > auth.json
+          composer create-project --repository-url=https://repo.magento.com/ magento/product-community-edition=2.4.6-p2 m246
+          mkdir -p m246/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m246' ./ m246/app/code/Buckaroo/Magento2/
+          cd m246
+          bin/magento module:enable --all
+          bin/magento setup:di:compile
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --level 1 app/code/Buckaroo/Magento2/ -c dev/tests/static/testsuite/Magento/Test/Php/_files/phpstan/phpstan.neon
