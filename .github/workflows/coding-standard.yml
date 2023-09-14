@@ -54,7 +54,12 @@ jobs:
           cd ~/m246
           bin/magento module:enable --all
           bin/magento setup:di:compile
-          composer require --dev phpstan/phpstan
+
+      - name: Install PHPStan
+        run: |
+          cd ~/m246
+          composer require --dev phpstan/phpstan:^1.10
+          ls -la vendor/bin/
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --level 1 app/code/Buckaroo/Magento2/ -c dev/tests/static/testsuite/Magento/Test/Php/_files/phpstan/phpstan.neon
