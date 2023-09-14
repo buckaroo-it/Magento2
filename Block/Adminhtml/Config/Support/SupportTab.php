@@ -57,8 +57,8 @@ class SupportTab extends Template implements RendererInterface
      * Override the parent constructor to require our own dependencies.
      *
      * @param Context $context
-     * @param ModuleResource $moduleContext
      * @param SoftwareData $softwareData
+     * @param Curl $curl
      * @param array $data
      */
     public function __construct(
