@@ -61,6 +61,11 @@ jobs:
           composer require --dev phpstan/phpstan:^1.10
           ls -la vendor/bin/
 
+      - name: Install Buckaroo SDK
+        run: |
+          cd ~/m246
+          composer require buckaroo/sdk
+
       - name: Run PHPStan
         run: |
           cd ~/m246
