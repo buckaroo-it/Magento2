@@ -56,15 +56,16 @@ define(
                         value.substr(6, 4),
                         value.substr(3, 2) - 1,
                         value.substr(0, 2),
-                        0, 0, 0
+                        0,
+                        0,
+                        0
                     );
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
             return false;
         },
-        $.mage.__('You should be at least 18 years old.')
-        );
+        $.mage.__('You should be at least 18 years old.'));
         
         const validPhone = function (value) {
             if (quote.billingAddress() === null) {
@@ -111,7 +112,9 @@ define(
 
             return true;
         };
-        $.validator.addMethod('phoneValidation', validPhone ,
+        $.validator.addMethod(
+            'phoneValidation',
+            validPhone ,
             $.mage.__('Phone number should be correct.')
         );
 
@@ -173,10 +176,10 @@ define(
                     );
                     this.billingName = ko.computed(
                         function () {
-                            if(this.isB2B && quote.billingAddress() !== null) {
+                            if (this.isB2B && quote.billingAddress() !== null) {
                                 return quote.billingAddress().company;
                             }
-                            if(quote.billingAddress() !== null) {
+                            if (quote.billingAddress() !== null) {
                                 return quote.billingAddress().firstname + " " + quote.billingAddress().lastname;
                             }
                         },
@@ -201,7 +204,7 @@ define(
                     );
 
                     this.showB2B = ko.computed(
-                        function() {
+                        function () {
 
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
@@ -214,24 +217,24 @@ define(
                         this
                     );
 
-                    this.dob.subscribe(function() {
+                    this.dob.subscribe(function () {
                         const dobId = 'buckaroo_magento2_billink_DoB';
                         const isValid = $(`#${dobId}`).valid();
                         let state = this.validationState();
                         state[dobId] = isValid;
                         this.validationState(state);
-                     }, this);
+                    }, this);
 
                     this.buttoncheck = ko.computed(
                         function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -254,7 +257,7 @@ define(
                     let fields = [
                         'buckaroo_magento2_billink_TermsCondition',
                     ];
-                    if(this.showPhone()) {
+                    if (this.showPhone()) {
                         fields.push('buckaroo_magento2_billink_Telephone')
                     }
 
@@ -323,7 +326,7 @@ define(
 
                 getData: function () {
                     let phone = this.phone();
-                    if(!this.showPhone() && quote.billingAddress() !== null) {
+                    if (!this.showPhone() && quote.billingAddress() !== null) {
                         phone = quote.billingAddress().telephone;
                     }
 

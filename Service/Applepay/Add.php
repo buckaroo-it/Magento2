@@ -100,7 +100,8 @@ class Add
         } catch (\Exception $exception) {
             $this->logger->addError(sprintf(
                 '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart on Apple Pay | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $exception->getMessage()
             ));
             return false;

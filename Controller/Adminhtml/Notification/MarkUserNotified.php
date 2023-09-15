@@ -22,12 +22,13 @@ namespace Buckaroo\Magento2\Controller\Adminhtml\Notification;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\FlagManager;
 use Psr\Log\LoggerInterface;
 
-class MarkUserNotified extends Action
+class MarkUserNotified extends Action implements HttpPostActionInterface
 {
     /**
      * @var FlagManager $flagManager

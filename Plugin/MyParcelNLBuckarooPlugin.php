@@ -78,7 +78,8 @@ class MyParcelNLBuckarooPlugin
             if ($jsonDecoded = $this->json->unserialize($result)) {
                 $this->logger->addDebug(sprintf(
                     '[MyParcelNL] | [Plugin] | [%s:%s] - Set Pickup Location | deliveryOptions: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     var_export($jsonDecoded, true)
                 ));
                 if (!empty($jsonDecoded['deliveryOptions']) &&

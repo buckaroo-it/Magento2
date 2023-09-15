@@ -125,6 +125,8 @@ class ApplyVoucher implements ApplyVoucherInterface
             $this->logger->addDebug((string)$th);
             $this->renderException('Unknown buckaroo error has occurred');
         }
+
+        return $this->payResponseFactory->create();
     }
 
     /**

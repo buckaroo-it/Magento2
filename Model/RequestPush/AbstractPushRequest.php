@@ -24,6 +24,16 @@ namespace Buckaroo\Magento2\Model\RequestPush;
 class AbstractPushRequest
 {
     /**
+     * @var array
+     */
+    protected array $request = [];
+
+    /**
+     * @var array
+     */
+    protected array $originalRequest;
+
+    /**
      * Check if methods was called with specific numbers of arguments
      *
      * @param array $args
@@ -125,5 +135,21 @@ class AbstractPushRequest
         }
 
         return false;
+    }
+
+    /**
+     * Get property from additional information
+     *
+     * @param string $propertyName
+     * @return string|null
+     */
+    public function getAdditionalInformation(string $propertyName): ?string
+    {
+        $propertyName = 'add_' . strtolower($propertyName);
+        if (isset($this->request[$propertyName])) {
+            return $this->request[$propertyName];
+        }
+
+        return null;
     }
 }

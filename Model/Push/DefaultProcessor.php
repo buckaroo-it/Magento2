@@ -344,7 +344,8 @@ class DefaultProcessor implements PushProcessorInterface
 
             $this->logger->addDebug(sprintf(
                 '[PUSH] | [Webapi] | [%s:%s] - Check for duplicate transaction pushes | order: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export([
                     'receivedTrxStatuses' => $receivedTrxStatuses,
                     'receivedStatusCode'  => $receivedStatusCode
@@ -353,7 +354,6 @@ class DefaultProcessor implements PushProcessorInterface
 
             if ($receivedTrxStatuses
                 && is_array($receivedTrxStatuses)
-                && !empty($trxId)
                 && isset($receivedTrxStatuses[$trxId])
                 && ($receivedTrxStatuses[$trxId] == $receivedStatusCode)
             ) {
@@ -400,7 +400,8 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         $receivedTxStatuses = $this->payment->getAdditionalInformation(
-            self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES) ?? [];
+            self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
+        ) ?? [];
         $receivedTxStatuses[$txId] = $statusCode;
 
         $this->payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES, $receivedTxStatuses);
@@ -428,7 +429,8 @@ class DefaultProcessor implements PushProcessorInterface
         $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
         $this->logger->addDebug(sprintf(
             '[PUSH] | [Webapi] | [%s:%s] - Checks if the order can be updated | currentStateAndStatus: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($currentStateAndStatus, true)
         ));
 
@@ -450,7 +452,8 @@ class DefaultProcessor implements PushProcessorInterface
         ) {
             $this->logger->addDebug(sprintf(
                 '[PUSH] | [Webapi] | [%s:%s] - Resetting from CANCELED to STATE_NEW/PENDING',
-                __METHOD__, __LINE__
+                __METHOD__,
+                __LINE__
             ));
 
             $this->order->setState(Order::STATE_NEW);
@@ -657,7 +660,6 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->orderRequestService->setOrderNotificationNote($statusMessage);
         return true;
-
     }
 
     /**
@@ -685,7 +687,8 @@ class DefaultProcessor implements PushProcessorInterface
     {
         $this->logger->addDebug(sprintf(
             '[PUSH] | [Webapi] | [%s:%s] - Process the successful push response from Buckaroo | newStatus: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($newStatus, true)
         ));
 
@@ -751,7 +754,8 @@ class DefaultProcessor implements PushProcessorInterface
             ) {
                 $this->logger->addDebug(sprintf(
                     '[PUSH] | [Webapi] | [%s:%s] - Process succeeded push authorization | paymentMethod: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     var_export($this->payment->getMethod(), true)
                 ));
                 $this->order->setState(Order::STATE_PROCESSING);
@@ -788,7 +792,8 @@ class DefaultProcessor implements PushProcessorInterface
         ) {
             $this->logger->addDebug(sprintf(
                 '[PUSH] | [Webapi] | [%s:%s] - Send Order Email | orderConfirmationEmail: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export($this->configAccount->getOrderConfirmationEmail($store), true)
             ));
 
@@ -941,7 +946,8 @@ class DefaultProcessor implements PushProcessorInterface
     {
         $this->logger->addDebug(sprintf(
             '[PUSH] | [Webapi] | [%s:%s] - Process the failed push response from Buckaroo | newStatus: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($newStatus, true)
         ));
 
@@ -971,7 +977,8 @@ class DefaultProcessor implements PushProcessorInterface
         if ($buckarooCancelOnFailed && $this->order->canCancel()) {
             $this->logger->addDebug(sprintf(
                 '[PUSH] | [Webapi] | [%s:%s] - Process the failed push response from Buckaroo. Cancel Order: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $message
             ));
 
@@ -996,7 +1003,8 @@ class DefaultProcessor implements PushProcessorInterface
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
                     '[PUSH] | [Webapi] | [%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $th->getMessage()
                 ));
             }

@@ -5,24 +5,26 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 use Buckaroo\Magento2\Gateway\Validator\IssuerValidator;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
+use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\MethodInterface;
 use PHPUnit\Framework\TestCase;
+use Magento\Framework\Serialize\Serializer\Json;
 
 class IssuerValidatorTest extends TestCase
 {
     /**
+     * @var IssuerValidator
+     */
+    private IssuerValidator $validator;
+    
+    /**
      * @var ResultInterfaceFactory|MockObject
      */
     private $resultFactoryMock;
-
-    /**
-     * @var IssuerValidator
-     */
-    private $validator;
 
     /**
      * @var ConfigProviderMethodFactory|MockObject
@@ -39,9 +41,19 @@ class IssuerValidatorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $httpRequest = $this->getMockBuilder(HttpRequest::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $jsonSerializer = $this->getMockBuilder(Json::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->validator = new IssuerValidator(
             $this->resultFactoryMock,
-            $this->configProviderFactory
+            $this->configProviderFactory,
+            $httpRequest,
+            $jsonSerializer
         );
     }
 

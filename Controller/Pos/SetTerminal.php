@@ -26,12 +26,13 @@ use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-class SetTerminal extends Action
+class SetTerminal extends Action implements HttpGetActionInterface
 {
     /**
      * @var array
@@ -99,7 +100,8 @@ class SetTerminal extends Action
         $params = $this->getRequest()->getParams();
         $this->logger->addDebug(sprintf(
             '[POS] | [Controller] | [%s:%s] - Set Terminal | request: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($params, true)
         ));
 

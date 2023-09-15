@@ -127,7 +127,8 @@ class BuckarooAdapter
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[SDK] | [Adapter] | [%s:%s] - Execute request using Buckaroo SDK | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
 
@@ -148,7 +149,8 @@ class BuckarooAdapter
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[SDK] | [Adapter] | [%s:%s] - Get ideal issuers | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
             return [];

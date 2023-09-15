@@ -78,7 +78,8 @@ class GetShippingMethods extends AbstractApplepay
 
         $this->logger->addDebug(sprintf(
             '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | request: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($postValues, true)
         ));
 
@@ -121,7 +122,8 @@ class GetShippingMethods extends AbstractApplepay
             } catch (\Exception $exception) {
                 $this->logger->addError(sprintf(
                     '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | [ERROR]: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $exception->getMessage()
                 ));
                 $errorMessage = __('Get shipping methods failed');

@@ -57,8 +57,8 @@ class SupportTab extends Template implements RendererInterface
      * Override the parent constructor to require our own dependencies.
      *
      * @param Context $context
-     * @param ModuleResource $moduleContext
      * @param SoftwareData $softwareData
+     * @param Curl $curl
      * @param array $data
      */
     public function __construct(
@@ -118,8 +118,7 @@ class SupportTab extends Template implements RendererInterface
         $phpMajorMinor = $phpVersion[0] . '.' . $phpVersion[1];
         $phpPatch = (int)$phpVersion[2];
 
-        if (
-            !isset($this->phpVersionSupport[$magentoMajorMinor]) ||
+        if (!isset($this->phpVersionSupport[$magentoMajorMinor]) ||
             !isset($this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor])
         ) {
             return 0;

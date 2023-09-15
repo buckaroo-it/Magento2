@@ -64,8 +64,7 @@ define(
 
             return value.length <= 8;
         },
-        $.mage.__('Invalid COC number')
-        );
+        $.mage.__('Invalid COC number'));
 
         $.validator.addMethod('phoneValidation', function (value) {
                 var countryId = quote.billingAddress().countryId;
@@ -82,35 +81,34 @@ define(
                         min: 11,
                         max: 14
                     }
-                };
-                if (!value) {
-                    return false;
-                }
+            };
+            if (!value) {
+                return false;
+            }
 
                 value = value.replace(/^\+|(00)/, '');
                 value = value.replace(/\(0\)|\s|-/g, '');
 
-                if (value.match(/\+/)) {
+            if (value.match(/\+/)) {
+                return false;
+            }
+
+            if (value.match(/[^0-9]/)) {
+                return false;
+            }
+
+            if (lengths.hasOwnProperty(countryId)) {
+                if (lengths[countryId].min && (value.length < lengths[countryId].min)) {
                     return false;
                 }
-
-                if (value.match(/[^0-9]/)) {
+                if (lengths[countryId].max && (value.length > lengths[countryId].max)) {
                     return false;
                 }
-
-                if (lengths.hasOwnProperty(countryId)) {
-                    if (lengths[countryId].min && (value.length < lengths[countryId].min)) {
-                        return false;
-                    }
-                    if (lengths[countryId].max && (value.length > lengths[countryId].max)) {
-                        return false;
-                    }
-                }
+            }
 
                 return true;
-            },
-            $.mage.__('Phone number should be correct.')
-        );
+        },
+            $.mage.__('Phone number should be correct.'));
 
         $.validator.addMethod('validateAge', function (value) {
             if (value && (value.length > 0)) {
@@ -120,15 +118,16 @@ define(
                         value.substr(6, 4),
                         value.substr(3, 2) - 1,
                         value.substr(0, 2),
-                        0, 0, 0
+                        0,
+                        0,
+                        0
                     );
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
             return false;
         },
-        $.mage.__('You should be at least 18 years old.')
-        );
+        $.mage.__('You should be at least 18 years old.'));
 
         return Component.extend(
             {
@@ -184,8 +183,8 @@ define(
                     );
 
                     this.activeAddress = ko.computed(
-                        function() {
-                            if(quote.billingAddress()) {
+                        function () {
+                            if (quote.billingAddress()) {
                                 return quote.billingAddress();
                             }
                             return quote.shippingAddress();
@@ -193,14 +192,14 @@ define(
                     );
                     
                     this.country = ko.computed(
-                        function() {
+                        function () {
                             return this.activeAddress().countryId;
                         },
                         this
                     );
 
                     this.showCOC = ko.computed(
-                        function() {
+                        function () {
 
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
@@ -218,9 +217,8 @@ define(
                             return  (!this.isCustomerLoggedIn() && this.isOsc()) ||
                             (this.country() === 'NL' || this.country() === 'BE') ||
                             this.phoneValidate()
-                        },
-                        this
-                    );
+                    },
+                        this);
 
                     this.showNLBEFields = ko.computed(
                         function () {
@@ -262,15 +260,15 @@ define(
                     );
 
                     this.buttoncheck = ko.computed(
-                        function() {
+                        function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -280,26 +278,26 @@ define(
                         this
                     )
                     
-                    this.activeAddress.subscribe(function(address) {
-                        if(address.phone) {
+                    this.activeAddress.subscribe(function (address) {
+                        if (address.phone) {
                             this.phoneValidate(address.phone)
                         }
                     }, this)
 
-                    this.dateValidate.subscribe(function() {
-                       this.validateField('DoB');
+                    this.dateValidate.subscribe(function () {
+                        this.validateField('DoB');
                     }, this);
-                    this.customerCoc.subscribe(function() {
+                    this.customerCoc.subscribe(function () {
                         this.validateField('coc');
-                     }, this);
-                    this.termsValidate.subscribe(function() {
-                       this.validateField('TermsCondition');
                     }, this);
-                    this.identificationValidate.subscribe(function() {
-                       this.validateField('Identificationnumber');
+                    this.termsValidate.subscribe(function () {
+                        this.validateField('TermsCondition');
                     }, this);
-                    this.phoneValidate.subscribe(function() {
-                       this.validateField('Telephone');
+                    this.identificationValidate.subscribe(function () {
+                        this.validateField('Identificationnumber');
+                    }, this);
+                    this.phoneValidate.subscribe(function () {
+                        this.validateField('Telephone');
                     }, this);
 
                     return this;
@@ -307,26 +305,26 @@ define(
 
                 getActiveValidationFields() {
                     let fields = ['TermsCondition'];
-                    if(this.showPhone()) {
+                    if (this.showPhone()) {
                         fields.push('Telephone')
                     }
 
-                    if(this.showIdentification()) {
+                    if (this.showIdentification()) {
                         fields.push('Identificationnumber')
                     }
 
-                    if(this.showCOC()) {
+                    if (this.showCOC()) {
                         fields.push('coc')
                     }
 
-                    if(this.showNLBEFields()) {
+                    if (this.showNLBEFields()) {
                         fields.push('DoB')
                     }
                     return fields;
                 },
 
 
-                validateField: function(id) {
+                validateField: function (id) {
                     this.messageContainer.clear();
                     const isValid = $(`#buckaroo_magento2_afterpay20_${id}`).valid();
                     let state = this.validationState();
@@ -366,7 +364,7 @@ define(
                             'dpd-selected-parcelshop-city',
                             'dpd-selected-parcelshop-country'
                         ];
-                        dpdCookies.forEach(function(item) {
+                        dpdCookies.forEach(function (item) {
                             var value = $.mage.cookies.get(item);
                             if (value) {
                                 $.mage.cookies.clear(item);

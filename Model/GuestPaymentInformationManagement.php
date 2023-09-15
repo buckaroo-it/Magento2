@@ -49,8 +49,7 @@ use Psr\Log\LoggerInterface;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement
-    implements GuestPaymentInformationManagementInterface
+class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
 {
     /**
      * @var Factory
@@ -153,7 +152,8 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         $buckarooResponse = $this->buckarooResponseData->getResponse()->toArray();
         $this->logger->debug(sprintf(
             '[PLACE_ORDER] | [Webapi] | [%s:%s] - Guest Users | buckarooResponse: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             print_r($buckarooResponse, true)
         ));
 

@@ -76,8 +76,7 @@ class VerificationMethod extends MagentoFieldset
      */
     protected function _getHeaderTitleHtml($element): string
     {
-        if (
-            !isset($element->getGroup()['id']) ||
+        if (!isset($element->getGroup()['id']) ||
             !is_string($element->getGroup()['id'])
         ) {
             return parent::_getHeaderTitleHtml($element);

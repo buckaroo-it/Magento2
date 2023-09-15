@@ -36,6 +36,7 @@ use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Model\Quote;
@@ -100,9 +101,21 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         SearchCriteriaBuilder $searchCriteriaBuilder,
         TransactionRepositoryInterface $transactionRepository
     ) {
-        parent::__construct($context, $logger, $quote, $accountConfig, $orderRequestService,
-            $orderStatusFactory, $checkoutSession, $customerSession, $customerRepository,
-            $orderService, $eventManager, $quoteRecreate, $requestPushFactory);
+        parent::__construct(
+            $context,
+            $logger,
+            $quote,
+            $accountConfig,
+            $orderRequestService,
+            $orderStatusFactory,
+            $checkoutSession,
+            $customerSession,
+            $customerRepository,
+            $orderService,
+            $eventManager,
+            $quoteRecreate,
+            $requestPushFactory
+        );
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->transactionRepository = $transactionRepository;
@@ -128,7 +141,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $errorMessage = 'Customer is different then the customer that start Payconiq process request.';
             $this->logger->addError(sprintf(
                 '[REDIRECT - Payconiq] | [Controller] | [%s:%s] - %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $errorMessage
             ));
             $this->messageManager->addErrorMessage($errorMessage);

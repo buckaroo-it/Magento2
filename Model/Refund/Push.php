@@ -135,7 +135,8 @@ class Push
 
         $this->logger->addDebug(sprintf(
             '[PUSH_REFUND] | [Webapi] | [%s:%s] - Trying to refund order out of paymentplaza | orderId: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             $this->order->getId()
         ));
 
@@ -143,7 +144,8 @@ class Push
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - ' .
                 'the configuration is set not to accept refunds out of Payment Plaza | orderId: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $this->order->getId()
             ));
             throw new BuckarooException(__('Buckaroo refund is disabled'));
@@ -152,7 +154,8 @@ class Push
         if (!$signatureValidation && !$this->order->canCreditmemo()) {
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - validation incorrect | signature: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export([
                     'signature'      => $signatureValidation,
                     'canOrderCredit' => $this->order->canCreditmemo()
@@ -169,7 +172,8 @@ class Push
         if (count($creditmemosByTransactionId) > 0) {
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - The transaction has already been refunded',
-                __METHOD__, __LINE__
+                __METHOD__,
+                __LINE__
             ));
             return false;
         }
@@ -178,7 +182,8 @@ class Push
 
         $this->logger->addDebug(sprintf(
             '[PUSH_REFUND] | [Webapi] | [%s:%s] - Order successful refunded | creditmemo: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             $creditmemo ? 'success' : 'false'
         ));
 
@@ -210,7 +215,8 @@ class Push
                 if (!$creditmemo->isValidGrandTotal()) {
                     $this->logger->addDebug(sprintf(
                         '[PUSH_REFUND] | [Webapi] | [%s:%s] - The credit memo\'s total must be positive',
-                        __METHOD__, __LINE__
+                        __METHOD__,
+                        __LINE__
                     ));
                     throw new LocalizedException(
                         __('The credit memo\'s total must be positive.')
@@ -229,7 +235,8 @@ class Push
                 $this->logger->addError(sprintf(
                     '[PUSH_REFUND] | [Webapi] | [%s:%s] - Failed to create the creditmemo' .
                     'method saveCreditmemo return value: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     print_r($creditmemo, true)
                 ));
 
@@ -240,7 +247,8 @@ class Push
         } catch (LocalizedException $e) {
             $this->logger->addError(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Buckaroo failed to create the credit memo\'s | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getLogMessage()
             ));
         }
@@ -267,7 +275,8 @@ class Push
             $adjustment = $this->getAdjustmentRefundData();
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - This is an adjustment refund of %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $totalAmountToRefund
             ));
             $data['shipping_amount'] = '0';
@@ -278,7 +287,8 @@ class Push
         } else {
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - With this refund of %s the grand total will be refunded',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $this->creditAmount
             ));
             $data['shipping_amount'] = $this->caluclateShippingCostToRefund();
@@ -290,7 +300,8 @@ class Push
 
         $this->logger->addDebug(sprintf(
             '[PUSH_REFUND] | [Webapi] | [%s:%s] - The credit memo data | data: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             print_r($data, true)
         ));
 
@@ -359,7 +370,8 @@ class Push
 
         $this->logger->addDebug(sprintf(
             '[PUSH_REFUND] | [Webapi] | [%s:%s] - Total items to be refunded: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             print_r($items, true)
         ));
 
@@ -445,7 +457,8 @@ class Push
 
         $this->logger->addDebug(sprintf(
             '[PUSH_REFUND] | [Webapi] | [%s:%s] - Calculate the remainder | totals: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export([
                 'totalAmountToRefund' => $this->totalAmountToRefund(),
                 'orderBaseGrandTotal' => $this->order->getBaseGrandTotal(),
@@ -487,7 +500,8 @@ class Push
         } catch (LocalizedException $e) {
             $this->logger->addError(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Buckaroo can not initialize the credit memo\'s by order: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getLogMessage()
             ));
         }

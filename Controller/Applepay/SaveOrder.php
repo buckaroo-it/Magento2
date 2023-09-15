@@ -170,7 +170,8 @@ class SaveOrder extends AbstractApplepay
         ) {
             $this->logger->addDebug(sprintf(
                 '[ApplePay] | [Controller] | [%s:%s] - Save Order | request: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export($isPost, true)
             ));
 
@@ -225,7 +226,8 @@ class SaveOrder extends AbstractApplepay
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[ApplePay] | [Controller] | [%s:%s] - Submit Quote | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
         }
@@ -244,7 +246,8 @@ class SaveOrder extends AbstractApplepay
             $data = $buckarooResponseData->toArray();
             $this->logger->addDebug(sprintf(
                 '[ApplePay] | [Controller] | [%s:%s] - Save Order Handle Response | buckarooResponse: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export($data, true)
             ));
             if ($buckarooResponseData->hasRedirect()) {
@@ -290,7 +293,8 @@ class SaveOrder extends AbstractApplepay
             $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
             $this->logger->addDebug(sprintf(
                 '[ApplePay] | [Controller] | [%s:%s] - Save Order - Redirect URL | redirectURL: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $url
             ));
             $data = [

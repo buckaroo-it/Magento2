@@ -84,7 +84,7 @@ define(
                         ]
                     );
                     quote.billingAddress.subscribe(function (address) {
-                        if(address !== null) {
+                        if (address !== null) {
                             this.firstName(address.firstname || '');
                             this.lastName(address.lastname || '');
                             this.middleName(address.middlename || '');
@@ -108,7 +108,7 @@ define(
                         );
                     }
 
-                    if(quote.guestEmail) {
+                    if (quote.guestEmail) {
                         this.email(quote.guestEmail);
                         this.updateState(
                             'buckaroo_magento2_payperemail_Email',
@@ -126,12 +126,12 @@ define(
                                 "buckaroo_magento2_payperemail_BillingLastName",
                                 "buckaroo_magento2_payperemail_Email"
                             ].map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true

@@ -90,9 +90,11 @@ define(
 
             return true;
         };
-        $.validator.addMethod('in3phoneValidation', validPhone ,
-        $.mage.__('Phone number should be correct.')
-    );
+        $.validator.addMethod(
+            'in3phoneValidation',
+            validPhone ,
+            $.mage.__('Phone number should be correct.')
+        );
 
         return Component.extend(
             {
@@ -144,7 +146,7 @@ define(
 
                     this.billingName = ko.computed(
                         function () {
-                            if(quote.billingAddress() !== null) {
+                            if (quote.billingAddress() !== null) {
                                 return quote.billingAddress().firstname + " " + quote.billingAddress().lastname
                             }
                             return '';
@@ -158,12 +160,12 @@ define(
                         function () {
                             const state = this.validationState();
                             const valid =this.getActiveFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -173,13 +175,13 @@ define(
                         this
                     );
 
-                    this.dateValidate.subscribe(function() {
+                    this.dateValidate.subscribe(function () {
                         const id = 'buckaroo_magento2_capayablein3_DoB';
                         const isValid = $(`#${id}`).valid();
                         let state = this.validationState();
                         state[id] = isValid;
                         this.validationState(state);
-                     }, this);
+                    }, this);
 
                     return this;
                 },
@@ -187,7 +189,7 @@ define(
                     let fields = [
                         'buckaroo_magento2_capayablein3_DoB',
                     ];
-                    if(this.showPhone()) {
+                    if (this.showPhone()) {
                         fields.push('buckaroo_magento2_capayablein3_Telephone');
                     }
                     return fields;
@@ -257,7 +259,7 @@ define(
                     return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
-                getData : function() {
+                getData : function () {
                     let telephone = quote.billingAddress().telephone;
                     if (validPhone(this.phone())) {
                         telephone = this.phone();

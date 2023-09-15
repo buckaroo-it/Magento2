@@ -27,19 +27,29 @@ class Collection extends AbstractCollection
     /**
      * @var string
      */
-    // @codingStandardsIgnoreLine
     protected $_idFieldName = 'entity_id';
 
     /**
+     * Event prefix
+     *
      * @var string
      */
-    // @codingStandardsIgnoreLine
     protected $_eventPrefix = 'buckaroo_magento2_invoice_collection';
 
-    // @codingStandardsIgnoreLine
+    /**
+     * Event object
+     *
+     * @var string
+     */
+    protected $_eventObject = 'buckaroo_invoice_collection';
+
+    /**
+     * Model initialization
+     *
+     * @return void
+     */
     protected function _construct()
     {
-        // @codingStandardsIgnoreLine
         $this->_init(
             'Buckaroo\Magento2\Model\Invoice',
             'Buckaroo\Magento2\Model\ResourceModel\Invoice'

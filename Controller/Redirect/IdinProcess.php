@@ -34,6 +34,7 @@ use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Model\Quote;
@@ -41,7 +42,7 @@ use Magento\Quote\Model\Quote;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class IdinProcess extends Process
+class IdinProcess extends Process implements HttpPostActionInterface
 {
     /**
      * @var CustomerFactory
@@ -82,9 +83,21 @@ class IdinProcess extends Process
         RequestPushFactory $requestPushFactory,
         CustomerFactory $customerFactory
     ) {
-        parent::__construct($context, $logger, $quote, $accountConfig, $orderRequestService,
-            $orderStatusFactory, $checkoutSession, $customerSession, $customerRepository,
-            $orderService, $eventManager, $quoteRecreate, $requestPushFactory);
+        parent::__construct(
+            $context,
+            $logger,
+            $quote,
+            $accountConfig,
+            $orderRequestService,
+            $orderStatusFactory,
+            $checkoutSession,
+            $customerSession,
+            $customerRepository,
+            $orderService,
+            $eventManager,
+            $quoteRecreate,
+            $requestPushFactory
+        );
 
         $this->customerResourceFactory = $customerFactory;
     }
@@ -109,6 +122,8 @@ class IdinProcess extends Process
 
             return $this->redirectToCheckout();
         }
+
+        return $this->handleProcessedResponse('checkout');
     }
 
     /**
@@ -133,7 +148,8 @@ class IdinProcess extends Process
                     $this->addErrorMessage(__('Unfortunately customer was not find by IDIN id: "%1"!', $idinCid));
                     $this->logger->addError(sprintf(
                         '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Customer was not find by IDIN id | [ERROR]: %s',
-                        __METHOD__, __LINE__,
+                        __METHOD__,
+                        __LINE__,
                         $e->getMessage()
                     ));
                     return false;
@@ -163,11 +179,11 @@ class IdinProcess extends Process
 
         try {
             $this->checkoutSession->restoreQuote();
-
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
                 '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Could not restore the quote | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getMessage()
             ));
         }

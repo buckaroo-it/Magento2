@@ -104,7 +104,8 @@ class ShippingMethodManagement
             $this->logger->addDebug(sprintf(
                 '[SET_SHIPPING] | [Plugin] | [%s:%s] - START - Ensures that the shipping address is loaded '
                 . ' and shipping rates are collected. | lastRealOrder: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $lastRealOrder->getIncrementId(),
             ));
 
@@ -120,7 +121,8 @@ class ShippingMethodManagement
                             $this->logger->addDebug(sprintf(
                                 '[SET_SHIPPING] | [Plugin] | [%s:%s] - SET SHIPPING ADDRESS - Ensures that '
                                 . 'the shipping address is loaded. | lastRealOrder: %s | shippingAddressId: %s',
-                                __METHOD__, __LINE__,
+                                __METHOD__,
+                                __LINE__,
                                 $lastRealOrder->getIncrementId(),
                                 $shippingAddress->getAddressId()
                             ));

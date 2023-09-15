@@ -90,4 +90,3 @@ class CreditManagementOrderHandlerTest extends AbstractResponseHandlerTest
         $this->assertEquals($service['Parameters'][0]['Value'], $result);
     }
 }
-

@@ -19,7 +19,8 @@ class CancelAuthorizeProcessor extends DefaultProcessor
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
                 '[PUSH_CANCEL_AUTHORIZE] | [Webapi] | [%s:%s] - cancelled order authorization | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getLogMessage()
             ));
         }
@@ -27,7 +28,8 @@ class CancelAuthorizeProcessor extends DefaultProcessor
         $this->logger->addDebug(sprintf(
             '[PUSH_CANCEL_AUTHORIZE] | [Webapi] | [%s:%s] - Order autorize has been canceld,' .
             ' trying to update payment transactions',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
         ));
 
         return true;

@@ -29,7 +29,7 @@ class LogoSelector extends Field
 {
     protected $_template = 'Buckaroo_Magento2::in3_logo.phtml';
 
-    protected  Repository $assetRepo;
+    protected Repository $assetRepo;
 
     /**
      * @param Context $context
@@ -56,8 +56,8 @@ class LogoSelector extends Field
     {
         $element->setData('type', 'hidden');
         $this->assign("input", $element->getElementHtml());
-        $this->assign("inputId",   $element->getHtmlId());
-        $this->assign("inputValue",   $element->getEscapedValue());
+        $this->assign("inputId", $element->getHtmlId());
+        $this->assign("inputValue", $element->getEscapedValue());
         return $this->_toHtml();
     }
     
@@ -66,6 +66,6 @@ class LogoSelector extends Field
         return [
             "in3.svg" => $this->assetRepo->getUrl("Buckaroo_Magento2::images/svg/in3.svg"),
             "in3-ideal.svg" => $this->assetRepo->getUrl("Buckaroo_Magento2::images/svg/in3-ideal.svg")
-        ]; 
+        ];
     }
 }

@@ -30,11 +30,6 @@ use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 class SpamLimitValidator extends AbstractValidator
 {
     /**
-     * @var ResultInterfaceFactory
-     */
-    private $resultInterfaceFactory;
-
-    /**
      * @var SpamLimitService
      */
     private SpamLimitService $spamLimitService;
@@ -49,7 +44,6 @@ class SpamLimitValidator extends AbstractValidator
     ) {
         parent::__construct($resultFactory);
         $this->spamLimitService = $spamLimitService;
-
     }
 
     /**
@@ -64,8 +58,10 @@ class SpamLimitValidator extends AbstractValidator
 
         $isValid = true;
         if ($this->spamLimitService->isSpamLimitActive($paymentMethodInstance)
-            && $this->spamLimitService->isSpamLimitReached($paymentMethodInstance,
-                $this->spamLimitService->getPaymentAttemptsStorage())) {
+            && $this->spamLimitService->isSpamLimitReached(
+                $paymentMethodInstance,
+                $this->spamLimitService->getPaymentAttemptsStorage()
+            )) {
             $isValid = false;
         }
 

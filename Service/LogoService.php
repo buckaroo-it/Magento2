@@ -134,7 +134,8 @@ class LogoService
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/creditcards/{$code}.svg");
     }
 
-    public function getAssetUrl(string $path): string {
+    public function getAssetUrl(string $path): string
+    {
         return $this->assetRepo->getUrl($path);
     }
 }

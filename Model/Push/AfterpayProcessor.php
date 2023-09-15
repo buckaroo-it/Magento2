@@ -64,8 +64,17 @@ class AfterpayProcessor extends DefaultProcessor
         Account $configAccount,
         Afterpay20 $afterpayConfig
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
+        parent::__construct(
+            $orderRequestService,
+            $pushTransactionType,
+            $logger,
+            $helper,
+            $transaction,
+            $groupTransaction,
+            $buckarooStatusCode,
+            $orderStatusFactory,
+            $configAccount
+        );
         $this->afterpayConfig = $afterpayConfig;
     }
 

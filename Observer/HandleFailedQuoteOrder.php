@@ -99,7 +99,8 @@ class HandleFailedQuoteOrder implements ObserverInterface
                 } catch (\Exception $e) {
                     $this->logger->addError(sprintf(
                         '[CANCEL_ORDER] | [Observer] | [%s:%s] - Error when adding order comment | [ERROR]: %s',
-                        __METHOD__, __LINE__,
+                        __METHOD__,
+                        __LINE__,
                         $e->getMessage()
                     ));
                 }
@@ -108,7 +109,8 @@ class HandleFailedQuoteOrder implements ObserverInterface
             try {
                 $this->logger->addDebug(sprintf(
                     '[CANCEL_ORDER] | [Observer] | [%s:%s] - Cancel order for failed quote-to-order | order: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $order->getId()
                 ));
                 if ($this->moduleManager->isEnabled('Magento_Inventory')) {
@@ -118,7 +120,8 @@ class HandleFailedQuoteOrder implements ObserverInterface
             } catch (\Exception $e) {
                 $this->logger->addError(sprintf(
                     '[CANCEL_ORDER] | [Observer] | [%s:%s] - Error when canceling order | [ERROR]: %s',
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $e->getMessage()
                 ));
             }

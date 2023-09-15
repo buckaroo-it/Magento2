@@ -321,8 +321,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function skipItem($item): bool
     {
-        if (empty($item)
-            || $item->getRowTotalInclTax() == 0
+        if ($item->getRowTotalInclTax() == 0
             || $item->hasParentItemId()
         ) {
             return true;

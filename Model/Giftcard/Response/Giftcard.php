@@ -186,8 +186,7 @@ class Giftcard
      */
     public function getRemainderAmount()
     {
-        if (
-            !isset($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
+        if (!isset($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
             !is_scalar($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
         ) {
             return 0;
@@ -202,8 +201,7 @@ class Giftcard
      */
     public function getAmountDebit()
     {
-        if (
-            empty($this->response->getAmount()) ||
+        if (empty($this->response->getAmount()) ||
             !is_scalar($this->response->getAmount())
         ) {
             return 0;
@@ -222,7 +220,6 @@ class Giftcard
             return null;
         }
         return $this->response->data()['RequiredAction']['PayRemainderDetails']['Currency'];
-
     }
 
     public function rollbackAllPartialPayments($order)
@@ -235,10 +232,11 @@ class Giftcard
         } catch (\Throwable $th) {
             $this->logger->addDebug(sprintf(
                 '[GIFTCARD] | [Model] | [%s:%s] - Rollback all Partial Payment | [ERROR]: %s',
-                __METHOD__, __LINE__,
-                $th->getMessage()));
+                __METHOD__,
+                __LINE__,
+                $th->getMessage()
+            ));
         }
-
     }
 
     /**
@@ -260,8 +258,7 @@ class Giftcard
     protected function cancelOrder()
     {
         $order = $this->createOrderFromQuote();
-        if (
-            $order instanceof OrderInterface &&
+        if ($order instanceof OrderInterface &&
             $order->getEntityId() !== null
         ) {
             $this->orderManagement->cancel($order->getEntityId());

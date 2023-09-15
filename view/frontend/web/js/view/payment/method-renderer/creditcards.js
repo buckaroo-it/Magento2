@@ -48,44 +48,39 @@ define(
          */
         $.validator.addMethod('validateCardNumber', function (value) {
                 return BuckarooClientSideEncryption.V001.validateCardNumber(value.replace(/\s+/g, ''));
-            },
-            $.mage.__('Please enter a valid creditcard number.')
-        );
+        },
+            $.mage.__('Please enter a valid creditcard number.'));
 
         $.validator.addMethod('validateCvc', function (value) {
                 return BuckarooClientSideEncryption.V001.validateCvc(
                     value,
                     $('#buckaroo_magento2_creditcards_issuer').val()
                 );
-            },
-            $.mage.__('Please enter a valid Cvc number.')
-        );
+        },
+            $.mage.__('Please enter a valid Cvc number.'));
 
         $.validator.addMethod('validateCardHolderName', function (value) {
                 return BuckarooClientSideEncryption.V001.validateCardholderName(value);
-            },
-            $.mage.__('Please enter a valid card holder name.')
-        );
+        },
+            $.mage.__('Please enter a valid card holder name.'));
         
         $.validator.addMethod('bkValidateYear', function (value) {
-                if(value.length === 0) {
-                    return false;
-                }
+            if (value.length === 0) {
+                return false;
+            }
                 const parts = value.split("/");
                 return BuckarooClientSideEncryption.V001.validateYear(parts[1]);
-            },
-            $.mage.__('Enter a valid year number.')
-        );
+        },
+            $.mage.__('Enter a valid year number.'));
         $.validator.addMethod('bkValidateMonth', function (value) {
-                if(value.length === 0) {
-                    return false;
-                }
+            if (value.length === 0) {
+                return false;
+            }
 
                 const parts = value.split("/");
                 return BuckarooClientSideEncryption.V001.validateMonth(parts[0]);
-            },
-            $.mage.__('Enter a valid month number.')
-        );
+        },
+            $.mage.__('Enter a valid month number.'));
 
         return Component.extend(
             {
@@ -136,7 +131,7 @@ define(
                     this.formatedCardNumber = ko.computed({
                         read: function () {
                             let cardNumber = this.cardNumber();
-                            if(cardNumber.length) {
+                            if (cardNumber.length) {
                                 return this.cardNumber().match(new RegExp('.{1,4}', 'g')).join(" ");
                             }
                             return '';
@@ -150,22 +145,29 @@ define(
                     this.formatedExpirationDate = ko.computed({
                         read: function () {
                             let expireDate = this.expireDate();
-                            if(expireDate.length) {
+                            if (expireDate.length) {
                                 return expireDate.replace(
-                                    /^([1-9]\/|[2-9])$/g, '0$1/' // 3 > 03/
-                                  ).replace(
-                                    /^(0[1-9]|1[0-2])$/g, '$1/' // 11 > 11/
-                                  ).replace(
-                                    /^([0-1])([3-9])$/g, '0$1/$2' // 13 > 01/3
-                                  ).replace(
-                                    /^(0?[1-9]|1[0-2])([0-9]{2})$/g, '$1/$2' // 141 > 01/41
-                                  ).replace(
-                                    /^([0]+)\/|[0]+$/g, '0' // 0/ > 0 and 00 > 0
-                                  ).replace(
-                                    /[^\d\/]|^[\/]*$/g, '' // To allow only digits and `/`
-                                  ).replace(
-                                    /\/\//g, '/' // Prevent entering more than 1 `/`
-                                  );
+                                    /^([1-9]\/|[2-9])$/g,
+                                    '0$1/' // 3 > 03/
+                                ).replace(
+                                    /^(0[1-9]|1[0-2])$/g,
+                                    '$1/' // 11 > 11/
+                                ).replace(
+                                    /^([0-1])([3-9])$/g,
+                                    '0$1/$2' // 13 > 01/3
+                                ).replace(
+                                    /^(0?[1-9]|1[0-2])([0-9]{2})$/g,
+                                    '$1/$2' // 141 > 01/41
+                                ).replace(
+                                    /^([0]+)\/|[0]+$/g,
+                                    '0' // 0/ > 0 and 00 > 0
+                                ).replace(
+                                    /[^\d\/]|^[\/]*$/g,
+                                    '' // To allow only digits and `/`
+                                ).replace(
+                                    /\/\//g,
+                                    '/' // Prevent entering more than 1 `/`
+                                );
                             }
                             return '';
                         },
@@ -185,7 +187,7 @@ define(
                                 cardLogo = issuer.img;
                             }
 
-                        return cardLogo;
+                            return cardLogo;
                         },
                         this
                     );
@@ -203,9 +205,9 @@ define(
                     )
                     
                     //validate the cvc if exists
-                    if(this.cvc().length) {
-                        $('#buckaroo_magento2_creditcards_cvc').valid();
-                    }
+                if (this.cvc().length) {
+                    $('#buckaroo_magento2_creditcards_cvc').valid();
+                }
                 },
 
                 validateField(data, event) {
@@ -260,7 +262,7 @@ define(
                 selectPaymentMethod: function () {
                     window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
 
-                    this.getData().then(function(data) {
+                    this.getData().then(function (data) {
                         selectPaymentMethodAction(data);
                     })
                     checkoutData.setSelectedPaymentMethod(this.item.method);
@@ -296,7 +298,7 @@ define(
 
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        this.getData().then(function(data) {
+                        this.getData().then(function (data) {
                             placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
     
                             $.when(placeOrder).fail(
@@ -317,14 +319,14 @@ define(
                 },
 
                 getData: function () {
-                    return new Promise(function(resolve) {
+                    return new Promise(function (resolve) {
                         const parts = this.expireDate().split("/");
                         const month = parts[0];
                         const year = parts[1];
                         const method = this.item.method;
                         let cardIssuer = this.cardIssuer();
 
-                        if(cardIssuer == null) {
+                        if (cardIssuer == null) {
                             cardIssuer = this.determineIssuer(this.cardNumber());
                         }
 
@@ -335,7 +337,7 @@ define(
                             month,
                             this.cvc(),
                             this.cardHolderName(),
-                            function(encryptedCardData) {
+                            function (encryptedCardData) {
                                 resolve({
                                     "method": method,
                                     "po_number": null,
@@ -344,7 +346,8 @@ define(
                                         "card_type" : cardIssuer
                                     }
                                 })
-                            });
+                            }
+                        );
                     }.bind(this))
                 }
             }

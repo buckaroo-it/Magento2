@@ -25,10 +25,13 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
 class Invoice extends AbstractDb
 {
-    // @codingStandardsIgnoreLine
+    /**
+     * Define resource model
+     *
+     * @return void
+     */
     protected function _construct()
     {
-        // @codingStandardsIgnoreLine
         $this->_init(
             'buckaroo_magento2_invoice',
             'entity_id'

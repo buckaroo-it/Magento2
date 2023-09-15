@@ -156,7 +156,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
     {
         $this->logger->addDebug(sprintf(
             '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | orderDiscountAmount: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($order->getDiscountAmount(), true)
         ));
 
@@ -186,7 +187,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             $this->logger->addDebug(sprintf(
                 '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | orderStatus: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 var_export($order->getStatus(), true)
             ));
 
@@ -197,11 +199,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 $order->addStatusHistoryComment($description, false);
                 $order->save();
             }
-
         } catch (\Exception $e) {
             $this->logger->addDebug(sprintf(
                 '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getMessage()
             ));
             $order->addStatusHistoryComment('Exception message: ' . $e->getMessage(), false);

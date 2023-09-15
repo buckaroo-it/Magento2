@@ -72,10 +72,18 @@ class LockedPushProcessor extends DefaultProcessor
         Account $configAccount,
         LockManagerInterface $lockManager
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode, $orderStatusFactory, $configAccount);
+        parent::__construct(
+            $orderRequestService,
+            $pushTransactionType,
+            $logger,
+            $helper,
+            $transaction,
+            $groupTransaction,
+            $buckarooStatusCode,
+            $orderStatusFactory,
+            $configAccount
+        );
         $this->lockManager = $lockManager;
-
     }
 
     /**

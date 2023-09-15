@@ -55,7 +55,8 @@ class TransferProcessor extends DefaultProcessor
 
         $this->logger->addDebug(sprintf(
             '[PUSH - Transfer] | [Webapi] | [%s:%s] - Update totals by amount from request | order: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export([
                 'orderId' => $this->order->getId(),
                 'totalDue' => $this->order->getTotalDue(),

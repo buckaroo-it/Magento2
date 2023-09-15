@@ -200,7 +200,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     {
         return array_map(
             function ($issuer) {
-                if(isset($issuer['imgName'])) {
+                if (isset($issuer['imgName'])) {
                     $issuer['img'] = $this->getImageUrl("ideal/{$issuer['imgName']}", "svg");
                 }
                 return $issuer;
@@ -211,7 +211,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
 
     public function getCreditcardLogo(string $code): string
     {
-        if($code === 'cartebleuevisa') {
+        if ($code === 'cartebleuevisa') {
             $code = 'cartebleue';
         }
 

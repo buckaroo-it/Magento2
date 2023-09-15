@@ -158,7 +158,8 @@ class QuoteAddressService
     {
         $this->logger->addDebug(sprintf(
             '[SET_SHIPPING_ADDRESS] | [Service] | [%s:%s] - Set Shipping Address | data: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($data, true)
         ));
 
@@ -218,7 +219,8 @@ class QuoteAddressService
     {
         $this->logger->addDebug(sprintf(
             '[SET_SHIPPING_ADDRESS] | [Service] | [%s:%s] - Set Shipping Address | errors: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($errors, true)
         ));
 
@@ -294,7 +296,8 @@ class QuoteAddressService
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
                 '[SET_SHIPPING_ADDRESS] | [Service] | [%s:%s] - Set Shipping Address | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getMessage()
             ));
             throw new ExpressMethodsException('Assign Shipping Address to Quote failed.');

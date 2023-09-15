@@ -37,6 +37,7 @@ use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
@@ -51,7 +52,7 @@ use Magento\Sales\Model\Order;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Process extends Action
+class Process extends Action implements HttpPostActionInterface
 {
     private const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
     'Please try again. If this error persists, please choose a different payment method.';
@@ -191,7 +192,8 @@ class Process extends Action
     {
         $this->logger->addDebug(sprintf(
             '[REDIRECT] | [Controller] | [%s:%s] - Original Request | originalRequest: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($this->redirectRequest->getOriginalRequest(), true)
         ));
 
@@ -228,7 +230,8 @@ class Process extends Action
         $this->logger->addDebug(sprintf(
             '[REDIRECT - %s] | [Controller] | [%s:%s] - Status Code | statusCode: %s',
             $this->payment->getMethod(),
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             $statusCode
         ));
 
@@ -267,14 +270,15 @@ class Process extends Action
      */
     public function skipWaitingOnConsumerForProcessingOrder(): bool
     {
-        if (in_array($this->payment->getMethod(),
+        if (in_array(
+            $this->payment->getMethod(),
             [
                 'buckaroo_magento2_creditcards',
                 'buckaroo_magento2_paylink',
                 'buckaroo_magento2_payperemail',
                 'buckaroo_magento2_transfer'
-            ])) {
-
+            ]
+        )) {
             if ($this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
                 != $this->redirectRequest->getTransactions()) {
                 return true;
@@ -370,7 +374,8 @@ class Process extends Action
                 $this->logger->addDebug(sprintf(
                     '[REDIRECT - %s] | [Controller] | [%s:%s] - Send Klarna Reservation Mail',
                     $this->payment->getMethod(),
-                    __METHOD__, __LINE__
+                    __METHOD__,
+                    __LINE__
                 ));
                 $this->orderRequestService->sendOrderEmail($this->order, true);
             }
@@ -391,7 +396,8 @@ class Process extends Action
         $this->logger->addDebug(sprintf(
             '[REDIRECT - %s] | [Controller] | [%s:%s] - Set Last Quote Order | currentQuoteOrder: %s',
             $this->payment->getMethod(),
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export([
                 $this->checkoutSession->getLastSuccessQuoteId(),
                 $this->checkoutSession->getLastQuoteId(),
@@ -442,7 +448,8 @@ class Process extends Action
         $this->logger->addDebug(sprintf(
             '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Success | redirectURL: %s',
             $this->payment->getMethod(),
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             $url,
         ));
 
@@ -507,7 +514,8 @@ class Process extends Action
                 $this->logger->addDebug(sprintf(
                     '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Pending Set Status | pendingStatus: %s',
                     $this->payment->getMethod(),
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     var_export($pendingStatus, true),
                 ));
                 $this->order->setStatus($pendingStatus);
@@ -523,7 +531,9 @@ class Process extends Action
             $this->logger->addDebug(sprintf(
                 '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Pending NOT Sofort - Remove Coupon & Giftcard',
                 $this->payment->getMethod(),
-                __METHOD__, __LINE__));
+                __METHOD__,
+                __LINE__
+            ));
 
             $this->removeCoupon();
             $this->removeAmastyGiftcardOnFailed();
@@ -605,7 +615,8 @@ class Process extends Action
                 $this->logger->addError(sprintf(
                     '[REDIRECT - %s] | [Controller] | [%s:%s] - Remove Amasty Giftcard | [ERROR]: %s',
                     $this->payment->getMethod(),
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $th->getMessage()
                 ));
                 return;
@@ -628,11 +639,12 @@ class Process extends Action
 
         if (!$this->getSkipHandleFailedRecreate()
             && (!$this->quoteRecreate->recreate($this->quote))) {
-
             $this->logger->addError(sprintf(
                 '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Recreate Quote on Failed ',
                 $this->payment->getMethod(),
-                __METHOD__, __LINE__));
+                __METHOD__,
+                __LINE__
+            ));
         }
 
         /*
@@ -652,13 +664,17 @@ class Process extends Action
             $this->logger->addError(sprintf(
                 '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Cancel the Order.',
                 $this->payment->getMethod(),
-                __METHOD__, __LINE__));
+                __METHOD__,
+                __LINE__
+            ));
         }
 
         $this->logger->addDebug(sprintf(
             '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure',
             $this->payment->getMethod(),
-            __METHOD__, __LINE__));
+            __METHOD__,
+            __LINE__
+        ));
 
         return $this->redirectFailure();
     }
@@ -730,7 +746,9 @@ class Process extends Action
         $this->logger->addDebug(sprintf(
             '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure To Checkout',
             $this->payment->getMethod(),
-            __METHOD__, __LINE__));
+            __METHOD__,
+            __LINE__
+        ));
 
         return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
     }
@@ -745,12 +763,12 @@ class Process extends Action
     {
         if (!$this->customerSession->isLoggedIn() && $this->order->getCustomerId() > 0) {
             $this->logger->addDebug(sprintf(
-                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Customer is not logged in',
-                    $this->payment->getMethod(),
-                    __METHOD__, __LINE__,
-                    $status
-                )
-            );
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Customer is not logged in',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $status
+            ));
             try {
                 $customer = $this->customerRepository->getById($this->order->getCustomerId());
                 $this->customerSession->setCustomerDataAsLoggedIn($customer);
@@ -762,8 +780,10 @@ class Process extends Action
                         $this->logger->addDebug(sprintf(
                             '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Restore Quote',
                             $this->payment->getMethod(),
-                            __METHOD__, __LINE__,
-                            $status));
+                            __METHOD__,
+                            __LINE__,
+                            $status
+                        ));
                     }
                     if ($status == 'failed') {
                         $this->setSkipHandleFailedRecreate();
@@ -774,9 +794,11 @@ class Process extends Action
                     '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout ' .
                     '- Could not load customer | [ERROR]: %s',
                     $this->payment->getMethod(),
-                    __METHOD__, __LINE__,
+                    __METHOD__,
+                    __LINE__,
                     $status,
-                    $e->getMessage()));
+                    $e->getMessage()
+                ));
             }
         }
     }
@@ -833,7 +855,9 @@ class Process extends Action
         $this->logger->addDebug(sprintf(
             '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect To Checkout',
             $this->payment->getMethod(),
-            __METHOD__, __LINE__));
+            __METHOD__,
+            __LINE__
+        ));
 
         $this->setCustomerAndRestoreQuote('success');
 

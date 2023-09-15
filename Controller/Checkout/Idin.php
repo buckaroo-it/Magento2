@@ -25,13 +25,14 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class Idin extends Action
+class Idin extends Action implements HttpPostActionInterface
 {
     /**
      * @var BuilderInterface
@@ -110,7 +111,8 @@ class Idin extends Action
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[iDIN] | [Controller] | [%s:%s] - Validate iDIN | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
             return $this->json(

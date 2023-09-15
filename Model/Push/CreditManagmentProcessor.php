@@ -28,7 +28,6 @@ class CreditManagmentProcessor extends DefaultProcessor
             return true;
         }
         return false;
-
     }
 
     /**

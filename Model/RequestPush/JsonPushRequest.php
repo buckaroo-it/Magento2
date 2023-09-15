@@ -41,16 +41,6 @@ use Buckaroo\Magento2\Model\Validator\PushSDK as Validator;
 class JsonPushRequest extends AbstractPushRequest implements PushRequestInterface
 {
     /**
-     * @var array
-     */
-    private array $request = [];
-
-    /**
-     * @var array
-     */
-    private array $originalRequest;
-
-    /**
      * @var Validator $validator
      */
     private Validator $validator;

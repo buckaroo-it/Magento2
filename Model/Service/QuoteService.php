@@ -172,7 +172,8 @@ class QuoteService
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[CREATE_QUOTE] | [Service] | [%s:%s] - Create quote if in product page | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $th->getMessage()
             ));
             throw new QuoteException(__("Failed to create quote"), 1, $th);

@@ -21,12 +21,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;

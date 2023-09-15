@@ -61,16 +61,16 @@ define(
                     bicNumber: '',
                     validationState: {}
                 },
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.giropay.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.giropay.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('giropay'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.giropay.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.giropay.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('giropay'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 
                 /**
-             * @override
-             */
-                initialize : function (options) {
+                 * @override
+                 */
+                initialize: function (options) {
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
                     }
@@ -81,19 +81,19 @@ define(
                 initObservable: function () {
                     this._super().observe(['bicNumber', 'validationState']);
 
-                     /** Check used to see form is valid **/
-                     this.buttoncheck = ko.computed(
+                    /** Check used to see form is valid **/
+                    this.buttoncheck = ko.computed(
                         function () {
                             const state = this.validationState();
                             const valid = [
                                 'bicnumber',
                             ].map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -129,7 +129,7 @@ define(
                  */
                 placeOrder: function (data, event) {
                     var self = this,
-                    placeOrder;
+                        placeOrder;
 
                     if (event) {
                         event.preventDefault();
@@ -188,3 +188,4 @@ define(
         );
     }
 );
+

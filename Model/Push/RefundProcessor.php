@@ -69,8 +69,17 @@ class RefundProcessor extends DefaultProcessor
         Account $configAccount,
         RefundPush $refundPush
     ) {
-        parent::__construct($orderRequestService, $pushTransactionType, $logger, $helper, $transaction,
-            $groupTransaction, $buckarooStatusCode,$orderStatusFactory, $configAccount);
+        parent::__construct(
+            $orderRequestService,
+            $pushTransactionType,
+            $logger,
+            $helper,
+            $transaction,
+            $groupTransaction,
+            $buckarooStatusCode,
+            $orderStatusFactory,
+            $configAccount
+        );
         $this->refundPush = $refundPush;
     }
 
@@ -97,8 +106,10 @@ class RefundProcessor extends DefaultProcessor
                 return true;
             } else {
                 throw new BuckarooException(
-                    __('Refund failed ! Status : %1 and the order does not contain an invoice',
-                        $this->pushTransactionType->getStatusKey())
+                    __(
+                        'Refund failed ! Status : %1 and the order does not contain an invoice',
+                        $this->pushTransactionType->getStatusKey()
+                    )
                 );
             }
         }

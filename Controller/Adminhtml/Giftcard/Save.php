@@ -53,7 +53,6 @@ class Save extends Index implements HttpPostActionInterface
 
                 if ($this->getRequest()->getParam('back')) {
                     return $this->_redirect('*/*/edit', ['entity_id' => $giftcardModel->getId(), '_current' => true]);
-
                 }
 
                 return $this->_redirect('*/*/');

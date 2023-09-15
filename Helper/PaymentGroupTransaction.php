@@ -92,7 +92,8 @@ class PaymentGroupTransaction extends AbstractHelper
     {
         $this->logger->addDebug(sprintf(
             '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Save group transaction in database | response: %s',
-            __METHOD__, __LINE__,
+            __METHOD__,
+            __LINE__,
             var_export($response, true)
         ));
 

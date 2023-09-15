@@ -72,6 +72,4 @@ class PaymentMethodDataBuilderTest extends AbstractDataBuilderTest
             ],
         ];
     }
-
-
 }

@@ -75,7 +75,8 @@ class Recreate
         } catch (NoSuchEntityException $e) {
             $this->logger->addError(sprintf(
                 '[RECREATE_QUOTE] | [Service] | [%s:%s] - Reintialize the quote | [ERROR]: %s',
-                __METHOD__, __LINE__,
+                __METHOD__,
+                __LINE__,
                 $e->getMessage()
             ));
         }

@@ -28,6 +28,11 @@ use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 class SaveOrderBeforeDataBuilderTest extends AbstractDataBuilderTest
 {
     /**
+     * @var SaveOrderBeforeDataBuilder
+     */
+    private SaveOrderBeforeDataBuilder $dataBuilder;
+
+    /**
      * @var Account|MockObject
      */
     protected $configProviderAccountMock;

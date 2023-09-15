@@ -40,16 +40,6 @@ use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 class HttppostPushRequest extends AbstractPushRequest implements PushRequestInterface
 {
     /**
-     * @var array
-     */
-    private array $request = [];
-
-    /**
-     * @var array
-     */
-    private array $originalRequest;
-
-    /**
      * @var ValidatorPush $validator
      */
     private ValidatorPush $validator;
@@ -257,19 +247,6 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
     public function getTransactions(): ?string
     {
         return $this->request['brq_transactions'] ?? null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getAdditionalInformation(string $propertyName): ?string
-    {
-        $propertyName = 'add_' . strtolower($propertyName);
-        if (isset($this->request[$propertyName])) {
-            return $this->request[$propertyName];
-        }
-
-        return null;
     }
 
     /**

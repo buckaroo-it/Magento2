@@ -26,7 +26,7 @@
             <module name="Buckaroo_Magento2" before="Magento_Adminhtml" />
         </route>
         <route frontName="buckaroo_magento2" id="buckaroo_magento2">
-			<module before="Magento_Backend" name="Buckaroo_Magento2"/>
-		</route>
+            <module before="Magento_Backend" name="Buckaroo_Magento2"/>
+        </route>
     </router>
 </config>
