@@ -126,6 +126,7 @@ class Index extends \Magento\Backend\App\Action
 
         try {
             $transaction = $transactionBuilder->build();
+            $this->gateway->setMode($config->getActive($order->getStore()));
 
             $response = $this->gateway->authorize($transaction);
             if (is_array($response[0]->Services->Service->ResponseParameter)) {

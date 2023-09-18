@@ -321,9 +321,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->addressFactory              = $addressFactory;
         $this->logger2                     = $buckarooLog;
         $this->eventManager                = $eventManager;
-        $this->gateway->setMode(
-            $this->helper->getMode($this->buckarooPaymentMethodCode)
-        );
     }
 
     /**
@@ -705,6 +702,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         parent::order($payment, $amount);
 
+        $activeMode = $this->getConfigData('active', $payment->getOrder()->getStore());
+        $this->gateway->setMode($activeMode);
+
         $this->eventManager->dispatch('buckaroo_order_before', ['payment' => $payment]);
         $this->cancelPreviousPendingOrder($payment);
         $this->payment = $payment;
@@ -941,6 +941,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->eventManager->dispatch('buckaroo_authorize_before', ['payment' => $payment]);
 
+        $activeMode = $this->getConfigData('active', $payment->getOrder()->getStore());
+        $this->gateway->setMode($activeMode);
+
         $this->cancelPreviousPendingOrder($payment);
         $this->payment = $payment;
 
@@ -1034,7 +1037,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
-        $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
+        $activeMode = $this->getConfigData('active', $payment->getOrder()->getStore());
 
         if (!$activeMode) {
             $activeMode = 2;
@@ -1127,7 +1130,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             throw new \Exception('Giftcard cannot be refunded without order items');
         }
 
-        $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
+        $activeMode = $this->getConfigData('active', $payment->getOrder()->getStore());
         if (!$activeMode) {
             $activeMode = 2;
         }
@@ -1295,7 +1298,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
-        $activeMode = $this->helper->getMode($this->buckarooPaymentMethodCode, $payment->getOrder()->getStore());
+        $activeMode = $this->getConfigData('active', $payment->getOrder()->getStore());
         if (!$activeMode) {
             $activeMode = 2;
         }
