@@ -919,15 +919,23 @@ class Afterpay20 extends AbstractMethod
 
         $paymentInfo = $this->getInfoInstance();
 
+        $shippingCompany = null;
+
         if ($paymentInfo instanceof Payment) {
             $storeId = $paymentInfo->getOrder()->getStoreId();
             $billingCompany = $paymentInfo->getOrder()->getBillingAddress()->getCompany();
-            $shippingCompany = $paymentInfo->getOrder()->getShippingAddress()->getCompany();
+            $shippingAddress = $paymentInfo->getOrder()->getShippingAddress();
+            if ($shippingAddress !== null) {
+                $shippingCompany = $shippingAddress->getCompany();
+            }
             
         } else {
             $storeId = $paymentInfo->getQuote() !== null? $paymentInfo->getQuote()->getStoreId(): null;
             $billingCompany = $paymentInfo->getQuote()->getBillingAddress()->getCompany();
-            $shippingCompany = $paymentInfo->getQuote()->getShippingAddress()->getCompany();
+            $shippingAddress = $paymentInfo->getQuote()->getShippingAddress();
+            if ($shippingAddress !== null) {
+                $shippingCompany = $shippingAddress->getCompany();
+            }
         }
 
         if (
