@@ -3,6 +3,10 @@
 namespace Buckaroo\Magento2\Model\Push;
 
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 
@@ -100,5 +104,27 @@ class TransferProcessor extends DefaultProcessor
         }
 
         return $saveInvoice;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function canProcessPendingPush(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getTransferDetails(): array
+    {
+        return [
+            'transfer_amount' => $this->pushRequest->getAmount(),
+            'transfer_paymentreference' => $this->pushRequest->getServiceTransferPaymentreference(),
+            'transfer_accountholdername' => $this->pushRequest->getServiceTransferAccountholdername(),
+            'transfer_iban' => $this->pushRequest->getServiceTransferIban(),
+            'transfer_bic' => $this->pushRequest->getServiceTransferBic(),
+        ];
     }
 }

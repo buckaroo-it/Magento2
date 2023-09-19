@@ -85,6 +85,10 @@
         <plugin name="buckaroo_magento2_add_creditmemo_extension_attributes" type="Buckaroo\Magento2\Plugin\CreditmemoExtensionAttribute" />
     </type>
 
+    <type name="Magento\Sales\Model\Order\Pdf\Invoice">
+        <plugin name="add_custom_variable_to_invoice" type="Buckaroo\Magento2\Plugin\InvoicePlugin" />
+    </type>
+
     <type name="Magento\Sales\Model\Order">
         <plugin name="buckaroo_magento2_plugin_afterpay" type="Buckaroo\Magento2\Plugin\Method\Afterpay"/>
         <plugin name="buckaroo_magento2_plugin_afterpay2" type="Buckaroo\Magento2\Plugin\Method\Afterpay2"/>

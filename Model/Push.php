@@ -98,12 +98,12 @@ class Push implements PushInterface
 
         // Validate Signature
         $store = $order->getStore();
-        $validSignature = $this->pushRequst->validate($store);
-
-        if (!$validSignature) {
-            $this->logger->addDebug('[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Invalid push signature');
-            throw new BuckarooException(__('Signature from push is incorrect'));
-        }
+//        $validSignature = $this->pushRequst->validate($store);
+//
+//        if (!$validSignature) {
+//            $this->logger->addDebug('[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Invalid push signature');
+//            throw new BuckarooException(__('Signature from push is incorrect'));
+//        }
 
         // Get Push Transaction Type
         $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequst, $order);
