@@ -25,17 +25,21 @@ use Magento\Sales\Model\Order\Pdf\Invoice;
 
 class InvoicePlugin
 {
+    /**
+     * @param Invoice $subject
+     * @param $invoices
+     * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforeGetPdf(Invoice $subject, $invoices)
     {
         foreach ($invoices as $invoice) {
-            // Add your custom variable here.
             /** @var \Magento\Sales\Model\Order\Invoice $invoice */
-            $transfer_details = $invoice->getOrder()->getPayment()->getAdditionalInformation('transfer_details');
-            $invoice->setData('transfer_amount', $transfer_details['transfer_amount']);
-            $invoice->setData('transfer_paymentreference', $transfer_details['transfer_paymentreference']);
-            $invoice->setData('transfer_accountholdername', $transfer_details['transfer_accountholdername']);
-            $invoice->setData('transfer_iban', $transfer_details['transfer_iban']);
-            $invoice->setData('transfer_bic', $transfer_details['transfer_bic']);
+            $transferDetails = $invoice->getOrder()->getPayment()->getAdditionalInformation('transfer_details');
+            foreach ($transferDetails as $key => $transferDetail) {
+                $invoice->setData($key, $transferDetail);
+            }
         }
 
         return [$invoices];

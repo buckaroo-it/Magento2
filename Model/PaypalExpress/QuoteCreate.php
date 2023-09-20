@@ -52,7 +52,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * @var Quote|CartInterface
      */
-    private Quote|CartInterface $quote;
+    private $quote;
 
     /**
      * @param QuoteCreateResponseInterfaceFactory $responseFactory
