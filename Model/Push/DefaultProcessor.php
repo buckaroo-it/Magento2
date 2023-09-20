@@ -701,6 +701,8 @@ class DefaultProcessor implements PushProcessorInterface
         $paymentDetails['state'] = Order::STATE_PROCESSING;
         $paymentDetails['newStatus'] = $newStatus;
 
+        $this->setSpecificPaymentDetails();
+
         $this->dontSaveOrderUponSuccessPush = false;
 
         if ($this->canPushInvoice()) {
@@ -1055,10 +1057,13 @@ class DefaultProcessor implements PushProcessorInterface
             $this->orderRequestService->sendOrderEmail($this->order);
         }
 
-        $description = 'Payment Push Status: ' . $statusMessage . PHP_EOL;
+        $description = 'Payment Push Status: ' . $statusMessage;
         $transferDetails = $this->getTransferDetails();
         if (!empty($transferDetails)) {
             $this->payment->setAdditionalInformation('transfer_details', $transferDetails);
+            foreach ($transferDetails as $key => $transferDetail) {
+                $description .= PHP_EOL . PHP_EOL . $key . ': ' . $transferDetail;
+            }
         }
 
         $this->orderRequestService->updateOrderStatus(Order::STATE_PENDING_PAYMENT, $newStatus, $description);
@@ -1145,5 +1150,29 @@ class DefaultProcessor implements PushProcessorInterface
     protected function canProcessPendingPush(): bool
     {
         return false;
+    }
+
+    /**
+     * Set Specific Payment Details that will appear under the Payment Method Name on Order
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function setSpecificPaymentDetails(): void
+    {
+        $specificPaymentDetails = $this->getSpecificPaymentDetails();
+        if (!empty($specificPaymentDetails)) {
+            $this->payment->setAdditionalInformation('specific_payment_details', $specificPaymentDetails);
+        }
+    }
+
+    /**
+     * Return Specific details that will appear on order payment details in admin
+     *
+     * @return array
+     */
+    protected function getSpecificPaymentDetails(): array
+    {
+        return [];
     }
 }

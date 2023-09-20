@@ -36,10 +36,8 @@ class InvoicePlugin
             $invoice->setData('transfer_accountholdername', $transfer_details['transfer_accountholdername']);
             $invoice->setData('transfer_iban', $transfer_details['transfer_iban']);
             $invoice->setData('transfer_bic', $transfer_details['transfer_bic']);
-
         }
 
         return [$invoices];
     }
-
 }

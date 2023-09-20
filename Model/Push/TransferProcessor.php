@@ -127,4 +127,16 @@ class TransferProcessor extends DefaultProcessor
             'transfer_bic' => $this->pushRequest->getServiceTransferBic(),
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getSpecificPaymentDetails(): array
+    {
+        return [
+            'customer_account_name' => $this->pushRequest->getServiceTransferCustomeraccountname(),
+            'customer_bic' => $this->pushRequest->getServiceTransferCustomerbic(),
+            'customer_iban' => $this->pushRequest->getServiceTransferCustomeriban()
+        ];
+    }
 }
