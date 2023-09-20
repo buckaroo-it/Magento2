@@ -249,7 +249,17 @@ define(
 
                     this.billingName = ko.computed(
                         function () {
-                            return this.activeAddress().firstname + " " + this.activeAddress().lastname;
+                            let firstname = this.activeAddress().firstname;
+                            if (firstname === undefined) {
+                                firstname = '';
+                            }
+
+
+                            let lastname = this.activeAddress().lastname;
+                            if (lastname === undefined) {
+                                lastname = '';
+                            }
+                            return firstname + " " + lastname;
                         },
                         this
                     );
