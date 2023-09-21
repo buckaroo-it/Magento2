@@ -3339,7 +3339,7 @@
             <argument name="requestBuilder" xsi:type="object">TransferOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionPay</argument>
-            <argument name="handler" xsi:type="object">OrderWithCreditManagementResponseHandler</argument>
+            <argument name="handler" xsi:type="object">TransferResponseHandler</argument>
             <argument name="validator" xsi:type="object">
                 Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator
             </argument>
@@ -3359,6 +3359,16 @@
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CountryDataBuilder</item>
                 <item name="transfer_config_params" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TransferOrderDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="TransferResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">OrderResponseHandler</item>
+                <item name="credit_management" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler</item>
+                <item name="transfer_details" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TransferDetailsHandler</item>
             </argument>
         </arguments>
     </virtualType>
