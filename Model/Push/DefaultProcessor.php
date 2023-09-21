@@ -1059,23 +1059,8 @@ class DefaultProcessor implements PushProcessorInterface
 
         $description = 'Payment Push Status: ' . $statusMessage;
         $transferDetails = $this->getTransferDetails();
-        $this->logger->addDebug(sprintf(
-            '[PUSH] | [Webapi] | [%s:%s] - Transfer Details | transferDetails: %s',
-            __METHOD__,
-            __LINE__,
-            var_export($transferDetails, true)
-        ));
         if (!empty($transferDetails)) {
             $this->payment->setAdditionalInformation('transfer_details', $transferDetails);
-            $this->logger->addDebug('Additional Information Set: ' . json_encode($this->payment->getAdditionalInformation()));
-            $this->payment->save();
-
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $paymentModel = $objectManager->create('Magento\Sales\Model\Order\Payment');
-            $fetchedPayment = $paymentModel->load($this->payment->getId());
-            $this->logger->addDebug('Fetched Additional Information: ' . json_encode($fetchedPayment->getAdditionalInformation()));
-
-
             foreach ($transferDetails as $key => $transferDetail) {
                 $description .= PHP_EOL . PHP_EOL . $key . ': ' . $transferDetail;
             }
