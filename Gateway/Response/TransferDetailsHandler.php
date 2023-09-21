@@ -52,12 +52,14 @@ class TransferDetailsHandler implements HandlerInterface
      */
     protected function getTransferDetails($transactionResponse): array
     {
+        $serviceParameters = $transactionResponse->getServiceParameters();
+
         return [
             'transfer_amount'            => $transactionResponse->getAmount(),
-            'transfer_paymentreference'  => $transactionResponse->getServiceTransferPaymentreference(),
-            'transfer_accountholdername' => $transactionResponse->getServiceTransferAccountholdername(),
-            'transfer_iban'              => $transactionResponse->getServiceTransferIban(),
-            'transfer_bic'               => $transactionResponse->getServiceTransferBic(),
+            'transfer_paymentreference'  => $serviceParameters['paymentreference'] ?? '',
+            'transfer_accountholdername' => $serviceParameters['accountholdername'] ?? '',
+            'transfer_iban'              => $serviceParameters['iban'] ?? '',
+            'transfer_bic'               => $serviceParameters['bic'] ?? '',
         ];
     }
 }
