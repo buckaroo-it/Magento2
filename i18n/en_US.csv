@@ -14,5 +14,13 @@
 "Email:","E-mail:"
 "Telephone","Phone number:"
 "Date of Birth:","Date of birth:"
+"Consumer Iban","Customer IBAN"
+"Consumer Name","Customer Account Holder Name"
+"Customer Account Name","Customer Account Holder Name"
+"Customer Bic","Customer BIC"
+"Customer Iban","Customer IBAN"
+"Transfer Amount","Transfer Amount"
 "Transfer Paymentreference","Transfer Payment Reference"
 "Transfer Accountholdername","Transfer Account Holder Name",
+"Transfer Iban","Transfer IBAN"
+"Transfer Bic","Transfer BIC"
