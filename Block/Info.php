@@ -186,6 +186,9 @@ class Info extends \Magento\Payment\Block\Info
     protected function _prepareSpecificInformation($transport = null): DataObject
     {
         $transport = parent::_prepareSpecificInformation($transport);
+        $transferDetails = $this->getInfo()->getAdditionalInformation('transfer_details');
+        var_dump(['transfer_details'=> $transferDetails], true);
+        $this->_logger->debug('transfer_details' . var_export($transferDetails, true));
         if ($transferDetails = $this->getInfo()->getAdditionalInformation('transfer_details')) {
             foreach ($transferDetails as $key => $transferDetail) {
                 $transport->setData(

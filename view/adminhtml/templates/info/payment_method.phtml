@@ -69,6 +69,17 @@ if ($method = $block->getPayPerEmailMethod()) {?>
     </div>
 <?php endif; ?>
 
+<p>TESTTSTTTTT</p>
+
+<?php
+try {
+    $specificPaymentDetails = $block->getSpecificInformation();
+    var_dump($specificPaymentDetails, true);
+} catch (\Exception $exception) {
+    var_dump($exception->getMessage(), true);
+}
+?>
+
 <?php if ($specificPaymentDetails = $block->getSpecificInformation()) : ?>
     <div class="bk-payment-wrap">
         <?php foreach ($specificPaymentDetails as $label => $value) : ?>

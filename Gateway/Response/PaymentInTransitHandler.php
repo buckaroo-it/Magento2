@@ -45,8 +45,34 @@ class PaymentInTransitHandler implements HandlerInterface
 
         /** @var TransactionResponse $transaction */
         $transactionResponse = SubjectReader::readTransactionResponse($response);
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $paymentModel = $objectManager->create('Magento\Sales\Model\Order\Payment');
+        $logger = $objectManager->create('Buckaroo\Magento2\Logging\BuckarooLoggerInterface');
+        $fetchedPayment = $paymentModel->load($payment->getId());
+        $logger->addDebug(sprintf(
+            '[HANDLE] | [Controller] | [%s:%s] - Fetched Additional Information: | additionalInformation: %s',
+            __METHOD__,
+            __LINE__,
+            json_encode($fetchedPayment->getAdditionalInformation())
+        ));
+
+        $logger->addDebug(sprintf(
+            '[HANDLE] | [Controller] | [%s:%s] - Get Payment Additional Information: | additionalInformation: %s',
+            __METHOD__,
+            __LINE__,
+            json_encode($payment->getAdditionalInformation())
+        ));
 
         $this->setPaymentInTransit($payment);
+
+        $fetchedPayment = $paymentModel->load($payment->getId());
+
+        $logger->addDebug(sprintf(
+            '[HANDLE] | [Controller] | [%s:%s] - AFTER Additional Information: | additionalInformation: %s',
+            __METHOD__,
+            __LINE__,
+            json_encode($fetchedPayment->getAdditionalInformation())
+        ));
 
         if (!$transactionResponse->hasRedirect()) {
             $this->setPaymentInTransit($payment, false);

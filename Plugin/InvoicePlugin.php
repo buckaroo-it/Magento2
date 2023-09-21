@@ -37,8 +37,11 @@ class InvoicePlugin
         foreach ($invoices as $invoice) {
             /** @var \Magento\Sales\Model\Order\Invoice $invoice */
             $transferDetails = $invoice->getOrder()->getPayment()->getAdditionalInformation('transfer_details');
-            foreach ($transferDetails as $key => $transferDetail) {
-                $invoice->setData($key, $transferDetail);
+
+            if (!empty($transferDetails) && is_array($transferDetails)) {
+                foreach ($transferDetails as $key => $transferDetail) {
+                    $invoice->setData($key, $transferDetail);
+                }
             }
         }
 

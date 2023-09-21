@@ -211,6 +211,17 @@ class Process extends Action implements HttpPostActionInterface
         }
 
         $this->payment = $this->order->getPayment();
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $paymentModel = $objectManager->create('Magento\Sales\Model\Order\Payment');
+        $fetchedPayment = $paymentModel->load($this->payment->getId());
+        $this->logger->addDebug('Fetched Additional Information: ' . json_encode($fetchedPayment->getAdditionalInformation()));
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT] | [Controller] | [%s:%s] - Fetched Additional Information: | additionalInformation: %s',
+            __METHOD__,
+            __LINE__,
+            json_encode($fetchedPayment->getAdditionalInformation())
+        ));
         if ($this->payment) {
             $this->setPaymentOutOfTransit($this->payment);
         }
@@ -260,7 +271,7 @@ class Process extends Action implements HttpPostActionInterface
      */
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment): void
     {
-        $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false)->save();
+        $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false);
     }
 
     /**
