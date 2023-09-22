@@ -37,6 +37,7 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_SECRET_KEY                      = 'buckaroo_magento2/account/secret_key';
     public const XPATH_ACCOUNT_MERCHANT_KEY                    = 'buckaroo_magento2/account/merchant_key';
     public const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'buckaroo_magento2/account/transaction_label';
+    public const XPATH_ACCOUNT_INVOICE_HANDLING                = 'buckaroo_magento2/account/invoice_handling';
     public const XPATH_ACCOUNT_REFUND_LABEL                    = 'buckaroo_magento2/account/refund_label';
     public const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL        = 'buckaroo_magento2/account/order_confirmation_email';
     public const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL_SYNC   =
@@ -304,6 +305,21 @@ class Account extends AbstractConfigProvider
      * @return mixed
      */
     public function getTransactionLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_TRANSACTION_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Create Invoice on Payment or on Shipment
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getInvoiceHandling($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_TRANSACTION_LABEL,

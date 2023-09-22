@@ -22,9 +22,11 @@ namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -47,10 +49,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @var Data
      */
     public $helper;
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig;
+
     /**
      *
      * @var CollectionFactory
@@ -75,14 +74,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @var BuckarooLoggerInterface
      */
     protected BuckarooLoggerInterface $logger;
+
     /**
-     * @var Klarnakp
+     * @var ConfigProviderFactory
      */
-    private $klarnakpConfig;
-    /**
-     * @var Afterpay20
-     */
-    private $afterpayConfig;
+    private ConfigProviderFactory $configProviderFactory;
 
     /**
      * @param CollectionFactory $invoiceCollectionFactory
@@ -99,8 +95,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         InvoiceService $invoiceService,
         ShipmentFactory $shipmentFactory,
         TransactionFactory $transactionFactory,
-        Klarnakp $klarnakpConfig,
-        Afterpay20 $afterpayConfig,
+        ConfigProviderFactory $configProviderFactory,
         Data $helper,
         BuckarooLoggerInterface $logger
     ) {
@@ -108,8 +103,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->invoiceService = $invoiceService;
         $this->shipmentFactory = $shipmentFactory;
         $this->transactionFactory = $transactionFactory;
-        $this->klarnakpConfig = $klarnakpConfig;
-        $this->afterpayConfig = $afterpayConfig;
+        $this->configProviderFactory = $configProviderFactory;
         $this->helper = $helper;
         $this->logger = $logger;
     }
@@ -129,18 +123,31 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $order = $shipment->getOrder();
         $payment = $order->getPayment();
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
-            && $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
-        ) {
+        /**
+         * @var Account $accountConfig
+         */
+        $accountConfig = $this->configProviderFactory->get('account');
+        if ($accountConfig->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
             $this->createInvoice($order, $shipment);
+            return;
         }
 
+        $klarnakpConfig = $this->configProviderFactory->get('klarnakp');
+        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
+            && $klarnakpConfig->isInvoiceCreatedAfterShipment()
+        ) {
+            $this->createInvoice($order, $shipment);
+            return;
+        }
+
+        $afterpayConfig = $this->configProviderFactory->get('afterpay20');
         if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20')
-            && $this->afterpayConfig->isInvoiceCreatedAfterShipment()
+            && $afterpayConfig->isInvoiceCreatedAfterShipment()
             && ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
         ) {
             $this->createInvoice($order, $shipment, true);
         }
+
     }
 
     /**

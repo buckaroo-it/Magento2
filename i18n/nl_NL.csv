@@ -452,3 +452,7 @@
 "E-mail","E-mail:"
 "Expiration:","Vervaldatum:"
 "Buckaroo Bancontact/Mister Cash","Buckaroo Bancontact"
+"Invoice handling","Factuurafhandeling"
+"Create Invoice on Payment","Factuur aanmaken bij een succesvolle betaling"
+"Create Invoice on Shipment","Factuur aanmaken bij het verzending"
+"Select the moment when the invoice should be created.","Selecteer het moment waarop de factuur moet worden aangemaakt."

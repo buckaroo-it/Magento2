@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2;
@@ -703,7 +704,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->dontSaveOrderUponSuccessPush = false;
 
-        if ($this->canPushInvoice()) {
+        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::PAYMENT && $this->canPushInvoice()) {
             $saveInvoice = $this->invoiceShouldBeSaved($paymentDetails);
             if ($saveInvoice && !$this->saveInvoice()) {
                 return false;
