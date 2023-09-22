@@ -42,6 +42,7 @@ use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
@@ -1057,12 +1058,12 @@ class DefaultProcessor implements PushProcessorInterface
             $this->orderRequestService->sendOrderEmail($this->order);
         }
 
-        $description = 'Payment Push Status: ' . $statusMessage;
+        $description = 'Payment Push Status: ' . __($statusMessage);
         $transferDetails = $this->getTransferDetails();
         if (!empty($transferDetails)) {
             $this->payment->setAdditionalInformation('transfer_details', $transferDetails);
             foreach ($transferDetails as $key => $transferDetail) {
-                $description .= PHP_EOL . PHP_EOL . $key . ': ' . $transferDetail;
+                $description .= '<br/><strong>' . $this->getLabel($key) . '</strong>: ' . $transferDetail;
             }
         }
 
@@ -1174,5 +1175,18 @@ class DefaultProcessor implements PushProcessorInterface
     protected function getSpecificPaymentDetails(): array
     {
         return [];
+    }
+
+    /**
+     * Returns label
+     *
+     * @param string $field
+     * @return Phrase
+     */
+    protected function getLabel(string $field)
+    {
+        $words = explode('_', $field);
+        $transformedWords = array_map('ucfirst', $words);
+        return __(implode(' ', $transformedWords));
     }
 }
