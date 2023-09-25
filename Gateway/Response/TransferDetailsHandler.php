@@ -41,9 +41,7 @@ class TransferDetailsHandler implements HandlerInterface
         $transactionResponse = SubjectReader::readTransactionResponse($response);
 
         $transferDetails = $this->getTransferDetails($transactionResponse);
-        if (!empty($transferDetails)) {
-            $payment->setAdditionalInformation('transfer_details', $transferDetails);
-        }
+        $payment->setAdditionalInformation('transfer_details', $transferDetails);
     }
 
     /**
