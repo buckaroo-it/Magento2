@@ -58,3 +58,24 @@ if ($method = $block->getPayPerEmailMethod()) {?>
         <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
     </div>
 </div>
+
+<?php if ($specificPaymentDetails = $block->getSpecificPaymentDetails()) : ?>
+    <div class="bk-payment-wrap">
+        <?php foreach ($specificPaymentDetails as $label => $value) : ?>
+            <?= $block->escapeHtml($label) ?>:
+            <?= $block->escapeHtml(implode(' ', $block->getValueAsArray($value))) ?>
+            <br>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<?php if ($specificPaymentDetails = $block->getSpecificInformation()) : ?>
+    <div class="bk-payment-wrap">
+        <?php foreach ($specificPaymentDetails as $label => $value) : ?>
+            <?= $block->escapeHtml($label) ?>:
+            <?= $block->escapeHtml(implode(' ', $block->getValueAsArray($value))) ?>
+            <br>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+

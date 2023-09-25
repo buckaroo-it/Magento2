@@ -37,7 +37,7 @@ class In3V3DataBuilder implements BuilderInterface
      * @param CapayableIn3 $capayableIn3Config
      */
     public function __construct(
-        CapayableIn3 $capayableIn3Config,
+        CapayableIn3 $capayableIn3Config
     ) {
         $this->capayableIn3Config = $capayableIn3Config;
     }

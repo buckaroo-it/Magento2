@@ -42,6 +42,7 @@ use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
@@ -655,7 +656,7 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         if (in_array($statusKey, $this->buckarooStatusCode->getPendingStatuses())) {
-            return $this->processPendingPaymentPush();
+            return $this->processPendingPaymentPush($newStatus, $statusMessage);
         }
 
         $this->orderRequestService->setOrderNotificationNote($statusMessage);
@@ -700,6 +701,8 @@ class DefaultProcessor implements PushProcessorInterface
         $paymentDetails = $this->getPaymentDetails($message);
         $paymentDetails['state'] = Order::STATE_PROCESSING;
         $paymentDetails['newStatus'] = $newStatus;
+
+        $this->setSpecificPaymentDetails();
 
         $this->dontSaveOrderUponSuccessPush = false;
 
@@ -1023,8 +1026,49 @@ class DefaultProcessor implements PushProcessorInterface
         return true;
     }
 
-    protected function processPendingPaymentPush(): bool
+    /**
+     * Transfer payment methods receive status pending for success order
+     *
+     * @param string|false|null $newStatus
+     * @param string $statusMessage
+     * @return bool
+     */
+    protected function processPendingPaymentPush($newStatus, string $statusMessage): bool
     {
+        if(!$this->canProcessPendingPush()) {
+            return true;
+        }
+
+        $this->logger->addDebug(
+            '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push'
+        );
+
+        $store = $this->order->getStore();
+        $paymentMethod = $this->payment->getMethodInstance();
+
+        if (!$this->order->getEmailSent()
+            && (
+                $this->configAccount->getOrderConfirmationEmail($store)
+                || $paymentMethod->getConfigData('order_email', $store)
+            )
+        ) {
+            $this->logger->addDebug(
+                '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL'
+            );
+            $this->orderRequestService->sendOrderEmail($this->order);
+        }
+
+        $description = 'Payment Push Status: ' . __($statusMessage);
+        $transferDetails = $this->getTransferDetails();
+        if (!empty($transferDetails)) {
+            $this->payment->setAdditionalInformation('transfer_details', $transferDetails);
+            foreach ($transferDetails as $key => $transferDetail) {
+                $description .= '<br/><strong>' . $this->getLabel($key) . '</strong>: ' . $transferDetail;
+            }
+        }
+
+        $this->orderRequestService->updateOrderStatus(Order::STATE_PENDING_PAYMENT, $newStatus, $description);
+
         return true;
     }
 
@@ -1091,5 +1135,58 @@ class DefaultProcessor implements PushProcessorInterface
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {
         return true;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getTransferDetails(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return bool
+     */
+    protected function canProcessPendingPush(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Set Specific Payment Details that will appear under the Payment Method Name on Order
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function setSpecificPaymentDetails(): void
+    {
+        $specificPaymentDetails = $this->getSpecificPaymentDetails();
+        if (!empty($specificPaymentDetails)) {
+            $this->payment->setAdditionalInformation('specific_payment_details', $specificPaymentDetails);
+        }
+    }
+
+    /**
+     * Return Specific details that will appear on order payment details in admin
+     *
+     * @return array
+     */
+    protected function getSpecificPaymentDetails(): array
+    {
+        return [];
+    }
+
+    /**
+     * Returns label
+     *
+     * @param string $field
+     * @return Phrase
+     */
+    protected function getLabel(string $field)
+    {
+        $words = explode('_', $field);
+        $transformedWords = array_map('ucfirst', $words);
+        return __(implode(' ', $transformedWords));
     }
 }

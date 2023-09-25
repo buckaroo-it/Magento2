@@ -148,4 +148,15 @@ class LockedPushProcessor extends DefaultProcessor
             );
         }
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getSpecificPaymentDetails(): array
+    {
+        return [
+            'consumer_iban' => $this->pushRequest->getServiceIdealConsumeriban(),
+            'consumer_name' => $this->pushRequest->getServiceIdealConsumername(),
+        ];
+    }
 }

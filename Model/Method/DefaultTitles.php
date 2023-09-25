@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +24,7 @@ namespace Buckaroo\Magento2\Model\Method;
 
 class DefaultTitles
 {
-    protected static $labels = [
+    protected static array $labels = [
         'afterpay' => 'Riverty | Afterpay',
         'afterpay2' => 'Riverty | Afterpay',
         'afterpay20' => 'Riverty | Afterpay',

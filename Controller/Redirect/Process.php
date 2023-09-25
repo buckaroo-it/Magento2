@@ -260,7 +260,7 @@ class Process extends Action implements HttpPostActionInterface
      */
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment): void
     {
-        $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false)->save();
+        $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false);
     }
 
     /**
