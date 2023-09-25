@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Model\Service;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as MethodFactory;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Magento\Framework\Exception\LocalizedException;

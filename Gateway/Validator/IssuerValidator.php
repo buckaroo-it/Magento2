@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;

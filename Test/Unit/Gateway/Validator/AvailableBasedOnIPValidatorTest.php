@@ -4,7 +4,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
 use Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnIPValidator;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Model\MethodInterface;

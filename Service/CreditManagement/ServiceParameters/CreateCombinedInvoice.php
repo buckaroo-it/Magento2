@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;

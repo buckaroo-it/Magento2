@@ -158,10 +158,29 @@
         </arguments>
     </type>
 
-
-    <type name="Buckaroo\Magento2\Model\ConfigProvider\Method\Factory">
+    <type name="Buckaroo\Magento2\Model\ConfigProvider\Factory">
         <arguments>
             <argument name="configProviders" xsi:type="array">
+                <item name="account" xsi:type="array">
+                    <item name="type" xsi:type="string">account</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Account</item>
+                </item>
+                <item name="states" xsi:type="array">
+                    <item name="type" xsi:type="string">states</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\States</item>
+                </item>
+                <item name="buckaroo_fee" xsi:type="array">
+                    <item name="type" xsi:type="string">buckaroo_fee</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee</item>
+                </item>
+                <item name="allowed_currencies" xsi:type="array">
+                    <item name="type" xsi:type="string">allowed_currencies</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies</item>
+                </item>
+                <item name="refund" xsi:type="array">
+                    <item name="type" xsi:type="string">refund</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Refund</item>
+                </item>
                 <item name="ideal" xsi:type="array">
                     <item name="type" xsi:type="string">ideal</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</item>
@@ -305,33 +324,6 @@
                 <item name="paybybank" xsi:type="array">
                     <item name="type" xsi:type="string">paybybank</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayByBank</item>
-                </item>
-            </argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Model\ConfigProvider\Factory">
-        <arguments>
-            <argument name="configProviders" xsi:type="array">
-                <item name="account" xsi:type="array">
-                    <item name="type" xsi:type="string">account</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Account</item>
-                </item>
-                <item name="states" xsi:type="array">
-                    <item name="type" xsi:type="string">states</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\States</item>
-                </item>
-                <item name="buckaroo_fee" xsi:type="array">
-                    <item name="type" xsi:type="string">buckaroo_fee</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee</item>
-                </item>
-                <item name="allowed_currencies" xsi:type="array">
-                    <item name="type" xsi:type="string">allowed_currencies</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies</item>
-                </item>
-                <item name="refund" xsi:type="array">
-                    <item name="type" xsi:type="string">refund</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Refund</item>
                 </item>
             </argument>
         </arguments>

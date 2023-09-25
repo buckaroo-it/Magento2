@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use PHPUnit\Framework\MockObject\MockObject;
 

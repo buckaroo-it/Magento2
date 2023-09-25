@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as MethodFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -322,7 +322,7 @@ class Account extends AbstractConfigProvider
     public function getInvoiceHandling($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_TRANSACTION_LABEL,
+            self::XPATH_ACCOUNT_INVOICE_HANDLING,
             ScopeInterface::SCOPE_STORE,
             $store
         );

@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Gateway\Request\CreditManagement;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Framework\ObjectManager\TMap;
 use Magento\Framework\ObjectManager\TMapFactory;
 use Magento\Payment\Gateway\Request\BuilderInterface;

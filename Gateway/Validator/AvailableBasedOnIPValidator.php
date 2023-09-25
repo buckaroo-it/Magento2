@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
 use Magento\Developer\Helper\Data;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;

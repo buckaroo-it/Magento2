@@ -24,7 +24,7 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;

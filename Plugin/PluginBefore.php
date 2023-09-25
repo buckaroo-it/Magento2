@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink;
 use Magento\Backend\Block\Widget\Button\ButtonList;
 use Magento\Backend\Block\Widget\Button\Toolbar;
