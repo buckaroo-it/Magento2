@@ -145,7 +145,7 @@ class Index extends \Magento\Backend\App\Action
         } else {
             $this->_messageManager->addSuccess(
                 __(
-                    'You PayLink <a href="%1">%1</a>',
+                    'Your PayLink <a href="%1">%1</a>',
                     $payLink
                 )
             );
