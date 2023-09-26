@@ -31,9 +31,9 @@ use Magento\Framework\View\Element\Template\Context;
 class Creditcard extends Info
 {
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $cardType;
+    protected ?string $cardType = null;
 
     /**
      * @var array
