@@ -56,13 +56,7 @@ class PhoneDataBuilder implements BuilderInterface
         $telephone = $paymentDO->getPayment()->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $address->getTelephone() : $telephone);
 
-        return [
-            'phone' => [
-                'phone' => $telephone,
-                'mobile' => $telephone,
-                'landline' => $telephone
-            ]
-        ];
+        return $this->returnPhoneDetails($telephone, $telephone);
     }
 
     /**
@@ -76,5 +70,21 @@ class PhoneDataBuilder implements BuilderInterface
         return ($this->addressType == 'shipping')
             ? $order->getShippingAddress()
             : $order->getBillingAddress();
+    }
+
+    /**
+     * Return Phone Details
+     *
+     * @param string $telephone
+     * @param string $landline
+     * @return array[]
+     */
+    protected function returnPhoneDetails(string $telephone, string $landline = ''): array
+    {
+        return [
+            'phone' => [
+                'mobile' => $telephone
+            ]
+        ];
     }
 }
