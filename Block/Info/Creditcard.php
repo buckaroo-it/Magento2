@@ -36,9 +36,9 @@ class Creditcard extends Info
     protected ?string $cardType = null;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected array $mpiStatus;
+    protected ?array $mpiStatus = null;
 
     /**
      * @var ConfigProviderCreditcard
