@@ -114,10 +114,7 @@ class Idin extends \Magento\Framework\App\Action\Action
             ->setIssuer($issuer)
             ->build();
 
-        return $this->gateway
-            ->setMode(
-                $this->transactionBuilder->getMode()
-            )
+        return $this->gateway->setMode($this->transactionBuilder->getMode())
             ->authorize($transaction)[0];
     }
 }
