@@ -106,13 +106,16 @@ class PayLink extends AbstractConfigProvider
     }
 
     /**
+     * @param null|int $storeId
+     *
      * @return bool
      */
-    public function getSendMail()
+    public function getSendMail($storeId = null)
     {
         $sendMail = $this->scopeConfig->getValue(
             self::XPATH_PAYLINK_SEND_MAIL,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
         );
 
         return $sendMail ? true : false;

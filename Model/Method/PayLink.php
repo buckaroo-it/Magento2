@@ -220,6 +220,7 @@ class PayLink extends AbstractMethod
         $config = $this->configProviderMethodFactory->get('paylink');
 
         $order = $payment->getOrder();
+        $store = $payment->getMethodInstance()->getStore();
 
         $services = [
             'Name'             => 'payperemail',
@@ -243,11 +244,11 @@ class PayLink extends AbstractMethod
                     'Name' => 'CustomerLastName',
                 ],
                 [
-                    '_'    => $config->getSendMail() ? 'false' : 'true',
+                    '_'    => $config->getSendMail($store) ? 'false' : 'true',
                     'Name' => 'MerchantSendsEmail',
                 ],
                 [
-                    '_'    => $config->getPaymentMethod(),
+                    '_'    => $config->getPaymentMethod($store),
                     'Name' => 'PaymentMethodsAllowed',
                 ],
             ],
