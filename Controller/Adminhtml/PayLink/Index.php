@@ -78,6 +78,8 @@ class Index extends \Magento\Backend\App\Action
 
         $config = $this->configProviderMethodFactory->get('paylink');
 
+        $payment = $order->getPayment();
+        $store = $payment->getMethodInstance()->getStore();
         $services = [
             'Name'             => 'payperemail',
             'Action'           => 'PaymentInvitation',
@@ -104,13 +106,12 @@ class Index extends \Magento\Backend\App\Action
                     'Name' => 'CustomerLastName',
                 ],
                 [
-                    '_'    => $config->getPaymentMethod(),
+                    '_'    => $config->getPaymentMethod($store),
                     'Name' => 'PaymentMethodsAllowed',
                 ],
             ]
         ];
 
-        $payment = $order->getPayment();
         $currentPayment = $payment->getMethod();
         $payment->setMethod('buckaroo_magento2_payperemail');
         $payment->save();
