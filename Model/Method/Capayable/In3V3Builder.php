@@ -61,9 +61,7 @@ class In3V3Builder
      *
      * @return void
      */
-    protected function getShippingAddress(
-        Address $shippingAddress,
-    ): array
+    protected function getShippingAddress(Address $shippingAddress): array
     {
         $i = 1;
 
