@@ -78,6 +78,8 @@ class PhoneDataBuilder implements BuilderInterface
      * @param string $telephone
      * @param string $landline
      * @return array[]
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function returnPhoneDetails(string $telephone, string $landline = ''): array
     {
