@@ -105,7 +105,7 @@ class PushProcessorsFactory
         $pushProcessorClass = $this->pushProcessors['default'];
 
         // Set Push Processor by Payment Method
-        $paymentMethod = $pushTransactionType->getPaymentMethod();
+        $paymentMethod = strtolower($pushTransactionType->getPaymentMethod());
         $pushProcessorClass = $this->pushProcessors[$paymentMethod] ?? $pushProcessorClass;
 
         if ($pushTransactionType->isFromPayPerEmail()) {

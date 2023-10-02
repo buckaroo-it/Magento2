@@ -35,7 +35,7 @@ class DefaultTitles
         'creditcards' => 'Credit or Debit card',
         'ideal' => 'iDEAL',
         'idealprocessing' => 'iDEAL',
-        'mrcash' => 'Bancontact/Mister Cash',
+        'mrcash' => 'Buckaroo Bancontact',
         'paypal' => 'PayPal',
         'payconiq' => 'Payconiq',
         'sepadirectdebit' => 'SEPA Direct Debit',

@@ -453,3 +453,4 @@
 "Transfer Iban","Überweisungs-IBAN"
 "Transfer Bic","Überweisungs-BIC"
 "Waiting on consumer action","Warten auf den Kunden"
+"Transaction declined by processor: BAD_VALUE: Bad value: billing_address.family_name, shipping_address.family_name","Leider können wir Klarna derzeit nicht anbieten. Bitte wählen Sie eine andere Zahlungsmethode, um Ihren Kauf abzuschließen."
