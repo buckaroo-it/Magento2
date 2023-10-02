@@ -1398,6 +1398,7 @@
         <arguments>
             <argument name="handlers" xsi:type="array">
                 <item name="authorize" xsi:type="string">AuthorizeResponseHandler</item>
+                <item name="reservationNumber" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ReservationNumberHandler</item>
             </argument>
         </arguments>
     </virtualType>

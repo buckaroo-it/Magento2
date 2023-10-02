@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\Request\Http;
@@ -116,6 +117,13 @@ class ResponseCodeSDKValidator extends AbstractValidator
                 [$statusCode]
             );
         } else {
+            $payment = SubjectReader::readPayment($validationSubject)->getPayment();
+            $methodInstanceClass = $payment->getMethodInstance();
+
+            if ($methodInstanceClass->getCode() == 'buckaroo_magento2_klarnakp') {
+                $methodInstanceClass::$requestOnVoid = false;
+            }
+
             $message = !empty($this->transaction->getSomeError()) ?
                 $this->transaction->getSomeError()
                 : 'Gateway rejected the transaction.';

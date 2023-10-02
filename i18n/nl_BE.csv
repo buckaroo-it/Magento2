@@ -455,3 +455,4 @@
 "Transfer Bic","BIC van de ontvanger"
 "Waiting on consumer action","Wachten op de consument"
 "Bancontact/Mister Cash","Buckaroo Bancontact"
+"Transaction declined by processor: BAD_VALUE: Bad value: billing_address.family_name, shipping_address.family_name","Malheureusement, nous ne pouvons pas proposer Klarna pour le moment. Veuillez choisir un autre mode de paiement pour finaliser votre achat."
