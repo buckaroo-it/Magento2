@@ -118,7 +118,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'imgName' => 'triodos'
         ],
         [
-            'name' => 'Van Lanschot',
+            'name' => 'Van Lanschot Kempen',
             'code' => 'FVLBNL22',
             'imgName' => 'vanlanschot'
         ],
@@ -137,6 +137,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'code' => 'NTSBDEB1',
             'imgName' => 'n26'
         ],
+        [
+            'name' => 'Nationale Nederlanden',
+            'code' => 'NNBANL2G',
+            'imgName' => 'nn'
+        ]
     ];
 
     /**

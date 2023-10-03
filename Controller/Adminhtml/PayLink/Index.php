@@ -90,6 +90,14 @@ class Index extends Action implements HttpGetActionInterface
         $payment->save();
         $order->save();
 
+        $transactionBuilder = $this->transactionBuilderFactory->get('order');
+
+        $transactionBuilder->setOrder($order)
+            ->setServices($services)
+            ->setAdditionalParameter('fromPayLink', 1)
+            ->setAdditionalParameter('fromPayPerEmail', 1)
+            ->setMethod('TransactionRequest');
+
         try {
             $commandExecutor = $this->commandManagerPool->get('buckaroo');
 
@@ -101,9 +109,20 @@ class Index extends Action implements HttpGetActionInterface
                 ]
             );
         } catch (NotFoundException|CommandException $exception) {
-            $this->messageManager->addErrorMessage($exception->getMessage());
+                $this->messageManager->addErrorMessage($exception->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage(__('Something went wrong creating pay link.'));
+            $this->_messageManager->addErrorMessage($e->getMessage());
+        }
+
+        if (empty($payLink)) {
+            $this->_messageManager->addErrorMessage('Error creating PayLink');
+        } else {
+            $this->_messageManager->addSuccess(
+                __(
+                    'Your PayLink <a href="%1">%1</a>',
+                    $payLink
+                )
+            );
         }
 
         $payment = $order->getPayment();

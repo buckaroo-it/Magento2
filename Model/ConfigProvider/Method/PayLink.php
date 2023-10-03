@@ -95,13 +95,15 @@ class PayLink extends AbstractConfigProvider
     /**
      * Can send mail by email
      *
+     * @param null|int $storeId
      * @return bool
      */
-    public function hasSendMail(): bool
+    public function hasSendMail($storeId = null): bool
     {
         $sendMail = $this->scopeConfig->getValue(
             PayPerEmail::XPATH_PAYPEREMAIL_SEND_MAIL,
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE,
+            $storeId
         );
 
         return (bool)$sendMail;

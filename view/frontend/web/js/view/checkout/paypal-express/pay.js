@@ -17,48 +17,46 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 define([
-    "jquery",
-    "ko",
-    "mage/url",
-    "Magento_Customer/js/customer-data",
-    "Buckaroo_Magento2/js/action/paypal-express",
-    "mage/translate",
-    ,
+  "jquery",
+  "ko",
+  "mage/url",
+  "Magento_Customer/js/customer-data",
+  "BuckarooSDK",
+  'mage/translate',
 ], function ($, ko, urlBuilder, customerData, sdk, __) {
-    // 'use strict';
-    return {
-        setConfig(config, page) {
-            this.page = page;
-            if (this.page === "cart") {
-                require(["Magento_Checkout/js/model/quote"], function (quote) {
-                    quote.totals.subscribe((totalData) => {
-                        sdk.setAmount((
-                            totalData.grand_total + totalData.tax_amount
-                        ).toFixed(2));
-                        sdk.setCurrency(totalData.quote_currency_code);
-                    });
-                });
-            }
-            this.options = Object.assign(
-                {
-                    containerSelector: ".buckaroo-paypal-express",
-                    buckarooWebsiteKey: "",
-                    paypalMerchantId: "",
-                    currency: "EUR",
-                    amount: 0.1,
-                    createPaymentHandler: this.createPaymentHandler.bind(this),
-                    onShippingChangeHandler: this.onShippingChangeHandler.bind(this),
-                    onSuccessCallback: this.onSuccessCallback.bind(this),
-                    onErrorCallback: this.onErrorCallback.bind(this),
-                    onCancelCallback: this.onCancelCallback.bind(this),
-                    onInitCallback: this.onInitCallback.bind(this),
-                    onClickCallback: this.onClickCallback.bind(this),
-                },
-                config
-            );
-        },
+  // 'use strict';
+  return {
+    setConfig(config, page) {
+      this.page = page;
+      if (this.page === 'cart') {
+        const self = this;
+        require(["Magento_Checkout/js/model/quote"], function (quote) {
+          quote.totals.subscribe((totalData) => {
+            self.options.amount = (totalData.grand_total + totalData.tax_amount).toFixed(2);
+            self.options.currency = totalData.quote_currency_code;
+          })
+        })
+      }
 
-        result: null,
+      this.options = Object.assign(
+        {
+          containerSelector: ".buckaroo-paypal-express",
+          buckarooWebsiteKey: "",
+          paypalMerchantId: "",
+          currency: "EUR",
+          amount: 0.1,
+          createPaymentHandler: this.createPaymentHandler.bind(this),
+          onShippingChangeHandler: this.onShippingChangeHandler.bind(this),
+          onSuccessCallback: this.onSuccessCallback.bind(this),
+          onErrorCallback: this.onErrorCallback.bind(this),
+          onCancelCallback: this.onCancelCallback.bind(this),
+          onInitCallback: this.onInitCallback.bind(this),
+          onClickCallback: this.onClickCallback.bind(this),
+        },
+        config
+      );
+    },
+    result: null,
 
         cart_id: null,
         /**
@@ -131,80 +129,71 @@ define([
             sdk.initiate(this.options);
         },
 
-        /**
-         * Create order and do payment
-         * @param {string} orderId
-         * @returns Promise
-         */
-        createTransaction(orderId) {
-            const cart_id = this.cart_id;
-            return new Promise((resolve, reject) => {
-                $.post(
-                    urlBuilder.build(
-                        "rest/default/V1/buckaroo/paypal-express/order/create"
-                    ),
-                    {
-                        paypal_order_id: orderId,
-                        cart_id,
-                    }
-                ).then(
-                    (response) => {
-                    this.result = response;
-                    resolve(response);
-                    },
-                    (reason) => reject(reason)
-                );
-            });
-        },
+    /**
+     * Create order and do payment
+     * @param {string} orderId
+     * @returns Promise
+     */
+    createTransaction(orderId) {
+      const cart_id = this.cart_id;
+      return new Promise((resolve, reject) => {
+        $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/order/create"),
+          {
+            paypal_order_id: orderId,
+            cart_id
+          }).then(
+            (response) => {
+              this.result = response;
+              resolve(response);
+            },
+            (reason) => reject(reason)
+          );
+      });
+    },
 
-        /**
-         * Set shipping on cart and return new total
-         * @param {Object} data
-         * @returns
-         */
-        setShipping(data) {
-            return $.post(
-                urlBuilder.build(
-                    "rest/default/V1/buckaroo/paypal-express/quote/create"
-                ),
-                {
-                    shippingAddress: data.shipping_address,
-                    orderData: this.getOrderData(),
-                    page: this.page,
-                }
-            );
-        },
-        /**
-         * Get form data for product page to create cart
-         * @returns
-         */
-        getOrderData() {
-            let form = $("#product_addtocart_form");
-            if (this.page === "product") {
-                return form.serializeArray();
-            }
-        },
-        /**
-         * Display any validation errors we receive
-         * @param {string} message
-         */
-        displayErrorMessage(message) {
-            if (typeof message === "object") {
-                if (message.responseJSON && message.responseJSON.message) {
-                    message = __(message.responseJSON.message);
-                } else {
-                    message = __("Cannot create payment");
-                }
-            }
-            customerData.set("messages", {
-                messages: [
-                    {
-                        type: "error",
-                        text: message,
-                },
-                ],
-            });
-        },
-    };
+    /**
+     * Set shipping on cart and return new total
+     * @param {Object} data
+     * @returns
+     */
+    setShipping(data) {
+      return $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/quote/create"), {
+        shipping_address: data.shipping_address,
+        order_data: this.getOrderData(),
+        page: this.page,
+      });
+    },
+    /**
+     * Get form data for product page to create cart
+     * @returns
+     */
+    getOrderData() {
+      let form = $("#product_addtocart_form");
+      if (this.page === 'product') {
+        return form.serializeArray();
+      }
+    },
+    /**
+     * Display any validation errors we receive
+     * @param {string} message
+     */
+    displayErrorMessage(message) {
+      if (typeof message === "object") {
+        if (message.responseJSON && message.responseJSON.message) {
+          message = __(message.responseJSON.message);
+        } else {
+          message = __("Cannot create payment");
+        }
+
+      }
+      customerData.set('messages', {
+        messages: [{
+          type: 'error',
+          text: message
+        }]
+      });
+
+    },
+  };
 });
 
