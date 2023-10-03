@@ -56,6 +56,7 @@ class Process extends Action implements HttpPostActionInterface
 {
     private const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
     'Please try again. If this error persists, please choose a different payment method.';
+
     /**
      * @var Order $order
      */
@@ -260,7 +261,7 @@ class Process extends Action implements HttpPostActionInterface
      */
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment): void
     {
-        $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false)->save();
+        $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false);
     }
 
     /**

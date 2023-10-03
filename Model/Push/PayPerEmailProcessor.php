@@ -449,4 +449,12 @@ class PayPerEmailProcessor extends LockedPushProcessor
         }
         return true;
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function canProcessPendingPush(): bool
+    {
+        return true;
+    }
 }

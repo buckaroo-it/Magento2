@@ -446,4 +446,15 @@
 "Create Invoice on Payment","Rechnung erstellen bei Zahlung"
 "Create Invoice on Shipment","Rechnung erstellen bei Versand"
 "Select the moment when the invoice should be created.","Wählen Sie den Zeitpunkt aus, zu dem die Rechnung erstellt werden soll."
-
+"Consumer Iban","Kunden-IBAN"
+"Consumer Name","Kundenkontoinhabername"
+"Customer Account Name","Kundenkontoinhabername"
+"Customer Bic","Kunden-BIC"
+"Customer Iban","Kunden-IBAN"
+"Transfer Amount","Überweisungsbetrag"
+"Transfer Paymentreference","Überweisungsverwendungsangabe"
+"Transfer Accountholdername","Name des Überweisungskontoinhabers",
+"Transfer Iban","Überweisungs-IBAN"
+"Transfer Bic","Überweisungs-BIC"
+"Waiting on consumer action","Warten auf den Kunden"
+"Transaction declined by processor: BAD_VALUE: Bad value: billing_address.family_name, shipping_address.family_name","Leider können wir Klarna derzeit nicht anbieten. Bitte wählen Sie eine andere Zahlungsmethode, um Ihren Kauf abzuschließen."

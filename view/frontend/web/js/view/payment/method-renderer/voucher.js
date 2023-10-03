@@ -30,8 +30,7 @@ define(
         'Magento_Ui/js/modal/alert',
         'mage/url',
         'mage/translate',
-        'buckaroo/checkout/common',
-        'Magento_Checkout/js/action/get-totals'
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -44,8 +43,7 @@ define(
         alert,
         url,
         $t,
-        checkoutCommon,
-        getTotalsAction
+        checkoutCommon
     ) {
         'use strict';
 
@@ -87,7 +85,7 @@ define(
                         const voucherCode = this.code();
                         let self = this;
                         $.ajax({
-                            url: url.build('rest/default/V1/buckaroo/voucher/apply'),
+                            url: url.build(`rest/V1/buckaroo/voucher/apply`),
                             type: 'POST',
                             dataType: 'json',
                             showLoader: true, //use for display loader
@@ -103,15 +101,10 @@ define(
                                 self.displayErrorModal(self, data.error);
                             } else {
                                 if (data.remainder_amount != 0) {
-                                    /* Totals summary reloading */
-                                    getTotalsAction([]);
                                     alert({
                                         title: $t('Success'),
                                         content: $t(data.message),
-                                        actions: {
-                                            always: function () {
-                                            }
-                                        },
+                                        actions: { always: function () { } },
                                         buttons: [{
                                             text: $t(data.remaining_amount_message),
                                             class: 'action primary accept',
@@ -121,7 +114,7 @@ define(
                                         }]
                                     });
                                 }
-                                self.messageContainer.addSuccessMessage({'message': $t(data.message)});
+                                self.messageContainer.addSuccessMessage({ 'message': $t(data.message) });
                             }
                         }).fail((err) => {
                             if (err.responseJSON && err.responseJSON.message) {

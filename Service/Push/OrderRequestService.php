@@ -146,10 +146,10 @@ class OrderRequestService
      * by using its own transaction key.
      *
      * @param $pushRequest
-     * @return OrderPayment
+     * @return OrderPayment|Order
      * @throws \Exception
      */
-    protected function getOrderByTransactionKey($pushRequest): OrderPayment
+    protected function getOrderByTransactionKey($pushRequest)
     {
         $trxId = $this->getTransactionKey($pushRequest);
 

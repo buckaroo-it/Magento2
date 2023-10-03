@@ -122,6 +122,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
         $order = $shipment->getOrder();
         $payment = $order->getPayment();
+        $paymentMethod = $payment->getMethodInstance();
 
         /**
          * @var Account $accountConfig
@@ -133,7 +134,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         }
 
         $klarnakpConfig = $this->configProviderFactory->get('klarnakp');
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
+        if (($paymentMethod->getCode() == 'buckaroo_magento2_klarnakp')
             && $klarnakpConfig->isInvoiceCreatedAfterShipment()
         ) {
             $this->createInvoice($order, $shipment);
@@ -141,9 +142,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
         }
 
         $afterpayConfig = $this->configProviderFactory->get('afterpay20');
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20')
+        if (($paymentMethod->getCode() == 'buckaroo_magento2_afterpay20')
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
-            && ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
+            && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
             $this->createInvoice($order, $shipment, true);
         }

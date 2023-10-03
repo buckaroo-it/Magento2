@@ -37,6 +37,10 @@
             <comment><![CDATA[Select which payment methods can be used at PayLink.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayLink</source_model>
             <config_path>payment/buckaroo_magento2_paylink/payment_method</config_path>
+            <validate>required-entry</validate>
+            <depends>
+                <field id="active">1</field>
+            </depends>
         </field>
 
     </group>

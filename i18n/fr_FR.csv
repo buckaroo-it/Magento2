@@ -446,4 +446,15 @@
 "Create Invoice on Payment","Créer une facture lors du paiement"
 "Create Invoice on Shipment","Créer une facture lors de l'expédition"
 "Select the moment when the invoice should be created.","Sélectionnez le moment où la facture devrait être créée."
-
+"Consumer Iban","IBAN du client"
+"Consumer Name","Nom du titulaire du compte client"
+"Customer Account Name","Nom du titulaire du compte client"
+"Customer Bic","BIC du client"
+"Customer Iban","IBAN du client"
+"Transfer Amount","Montant du transfert"
+"Transfer Paymentreference","Référence de paiement du transfert"
+"Transfer Accountholdername","Nom du titulaire du compte du transfert",
+"Transfer Iban","IBAN du transfert"
+"Transfer Bic","BIC du transfert"
+"Waiting on consumer action","En attente du consommateur"
+"Transaction declined by processor: BAD_VALUE: Bad value: billing_address.family_name, shipping_address.family_name","Malheureusement, nous ne pouvons pas proposer Klarna pour le moment. Veuillez choisir un autre mode de paiement pour finaliser votre achat."

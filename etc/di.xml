@@ -85,6 +85,10 @@
         <plugin name="buckaroo_magento2_add_creditmemo_extension_attributes" type="Buckaroo\Magento2\Plugin\CreditmemoExtensionAttribute" />
     </type>
 
+    <type name="Magento\Sales\Model\Order\Pdf\Invoice">
+        <plugin name="add_custom_variable_to_invoice" type="Buckaroo\Magento2\Plugin\InvoicePlugin" />
+    </type>
+
     <type name="Magento\Sales\Model\Order">
         <plugin name="buckaroo_magento2_plugin_afterpay" type="Buckaroo\Magento2\Plugin\Method\Afterpay"/>
         <plugin name="buckaroo_magento2_plugin_afterpay2" type="Buckaroo\Magento2\Plugin\Method\Afterpay2"/>
@@ -1386,6 +1390,7 @@
         <arguments>
             <argument name="handlers" xsi:type="array">
                 <item name="authorize" xsi:type="string">AuthorizeResponseHandler</item>
+                <item name="reservationNumber" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ReservationNumberHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2443,7 +2448,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayDataBuilder</item>
                 <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
+                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneLandlineDataBuilder</item>
                 <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
         </arguments>
@@ -2454,13 +2459,19 @@
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">AfterpayShippingRecipientDataBuilder</item>
                 <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
+                <item name="phone" xsi:type="string">PhoneLandlineShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
 
     <virtualType name="AfterpayShippingRecipientDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayDataBuilder">
+        <arguments>
+            <argument name="addressType" xsi:type="string">shipping</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="PhoneLandlineShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Address\PhoneLandlineDataBuilder">
         <arguments>
             <argument name="addressType" xsi:type="string">shipping</argument>
         </arguments>
@@ -3327,7 +3338,7 @@
             <argument name="requestBuilder" xsi:type="object">TransferOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionPay</argument>
-            <argument name="handler" xsi:type="object">OrderWithCreditManagementResponseHandler</argument>
+            <argument name="handler" xsi:type="object">TransferResponseHandler</argument>
             <argument name="validator" xsi:type="object">
                 Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator
             </argument>
@@ -3347,6 +3358,16 @@
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CountryDataBuilder</item>
                 <item name="transfer_config_params" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TransferOrderDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="TransferResponseHandler"  type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="response" xsi:type="string">OrderResponseHandler</item>
+                <item name="credit_management" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler</item>
+                <item name="transfer_details" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TransferDetailsHandler</item>
             </argument>
         </arguments>
     </virtualType>

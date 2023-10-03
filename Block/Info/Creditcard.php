@@ -31,14 +31,14 @@ use Magento\Framework\View\Element\Template\Context;
 class Creditcard extends Info
 {
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $cardType;
+    protected ?string $cardType = null;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected array $mpiStatus;
+    protected ?array $mpiStatus = null;
 
     /**
      * @var ConfigProviderCreditcard

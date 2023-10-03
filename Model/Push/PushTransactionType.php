@@ -135,7 +135,8 @@ class PushTransactionType
             $this->pushRequest = $pushRequest;
             $this->order = $order;
 
-            $this->paymentMethod = $this->pushRequest->getTransactionMethod() ?? '';
+            $this->paymentMethod = $this->pushRequest->getTransactionMethod() ??
+                $this->pushRequest->getPrimaryService() ?? '';
             $this->pushType = $this->getPushTypeByInvoiceKey();
             $this->statusCode = $this->getStatusCodeByTransactionType($this->pushType);
             $this->statusMessage = $this->buckarooStatusCode->getResponseMessage($this->statusCode);

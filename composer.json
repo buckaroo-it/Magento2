@@ -20,7 +20,7 @@
         "email": "support@buckaroo.nl",
         "issues": "https://support.buckaroo.nl/contact",
         "wiki": "https://support.buckaroo.nl",
-        "docs": "https://support.buckaroo.nl"
+        "docs": "https://docs.buckaroo.io/"
     },
     "homepage": "https://www.buckaroo.nl",
     "version" : "v2.0.0-RC1",
