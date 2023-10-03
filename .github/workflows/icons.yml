@@ -1,9 +1,9 @@
 name: Icon update
 on:
   push:
-    branches: [ develop ]
+    branches: [develop, feature/payment_provider_gateway]
   pull_request:
-    branches: [ develop ]
+    branches: [develop, feature/payment_provider_gateway]
   workflow_dispatch:
 jobs:
   build:
