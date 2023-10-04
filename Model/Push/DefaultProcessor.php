@@ -707,7 +707,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->dontSaveOrderUponSuccessPush = false;
 
-        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::PAYMENT && $this->canPushInvoice()) {
+        if ($this->canPushInvoice()) {
             $saveInvoice = $this->invoiceShouldBeSaved($paymentDetails);
             if ($saveInvoice && !$this->saveInvoice()) {
                 return false;
@@ -851,6 +851,10 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         $this->addTransactionData();
+
+        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            return true;
+        }
 
         //Fix for suspected fraud when the order currency does not match with the payment's currency
         $amount = ($this->payment->isSameCurrency()

@@ -21,18 +21,23 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order\ShipmentFactory;
@@ -45,31 +50,48 @@ use Magento\Sales\Model\Service\InvoiceService;
 class SalesOrderShipmentAfter implements ObserverInterface
 {
     public const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
+
+    /**
+     * @var Shipment
+     */
+    private Shipment $shipment;
+
+    /**
+     * @var Order
+     */
+    private Order $order;
+
+    /**
+     * @var OrderPaymentInterface|null
+     */
+    private ?OrderPaymentInterface $payment;
+
     /**
      * @var Data
      */
-    public $helper;
+    public Data $helper;
 
     /**
      *
      * @var CollectionFactory
      */
     protected $invoiceCollectionFactory;
+
     /**
-     *
      * @var InvoiceService
      */
-    protected $invoiceService;
+    protected InvoiceService $invoiceService;
+
     /**
-     *
      * @var ShipmentFactory
      */
-    protected $shipmentFactory;
+    protected ShipmentFactory $shipmentFactory;
+
     /**
-     *
      * @var TransactionFactory
      */
-    protected $transactionFactory;
+    protected TransactionFactory $transactionFactory;
+
     /**
      * @var BuckarooLoggerInterface
      */
@@ -81,14 +103,30 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private ConfigProviderFactory $configProviderFactory;
 
     /**
+     * @var Account
+     */
+    private Account $configAccount;
+
+    /**
+     * @var PaymentGroupTransaction
+     */
+    private PaymentGroupTransaction $groupTransaction;
+
+    /**
+     * @var InvoiceSender
+     */
+    private InvoiceSender $invoiceSender;
+
+    /**
      * @param CollectionFactory $invoiceCollectionFactory
      * @param InvoiceService $invoiceService
      * @param ShipmentFactory $shipmentFactory
      * @param TransactionFactory $transactionFactory
-     * @param Klarnakp $klarnakpConfig
-     * @param Afterpay20 $afterpayConfig
+     * @param ConfigProviderFactory $configProviderFactory
      * @param Data $helper
      * @param BuckarooLoggerInterface $logger
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param InvoiceSender $invoiceSender
      */
     public function __construct(
         CollectionFactory $invoiceCollectionFactory,
@@ -97,7 +135,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
         TransactionFactory $transactionFactory,
         ConfigProviderFactory $configProviderFactory,
         Data $helper,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        PaymentGroupTransaction $groupTransaction,
+        InvoiceSender $invoiceSender
     ) {
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;
@@ -106,6 +146,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->configProviderFactory = $configProviderFactory;
         $this->helper = $helper;
         $this->logger = $logger;
+        $this->groupTransaction = $groupTransaction;
+        $this->invoiceSender = $invoiceSender;
     }
 
     /**
@@ -114,30 +156,21 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @param Observer $observer
      * @return void
      * @throws LocalizedException
+     * @throws \Exception
      */
     public function execute(Observer $observer)
     {
-        /** @var Shipment $shipment */
-        $shipment = $observer->getEvent()->getShipment();
+        $this->shipment = $observer->getEvent()->getShipment();
 
-        $order = $shipment->getOrder();
-        $payment = $order->getPayment();
-        $paymentMethod = $payment->getMethodInstance();
-
-        /**
-         * @var Account $accountConfig
-         */
-        $accountConfig = $this->configProviderFactory->get('account');
-        if ($accountConfig->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
-            $this->createInvoice($order, $shipment);
-            return;
-        }
+        $this->order = $this->shipment->getOrder();
+        $this->payment = $this->order->getPayment();
+        $paymentMethod = $this->payment->getMethodInstance();
 
         $klarnakpConfig = $this->configProviderFactory->get('klarnakp');
         if (($paymentMethod->getCode() == 'buckaroo_magento2_klarnakp')
             && $klarnakpConfig->isInvoiceCreatedAfterShipment()
         ) {
-            $this->createInvoice($order, $shipment);
+            $this->createInvoice();
             return;
         }
 
@@ -146,7 +179,13 @@ class SalesOrderShipmentAfter implements ObserverInterface
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
-            $this->createInvoice($order, $shipment, true);
+            $this->createInvoice( true);
+            return;
+        }
+
+        $this->configAccount = $this->configProviderFactory->get('account');
+        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            $this->createInvoiceGeneralSetting();
         }
 
     }
@@ -154,32 +193,30 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * Create invoice automatically after shipment
      *
-     * @param Order $order
-     * @param Shipment $shipment
      * @param bool $allowPartialsWithDiscount
      * @return InvoiceInterface|Invoice|null
      * @throws \Exception
      */
-    private function createInvoice(Order $order, Shipment $shipment, bool $allowPartialsWithDiscount = false)
+    private function createInvoice(bool $allowPartialsWithDiscount = false)
     {
         $this->logger->addDebug(sprintf(
             '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | orderDiscountAmount: %s',
             __METHOD__,
             __LINE__,
-            var_export($order->getDiscountAmount(), true)
+            var_export($this->order->getDiscountAmount(), true)
         ));
 
         try {
-            if (!$order->canInvoice()) {
+            if (!$this->order->canInvoice()) {
                 return null;
             }
 
-            if (!$allowPartialsWithDiscount && ($order->getDiscountAmount() < 0)) {
-                $invoice = $this->invoiceService->prepareInvoice($order);
+            if (!$allowPartialsWithDiscount && ($this->order->getDiscountAmount() < 0)) {
+                $invoice = $this->invoiceService->prepareInvoice($this->order);
                 $message = 'Automatically invoiced full order (can not invoice partials with discount)';
             } else {
-                $qtys = $this->getQtys($shipment);
-                $invoice = $this->invoiceService->prepareInvoice($order, $qtys);
+                $qtys = $this->getQtys($this->shipment);
+                $invoice = $this->invoiceService->prepareInvoice($this->order, $qtys);
                 $message = 'Automatically invoiced shipped items.';
             }
 
@@ -187,7 +224,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $invoice->register();
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);
-            $order->addStatusHistoryComment($message, false);
+            $this->order->addStatusHistoryComment($message, false);
             $transactionSave = $this->transactionFactory->create()->addObject($invoice)->addObject(
                 $invoice->getOrder()
             );
@@ -197,15 +234,15 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | orderStatus: %s',
                 __METHOD__,
                 __LINE__,
-                var_export($order->getStatus(), true)
+                var_export($this->order->getStatus(), true)
             ));
 
-            if ($order->getStatus() == 'complete') {
+            if ($this->order->getStatus() == 'complete') {
                 $description = 'Total amount of '
-                    . $order->getBaseCurrency()->formatTxt($order->getTotalInvoiced())
+                    . $this->order->getBaseCurrency()->formatTxt($this->order->getTotalInvoiced())
                     . ' has been paid';
-                $order->addStatusHistoryComment($description, false);
-                $order->save();
+                $this->order->addStatusHistoryComment($description, false);
+                $this->order->save();
             }
         } catch (\Exception $e) {
             $this->logger->addDebug(sprintf(
@@ -214,24 +251,74 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 __LINE__,
                 $e->getMessage()
             ));
-            $order->addStatusHistoryComment('Exception message: ' . $e->getMessage(), false);
-            $order->save();
+            $this->order->addStatusHistoryComment('Exception message: ' . $e->getMessage(), false);
+            $this->order->save();
             return null;
         }
 
         return $invoice;
     }
 
+    public function createInvoiceGeneralSetting() {
+        $this->logger->addDebug('[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
+
+        if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
+            $this->logger->addDebug(
+                '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced'
+            );
+
+            return false;
+        }
+
+        //Fix for suspected fraud when the order currency does not match with the payment's currency
+        $amount = ($this->payment->isSameCurrency()
+            && $this->payment->isCaptureFinal($this->order->getGrandTotal())) ?
+            $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
+        $this->payment->registerCaptureNotification($amount);
+        $this->payment->save();
+
+        $transactionKey = (string)$this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        if (strlen($transactionKey) <= 0) {
+            return true;
+        }
+
+        /** @var Invoice $invoice */
+        foreach ($this->order->getInvoiceCollection() as $invoice) {
+            $invoice->setTransactionId($transactionKey)->save();
+
+            if ($this->groupTransaction->isGroupTransaction($this->order->getIncrementId())) {
+                $this->logger->addDebug(
+                    '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Set invoice state PAID group transaction'
+                );
+                $invoice->setState(Invoice::STATE_PAID);
+            }
+
+            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+                $this->logger->addDebug(
+                    '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email '
+                );
+                $this->invoiceSender->send($invoice, true);
+            }
+        }
+
+        $this->order->setIsInProcess(true);
+        $this->order->save();
+
+        return true;
+    }
+
     /**
      * Get shipped quantities
      *
-     * @param Shipment $shipment
      * @return array
      */
-    public function getQtys(Shipment $shipment): array
+    public function getQtys(): array
     {
         $qtys = [];
-        foreach ($shipment->getItems() as $items) {
+        foreach ($this->shipment->getItems() as $items) {
             $qtys[$items->getOrderItemId()] = $items->getQty();
         }
         return $qtys;
