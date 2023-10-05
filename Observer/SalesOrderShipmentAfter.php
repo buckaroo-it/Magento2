@@ -184,10 +184,10 @@ class SalesOrderShipmentAfter implements ObserverInterface
         }
 
         $this->configAccount = $this->configProviderFactory->get('account');
-        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+        if (strpos($paymentMethod, 'buckaroo_magento2') !== false
+            && $this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
             $this->createInvoiceGeneralSetting();
         }
-
     }
 
     /**
