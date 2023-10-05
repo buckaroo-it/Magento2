@@ -260,11 +260,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
     }
 
     public function createInvoiceGeneralSetting() {
-        $this->logger->addDebug('[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
+        $this->logger->addDebug('[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
 
         if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
             $this->logger->addDebug(
-                '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced'
+                '[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced'
             );
 
             return false;
@@ -291,14 +291,14 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             if ($this->groupTransaction->isGroupTransaction($this->order->getIncrementId())) {
                 $this->logger->addDebug(
-                    '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Set invoice state PAID group transaction'
+                    '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Set invoice state PAID group transaction'
                 );
                 $invoice->setState(Invoice::STATE_PAID);
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
                 $this->logger->addDebug(
-                    '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email '
+                    '[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email '
                 );
                 $this->invoiceSender->send($invoice, true);
             }
