@@ -93,7 +93,7 @@ class Index extends Action implements HttpGetActionInterface
         try {
             $commandExecutor = $this->commandManagerPool->get('buckaroo');
 
-            $result = $commandExecutor->executeByCode(
+            $commandExecutor->executeByCode(
                 'paylink',
                 $payment,
                 [

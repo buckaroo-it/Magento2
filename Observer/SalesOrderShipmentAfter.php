@@ -215,7 +215,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 $invoice = $this->invoiceService->prepareInvoice($this->order);
                 $message = 'Automatically invoiced full order (can not invoice partials with discount)';
             } else {
-                $qtys = $this->getQtys($this->shipment);
+                $qtys = $this->getQtys();
                 $invoice = $this->invoiceService->prepareInvoice($this->order, $qtys);
                 $message = 'Automatically invoiced shipped items.';
             }
