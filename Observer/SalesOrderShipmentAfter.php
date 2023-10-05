@@ -259,7 +259,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
         return $invoice;
     }
 
-    public function createInvoiceGeneralSetting() {
+    /**
+     * Create invoice after shipment for all buckaroo payment methods
+     *
+     * @return bool
+     * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
+    public function createInvoiceGeneralSetting(): bool
+    {
         $this->logger->addDebug('[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
 
         if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
