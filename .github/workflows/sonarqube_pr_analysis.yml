@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - main
+      - master
       - feature/payment_provider_gateway
       - develop
       - 'releases/**'
