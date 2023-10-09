@@ -4,7 +4,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
 use Buckaroo\Magento2\Gateway\Validator\IssuerValidator;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
 use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Validator\ResultInterface;

@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 use Buckaroo\Magento2\Api\ArticleHandlerInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderMethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
 use Buckaroo\Magento2\Service\PayReminderService;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Catalog\Model\Product\Type;

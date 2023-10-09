@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface as BuckarooConfigProviderInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Phrase;
 
@@ -64,7 +65,11 @@ class Factory
             throw new \LogicException('ConfigProvider adapter is not set.');
         }
 
-        $providerType = str_replace('buckaroo_magento2_', '', $providerType);
+        $isPaymentMethod = false;
+        if (strpos($providerType, 'buckaroo_magento2_') !== false) {
+            $providerType = str_replace('buckaroo_magento2_', '', $providerType);
+            $isPaymentMethod = true;
+        }
 
         foreach ($this->configProviders as $configProviderMetaData) {
             $configProviderType = $configProviderMetaData['type'];
@@ -83,7 +88,15 @@ class Factory
             );
         }
 
-        return $this->objectManager->get($configProviderClass);
+        $configProvider = $this->objectManager->get($configProviderClass);
+        if ($isPaymentMethod && !$configProvider instanceof BuckarooConfigProviderInterface) {
+            throw new \LogicException(
+                'The ConfigProvider must implement ' .
+                '"Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface".'
+            );
+        }
+
+        return $configProvider;
     }
 
     /**
@@ -98,6 +111,8 @@ class Factory
         if (empty($this->configProviders)) {
             throw new \LogicException('ConfigProvider adapter is not set.');
         }
+
+        $providerType = str_replace('buckaroo_magento2_', '', $providerType);
 
         foreach ($this->configProviders as $configProviderMetaData) {
             $configProviderType = $configProviderMetaData['type'];

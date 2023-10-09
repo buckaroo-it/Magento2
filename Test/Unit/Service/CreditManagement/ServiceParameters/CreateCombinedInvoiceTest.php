@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Service\CreditManagement\ServiceParameters
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Payment;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters\CreateCombinedInvoice;
 use Buckaroo\Magento2\Test\BaseTest;

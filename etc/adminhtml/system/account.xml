@@ -50,7 +50,7 @@
             <config_path>buckaroo_magento2/account/secret_key</config_path>
         </field>
 
-        <field id="credentials_checker" translate="label comment" type="button" sortOrder="32" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="credentials_checker" translate="label comment" type="button" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
             <frontend_model>Buckaroo\Magento2\Block\Adminhtml\System\Config\CredentialsChecker</frontend_model>
             <depends>
                 <field id="active" separator=",">1,2</field>
@@ -65,11 +65,15 @@
             <config_path>buckaroo_magento2/account/transaction_label</config_path>
         </field>
 
-        
+        <field id="invoice_handling" translate="label comment tooltip" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label><![CDATA[Invoice Handling]]></label>
+            <comment><![CDATA[Select the moment when the invoice should be created.]]></comment>
+            <tooltip><![CDATA[Select the moment when the invoice should be created.]]></tooltip>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions</source_model>
+            <config_path>buckaroo_magento2/account/invoice_handling</config_path>
+        </field>
 
-       
-
-        <group id="buckaroo_magento2_refund_section" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+        <group id="buckaroo_magento2_refund_section" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
             <label>Refunding</label>
             <fieldset_css>buckaroo_magento2-section</fieldset_css>
 

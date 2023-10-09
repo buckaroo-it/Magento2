@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies as ConfigAllowedCurrencies;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Framework\Locale\Bundle\CurrencyBundle;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\Locale\TranslatedLists;

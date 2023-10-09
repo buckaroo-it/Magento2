@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Checkout\Model\PaymentDetailsFactory;
 use Magento\Checkout\Model\PaymentInformationManagement as MagentoPaymentInformationManagement;

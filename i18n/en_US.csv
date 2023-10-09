@@ -15,6 +15,11 @@
 "Email:","E-mail:"
 "Telephone:","Phone number:"
 "Date of Birth:","Date of birth:"
+"Invoice handling","Invoice handling"
+"Create Invoice on Payment","Create Invoice on Payment"
+"Create Invoice on Shipment","Create Invoice on Shipment"
+"Select the moment when the invoice should be created.","Select the moment when the invoice should be created."
+
 "Consumer Iban","Customer IBAN"
 "Consumer Name","Customer Account Holder Name"
 "Customer Account Name","Customer Account Holder Name"
